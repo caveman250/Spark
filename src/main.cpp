@@ -1,29 +1,13 @@
 #define UNICODE 1
-#include <iostream>
-#include <windows.h>
 #include <stdio.h>
 
 #include "engine/logging/Log.h"
-#include "engine/math/Vec3.h"
 #include "engine/memory/Arena.h"
-#include "engine/memory/ArenaAllocator.h"
 #include "engine/render/opengl/GL_fwd.h"
 
-
-#include "engine/render/RenderCommand.h"
 #include "engine/render/Renderer.h"
 #include "engine/shader/ShaderGenerator.h"
-#include "engine/shader/ast/AssignmentNode.h"
-#include "engine/shader/ast/ASTNode.h"
-#include "engine/shader/ast/ConstantNode.h"
-#include "engine/shader/ast/EndOfExpressionNode.h"
-#include "engine/shader/ast/InputAttributeNode.h"
-#include "engine/shader/ast/MainNode.h"
-#include "engine/shader/ast/OutputNode.h"
-#include "engine/shader/ast/PropertyAccessNode.h"
 #include "engine/shader/ast/ShaderStage.h"
-#include "engine/shader/ast/VariableReferenceNode.h"
-#include "engine/shader/ast/VertexPositionOutputNode.h"
 #include "engine/shader/parser/Lexer.h"
 #include "engine/shader/parser/Parser.h"
 #include "platform/IRunLoop.h"
@@ -36,27 +20,33 @@ int main(int argc, char *argv[])
     se::IRunLoop* runLoop = se::IRunLoop::CreatePlatformRunloop({ window });
     auto renderer = se::render::Renderer::Create();
 
-    se::shader::parser::Lexer lexer("../builtin_assets/shader.vert");
-    se::shader::parser::Parser parser(lexer);
-    auto result = parser.Parse();
-    if (std::holds_alternative<se::shader::parser::ParseError>(result))
+    std::string vert;
     {
-        auto parseError = std::get<se::shader::parser::ParseError>(result);
-        se::logging::Log::Error("Shader Compile Error - %s - line:%u pos:%u: %s", "shader.vert", parseError.line, parseError.pos, parseError.error.c_str());
-        return -1;
+        se::shader::parser::Lexer lexer("../builtin_assets/shader.vert");
+        se::shader::parser::Parser parser(lexer);
+        auto result = parser.Parse();
+        if (std::holds_alternative<se::shader::parser::ParseError>(result))
+        {
+            auto parseError = std::get<se::shader::parser::ParseError>(result);
+            se::logging::Log::Error("Shader Compile Error - %s - line:%u pos:%u: %s", "shader.vert", parseError.line, parseError.pos, parseError.error.c_str());
+            return -1;
+        }
+        vert = se::shader::ShaderGenerator::AstToGlsl(std::get<se::shader::ast::ShaderStage>(result));
     }
-    std::string vert = se::shader::ShaderGenerator::AstToGlsl(std::get<se::shader::ast::ShaderStage>(result));
 
-    se::shader::parser::Lexer lexerFrag("../builtin_assets/shader.frag");
-    se::shader::parser::Parser parserFrag(lexerFrag);
-    result = parserFrag.Parse();
-    if (std::holds_alternative<se::shader::parser::ParseError>(result))
+    std::string frag;
     {
-        auto parseError = std::get<se::shader::parser::ParseError>(result);
-        se::logging::Log::Error("Shader Compile Error - %s - line:%u pos:%u: %s", "shader.frag", parseError.line, parseError.pos, parseError.error.c_str());
-        return -1;
+        se::shader::parser::Lexer lexerFrag("../builtin_assets/shader.frag");
+        se::shader::parser::Parser parserFrag(lexerFrag);
+        auto result = parserFrag.Parse();
+        if (std::holds_alternative<se::shader::parser::ParseError>(result))
+        {
+            auto parseError = std::get<se::shader::parser::ParseError>(result);
+            se::logging::Log::Error("Shader Compile Error - %s - line:%u pos:%u: %s", "shader.frag", parseError.line, parseError.pos, parseError.error.c_str());
+            return -1;
+        }
+        frag = se::shader::ShaderGenerator::AstToGlsl(std::get<se::shader::ast::ShaderStage>(result));
     }
-    std::string frag = se::shader::ShaderGenerator::AstToGlsl(std::get<se::shader::ast::ShaderStage>(result));
 
     GLuint VertexArrayID = {};
     glGenVertexArrays(1, &VertexArrayID);

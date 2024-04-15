@@ -114,7 +114,7 @@ namespace se::shader::parser
             return false;
         }
 
-        m_ShaderStage.AddNode(new ast::ConstantNode<math::Vec2>(math::Vec2(x, y)));
+        m_ShaderStage.AddNode(m_TempStorage.Alloc<ast::ConstantNode<math::Vec2>>(math::Vec2(x, y)));
 
         return true;
     }
@@ -160,7 +160,7 @@ namespace se::shader::parser
             return false;
         }
 
-        m_ShaderStage.AddNode(new ast::ConstantNode<math::Vec3>(math::Vec3(x, y, z)));
+        m_ShaderStage.AddNode(m_TempStorage.Alloc<ast::ConstantNode<math::Vec3>>(math::Vec3(x, y, z)));
 
         return true;
     }
@@ -217,7 +217,7 @@ namespace se::shader::parser
             return false;
         }
 
-        m_ShaderStage.AddNode(new ast::ConstantNode<math::Vec4>(math::Vec4(x, y, z, w)));
+        m_ShaderStage.AddNode(m_TempStorage.Alloc<ast::ConstantNode<math::Vec4>>(math::Vec4(x, y, z, w)));
 
         return true;
     }
@@ -267,7 +267,7 @@ namespace se::shader::parser
             return false;
         }
 
-        m_ShaderStage.AddNode(new ast::VariableReferenceNode(token.value, m_ShaderStage));
+        m_ShaderStage.AddNode(m_TempStorage.Alloc<ast::VariableReferenceNode>(token.value, m_ShaderStage));
 
         Token nextToken;
         if (!ExpectedGetAndConsume({TokenType::Syntax}, {"=", "."}, nextToken, outError))
@@ -277,7 +277,7 @@ namespace se::shader::parser
 
         if (nextToken.value == "=")
         {
-            m_ShaderStage.AddNode(new ast::AssignmentNode());
+            m_ShaderStage.AddNode(m_TempStorage.Alloc<ast::AssignmentNode>());
 
             if (!ExpectedGetAndConsume({
                                            TokenType::Identifier, TokenType::Builtin, TokenType::StringLiteral,
@@ -308,20 +308,20 @@ namespace se::shader::parser
                         outError = { nextToken.line, nextToken.pos, std::format("Undefined variable: {}", nextToken.value) };
                         return false;
                     }
-                    m_ShaderStage.AddNode(new ast::VariableReferenceNode(nextToken.value, m_ShaderStage));
+                    m_ShaderStage.AddNode(m_TempStorage.Alloc<ast::VariableReferenceNode>(nextToken.value, m_ShaderStage));
                     break;
                 case TokenType::NumericLiteral:
                     if (IsInteger(nextToken.value))
                     {
-                        m_ShaderStage.AddNode(new ast::ConstantNode<int>(std::stoi(nextToken.value)));
+                        m_ShaderStage.AddNode(m_TempStorage.Alloc<ast::ConstantNode<int>>(std::stoi(nextToken.value)));
                     }
                     else
                     {
-                        m_ShaderStage.AddNode(new ast::ConstantNode<float>(std::stof(nextToken.value)));
+                        m_ShaderStage.AddNode(m_TempStorage.Alloc<ast::ConstantNode<float>>(std::stof(nextToken.value)));
                     }
                     break;
                 case TokenType::StringLiteral:
-                    m_ShaderStage.AddNode(new ast::ConstantNode(nextToken.value));
+                    m_ShaderStage.AddNode(m_TempStorage.Alloc<ast::ConstantNode<std::string>>(nextToken.value));
                     break;
                 default:
                     SPARK_ASSERT(false);
@@ -333,7 +333,7 @@ namespace se::shader::parser
                 return false;
             }
 
-            m_ShaderStage.AddNode(new ast::EndOfExpressionNode());
+            m_ShaderStage.AddNode(m_TempStorage.Alloc<ast::EndOfExpressionNode>());
             return true;
         }
 
@@ -434,11 +434,11 @@ namespace se::shader::parser
 
         if (in)
         {
-            m_ShaderStage.AddInput(new ast::InputAttributeNode(location, type, name));
+            m_ShaderStage.AddInput(m_TempStorage.Alloc<ast::InputAttributeNode>(location, type, name));
         }
         else
         {
-            m_ShaderStage.AddOutput(new ast::OutputNode(type, name));
+            m_ShaderStage.AddOutput(m_TempStorage.Alloc<ast::OutputNode>(type, name));
         }
 
         return true;
@@ -470,7 +470,7 @@ namespace se::shader::parser
             return false;
         }
 
-        m_ShaderStage.AddOutput(new ast::OutputNode(type, nameToken.value));
+        m_ShaderStage.AddOutput(m_TempStorage.Alloc<ast::OutputNode>(type, nameToken.value));
         return true;
     }
 
@@ -519,7 +519,7 @@ namespace se::shader::parser
 
                 if (isMain)
                 {
-                    auto main = new ast::MainNode();
+                    auto main = m_TempStorage.Alloc<ast::MainNode>();
                     m_ShaderStage.AddNode(main);
                     m_ShaderStage.PushScope(main);
                 }
@@ -593,7 +593,7 @@ namespace se::shader::parser
             return false;
         }
 
-        m_ShaderStage.AddNode(new ast::VertexPositionOutputNode());
+        m_ShaderStage.AddNode(m_TempStorage.Alloc<ast::VertexPositionOutputNode>());
         ast::Type allowedWriteType = ast::Type::Vec4;
         if (op.value == ".")
         {
@@ -604,7 +604,7 @@ namespace se::shader::parser
                 return false;
             }
 
-            m_ShaderStage.AddNode(new ast::PropertyAccessNode(propertyName.value));
+            m_ShaderStage.AddNode(m_TempStorage.Alloc<ast::PropertyAccessNode>(propertyName.value));
             if (propertyName.value == "xyz")
             {
                 allowedWriteType = ast::Type::Vec3;
@@ -642,7 +642,7 @@ namespace se::shader::parser
             return false;
         }
 
-        m_ShaderStage.AddNode(new ast::AssignmentNode());
+        m_ShaderStage.AddNode(m_TempStorage.Alloc<ast::AssignmentNode>());
 
         Token assignmentValue;
         if (!ExpectedGetAndConsume({TokenType::Identifier, TokenType::Builtin, TokenType::NumericLiteral}, {},
@@ -655,13 +655,13 @@ namespace se::shader::parser
         {
             case TokenType::Identifier:
             {
-                m_ShaderStage.AddNode(new ast::VariableReferenceNode(assignmentValue.value, m_ShaderStage));
+                m_ShaderStage.AddNode(m_TempStorage.Alloc<ast::VariableReferenceNode>(assignmentValue.value, m_ShaderStage));
                 if (!ExpectAndConsume({TokenType::Syntax}, {";"}, outError))
                 {
                     return false;
                 }
 
-                m_ShaderStage.AddNode(new ast::EndOfExpressionNode());
+                m_ShaderStage.AddNode(m_TempStorage.Alloc<ast::EndOfExpressionNode>());
                 break;
             }
             case TokenType::NumericLiteral:
@@ -685,14 +685,14 @@ namespace se::shader::parser
                             outError = { assignmentValue.line, assignmentValue.pos, std::format("Unexpected Token: {}", assignmentValue.value) };
                             return false;
                         }
-                        m_ShaderStage.AddNode(new ast::ConstantNode<float>(std::stof(assignmentValue.value)));
+                        m_ShaderStage.AddNode(m_TempStorage.Alloc<ast::ConstantNode<float>>(std::stof(assignmentValue.value)));
 
                         if (!ExpectAndConsume({TokenType::Syntax}, {";"}, outError))
                         {
                             return false;
                         }
 
-                        m_ShaderStage.AddNode(new ast::EndOfExpressionNode());
+                        m_ShaderStage.AddNode(m_TempStorage.Alloc<ast::EndOfExpressionNode>());
 
                         break;
                     }

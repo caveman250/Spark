@@ -1,5 +1,6 @@
 #pragma once
 #include "Lexer.h"
+#include "engine/memory/Arena.h"
 #include "engine/shader/ast/ShaderStage.h"
 
 namespace se::shader::parser
@@ -43,5 +44,6 @@ namespace se::shader::parser
 
         ast::ShaderStage m_ShaderStage;
         Lexer m_Lexer;
+        memory::Arena m_TempStorage = {};
     };
 }

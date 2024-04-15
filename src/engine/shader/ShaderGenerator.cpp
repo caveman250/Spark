@@ -8,10 +8,10 @@
 
 std::string se::shader::ShaderGenerator::AstToGlsl(const ast::ShaderStage& ast)
 {
-    memory::Arena arena(65535);
+    memory::Arena arena;
     memory::ArenaAllocator<char> alloc(arena);
     string::ArenaString shader(alloc);
-    shader.append("#version 330 core\n");
+    shader.append("#version 330 core\n"); //TODO this is old right?
 
     for (const auto& [name, node] : ast.GetInputAttributes())
     {

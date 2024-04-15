@@ -13,7 +13,7 @@ namespace se::memory
 
 
     template <typename T>
-    struct ObjectRecordTemplated : public ObjectRecord
+    struct ObjectRecordTemplated : ObjectRecord
     {
         void Release(void* obj) override
         {
@@ -27,7 +27,7 @@ namespace se::memory
     class Arena
     {
     public:
-        Arena(size_t capacity);
+        Arena(size_t capacity = 65535);
         ~Arena();
         template <typename T, typename... Args>
         T* Alloc(Args &&... args);
