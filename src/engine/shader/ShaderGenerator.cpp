@@ -8,7 +8,7 @@
 
 std::string se::shader::ShaderGenerator::AstToGlsl(const ast::ShaderStage& ast)
 {
-    memory::Arena<char> arena(65535);
+    memory::Arena arena(65535);
     memory::ArenaAllocator<char> alloc(arena);
     string::ArenaString shader(alloc);
     shader.append("#version 330 core\n");

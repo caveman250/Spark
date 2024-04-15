@@ -1,12 +1,6 @@
 #pragma once
 #include "engine/string/ArenaString.h"
 
-namespace se::memory
-{
-    template <typename T>
-    class Arena;
-}
-
 namespace se::shader::ast
 {
     class ASTNode

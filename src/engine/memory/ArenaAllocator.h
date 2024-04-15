@@ -15,7 +15,7 @@ namespace se::memory
         typedef std::size_t size_type;
         typedef std::ptrdiff_t difference_type;
 
-        Arena<T>* m_Arena = nullptr;
+        Arena* m_Arena = nullptr;
 
         template <class U>
         struct rebind
@@ -23,7 +23,7 @@ namespace se::memory
             typedef ArenaAllocator<U> other;
         };
 
-        explicit ArenaAllocator(Arena<T>& arena)
+        explicit ArenaAllocator(Arena& arena)
         {
             m_Arena = &arena;
         }
@@ -35,7 +35,7 @@ namespace se::memory
         template <typename U>
         ArenaAllocator(const ArenaAllocator<U>& rhs)
         {
-            m_Arena = (Arena<T>*)rhs.m_Arena;
+            m_Arena = (Arena*)rhs.m_Arena;
         }
 
         pointer address(reference r)
@@ -50,7 +50,7 @@ namespace se::memory
 
         pointer allocate(size_type cnt)
         {
-            return m_Arena->Alloc(cnt);
+            return m_Arena->Alloc<T>(cnt);
         }
 
         void construct(pointer p, const T& val)
