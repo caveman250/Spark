@@ -28,10 +28,10 @@ if(CMAKE_BUILD_TYPE MATCHES Release)
     add_definitions(-DSPARK_DIST=1)
 endif()
 
-find_package(OpenGL REQUIRED)
-
 include_directories(src)
+include_directories(third_party/glew-2.1.0/include)
 
+link_directories(third_party/glew-2.1.0/lib/Release/x64/)
 
 file(GLOB PLATFORM_SHARED_CODE src/platform/*.cpp src/platform/*.h)
 if (${PLATFORM} MATCHES Windows)
@@ -39,12 +39,12 @@ if (${PLATFORM} MATCHES Windows)
 endif()
 file(GLOB_RECURSE ENGINE_CODE src/engine/*.cpp src/engine/*.h)
 
-message(STATUS ${PLATFORM_SHARED_CODE})
-message(STATUS ${PLATFORM_CODE})
-message(STATUS ${ENGINE_CODE})
-
 add_executable(Spark ${PLATFORM_SHARED_CODE} ${PLATFORM_CODE} ${ENGINE_CODE} src/main.cpp)
 
 target_precompile_headers(Spark PUBLIC "src/spark.h")
 
-target_link_libraries(Spark ${OPENGL_LIBRARY})
+target_link_libraries(Spark glew32s opengl32)
+
+if (WIN32)
+    target_link_libraries(Spark Dwmapi)
+endif()

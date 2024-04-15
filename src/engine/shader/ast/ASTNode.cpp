@@ -1,6 +1,5 @@
-
-
 #include "ASTNode.h"
 
-namespace se {
-} // se
+namespace se::shader::ast
+{
+}

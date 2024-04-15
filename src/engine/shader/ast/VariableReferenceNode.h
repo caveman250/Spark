@@ -3,16 +3,26 @@
 
 namespace se::shader::ast
 {
+    class ShaderStage;
+}
+
+namespace se::shader::ast
+{
+    class InputAttributeNode;
+}
+
+namespace se::shader::ast
+{
     enum class Type;
 }
 
 namespace se::shader::ast
 {
-    class VariableNode : public ASTNode
+    class VariableReferenceNode : public ASTNode
     {
     public:
-        VariableNode(Type type);
-        std::string ToGlsl() const override;
+        VariableReferenceNode(const std::string& name, const ShaderStage& shaderStageAst);
+        void ToGlsl(string::ArenaString& outShader) const override;
 
         Type GetType() { return m_Type; }
         const std::string& GetName() { return m_Name; }

@@ -1,6 +1,9 @@
-
-
 #include "VertexPositionOutputNode.h"
 
-namespace se {
-} // se
+namespace se::shader::ast
+{
+    void VertexPositionOutputNode::ToGlsl(string::ArenaString& outShader) const
+    {
+        outShader += "gl_Position";
+    }
+}

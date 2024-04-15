@@ -1,6 +1,6 @@
 #pragma once
 
-namespace se
+namespace se::logging
 {
     enum class LogLevel;
     class Log

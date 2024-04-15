@@ -1,6 +1,6 @@
-
-
 #include "Shader.h"
 
-namespace se {
-} // se
+namespace se::render::opengl
+{
+
+}

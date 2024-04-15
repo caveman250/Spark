@@ -3,10 +3,18 @@
 #include <stdio.h>
 #include <vector>
 #include <functional>
+#include <string>
+#include <ios>
+#include <fstream>
+#include <sstream>
+#include <format>
+#include <map>
+#include <array>
 
 #if SPARK_PLATFORM_WINDOWS
 #include <windows.h>
 #include <crtdbg.h>
+#include <dwmapi.h>
 #endif
 
 #if SPARK_RELEASE

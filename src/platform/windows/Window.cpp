@@ -4,9 +4,13 @@
 
 #include <unordered_map>
 
-#include "windows.h"
+
 #include "engine/logging/Log.h"
 #include "platform/IRunLoop.h"
+
+#ifndef DWMWA_USE_IMMERSIVE_DARK_MODE
+#define DWMWA_USE_IMMERSIVE_DARK_MODE 20
+#endif
 
 namespace se
 {
@@ -33,6 +37,10 @@ namespace se::windows
             classRegistered = true;
         }
         CreateWindowsWindow(hInstance);
+
+        BOOL value = TRUE;
+        ::DwmSetWindowAttribute(GetHWND(), DWMWA_USE_IMMERSIVE_DARK_MODE, &value, sizeof(value));
+
         s_WindowInstances[GetHWND()] = this;
         CreateContext();
 
@@ -119,7 +127,7 @@ namespace se::windows
 
         if (!RegisterClassExW(&wcex))
         {
-            Log::Fatal("RegisterClassExW failed: Can not register window class.");
+            logging::Log::Fatal("RegisterClassExW failed: Can not register window class.");
         }
     }
 
@@ -135,11 +143,11 @@ namespace se::windows
             Hwnd = CreateWindowW(windowClass, title, style, 0, 0, SizeX, SizeY, nullptr, nullptr, instance, nullptr);
             if (!Hwnd)
             {
-                Log::Fatal("CreateWindowW failed: Can not create window.");
+                logging::Log::Fatal("CreateWindowW failed: Can not create window.");
             }
         } else
         {
-            Log::Fatal("AdjustWindowRect failed: Can not create window.");
+            logging::Log::Fatal("AdjustWindowRect failed: Can not create window.");
         }
     }
 
@@ -169,19 +177,19 @@ namespace se::windows
                     Gglrc = wglCreateContext(Hdc);
                     if (!Gglrc)
                     {
-                        Log::Fatal("wglCreateContext failed: Can not create render context.");
+                        logging::Log::Fatal("wglCreateContext failed: Can not create render context.");
                     }
                 } else
                 {
-                    Log::Fatal("SetPixelFormat failed: Can not create render context.");
+                    logging::Log::Fatal("SetPixelFormat failed: Can not create render context.");
                 }
             } else
             {
-                Log::Fatal("ChoosePixelFormat failed: Can not create render context.");
+                logging::Log::Fatal("ChoosePixelFormat failed: Can not create render context.");
             }
         } else
         {
-            Log::Fatal("GetDC failed: Can not create device context.");
+            logging::Log::Fatal("GetDC failed: Can not create device context.");
         }
     }
 }

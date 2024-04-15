@@ -1,11 +1,10 @@
-
-
 #pragma once
+#include "ASTNode.h"
 
-namespace se {
-
-class VertexPositionOutputNode {
-
-};
-
-} // se
+namespace se::shader::ast
+{
+    class VertexPositionOutputNode : public ASTNode
+    {
+        void ToGlsl(string::ArenaString& outShader) const override;
+    };
+}

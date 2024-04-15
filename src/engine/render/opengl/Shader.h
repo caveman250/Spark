@@ -1,11 +1,12 @@
-
-
 #pragma once
 
-namespace se {
+#include "engine/render/Shader.h"
+#include "GL_fwd.h"
 
-class Shader {
-
-};
-
-} // se
+namespace se::render::opengl
+{
+    class Shader : public render::Shader
+    {
+        GLuint programId;
+    };
+}

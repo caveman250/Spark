@@ -5,6 +5,8 @@ namespace se::render::opengl
 {
     class OpenGLRenderer : public Renderer
     {
+    public:
+        OpenGLRenderer();
         void Render(IWindow* window) override;
     };
 }

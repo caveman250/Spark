@@ -2,6 +2,7 @@
 
 #include "ASTNode.h"
 #include "InputAttributeNode.h"
+#include "MainNode.h"
 #include "OutputNode.h"
 #include "engine/logging/Log.h"
 
@@ -25,9 +26,19 @@ namespace se::shader::ast
 
     void ShaderStage::AddNode(ASTNode* node)
     {
-        if (!m_CurrentScope.empty())
+        if (dynamic_cast<MainNode*>(node))
         {
-            m_CurrentScope.back().m_Node->Children.push_back(node);
+            if (!SPARK_VERIFY(m_ScopeStack.empty()))
+            {
+                logging::Log::Error("ShaderStage::AddNode - Main declared within another scope.");
+            }
+
+            m_MainDeclared = true;
+        }
+
+        if (!m_ScopeStack.empty())
+        {
+            m_ScopeStack.back().m_Node->Children.push_back(node);
         }
         else
         {
@@ -37,21 +48,50 @@ namespace se::shader::ast
 
     void ShaderStage::PushScope(ASTNode* node)
     {
-        m_CurrentScope.push_back(AstScope(node));
+        m_ScopeStack.push_back(AstScope(node));
     }
 
     void ShaderStage::PopScope()
     {
-        if (SPARK_VERIFY(!m_CurrentScope.empty()))
+        if (SPARK_VERIFY(!m_ScopeStack.empty()))
         {
-            m_CurrentScope.pop_back();
+            m_ScopeStack.pop_back();
         }
     }
 
-    ASTNode* ShaderStage::FindInput(const std::string& name) const
+    bool ShaderStage::IsMainCurrentScope()
     {
-        //todo current scope
+        return m_ScopeStack.size() == 1 && dynamic_cast<MainNode*>(m_ScopeStack[0].m_Node) != nullptr;
+    }
 
+    bool ShaderStage::FindVariable(const std::string& name, Type& type) const
+    {
+        for (int i = m_ScopeStack.size() - 1; i > -1; --i)
+        {
+            if (m_ScopeStack[i].m_Variables.contains(name))
+            {
+                type = m_ScopeStack[i].m_Variables.at(name);
+                return true;
+            }
+        }
+
+        if (InputAttributeNode* input = FindInputAttribute(name))
+        {
+            type = input->GetType();
+            return true;
+        }
+
+        if (OutputNode* output = FindOutput(name))
+        {
+            type = output->GetType();
+            return true;
+        }
+
+        return false;
+    }
+
+    InputAttributeNode* ShaderStage::FindInputAttribute(const std::string& name) const
+    {
         if (m_InputAttributes.contains(name))
         {
             return m_InputAttributes.at(name);
@@ -60,7 +100,7 @@ namespace se::shader::ast
         return nullptr;
     }
 
-    ASTNode* ShaderStage::FindOutput(const std::string& name) const
+    OutputNode* ShaderStage::FindOutput(const std::string& name) const
     {
         if (m_Outputs.contains(name))
         {

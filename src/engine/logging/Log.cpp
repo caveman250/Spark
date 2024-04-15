@@ -10,7 +10,7 @@
 
 #define END_COLOUR printf("\033[0m\n");
 
-namespace se
+namespace se::logging
 {
 	void Log::LogInternal(LogLevel level, const char* fmt, ...)
 	{

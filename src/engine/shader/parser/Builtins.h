@@ -1,9 +1,14 @@
-
-
 #pragma once
 
+#include "spark.h"
 
-
-class Builtins {
-
-};
+namespace se::shader::parser
+{
+    class Builtins
+    {
+    public:
+        static bool IsBuiltin(const std::string& str);
+    private:
+        static std::array<std::string, 14> s_Builtins;
+    };
+}

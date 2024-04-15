@@ -1,11 +1,8 @@
-
-
 #pragma once
 
-namespace se {
-
-class Shader {
-
-};
-
-} // se
+namespace se::render
+{
+    class Shader
+    {
+    };
+}

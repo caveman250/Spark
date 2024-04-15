@@ -1,11 +1,24 @@
-
-
 #pragma once
 
-namespace se {
+namespace se::shader::parser
+{
+    enum class TokenType
+    {
+        Builtin,
+        Identifier,
+        NumericLiteral,
+        StringLiteral,
+        Syntax,
+    };
 
-class Token {
+    std::string TokenTypeToString(TokenType token);
+    bool IsSyntax(char c);
 
-};
-
-} // se
+    struct Token
+    {
+        TokenType type;
+        std::string value;
+        uint32_t line;
+        uint32_t pos;
+    };
+}
