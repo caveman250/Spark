@@ -21,5 +21,7 @@ namespace se::render::opengl
         {
             renderCmd.command();
         }
+
+        glFlush();
     }
 }

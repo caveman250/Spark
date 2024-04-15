@@ -10,9 +10,11 @@ namespace se::windows
     public:
         WindowsRunLoop(std::vector<IWindow*> windows);
         void Tick() override;
+        bool ShouldExit() override;
         void RegisterWindow(IWindow *window) override;
         void UnregisterWindow(IWindow *window) override;
     private:
-       std::vector<Window*> m_Windows;
+        std::vector<Window*> m_Windows;
+        bool m_ShouldExit = false;
     };
 }

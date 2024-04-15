@@ -4,7 +4,6 @@
 
 #include <unordered_map>
 
-
 #include "engine/logging/Log.h"
 #include "platform/IRunLoop.h"
 
@@ -81,7 +80,6 @@ namespace se::windows
     {
         Window* window = s_WindowInstances[hWnd];
 
-        LRESULT result = 0;
         switch (message)
         {
             case WM_PAINT:
@@ -98,10 +96,6 @@ namespace se::windows
                 DestroyWindow(hWnd);
                 s_WindowInstances.erase(hWnd);
                 delete window;
-                if (s_WindowInstances.empty())
-                {
-                    PostQuitMessage(0);
-                }
                 break;
         }
         return DefWindowProc(hWnd, message, wParam, lParam);;

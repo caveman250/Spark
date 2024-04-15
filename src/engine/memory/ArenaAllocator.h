@@ -35,7 +35,7 @@ namespace se::memory
         template <typename U>
         ArenaAllocator(const ArenaAllocator<U>& rhs)
         {
-            m_Arena = (Arena*)rhs.m_Arena;
+            m_Arena = rhs.m_Arena;
         }
 
         pointer address(reference r)
@@ -55,12 +55,12 @@ namespace se::memory
 
         void construct(pointer p, const T& val)
         {
-            new(static_cast<void*>(p)) T(val);
+            new(p) T(val);
         }
 
         void construct(pointer p)
         {
-            new(static_cast<void*>(p)) T();
+            new(p) T();
         }
 
         void destroy(pointer p)
@@ -68,13 +68,12 @@ namespace se::memory
             p->~T();
         }
 
-        inline void deallocate(pointer p, size_type cnt)
+        void deallocate(pointer p, size_type cnt)
         {
-            int lol =1;
             // empty
         }
 
-        inline bool operator==(ArenaAllocator const& a) { return this == &a; }
-        inline bool operator!=(ArenaAllocator const& a) { return !operator==(a); }
+        bool operator==(ArenaAllocator const& a) { return this == &a; }
+        bool operator!=(ArenaAllocator const& a) { return !operator==(a); }
     };
 }

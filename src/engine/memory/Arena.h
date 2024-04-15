@@ -19,7 +19,7 @@ namespace se::memory
         {
             for (int i = 0; i < objects_count; ++i)
             {
-                ((T*)obj + i)->~T();
+                (static_cast<T*>(obj) + i)->~T();
             }
         }
     };

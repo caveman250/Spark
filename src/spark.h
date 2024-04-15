@@ -10,6 +10,9 @@
 #include <format>
 #include <map>
 #include <array>
+#include <optional>
+
+#include "engine/math/math.h"
 
 #if SPARK_PLATFORM_WINDOWS
 #include <windows.h>

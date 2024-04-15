@@ -48,6 +48,11 @@ namespace se::windows
         render::Renderer::Get()->EndFrame();
     }
 
+    bool WindowsRunLoop::ShouldExit()
+    {
+        return m_ShouldExit;
+    }
+
     void WindowsRunLoop::RegisterWindow(IWindow* window)
     {
         Window* platformWindow = dynamic_cast<Window*>(window);
@@ -58,5 +63,9 @@ namespace se::windows
     void WindowsRunLoop::UnregisterWindow(IWindow* window)
     {
         std::erase(m_Windows, window);
+        if (m_Windows.empty())
+        {
+            m_ShouldExit = true;
+        }
     }
 }
