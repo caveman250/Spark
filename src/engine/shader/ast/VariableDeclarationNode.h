@@ -1,27 +1,13 @@
 #pragma once
 #include "ASTNode.h"
+#include "Types.h"
 
 namespace se::shader::ast
 {
-    class ShaderStage;
-}
-
-namespace se::shader::ast
-{
-    class InputAttributeNode;
-}
-
-namespace se::shader::ast
-{
-    enum class Type;
-}
-
-namespace se::shader::ast
-{
-    class VariableReferenceNode : public ASTNode
+    class VariableDeclarationNode : public ASTNode
     {
     public:
-        VariableReferenceNode(const std::string& name, const ShaderStage& shaderStageAst);
+        VariableDeclarationNode(const std::string& name, Type type);
         void ToGlsl(string::ArenaString& outShader) const override;
 
         void CollectUsedNames(std::map<std::string, std::string> &nameMap) const override;

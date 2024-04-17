@@ -11,7 +11,7 @@ namespace se::shader
     class ShaderGenerator
     {
     public:
-        static std::optional<std::string> CompileShader(const std::string& filePath);
-        static std::string AstToGlsl(const ast::ShaderStage& ast);
+        static std::optional<std::string> CompileShader(const std::vector<std::string>& filePaths);
+        static std::string AstToGlsl(ast::ShaderStage& ast);
     };
 }

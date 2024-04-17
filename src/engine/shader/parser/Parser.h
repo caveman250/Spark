@@ -15,7 +15,7 @@ namespace se::shader::parser
     class Parser
     {
     public:
-        Parser(Lexer  lexer);
+        Parser(Lexer lexer, memory::Arena* arena);
         std::variant<ast::ShaderStage, ParseError> Parse();
     private:
         bool ProcessVec2(const Token & token, ParseError& error);
@@ -28,8 +28,9 @@ namespace se::shader::parser
         bool ProcessTopLevelStringLiteral(const Token& token, ParseError& outError);
 
         bool ProcessSyntax(const Token& token, ParseError& outError);
-        bool ProcessLayoutDeclaration(const Token& token, ParseError& outError);
-        bool ProcessOutputDeclaration(const Token& token, ParseError& outError);
+        bool ProcessPortDeclaration(const Token& token, ParseError& outError);
+        bool ProcessAssignment(const Token& token, ast::Type expectedType, ParseError& outError);
+        bool ProcessVariableDeclaration(const Token & token, ParseError & parse_error);
         bool ProcessFunctionDeclaration(const Token& token, ParseError& outError);
         bool ProcessFunctionArguments(const Token& token, ParseError& outError);
         bool ProcessEndOfFunctionDeclaration(const Token& token, ParseError& outError);
@@ -44,6 +45,6 @@ namespace se::shader::parser
 
         ast::ShaderStage m_ShaderStage;
         Lexer m_Lexer;
-        memory::Arena m_TempStorage = {};
+        memory::Arena* m_TempStorage = nullptr;
     };
 }

@@ -25,12 +25,12 @@ namespace se::render::opengl
 
     void Material::CreatePlatformResources()
     {
-        std::optional<std::string> vert = se::shader::ShaderGenerator::CompileShader(m_VertShaderPath);
-        std::optional<std::string> frag = se::shader::ShaderGenerator::CompileShader(m_FragShaderPath);
+        std::optional<std::string> vert = se::shader::ShaderGenerator::CompileShader({ m_VertShaderPath });
+        std::optional<std::string> frag = se::shader::ShaderGenerator::CompileShader( { m_FragShaderPath, "../builtin_assets/shader2.frag" });
 
         if (!vert.has_value() || !frag.has_value())
         {
-            logging::Log::Error("Failed to load shaders vert: %s, frag: %s", m_VertShaderPath, m_FragShaderPath);
+            logging::Log::Error("Failed to load shaders vert: {0}, frag: {1}", m_VertShaderPath.c_str(), m_FragShaderPath.c_str());
             return;
         }
 
@@ -64,7 +64,7 @@ namespace se::render::opengl
         {
             std::vector<char> FragmentShaderErrorMessage(InfoLogLength + 1);
             glGetShaderInfoLog(FragmentShaderID, InfoLogLength, NULL, &FragmentShaderErrorMessage[0]);
-            logging::Log::Error("%s", &FragmentShaderErrorMessage[0]);
+            logging::Log::Error("{0}", &FragmentShaderErrorMessage[0]);
         }
 
         m_CompiledProgram = glCreateProgram();
@@ -79,7 +79,7 @@ namespace se::render::opengl
         {
             std::vector<char> ProgramErrorMessage(InfoLogLength + 1);
             glGetProgramInfoLog(m_CompiledProgram, InfoLogLength, NULL, &ProgramErrorMessage[0]);
-            logging::Log::Error("%s", &ProgramErrorMessage[0]);
+            logging::Log::Error("{0}", &ProgramErrorMessage[0]);
         }
 
         glDetachShader(m_CompiledProgram, VertexShaderID);

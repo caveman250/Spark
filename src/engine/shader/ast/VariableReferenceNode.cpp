@@ -18,12 +18,30 @@ namespace se::shader::ast
         }
         else
         {
-            logging::Log::Error("ShaderCompiler: VariableReferenceNode cannot find variable with name %s", name);
+            logging::Log::Error("ShaderCompiler: VariableReferenceNode cannot find variable with name {0}", name);
         }
     }
 
     void VariableReferenceNode::ToGlsl(string::ArenaString& outShader) const
     {
         outShader += m_Name;
+    }
+
+    void VariableReferenceNode::CollectUsedNames(std::map<std::string, std::string> &nameMap) const
+    {
+        ASTNode::CollectUsedNames(nameMap);
+        if (!nameMap.contains(m_Name))
+        {
+            nameMap.insert({ m_Name, {} });
+        }
+    }
+
+    void VariableReferenceNode::ApplyNameRemapping(const std::map<std::string, std::string> &newNames)
+    {
+        ASTNode::ApplyNameRemapping(newNames);
+        if (newNames.contains(m_Name))
+        {
+            m_Name = newNames.at(m_Name);
+        }
     }
 }

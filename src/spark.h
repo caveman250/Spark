@@ -11,6 +11,7 @@
 #include <map>
 #include <array>
 #include <optional>
+#include <set>
 
 #include "engine/math/math.h"
 

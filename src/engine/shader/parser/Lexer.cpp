@@ -10,13 +10,13 @@ namespace se::shader::parser
         m_Code = io::FileSystem::ReadTextFile(filePath);
     }
 
-    std::variant<Token, std::string> Lexer::PeekToken()
+    std::variant<Token, std::string> Lexer::PeekToken(size_t offset)
     {
-        char c = PeekChar();
+        char c = PeekChar(offset);
         switch (c)
         {
             case '\"':
-                return ProcessStringLiteral();
+                return ProcessStringLiteral(offset);
             case '0':
             case '1':
             case '2':
@@ -27,10 +27,10 @@ namespace se::shader::parser
             case '7':
             case '8':
             case '9':
-                return ProcessNumericLiteral();
+                return ProcessNumericLiteral(offset);
             case ' ':
-                ConsumeWhitespace();
-                return PeekToken();
+                offset += ConsumeWhitespace(offset);
+                return PeekToken(offset);
             case '{':
             case '}':
             case '(':
@@ -48,7 +48,7 @@ namespace se::shader::parser
             case '+':
             case '-':
             case '*':
-                return ProcessComplexSyntax();
+                return ProcessComplexSyntax(offset);
             case 'a':
             case 'b':
             case 'c':
@@ -102,16 +102,42 @@ namespace se::shader::parser
             case 'Y':
             case 'Z':
             case '_':
-                return ProcessIdentifierOrBuiltin();
+                return ProcessIdentifierOrBuiltin(offset);
             case '\n':
                 m_CurrLine++;
                 m_CurrLinePosOffset = -(m_CharIdx + 1);
-                ConsumeChar();
-                return PeekToken();
+                if (offset == 0)
+                {
+                    ConsumeChar();
+                }
+                else
+                {
+                    offset++;
+                }
+                return PeekToken(offset);
             default:
                 SPARK_ASSERT(false);
                 return std::format("Unrecognized character: {}", c);
         }
+    }
+
+    std::variant<Token, std::string> Lexer::PeekTokenAt(size_t n)
+    {
+        size_t offset = 0;
+        for (size_t i = 0; i < n; ++i)
+        {
+            auto peek = PeekToken(offset);
+            if (std::holds_alternative<Token>(peek))
+            {
+                offset += std::get<Token>(peek).value.size();
+            }
+            else
+            {
+                return std::format("Found EOF while peeking {0} tokens", n);
+            }
+        }
+
+        return PeekToken(offset);
     }
 
     void Lexer::ConsumeToken()
@@ -153,16 +179,16 @@ namespace se::shader::parser
         m_CharIdx += n;
     }
 
-    std::variant<Token, std::string> Lexer::ProcessStringLiteral()
+    std::variant<Token, std::string> Lexer::ProcessStringLiteral(int offset)
     {
         std::string result = {};
-        int lookahead = 0;
+        int lookahead = offset;
         char c = PeekChar(lookahead);
 
         bool stringEnded = false;
         while (CanPeekChar(lookahead) && !stringEnded)
         {
-            stringEnded = c == '\"' && lookahead > 0;
+            stringEnded = c == '\"' && lookahead > offset;
             result += c;
             c = PeekChar(++lookahead);
         }
@@ -180,10 +206,10 @@ namespace se::shader::parser
         }
     }
 
-    std::variant<Token, std::string> Lexer::ProcessNumericLiteral()
+    std::variant<Token, std::string> Lexer::ProcessNumericLiteral(int offset)
     {
         std::string result = {};
-        int lookahead = 0;
+        int lookahead = offset;
         char c = {};
         bool numberEnded = false;
         while (CanPeekChar(lookahead) && !numberEnded)
@@ -207,18 +233,18 @@ namespace se::shader::parser
         }
     }
 
-    Token Lexer::ProcessComplexSyntax()
+    Token Lexer::ProcessComplexSyntax(int offset)
     {
         std::string result = {};
-        char c1 = PeekChar(0);
+        char c1 = PeekChar(offset);
         result += c1;
-        if (!CanPeekChar(1))
+        if (!CanPeekChar(offset + 1))
         {
             return Token{TokenType::Syntax, result, m_CurrLine,
                 static_cast<uint32_t>(m_CharIdx) + m_CurrLinePosOffset};
         }
 
-        char c2 = PeekChar(1);
+        char c2 = PeekChar(offset + 1);
         static std::map<char, char> s_AllowedPairs =
         {
             {'<', '='},
@@ -243,10 +269,10 @@ namespace se::shader::parser
                 static_cast<uint32_t>(m_CharIdx) + m_CurrLinePosOffset};
     }
 
-    std::variant<Token, std::string> Lexer::ProcessIdentifierOrBuiltin()
+    std::variant<Token, std::string> Lexer::ProcessIdentifierOrBuiltin(int offset)
     {
         std::string result = {};
-        int lookahead = 0;
+        int lookahead = offset;
         char c = PeekChar(lookahead);
 
         bool isBuiltin = false;
@@ -254,14 +280,16 @@ namespace se::shader::parser
         while (CanPeekChar(lookahead) && !termEnded)
         {
             termEnded = !std::isalnum(c) && c != '_';
-            if (!termEnded)
+            if (termEnded)
             {
-                result += c;
                 if (Builtins::IsBuiltin(result))
                 {
                     isBuiltin = true;
-                    termEnded = true;
                 }
+            }
+            else
+            {
+                result += c;
                 c = PeekChar(++lookahead);
             }
         }
@@ -285,16 +313,16 @@ namespace se::shader::parser
         }
     }
 
-    void Lexer::ConsumeWhitespace()
+    int Lexer::ConsumeWhitespace(int offset)
     {
+        bool canConsume  = offset == 0;
         std::string result = {};
-        int lookahead = 0;
-        char c = PeekChar(lookahead);
+        char c = PeekChar(offset);
 
         bool whitespaceEnded = false;
-        while (CanPeekChar(lookahead) && !whitespaceEnded)
+        while (CanPeekChar(offset) && !whitespaceEnded)
         {
-            c = PeekChar(lookahead++);
+            c = PeekChar(offset++);
             whitespaceEnded = !std::isspace(c);
             if (!whitespaceEnded)
             {
@@ -302,6 +330,14 @@ namespace se::shader::parser
             }
         }
 
-        ConsumeChar(result.size());
+        if (canConsume)
+        {
+            ConsumeChar(result.size());
+            return 0;
+        }
+        else
+        {
+            return result.size();
+        }
     }
 }

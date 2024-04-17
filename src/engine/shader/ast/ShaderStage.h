@@ -1,20 +1,16 @@
 #pragma once
+#include "InputPortNode.h"
 #include "spark.h"
 #include "Types.h"
+#include "engine/shader/parser/PortInfo.h"
 
 namespace se::shader::ast
 {
-    class OutputNode;
-}
-
-namespace se::shader::ast
-{
-
-}
-
-namespace se::shader::ast
-{
+    class MainNode;
     class InputAttributeNode;
+    class OutputNode;
+    class InputPortNode;
+    class OutputPortNode;
     class ASTNode;
 
     class AstScope
@@ -29,6 +25,10 @@ namespace se::shader::ast
     class ShaderStage
     {
     public:
+        void AddInputPort(InputPortNode* node);
+        void AddOutputPort(OutputPortNode* node);
+        void RemoveInputPort(const std::string& varName);
+        void RemoveOutputPort(const std::string& varName);
         void AddInput(InputAttributeNode* node);
         void AddOutput(OutputNode* node);
         void AddNode(ASTNode* node);
@@ -38,18 +38,36 @@ namespace se::shader::ast
         bool IsMainDeclared() { return m_MainDeclared; }
         bool IsMainCurrentScope();
 
+        std::pair<uint32_t, MainNode*> FindMain() const;
+
         bool FindVariable(const std::string& name, Type& type) const;
+        InputPortNode* FindInputPort(const std::string& name) const;
+        InputPortNode* FindInputPortByPortName(const std::string& portName) const;
+        OutputPortNode* FindOutputPort(const std::string& name) const;
+        OutputPortNode* FindOutputPortByPortName(const std::string& portName) const;
         InputAttributeNode* FindInputAttribute(const std::string& name) const;
         OutputNode* FindOutput(const std::string& name) const;
+        bool RecordVariableForScope(const std::string& name, const Type& type, std::string& outError);
 
         const std::map<std::string, InputAttributeNode*>& GetInputAttributes() const { return m_InputAttributes; }
         const std::map<std::string, OutputNode*>& GetOutputs() const { return m_Outputs; }
+        const std::map<std::string, InputPortNode*>& GetInputPorts() const { return m_InputPorts; }
+        const std::map<std::string, OutputPortNode*>& GetOutputPorts() const { return m_OutputPorts; }
         const std::vector<ASTNode*>& GetNodes() const { return m_AstNodes; }
+        void InsertNode(size_t at, ASTNode* node);
+        std::vector<AstScope>& GetScopeStack() { return m_ScopeStack; }
+        std::map<std::string, Type>& GetGlobalVariables() { return m_GlobalVariables; }
+
+
     private:
         bool m_MainDeclared = false;
+        std::map<std::string, InputPortNode*> m_InputPorts;
+        std::map<std::string, OutputPortNode*> m_OutputPorts;
         std::map<std::string, InputAttributeNode*> m_InputAttributes;
         std::map<std::string, OutputNode*> m_Outputs;
         std::vector<ASTNode*> m_AstNodes;
         std::vector<AstScope> m_ScopeStack;
+        std::map<std::string, Type> m_GlobalVariables;
+        parser::PortInfo m_PortInfo;
     };
 }

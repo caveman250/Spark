@@ -9,6 +9,6 @@ namespace se::shader::parser
     public:
         static bool IsBuiltin(const std::string& str);
     private:
-        static std::array<std::string, 14> s_Builtins;
+        static std::array<std::string, 15> s_Builtins;
     };
 }

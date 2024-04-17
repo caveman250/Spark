@@ -17,7 +17,7 @@ namespace se::io
         }
         else
         {
-            logging::Log::Error("Cannot open file %s!", path.c_str());
+            logging::Log::Error("Cannot open file {0}!", path.c_str());
         }
 
         return fileContents;
