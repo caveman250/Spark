@@ -15,6 +15,8 @@
 #include "engine/shader/ast/InputAttributeNode.h"
 #include "engine/shader/ast/InputPortNode.h"
 #include "engine/shader/ast/MainNode.h"
+#include "engine/shader/ast/OperatorNode.h"
+#include "engine/shader/ast/Operators.h"
 #include "engine/shader/ast/OutputNode.h"
 #include "engine/shader/ast/OutputPortNode.h"
 #include "engine/shader/ast/PropertyAccessNode.h"
@@ -22,6 +24,9 @@
 #include "engine/shader/ast/TypeUtil.h"
 #include "engine/shader/ast/VariableDeclarationNode.h"
 #include "engine/shader/ast/VariableReferenceNode.h"
+#include "engine/shader/ast/Vec2Node.h"
+#include "engine/shader/ast/Vec3Node.h"
+#include "engine/shader/ast/Vec4Node.h"
 #include "engine/shader/ast/VertexPositionOutputNode.h"
 
 namespace se::shader::ast
@@ -32,9 +37,9 @@ namespace se::shader::ast
 
 namespace se::shader::parser
 {
-    Parser::Parser(Lexer lexer, memory::Arena *arena)
-    : m_Lexer(std::move(lexer))
-    , m_TempStorage(arena)
+    Parser::Parser(Lexer lexer, memory::Arena* arena)
+        : m_Lexer(std::move(lexer))
+          , m_TempStorage(arena)
     {
     }
 
@@ -51,39 +56,39 @@ namespace se::shader::parser
 
                 switch (token.type)
                 {
-                    case TokenType::Builtin:
-                        if (!ProcessBuiltin(token, error))
-                        {
-                            return error;
-                        }
-                        break;
-                    case TokenType::Identifier:
-                        if (!ProcessIdentifier(token, error))
-                        {
-                            return error;
-                        }
-                        break;
-                    case TokenType::NumericLiteral:
-                        if (!ProcessTopLevelNumericLiteral(token, error))
-                        {
-                            return error;
-                        }
-                        break;
-                    case TokenType::StringLiteral:
-                        if (!ProcessTopLevelStringLiteral(token, error))
-                        {
-                            return error;
-                        }
-                        break;
-                    case TokenType::Syntax:
-                        if (!ProcessSyntax(token, error))
-                        {
-                            return error;
-                        }
-                        break;
-                    default:
-                        SPARK_ASSERT(false);
-                        break;
+                case TokenType::Builtin:
+                    if (!ProcessBuiltin(token, error))
+                    {
+                        return error;
+                    }
+                    break;
+                case TokenType::Identifier:
+                    if (!ProcessIdentifier(token, error))
+                    {
+                        return error;
+                    }
+                    break;
+                case TokenType::NumericLiteral:
+                    if (!ProcessNumericLiteral(token, error))
+                    {
+                        return error;
+                    }
+                    break;
+                case TokenType::StringLiteral:
+                    if (!ProcessStringLiteral(token, error))
+                    {
+                        return error;
+                    }
+                    break;
+                case TokenType::Syntax:
+                    if (!ProcessSyntax(token, error))
+                    {
+                        return error;
+                    }
+                    break;
+                default:
+                    SPARK_ASSERT(false);
+                    break;
                 }
             }
             else
@@ -95,150 +100,192 @@ namespace se::shader::parser
         return m_ShaderStage;
     }
 
-    bool Parser::ProcessVec2(const Token &token, ParseError& outError)
+    bool Parser::ProcessVec2(const Token& token, ParseError& outError)
     {
         Token nextToken;
-        if (!ExpectedGetAndConsume({ TokenType::Syntax }, { "(" }, nextToken, outError))
+        if (!ExpectedGetAndConsume({TokenType::Syntax}, {"("}, nextToken, outError))
         {
             return false;
         }
 
-        if (!ExpectedGetAndConsume({ TokenType::NumericLiteral }, { }, nextToken, outError))
+        auto* vec4 = m_TempStorage->Alloc<ast::Vec2Node>();
+        m_ShaderStage.AddNode(vec4);
+        m_ShaderStage.PushScope(vec4);
+        int componentsAccountedFor = 0;
+        while (componentsAccountedFor < 2)
+        {
+            ast::Type argType;
+            if (!ProcessArgument(nextToken, argType, outError))
+            {
+                return false;
+            }
+
+            switch (argType)
+            {
+            case ast::Type::Float:
+                componentsAccountedFor++;
+                break;
+            case ast::Type::Vec2:
+                componentsAccountedFor += 2;
+                break;
+            case ast::Type::Vec3:
+            case ast::Type::Vec4:
+            case ast::Type::Mat3:
+            case ast::Type::Mat4:
+            case ast::Type::Void:
+            case ast::Type::Invalid:
+                outError = {nextToken.line, nextToken.pos, std::format("Unexpected type {}", ast::TypeUtil::GetTypeGlsl(argType)) };
+                return false;
+            }
+
+            if (componentsAccountedFor < 2)
+            {
+                if (!ExpectedGetAndConsume({TokenType::Syntax}, {","}, nextToken, outError))
+                {
+                    return false;
+                }
+            }
+
+        }
+
+        if (!ExpectedGetAndConsume({TokenType::Syntax}, {")"}, nextToken, outError))
         {
             return false;
         }
-        float x = std::stof(nextToken.value);
 
-        if (!ExpectedGetAndConsume({ TokenType::Syntax }, { "," }, nextToken, outError))
-        {
-            return false;
-        }
-
-        if (!ExpectedGetAndConsume({ TokenType::NumericLiteral }, { }, nextToken, outError))
-        {
-            return false;
-        }
-        float y = std::stof(nextToken.value);
-
-        if (!ExpectedGetAndConsume({ TokenType::Syntax }, { ")" }, nextToken, outError))
-        {
-            return false;
-        }
-
-        m_ShaderStage.AddNode(m_TempStorage->Alloc<ast::ConstantNode<math::Vec2>>(math::Vec2(x, y)));
+        m_ShaderStage.PopScope();
 
         return true;
     }
 
-    bool Parser::ProcessVec3(const Token &token, ParseError& outError)
+    bool Parser::ProcessVec3(const Token& token, ParseError& outError)
     {
         Token nextToken;
-        if (!ExpectedGetAndConsume({ TokenType::Syntax }, { "(" }, nextToken, outError))
+        if (!ExpectedGetAndConsume({TokenType::Syntax}, {"("}, nextToken, outError))
         {
             return false;
         }
 
-        if (!ExpectedGetAndConsume({ TokenType::NumericLiteral }, { }, nextToken, outError))
+        auto* vec4 = m_TempStorage->Alloc<ast::Vec3Node>();
+        m_ShaderStage.AddNode(vec4);
+        m_ShaderStage.PushScope(vec4);
+        int componentsAccountedFor = 0;
+        while (componentsAccountedFor < 3)
+        {
+            ast::Type argType;
+            if (!ProcessArgument(nextToken, argType, outError))
+            {
+                return false;
+            }
+
+            switch (argType)
+            {
+            case ast::Type::Float:
+                componentsAccountedFor++;
+                break;
+            case ast::Type::Vec2:
+                componentsAccountedFor += 2;
+                break;
+            case ast::Type::Vec3:
+                componentsAccountedFor += 3;
+                break;
+            case ast::Type::Vec4:
+            case ast::Type::Mat3:
+            case ast::Type::Mat4:
+            case ast::Type::Void:
+            case ast::Type::Invalid:
+                outError = {nextToken.line, nextToken.pos, std::format("Unexpected type {}", ast::TypeUtil::GetTypeGlsl(argType)) };
+                return false;
+            }
+
+            if (componentsAccountedFor < 3)
+            {
+                if (!ExpectedGetAndConsume({TokenType::Syntax}, {","}, nextToken, outError))
+                {
+                    return false;
+                }
+            }
+
+        }
+
+        if (!ExpectedGetAndConsume({TokenType::Syntax}, {")"}, nextToken, outError))
         {
             return false;
         }
-        float x = std::stof(nextToken.value);
 
-        if (!ExpectedGetAndConsume({ TokenType::Syntax }, { "," }, nextToken, outError))
-        {
-            return false;
-        }
-
-        if (!ExpectedGetAndConsume({ TokenType::NumericLiteral }, { }, nextToken, outError))
-        {
-            return false;
-        }
-        float y = std::stof(nextToken.value);
-
-        if (!ExpectedGetAndConsume({ TokenType::Syntax }, { "," }, nextToken, outError))
-        {
-            return false;
-        }
-
-        if (!ExpectedGetAndConsume({ TokenType::NumericLiteral }, { }, nextToken, outError))
-        {
-            return false;
-        }
-        float z = std::stof(nextToken.value);
-
-        if (!ExpectedGetAndConsume({ TokenType::Syntax }, { ")" }, nextToken, outError))
-        {
-            return false;
-        }
-
-        m_ShaderStage.AddNode(m_TempStorage->Alloc<ast::ConstantNode<math::Vec3>>(math::Vec3(x, y, z)));
+        m_ShaderStage.PopScope();
 
         return true;
     }
 
-    bool Parser::ProcessVec4(const Token &token, ParseError& outError)
+    bool Parser::ProcessVec4(const Token& token, ParseError& outError)
     {
         Token nextToken;
-        if (!ExpectedGetAndConsume({ TokenType::Syntax }, { "(" }, nextToken, outError))
+        if (!ExpectedGetAndConsume({TokenType::Syntax}, {"("}, nextToken, outError))
         {
             return false;
         }
 
-        if (!ExpectedGetAndConsume({ TokenType::NumericLiteral }, { }, nextToken, outError))
+        auto* vec4 = m_TempStorage->Alloc<ast::Vec4Node>();
+        m_ShaderStage.AddNode(vec4);
+        m_ShaderStage.PushScope(vec4);
+        int componentsAccountedFor = 0;
+        while (componentsAccountedFor < 4)
+        {
+            ast::Type argType;
+            if (!ProcessArgument(nextToken, argType, outError))
+            {
+                return false;
+            }
+
+            switch (argType)
+            {
+            case ast::Type::Float:
+                componentsAccountedFor++;
+                break;
+            case ast::Type::Vec2:
+                componentsAccountedFor += 2;
+                break;
+            case ast::Type::Vec3:
+                componentsAccountedFor += 3;
+                break;
+            case ast::Type::Vec4:
+                componentsAccountedFor += 4;
+                break;
+            case ast::Type::Mat3:
+            case ast::Type::Mat4:
+            case ast::Type::Void:
+            case ast::Type::Invalid:
+                outError = {nextToken.line, nextToken.pos, std::format("Unexpected type {}", ast::TypeUtil::GetTypeGlsl(argType)) };
+                return false;
+            }
+
+            if (componentsAccountedFor < 4)
+            {
+                if (!ExpectedGetAndConsume({TokenType::Syntax}, {","}, nextToken, outError))
+                {
+                    return false;
+                }
+            }
+
+        }
+
+        if (!ExpectedGetAndConsume({TokenType::Syntax}, {")"}, nextToken, outError))
         {
             return false;
         }
-        float x = std::stof(nextToken.value);
 
-        if (!ExpectedGetAndConsume({ TokenType::Syntax }, { "," }, nextToken, outError))
-        {
-            return false;
-        }
-
-        if (!ExpectedGetAndConsume({ TokenType::NumericLiteral }, { }, nextToken, outError))
-        {
-            return false;
-        }
-        float y = std::stof(nextToken.value);
-
-        if (!ExpectedGetAndConsume({ TokenType::Syntax }, { "," }, nextToken, outError))
-        {
-            return false;
-        }
-
-        if (!ExpectedGetAndConsume({ TokenType::NumericLiteral }, { }, nextToken, outError))
-        {
-            return false;
-        }
-        float z = std::stof(nextToken.value);
-
-        if (!ExpectedGetAndConsume({ TokenType::Syntax }, { "," }, nextToken, outError))
-        {
-            return false;
-        }
-
-        if (!ExpectedGetAndConsume({ TokenType::NumericLiteral }, { }, nextToken, outError))
-        {
-            return false;
-        }
-        float w = std::stof(nextToken.value);
-
-        if (!ExpectedGetAndConsume({ TokenType::Syntax }, { ")" }, nextToken, outError))
-        {
-            return false;
-        }
-
-        m_ShaderStage.AddNode(m_TempStorage->Alloc<ast::ConstantNode<math::Vec4>>(math::Vec4(x, y, z, w)));
+        m_ShaderStage.PopScope();
 
         return true;
     }
 
-    bool Parser::ProcessBuiltin(const Token &token, ParseError& outError)
+    bool Parser::ProcessBuiltin(const Token& token, ParseError& outError)
     {
         bool isPossibleVariableDec = token.value == "vec2"
-        || token.value == "vec3"
-        || token.value == "vec4"
-        || token.value == "float";
+            || token.value == "vec3"
+            || token.value == "vec4"
+            || token.value == "float";
 
         if (isPossibleVariableDec)
         {
@@ -266,10 +313,6 @@ namespace se::shader::parser
         {
             return ProcessFunctionDeclaration(token, outError);
         }
-        else if (token.value == "gl_Position")
-        {
-            return ProcessGLPositionWrite(token, outError);
-        }
         else if (token.value == "vec2")
         {
             return ProcessVec2(token, outError);
@@ -286,18 +329,22 @@ namespace se::shader::parser
         {
             return ProcessPortDeclaration(token, outError);
         }
+        else if (token.value == "uniform")
+        {
+            return ProcessUniformDeclaration(token, outError);
+        }
 
-        outError = { token.line, token.pos, std::format("Unexpected token {}", token.value) };
+        outError = {token.line, token.pos, std::format("Unexpected token {}", token.value)};
         SPARK_ASSERT(false);
         return false;
     }
 
-    bool Parser::ProcessIdentifier(const Token &token, ParseError& outError)
+    bool Parser::ProcessIdentifier(const Token& token, ParseError& outError)
     {
         ast::Type type;
         if (!m_ShaderStage.FindVariable(token.value, type))
         {
-            outError = { token.line, token.pos, std::format("Undefined variable: {}", token.value) };
+            outError = {token.line, token.pos, std::format("Undefined variable: {}", token.value)};
             return false;
         }
 
@@ -316,32 +363,41 @@ namespace se::shader::parser
                 return false;
             }
 
-            if (!ExpectedGetAndConsume({TokenType::Syntax}, {";"}, nextToken, outError))
+            if (!ExpectedGetAndConsume({TokenType::Syntax},
+                {";", "*", "/", "+", "-", "*=", "/=", "+=", "-="},
+                nextToken, outError))
             {
                 return false;
             }
 
-            m_ShaderStage.AddNode(m_TempStorage->Alloc<ast::EndOfExpressionNode>());
+            if (!ProcessSyntax(nextToken, outError))
+            {
+                return false;
+            }
+
             return true;
         }
 
-        outError = { nextToken.line, nextToken.pos, std::format("Parser::ProcessIdentifier - Not Implemented: {}", nextToken.value) };
+        outError = {
+            nextToken.line, nextToken.pos,
+            std::format("Parser::ProcessIdentifier - Not Implemented: {}", nextToken.value)
+        };
         return false;
     }
 
-    bool Parser::ProcessTopLevelNumericLiteral(const Token &token, ParseError& outError)
+    bool Parser::ProcessNumericLiteral(const Token& token, ParseError& outError)
     {
-        outError = { token.line, token.pos, std::format("Parser::ProcessTopLevelNumericLiteral - Not Implemented: {}", token.value) };
-        return false;
+        m_ShaderStage.AddNode(m_TempStorage->Alloc<ast::ConstantNode<float>>(std::stof(token.value)));
+        return true;
     }
 
-    bool Parser::ProcessTopLevelStringLiteral(const Token &token, ParseError& outError)
+    bool Parser::ProcessStringLiteral(const Token& token, ParseError& outError)
     {
-        outError = { token.line, token.pos, std::format("Parser::ProcessTopLevelStringLiteral - Not Implemented: {}", token.value) };
-        return false;
+        m_ShaderStage.AddNode(m_TempStorage->Alloc<ast::ConstantNode<std::string>>(token.value));
+        return true;
     }
 
-    bool Parser::ProcessSyntax(const Token &token, ParseError& outError)
+    bool Parser::ProcessSyntax(const Token& token, ParseError& outError)
     {
         if (token.value == "}")
         {
@@ -355,14 +411,23 @@ namespace se::shader::parser
             m_ShaderStage.PushScope(scope);
             return true;
         }
+        else if (token.value == ";")
+        {
+            m_ShaderStage.AddNode(m_TempStorage->Alloc<ast::EndOfExpressionNode>());
+            return true;
+        }
+        else if (ast::OperatorUtil::IsOperator(token.value))
+        {
+            return ProcessOperator(token, outError);
+        }
         else
         {
-            outError = { token.line, token.pos, std::format("Parser::ProcessSyntax - unhandled token {}", token.value) };
+            outError = {token.line, token.pos, std::format("Parser::ProcessSyntax - unhandled token {}", token.value)};
             return false;
         }
     }
 
-    bool Parser::ProcessPortDeclaration(const Token &token, ParseError &outError)
+    bool Parser::ProcessPortDeclaration(const Token& token, ParseError& outError)
     {
         if (!ExpectAndConsume({TokenType::Syntax}, {"("}, outError))
         {
@@ -418,64 +483,107 @@ namespace se::shader::parser
         return true;
     }
 
-    bool Parser::ProcessAssignment(const Token &token, ast::Type expectedType, ParseError &outError)
+    bool Parser::ProcessUniformDeclaration(const Token& token, ParseError& outError)
     {
-        m_ShaderStage.AddNode(m_TempStorage->Alloc<ast::AssignmentNode>());
+        Token typeToken;
+        if (!ExpectedGetAndConsume({TokenType::Builtin}, {"float", "vec2", "vec3", "vec4", "mat3", "mat4"}, typeToken,
+                                   outError))
+        {
+            return false;
+        }
+        ast::Type type = ast::TypeUtil::StringToType(typeToken.value);
 
-        Token nextToken;
-            if (!ExpectedGetAndConsume({
-                                           TokenType::Identifier, TokenType::Builtin, TokenType::StringLiteral,
-                                           TokenType::NumericLiteral
-                                       }, {}, nextToken, outError))
-            {
-                return false;
-            }
+        Token nameToken;
+        if (!ExpectedGetAndConsume({TokenType::Identifier}, {}, nameToken, outError))
+        {
+            return false;
+        }
+        std::string name = nameToken.value;
 
-            switch (nextToken.type)
-            {
-                case TokenType::Builtin:
-                    if (ast::TypeUtil::StringToType(nextToken.value) != expectedType)
-                    {
-                        outError = {nextToken.line, nextToken.pos, std::format("Cannot assign {} to variable {} of type {}", nextToken.value, token.value, ast::TypeUtil::GetTypeGlsl(expectedType)) };
-                        return false;
-                    }
-                    if (!ProcessBuiltin(nextToken, outError))
-                    {
-                        return false;
-                    }
+        if (!ExpectAndConsume({TokenType::Syntax}, {";"}, outError))
+        {
+            return false;
+        }
 
-                    break;
-                case TokenType::Identifier:
-                    ast::Type nextType;
-                    if (!m_ShaderStage.FindVariable(nextToken.value, nextType))
-                    {
-                        outError = { nextToken.line, nextToken.pos, std::format("Undefined variable: {}", nextToken.value) };
-                        return false;
-                    }
-                    m_ShaderStage.AddNode(m_TempStorage->Alloc<ast::VariableReferenceNode>(nextToken.value, m_ShaderStage));
-                    break;
-                case TokenType::NumericLiteral:
-                    if (IsInteger(nextToken.value))
-                    {
-                        m_ShaderStage.AddNode(m_TempStorage->Alloc<ast::ConstantNode<int>>(std::stoi(nextToken.value)));
-                    }
-                    else
-                    {
-                        m_ShaderStage.AddNode(m_TempStorage->Alloc<ast::ConstantNode<float>>(std::stof(nextToken.value)));
-                    }
-                    break;
-                case TokenType::StringLiteral:
-                    m_ShaderStage.AddNode(m_TempStorage->Alloc<ast::ConstantNode<std::string>>(nextToken.value));
-                    break;
-                default:
-                    SPARK_ASSERT(false);
-                    break;
-            }
+        std::string temp;
+        if (!m_ShaderStage.AddUniform(name, type, temp))
+        {
+            outError = {nameToken.line, nameToken.pos, temp};
+            return false;
+        }
 
         return true;
     }
 
-    bool Parser::ProcessFunctionDeclaration(const Token &token, ParseError& outError)
+    bool Parser::ProcessAssignment(const Token& token, ast::Type expectedType, ParseError& outError)
+    {
+        m_ShaderStage.AddNode(m_TempStorage->Alloc<ast::AssignmentNode>());
+
+        Token nextToken;
+        if (!ExpectedGetAndConsume({
+                                       TokenType::Identifier, TokenType::Builtin, TokenType::StringLiteral,
+                                       TokenType::NumericLiteral
+                                   }, {}, nextToken, outError))
+        {
+            return false;
+        }
+
+        switch (nextToken.type)
+        {
+        case TokenType::Builtin:
+            if (ast::TypeUtil::StringToType(nextToken.value) != expectedType)
+            {
+                outError = {
+                    nextToken.line, nextToken.pos,
+                    std::format("Cannot assign {} to variable {} of type {}", nextToken.value, token.value,
+                                ast::TypeUtil::GetTypeGlsl(expectedType))
+                };
+                return false;
+            }
+            if (!ProcessBuiltin(nextToken, outError))
+            {
+                return false;
+            }
+
+            break;
+        case TokenType::Identifier:
+            ast::Type nextType;
+            if (!m_ShaderStage.FindVariable(nextToken.value, nextType))
+            {
+                outError = {nextToken.line, nextToken.pos, std::format("Undefined variable: {}", nextToken.value)};
+                return false;
+            }
+            m_ShaderStage.AddNode(m_TempStorage->Alloc<ast::VariableReferenceNode>(nextToken.value, m_ShaderStage));
+            break;
+        case TokenType::NumericLiteral:
+            if (IsInteger(nextToken.value))
+            {
+                m_ShaderStage.AddNode(m_TempStorage->Alloc<ast::ConstantNode<int>>(std::stoi(nextToken.value)));
+            }
+            else
+            {
+                m_ShaderStage.AddNode(m_TempStorage->Alloc<ast::ConstantNode<float>>(std::stof(nextToken.value)));
+            }
+            break;
+        case TokenType::StringLiteral:
+            m_ShaderStage.AddNode(m_TempStorage->Alloc<ast::ConstantNode<std::string>>(nextToken.value));
+            break;
+        default:
+            SPARK_ASSERT(false);
+            break;
+        }
+
+        return true;
+    }
+
+    bool Parser::ProcessOperator(const Token& token, ParseError& outError)
+    {
+        // TODO type validation
+        m_ShaderStage.AddNode(m_TempStorage->Alloc<ast::OperatorNode>(ast::OperatorUtil::StringToOperatorType(token.value)));
+        return true;
+    }
+
+    bool Parser::ProcessFunctionDeclaration(const Token& token, ParseError& outError)
     {
         ast::Type type = ast::TypeUtil::StringToType(token.value);
 
@@ -490,12 +598,12 @@ namespace se::shader::parser
         {
             if (m_ShaderStage.IsMainDeclared())
             {
-                outError = { nameToken.line, nameToken.pos, "encountered second declaration of main!" };
+                outError = {nameToken.line, nameToken.pos, "encountered second declaration of main!"};
                 return false;
             }
             else if (m_ShaderStage.ScopeDepth() > 0)
             {
-                outError = { nameToken.line, nameToken.pos, "main must be declared in the root scope of the shader" };
+                outError = {nameToken.line, nameToken.pos, "main must be declared in the root scope of the shader"};
                 return false;
             }
         }
@@ -527,7 +635,7 @@ namespace se::shader::parser
                 else
                 {
                     //TODO
-                    outError = { nameToken.line, nameToken.pos, "Function declarations not supported yet." };
+                    outError = {nameToken.line, nameToken.pos, "Function declarations not supported yet."};
                     return false;
                 }
             }
@@ -535,34 +643,23 @@ namespace se::shader::parser
             {
                 if (isMain)
                 {
-                    outError = { nextToken.line, nextToken.pos, "function arguments not supported for main" };
-                    return false;
-                }
-
-                if (!ProcessFunctionArguments(nextToken, outError))
-                {
-                    return false;
-                }
-
-                m_Lexer.ConsumeToken(); // )
-                if (!ProcessEndOfFunctionDeclaration(nextToken, outError))
-                {
+                    outError = {nextToken.line, nextToken.pos, "function arguments not supported for main"};
                     return false;
                 }
 
                 //TODO
-                outError = { nameToken.line, nameToken.pos, "Function declarations not supported yet." };
+                outError = {nameToken.line, nameToken.pos, "Function declarations not supported yet."};
                 return false;
             }
             else
             {
-                outError = { nextToken.line, nextToken.pos, std::format("Unexpected Token: {}", nextToken.value) };
+                outError = {nextToken.line, nextToken.pos, std::format("Unexpected Token: {}", nextToken.value)};
                 return false;
             }
         }
         else
         {
-            outError = { nameToken.line, nameToken.pos, std::get<std::string>(peek) };
+            outError = {nameToken.line, nameToken.pos, std::get<std::string>(peek)};
             return false;
         }
 
@@ -583,7 +680,7 @@ namespace se::shader::parser
             auto nextToken = std::get<Token>(peek);
             if (nextToken.type != TokenType::Syntax)
             {
-                outError = { nextToken.line, nextToken.pos, std::format("Unexpected Token {0}", nextToken.value) };
+                outError = {nextToken.line, nextToken.pos, std::format("Unexpected Token {0}", nextToken.value)};
             }
 
             if (nextToken.value == "=")
@@ -596,7 +693,7 @@ namespace se::shader::parser
                 std::string error;
                 if (!m_ShaderStage.RecordVariableForScope(nameToken.value, type, error))
                 {
-                    outError = { nameToken.line, nameToken.pos, error };
+                    outError = {nameToken.line, nameToken.pos, error};
                     return false;
                 }
 
@@ -616,7 +713,9 @@ namespace se::shader::parser
             {
                 // we are done;
                 m_Lexer.ConsumeToken();
-                m_ShaderStage.AddNode(m_TempStorage->Alloc<ast::VariableDeclarationNode>(nameToken.value, ast::TypeUtil::StringToType(token.value)));
+                m_ShaderStage.AddNode(
+                    m_TempStorage->Alloc<ast::VariableDeclarationNode>(nameToken.value,
+                                                                       ast::TypeUtil::StringToType(token.value)));
                 m_ShaderStage.AddNode(m_TempStorage->Alloc<ast::EndOfExpressionNode>());
             }
         }
@@ -624,14 +723,7 @@ namespace se::shader::parser
         return true;
     }
 
-    bool Parser::ProcessFunctionArguments(const Token &token, ParseError& outError)
-    {
-        //TODO
-        outError = { token.line, token.pos, "Function arguments not supported yet." };
-        return false;
-    }
-
-    bool Parser::ProcessEndOfFunctionDeclaration(const Token &token, ParseError& outError)
+    bool Parser::ProcessEndOfFunctionDeclaration(const Token& token, ParseError& outError)
     {
         if (!ExpectAndConsume({TokenType::Syntax}, {"{"}, outError))
         {
@@ -641,157 +733,29 @@ namespace se::shader::parser
         return true;
     }
 
-    bool Parser::ProcessGLPositionWrite(const Token &token, ParseError& outError)
-    {
-        Token op;
-        if (!ExpectedGetAndConsume({TokenType::Syntax}, {".", "="}, op, outError))
-        {
-            return false;
-        }
-
-        m_ShaderStage.AddNode(m_TempStorage->Alloc<ast::VertexPositionOutputNode>());
-        ast::Type allowedWriteType = ast::Type::Vec4;
-        if (op.value == ".")
-        {
-            Token propertyName;
-            if (!ExpectedGetAndConsume({TokenType::Identifier}, {}, propertyName, outError))
-            // TODO validate property access based on type
-            {
-                return false;
-            }
-
-            m_ShaderStage.AddNode(m_TempStorage->Alloc<ast::PropertyAccessNode>(propertyName.value));
-            if (propertyName.value == "xyz")
-            {
-                allowedWriteType = ast::Type::Vec3;
-            }
-            else if (propertyName.value == "x")
-            {
-                allowedWriteType = ast::Type::Float;
-            }
-            else if (propertyName.value == "y")
-            {
-                allowedWriteType = ast::Type::Float;
-            }
-            else if (propertyName.value == "z")
-            {
-                allowedWriteType = ast::Type::Float;
-            }
-            else if (propertyName.value == "w")
-            {
-                allowedWriteType = ast::Type::Float;
-            }
-            else
-            {
-                outError = { propertyName.line, propertyName.pos, std::format("Unkown gl_Position property: {}", propertyName.value) };
-            }
-
-            if (!ExpectedGetAndConsume({TokenType::Syntax}, {"="}, op, outError))
-            {
-                return false;
-            }
-        }
-
-        if (op.value != "=")
-        {
-            outError = { op.line, op.pos, std::format("Parser::ProcessGLPositionWrite - Expected =, got {}", op.value) };
-            return false;
-        }
-
-        m_ShaderStage.AddNode(m_TempStorage->Alloc<ast::AssignmentNode>());
-
-        Token assignmentValue;
-        if (!ExpectedGetAndConsume({TokenType::Identifier, TokenType::Builtin, TokenType::NumericLiteral}, {},
-                                   assignmentValue, outError))
-        {
-            return false;
-        }
-
-        switch (assignmentValue.type)
-        {
-            case TokenType::Identifier:
-            {
-                m_ShaderStage.AddNode(m_TempStorage->Alloc<ast::VariableReferenceNode>(assignmentValue.value, m_ShaderStage));
-                if (!ExpectAndConsume({TokenType::Syntax}, {";"}, outError))
-                {
-                    return false;
-                }
-
-                m_ShaderStage.AddNode(m_TempStorage->Alloc<ast::EndOfExpressionNode>());
-                break;
-            }
-            case TokenType::NumericLiteral:
-            case TokenType::Builtin:
-            {
-                if (assignmentValue.type != TokenType::NumericLiteral)
-                {
-                    if (ast::TypeUtil::StringToType(assignmentValue.value) != allowedWriteType)
-                    {
-                        outError = { assignmentValue.line, assignmentValue.pos, std::format("Unexpected Type: {}", assignmentValue.value) };
-                        return false;
-                    }
-                }
-
-                switch (allowedWriteType)
-                {
-                    case ast::Type::Float:
-                    {
-                        if (assignmentValue.type != TokenType::NumericLiteral)
-                        {
-                            outError = { assignmentValue.line, assignmentValue.pos, std::format("Unexpected Token: {}", assignmentValue.value) };
-                            return false;
-                        }
-                        m_ShaderStage.AddNode(m_TempStorage->Alloc<ast::ConstantNode<float>>(std::stof(assignmentValue.value)));
-
-                        if (!ExpectAndConsume({TokenType::Syntax}, {";"}, outError))
-                        {
-                            return false;
-                        }
-
-                        m_ShaderStage.AddNode(m_TempStorage->Alloc<ast::EndOfExpressionNode>());
-
-                        break;
-                    }
-                    case ast::Type::Vec3:
-                        //TODO
-                        return false;
-                    case ast::Type::Vec4:
-                        //TODO
-                        return false;
-                }
-                break;
-            }
-            default:
-                outError = { assignmentValue.line, assignmentValue.pos, std::format("Unexpected Type: {}", assignmentValue.value) };
-                return false;
-        }
-
-        return true;
-    }
-
-    bool Parser::Expect(const std::vector<TokenType> &allowedTypes, const std::vector<std::string> &allowedValues,
+    bool Parser::Expect(const std::vector<TokenType>& allowedTypes, const std::vector<std::string>& allowedValues,
                         ParseError& outError)
     {
         auto peek = m_Lexer.PeekToken();
         if (!std::holds_alternative<Token>(peek))
         {
-            outError = { 0, 0, "Unexpected End of File!" };
+            outError = {0, 0, "Unexpected End of File!"};
             return false;
         }
 
         auto token = std::get<Token>(peek);
         bool result = std::ranges::contains(allowedTypes, token.type) &&
-                      (allowedValues.empty() || std::ranges::contains(allowedValues, token.value));
+            (allowedValues.empty() || std::ranges::contains(allowedValues, token.value));
         if (!result)
         {
-            outError = { token.line, token.pos, std::format("Unexpected token: {}", token.value) };
+            outError = {token.line, token.pos, std::format("Unexpected token: {}", token.value)};
         }
 
         return result;
     }
 
-    bool Parser::ExpectedGetAndConsume(const std::vector<TokenType> &allowedTypes,
-                                       const std::vector<std::string> &allowedValues, Token &token,
+    bool Parser::ExpectedGetAndConsume(const std::vector<TokenType>& allowedTypes,
+                                       const std::vector<std::string>& allowedValues, Token& token,
                                        ParseError& outError)
     {
         if (!Expect(allowedTypes, allowedValues, outError))
@@ -803,8 +767,8 @@ namespace se::shader::parser
         return true;
     }
 
-    bool Parser::ExpectAndConsume(const std::vector<TokenType> &allowedTypes,
-                                  const std::vector<std::string> &allowedValues, ParseError& outError)
+    bool Parser::ExpectAndConsume(const std::vector<TokenType>& allowedTypes,
+                                  const std::vector<std::string>& allowedValues, ParseError& outError)
     {
         if (!Expect(allowedTypes, allowedValues, outError))
         {
@@ -815,7 +779,7 @@ namespace se::shader::parser
         return true;
     }
 
-    bool Parser::IsInteger(const std::string &value)
+    bool Parser::IsInteger(const std::string& value)
     {
         for (char i : value)
         {
@@ -828,11 +792,66 @@ namespace se::shader::parser
         return true;
     }
 
-    bool Parser::EnsureInteger(const std::string &value, ParseError& outError)
+    bool Parser::EnsureInteger(const std::string& value, ParseError& outError)
     {
         if (!IsInteger(value))
         {
-            outError = { 0, 0, std::format("Unexpected character {} while parsing integral value.", value) };
+            outError = {0, 0, std::format("Unexpected character {} while parsing integral value.", value)};
+            return false;
+        }
+
+        return true;
+    }
+
+    bool Parser::ProcessArgument(const Token& token, ast::Type& outType, ParseError& outError)
+    {
+        Token nextToken;
+        if (!ExpectedGetAndConsume(
+            {TokenType::NumericLiteral, TokenType::Identifier, TokenType::NumericLiteral, TokenType::StringLiteral },
+            {}, nextToken, outError))
+        {
+            return false;
+        }
+
+        if (nextToken.type == TokenType::Identifier)
+        {
+            ast::Type type;
+            if (!m_ShaderStage.FindVariable(nextToken.value, type))
+            {
+                outError = {nextToken.line, nextToken.pos, std::format("Undefined variable {}", nextToken.value) };
+                return false;
+            }
+
+            m_ShaderStage.AddNode(m_TempStorage->Alloc<ast::VariableReferenceNode>(nextToken.value, m_ShaderStage));
+            outType = type;
+        }
+        else if (nextToken.type == TokenType::NumericLiteral)
+        {
+            if (!ProcessNumericLiteral(nextToken, outError))
+            {
+                return false;
+            }
+            outType = ast::Type::Float; // TODO int?
+        }
+        else if (nextToken.type == TokenType::StringLiteral)
+        {
+            if (!ProcessStringLiteral(nextToken, outError))
+            {
+                return false;
+            }
+            outType = ast::Type::Invalid; //TODO
+        }
+        else if (nextToken.type == TokenType::Builtin)
+        {
+            if (!ProcessBuiltin(nextToken, outError))
+            {
+                return false;
+            }
+            outType = ast::TypeUtil::StringToType(nextToken.value);
+        }
+        else
+        {
+            outError = {nextToken.line, nextToken.pos, std::format("Unexpected token {}", nextToken.value) };
             return false;
         }
 

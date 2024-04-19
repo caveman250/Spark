@@ -6,6 +6,7 @@
 #include "ast/InputAttributeNode.h"
 #include "ast/OutputNode.h"
 #include "ast/ShaderStage.h"
+#include "ast/TypeUtil.h"
 #include "compiler/ShaderStageCombiner.h"
 #include "engine/logging/Log.h"
 #include "engine/memory/Arena.h"
@@ -68,6 +69,11 @@ std::string se::shader::ShaderGenerator::AstToGlsl(ast::ShaderStage &ast)
     for (const auto &[name, node]: ast.GetOutputs())
     {
         node->ToGlsl(shader);
+    }
+
+    for (const auto& [name, type] : ast.GetUniformVariables())
+    {
+        shader.append(std::format("uniform {0} {1};\n", ast::TypeUtil::GetTypeGlsl(type), name));
     }
 
     for (const auto *node: ast.GetNodes())

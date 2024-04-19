@@ -4,55 +4,47 @@ namespace se::math
 {
     struct Vec3
     {
-        inline Vec3() : x(0.f), y(0.f), z(0.f)
+        Vec3() : x(0.f), y(0.f), z(0.f)
         {
         }
 
-        inline Vec3(float _x, float _y, float _z) : x(_x), y(_y), z(_z)
+        Vec3(float _x, float _y, float _z) : x(_x), y(_y), z(_z)
         {
         }
 
-        union
-        {
-            struct
-            {
-                float x;
-                float y;
-                float z;
-            };
+        union { float x, r, s; };
+        union { float y, g, t; };
+        union { float z, b, p; };
 
-            float asArray[3];
-        };
+        float& operator[](size_t i);
+        const float& operator[](size_t i) const;
 
-        float operator[](int i) const
-        {
-            return asArray[i];
-        }
-
-        Vec3 operator+(const Vec3& rhs) const;
-
-        Vec3 operator+=(const Vec3& rhs) const;
-
-        Vec3 operator-(const Vec3& rhs) const;
-
-        Vec3 operator*(const Vec3& rhs) const;
-
-        Vec3 operator*(float scalar) const;
-
-        Vec3 operator/(const Vec3& rhs) const;
-
-        Vec3 operator/(float scalar) const;
-
-        bool operator==(const Vec3& rhs) const;
-
-        bool operator!=(const Vec3& rhs) const;
+        Vec3& operator+=(const Vec3 &rhs);
+        Vec3& operator+=(float scalar);
+        Vec3& operator-=(const Vec3 &rhs);
+        Vec3& operator-=(float scalar);
+        Vec3& operator*=(const Vec3 &rhs);
+        Vec3& operator*=(float scalar);
+        Vec3& operator/=(const Vec3 &rhs);
+        Vec3& operator/=(float scalar);
     };
 
-    static Vec3 operator-(const Vec3& lhs) { return {-lhs.x, -lhs.y, -lhs.z}; }
+    Vec3 operator-(const Vec3 &lhs);
+    Vec3 operator+(const Vec3& lhs, const Vec3 &rhs);
+    Vec3 operator-(const Vec3& lhs, const Vec3 &rhs);
+    Vec3 operator*(const Vec3& lhs, const Vec3 &rhs);
+    Vec3 operator*(const Vec3& lhs, float scalar);
+    Vec3 operator/(const Vec3& lhs, const Vec3 &rhs);
+    Vec3 operator/(const Vec3& lhs, float scalar);
+    bool operator==(const Vec3& lhs, const Vec3 &rhs);
+    bool operator!=(const Vec3& lhs, const Vec3 &rhs);
+
+    Vec3 Normalized(const Vec3& vec);
+    float Dot(const Vec3& v1, const Vec3& v2);
+    Vec3 Cross(const Vec3& v1, const Vec3& v2);
 }
 
-template <>
-    struct std::formatter<se::math::Vec3>
+template <> struct std::formatter<se::math::Vec3>
 {
     constexpr auto parse(std::format_parse_context& ctx)
     {

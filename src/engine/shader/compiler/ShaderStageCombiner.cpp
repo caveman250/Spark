@@ -11,6 +11,8 @@
 #include "engine/shader/ast/OutputPortNode.h"
 #include "engine/shader/ast/ShaderStage.h"
 #include "engine/shader/ast/VariableDeclarationNode.h"
+#include "engine/shader/ast/VariableReferenceNode.h"
+#include "engine/shader/ast/VertexPositionOutputNode.h"
 
 namespace se::shader::compiler
 {
@@ -93,9 +95,9 @@ namespace se::shader::compiler
                     }
 
                     // insert local variable declaration for port being removed
-                    main.second->Children.insert(main.second->Children.begin(),
+                    main.second->m_Children.insert(main.second->m_Children.begin(),
                                                  tempStore.Alloc<ast::VariableDeclarationNode>(newName, port->GetType()));
-                    main.second->Children.insert(main.second->Children.begin() + 1, tempStore.Alloc<ast::EndOfExpressionNode>());
+                    main.second->m_Children.insert(main.second->m_Children.begin() + 1, tempStore.Alloc<ast::EndOfExpressionNode>());
 
                     // mark for removal
                     outputPortsToRemove.insert(port);
@@ -236,9 +238,9 @@ namespace se::shader::compiler
             main.first++;
         }
 
-        for (auto *node: otherMain.second->Children)
+        for (auto *node: otherMain.second->m_Children)
         {
-            main.second->Children.push_back(node);
+            main.second->m_Children.push_back(node);
         }
 
         uint32_t offset = main.first + 1u;
@@ -266,7 +268,7 @@ namespace se::shader::compiler
     {
         for (auto& [name, port] : shader.GetInputPorts())
         {
-            if (port->GetPortName() == "VertexPosition")
+            if (port->GetPortName() == "InVertPos")
             {
                 //TODO Get attribute location from somewhere
                 shader.AddInput(arena.Alloc<ast::InputAttributeNode>(0, port->GetType(), name));
@@ -279,14 +281,51 @@ namespace se::shader::compiler
 
         for (auto& [name, port] : shader.GetOutputPorts())
         {
-            if (port->GetPortName() == "ProductionFragColour")
+            if (port->GetPortName() == "FinalFragColour")
             {
                 //TODO Get attribute location from somewhere
                 shader.AddOutput(arena.Alloc<ast::OutputNode>(port->GetType(), name));
             }
+            else if (port->GetPortName() == "FinalVertPos")
+            {
+                for (auto* node : shader.GetNodes())
+                {
+                    ForEachChild(node, [port](ast::ASTNode* child)
+                    {
+                        if (auto* varRefNode = dynamic_cast<ast::VariableReferenceNode*>(child))
+                        {
+                            if (varRefNode->GetName() == port->GetName())
+                            {
+                                varRefNode->SetName("gl_Position");
+                            }
+                        }
+                    });
+                }
+            }
             else
             {
                 logging::Log::Error("Unhandled unresolved output port! {0}", port->GetPortName());
+            }
+        }
+    }
+
+    void ShaderStageCombiner::ForEachChild(ast::ASTNode* node, std::function<void(ast::ASTNode* node)> func)
+    {
+        for (auto* child : node->m_Children)
+        {
+            func(child);
+            ForEachChild(child, func);
+        }
+    }
+
+    void CombineUniforms(ast::ShaderStage& leftCopy, const ast::ShaderStage& rightCopy)
+    {
+        for (const auto& [name, type] : rightCopy.GetUniformVariables())
+        {
+            if (!leftCopy.HasUniform(name, type))
+            {
+                std::string outError;
+                leftCopy.AddUniform(name, type, outError);
             }
         }
     }
@@ -298,6 +337,7 @@ namespace se::shader::compiler
         FixDuplicateNames(leftCopy, rightCopy);
         ConnectPorts(leftCopy, rightCopy, tempStore);
         CleanupDuplicatePorts(leftCopy, rightCopy);
+        CombineUniforms(leftCopy, rightCopy);
         CombineLogic(leftCopy, rightCopy);
         MergeRemainingPorts(leftCopy, rightCopy);
 
