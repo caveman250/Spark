@@ -7,6 +7,12 @@ namespace se::render::opengl
     {
     public:
         OpenGLRenderer();
+        void Init() override;
         void Render(IWindow* window) override;
+
+        PIXELFORMATDESCRIPTOR& GetPixelFormatDecriptor() { return m_PFD; };
+
+    private:
+        PIXELFORMATDESCRIPTOR m_PFD;
     };
 }

@@ -1,10 +1,12 @@
 #include "Window.h"
 #include "platform/IWindow.h"
-#include <gl/GL.h>
+#include <engine/render/opengl/GL_fwd.h>
 
 #include <unordered_map>
 
 #include "engine/logging/Log.h"
+#include "engine/render/Renderer.h"
+#include "engine/render/opengl/OpenGLRenderer.h"
 #include "platform/IRunLoop.h"
 
 #ifndef DWMWA_USE_IMMERSIVE_DARK_MODE
@@ -125,6 +127,7 @@ namespace se::windows
         }
     }
 
+
     void Window::CreateWindowsWindow(HINSTANCE instance)
     {
         DWORD style = WS_OVERLAPPEDWINDOW | WS_CLIPSIBLINGS | WS_CLIPCHILDREN;
@@ -150,37 +153,44 @@ namespace se::windows
         Hdc = GetDC(Hwnd);
         if (Hdc)
         {
-            int pixelFormat;
-            PIXELFORMATDESCRIPTOR pixelFormatDesc;
+            auto renderer = static_cast<render::opengl::OpenGLRenderer*>(render::Renderer::Get());
+            PIXELFORMATDESCRIPTOR& pfd = renderer->GetPixelFormatDecriptor();
+            memset( &pfd, 0, sizeof( PIXELFORMATDESCRIPTOR ) );
+            pfd.nSize = sizeof( PIXELFORMATDESCRIPTOR );
+            pfd.dwFlags = PFD_DOUBLEBUFFER | PFD_SUPPORT_OPENGL | PFD_DRAW_TO_WINDOW;
+            pfd.iPixelType = PFD_TYPE_RGBA;
+            pfd.cColorBits = 32;
+            pfd.cDepthBits = 32;
+            pfd.iLayerType = PFD_MAIN_PLANE;
 
-            /* initialize bits to 0 */
-            memset(&pixelFormatDesc, 0, sizeof(PIXELFORMATDESCRIPTOR));
-            pixelFormatDesc.nSize = sizeof(PIXELFORMATDESCRIPTOR);
-            pixelFormatDesc.nVersion = 1;
-            pixelFormatDesc.dwFlags = PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL;
-            pixelFormatDesc.iPixelType = PFD_TYPE_RGBA;
-            pixelFormatDesc.cColorBits = 32;
-            pixelFormatDesc.cAlphaBits = 8;
-            pixelFormatDesc.cDepthBits = 24;
+            int nPixelFormat = ChoosePixelFormat( Hdc, &pfd );
 
-            pixelFormat = ChoosePixelFormat(Hdc, &pixelFormatDesc);
-            if (pixelFormat)
-            {
-                if (SetPixelFormat(Hdc, pixelFormat, &pixelFormatDesc))
-                {
-                    Gglrc = wglCreateContext(Hdc);
-                    if (!Gglrc)
-                    {
-                        logging::Log::Fatal("wglCreateContext failed: Can not create render context.");
-                    }
-                } else
-                {
-                    logging::Log::Fatal("SetPixelFormat failed: Can not create render context.");
-                }
-            } else
-            {
-                logging::Log::Fatal("ChoosePixelFormat failed: Can not create render context.");
-            }
+            const int iPixelFormatAttribList[] = {
+                WGL_DRAW_TO_WINDOW_ARB, GL_TRUE,
+                WGL_SUPPORT_OPENGL_ARB, GL_TRUE,
+                WGL_DOUBLE_BUFFER_ARB, GL_TRUE,
+                WGL_PIXEL_TYPE_ARB, WGL_TYPE_RGBA_ARB,
+                WGL_COLOR_BITS_ARB, 32,
+                WGL_DEPTH_BITS_ARB, 24,
+                WGL_STENCIL_BITS_ARB, 8,
+                0 // End of attributes list
+            };
+            int attributes[] = {
+                WGL_CONTEXT_MAJOR_VERSION_ARB, 3
+                , WGL_CONTEXT_MINOR_VERSION_ARB, 2
+                , WGL_CONTEXT_FLAGS_ARB, WGL_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB,
+                WGL_CONTEXT_PROFILE_MASK_ARB, WGL_CONTEXT_CORE_PROFILE_BIT_ARB
+                , 0
+            };
+
+            nPixelFormat = 0;
+            UINT iNumFormats = 0;
+
+            wglChoosePixelFormatARB( Hdc, iPixelFormatAttribList, NULL, 1, &nPixelFormat, (UINT*)&iNumFormats );
+
+            SetPixelFormat( Hdc, nPixelFormat, &pfd );
+
+            Gglrc = wglCreateContextAttribsARB( Hdc, 0, attributes );
         } else
         {
             logging::Log::Fatal("GetDC failed: Can not create device context.");

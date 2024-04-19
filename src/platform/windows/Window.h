@@ -28,4 +28,6 @@ namespace se::windows
         HGLRC Gglrc;
         int SizeX, SizeY;
     };
+
+    HGLRC wglCreateContextAttribsARB(HDC hDC, HGLRC hshareContext, const int *attribList);
 }

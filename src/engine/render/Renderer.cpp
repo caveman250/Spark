@@ -8,6 +8,7 @@ namespace se::render
     Renderer * Renderer::Create()
     {
         s_Renderer = new opengl::OpenGLRenderer();
+        s_Renderer->Init();
         return s_Renderer;
     }
 

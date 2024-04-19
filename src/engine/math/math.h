@@ -5,8 +5,8 @@
 
 namespace se::math
 {
-    static inline bool FloatEqual(float a, float b)
-    {
-        return std::abs(a - b) <= FLT_EPSILON;
-    }
+    bool FloatEqual(float a, float b);
+    float Radians(float degrees);
+    float Degrees(float radians);
+    float InverseSqrt(float f);
 }

@@ -4,44 +4,160 @@
 
 namespace se::math
 {
-    Vec3 Vec3::operator+(const Vec3& rhs) const
+    float& Vec3::operator[](size_t i)
     {
-        return { x + rhs.x, y + rhs.y, z + rhs.z };
+        SPARK_ASSERT(i >= 0 && i <= 2);
+        switch(i)
+        {
+        default:
+        case 0:
+            return x;
+        case 1:
+            return y;
+        case 2:
+            return z;
+        }
     }
 
-    Vec3 Vec3::operator-(const Vec3& rhs) const
+    const float& Vec3::operator[](size_t i) const
     {
-        return { x - rhs.x, y - rhs.y, z - rhs.z };
+        SPARK_ASSERT(i >= 0 && i <= 2);
+        switch(i)
+        {
+        default:
+        case 0:
+            return x;
+        case 1:
+            return y;
+        case 2:
+            return z;
+        }
     }
 
-    Vec3 Vec3::operator*(const Vec3& rhs) const
+    Vec3& Vec3::operator+=(const Vec3& rhs)
     {
-        return { x * rhs.x, y * rhs.y, z * rhs.z };
+        x += rhs.x;
+        y += rhs.y;
+        z += rhs.z;
+        return *this;
     }
 
-    Vec3 Vec3::operator*(float scalar) const
+    Vec3& Vec3::operator+=(float scalar)
     {
-        return { x * scalar, y * scalar, z * scalar };
+        x += scalar;
+        y += scalar;
+        z += scalar;
+        return *this;
     }
 
-    Vec3 Vec3::operator/(const Vec3& rhs) const
+    Vec3& Vec3::operator-=(const Vec3& rhs)
     {
-        return { x / rhs.x, y / rhs.y, z / rhs.z };
+        x -= rhs.x;
+        y -= rhs.y;
+        z -= rhs.z;
+        return *this;
     }
 
-    Vec3 Vec3::operator/(float scalar) const
+    Vec3& Vec3::operator-=(float scalar)
+    {
+        x -= scalar;
+        y -= scalar;
+        z -= scalar;
+        return *this;
+    }
+
+    Vec3& Vec3::operator*=(const Vec3& rhs)
+    {
+        x *= rhs.x;
+        y *= rhs.y;
+        z *= rhs.z;
+        return *this;
+    }
+
+    Vec3& Vec3::operator*=(float scalar)
+    {
+        x *= scalar;
+        y *= scalar;
+        z *= scalar;
+        return *this;
+    }
+
+    Vec3& Vec3::operator/=(const Vec3& rhs)
+    {
+        x /= rhs.x;
+        y /= rhs.y;
+        z /= rhs.z;
+        return *this;
+    }
+
+    Vec3& Vec3::operator/=(float scalar)
+    {
+        x /= scalar;
+        y /= scalar;
+        z /= scalar;
+        return *this;
+    }
+
+    Vec3 operator-(const Vec3& lhs)
+    {
+        return {-lhs.x, -lhs.y, -lhs.z };
+    }
+
+    Vec3 operator+(const Vec3& lhs, const Vec3& rhs)
+    {
+        return { lhs.x + rhs.x, lhs.y + rhs.y, lhs.z + rhs.z };
+    }
+
+    Vec3 operator-(const Vec3& lhs, const Vec3& rhs)
+    {
+        return { lhs.x - rhs.x, lhs.y - rhs.y, lhs.z - rhs.z };
+    }
+
+    Vec3 operator*(const Vec3& lhs, const Vec3& rhs)
+    {
+        return { lhs.x * rhs.x, lhs.y * rhs.y, lhs.z * rhs.z };
+    }
+
+    Vec3 operator*(const Vec3& lhs, float scalar)
+    {
+        return { lhs.x * scalar, lhs.y * scalar, lhs.z * scalar };
+    }
+
+    Vec3 operator/(const Vec3& lhs, const Vec3& rhs)
+    {
+        return { lhs.x / rhs.x, lhs.y / rhs.y, lhs.z / rhs.z };
+    }
+
+    Vec3 operator/(const Vec3& lhs, float scalar)
     {
         const float div = 1.f / scalar;
-        return { x * div, y * div, z * div };
+        return { lhs.x * div, lhs.y * div, lhs.z * div };
     }
 
-    bool Vec3::operator==(const Vec3& rhs) const
+    bool operator==(const Vec3& lhs, const Vec3& rhs)
     {
-        return FloatEqual(x, rhs.x) && FloatEqual(y, rhs.y) && FloatEqual(z, rhs.z);
+        return FloatEqual(lhs.x, rhs.x) && FloatEqual(lhs.y, rhs.y) && FloatEqual(lhs.z, rhs.z);
     }
 
-    bool Vec3::operator!=(const Vec3& rhs) const
+    bool operator!=(const Vec3& lhs, const Vec3& rhs)
     {
-        return !(*this == rhs);
+        return !(lhs == rhs);
+    }
+
+    Vec3 Normalized(const Vec3& vec)
+    {
+        return vec * InverseSqrt(Dot(vec, vec));
+    }
+
+    float Dot(const Vec3& v1, const Vec3& v2)
+    {
+        return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
+    }
+
+    Vec3 Cross(const Vec3& v1, const Vec3& v2)
+    {
+        return Vec3(v1.y * v2.z - v2.y * v1.z,
+                    v1.z * v2.x - v2.z * v1.x,
+                    v1.x * v2.y - v2.x * v1.y);
     }
 }

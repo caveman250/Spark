@@ -48,6 +48,7 @@ namespace se::shader::ast
         InputAttributeNode* FindInputAttribute(const std::string& name) const;
         OutputNode* FindOutput(const std::string& name) const;
         bool RecordVariableForScope(const std::string& name, const Type& type, std::string& outError);
+        bool AddUniform(const std::string& name, const Type& type, std::string& outError);
 
         const std::map<std::string, InputAttributeNode*>& GetInputAttributes() const { return m_InputAttributes; }
         const std::map<std::string, OutputNode*>& GetOutputs() const { return m_Outputs; }
@@ -57,7 +58,8 @@ namespace se::shader::ast
         void InsertNode(size_t at, ASTNode* node);
         std::vector<AstScope>& GetScopeStack() { return m_ScopeStack; }
         std::map<std::string, Type>& GetGlobalVariables() { return m_GlobalVariables; }
-
+        const std::map<std::string, Type>& GetUniformVariables() const { return m_Uniforms; }
+        bool HasUniform(const std::string& name, Type type);
 
     private:
         bool m_MainDeclared = false;
@@ -67,6 +69,7 @@ namespace se::shader::ast
         std::map<std::string, OutputNode*> m_Outputs;
         std::vector<ASTNode*> m_AstNodes;
         std::vector<AstScope> m_ScopeStack;
+        std::map<std::string, Type> m_Uniforms;
         std::map<std::string, Type> m_GlobalVariables;
         parser::PortInfo m_PortInfo;
     };

@@ -12,6 +12,7 @@
 #include <array>
 #include <optional>
 #include <set>
+#include <cstdint>
 
 #include "engine/math/math.h"
 

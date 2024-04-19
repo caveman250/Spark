@@ -2,6 +2,8 @@
 
 #include "engine/logging/Log.h"
 #include "engine/shader/ShaderGenerator.h"
+#include "engine/shader/ast/Types.h"
+#include "engine/shader/ast/TypeUtil.h"
 
 namespace se::render
 {
@@ -32,6 +34,11 @@ namespace se::render::opengl
         {
             logging::Log::Error("Failed to load shaders vert: {0}, frag: {1}", m_VertShaderPath.c_str(), m_FragShaderPath.c_str());
             return;
+        }
+        else
+        {
+            logging::Log::Info("Result Vert Shader:\n {}", vert.value());
+            logging::Log::Info("Result Frag Shader:\n {}", frag.value());
         }
 
         // Create the shaders
@@ -87,5 +94,37 @@ namespace se::render::opengl
 
         glDeleteShader(VertexShaderID);
         glDeleteShader(FragmentShaderID);
+    }
+
+    void Material::SetUniform(const std::string& name, shader::ast::Type type, const void* value)
+    {
+        Bind();
+        GLuint uniformLoc = glGetUniformLocation(m_CompiledProgram, "MVP");
+
+        switch (type)
+        {
+        case shader::ast::Type::Float:
+            glUniform1f(uniformLoc, *static_cast<const float*>(value));
+            break;
+        case shader::ast::Type::Vec2:
+            glUniform2fv(uniformLoc, 1, static_cast<const float*>(value));
+            break;
+        case shader::ast::Type::Vec3:
+            glUniform3fv(uniformLoc, 1, static_cast<const float*>(value));
+            break;
+        case shader::ast::Type::Vec4:
+            glUniform4fv(uniformLoc, 1, static_cast<const float*>(value));
+            break;
+        case shader::ast::Type::Mat3:
+            glUniformMatrix3fv(uniformLoc, 1, false, static_cast<const float*>(value));
+            break;
+        case shader::ast::Type::Mat4:
+            glUniformMatrix4fv(uniformLoc, 1, false, static_cast<const float*>(value));
+            break;
+        case shader::ast::Type::Void:
+        case shader::ast::Type::Invalid:
+            logging::Log::Error("Material::SetUniform - Unhandled unfiorm type {}", shader::ast::TypeUtil::GetTypeGlsl(type));
+            break;
+        }
     }
 }

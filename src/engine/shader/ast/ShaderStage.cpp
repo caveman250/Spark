@@ -73,7 +73,7 @@ namespace se::shader::ast
 
         if (!m_ScopeStack.empty())
         {
-            m_ScopeStack.back().m_Node->Children.push_back(node);
+            m_ScopeStack.back().m_Node->m_Children.push_back(node);
         }
         else
         {
@@ -99,8 +99,6 @@ namespace se::shader::ast
         return m_ScopeStack.size() == 1 && dynamic_cast<MainNode *>(m_ScopeStack[0].m_Node) != nullptr;
     }
 
-
-
     bool ShaderStage::FindVariable(const std::string &name, Type &type) const
     {
         for (int i = m_ScopeStack.size() - 1; i > -1; --i)
@@ -115,6 +113,12 @@ namespace se::shader::ast
         if (m_GlobalVariables.contains(name))
         {
             type = m_GlobalVariables.at(name);
+            return true;
+        }
+
+        if (m_Uniforms.contains(name))
+        {
+            type = m_Uniforms.at(name);
             return true;
         }
 
@@ -236,9 +240,33 @@ namespace se::shader::ast
         return true;
     }
 
+    bool ShaderStage::AddUniform(const std::string& name, const Type& type, std::string& outError)
+    {
+        if (m_Uniforms.contains(name))
+        {
+            outError = std::format("{} redefinition", name);
+            return false;
+        }
+
+        m_Uniforms[name] = type;
+    }
+
     void ShaderStage::InsertNode(size_t at, ASTNode *node)
     {
         m_AstNodes.insert(m_AstNodes.begin() + at, node);
+    }
+
+    bool ShaderStage::HasUniform(const std::string& name, Type type)
+    {
+        for (const auto& [uniformName, uniformType] : m_Uniforms)
+        {
+            if (name == uniformName && type == uniformType)
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     std::pair<uint32_t, MainNode *> ShaderStage::FindMain() const

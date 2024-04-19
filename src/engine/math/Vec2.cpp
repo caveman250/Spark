@@ -4,44 +4,105 @@
 
 namespace se::math
 {
-    Vec2 Vec2::operator+(const Vec2& rhs) const
+    Vec2& Vec2::operator+=(const Vec2& rhs)
     {
-        return { x + rhs.x, y + rhs.y };
+        x += rhs.x;
+        y += rhs.y;
+        return *this;
     }
 
-    Vec2 Vec2::operator-(const Vec2& rhs) const
+    Vec2& Vec2::operator+=(float scalar)
     {
-        return { x - rhs.x, y - rhs.y };
+        x += scalar;
+        y += scalar;
+        return *this;
     }
 
-    Vec2 Vec2::operator*(const Vec2& rhs) const
+    Vec2& Vec2::operator-=(const Vec2& rhs)
     {
-        return { x * rhs.x, y * rhs.y };
+        x -= rhs.x;
+        y -= rhs.y;
+        return *this;
     }
 
-    Vec2 Vec2::operator*(float scalar) const
+    Vec2& Vec2::operator-=(float scalar)
     {
-        return { x * scalar, y * scalar };
+        x -= scalar;
+        y -= scalar;
+        return *this;
     }
 
-    Vec2 Vec2::operator/(const Vec2& rhs) const
+    Vec2& Vec2::operator*=(const Vec2& rhs)
     {
-        return { x / rhs.x, y / rhs.y };
+        x *= rhs.x;
+        y *= rhs.y;
+        return *this;
     }
 
-    Vec2 Vec2::operator/(float scalar) const
+    Vec2& Vec2::operator*=(float scalar)
+    {
+        x *= scalar;
+        y *= scalar;
+        return *this;
+    }
+
+    Vec2& Vec2::operator/=(const Vec2& rhs)
+    {
+        x /= rhs.x;
+        y /= rhs.y;
+        return *this;
+    }
+
+    Vec2& Vec2::operator/=(float scalar)
+    {
+        x /= scalar;
+        y /= scalar;
+        return *this;
+    }
+
+    Vec2 operator-(const Vec2& lhs)
+    {
+        return {-lhs.x, -lhs.y };
+    }
+
+    Vec2 operator+(const Vec2& lhs, const Vec2& rhs)
+    {
+        return { lhs.x + rhs.x, lhs.y + rhs.y };
+    }
+
+    Vec2 operator-(const Vec2& lhs, const Vec2& rhs)
+    {
+        return { lhs.x - rhs.x, lhs.y - rhs.y };
+    }
+
+    Vec2 operator*(const Vec2& lhs, const Vec2& rhs)
+    {
+        return { lhs.x * rhs.x, lhs.y * rhs.y };
+    }
+
+    Vec2 operator*(const Vec2& lhs, float scalar)
+    {
+        return { lhs.x * scalar, lhs.y * scalar };
+    }
+
+    Vec2 operator/(const Vec2& lhs, const Vec2& rhs)
+    {
+        return { lhs.x / rhs.x, lhs.y / rhs.y };
+    }
+
+    Vec2 operator/(const Vec2& lhs, float scalar)
     {
         const float div = 1.f / scalar;
-        return { x * div, y * div };
+        return { lhs.x * div, lhs.y * div };
     }
 
-    bool Vec2::operator==(const Vec2& rhs) const
+    bool operator==(const Vec2& lhs, const Vec2& rhs)
     {
-        return FloatEqual(x, rhs.x) && FloatEqual(y, rhs.y);
+        return FloatEqual(lhs.x, rhs.x) && FloatEqual(lhs.y, rhs.y);
     }
 
-    bool Vec2::operator!=(const Vec2& rhs) const
+    bool operator!=(const Vec2& lhs, const Vec2& rhs)
     {
-        return !(*this == rhs);
+        return !(lhs == rhs);
     }
 }

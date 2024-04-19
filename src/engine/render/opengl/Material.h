@@ -11,6 +11,9 @@ namespace se::render::opengl
         Material(const std::string& vertPath, const std::string& fragPath);
         void Bind() override;
         void CreatePlatformResources() override;
+        void SetUniform(const std::string& name, shader::ast::Type type, const void* value) override;
+
+        GLuint GetProgramID() { return m_CompiledProgram; }
     private:
         GLuint m_CompiledProgram = GL_INVALID_VALUE;
     };

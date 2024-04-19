@@ -12,40 +12,36 @@ namespace se::math
         {
         }
 
-        union
-        {
-            struct
-            {
-                float x;
-                float y;
-                float z;
-                float w;
-            };
+        union { float x, r, s; };
+        union { float y, g, t; };
+        union { float z, b, p; };
+        union { float w, a, q; };
 
-            float asArray[4];
-        };
+        float& operator[](size_t i);
+        const float& operator[](size_t i) const;
 
-        float operator[](int i) const
-        {
-            return asArray[i];
-        }
-
-        Vec4 operator+(const Vec4 &rhs) const;
-        Vec4 operator+=(const Vec4 &rhs) const;
-        Vec4 operator-(const Vec4 &rhs) const;
-        Vec4 operator*(const Vec4 &rhs) const;
-        Vec4 operator*(float scalar) const;
-        Vec4 operator/(const Vec4 &rhs) const;
-        Vec4 operator/(float scalar) const;
-        bool operator==(const Vec4 &rhs) const;
-        bool operator!=(const Vec4 &rhs) const;
+        Vec4& operator+=(const Vec4 &rhs);
+        Vec4& operator+=(float scalar);
+        Vec4& operator-=(const Vec4 &rhs);
+        Vec4& operator-=(float scalar);
+        Vec4& operator*=(const Vec4 &rhs);
+        Vec4& operator*=(float scalar);
+        Vec4& operator/=(const Vec4 &rhs);
+        Vec4& operator/=(float scalar);
     };
 
-    static Vec4 operator-(const Vec4 &lhs) { return {-lhs.x, -lhs.y, -lhs.z, -lhs.w}; }
+    Vec4 operator-(const Vec4 &lhs);
+    Vec4 operator+(const Vec4& lhs, const Vec4 &rhs);
+    Vec4 operator-(const Vec4& lhs, const Vec4 &rhs);
+    Vec4 operator*(const Vec4& lhs, const Vec4 &rhs);
+    Vec4 operator*(const Vec4& lhs, float scalar);
+    Vec4 operator/(const Vec4& lhs, const Vec4 &rhs);
+    Vec4 operator/(const Vec4& lhs, float scalar);
+    bool operator==(const Vec4& lhs, const Vec4 &rhs);
+    bool operator!=(const Vec4& lhs, const Vec4 &rhs);
 }
 
-template <>
-    struct std::formatter<se::math::Vec4>
+template <> struct std::formatter<se::math::Vec4>
 {
     constexpr auto parse(std::format_parse_context& ctx)
     {
