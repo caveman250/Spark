@@ -1,4 +1,5 @@
 #pragma once
+#include "RenderState.h"
 
 namespace se::shader::ast
 {
@@ -10,15 +11,17 @@ namespace se::render
     class Material
     {
     public:
-        static std::shared_ptr<Material> CreateMaterial(const std::string& vertPath, const std::string& fragPath);
+        static std::shared_ptr<Material> CreateMaterial(const std::vector<std::string>& filePaths, const std::vector<std::string>& fragPaths);
 
-        virtual void Bind() = 0;
+        virtual void Bind();
         virtual void CreatePlatformResources() = 0;
+        void SetRenderState(const RenderState& state);
 
         virtual void SetUniform(const std::string& name, shader::ast::Type type, const void* value) = 0;
     protected:
-        Material(const std::string& vertPath, const std::string& fragPath);
-        std::string m_VertShaderPath;
-        std::string m_FragShaderPath;
+        Material(const std::vector<std::string>& vertPaths, const std::vector<std::string>& fragPaths);
+        std::vector<std::string> m_VertShaderPath;
+        std::vector<std::string> m_FragShaderPath;
+        RenderState m_RenderState;
     };
 }

@@ -19,7 +19,7 @@ namespace se::render
         RenderCommand(const std::function<void()>& cmd) : command(cmd) {}
         std::function<void()> command;
 
-        static void Clear();
+        static void Clear(bool clearColour, bool clearDepth);
         static void SubmitGeo(const std::shared_ptr<Material>& material, const std::shared_ptr<VertexBuffer>& vertBuffer, int indexCount);
     };
 }

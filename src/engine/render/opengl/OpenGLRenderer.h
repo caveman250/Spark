@@ -13,6 +13,7 @@ namespace se::render::opengl
         PIXELFORMATDESCRIPTOR& GetPixelFormatDecriptor() { return m_PFD; };
 
     private:
+        void ApplyDepthCompare(DepthCompare comp) override;
         PIXELFORMATDESCRIPTOR m_PFD;
     };
 }

@@ -6,9 +6,9 @@
 
 namespace se::render
 {
-    std::shared_ptr<VertexBuffer> VertexBuffer::CreateVertexBuffer(const std::vector<math::Vec3> &vertices)
+    std::shared_ptr<VertexBuffer> VertexBuffer::CreateVertexBuffer(const std::vector<VertexStream>& streams)
     {
-        return std::make_shared<opengl::VertexBuffer>(vertices);
+        return std::make_shared<opengl::VertexBuffer>(streams);
     }
 }
 
@@ -16,32 +16,48 @@ namespace se::render::opengl
 {
     void VertexBuffer::CreatePlatformResource()
     {
-        glGenBuffers(1, &m_GlResource);
-        glBindBuffer(GL_ARRAY_BUFFER, m_GlResource);
-        glBufferData(GL_ARRAY_BUFFER, m_Vertices.size() * sizeof(math::Vec3), m_Vertices.data(), GL_STATIC_DRAW);
+        GLuint VertexArrayID = {};
+        glGenVertexArrays(1, &VertexArrayID);
+        glBindVertexArray(VertexArrayID);
+
+        for (const auto& [usage, stream] : m_VertexStreams)
+        {
+            glGenBuffers(1, &m_GlResources[usage]);
+            glBindBuffer(GL_ARRAY_BUFFER, m_GlResources[usage]);
+            glBufferData(GL_ARRAY_BUFFER, stream.data.size() * sizeof(float), stream.data.data(), GL_STATIC_DRAW);
+        }
     }
 
     void VertexBuffer::Bind()
     {
-        glEnableVertexAttribArray(0);
-        glBindBuffer(GL_ARRAY_BUFFER, m_GlResource);
-        glVertexAttribPointer(
-           0,                  // attribute 0. No particular reason for 0, but must match the layout in the shader.
-           3,                  // size
-           GL_FLOAT,           // type
-           GL_FALSE,           // normalized?
-           0,                  // stride
-           (void*)0            // array buffer offset
-        );
+        uint8_t loc = 0;
+        for (const auto& [usage, stream] : m_VertexStreams)
+        {
+            glEnableVertexAttribArray(loc);
+            glBindBuffer(GL_ARRAY_BUFFER, m_GlResources[usage]);
+            glVertexAttribPointer(
+               loc,
+               stream.stride,
+               GL_FLOAT,
+               GL_FALSE,
+               0,
+               nullptr
+            );
+            loc++;
+        }
     }
 
     void VertexBuffer::Unbind()
     {
-        glDisableVertexAttribArray(0);
+        uint8_t loc = 0;
+        for (const auto& [usage, stream] : m_VertexStreams)
+        {
+            glDisableVertexAttribArray(loc++);
+        }
     }
 
-    VertexBuffer::VertexBuffer(const std::vector<math::Vec3> &vertices)
-        : render::VertexBuffer(vertices)
+    VertexBuffer::VertexBuffer(const std::vector<VertexStream>& streams)
+        : render::VertexBuffer(streams)
     {
 
     }

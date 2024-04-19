@@ -1,11 +1,12 @@
 #pragma once
 #include "spark.h"
 #include "ASTNode.h"
+#include "InputNode.h"
 #include "Types.h"
 
 namespace se::shader::ast
 {
-    class InputAttributeNode : public ASTNode
+    class InputAttributeNode : public InputNode
     {
     public:
         InputAttributeNode(uint8_t location, Type type, const std::string& name);
@@ -17,7 +18,5 @@ namespace se::shader::ast
         const std::string& GetName() const { return m_Name; }
     private:
         uint8_t m_Location;
-        Type m_Type;
-        std::string m_Name;
     };
 }

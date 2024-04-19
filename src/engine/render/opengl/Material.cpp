@@ -1,5 +1,6 @@
 #include "Material.h"
 
+#include "GL_fwd.h"
 #include "engine/logging/Log.h"
 #include "engine/shader/ShaderGenerator.h"
 #include "engine/shader/ast/Types.h"
@@ -7,32 +8,34 @@
 
 namespace se::render
 {
-    std::shared_ptr<Material> Material::CreateMaterial(const std::string &vertPath, const std::string &fragPath)
+    std::shared_ptr<Material> Material::CreateMaterial(const std::vector<std::string>& vertPaths, const std::vector<std::string>& fragPaths)
     {
-        return std::make_shared<opengl::Material>(vertPath, fragPath);
+        return std::make_shared<opengl::Material>(vertPaths, fragPaths);
     }
 }
 
 namespace se::render::opengl
 {
-    Material::Material(const std::string &vertPath, const std::string &fragPath)
-        : render::Material(vertPath, fragPath)
+    Material::Material(const std::vector<std::string>& vertPaths, const std::vector<std::string>& fragPaths)
+        : render::Material(vertPaths, fragPaths)
     {
     }
 
     void Material::Bind()
     {
+        render::Material::Bind();
         glUseProgram(m_CompiledProgram);
+
     }
 
     void Material::CreatePlatformResources()
     {
         std::optional<std::string> vert = se::shader::ShaderGenerator::CompileShader({ m_VertShaderPath });
-        std::optional<std::string> frag = se::shader::ShaderGenerator::CompileShader( { m_FragShaderPath, "../builtin_assets/shader2.frag" });
+        std::optional<std::string> frag = se::shader::ShaderGenerator::CompileShader( { m_FragShaderPath });
 
         if (!vert.has_value() || !frag.has_value())
         {
-            logging::Log::Error("Failed to load shaders vert: {0}, frag: {1}", m_VertShaderPath.c_str(), m_FragShaderPath.c_str());
+           // logging::Log::Error("Failed to load shaders vert: {0}, frag: {1}", m_VertShaderPath.c_str(), m_FragShaderPath.c_str());
             return;
         }
         else
@@ -100,6 +103,7 @@ namespace se::render::opengl
     {
         Bind();
         GLuint uniformLoc = glGetUniformLocation(m_CompiledProgram, "MVP");
+        GL_CHECK_ERROR()
 
         switch (type)
         {
@@ -126,5 +130,7 @@ namespace se::render::opengl
             logging::Log::Error("Material::SetUniform - Unhandled unfiorm type {}", shader::ast::TypeUtil::GetTypeGlsl(type));
             break;
         }
+
+        GL_CHECK_ERROR()
     }
 }

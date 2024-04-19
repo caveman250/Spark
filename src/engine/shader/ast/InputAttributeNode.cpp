@@ -8,9 +8,8 @@
 namespace se::shader::ast
 {
     InputAttributeNode::InputAttributeNode(uint8_t location, Type type, const std::string& name)
-        : m_Location(location)
-          , m_Type(type)
-          , m_Name(name)
+        : InputNode(type, name)
+        , m_Location(location)
     {
     }
 

@@ -100,7 +100,7 @@ namespace se::windows
                 delete window;
                 break;
         }
-        return DefWindowProc(hWnd, message, wParam, lParam);;
+        return DefWindowProcW(hWnd, message, wParam, lParam);
     }
 
 

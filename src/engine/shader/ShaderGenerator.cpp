@@ -61,7 +61,7 @@ std::string se::shader::ShaderGenerator::AstToGlsl(ast::ShaderStage &ast)
 
     shader.append("#version 330 core\n"); //TODO this is old right?
 
-    for (const auto &[name, node]: ast.GetInputAttributes())
+    for (const auto &[name, node]: ast.GetInputs())
     {
         node->ToGlsl(shader);
     }

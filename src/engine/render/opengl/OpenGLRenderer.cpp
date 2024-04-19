@@ -86,11 +86,42 @@ namespace se::render::opengl
 
     void OpenGLRenderer::Render(IWindow* window)
     {
-        for (const auto& renderCmd : RenderCommands[window])
+        ExecuteDrawCommands(window);
+        glFlush();
+    }
+
+    void OpenGLRenderer::ApplyDepthCompare(DepthCompare comp)
+    {
+        if (comp == DepthCompare::None)
         {
-            renderCmd.command();
+            glDisable(GL_DEPTH_TEST);
+        }
+        else
+        {
+            glEnable(GL_DEPTH_TEST);
         }
 
-        glFlush();
+        GL_CHECK_ERROR()
+
+        switch (comp)
+        {
+        case DepthCompare::Less:
+            glDepthFunc(GL_LESS);
+            break;
+        case DepthCompare::LessEqual:
+            glDepthFunc(GL_LESS);
+            break;
+        case DepthCompare::Equal:
+            glDepthFunc(GL_LESS);
+            break;
+        case DepthCompare::Greater:
+            glDepthFunc(GL_LESS);
+            break;
+        case DepthCompare::GreaterEqual:
+            glDepthFunc(GL_LESS);
+            break;
+        }
+
+        GL_CHECK_ERROR()
     }
 }
