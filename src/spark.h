@@ -15,6 +15,7 @@
 #include <cstdint>
 
 #include "engine/math/math.h"
+#include "engine/logging/Log.h"
 
 #if SPARK_PLATFORM_WINDOWS
 #include <windows.h>
