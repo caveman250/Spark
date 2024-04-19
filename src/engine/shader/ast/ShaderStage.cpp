@@ -5,7 +5,7 @@
 #include "AssignmentNode.h"
 #include "ASTNode.h"
 #include "EndOfExpressionNode.h"
-#include "InputAttributeNode.h"
+#include "InputNode.h"
 #include "InputPortNode.h"
 #include "OutputPortNode.h"
 #include "MainNode.h"
@@ -43,11 +43,11 @@ namespace se::shader::ast
         m_OutputPorts.erase(varName);
     }
 
-    void ShaderStage::AddInput(InputAttributeNode *node)
+    void ShaderStage::AddInput(InputNode *node)
     {
-        if (SPARK_VERIFY(!m_InputAttributes.contains(node->GetName())))
+        if (SPARK_VERIFY(!m_Inputs.contains(node->GetName())))
         {
-            m_InputAttributes[node->GetName()] = node;
+            m_Inputs[node->GetName()] = node;
         }
     }
 
@@ -134,7 +134,7 @@ namespace se::shader::ast
             return true;
         }
 
-        if (InputAttributeNode *input = FindInputAttribute(name))
+        if (InputNode *input = FindInput(name))
         {
             type = input->GetType();
             return true;
@@ -193,11 +193,11 @@ namespace se::shader::ast
         return nullptr;
     }
 
-    InputAttributeNode *ShaderStage::FindInputAttribute(const std::string &name) const
+    InputNode *ShaderStage::FindInput(const std::string &name) const
     {
-        if (m_InputAttributes.contains(name))
+        if (m_Inputs.contains(name))
         {
-            return m_InputAttributes.at(name);
+            return m_Inputs.at(name);
         }
 
         return nullptr;

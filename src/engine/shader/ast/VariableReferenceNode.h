@@ -8,7 +8,7 @@ namespace se::shader::ast
 
 namespace se::shader::ast
 {
-    class InputAttributeNode;
+    class InputNode;
 }
 
 namespace se::shader::ast

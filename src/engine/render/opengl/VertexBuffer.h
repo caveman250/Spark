@@ -12,9 +12,9 @@ namespace se::render::opengl
         void Bind() override;
         void Unbind() override;
 
-        VertexBuffer(const std::vector<math::Vec3>& vertices);
+        VertexBuffer(const std::vector<VertexStream>& streams);
 
     private:
-        GLuint m_GlResource;
+        std::unordered_map<VertexStreamType, GLuint> m_GlResources;
     };
 }

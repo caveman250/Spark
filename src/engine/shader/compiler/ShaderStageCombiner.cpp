@@ -273,6 +273,19 @@ namespace se::shader::compiler
                 //TODO Get attribute location from somewhere
                 shader.AddInput(arena.Alloc<ast::InputAttributeNode>(0, port->GetType(), name));
             }
+            else if (port->GetPortName() == "InVertColour")
+            {
+                shader.AddInput(arena.Alloc<ast::InputAttributeNode>(1, port->GetType(), name));
+            }
+            else if (port->GetPortName() == "FragVertColour")
+            {
+                shader.AddInput(arena.Alloc<ast::InputNode>(port->GetType(), "fragmentVertColour"));
+                std::map<std::string, std::string> renameMap = { { name, "fragmentVertColour" } };
+                for (auto* node : shader.GetNodes())
+                {
+                    node->ApplyNameRemapping(renameMap);
+                }
+            }
             else
             {
                 logging::Log::Error("Unhandled unresolved input port! {0}", port->GetPortName());
@@ -301,6 +314,18 @@ namespace se::shader::compiler
                         }
                     });
                 }
+            }
+            else if (port->GetPortName() == "FinalVertColour")
+            {
+                //TODO Get attribute location from somewhere
+                shader.AddOutput(arena.Alloc<ast::OutputNode>(port->GetType(), "fragmentVertColour"));
+                // urgh names have to match the frag shader.
+                std::map<std::string, std::string> renameMap = { { name, "fragmentVertColour" } };
+                for (auto* node : shader.GetNodes())
+                {
+                    node->ApplyNameRemapping(renameMap);
+                }
+
             }
             else
             {

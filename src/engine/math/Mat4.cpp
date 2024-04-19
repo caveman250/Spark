@@ -250,4 +250,11 @@ namespace se::math
         ret[3][2] = Dot(f, eye);
         return ret;
     }
+
+    Mat4 Translation(const Vec3& v)
+    {
+        Mat4 ret;
+        ret[3] = ret[0] * v[0] + ret[1] * v[1] + ret[2] * v[2] + ret[3];
+        return ret;
+    }
 }

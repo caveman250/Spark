@@ -27,8 +27,25 @@ namespace se::render
         RenderCommands[window].push_back(renderCmd);
     }
 
+    void Renderer::ApplyRenderState(const RenderState& rs)
+    {
+        if (rs != m_CachedRenderState)
+        {
+            ApplyDepthCompare(rs.depthComp);
+            m_CachedRenderState = rs;
+        }
+    }
+
     void Renderer::EndFrame()
     {
         RenderCommands.clear();
+    }
+
+    void Renderer::ExecuteDrawCommands(IWindow* window)
+    {
+        for (const auto& renderCmd : RenderCommands[window])
+        {
+            renderCmd.command();
+        }
     }
 }
