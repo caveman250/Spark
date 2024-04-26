@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Struct.h"
+#include "Blob.h"
 
 namespace se::asset::binary
 {
@@ -31,8 +32,9 @@ namespace se::asset::binary
         Struct GetStruct(uint32_t structIndex);
 
         uint32_t GetObjectOffset(const Object& obj);
-
         Object GetObjectAt(uint32_t offset);
+        uint32_t GetBlobOffset(const Blob& blob);
+        Blob GetBlobAt(uint32_t offset);
 
         char* m_Data;
         Struct m_Struct;
@@ -94,6 +96,27 @@ namespace se::asset::binary
         return GetString(field);
     }
 
+    // Blob Specializations
+    template<>
+    inline void Object::Set<Blob>(const std::string& field, const Blob& val)
+    {
+#if !SPARK_DIST
+        CheckType<Blob>(m_Struct.GetFieldType(m_Struct.GetFieldIndex(field)));
+#endif
+        uint32_t offset = GetBlobOffset(val);
+        Set(m_Struct.GetFieldIndex(field), reinterpret_cast<const char*>(&offset), sizeof(uint32_t));
+    }
+
+    template<>
+    inline const Blob Object::Get<Blob>(const std::string& field)
+    {
+#if !SPARK_DIST
+        CheckType<Blob>(m_Struct.GetFieldType(m_Struct.GetFieldIndex(field)));
+#endif
+        uint32_t offset = *reinterpret_cast<uint32_t*>(m_Data + m_Struct.GetFieldOffset(m_Struct.GetFieldIndex(field)));
+        return GetBlobAt(offset);
+    }
+
 #if !SPARK_DIST
     template<typename T>
     void CheckType(Type type)
@@ -141,6 +164,9 @@ namespace se::asset::binary
                 break;
             case Type::String:
                 SPARK_ASSERT(typeid(T) == typeid(const char*));
+                break;
+            case Type::Blob:
+                SPARK_ASSERT(typeid(T) == typeid(Blob));
                 break;
             default:
                 SPARK_ASSERT(false, "CheckType - Unrecognized type!");

@@ -8,7 +8,6 @@
 #include "ast/ShaderStage.h"
 #include "ast/TypeUtil.h"
 #include "compiler/ShaderStageCombiner.h"
-#include "engine/logging/Log.h"
 #include "engine/memory/Arena.h"
 #include "parser/Lexer.h"
 #include "parser/Parser.h"
@@ -20,18 +19,18 @@ std::optional<std::string> se::shader::ShaderGenerator::CompileShader(const std:
     std::vector<ast::ShaderStage> additionalStages;
     for (auto& path : filePaths)
     {
-        logging::Log::Info("Compiling shader: {0}", path.c_str());
+        debug::Log::Info("Compiling shader: {0}", path.c_str());
         parser::Lexer lexer(path);
         parser::Parser parser(lexer, &arena);
         auto result = parser.Parse();
         if (std::holds_alternative<parser::ParseError>(result))
         {
             auto parseError = std::get<parser::ParseError>(result);
-            logging::Log::Error("Shader Compile Error - {0} - line:{1} pos:{2}: {3}", path, parseError.line,
+            debug::Log::Error("Shader Compile Error - {0} - line:{1} pos:{2}: {3}", path, parseError.line,
                                     parseError.pos, parseError.error);
             return std::nullopt;
         }
-        logging::Log::Info("Sucess");
+        debug::Log::Info("Sucess");
 
         if (!firstStage.has_value())
         {

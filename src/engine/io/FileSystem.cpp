@@ -1,7 +1,5 @@
 #include "FileSystem.h"
 
-#include "engine/logging/Log.h"
-
 namespace se::io
 {
     std::string FileSystem::ReadTextFile(const std::string& path)
@@ -17,7 +15,7 @@ namespace se::io
         }
         else
         {
-            logging::Log::Error("Cannot open file {0}!", path.c_str());
+            debug::Log::Error("Cannot open file {0}!", path.c_str());
         }
 
         return fileContents;

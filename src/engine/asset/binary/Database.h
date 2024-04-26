@@ -3,6 +3,7 @@
 #include "Struct.h"
 #include "binary.h"
 #include "Object.h"
+#include "Blob.h"
 
 namespace se::asset::binary
 {
@@ -20,6 +21,10 @@ namespace se::asset::binary
 
         uint32_t CreateString(const std::string& str);
         const char* GetStringAt(uint32_t offset);
+
+        Blob CreateBlob(char* data, uint32_t size);
+        uint32_t GetBlobOffset(const Blob& blob);
+        Blob GetBlobAt(uint32_t offset);
 
         Object GetRoot();
         void SetRootStruct(uint32_t structIndex);
@@ -49,6 +54,11 @@ namespace se::asset::binary
         void SetStringsDataSize(uint32_t size);
         uint32_t GrowStringsData(uint32_t size);
 
+        uint32_t GetBlobDataSize();
+        void SetBlobDataSize(uint32_t size);
+        uint32_t GrowBlobData(uint32_t size);
+
+
         bool m_ReadOnly = true;
 
         char* m_Structs = nullptr;
@@ -72,5 +82,13 @@ namespace se::asset::binary
         //...
         // stringNSize (uint32_t)
         // stringN
+
+        char* m_BlobData = nullptr;
+        // blobs size (uint32_t)
+        // blob1Size (uint32_t)
+        // blob1
+        //...
+        // blobNSize (uint32_t)
+        // blobN
     };
 }

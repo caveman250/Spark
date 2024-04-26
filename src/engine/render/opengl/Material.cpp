@@ -1,7 +1,6 @@
 #include "Material.h"
 
 #include "GL_fwd.h"
-#include "engine/logging/Log.h"
 #include "engine/shader/ShaderGenerator.h"
 #include "engine/shader/ast/Types.h"
 #include "engine/shader/ast/TypeUtil.h"
@@ -30,18 +29,17 @@ namespace se::render::opengl
 
     void Material::CreatePlatformResources()
     {
-        std::optional<std::string> vert = se::shader::ShaderGenerator::CompileShader({ m_VertShaderPath });
-        std::optional<std::string> frag = se::shader::ShaderGenerator::CompileShader( { m_FragShaderPath });
+        std::optional<std::string> vert = se::shader::ShaderGenerator::CompileShader(m_VertShaderPaths);
+        std::optional<std::string> frag = se::shader::ShaderGenerator::CompileShader(m_FragShaderPaths);
 
         if (!vert.has_value() || !frag.has_value())
         {
-           // logging::Log::Error("Failed to load shaders vert: {0}, frag: {1}", m_VertShaderPath.c_str(), m_FragShaderPath.c_str());
             return;
         }
         else
         {
-            logging::Log::Info("Result Vert Shader:\n {}", vert.value());
-            logging::Log::Info("Result Frag Shader:\n {}", frag.value());
+            debug::Log::Info("Result Vert Shader:\n {}", vert.value());
+            debug::Log::Info("Result Frag Shader:\n {}", frag.value());
         }
 
         // Create the shaders
@@ -74,7 +72,7 @@ namespace se::render::opengl
         {
             std::vector<char> FragmentShaderErrorMessage(InfoLogLength + 1);
             glGetShaderInfoLog(FragmentShaderID, InfoLogLength, NULL, &FragmentShaderErrorMessage[0]);
-            logging::Log::Error("{0}", &FragmentShaderErrorMessage[0]);
+            debug::Log::Error("{0}", &FragmentShaderErrorMessage[0]);
         }
 
         m_CompiledProgram = glCreateProgram();
@@ -89,7 +87,7 @@ namespace se::render::opengl
         {
             std::vector<char> ProgramErrorMessage(InfoLogLength + 1);
             glGetProgramInfoLog(m_CompiledProgram, InfoLogLength, NULL, &ProgramErrorMessage[0]);
-            logging::Log::Error("{0}", &ProgramErrorMessage[0]);
+            debug::Log::Error("{0}", &ProgramErrorMessage[0]);
         }
 
         glDetachShader(m_CompiledProgram, VertexShaderID);
@@ -127,7 +125,7 @@ namespace se::render::opengl
             break;
         case shader::ast::Type::Void:
         case shader::ast::Type::Invalid:
-            logging::Log::Error("Material::SetUniform - Unhandled unfiorm type {}", shader::ast::TypeUtil::GetTypeGlsl(type));
+            debug::Log::Error("Material::SetUniform - Unhandled unfiorm type {}", shader::ast::TypeUtil::GetTypeGlsl(type));
             break;
         }
 

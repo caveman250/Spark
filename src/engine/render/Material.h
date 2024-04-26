@@ -20,8 +20,8 @@ namespace se::render
         virtual void SetUniform(const std::string& name, shader::ast::Type type, const void* value) = 0;
     protected:
         Material(const std::vector<std::string>& vertPaths, const std::vector<std::string>& fragPaths);
-        std::vector<std::string> m_VertShaderPath;
-        std::vector<std::string> m_FragShaderPath;
+        std::vector<std::string> m_VertShaderPaths;
+        std::vector<std::string> m_FragShaderPaths;
         RenderState m_RenderState;
     };
 }

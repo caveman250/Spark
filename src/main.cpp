@@ -171,6 +171,7 @@ int main(int argc, char* argv[])
         { asset::binary::CreateFixedString32("colour"), asset::binary::Type::Vec3 },
         { asset::binary::CreateFixedString32("object"), asset::binary::Type::Object },
         { asset::binary::CreateFixedString32("str"), asset::binary::Type::String },
+        { asset::binary::CreateFixedString32("blob"), asset::binary::Type::Blob },
     };
     auto structIndex1 = db->CreateStruct(structLayout);
     db->SetRootStruct(structIndex1);
@@ -190,6 +191,10 @@ int main(int argc, char* argv[])
     root.Set("colour", math::Vec3(1.f, 0.5f, 0.2f));
     root.Set("object", obj);
     root.Set("str", std::string("here is a striiiiiiiiing"));
+
+    const char* someData = "0x80085";
+    auto blob = db->CreateBlob(const_cast<char*>(someData), 6);
+    root.Set("blob", blob);
     db->Save("test.sass");
 
     std::shared_ptr<asset::binary::Database> db2 = asset::binary::Database::Load("test.sass", false);
@@ -200,6 +205,9 @@ int main(int argc, char* argv[])
     auto sameObj = obj2.Get<asset::binary::Object>("object");
     auto test = sameObj.Get<int32_t>("test");
     auto test2 = sameObj.Get<int32_t>("test2");
+    auto sameBlob = obj2.Get<asset::binary::Blob>("blob");
+    auto size = sameBlob.GetSize();
+    const char* blobData = sameBlob.GetData();
 
     delete runLoop;
 }

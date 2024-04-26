@@ -15,8 +15,8 @@ namespace se::render
     }
 
     Material:: Material(const std::vector<std::string>& vertPaths, const std::vector<std::string>& fragPaths)
-        : m_VertShaderPath(vertPaths)
-        , m_FragShaderPath(fragPaths)
+        : m_VertShaderPaths(vertPaths)
+        , m_FragShaderPaths(fragPaths)
     {
     }
 }

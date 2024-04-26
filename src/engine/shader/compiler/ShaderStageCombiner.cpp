@@ -1,7 +1,6 @@
 #include "ShaderStageCombiner.h"
 
 #include "spark.h"
-#include "engine/logging/Log.h"
 #include "engine/shader/ast/EndOfExpressionNode.h"
 #include "engine/shader/ast/MainNode.h"
 
@@ -288,7 +287,7 @@ namespace se::shader::compiler
             }
             else
             {
-                logging::Log::Error("Unhandled unresolved input port! {0}", port->GetPortName());
+                debug::Log::Error("Unhandled unresolved input port! {0}", port->GetPortName());
             }
         }
 
@@ -329,7 +328,7 @@ namespace se::shader::compiler
             }
             else
             {
-                logging::Log::Error("Unhandled unresolved output port! {0}", port->GetPortName());
+                debug::Log::Error("Unhandled unresolved output port! {0}", port->GetPortName());
             }
         }
     }
