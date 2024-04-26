@@ -18,12 +18,27 @@ namespace se::asset::binary
     {
         if (m_ReadOnly)
         {
-            std::free(m_Structs); // all one allocation
+            if (m_Structs)
+            {
+                std::free(m_Structs); // all one allocation
+            }
         }
         else
         {
-            std::free(m_Structs);
-            std::free(m_Objects);
+            if (m_Structs)
+            {
+                std::free(m_Structs);
+            }
+
+            if (m_Objects)
+            {
+                std::free(m_Objects);
+            }
+
+            if (m_Strings)
+            {
+                std::free(m_Strings);
+            }
         }
     }
 
