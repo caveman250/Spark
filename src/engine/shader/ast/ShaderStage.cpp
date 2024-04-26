@@ -249,6 +249,7 @@ namespace se::shader::ast
         }
 
         m_Uniforms[name] = type;
+        return true;
     }
 
     void ShaderStage::InsertNode(size_t at, ASTNode *node)
