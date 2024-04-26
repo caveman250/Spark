@@ -4,7 +4,6 @@
 #include "NameGenerator.h"
 #include "OutputNode.h"
 #include "ShaderStage.h"
-#include "engine/logging/Log.h"
 
 namespace se::shader::ast
 {
@@ -18,7 +17,7 @@ namespace se::shader::ast
         }
         else
         {
-            logging::Log::Error("ShaderCompiler: VariableReferenceNode cannot find variable with name {0}", name);
+            debug::Log::Error("ShaderCompiler: VariableReferenceNode cannot find variable with name {0}", name);
         }
     }
 

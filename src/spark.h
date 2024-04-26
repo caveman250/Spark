@@ -1,6 +1,6 @@
 #pragma once
 
-#include <stdio.h>
+#include <cstdio>
 #include <vector>
 #include <functional>
 #include <string>
@@ -14,9 +14,12 @@
 #include <set>
 #include <cstdint>
 #include <print>
+#include <algorithm>
+#include <ranges>
+#include <utility>
 
 #include "engine/math/math.h"
-#include "engine/logging/Log.h"
+#include "engine/debug/Log.h"
 
 #if SPARK_PLATFORM_WINDOWS
 #include <windows.h>

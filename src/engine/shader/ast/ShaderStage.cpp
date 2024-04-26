@@ -13,7 +13,6 @@
 #include "OutputNode.h"
 #include "VariableDeclarationNode.h"
 #include "VariableReferenceNode.h"
-#include "engine/logging/Log.h"
 
 namespace se::shader::ast
 {
@@ -65,7 +64,7 @@ namespace se::shader::ast
         {
             if (!SPARK_VERIFY(m_ScopeStack.empty()))
             {
-                logging::Log::Error("ShaderStage::AddNode - Main declared within another scope.");
+                debug::Log::Error("ShaderStage::AddNode - Main declared within another scope.");
             }
 
             m_MainDeclared = true;

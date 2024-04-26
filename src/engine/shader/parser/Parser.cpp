@@ -1,13 +1,5 @@
 #include "Parser.h"
 
-#include <algorithm>
-#include <ranges>
-#include <utility>
-
-#include "engine/logging/Log.h"
-#include "engine/math/Vec2.h"
-#include "engine/math/Vec3.h"
-#include "engine/math/Vec4.h"
 #include "engine/shader/ast/AnonymousScopeNode.h"
 #include "engine/shader/ast/AssignmentNode.h"
 #include "engine/shader/ast/ConstantNode.h"
@@ -19,7 +11,6 @@
 #include "engine/shader/ast/Operators.h"
 #include "engine/shader/ast/OutputNode.h"
 #include "engine/shader/ast/OutputPortNode.h"
-#include "engine/shader/ast/PropertyAccessNode.h"
 #include "engine/shader/ast/Types.h"
 #include "engine/shader/ast/TypeUtil.h"
 #include "engine/shader/ast/VariableDeclarationNode.h"
@@ -27,7 +18,6 @@
 #include "engine/shader/ast/Vec2Node.h"
 #include "engine/shader/ast/Vec3Node.h"
 #include "engine/shader/ast/Vec4Node.h"
-#include "engine/shader/ast/VertexPositionOutputNode.h"
 
 namespace se::shader::ast
 {
@@ -93,7 +83,7 @@ namespace se::shader::parser
             }
             else
             {
-                logging::Log::Error(std::get<std::string>(nextToken));
+                debug::Log::Error(std::get<std::string>(nextToken));
             }
         }
 

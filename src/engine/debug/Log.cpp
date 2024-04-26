@@ -4,7 +4,7 @@
 #include <cstdio>
 
 
-namespace se::logging
+namespace se::debug
 {
 
 }

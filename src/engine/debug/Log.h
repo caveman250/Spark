@@ -1,6 +1,6 @@
 #pragma once
 
-namespace se::logging
+namespace se::debug
 {
     enum class LogLevel;
     class Log
@@ -26,7 +26,6 @@ namespace se::logging
 #define BEGIN_WHITE printf("\033[0;37m");
 #define BEGIN_RED printf("\033[0;31m");
 #define BEGIN_FATAL printf("\033[0;41m");
-
 #define END_COLOUR printf("\033[0m\n");
 
 

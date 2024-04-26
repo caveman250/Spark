@@ -49,4 +49,14 @@ namespace se::asset::binary
         uint32_t offset = m_DB->CreateString(val);
         Set(m_Struct.GetFieldIndex(field), reinterpret_cast<const char*>(&offset), sizeof(uint32_t));
     }
+
+    uint32_t Object::GetBlobOffset(const Blob& blob)
+    {
+        return m_DB->GetBlobOffset(blob);
+    }
+
+    Blob Object::GetBlobAt(uint32_t offset)
+    {
+        return m_DB->GetBlobAt(offset);
+    }
 }

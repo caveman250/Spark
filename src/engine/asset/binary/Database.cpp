@@ -6,12 +6,12 @@ namespace se::asset::binary
     constexpr uint32_t s_StructsHeaderSize = sizeof(uint32_t) * 2; // numStructs (uint32_t), totalStructsSize (uint32_t)]
     constexpr uint32_t s_ObjectsHeaderSize = sizeof(uint32_t); // totalSize (uint32_t)
     constexpr uint32_t s_StringsHeaderSize = sizeof(uint32_t); // totalSize (uint32_t)
+    constexpr uint32_t s_BlobsHeaderSize = sizeof(uint32_t); // totalSize (uint32_t)
 
 
     Database::Database(bool readOnly)
             : m_ReadOnly(readOnly)
     {
-
     }
 
     Database::~Database()
@@ -74,10 +74,6 @@ namespace se::asset::binary
         }
 
         uint32_t reqSize = CalcStructDefinitionDataSize(structLayout);
-        if (!m_Structs)
-        {
-            reqSize += s_StructsHeaderSize;
-        }
         uint32_t pos = GrowStructData(reqSize);
         CreateStructData(structLayout, m_Structs + pos);
 
@@ -110,18 +106,16 @@ namespace se::asset::binary
             structCount++;
             SetNumStructs(structCount);
 
-            uint32_t structsSize = GetStructsDataSize();
-            nextStructPos = structsSize;
-            structsSize += size;
-            SetStructsDataSize(structsSize);
+            nextStructPos = structDataSize;
         }
         else
         {
             m_Structs = newStructData;
             SetNumStructs(1);
-            SetStructsDataSize(size);
             nextStructPos = s_StructsHeaderSize;
         }
+
+        SetStructsDataSize(structDataSize + size);
 
         return nextStructPos;
     }
@@ -148,14 +142,14 @@ namespace se::asset::binary
             std::free(m_Objects);
             m_Objects = newObjectsData;
             nextObjectPos = objectsDataSize;
-            SetObjectsDataSize(objectsDataSize + size);
         }
         else
         {
             m_Objects = newObjectsData;
             nextObjectPos = s_ObjectsHeaderSize;
-            SetObjectsDataSize(size);
         }
+
+        SetObjectsDataSize(objectsDataSize + size);
 
         return nextObjectPos;
     }
@@ -184,9 +178,30 @@ namespace se::asset::binary
     {
         std::ofstream out;
         out.open (path, std::ios::binary);
+
+        if (!m_Structs)
+        {
+            GrowStructData(0); // ensure minimum viable info exists
+        }
         out.write(m_Structs, GetStructsDataSize());
+
+        if (!m_Objects)
+        {
+            GrowObjectsData(0); // ensure minimum viable info exists
+        }
         out.write(m_Objects, GetObjectsDataSize());
+
+        if (!m_Strings)
+        {
+            GrowStringsData(0); // ensure minimum viable info exists
+        }
         out.write(m_Strings, GetStringsDataSize());
+
+        if (!m_BlobData)
+        {
+            GrowBlobData(0); // ensure minimum viable info exists
+        }
+        out.write(m_BlobData, GetBlobDataSize());
         out.close();
     }
 
@@ -200,6 +215,7 @@ namespace se::asset::binary
             asset->m_Structs = data;
             asset->m_Objects = asset->m_Structs + asset->GetStructsDataSize();
             asset->m_Strings = asset->m_Objects + asset->GetObjectsDataSize();
+            asset->m_BlobData = asset->m_Strings + asset->GetStringsDataSize();
             return asset;
         }
         else
@@ -218,6 +234,10 @@ namespace se::asset::binary
             auto stringsSize = temp->GetStringsDataSize();
             asset->m_Strings = static_cast<char*>(std::malloc(stringsSize));
             std::memcpy(asset->m_Strings, temp->m_Strings, stringsSize);
+
+            auto blobsSize = temp->GetBlobDataSize();
+            asset->m_BlobData = static_cast<char*>(std::malloc(blobsSize));
+            std::memcpy(asset->m_BlobData, temp->m_BlobData, blobsSize);
 
             return asset;
         }
@@ -330,14 +350,14 @@ namespace se::asset::binary
             std::free(m_Strings);
             m_Strings = newStringsData;
             nextStringPos = stringsDataSize;
-            SetStringsDataSize(stringsDataSize + size);
         }
         else
         {
             m_Strings = newStringsData;
             nextStringPos = s_StringsHeaderSize;
-            SetStringsDataSize(size);
         }
+
+        SetStringsDataSize(stringsDataSize + size);
 
         return nextStringPos;
     }
@@ -365,5 +385,76 @@ namespace se::asset::binary
     const char* Database::GetStringAt(uint32_t offset)
     {
         return m_Strings + offset;
+    }
+
+    uint32_t Database::GetBlobDataSize()
+    {
+        if (!m_BlobData)
+        {
+            return s_BlobsHeaderSize; // enough room for required headers since this will be a new alloc
+        }
+
+        return *reinterpret_cast<uint32_t*>(m_BlobData);
+    }
+
+    void Database::SetBlobDataSize(uint32_t size)
+    {
+        std::memcpy(m_BlobData, &size, sizeof(uint32_t));
+    }
+
+    uint32_t Database::GrowBlobData(uint32_t size)
+    {
+        uint32_t nextBlobPos = 0;
+        uint32_t blobDataSize = GetBlobDataSize();
+        char* newBlobData = static_cast<char*>(std::malloc(blobDataSize + size));
+
+        if (m_BlobData)
+        {
+            std::memcpy(newBlobData, m_BlobData, blobDataSize);
+            std::free(m_BlobData);
+            m_BlobData = newBlobData;
+            nextBlobPos = blobDataSize;
+        }
+        else
+        {
+            m_BlobData = newBlobData;
+            nextBlobPos = s_BlobsHeaderSize;
+        }
+
+        SetBlobDataSize(blobDataSize + size);
+
+        return nextBlobPos;
+    }
+
+    Blob Database::CreateBlob(char* data, uint32_t size)
+    {
+        if (!SPARK_VERIFY(!m_ReadOnly))
+        {
+            return Blob(nullptr, nullptr);
+        }
+
+        uint32_t reqSize = size;
+        if (!m_BlobData)
+        {
+            reqSize += s_BlobsHeaderSize; // objectsDataSize (uint32_t)
+        }
+        auto offset = GrowBlobData(reqSize);
+        char* blobData = m_BlobData + offset;
+        std::memcpy(blobData, &size, sizeof(uint32_t));
+        std::memcpy(blobData + s_BlobHeaderSize, data, size);
+
+        return Blob(blobData, this);
+    }
+
+    uint32_t Database::GetBlobOffset(const Blob& blob)
+    {
+        SPARK_ASSERT(blob.m_DB == this);
+        return blob.m_Data - m_BlobData;
+    }
+
+    Blob Database::GetBlobAt(uint32_t offset)
+    {
+        auto blobData = m_BlobData + offset;
+        return Blob(blobData, this);
     }
 }

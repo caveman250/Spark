@@ -4,7 +4,6 @@
 
 #include <unordered_map>
 
-#include "engine/logging/Log.h"
 #include "engine/render/Renderer.h"
 #include "engine/render/opengl/OpenGLRenderer.h"
 #include "platform/IRunLoop.h"
@@ -123,7 +122,7 @@ namespace se::windows
 
         if (!RegisterClassExW(&wcex))
         {
-            logging::Log::Fatal("RegisterClassExW failed: Can not register window class.");
+            debug::Log::Fatal("RegisterClassExW failed: Can not register window class.");
         }
     }
 
@@ -140,11 +139,11 @@ namespace se::windows
             Hwnd = CreateWindowW(windowClass, title, style, 0, 0, SizeX, SizeY, nullptr, nullptr, instance, nullptr);
             if (!Hwnd)
             {
-                logging::Log::Fatal("CreateWindowW failed: Can not create window.");
+                debug::Log::Fatal("CreateWindowW failed: Can not create window.");
             }
         } else
         {
-            logging::Log::Fatal("AdjustWindowRect failed: Can not create window.");
+            debug::Log::Fatal("AdjustWindowRect failed: Can not create window.");
         }
     }
 
@@ -193,7 +192,7 @@ namespace se::windows
             Gglrc = wglCreateContextAttribsARB( Hdc, 0, attributes );
         } else
         {
-            logging::Log::Fatal("GetDC failed: Can not create device context.");
+            debug::Log::Fatal("GetDC failed: Can not create device context.");
         }
     }
 }
