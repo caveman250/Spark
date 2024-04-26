@@ -5,6 +5,8 @@ namespace se::asset::binary
 {
     constexpr uint32_t s_StructsHeaderSize = sizeof(uint32_t) * 2; // numStructs (uint32_t), totalStructsSize (uint32_t)]
     constexpr uint32_t s_ObjectsHeaderSize = sizeof(uint32_t); // totalSize (uint32_t)
+    constexpr uint32_t s_StringsHeaderSize = sizeof(uint32_t); // totalSize (uint32_t)
+
 
     Database::Database(bool readOnly)
             : m_ReadOnly(readOnly)
@@ -113,7 +115,7 @@ namespace se::asset::binary
     {
         if (!m_Objects)
         {
-            return sizeof(uint32_t); // enough room for required headers since this will be a new alloc
+            return s_ObjectsHeaderSize; // enough room for required headers since this will be a new alloc
         }
 
         return *reinterpret_cast<uint32_t*>(m_Objects);
@@ -165,13 +167,12 @@ namespace se::asset::binary
 
     void Database::Save(const std::string& path)
     {
-       // io::FileSystem::WriteBinaryFile(path, m_Structs, GetStructsDataSize());
-
-        std::ofstream myfile;
-        myfile.open (path, std::ios::binary);
-        myfile.write(m_Structs, GetStructsDataSize());
-        myfile.write(m_Objects, GetObjectsDataSize());
-        myfile.close();
+        std::ofstream out;
+        out.open (path, std::ios::binary);
+        out.write(m_Structs, GetStructsDataSize());
+        out.write(m_Objects, GetObjectsDataSize());
+        out.write(m_Strings, GetStringsDataSize());
+        out.close();
     }
 
     std::shared_ptr<Database> Database::Load(const std::string& path, bool readOnly)
@@ -182,7 +183,8 @@ namespace se::asset::binary
 
             std::shared_ptr<Database> asset = Create(true);
             asset->m_Structs = data;
-            asset->m_Objects = data + asset->GetStructsDataSize();
+            asset->m_Objects = asset->m_Structs + asset->GetStructsDataSize();
+            asset->m_Strings = asset->m_Objects + asset->GetObjectsDataSize();
             return asset;
         }
         else
@@ -194,9 +196,14 @@ namespace se::asset::binary
             asset->m_Structs = static_cast<char*>(std::malloc(structsSize));
             std::memcpy(asset->m_Structs, temp->m_Structs, structsSize);
 
-            auto objectsSize= temp->GetObjectsDataSize();
+            auto objectsSize = temp->GetObjectsDataSize();
             asset->m_Objects = static_cast<char*>(std::malloc(objectsSize));
             std::memcpy(asset->m_Objects, temp->m_Objects, objectsSize);
+
+            auto stringsSize = temp->GetStringsDataSize();
+            asset->m_Strings = static_cast<char*>(std::malloc(stringsSize));
+            std::memcpy(asset->m_Strings, temp->m_Strings, stringsSize);
+
             return asset;
         }
     }
@@ -212,18 +219,12 @@ namespace se::asset::binary
         uint32_t reqSize = structDef.CalcObjectSize();
         if (!m_Objects)
         {
-            reqSize += sizeof(uint32_t); // objectsDataSize (uint32_t)
+            reqSize += s_ObjectsHeaderSize; // objectsDataSize (uint32_t)
         }
         auto offset = GrowObjectsData(reqSize);
         char* objData = m_Objects + offset;
         std::memset(objData, 0, reqSize);
         std::memcpy(objData, &structIndex, sizeof(uint32_t));
-
-        auto totalObjSize = *reinterpret_cast<uint32_t*>(m_Objects);
-        auto objSize = structDef.CalcObjectSize();
-        totalObjSize += objSize;
-        std::memcpy(m_Objects, &totalObjSize, sizeof(uint32_t));
-
 
         return Object(m_Objects + offset, this, structDef);
     }
@@ -287,4 +288,67 @@ namespace se::asset::binary
         return Object(objData, this, GetStruct(structIndex));
     }
 
+    uint32_t Database::GetStringsDataSize()
+    {
+        if (!m_Strings)
+        {
+            return s_StringsHeaderSize; // enough room for required headers since this will be a new alloc
+        }
+
+        return *reinterpret_cast<uint32_t*>(m_Strings);
+    }
+
+    void Database::SetStringsDataSize(uint32_t size)
+    {
+        std::memcpy(m_Strings, &size, sizeof(uint32_t));
+    }
+
+    uint32_t Database::GrowStringsData(uint32_t size)
+    {
+        uint32_t nextStringPos = 0;
+        uint32_t stringsDataSize = GetStringsDataSize();
+        char* newStringsData = static_cast<char*>(std::malloc(stringsDataSize + size));
+
+        if (m_Strings)
+        {
+            std::memcpy(newStringsData, m_Strings, stringsDataSize);
+            std::free(m_Strings);
+            m_Strings = newStringsData;
+            nextStringPos = stringsDataSize;
+            SetStringsDataSize(stringsDataSize + size);
+        }
+        else
+        {
+            m_Strings = newStringsData;
+            nextStringPos = s_StringsHeaderSize;
+            SetStringsDataSize(size);
+        }
+
+        return nextStringPos;
+    }
+
+    uint32_t Database::CreateString(const std::string& str)
+    {
+        if (!SPARK_VERIFY(!m_ReadOnly))
+        {
+            return std::numeric_limits<uint32_t>().max();
+        }
+
+        uint32_t reqSize = str.length() + 1;
+        if (!m_Strings)
+        {
+            reqSize += s_StringsHeaderSize;
+        }
+        auto offset = GrowStringsData(reqSize);
+        char* stringData = m_Strings + offset;
+        std::memcpy(stringData, str.data(), str.length());
+        std::memset(stringData + str.length(), 0, 1);
+
+        return stringData - m_Strings;
+    }
+
+    const char* Database::GetStringAt(uint32_t offset)
+    {
+        return m_Strings + offset;
+    }
 }

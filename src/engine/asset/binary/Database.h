@@ -18,6 +18,9 @@ namespace se::asset::binary
         uint32_t GetObjectOffset(const Object& obj);
         Object GetObjectAt(uint32_t offset);
 
+        uint32_t CreateString(const std::string& str);
+        const char* GetStringAt(uint32_t offset);
+
         Object GetRoot();
         void SetRootStruct(uint32_t structIndex);
 
@@ -42,6 +45,10 @@ namespace se::asset::binary
         void SetObjectsDataSize(uint32_t size);
         uint32_t GrowObjectsData(uint32_t minSize);
 
+        uint32_t GetStringsDataSize();
+        void SetStringsDataSize(uint32_t size);
+        uint32_t GrowStringsData(uint32_t size);
+
         bool m_ReadOnly = true;
 
         char* m_Structs = nullptr;
@@ -57,5 +64,13 @@ namespace se::asset::binary
         // Objects size (uint32_t)
         // root struct index (uint32_t)
         // root object
+
+        char* m_Strings = nullptr;
+        // Strings size (uint32_t)
+        // string1Size (uint32_t)
+        // string1
+        //...
+        // stringNSize (uint32_t)
+        // stringN
     };
 }

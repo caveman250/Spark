@@ -16,7 +16,8 @@ namespace se::asset::binary
         Vec2,
         Vec3,
         Vec4,
-        Object
+        Object,
+        String
     };
 
     std::string TypeToString(Type type);

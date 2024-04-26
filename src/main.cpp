@@ -20,7 +20,7 @@ int main(int argc, char* argv[])
     using namespace se;
     auto renderer = render::Renderer::Create();
     IWindow* window = IWindow::CreatePlatformWindow(1280, 720);
-    IRunLoop* runLoop = IRunLoop::CreatePlatformRunloop({window});
+    IRunLoop* runLoop = IRunLoop::CreatePlatformRunloop({ window });
 
     std::shared_ptr<render::Material> material = render::Material::CreateMaterial(
         { "../builtin_assets/shader.vert" },
@@ -138,7 +138,7 @@ int main(int argc, char* argv[])
     colourStream.stride = 3;
     colourStream.data = s_CubeColours;
 
-    std::shared_ptr<render::VertexBuffer> vertBuffer = render::VertexBuffer::CreateVertexBuffer({posStream, colourStream });
+    std::shared_ptr<render::VertexBuffer> vertBuffer = render::VertexBuffer::CreateVertexBuffer({ posStream, colourStream });
     vertBuffer->CreatePlatformResource();
 
     while (!runLoop->ShouldExit())
@@ -150,15 +150,15 @@ int main(int argc, char* argv[])
         math::Mat4 mvp2 = proj * view * math::Translation(math::Vec3(1.1, 0, 1.1));
         material2->SetUniform("MVP", shader::ast::Type::Mat4, &mvp2[0]);
 
-        renderer->SubmitRenderCommand(window, render::RenderCommand([]
+        renderer->Submit(window, render::RenderCommand([]
         {
             render::RenderCommand::Clear(true, true);
         }));
 
-        renderer->SubmitRenderCommand(window, render::RenderCommand([material, material2, vertBuffer]
+        renderer->Submit(window, render::RenderCommand([material, material2, vertBuffer]
         {
-            render::RenderCommand::SubmitGeo(material, vertBuffer, 12*3);
-            render::RenderCommand::SubmitGeo(material2, vertBuffer, 12*3);
+            render::RenderCommand::SubmitGeo(material, vertBuffer, 12 * 3);
+            render::RenderCommand::SubmitGeo(material2, vertBuffer, 12 * 3);
         }));
 
         runLoop->Tick();
@@ -170,6 +170,7 @@ int main(int argc, char* argv[])
         { asset::binary::CreateFixedString32("pos"), asset::binary::Type::Vec2 },
         { asset::binary::CreateFixedString32("colour"), asset::binary::Type::Vec3 },
         { asset::binary::CreateFixedString32("object"), asset::binary::Type::Object },
+        { asset::binary::CreateFixedString32("str"), asset::binary::Type::String },
     };
     auto structIndex1 = db->CreateStruct(structLayout);
     db->SetRootStruct(structIndex1);
@@ -188,12 +189,14 @@ int main(int argc, char* argv[])
     root.Set("pos", math::Vec2(4.f, 4.f));
     root.Set("colour", math::Vec3(1.f, 0.5f, 0.2f));
     root.Set("object", obj);
+    root.Set("str", std::string("here is a striiiiiiiiing"));
     db->Save("test.sass");
 
     std::shared_ptr<asset::binary::Database> db2 = asset::binary::Database::Load("test.sass", false);
     auto obj2 = db2->GetRoot();
     auto pos = obj2.Get<math::Vec2>("pos");
     auto colour = obj2.Get<math::Vec3>("colour");
+    std::string str = obj2.Get<std::string>("str");
     auto sameObj = obj2.Get<asset::binary::Object>("object");
     auto test = sameObj.Get<int32_t>("test");
     auto test2 = sameObj.Get<int32_t>("test2");
