@@ -13,8 +13,7 @@
 #include <optional>
 #include <set>
 #include <cstdint>
-#include <iostream>
-#include <stacktrace>
+#include <print>
 
 #include "engine/math/math.h"
 #include "engine/logging/Log.h"
@@ -35,13 +34,11 @@
 do { \
     if (!(expr))\
     {\
-        char msg_buf[1024]; \
-        SPARK_ASSERT_MESSAGE(msg_buf, __VA_ARGS__)\
-        char buf[1024]; \
-        snprintf(buf, 1024, "%s\n\nMessage: %s\n", #expr, (const char*)&msg_buf); \
-        printf("\033[0;41mAssertion failed: %s - at %s:%i\033[0m\n\n", (const char*)&buf, __FILE__, __LINE__); \
+        std::string userMsg = SPARK_ASSERT_MESSAGE(__VA_ARGS__)\
+        std::string assertMsg = std::format("{0}\n\nMessage: {1}\n", #expr, userMsg); \
+        std::print("\033[0;41mAssertion failed: {0}at {1}:{2}\033[0m\n\n", assertMsg,  __FILE__, __LINE__); \
         fflush(stdout);\
-        bool assertResult = _CrtDbgReport(_CRT_ASSERT, __FILE__, __LINE__, "Spark Application", buf); \
+        bool assertResult = _CrtDbgReport(_CRT_ASSERT, __FILE__, __LINE__, "Spark Application", assertMsg.c_str()); \
         if (assertResult == 0)\
         {\
             break; \
@@ -66,10 +63,7 @@ do { \
 #define SPARK_CAT_II(a, b) SPARK_CAT_III(~, a ## b)
 #define SPARK_CAT(a, b) SPARK_CAT_II(a, b)
 
-#define SPARK_VARG_COUNT(...) SPARK_EXPAND_ARGS(SPARK_AUGMENT_ARGS(__VA_ARGS__), SPARK_VARG_COUNT_HELPER())
 #define SPARK_VARG_COUNT_01N(...) SPARK_EXPAND_ARGS(SPARK_AUGMENT_ARGS(__VA_ARGS__), SPARK_VARG_COUNT_01N_HELPER())
-
-#define SPARK_VARG_COUNT_HELPER() 16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0
 #define SPARK_VARG_COUNT_01N_HELPER() N, N, N, N, N, N, N, N, N, N, N, N, N, N, N, 1, 0
 
 #define SPARK_EXPAND(x) x
@@ -78,7 +72,7 @@ do { \
 #define SPARK_EXPAND_ARGS(...) SPARK_EXPAND(SPARK_GETARGCOUNT(__VA_ARGS__))
 #define SPARK_GETARGCOUNT(_0, _1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13, _14, _15, _16, count, ...) count
 
-#define SPARK_ASSERT_MESSAGE_0(msg_buf, ...) snprintf(msg_buf, 1024, " ");
-#define SPARK_ASSERT_MESSAGE_1(msg_buf, ...) snprintf(msg_buf, 1024, __VA_ARGS__);
-#define SPARK_ASSERT_MESSAGE_N(msg_buf, msg, ...) snprintf(msg_buf, 1024, msg, __VA_ARGS__);
-#define SPARK_ASSERT_MESSAGE(msg_buf, ...) SPARK_CAT(SPARK_ASSERT_MESSAGE_, SPARK_VARG_COUNT_01N(__VA_ARGS__))(msg_buf, __VA_ARGS__)
+#define SPARK_ASSERT_MESSAGE_0(...) " ";
+#define SPARK_ASSERT_MESSAGE_1(...) std::string(__VA_ARGS__);
+#define SPARK_ASSERT_MESSAGE_N(msg, ...) std::format(msg, __VA_ARGS__);
+#define SPARK_ASSERT_MESSAGE(...) SPARK_CAT(SPARK_ASSERT_MESSAGE_, SPARK_VARG_COUNT_01N(__VA_ARGS__))(__VA_ARGS__)
