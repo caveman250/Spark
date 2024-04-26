@@ -13,6 +13,8 @@
 #include <optional>
 #include <set>
 #include <cstdint>
+#include <iostream>
+#include <stacktrace>
 
 #include "engine/math/math.h"
 #include "engine/logging/Log.h"
@@ -21,6 +23,9 @@
 #include <windows.h>
 #include <crtdbg.h>
 #include <dwmapi.h>
+
+#undef min
+#undef max
 #endif
 
 #if SPARK_RELEASE

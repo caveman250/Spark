@@ -1,15 +1,19 @@
 #include "spark.h"
+
 #include "engine/math/Mat4.h"
 
 #include "engine/render/Material.h"
-#include "engine/render/opengl/GL_fwd.h"
-
 #include "engine/render/Renderer.h"
 #include "engine/render/VertexBuffer.h"
-#include "engine/render/opengl/Material.h"
 #include "engine/shader/ast/Types.h"
+
+#include "engine/asset/binary/Struct.h"
+#include "engine/asset/binary/Asset.h"
+
 #include "platform/IRunLoop.h"
 #include "platform/IWindow.h"
+
+// This is just a dumping ground to test systems currently
 
 int main(int argc, char* argv[])
 {
@@ -152,6 +156,32 @@ int main(int argc, char* argv[])
 
         runLoop->Tick();
     }
+
+    std::shared_ptr<asset::binary::Asset> asset = asset::binary::Asset::Create(false);
+    asset::binary::StructLayout structLayout =
+    {
+        { asset::binary::CreateFixedString32("pos"), asset::binary::Type::Vec2 },
+        { asset::binary::CreateFixedString32("colour"), asset::binary::Type::Vec3 },
+    };
+    auto structIndex1 = asset->AddStruct(structLayout);
+
+    asset::binary::StructLayout structLayout2 =
+    {
+        {asset::binary::CreateFixedString32("pos2"),    asset::binary::Type::Float},
+        {asset::binary::CreateFixedString32("colour2"), asset::binary::Type::Int8},
+    };
+    auto structIndex2 = asset->AddStruct(structLayout2);
+
+    asset->SetRootStruct(structIndex1);
+    auto obj = asset->GetRoot();
+    obj.Set("pos", math::Vec2(4.f, 4.f));
+    obj.Set("colour", math::Vec3(1.f, 0.5f, 0.2f));
+    asset->Save("test.sass");
+
+    std::shared_ptr<asset::binary::Asset> asset2 = asset::binary::Asset::Load("test.sass", false);
+    auto obj2 = asset2->GetRoot();
+    auto pos = obj2.Get<math::Vec2>("pos");
+    auto colour = obj2.Get<math::Vec3>("colour");
 
     delete runLoop;
 }
