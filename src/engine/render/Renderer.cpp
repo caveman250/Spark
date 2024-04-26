@@ -22,7 +22,7 @@ namespace se::render
         return s_Renderer;
     }
 
-    void Renderer::SubmitRenderCommand(IWindow* window, const RenderCommand &renderCmd)
+    void Renderer::Submit(IWindow* window, const RenderCommand &renderCmd)
     {
         RenderCommands[window].push_back(renderCmd);
     }

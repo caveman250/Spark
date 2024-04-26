@@ -20,6 +20,9 @@ namespace se::asset::binary
         template<typename T>
         void Set(const std::string& field, const T& val);
 
+        const char* GetString(const std::string& field);
+        void SetString(const std::string& field, const char* val);
+
     private:
         void Set(uint32_t fieldIndex, const char* data, size_t size);
 
@@ -78,6 +81,19 @@ namespace se::asset::binary
         return GetObjectAt(offset);
     }
 
+    // String Specializations
+    template<>
+    inline void Object::Set<std::string>(const std::string& field, const std::string& val)
+    {
+        SetString(field, val.c_str());
+    }
+
+    template<>
+    inline const std::string Object::Get<std::string>(const std::string& field)
+    {
+        return GetString(field);
+    }
+
 #if !SPARK_DIST
     template<typename T>
     void CheckType(Type type)
@@ -122,6 +138,9 @@ namespace se::asset::binary
                 break;
             case Type::Object:
                 SPARK_ASSERT(typeid(T) == typeid(Object));
+                break;
+            case Type::String:
+                SPARK_ASSERT(typeid(T) == typeid(const char*));
                 break;
             default:
                 SPARK_ASSERT(false, "CheckType - Unrecognized type!");

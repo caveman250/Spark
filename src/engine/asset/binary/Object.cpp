@@ -30,4 +30,23 @@ namespace se::asset::binary
     {
         return m_DB->GetObjectAt(offset);
     }
+
+    const char* Object::GetString(const std::string& field)
+    {
+#if !SPARK_DIST
+        CheckType<const char*>(m_Struct.GetFieldType(m_Struct.GetFieldIndex(field)));
+#endif
+        uint32_t offset = *reinterpret_cast<uint32_t*>(m_Data + m_Struct.GetFieldOffset(m_Struct.GetFieldIndex(field)));
+        return m_DB->GetStringAt(offset);
+    }
+
+    void Object::SetString(const std::string& field, const char* val)
+    {
+#if !SPARK_DIST
+        CheckType<const char*>(m_Struct.GetFieldType(m_Struct.GetFieldIndex(field)));
+#endif
+
+        uint32_t offset = m_DB->CreateString(val);
+        Set(m_Struct.GetFieldIndex(field), reinterpret_cast<const char*>(&offset), sizeof(uint32_t));
+    }
 }
