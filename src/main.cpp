@@ -143,6 +143,13 @@ int main(int argc, char* argv[])
 
     while (!runLoop->ShouldExit())
     {
+        math::Mat4 proj = math::Perspective(math::Radians(45.f), (float)window->GetWidth() / (float)window->GetHeight(),.1f, 100.f);
+        math::Mat4 mvp = proj * view * math::Translation(math::Vec3(-1.1, 0, -1.1));
+        material->SetUniform("MVP", shader::ast::Type::Mat4, &mvp[0]);
+
+        math::Mat4 mvp2 = proj * view * math::Translation(math::Vec3(1.1, 0, 1.1));
+        material2->SetUniform("MVP", shader::ast::Type::Mat4, &mvp2[0]);
+
         renderer->SubmitRenderCommand(window, render::RenderCommand([]
         {
             render::RenderCommand::Clear(true, true);
