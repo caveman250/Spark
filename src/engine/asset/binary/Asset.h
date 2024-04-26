@@ -42,7 +42,6 @@ namespace se::asset::binary
 
         bool m_ReadOnly = true;
 
-        // all char* members will be inline if loaded from file, will live as own allocation if created programmatically.
         char* m_Structs = nullptr;
         // numStructs (uint32_t)
         // totalStructsSize (uint32_t)
