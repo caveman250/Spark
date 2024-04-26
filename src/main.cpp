@@ -8,7 +8,7 @@
 #include "engine/shader/ast/Types.h"
 
 #include "engine/asset/binary/Struct.h"
-#include "engine/asset/binary/Asset.h"
+#include "engine/asset/binary/Database.h"
 
 #include "platform/IRunLoop.h"
 #include "platform/IWindow.h"
@@ -164,31 +164,39 @@ int main(int argc, char* argv[])
         runLoop->Tick();
     }
 
-    std::shared_ptr<asset::binary::Asset> asset = asset::binary::Asset::Create(false);
+    std::shared_ptr<asset::binary::Database> db = asset::binary::Database::Create(false);
     asset::binary::StructLayout structLayout =
     {
         { asset::binary::CreateFixedString32("pos"), asset::binary::Type::Vec2 },
         { asset::binary::CreateFixedString32("colour"), asset::binary::Type::Vec3 },
+        { asset::binary::CreateFixedString32("object"), asset::binary::Type::Object },
     };
-    auto structIndex1 = asset->AddStruct(structLayout);
+    auto structIndex1 = db->CreateStruct(structLayout);
+    db->SetRootStruct(structIndex1);
 
     asset::binary::StructLayout structLayout2 =
     {
-        {asset::binary::CreateFixedString32("pos2"),    asset::binary::Type::Float},
-        {asset::binary::CreateFixedString32("colour2"), asset::binary::Type::Int8},
+        { asset::binary::CreateFixedString32("test"), asset::binary::Type::Int32 },
+        { asset::binary::CreateFixedString32("test2"), asset::binary::Type::Int32 },
     };
-    auto structIndex2 = asset->AddStruct(structLayout2);
+    auto structIndex2 = db->CreateStruct(structLayout2);
+    auto obj = db->CreateObject(structIndex2);
+    obj.Set<uint32_t>("test", 1);
+    obj.Set<uint32_t>("test2", 2);
 
-    asset->SetRootStruct(structIndex1);
-    auto obj = asset->GetRoot();
-    obj.Set("pos", math::Vec2(4.f, 4.f));
-    obj.Set("colour", math::Vec3(1.f, 0.5f, 0.2f));
-    asset->Save("test.sass");
+    auto root = db->GetRoot();
+    root.Set("pos", math::Vec2(4.f, 4.f));
+    root.Set("colour", math::Vec3(1.f, 0.5f, 0.2f));
+    root.Set("object", obj);
+    db->Save("test.sass");
 
-    std::shared_ptr<asset::binary::Asset> asset2 = asset::binary::Asset::Load("test.sass", false);
-    auto obj2 = asset2->GetRoot();
+    std::shared_ptr<asset::binary::Database> db2 = asset::binary::Database::Load("test.sass", false);
+    auto obj2 = db2->GetRoot();
     auto pos = obj2.Get<math::Vec2>("pos");
     auto colour = obj2.Get<math::Vec3>("colour");
+    auto sameObj = obj2.Get<asset::binary::Object>("object");
+    auto test = sameObj.Get<uint32_t>("test");
+    auto test2 = sameObj.Get<uint32_t>("test2");
 
     delete runLoop;
 }

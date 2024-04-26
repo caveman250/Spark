@@ -6,22 +6,26 @@
 
 namespace se::asset::binary
 {
-    class Asset
+    class Database
     {
     public:
-        static std::shared_ptr<Asset> Create(bool readOnly);
-        ~Asset();
-        [[nodiscard]] uint32_t AddStruct(const StructLayout& structLayout);
+        static std::shared_ptr<Database> Create(bool readOnly);
+        ~Database();
+        [[nodiscard]] uint32_t CreateStruct(const StructLayout& structLayout);
         Struct GetStruct(uint32_t structIndex);
+
+        Object CreateObject(uint32_t structIndex);
+        uint32_t GetObjectOffset(const Object& obj);
+        Object GetObjectAt(uint32_t offset);
 
         Object GetRoot();
         void SetRootStruct(uint32_t structIndex);
 
-        static std::shared_ptr<Asset> Load(const std::string& path, bool readOnly);
+        static std::shared_ptr<Database> Load(const std::string& path, bool readOnly);
         void Save(const std::string& path);
 
     private:
-        explicit Asset(bool readOnly);
+        explicit Database(bool readOnly);
 
         static void CreateStructData(const std::vector<std::pair<FixedString32, Type>>& structLayout, void* createAt);
         static uint32_t CalcStructDefinitionDataSize(const std::vector<std::pair<FixedString32, Type>>& structLayout);
@@ -37,8 +41,6 @@ namespace se::asset::binary
         uint32_t GetObjectsDataSize();
         void SetObjectsDataSize(uint32_t size);
         uint32_t GrowObjectsData(uint32_t minSize);
-
-        Object AddObject(uint32_t structIndex);
 
         bool m_ReadOnly = true;
 
