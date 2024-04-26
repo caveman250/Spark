@@ -15,7 +15,8 @@ namespace se::asset::binary
         Float,
         Vec2,
         Vec3,
-        Vec4
+        Vec4,
+        Object
     };
 
     std::string TypeToString(Type type);

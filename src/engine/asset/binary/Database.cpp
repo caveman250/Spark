@@ -1,18 +1,18 @@
 #include <engine/io/FileSystem.h>
-#include "Asset.h"
+#include "Database.h"
 
 namespace se::asset::binary
 {
     constexpr uint32_t s_StructsHeaderSize = sizeof(uint32_t) * 2; // numStructs (uint32_t), totalStructsSize (uint32_t)]
     constexpr uint32_t s_ObjectsHeaderSize = sizeof(uint32_t); // totalSize (uint32_t)
 
-    Asset::Asset(bool readOnly)
+    Database::Database(bool readOnly)
             : m_ReadOnly(readOnly)
     {
 
     }
 
-    Asset::~Asset()
+    Database::~Database()
     {
         if (m_ReadOnly)
         {
@@ -25,14 +25,14 @@ namespace se::asset::binary
         }
     }
 
-    void Asset::CreateStructData(const std::vector<std::pair<FixedString32, Type>>& structLayout, void* createAt)
+    void Database::CreateStructData(const std::vector<std::pair<FixedString32, Type>>& structLayout, void* createAt)
     {
         char* structData = static_cast<char*>(createAt);
 
         uint32_t structSize = structLayout.size();
         std::memcpy(structData, &structSize, sizeof(uint32_t));
 
-        uint32_t offset = sizeof(uint32_t);
+        uint32_t offset = s_StructHeaderSize;
         int index = 0;
         uint32_t rowSize = sizeof(Type) + 32;
         for (const auto& [name, type] : structLayout)
@@ -40,16 +40,16 @@ namespace se::asset::binary
             std::memcpy(structData + offset, &name, 32);
             std::memcpy(structData + offset + 32, &type, sizeof(Type));
             index++;
-            offset += rowSize * index;
+            offset += rowSize;
         }
     }
 
-    uint32_t Asset::CalcStructDefinitionDataSize(const std::vector<std::pair<FixedString32, Type>>& structLayout)
+    uint32_t Database::CalcStructDefinitionDataSize(const std::vector<std::pair<FixedString32, Type>>& structLayout)
     {
         return s_StructRowSize * structLayout.size() + s_StructHeaderSize;
     }
 
-    uint32_t Asset::AddStruct(const StructLayout& structLayout)
+    uint32_t Database::CreateStruct(const StructLayout& structLayout)
     {
         if (!SPARK_VERIFY(!m_ReadOnly))
         {
@@ -67,7 +67,7 @@ namespace se::asset::binary
         return GetNumStructs() - 1;
     }
 
-    uint32_t Asset::GetStructsDataSize()
+    uint32_t Database::GetStructsDataSize()
     {
         if (!m_Structs)
         {
@@ -77,7 +77,7 @@ namespace se::asset::binary
         return *(reinterpret_cast<uint32_t*>(m_Structs) + 1);
     }
 
-    uint32_t Asset::GrowStructData(uint32_t size)
+    uint32_t Database::GrowStructData(uint32_t size)
     {
         uint32_t nextStructPos = 0;
         uint32_t structDataSize = GetStructsDataSize();
@@ -109,7 +109,7 @@ namespace se::asset::binary
         return nextStructPos;
     }
 
-    uint32_t Asset::GetObjectsDataSize()
+    uint32_t Database::GetObjectsDataSize()
     {
         if (!m_Objects)
         {
@@ -119,7 +119,7 @@ namespace se::asset::binary
         return *reinterpret_cast<uint32_t*>(m_Objects);
     }
 
-    uint32_t Asset::GrowObjectsData(uint32_t size)
+    uint32_t Database::GrowObjectsData(uint32_t size)
     {
         uint32_t nextObjectPos = 0;
         uint32_t objectsDataSize = GetObjectsDataSize();
@@ -143,7 +143,7 @@ namespace se::asset::binary
         return nextObjectPos;
     }
 
-    Struct Asset::GetStruct(uint32_t structIndex)
+    Struct Database::GetStruct(uint32_t structIndex)
     {
         uint32_t offset = 0;
         uint32_t structCount = GetNumStructs();
@@ -163,7 +163,7 @@ namespace se::asset::binary
         return Struct(m_Structs + offset);
     }
 
-    void Asset::Save(const std::string& path)
+    void Database::Save(const std::string& path)
     {
        // io::FileSystem::WriteBinaryFile(path, m_Structs, GetStructsDataSize());
 
@@ -174,21 +174,21 @@ namespace se::asset::binary
         myfile.close();
     }
 
-    std::shared_ptr<Asset> Asset::Load(const std::string& path, bool readOnly)
+    std::shared_ptr<Database> Database::Load(const std::string& path, bool readOnly)
     {
         if (readOnly)
         {
             char* data = io::FileSystem::ReadBinaryFile(path);
 
-            std::shared_ptr<Asset> asset = Create(true);
+            std::shared_ptr<Database> asset = Create(true);
             asset->m_Structs = data;
             asset->m_Objects = data + asset->GetStructsDataSize();
             return asset;
         }
         else
         {
-            std::shared_ptr<Asset> temp = Load(path, true);
-            std::shared_ptr<Asset> asset = Create(false);
+            std::shared_ptr<Database> temp = Load(path, true);
+            std::shared_ptr<Database> asset = Create(false);
 
             auto structsSize= temp->GetStructsDataSize();
             asset->m_Structs = static_cast<char*>(std::malloc(structsSize));
@@ -201,11 +201,11 @@ namespace se::asset::binary
         }
     }
 
-    Object Asset::AddObject(uint32_t structIndex)
+    Object Database::CreateObject(uint32_t structIndex)
     {
         if (!SPARK_VERIFY(!m_ReadOnly))
         {
-            return Object(nullptr, Struct(nullptr));
+            return Object(nullptr, nullptr, Struct(nullptr));
         }
 
         Struct structDef = GetStruct(structIndex);
@@ -225,53 +225,66 @@ namespace se::asset::binary
         std::memcpy(m_Objects, &totalObjSize, sizeof(uint32_t));
 
 
-        return Object(m_Objects + offset, structDef);
+        return Object(m_Objects + offset, this, structDef);
     }
 
-    void Asset::SetRootStruct(uint32_t structIndex)
+    void Database::SetRootStruct(uint32_t structIndex)
     {
-        if (!SPARK_VERIFY(m_Objects == nullptr, "Changing root struct of Asset not supported (yet)."))
+        if (!SPARK_VERIFY(m_Objects == nullptr, "Changing root struct of Database not supported (yet)."))
         {
             return;
         }
 
-        AddObject(structIndex);
+        CreateObject(structIndex);
     }
 
-    Object Asset::GetRoot()
+    Object Database::GetRoot()
     {
         Struct structDef = GetStruct(*reinterpret_cast<uint32_t*>(m_Objects + sizeof(uint32_t)));
-        return Object(m_Objects + sizeof(uint32_t), structDef);
+        return Object(m_Objects + sizeof(uint32_t), this, structDef);
     }
 
-    uint32_t Asset::GetNumStructs()
+    uint32_t Database::GetNumStructs()
     {
         return *(reinterpret_cast<uint32_t*>(m_Structs));
     }
 
-    void Asset::SetNumStructs(uint32_t numStructs)
+    void Database::SetNumStructs(uint32_t numStructs)
     {
         std::memcpy(m_Structs, &numStructs, sizeof(uint32_t));
     }
 
-    void Asset::SetStructsDataSize(uint32_t dataSize)
+    void Database::SetStructsDataSize(uint32_t dataSize)
     {
         std::memcpy(m_Structs + sizeof(uint32_t), &dataSize, sizeof(uint32_t));
     }
 
-    void Asset::SetObjectsDataSize(uint32_t size)
+    void Database::SetObjectsDataSize(uint32_t size)
     {
         std::memcpy(m_Objects, &size, sizeof(uint32_t));
     }
 
-    uint32_t Asset::GetNumStructFields(char* structData)
+    uint32_t Database::GetNumStructFields(char* structData)
     {
         return *(reinterpret_cast<uint32_t*>(structData));
     }
 
-    std::shared_ptr<Asset> Asset::Create(bool readOnly)
+    std::shared_ptr<Database> Database::Create(bool readOnly)
     {
-        return std::shared_ptr<Asset>(new Asset(readOnly));
+        return std::shared_ptr<Database>(new Database(readOnly));
+    }
+
+    uint32_t Database::GetObjectOffset(const Object& obj)
+    {
+        SPARK_ASSERT(obj.m_DB == this);
+        return obj.m_Data - m_Objects;
+    }
+
+    Object Database::GetObjectAt(uint32_t offset)
+    {
+        auto objData = m_Objects + offset;
+        auto structIndex = *reinterpret_cast<uint32_t*>(objData);
+        return Object(objData, this, GetStruct(structIndex));
     }
 
 }

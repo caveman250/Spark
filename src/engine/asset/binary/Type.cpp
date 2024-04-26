@@ -30,6 +30,8 @@ namespace se::asset::binary
                 return "Vec3";
             case Type::Vec4:
                 return "Vec4";
+            case Type::Object:
+                return "Object";
             default:
                 SPARK_ASSERT(false);
                 return "error";
@@ -64,6 +66,8 @@ namespace se::asset::binary
                 return sizeof(math::Vec3);
             case Type::Vec4:
                 return sizeof(math::Vec4);
+            case Type::Object:
+                return sizeof(uint32_t); //offset of object data
             default:
                 SPARK_ASSERT(false);
                 return 0;

@@ -21,6 +21,7 @@ namespace se::asset::binary
         Struct(char* data) : m_Data(data) {}
         char* m_Data;
 
-        friend class Asset;
+        friend class Database;
+        friend class Object;
     };
 }
