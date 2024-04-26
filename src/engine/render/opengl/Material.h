@@ -1,7 +1,7 @@
 #pragma once
-#include <Gl/glew.h>
 
 #include "engine/render/Material.h"
+#include "GL_fwd.h"
 
 namespace se::render::opengl
 {

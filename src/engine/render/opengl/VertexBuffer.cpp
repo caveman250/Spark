@@ -1,7 +1,5 @@
 #include "VertexBuffer.h"
 
-#include <Gl/glew.h>
-
 #include "engine/math/Vec3.h"
 
 namespace se::render
