@@ -181,8 +181,8 @@ int main(int argc, char* argv[])
     };
     auto structIndex2 = db->CreateStruct(structLayout2);
     auto obj = db->CreateObject(structIndex2);
-    obj.Set<uint32_t>("test", 1);
-    obj.Set<uint32_t>("test2", 2);
+    obj.Set<int32_t>("test", 1);
+    obj.Set<int32_t>("test2", 2);
 
     auto root = db->GetRoot();
     root.Set("pos", math::Vec2(4.f, 4.f));
@@ -195,8 +195,8 @@ int main(int argc, char* argv[])
     auto pos = obj2.Get<math::Vec2>("pos");
     auto colour = obj2.Get<math::Vec3>("colour");
     auto sameObj = obj2.Get<asset::binary::Object>("object");
-    auto test = sameObj.Get<uint32_t>("test");
-    auto test2 = sameObj.Get<uint32_t>("test2");
+    auto test = sameObj.Get<int32_t>("test");
+    auto test2 = sameObj.Get<int32_t>("test2");
 
     delete runLoop;
 }
