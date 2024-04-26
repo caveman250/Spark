@@ -38,8 +38,6 @@ namespace se::io
 
     void FileSystem::WriteBinaryFile(const std::string& path, char* data, size_t size)
     {
-        logging::Log::Error(std::to_string(std::stacktrace::current()));
-
         std::ofstream myfile;
         myfile.open (path, std::ios::binary);
         myfile.write(data, size);
