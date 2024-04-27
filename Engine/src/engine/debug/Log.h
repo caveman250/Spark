@@ -2,7 +2,6 @@
 
 namespace se::debug
 {
-    enum class LogLevel;
     class Log
     {
     public:
@@ -76,12 +75,4 @@ namespace se::debug
         printf("%s\n", str.c_str());
         fflush(stdout);
     }
-
-    enum class LogLevel
-    {
-        Info,
-        Warn,
-        Error,
-        Fatal
-    };
 }
