@@ -1,6 +1,9 @@
 cmake_minimum_required(VERSION 3.28)
 project(Spark)
 set(CMAKE_CXX_STANDARD 23)
+set(ROOT_DIR ..)
+
+include(${ROOT_DIR}/Cmake/Preprocessor.cmake)
 
 ###### Include ######
 include_directories(src)
@@ -17,7 +20,7 @@ file(GLOB_RECURSE ENGINE_CODE src/engine/*.cpp src/engine/*.h)
 add_library(Spark ${PLATFORM_SHARED_CODE} ${PLATFORM_CODE} ${ENGINE_CODE})
 
 ###### PCH ######
-target_precompile_headers(Spark PUBLIC "src/spark.h")
+target_precompile_headers(Spark PUBLIC src/spark.h)
 
 ###### Linker ######
 target_link_libraries(Spark glew32s opengl32)
