@@ -1,0 +1,1 @@
+target_precompile_headers(${target} PUBLIC ${ENGINE_DIR}/src/spark.h)
