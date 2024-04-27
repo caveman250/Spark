@@ -1,8 +1,7 @@
 cmake_minimum_required(VERSION 3.28)
 project(Spark)
 
-set(CMAKE_CXX_STANDARD 23)
-
+###### Platform Defs ######
 if (WIN32)
     set(PLATFORM Windows)
     add_definitions(-DSPARK_PLATFORM_WINDOWS=1)
@@ -16,6 +15,7 @@ elseif (UNIX)
     endif()
 endif()
 
+###### Config Defs ######
 if(CMAKE_BUILD_TYPE MATCHES Debug)
     add_definitions(-DSPARK_DEBUG=1)
 endif()
@@ -28,23 +28,6 @@ if(CMAKE_BUILD_TYPE MATCHES Release)
     add_definitions(-DSPARK_DIST=1)
 endif()
 
-include_directories(src)
-include_directories(third_party/glew-2.1.0/include)
-
-link_directories(third_party/glew-2.1.0/lib/Release/x64/)
-
-file(GLOB PLATFORM_SHARED_CODE src/platform/*.cpp src/platform/*.h)
-if (${PLATFORM} MATCHES Windows)
-    file(GLOB_RECURSE PLATFORM_CODE src/platform/windows/*.cpp src/platform/windows/*.h)
-endif()
-file(GLOB_RECURSE ENGINE_CODE src/engine/*.cpp src/engine/*.h)
-
-add_executable(Spark ${PLATFORM_SHARED_CODE} ${PLATFORM_CODE} ${ENGINE_CODE} src/main.cpp)
-
-target_precompile_headers(Spark PUBLIC "src/spark.h")
-
-target_link_libraries(Spark glew32s opengl32)
-
-if (WIN32)
-    target_link_libraries(Spark Dwmapi)
-endif()
+###### Projects ######
+add_subdirectory(Engine)
+add_subdirectory(Editor)

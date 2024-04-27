@@ -23,16 +23,16 @@ int main(int argc, char* argv[])
     IRunLoop* runLoop = IRunLoop::CreatePlatformRunloop({ window });
 
     std::shared_ptr<render::Material> material = render::Material::CreateMaterial(
-        { "../builtin_assets/shader.vert" },
-        { "../builtin_assets/shader.frag",  "../builtin_assets/shader2.frag" });
+        { "../../Engine/builtin_assets/shader.vert" },
+        { "../../Engine/builtin_assets/shader.frag",  "../../Engine/builtin_assets/shader2.frag" });
     render::RenderState rs;
     rs.depthComp = render::DepthCompare::Less;
     material->SetRenderState(rs);
     material->CreatePlatformResources();
 
     std::shared_ptr<render::Material> material2 = render::Material::CreateMaterial(
-{ "../builtin_assets/shader.vert" },
-{ "../builtin_assets/shader3.frag" });
+{ "../../Engine/builtin_assets/shader.vert" },
+{ "../../Engine/builtin_assets/shader3.frag" });
     material2->SetRenderState(rs);
     material2->CreatePlatformResources();
 
