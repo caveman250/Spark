@@ -21,7 +21,7 @@ namespace se::io
         return fileContents;
     }
 
-    char* FileSystem::ReadBinaryFile(const std::string& path)
+    char* FileSystem::ReadBinaryFile(const std::string& path, size_t& outSize)
     {
         std::ifstream myfile;
         myfile.open (path, std::ios::binary | std::ios::ate);
@@ -29,6 +29,7 @@ namespace se::io
         myfile.seekg(0, std::ios::beg);
         char* data = static_cast<char*>(std::malloc(size));
         myfile.read(data, size);
+        outSize = size;
         myfile.close();
 
         return data;

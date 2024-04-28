@@ -17,6 +17,7 @@
 #include <algorithm>
 #include <ranges>
 #include <utility>
+#include <regex>
 
 #include "engine/math/math.h"
 #include "engine/debug/Log.h"
