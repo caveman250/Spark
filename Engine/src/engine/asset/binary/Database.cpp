@@ -209,7 +209,8 @@ namespace se::asset::binary
     {
         if (readOnly)
         {
-            char* data = io::FileSystem::ReadBinaryFile(path);
+            size_t size;
+            char* data = io::FileSystem::ReadBinaryFile(path, size);
 
             std::shared_ptr<Database> asset = Create(true);
             asset->m_Structs = data;

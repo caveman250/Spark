@@ -1,3 +1,4 @@
+#include <engine/asset/builder/AssetBuilder.h>
 #include "spark.h"
 
 #include "engine/math/Mat4.h"
@@ -208,6 +209,8 @@ int main(int argc, char* argv[])
     auto sameBlob = obj2.Get<asset::binary::Blob>("blob");
     auto size = sameBlob.GetSize();
     const char* blobData = sameBlob.GetData();
+
+    asset::builder::AssetBuilder::ProcessAsset("C:\\Users\\ouchqt\\Downloads\\diagonal_resize_1.png");
 
     delete runLoop;
 }
