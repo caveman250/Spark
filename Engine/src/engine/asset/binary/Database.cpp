@@ -427,7 +427,7 @@ namespace se::asset::binary
         return nextBlobPos;
     }
 
-    Blob Database::CreateBlob(char* data, uint32_t size)
+    Blob Database::CreateBlob(const char* data, uint32_t size)
     {
         if (!SPARK_VERIFY(!m_ReadOnly))
         {

@@ -22,7 +22,7 @@ namespace se::asset::binary
         uint32_t CreateString(const std::string& str);
         const char* GetStringAt(uint32_t offset);
 
-        Blob CreateBlob(char* data, uint32_t size);
+        Blob CreateBlob(const char* data, uint32_t size);
         uint32_t GetBlobOffset(const Blob& blob);
         Blob GetBlobAt(uint32_t offset);
 
