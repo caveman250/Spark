@@ -18,6 +18,7 @@
 #include <ranges>
 #include <utility>
 #include <regex>
+#include <thread>
 
 #include "engine/math/math.h"
 #include "engine/debug/Log.h"
@@ -29,6 +30,7 @@
 
 #undef min
 #undef max
+#undef LoadImage
 #endif
 
 #if SPARK_RELEASE
