@@ -10,6 +10,7 @@
 
 #include "engine/asset/binary/Struct.h"
 #include "engine/asset/binary/Database.h"
+#include "engine/io/VFS.h"
 
 #include "platform/IRunLoop.h"
 #include "platform/IWindow.h"
@@ -23,17 +24,20 @@ int main(int argc, char* argv[])
     IWindow* window = IWindow::CreatePlatformWindow(1280, 720);
     IRunLoop* runLoop = IRunLoop::CreatePlatformRunloop({ window });
 
+    io::VFS::Get().Mount("./", "/working_dir");
+    io::VFS::Get().Mount("../../Engine/builtin_assets", "/builtin_assets");
+
     std::shared_ptr<render::Material> material = render::Material::CreateMaterial(
-        { "../../Engine/builtin_assets/shader.vert" },
-        { "../../Engine/builtin_assets/shader.frag",  "../../Engine/builtin_assets/shader2.frag" });
+        { "/builtin_assets/shader.vert" },
+        { "/builtin_assets/shader.frag",  "/builtin_assets/shader2.frag" });
     render::RenderState rs;
     rs.depthComp = render::DepthCompare::Less;
     material->SetRenderState(rs);
     material->CreatePlatformResources();
 
     std::shared_ptr<render::Material> material2 = render::Material::CreateMaterial(
-{ "../../Engine/builtin_assets/shader.vert" },
-{ "../../Engine/builtin_assets/shader3.frag" });
+{ "/builtin_assets/shader.vert" },
+{ "/builtin_assets/shader3.frag" });
     material2->SetRenderState(rs);
     material2->CreatePlatformResources();
 
@@ -196,9 +200,9 @@ int main(int argc, char* argv[])
     const char* someData = "0x80085";
     auto blob = db->CreateBlob(someData, 6);
     root.Set("blob", blob);
-    db->Save("test.sass");
+    db->Save("/working_dir/test.sass");
 
-    std::shared_ptr<asset::binary::Database> db2 = asset::binary::Database::Load("test.sass", false);
+    std::shared_ptr<asset::binary::Database> db2 = asset::binary::Database::Load("/working_dir/test.sass", false);
     auto obj2 = db2->GetRoot();
     auto pos = obj2.Get<math::Vec2>("pos");
     auto colour = obj2.Get<math::Vec3>("colour");

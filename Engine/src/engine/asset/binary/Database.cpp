@@ -1,5 +1,7 @@
-#include <engine/io/FileSystem.h>
+#include <engine/io/VFS.h>
 #include "Database.h"
+
+#include "engine/io/OutputFileStream.h"
 
 namespace se::asset::binary
 {
@@ -176,33 +178,32 @@ namespace se::asset::binary
 
     void Database::Save(const std::string& path)
     {
-        std::ofstream out;
-        out.open (path, std::ios::binary);
+        io::OutputFileStream stream(path, true);
 
         if (!m_Structs)
         {
             GrowStructData(0); // ensure minimum viable info exists
         }
-        out.write(m_Structs, GetStructsDataSize());
+        stream.WriteBinary(m_Structs, GetStructsDataSize());
 
         if (!m_Objects)
         {
             GrowObjectsData(0); // ensure minimum viable info exists
         }
-        out.write(m_Objects, GetObjectsDataSize());
+        stream.WriteBinary(m_Objects, GetObjectsDataSize());
 
         if (!m_Strings)
         {
             GrowStringsData(0); // ensure minimum viable info exists
         }
-        out.write(m_Strings, GetStringsDataSize());
+        stream.WriteBinary(m_Strings, GetStringsDataSize());
 
         if (!m_BlobData)
         {
             GrowBlobData(0); // ensure minimum viable info exists
         }
-        out.write(m_BlobData, GetBlobDataSize());
-        out.close();
+        stream.WriteBinary(m_BlobData, GetBlobDataSize());
+        stream.Close();
     }
 
     std::shared_ptr<Database> Database::Load(const std::string& path, bool readOnly)
@@ -210,7 +211,7 @@ namespace se::asset::binary
         if (readOnly)
         {
             size_t size;
-            char* data = io::FileSystem::ReadBinaryFile(path, size);
+            char* data = io::VFS::Get().ReadBinary(path, size);
 
             std::shared_ptr<Database> asset = Create(true);
             asset->m_Structs = data;
