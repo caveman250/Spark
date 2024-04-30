@@ -1,5 +1,5 @@
 #include "TextureBlueprint.h"
-#include "engine/io/FileSystem.h"
+#include "engine/io/VFS.h"
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 #include "crnlib.h"
@@ -36,7 +36,7 @@ namespace se::asset::builder
     {
         ImageData ret;
         size_t srcImageSize;
-        ret.sourceData = reinterpret_cast<uint8_t*>(io::FileSystem::ReadBinaryFile(path, srcImageSize));
+        ret.sourceData = reinterpret_cast<uint8_t*>(io::VFS::Get().ReadBinary(path, srcImageSize));
         ret.data = reinterpret_cast<uint32_t*>(stbi_load_from_memory(ret.sourceData, srcImageSize, &ret.x, &ret.y, &ret.numComponents, 4));
         return ret;
     }

@@ -1,13 +1,13 @@
 #include "Lexer.h"
 
 #include "Builtins.h"
-#include "engine/io/FileSystem.h"
+#include "engine/io/VFS.h"
 
 namespace se::shader::parser
 {
     Lexer::Lexer(const std::string &filePath)
     {
-        m_Code = io::FileSystem::ReadTextFile(filePath);
+        m_Code = io::VFS::Get().ReadText(filePath);
     }
 
     std::variant<Token, std::string> Lexer::PeekToken(size_t offset)
