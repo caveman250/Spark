@@ -13,16 +13,16 @@ namespace se::shader::parser
 
         bool Finished() { return !CanPeekChar(); }
 
-        std::variant<Token, std::string> PeekToken(size_t offset = 0);
-        std::variant<Token, std::string> PeekTokenAt(size_t n);
+        std::variant<Token, std::string> PeekToken(int offset = 0);
+        std::variant<Token, std::string> PeekTokenAt(int n);
         void ConsumeToken();
     private:
         bool CanPeekChar();
         char PeekChar();
-        bool CanPeekChar(size_t n);
-        char PeekChar(size_t n);
+        bool CanPeekChar(int n);
+        char PeekChar(int n);
         void ConsumeChar();
-        void ConsumeChar(size_t n);
+        void ConsumeChar(int n);
 
         std::variant<Token, std::string> ProcessStringLiteral(int offset);
         std::variant<Token, std::string> ProcessNumericLiteral(int offset);
@@ -32,8 +32,8 @@ namespace se::shader::parser
         int ConsumeWhitespace(int offset);
 
         uint32_t m_CurrLine = 1;
-        uint32_t m_CurrLinePosOffset = 0;
+        int m_CurrLinePosOffset = 0;
         std::string m_Code;
-        size_t m_CharIdx = 0;
+        int m_CharIdx = 0;
     };
 }
