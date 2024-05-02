@@ -33,7 +33,7 @@ namespace se::shader::ast
         void AddNode(ASTNode* node);
         void PushScope(ASTNode* node);
         void PopScope();
-        uint8_t ScopeDepth() { return m_ScopeStack.size(); }
+        uint8_t ScopeDepth() { return static_cast<uint8_t>(m_ScopeStack.size()); }
         bool IsMainDeclared() { return m_MainDeclared; }
         bool IsMainCurrentScope();
 

@@ -10,7 +10,7 @@ namespace se::shader::parser
         m_Code = io::VFS::Get().ReadText(filePath);
     }
 
-    std::variant<Token, std::string> Lexer::PeekToken(size_t offset)
+    std::variant<Token, std::string> Lexer::PeekToken(int offset)
     {
         char c = PeekChar(offset);
         switch (c)
@@ -41,7 +41,7 @@ namespace se::shader::parser
             case ',':
             case '.':
             return Token{TokenType::Syntax, std::string(1, c), m_CurrLine,
-            static_cast<uint32_t>(m_CharIdx) + m_CurrLinePosOffset};
+            static_cast<uint32_t>(m_CharIdx + m_CurrLinePosOffset)};
             case '<':
             case '>':
             case '=':
@@ -121,15 +121,15 @@ namespace se::shader::parser
         }
     }
 
-    std::variant<Token, std::string> Lexer::PeekTokenAt(size_t n)
+    std::variant<Token, std::string> Lexer::PeekTokenAt(int n)
     {
-        size_t offset = 0;
-        for (size_t i = 0; i < n; ++i)
+        int offset = 0;
+        for (int i = 0; i < n; ++i)
         {
             auto peek = PeekToken(offset);
             if (std::holds_alternative<Token>(peek))
             {
-                offset += std::get<Token>(peek).value.size();
+                offset += static_cast<int>(std::get<Token>(peek).value.size());
             }
             else
             {
@@ -145,7 +145,7 @@ namespace se::shader::parser
         auto peek = PeekToken();
         if (SPARK_VERIFY(std::holds_alternative<Token>(peek)))
         {
-            ConsumeChar(std::get<Token>(peek).value.size());
+            ConsumeChar(static_cast<int>(std::get<Token>(peek).value.size()));
         }
     }
 
@@ -159,12 +159,12 @@ namespace se::shader::parser
         return m_Code[m_CharIdx];
     }
 
-    bool Lexer::CanPeekChar(size_t n)
+    bool Lexer::CanPeekChar(int n)
     {
         return m_CharIdx + n < m_Code.size();
     }
 
-    char Lexer::PeekChar(size_t n)
+    char Lexer::PeekChar(int n)
     {
         return m_Code[m_CharIdx + n];
     }
@@ -174,7 +174,7 @@ namespace se::shader::parser
         m_CharIdx++;
     }
 
-    void Lexer::ConsumeChar(size_t n)
+    void Lexer::ConsumeChar(int n)
     {
         m_CharIdx += n;
     }
@@ -197,7 +197,7 @@ namespace se::shader::parser
         {
             return Token{
                 TokenType::StringLiteral, result, m_CurrLine,
-                static_cast<uint32_t>(m_CharIdx) + lookahead + m_CurrLinePosOffset
+                static_cast<uint32_t>(m_CharIdx + lookahead + m_CurrLinePosOffset)
             };
         }
         else
@@ -225,7 +225,7 @@ namespace se::shader::parser
         if (numberEnded)
         {
             return Token{TokenType::NumericLiteral, result, m_CurrLine,
-                static_cast<uint32_t>(m_CharIdx) + lookahead + m_CurrLinePosOffset};
+                static_cast<uint32_t>(m_CharIdx + lookahead + m_CurrLinePosOffset) };
         }
         else
         {
@@ -241,7 +241,7 @@ namespace se::shader::parser
         if (!CanPeekChar(offset + 1))
         {
             return Token{TokenType::Syntax, result, m_CurrLine,
-                static_cast<uint32_t>(m_CharIdx) + m_CurrLinePosOffset};
+                static_cast<uint32_t>(m_CharIdx + m_CurrLinePosOffset)};
         }
 
         char c2 = PeekChar(offset + 1);
@@ -261,12 +261,12 @@ namespace se::shader::parser
             {
                 result += c2;
                 return Token{TokenType::Syntax, result, m_CurrLine,
-                static_cast<uint32_t>(m_CharIdx) + 1 + m_CurrLinePosOffset};
+                static_cast<uint32_t>(m_CharIdx + 1 + m_CurrLinePosOffset) };
             }
         }
 
         return Token{TokenType::Syntax, result, m_CurrLine,
-                static_cast<uint32_t>(m_CharIdx) + m_CurrLinePosOffset};
+                static_cast<uint32_t>(m_CharIdx + m_CurrLinePosOffset)};
     }
 
     std::variant<Token, std::string> Lexer::ProcessIdentifierOrBuiltin(int offset)
@@ -299,12 +299,12 @@ namespace se::shader::parser
             if (isBuiltin)
             {
                 return Token{TokenType::Builtin, result, m_CurrLine,
-                static_cast<uint32_t>(m_CharIdx) + lookahead + m_CurrLinePosOffset};
+                static_cast<uint32_t>(m_CharIdx + lookahead + m_CurrLinePosOffset)};
             }
             else
             {
                 return Token{TokenType::Identifier, result, m_CurrLine,
-                static_cast<uint32_t>(m_CharIdx) + lookahead + m_CurrLinePosOffset};
+                static_cast<uint32_t>(m_CharIdx + lookahead + m_CurrLinePosOffset)};
             }
         }
         else
@@ -332,12 +332,12 @@ namespace se::shader::parser
 
         if (canConsume)
         {
-            ConsumeChar(result.size());
+            ConsumeChar(static_cast<int>(result.size()));
             return 0;
         }
         else
         {
-            return result.size();
+            return static_cast<int>(result.size());
         }
     }
 }

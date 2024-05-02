@@ -17,7 +17,7 @@ namespace se::memory
     {
         void Release(void* obj) override
         {
-            for (int i = 0; i < objects_count; ++i)
+            for (uint32_t i = 0; i < objects_count; ++i)
             {
                 (static_cast<T*>(obj) + i)->~T();
             }
@@ -83,7 +83,7 @@ namespace se::memory
         m_Current += sizeof(ObjectRecord);
         record->next = m_ObjectRecordsBegin;
         record->objects_begin = item;
-        record->objects_count = n;
+        record->objects_count = static_cast<uint32_t>(n);
         m_ObjectRecordsBegin = record;
 
         return reinterpret_cast<T*>(item);
