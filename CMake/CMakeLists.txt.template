@@ -13,4 +13,4 @@ file(GLOB_RECURSE SRC src/*.cpp src/*.h)
 
 ###### Output ######
 add_executable(TargetName ${SRC})
-setup_spark_target(TargetName)
+setup_spark_target(TargetName ${USE_EDITOR})

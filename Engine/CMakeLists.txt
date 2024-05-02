@@ -8,6 +8,11 @@ include(${ROOT_DIR}/CMake/Preprocessor.cmake)
 include(${ROOT_DIR}/CMake/IncludeDirs.cmake)
 include(${ROOT_DIR}/CMake/LinkDirs.cmake)
 
+if (${USE_EDITOR})
+    include(${ROOT_DIR}/CMake/PreprocessorEditor.cmake)
+    include(${ROOT_DIR}/CMake/IncludeDirsEditor.cmake)
+endif()
+
 ###### Third Party ######
 add_subdirectory(third_party/Crunch2-1.3.1)
 

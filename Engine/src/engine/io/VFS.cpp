@@ -102,7 +102,9 @@ namespace se::io
             {
                 if (IsMount(vfsPath, mount))
                 {
-                    return GetFSPath(vfsPath, mount);
+                    auto fsPath = GetFSPath(vfsPath, mount);
+                    std::filesystem::create_directories(fsPath.substr(0, fsPath.find_last_of('/')));
+                    return fsPath;
                 }
             }
         }
@@ -133,5 +135,89 @@ namespace se::io
             return mount.fsPath + std::string(path.begin() + mount.vfsPath.size(),
                                                 path.begin() + path.size());
         }
+    }
+
+    void VFS::WriteText(const std::string& path, const std::string& text)
+    {
+        const auto fsPath = ResolveFSPath(path, true);
+        if (!fsPath.has_value())
+        {
+            debug::Log::Error("Cannot open file {0}!", path);
+            return;
+        }
+
+        std::ofstream myfile;
+        myfile.open(fsPath.value());
+        myfile << text;
+        myfile.close();
+    }
+
+    bool VFS::Exists(const std::string& path)
+    {
+        return ResolveFSPath(path, false).has_value();
+    }
+
+    void VFS::ForEachFile(const std::string& dirPath, bool recursive, const std::function<void(const std::string&)>& func)
+    {
+        auto fsPath = ResolveFSPath(dirPath, false);
+        if (!fsPath.has_value())
+        {
+            return;
+        }
+
+        if (recursive)
+        {
+            for (const std::filesystem::directory_entry& file: std::filesystem::recursive_directory_iterator(fsPath.value()))
+            {
+                if (!file.is_directory())
+                {
+                    func(GetVFSPath(file.path().string()));
+                }
+            }
+        }
+        else
+        {
+            for (const std::filesystem::directory_entry& file: std::filesystem::directory_iterator(fsPath.value()))
+            {
+                if (!file.is_directory())
+                {
+                    func(GetVFSPath(file.path().string()));
+                }
+            }
+        }
+    }
+
+    std::string VFS::GetVFSPath(const std::string& path)
+    {
+        for (const auto& mount : m_Mounts)
+        {
+            if (path.contains(mount.fsPath))
+            {
+                std::string temp = path;
+                FixPath(temp);
+                return mount.vfsPath + std::string(temp.begin() + mount.fsPath.size(),
+                                                   temp.begin() + temp.size());
+            }
+        }
+
+        return "";
+    }
+
+    void VFS::FixPath(std::string& path)
+    {
+        std::replace( path.begin(), path.end(), '\\', '/' );
+    }
+
+    std::time_t VFS::GetLastModified(const std::string path)
+    {
+        auto result = ResolveFSPath(path, false);
+        if (result.has_value())
+        {
+            std::chrono::time_point<std::chrono::file_clock> timePoint = std::filesystem::last_write_time(result.value());
+            const auto systemTime = std::chrono::clock_cast<std::chrono::system_clock>(timePoint);
+            return std::chrono::system_clock::to_time_t(systemTime);
+        }
+
+        return 0;
     }
 }

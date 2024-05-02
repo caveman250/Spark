@@ -19,9 +19,12 @@
 #include <utility>
 #include <regex>
 #include <thread>
+#include <chrono>
 
 #include "engine/math/math.h"
 #include "engine/debug/Log.h"
+
+#include "json.hpp"
 
 #if SPARK_PLATFORM_WINDOWS
 #include <windows.h>
