@@ -12,6 +12,6 @@ include_directories(src)
 file(GLOB_RECURSE SRC src/*.cpp src/*.h)
 
 ###### Output ######
-add_executable(Editor ${SRC})
+add_library(Editor ${SRC})
 
-setup_spark_target(Editor)
+setup_spark_target(Editor OFF)

@@ -1,0 +1,1 @@
+add_definitions(-DSPARK_EDITOR=1)

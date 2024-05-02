@@ -5,17 +5,17 @@ namespace se
 {
     class IWindow;
 
-    class IRunLoop
+    class PlatformRunLoop
     {
     public:
-        static IRunLoop* CreatePlatformRunloop(std::vector<IWindow*> windows);
-        static IRunLoop* Get();
-        virtual void Tick() = 0;
+        static PlatformRunLoop* CreatePlatformRunloop(std::vector<IWindow*> windows);
+        static PlatformRunLoop* Get();
+        virtual void Update();
         virtual bool ShouldExit() = 0;
         virtual void RegisterWindow(IWindow* window) = 0;
         virtual void UnregisterWindow(IWindow* window) = 0;
 
     protected:
-        static IRunLoop* s_Instance;
+        static PlatformRunLoop* s_Instance;
     };
 }

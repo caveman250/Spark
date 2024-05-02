@@ -1,16 +1,19 @@
 #include "WindowsRunLoop.h"
 
 #include <algorithm>
+#include <platform/PlatformRunLoop.h>
+
 
 #include "Window.h"
+#include "engine/Application.h"
 #include "engine/render/Renderer.h"
 #include "platform/IWindow.h"
 
 namespace se
 {
-    IRunLoop* IRunLoop::s_Instance = nullptr;
+    PlatformRunLoop* PlatformRunLoop::s_Instance = nullptr;
 
-    IRunLoop* IRunLoop::CreatePlatformRunloop(std::vector<IWindow*> windows)
+    PlatformRunLoop* PlatformRunLoop::CreatePlatformRunloop(std::vector<IWindow*> windows)
     {
         s_Instance = new windows::WindowsRunLoop(windows);
         return s_Instance;
@@ -27,8 +30,10 @@ namespace se::windows
         });
     }
 
-    void WindowsRunLoop::Tick()
+    void WindowsRunLoop::Update()
     {
+        PlatformRunLoop::Update();
+
         for (const auto& window: m_Windows)
         {
             window->SetCurrent();

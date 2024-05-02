@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CMakeSharedSettings">
+    <configurations>
+      <configuration PROFILE_NAME="Debug" ENABLED="true" CONFIG_NAME="Debug" GENERATION_OPTIONS="-G Ninja" BUILD_OPTIONS="-j 10" />
+      <configuration PROFILE_NAME="Release" ENABLED="true" CONFIG_NAME="RelWithDebInfo" GENERATION_OPTIONS="-G Ninja" BUILD_OPTIONS="-j 10" />
+      <configuration PROFILE_NAME="Dist" ENABLED="true" CONFIG_NAME="Release" GENERATION_OPTIONS="-G Ninja" BUILD_OPTIONS="-j 10" />
+      <configuration PROFILE_NAME="DebugEditor" ENABLED="true" CONFIG_NAME="Debug" GENERATION_OPTIONS="-G Ninja -DUSE_EDITOR=ON" />
+      <configuration PROFILE_NAME="ReleaseEditor" ENABLED="true" CONFIG_NAME="RelWithDebInfo" GENERATION_OPTIONS="-G Ninja -DUSE_EDITOR=ON" />
+      <configuration PROFILE_NAME="DistEditor" ENABLED="true" CONFIG_NAME="Release" GENERATION_OPTIONS="-G Ninja -DUSE_EDITOR=ON" />
+    </configurations>
+  </component>
+</project>

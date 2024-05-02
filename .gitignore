@@ -1,3 +1,7 @@
 cmake-build-debug
 cmake-build-release
 cmake-build-dist
+cmake-build-debugeditor
+cmake-build-releaseeditor
+cmake-build-disteditor
+*.sass

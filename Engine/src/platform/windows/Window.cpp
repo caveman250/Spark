@@ -6,7 +6,7 @@
 
 #include "engine/render/Renderer.h"
 #include "engine/render/opengl/OpenGLRenderer.h"
-#include "platform/IRunLoop.h"
+#include "platform/PlatformRunLoop.h"
 
 #ifndef DWMWA_USE_IMMERSIVE_DARK_MODE
 #define DWMWA_USE_IMMERSIVE_DARK_MODE 20
@@ -51,7 +51,7 @@ namespace se::windows
 
     Window::~Window()
     {
-        IRunLoop::Get()->UnregisterWindow(this);
+        PlatformRunLoop::Get()->UnregisterWindow(this);
     }
 
     void Window::SetCurrent()
