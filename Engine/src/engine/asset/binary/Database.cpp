@@ -1,6 +1,7 @@
 #include <engine/io/VFS.h>
 #include "Database.h"
 
+#include "Array.h"
 #include "engine/io/OutputFileStream.h"
 
 namespace se::asset::binary
@@ -249,7 +250,7 @@ namespace se::asset::binary
     {
         if (!SPARK_VERIFY(!m_ReadOnly))
         {
-            return Object(nullptr, nullptr, Struct(nullptr));
+            return Object(std::numeric_limits<uint32_t>().max(), nullptr, Struct(nullptr));
         }
 
         Struct structDef = GetStruct(structIndex);
@@ -263,7 +264,7 @@ namespace se::asset::binary
         std::memset(objData, 0, reqSize);
         std::memcpy(objData, &structIndex, sizeof(uint32_t));
 
-        return Object(m_Objects + offset, this, structDef);
+        return Object(offset, this, structDef);
     }
 
     void Database::SetRootStruct(uint32_t structIndex)
@@ -279,7 +280,7 @@ namespace se::asset::binary
     Object Database::GetRoot()
     {
         Struct structDef = GetStruct(*reinterpret_cast<uint32_t*>(m_Objects + sizeof(uint32_t)));
-        return Object(m_Objects + sizeof(uint32_t), this, structDef);
+        return Object(sizeof(uint32_t), this, structDef);
     }
 
     uint32_t Database::GetNumStructs()
@@ -312,17 +313,38 @@ namespace se::asset::binary
         return std::shared_ptr<Database>(new Database(readOnly));
     }
 
-    uint32_t Database::GetObjectOffset(const Object& obj)
-    {
-        SPARK_ASSERT(obj.m_DB == this);
-        return static_cast<uint32_t>(obj.m_Data - m_Objects);
-    }
-
     Object Database::GetObjectAt(uint32_t offset)
     {
-        auto objData = m_Objects + offset;
+        auto objData = GetObjectDataAt(offset);
         auto structIndex = *reinterpret_cast<uint32_t*>(objData);
-        return Object(objData, this, GetStruct(structIndex));
+        return Object(offset, this, GetStruct(structIndex));
+    }
+
+    char* Database::GetObjectDataAt(uint32_t offset) const
+    {
+        return m_Objects + offset;
+    }
+
+    Array Database::CreateArray(uint32_t structIndex, uint32_t count)
+    {
+        if (!SPARK_VERIFY(!m_ReadOnly))
+        {
+            return Array(std::numeric_limits<uint32_t>().max(), nullptr);
+        }
+
+        Struct structDef = GetStruct(structIndex);
+        uint32_t reqSize = s_ArrayHeaderSize + structDef.CalcObjectSize() * count;
+        if (!m_Objects)
+        {
+            reqSize += s_ObjectsHeaderSize;
+        }
+        auto offset = GrowObjectsData(reqSize);
+        char* objData = m_Objects + offset;
+        std::memset(objData, 0, reqSize);
+        std::memcpy(objData, &count, sizeof(uint32_t));
+        std::memcpy(objData + sizeof(uint32_t), &structIndex, sizeof(uint32_t));
+
+        return Array(offset, this);
     }
 
     uint32_t Database::GetStringsDataSize()

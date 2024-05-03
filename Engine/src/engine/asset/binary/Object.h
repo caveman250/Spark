@@ -2,6 +2,7 @@
 
 #include "Struct.h"
 #include "Blob.h"
+#include "Database.h"
 
 namespace se::asset::binary
 {
@@ -27,20 +28,20 @@ namespace se::asset::binary
     private:
         void Set(uint32_t fieldIndex, const char* data, size_t size);
 
-        Object(char* data, Database* database, const Struct& objStruct);
+        Object(uint32_t offset, Database* database, const Struct& objStruct);
 
+        char* GetData();
         Struct GetStruct(uint32_t structIndex);
-
-        uint32_t GetObjectOffset(const Object& obj);
         Object GetObjectAt(uint32_t offset);
         uint32_t GetBlobOffset(const Blob& blob);
         Blob GetBlobAt(uint32_t offset);
 
-        char* m_Data;
+        uint32_t m_Offset;
         Struct m_Struct;
         Database* m_DB;
 
         friend class Database;
+        friend class Array;
     };
 
     template<typename T>
@@ -59,7 +60,7 @@ namespace se::asset::binary
 #if !SPARK_DIST
         CheckType<T>(m_Struct.GetFieldType(fieldIndex));
 #endif
-        return *reinterpret_cast<T*>(m_Data + m_Struct.GetFieldOffset(fieldIndex));
+        return *reinterpret_cast<T*>(GetData() + m_Struct.GetFieldOffset(fieldIndex));
     }
 
     // Object Specializations
@@ -69,8 +70,7 @@ namespace se::asset::binary
 #if !SPARK_DIST
         CheckType<Object>(m_Struct.GetFieldType(m_Struct.GetFieldIndex(field)));
 #endif
-        uint32_t offset = GetObjectOffset(val);
-        Set(m_Struct.GetFieldIndex(field), reinterpret_cast<const char*>(&offset), sizeof(uint32_t));
+        Set(m_Struct.GetFieldIndex(field), reinterpret_cast<const char*>(&val.m_Offset), sizeof(uint32_t));
     }
 
     template<>
@@ -79,7 +79,7 @@ namespace se::asset::binary
 #if !SPARK_DIST
         CheckType<Object>(m_Struct.GetFieldType(m_Struct.GetFieldIndex(field)));
 #endif
-        uint32_t offset = *reinterpret_cast<uint32_t*>(m_Data + m_Struct.GetFieldOffset(m_Struct.GetFieldIndex(field)));
+        uint32_t offset = *reinterpret_cast<uint32_t*>(GetData() + m_Struct.GetFieldOffset(m_Struct.GetFieldIndex(field)));
         return GetObjectAt(offset);
     }
 
@@ -113,7 +113,7 @@ namespace se::asset::binary
 #if !SPARK_DIST
         CheckType<Blob>(m_Struct.GetFieldType(m_Struct.GetFieldIndex(field)));
 #endif
-        uint32_t offset = *reinterpret_cast<uint32_t*>(m_Data + m_Struct.GetFieldOffset(m_Struct.GetFieldIndex(field)));
+        uint32_t offset = *reinterpret_cast<uint32_t*>(GetData() + m_Struct.GetFieldOffset(m_Struct.GetFieldIndex(field)));
         return GetBlobAt(offset);
     }
 
