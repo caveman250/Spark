@@ -48,7 +48,7 @@ namespace se::asset::binary
     {
         char* structData = static_cast<char*>(createAt);
 
-        uint32_t structSize = structLayout.size();
+        size_t structSize = structLayout.size();
         std::memcpy(structData, &structSize, sizeof(uint32_t));
 
         uint32_t offset = s_StructHeaderSize;
@@ -65,7 +65,7 @@ namespace se::asset::binary
 
     uint32_t Database::CalcStructDefinitionDataSize(const std::vector<std::pair<FixedString32, Type>>& structLayout)
     {
-        return s_StructRowSize * structLayout.size() + s_StructHeaderSize;
+        return s_StructRowSize * static_cast<uint32_t>(structLayout.size()) + s_StructHeaderSize;
     }
 
     uint32_t Database::CreateStruct(const StructLayout& structLayout)
@@ -167,7 +167,7 @@ namespace se::asset::binary
 
         offset += s_StructsHeaderSize;
         char* structStart = m_Structs + offset;
-        for (int i = 0; i < structIndex; ++i)
+        for (uint8_t i = 0; i < structIndex; ++i)
         {
             uint32_t structSize = GetNumStructFields(structStart);
             offset += (structSize * s_StructRowSize) + s_StructHeaderSize;
@@ -315,7 +315,7 @@ namespace se::asset::binary
     uint32_t Database::GetObjectOffset(const Object& obj)
     {
         SPARK_ASSERT(obj.m_DB == this);
-        return obj.m_Data - m_Objects;
+        return static_cast<uint32_t>(obj.m_Data - m_Objects);
     }
 
     Object Database::GetObjectAt(uint32_t offset)
@@ -371,7 +371,7 @@ namespace se::asset::binary
             return std::numeric_limits<uint32_t>().max();
         }
 
-        uint32_t reqSize = str.length() + 1;
+        uint32_t reqSize = static_cast<uint32_t>(str.length()) + 1u;
         if (!m_Strings)
         {
             reqSize += s_StringsHeaderSize;
@@ -381,7 +381,7 @@ namespace se::asset::binary
         std::memcpy(stringData, str.data(), str.length());
         std::memset(stringData + str.length(), 0, 1);
 
-        return stringData - m_Strings;
+        return static_cast<uint32_t>(stringData - m_Strings);
     }
 
     const char* Database::GetStringAt(uint32_t offset)
@@ -451,7 +451,7 @@ namespace se::asset::binary
     uint32_t Database::GetBlobOffset(const Blob& blob)
     {
         SPARK_ASSERT(blob.m_DB == this);
-        return blob.m_Data - m_BlobData;
+        return static_cast<uint32_t>(blob.m_Data - m_BlobData);
     }
 
     Blob Database::GetBlobAt(uint32_t offset)

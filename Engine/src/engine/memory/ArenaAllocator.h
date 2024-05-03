@@ -68,7 +68,7 @@ namespace se::memory
             p->~T();
         }
 
-        void deallocate(pointer p, size_type cnt)
+        void deallocate(pointer, size_type)
         {
             // empty
         }

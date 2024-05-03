@@ -37,7 +37,7 @@ namespace se::asset::builder
         ImageData ret;
         size_t srcImageSize;
         ret.sourceData = reinterpret_cast<uint8_t*>(io::VFS::Get().ReadBinary(path, srcImageSize));
-        ret.data = reinterpret_cast<uint32_t*>(stbi_load_from_memory(ret.sourceData, srcImageSize, &ret.x, &ret.y, &ret.numComponents, 4));
+        ret.data = reinterpret_cast<uint32_t*>(stbi_load_from_memory(ret.sourceData, static_cast<int>(srcImageSize), &ret.x, &ret.y, &ret.numComponents, 4));
         return ret;
     }
 
@@ -82,7 +82,7 @@ namespace se::asset::builder
         db->SetRootStruct(structIndex1);
 
         auto root = db->GetRoot();
-        root.Set<math::Vec2>("size", math::Vec2(imageData.x, imageData.y));
+        root.Set<math::Vec2>("size", math::Vec2(static_cast<float>(imageData.x), static_cast<float>(imageData.y)));
 
         auto blob = db->CreateBlob(static_cast<const char*>(compData.data), compData.outputFileSize);
         root.Set<binary::Blob>("data", blob);

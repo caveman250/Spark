@@ -48,7 +48,7 @@ namespace se::asset::meta
         return meta;
     }
 
-    void MetaData::FromJson(const nlohmann::json& json)
+    void MetaData::FromJson(const nlohmann::json&)
     {
     }
 

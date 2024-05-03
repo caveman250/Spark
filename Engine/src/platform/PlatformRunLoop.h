@@ -10,6 +10,8 @@ namespace se
     public:
         static PlatformRunLoop* CreatePlatformRunloop(std::vector<IWindow*> windows);
         static PlatformRunLoop* Get();
+
+        virtual ~PlatformRunLoop() {}
         virtual void Update();
         virtual bool ShouldExit() = 0;
         virtual void RegisterWindow(IWindow* window) = 0;

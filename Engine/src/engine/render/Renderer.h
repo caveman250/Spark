@@ -17,6 +17,7 @@ namespace se::render
         static void Shutdown();
         static Renderer* Get();
 
+        virtual ~Renderer() {}
         virtual void Init() = 0;
 
         void Submit(IWindow* window, const RenderCommand& renderCmd);
