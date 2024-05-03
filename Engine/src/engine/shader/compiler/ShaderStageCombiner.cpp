@@ -114,7 +114,7 @@ namespace se::shader::compiler
         return ret;
     }
 
-    void ReplaceInputPortsWithPreviousStageLocalVars(ast::ShaderStage &left, const ast::ShaderStage &right, const std::map<std::string, std::string> &nameMap)
+    void ReplaceInputPortsWithPreviousStageLocalVars(ast::ShaderStage &left, const std::map<std::string, std::string> &nameMap)
     {
         std::set<const ast::InputPortNode *> inputPortsToRemove;
         for (const auto &[name, port]: left.GetInputPorts())
@@ -142,7 +142,7 @@ namespace se::shader::compiler
     void ConnectPorts(ast::ShaderStage &left, ast::ShaderStage &right, memory::Arena& tempStore)
     {
         auto portRemap = RemapOutputsToOthersInputs(left, right, tempStore);
-        ReplaceInputPortsWithPreviousStageLocalVars(right, left, portRemap);
+        ReplaceInputPortsWithPreviousStageLocalVars(right, portRemap);
     }
 
     void CleanupDuplicatePorts(ast::ShaderStage& left, const ast::ShaderStage& right)
@@ -270,11 +270,11 @@ namespace se::shader::compiler
             if (port->GetPortName() == "InVertPos")
             {
                 //TODO Get attribute location from somewhere
-                shader.AddInput(arena.Alloc<ast::InputAttributeNode>(0, port->GetType(), name));
+                shader.AddInput(arena.Alloc<ast::InputAttributeNode>(0ui8, port->GetType(), name));
             }
             else if (port->GetPortName() == "InVertColour")
             {
-                shader.AddInput(arena.Alloc<ast::InputAttributeNode>(1, port->GetType(), name));
+                shader.AddInput(arena.Alloc<ast::InputAttributeNode>(1ui8, port->GetType(), name));
             }
             else if (port->GetPortName() == "FragVertColour")
             {

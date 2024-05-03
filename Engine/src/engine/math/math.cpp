@@ -19,7 +19,6 @@ namespace se::math
 
     float InverseSqrt(float f)
     {
-        auto squareRoot = std::sqrtf(f);
         return 1.f / std::sqrtf(f);
     }
 }

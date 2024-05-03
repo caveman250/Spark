@@ -90,7 +90,7 @@ namespace se::shader::parser
         return m_ShaderStage;
     }
 
-    bool Parser::ProcessVec2(const Token& token, ParseError& outError)
+    bool Parser::ProcessVec2(const Token&, ParseError& outError)
     {
         Token nextToken;
         if (!ExpectedGetAndConsume({TokenType::Syntax}, {"("}, nextToken, outError))
@@ -148,7 +148,7 @@ namespace se::shader::parser
         return true;
     }
 
-    bool Parser::ProcessVec3(const Token& token, ParseError& outError)
+    bool Parser::ProcessVec3(const Token&, ParseError& outError)
     {
         Token nextToken;
         if (!ExpectedGetAndConsume({TokenType::Syntax}, {"("}, nextToken, outError))
@@ -208,7 +208,7 @@ namespace se::shader::parser
         return true;
     }
 
-    bool Parser::ProcessVec4(const Token& token, ParseError& outError)
+    bool Parser::ProcessVec4(const Token&, ParseError& outError)
     {
         Token nextToken;
         if (!ExpectedGetAndConsume({TokenType::Syntax}, {"("}, nextToken, outError))
@@ -375,13 +375,13 @@ namespace se::shader::parser
         return false;
     }
 
-    bool Parser::ProcessNumericLiteral(const Token& token, ParseError& outError)
+    bool Parser::ProcessNumericLiteral(const Token& token, ParseError&)
     {
         m_ShaderStage.AddNode(m_TempStorage->Alloc<ast::ConstantNode<float>>(std::stof(token.value)));
         return true;
     }
 
-    bool Parser::ProcessStringLiteral(const Token& token, ParseError& outError)
+    bool Parser::ProcessStringLiteral(const Token& token, ParseError&)
     {
         m_ShaderStage.AddNode(m_TempStorage->Alloc<ast::ConstantNode<std::string>>(token.value));
         return true;
@@ -417,7 +417,7 @@ namespace se::shader::parser
         }
     }
 
-    bool Parser::ProcessPortDeclaration(const Token& token, ParseError& outError)
+    bool Parser::ProcessPortDeclaration(const Token&, ParseError& outError)
     {
         if (!ExpectAndConsume({TokenType::Syntax}, {"("}, outError))
         {
@@ -473,7 +473,7 @@ namespace se::shader::parser
         return true;
     }
 
-    bool Parser::ProcessUniformDeclaration(const Token& token, ParseError& outError)
+    bool Parser::ProcessUniformDeclaration(const Token&, ParseError& outError)
     {
         Token typeToken;
         if (!ExpectedGetAndConsume({TokenType::Builtin}, {"float", "vec2", "vec3", "vec4", "mat3", "mat4"}, typeToken,
@@ -566,7 +566,7 @@ namespace se::shader::parser
         return true;
     }
 
-    bool Parser::ProcessOperator(const Token& token, ParseError& outError)
+    bool Parser::ProcessOperator(const Token& token, ParseError&)
     {
         // TODO type validation
         m_ShaderStage.AddNode(m_TempStorage->Alloc<ast::OperatorNode>(ast::OperatorUtil::StringToOperatorType(token.value)));
@@ -575,8 +575,6 @@ namespace se::shader::parser
 
     bool Parser::ProcessFunctionDeclaration(const Token& token, ParseError& outError)
     {
-        ast::Type type = ast::TypeUtil::StringToType(token.value);
-
         Token nameToken;
         if (!ExpectedGetAndConsume({TokenType::Identifier}, {}, nameToken, outError))
         {
@@ -713,7 +711,7 @@ namespace se::shader::parser
         return true;
     }
 
-    bool Parser::ProcessEndOfFunctionDeclaration(const Token& token, ParseError& outError)
+    bool Parser::ProcessEndOfFunctionDeclaration(const Token&, ParseError& outError)
     {
         if (!ExpectAndConsume({TokenType::Syntax}, {"{"}, outError))
         {
@@ -793,7 +791,7 @@ namespace se::shader::parser
         return true;
     }
 
-    bool Parser::ProcessArgument(const Token& token, ast::Type& outType, ParseError& outError)
+    bool Parser::ProcessArgument(const Token&, ast::Type& outType, ParseError& outError)
     {
         Token nextToken;
         if (!ExpectedGetAndConsume(
