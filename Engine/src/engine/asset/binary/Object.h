@@ -168,6 +168,9 @@ namespace se::asset::binary
             case Type::Blob:
                 SPARK_ASSERT(typeid(T) == typeid(Blob));
                 break;
+            case Type::Array:
+                SPARK_ASSERT(typeid(T) == typeid(binary::Array));
+                break;
             default:
                 SPARK_ASSERT(false, "CheckType - Unrecognized type!");
                 break;

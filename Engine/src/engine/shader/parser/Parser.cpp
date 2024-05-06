@@ -573,7 +573,7 @@ namespace se::shader::parser
         return true;
     }
 
-    bool Parser::ProcessFunctionDeclaration(const Token& token, ParseError& outError)
+    bool Parser::ProcessFunctionDeclaration(const Token&, ParseError& outError)
     {
         Token nameToken;
         if (!ExpectedGetAndConsume({TokenType::Identifier}, {}, nameToken, outError))

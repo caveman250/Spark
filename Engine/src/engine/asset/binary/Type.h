@@ -18,7 +18,8 @@ namespace se::asset::binary
         Vec4,
         Object,
         String,
-        Blob
+        Blob,
+        Array
     };
 
     std::string TypeToString(Type type);
