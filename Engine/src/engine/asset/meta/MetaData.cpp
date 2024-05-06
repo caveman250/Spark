@@ -45,11 +45,16 @@ namespace se::asset::meta
     nlohmann::json MetaData::ToJson()
     {
         nlohmann::json meta;
+        meta["version"] = m_Version;
         return meta;
     }
 
-    void MetaData::FromJson(const nlohmann::json&)
+    void MetaData::FromJson(const nlohmann::json& json)
     {
+        if (json.contains("version"))
+        {
+            m_Version = json["version"].get<uint32_t>();
+        }
     }
 
     std::string MetaData::GetMetaPath(const std::string& assetPath)
@@ -69,5 +74,15 @@ namespace se::asset::meta
         }
 
         return metaPath;
+    }
+
+    uint32_t MetaData::GetFormatVersion() const
+    {
+        return m_Version;
+    }
+
+    void MetaData::SetFormatVersion(uint32_t version)
+    {
+        m_Version = version;
     }
 }
