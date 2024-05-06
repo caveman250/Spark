@@ -8,5 +8,6 @@ namespace se::shader::ast
     public:
         static std::string GetTypeGlsl(Type type);
         static Type StringToType(const std::string& type);
+        static const std::vector<std::string>& GetTypeStrings();
     };
 }

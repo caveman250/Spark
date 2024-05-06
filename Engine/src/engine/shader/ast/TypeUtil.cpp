@@ -20,6 +20,8 @@ namespace se::shader::ast
                 return "mat4";
             case Type::Void:
                 return "void";
+            case Type::Sampler2D:
+                return "sampler2D";
             default:
                 SPARK_ASSERT(false);
                 return "";
@@ -42,8 +44,26 @@ namespace se::shader::ast
             return Type::Mat4;
         else if (type == "void")
             return Type::Void;
+        else if (type == "sampler2D")
+            return Type::Sampler2D;
 
-        SPARK_ASSERT(false);
         return Type::Invalid;
+    }
+
+    const std::vector<std::string>& TypeUtil::GetTypeStrings()
+    {
+        static std::vector<std::string> s_TypeStrings =
+        {
+            "float",
+            "vec2",
+            "vec3",
+            "vec4",
+            "mat3",
+            "mat4",
+            "void",
+            "sampler2D"
+        };
+
+        return s_TypeStrings;
     }
 }

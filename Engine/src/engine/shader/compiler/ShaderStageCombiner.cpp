@@ -276,10 +276,23 @@ namespace se::shader::compiler
             {
                 shader.AddInput(arena.Alloc<ast::InputAttributeNode>(1ui8, port->GetType(), name));
             }
+            else if (port->GetPortName() == "InVertUV")
+            {
+                shader.AddInput(arena.Alloc<ast::InputAttributeNode>(2ui8, port->GetType(), name));
+            }
             else if (port->GetPortName() == "FragVertColour")
             {
                 shader.AddInput(arena.Alloc<ast::InputNode>(port->GetType(), "fragmentVertColour"));
                 std::map<std::string, std::string> renameMap = { { name, "fragmentVertColour" } };
+                for (auto* node : shader.GetNodes())
+                {
+                    node->ApplyNameRemapping(renameMap);
+                }
+            }
+            else if (port->GetPortName() == "FragVertUV")
+            {
+                shader.AddInput(arena.Alloc<ast::InputNode>(port->GetType(), "fragmentVertUV"));
+                std::map<std::string, std::string> renameMap = { { name, "fragmentVertUV" } };
                 for (auto* node : shader.GetNodes())
                 {
                     node->ApplyNameRemapping(renameMap);
@@ -324,7 +337,17 @@ namespace se::shader::compiler
                 {
                     node->ApplyNameRemapping(renameMap);
                 }
-
+            }
+            else if (port->GetPortName() == "FinalVertUV")
+            {
+                //TODO Get attribute location from somewhere
+                shader.AddOutput(arena.Alloc<ast::OutputNode>(port->GetType(), "fragmentVertUV"));
+                // urgh names have to match the frag shader.
+                std::map<std::string, std::string> renameMap = { { name, "fragmentVertUV" } };
+                for (auto* node : shader.GetNodes())
+                {
+                    node->ApplyNameRemapping(renameMap);
+                }
             }
             else
             {
