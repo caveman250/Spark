@@ -9,7 +9,7 @@ namespace se::editor::startup
     {
         io::VFS::Get().ForEachFile("/source_assets", true, [](const std::string& path)
         {
-            if (!path.ends_with(".meta"))
+            if (se::asset::builder::AssetBuilder::IsRelevantFile(path))
             {
                 auto meta = asset::meta::MetaData::GetMetaDataForAsset(path);
 
@@ -20,10 +20,9 @@ namespace se::editor::startup
                 auto extensionIt = outputPath.find_last_of(".");
                 outputPath.replace(extensionIt, outputPath.length() - extensionIt, ".sass");
 
-                auto& vfs = io::VFS::Get();
-                if (!vfs.Exists(outputPath) || vfs.GetLastModified(outputPath) < vfs.GetLastModified(path))
+                if (se::asset::builder::AssetBuilder::IsOutOfDate(path, meta.value(), outputPath))
                 {
-                    auto db = se::asset::builder::AssetBuilder::ProcessAsset(path);
+                    auto db = se::asset::builder::AssetBuilder::ProcessAsset(path, meta.value());
                     db->Save(outputPath);
                 }
 

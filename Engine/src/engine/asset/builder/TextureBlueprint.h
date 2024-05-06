@@ -23,8 +23,9 @@ namespace se::asset::builder
     class TextureBlueprint : public Blueprint
     {
     public:
+        uint32_t GetLatestVersion() const override { return 1; }
         std::regex GetFilePattern() const override;
-        std::shared_ptr<binary::Database> BuildAsset(const std::string& path) const override;
+        std::shared_ptr<binary::Database> BuildAsset(const std::string& path, meta::MetaData& meta) const override;
 
     private:
         RawImageData LoadImage(const std::string& path) const;

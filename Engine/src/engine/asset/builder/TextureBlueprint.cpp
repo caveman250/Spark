@@ -1,6 +1,7 @@
 #include <engine/asset/importer/DDS.h>
 #include "TextureBlueprint.h"
 #include "engine/io/VFS.h"
+#include "engine/asset/meta/MetaData.h"
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 #include "crnlib.h"
@@ -12,7 +13,7 @@ namespace se::asset::builder
         return std::regex(".*.(png|jpeg|jpg|tga|bmp|psd)");
     }
 
-    std::shared_ptr<binary::Database> TextureBlueprint::BuildAsset(const std::string& path) const
+    std::shared_ptr<binary::Database> TextureBlueprint::BuildAsset(const std::string& path, meta::MetaData& meta) const
     {
         auto imageData = LoadImage(path);
         if (!imageData.data)
@@ -29,6 +30,8 @@ namespace se::asset::builder
         auto db = ToBinaryAsset(compressedData);
         FreeImage(imageData);
         FreeCompressedImage(compressedData);
+
+        meta.SetFormatVersion(GetLatestVersion());
 
         return db;
     }
