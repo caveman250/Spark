@@ -36,6 +36,8 @@ namespace se::asset::binary
                 return "String";
             case Type::Blob:
                 return "Blob";
+            case Type::Array:
+                return "Array";
             default:
                 SPARK_ASSERT(false);
                 return "error";
@@ -73,6 +75,7 @@ namespace se::asset::binary
             case Type::Object:
             case Type::String:
             case Type::Blob:
+            case Type::Array:
                 return sizeof(uint32_t); //offset of object data
             default:
                 SPARK_ASSERT(false);
