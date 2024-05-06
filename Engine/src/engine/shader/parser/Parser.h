@@ -27,16 +27,18 @@ namespace se::shader::parser
 
         bool ProcessPortDeclaration(const Token& token, ParseError& outError);
         bool ProcessUniformDeclaration(const Token& token, ParseError& outError);
+        bool ProcessTextureRead(const Token& token, ParseError& outError);
         bool ProcessVariableDeclaration(const Token& token, ParseError& outError);
         bool ProcessFunctionDeclaration(const Token& token, ParseError& outError);
         bool ProcessEndOfFunctionDeclaration(const Token& token, ParseError& outError);
+        bool ProcessPropertyAccess(const Token& token, ParseError& outError);
 
         bool ProcessVec2(const Token& token, ParseError& error);
         bool ProcessVec3(const Token& token, ParseError& error);
         bool ProcessVec4(const Token& token, ParseError& error);
 
         bool ProcessArgument(const Token& token, ast::Type& outType, ParseError& outError);
-        bool ProcessAssignment(const Token& token, ast::Type expectedType, ParseError& outError);
+        bool ProcessAssignment(const Token& token, ParseError& outError);
         bool ProcessOperator(const Token& token, ParseError& outError);
 
         bool Expect(const std::vector<TokenType>& allowedTypes, const std::vector<std::string>& allowedValues,

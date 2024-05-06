@@ -11,6 +11,7 @@ namespace se::shader::ast
         Mat3,
         Mat4,
         Void,
+        Sampler2D,
         Invalid
     };
 }

@@ -1,3 +1,5 @@
+#include <engine/shader/ast/TextureSampleNode.h>
+#include <engine/shader/ast/PropertyAccessNode.h>
 #include "Parser.h"
 
 #include "engine/shader/ast/AnonymousScopeNode.h"
@@ -272,11 +274,7 @@ namespace se::shader::parser
 
     bool Parser::ProcessBuiltin(const Token& token, ParseError& outError)
     {
-        bool isPossibleVariableDec = token.value == "vec2"
-            || token.value == "vec3"
-            || token.value == "vec4"
-            || token.value == "float";
-
+        bool isPossibleVariableDec = ast::TypeUtil::StringToType(token.value) != ast::Type::Invalid;
         if (isPossibleVariableDec)
         {
             auto peek = m_Lexer.PeekToken();
@@ -297,7 +295,6 @@ namespace se::shader::parser
                 }
             }
         }
-
 
         if (token.value == "void")
         {
@@ -322,6 +319,10 @@ namespace se::shader::parser
         else if (token.value == "uniform")
         {
             return ProcessUniformDeclaration(token, outError);
+        }
+        else if (token.value == "texture")
+        {
+            return ProcessTextureRead(token, outError);
         }
 
         outError = {token.line, token.pos, std::format("Unexpected token {}", token.value)};
@@ -348,7 +349,7 @@ namespace se::shader::parser
 
         if (nextToken.value == "=")
         {
-            if (!ProcessAssignment(nextToken, type, outError))
+            if (!ProcessAssignment(nextToken, outError))
             {
                 return false;
             }
@@ -476,7 +477,7 @@ namespace se::shader::parser
     bool Parser::ProcessUniformDeclaration(const Token&, ParseError& outError)
     {
         Token typeToken;
-        if (!ExpectedGetAndConsume({TokenType::Builtin}, {"float", "vec2", "vec3", "vec4", "mat3", "mat4"}, typeToken,
+        if (!ExpectedGetAndConsume({TokenType::Builtin}, ast::TypeUtil::GetTypeStrings(), typeToken,
                                    outError))
         {
             return false;
@@ -505,7 +506,7 @@ namespace se::shader::parser
         return true;
     }
 
-    bool Parser::ProcessAssignment(const Token& token, ast::Type expectedType, ParseError& outError)
+    bool Parser::ProcessAssignment(const Token&, ParseError& outError)
     {
         m_ShaderStage.AddNode(m_TempStorage->Alloc<ast::AssignmentNode>());
 
@@ -521,22 +522,26 @@ namespace se::shader::parser
         switch (nextToken.type)
         {
         case TokenType::Builtin:
-            if (ast::TypeUtil::StringToType(nextToken.value) != expectedType)
-            {
-                outError = {
-                    nextToken.line, nextToken.pos,
-                    std::format("Cannot assign {} to variable {} of type {}", nextToken.value, token.value,
-                                ast::TypeUtil::GetTypeGlsl(expectedType))
-                };
-                return false;
-            }
+        {
             if (!ProcessBuiltin(nextToken, outError))
             {
                 return false;
             }
 
+            // check for property access
+            auto peek = m_Lexer.PeekToken();
+            if (std::holds_alternative<Token>(peek) && std::get<Token>(peek).value == ".")
+            {
+                if (!ProcessPropertyAccess(nextToken, outError))
+                {
+                    return false;
+                }
+            }
+
             break;
+        }
         case TokenType::Identifier:
+        {
             ast::Type nextType;
             if (!m_ShaderStage.FindVariable(nextToken.value, nextType))
             {
@@ -544,17 +549,30 @@ namespace se::shader::parser
                 return false;
             }
             m_ShaderStage.AddNode(m_TempStorage->Alloc<ast::VariableReferenceNode>(nextToken.value, m_ShaderStage));
+
+            // check for property access
+            auto peek = m_Lexer.PeekToken();
+            if (std::holds_alternative<Token>(peek) && std::get<Token>(peek).value == ".")
+            {
+                if (!ProcessPropertyAccess(nextToken, outError))
+                {
+                    return false;
+                }
+            }
+
             break;
+        }
         case TokenType::NumericLiteral:
+        {
             if (IsInteger(nextToken.value))
             {
                 m_ShaderStage.AddNode(m_TempStorage->Alloc<ast::ConstantNode<int>>(std::stoi(nextToken.value)));
-            }
-            else
+            } else
             {
                 m_ShaderStage.AddNode(m_TempStorage->Alloc<ast::ConstantNode<float>>(std::stof(nextToken.value)));
             }
             break;
+        }
         case TokenType::StringLiteral:
             m_ShaderStage.AddNode(m_TempStorage->Alloc<ast::ConstantNode<std::string>>(nextToken.value));
             break;
@@ -685,7 +703,7 @@ namespace se::shader::parser
                     return false;
                 }
 
-                if (!ProcessAssignment(nextToken, type, outError))
+                if (!ProcessAssignment(nextToken, outError))
                 {
                     return false;
                 }
@@ -844,5 +862,77 @@ namespace se::shader::parser
         }
 
         return true;
+    }
+
+    bool Parser::ProcessTextureRead(const Token &, ParseError &outError)
+    {
+        if (!ExpectAndConsume({ TokenType::Syntax }, { "(" }, outError))
+        {
+            return false;
+        }
+
+        Token textureVariableToken;
+        if (!ExpectedGetAndConsume({ TokenType::Identifier }, {}, textureVariableToken, outError))
+        {
+            return false;
+        }
+        ast::Type varType;
+        if (!m_ShaderStage.FindVariable(textureVariableToken.value, varType))
+        {
+            outError = { textureVariableToken.line, textureVariableToken.pos, std::format("Undefined variable: {}", textureVariableToken.value)};
+            return false;
+        }
+        if (varType != ast::Type::Sampler2D)
+        {
+            outError = { textureVariableToken.line, textureVariableToken.pos, std::format("Unexpected type: {} Expected: sampler2D", ast::TypeUtil::GetTypeGlsl(varType)) };
+            return false;
+        }
+
+        if (!ExpectAndConsume({ TokenType::Syntax }, { "," }, outError))
+        {
+            return false;
+        }
+
+        Token uvVariableToken;
+        if (!ExpectedGetAndConsume({ TokenType::Identifier }, {}, uvVariableToken, outError))
+        {
+            return false;
+        }
+        ast::Type uvVarType;
+        if (!m_ShaderStage.FindVariable(uvVariableToken.value, uvVarType))
+        {
+            outError = { textureVariableToken.line, textureVariableToken.pos, std::format("Undefined variable: {}", textureVariableToken.value)};
+            return false;
+        }
+        if (uvVarType != ast::Type::Vec2)
+        {
+            outError = { textureVariableToken.line, textureVariableToken.pos, std::format("Unexpected type: {} Expected: vec2", ast::TypeUtil::GetTypeGlsl(varType)) };
+            return false;
+        }
+
+        if (!ExpectAndConsume({ TokenType::Syntax }, { ")" }, outError))
+        {
+            return false;
+        }
+
+        m_ShaderStage.AddNode(m_TempStorage->Alloc<ast::TextureSampleNode>(textureVariableToken.value, uvVariableToken.value));
+
+        return true;
+    }
+
+    bool Parser::ProcessPropertyAccess(const Token&, ParseError &outError)
+    {
+        if (!ExpectAndConsume({ TokenType::Syntax }, { "." }, outError))
+        {
+            return false;
+        }
+
+        Token propertyNameToken;
+        if (!ExpectedGetAndConsume({ TokenType::Identifier }, {}, propertyNameToken, outError))
+        {
+            return false;
+        }
+
+        m_ShaderStage.AddNode(m_TempStorage->Alloc<ast::PropertyAccessNode>(propertyNameToken.value));
     }
 }
