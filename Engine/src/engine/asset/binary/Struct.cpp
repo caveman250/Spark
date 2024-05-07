@@ -3,22 +3,24 @@
 
 namespace se::asset::binary
 {
+    Struct Struct::Invalid = Struct(std::numeric_limits<uint32_t>().max(), nullptr);
+
     uint32_t Struct::GetFieldCount() const
     {
-        return *(reinterpret_cast<uint32_t*>(m_Data));
+        return *(reinterpret_cast<uint32_t*>(GetData()));
     }
 
     const char* Struct::GetFieldName(uint32_t fieldIndex) const
     {
         uint32_t offset = s_StructHeaderSize + (s_StructRowSize * fieldIndex);
-        char* name = m_Data + offset;
+        char* name = GetData() + offset;
         return name;
     }
 
     Type Struct::GetFieldType(uint32_t fieldIndex) const
     {
         uint32_t offset = s_StructHeaderSize + (s_StructRowSize * fieldIndex) + 32;
-        Type* name = reinterpret_cast<Type*>(m_Data + offset);
+        Type* name = reinterpret_cast<Type*>(GetData() + offset);
         return *name;
     }
 
@@ -36,6 +38,11 @@ namespace se::asset::binary
         }
 
         return offset;
+    }
+
+    char* Struct::GetData() const
+    {
+        return m_DB->GetStructData(m_Index);
     }
 
     uint32_t Struct::GetFieldIndex(const std::string& name) const

@@ -1,10 +1,11 @@
-#include <engine/asset/importer/DDS.h>
 #include "TextureBlueprint.h"
 #include "engine/io/VFS.h"
 #include "engine/asset/meta/MetaData.h"
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 #include "crnlib.h"
+#include "engine/asset/texture/Mipmap.h"
+#include "engine/asset/texture/Texture.h"
 
 namespace se::asset::builder
 {
@@ -27,7 +28,9 @@ namespace se::asset::builder
             debug::Log::Error("Failed to compress image! {}", path);
             return nullptr;
         }
-        auto db = ToBinaryAsset(compressedData);
+
+        Texture texture = Texture::FromDDS(compressedData);
+        auto db = texture.Serialise();
         FreeImage(imageData);
         FreeCompressedImage(compressedData);
 
@@ -72,51 +75,5 @@ namespace se::asset::builder
     void TextureBlueprint::FreeCompressedImage(const CompressedImageData& imageData) const
     {
         crn_free_block(imageData.data);
-    }
-
-    std::shared_ptr<binary::Database> TextureBlueprint::ToBinaryAsset(const CompressedImageData& compData) const
-    {
-        importer::DDSData ddsData = importer::ReadDDSData(compData);
-
-        auto db = binary::Database::Create(false);
-        asset::binary::StructLayout rootStructLayout =
-        {
-            { asset::binary::CreateFixedString32("sizeX"), asset::binary::Type::Uint32 },
-            { asset::binary::CreateFixedString32("sizeY"), asset::binary::Type::Uint32 },
-            { asset::binary::CreateFixedString32("mipCount"), asset::binary::Type::Uint32 },
-            { asset::binary::CreateFixedString32("format"), asset::binary::Type::Uint32 },
-            { asset::binary::CreateFixedString32("mips"), asset::binary::Type::Array }
-        };
-
-        auto rootStructIndex = db->CreateStruct(rootStructLayout);
-        db->SetRootStruct(rootStructIndex);
-
-        auto root = db->GetRoot();
-        root.Set<uint32_t>("sizeX", ddsData.m_Width);
-        root.Set<uint32_t>("sizeX", ddsData.m_Height);
-        root.Set<uint32_t>("mipCount", ddsData.m_MipCount);
-        root.Set<uint32_t>("format", static_cast<uint32_t>(ddsData.m_Format));
-
-        asset::binary::StructLayout mipStructLayout =
-        {
-            { asset::binary::CreateFixedString32("data"), asset::binary::Type::Blob },
-            { asset::binary::CreateFixedString32("sizeX"), asset::binary::Type::Uint32 },
-            { asset::binary::CreateFixedString32("sizeY"), asset::binary::Type::Uint32 }
-        };
-
-        auto mipStructIndex = db->CreateStruct(mipStructLayout);
-        auto mipArray = db->CreateArray(mipStructIndex, ddsData.m_MipCount);
-        for (uint32_t i = 0; i < ddsData.m_MipCount; ++i)
-        {
-            const auto& mip = ddsData.m_Mips[i];
-            auto mipObj = mipArray.Get(i);
-            mipObj.Set("sizeX", mip.sizeX);
-            mipObj.Set("sizeY", mip.sizeY);
-
-            auto blob = db->CreateBlob(static_cast<const char*>(mip.m_Data), mip.m_DataSize);
-            mipObj.Set<binary::Blob>("data", blob);
-        }
-
-        return db;
     }
 }

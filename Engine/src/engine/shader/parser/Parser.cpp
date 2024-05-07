@@ -934,5 +934,7 @@ namespace se::shader::parser
         }
 
         m_ShaderStage.AddNode(m_TempStorage->Alloc<ast::PropertyAccessNode>(propertyNameToken.value));
+
+        return true;
     }
 }

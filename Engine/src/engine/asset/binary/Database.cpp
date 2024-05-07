@@ -35,7 +35,7 @@ namespace se::asset::binary
 
             if (m_Objects)
             {
-                std::free(m_Objects);
+                free(m_Objects);
             }
 
             if (m_Strings)
@@ -157,13 +157,13 @@ namespace se::asset::binary
         return nextObjectPos;
     }
 
-    Struct Database::GetStruct(uint32_t structIndex)
+    char* Database::GetStructData(uint32_t structIndex)
     {
         uint32_t offset = 0;
         uint32_t structCount = GetNumStructs();
         if (!SPARK_VERIFY(structIndex < structCount))
         {
-            return Struct(nullptr);
+            return nullptr;
         }
 
         offset += s_StructsHeaderSize;
@@ -174,7 +174,7 @@ namespace se::asset::binary
             offset += (structSize * s_StructRowSize) + s_StructHeaderSize;
         }
 
-        return Struct(m_Structs + offset);
+        return m_Structs + offset;
     }
 
     void Database::Save(const std::string& path)
@@ -250,10 +250,10 @@ namespace se::asset::binary
     {
         if (!SPARK_VERIFY(!m_ReadOnly))
         {
-            return Object(std::numeric_limits<uint32_t>().max(), nullptr, Struct(nullptr));
+            return Object(std::numeric_limits<uint32_t>().max(), nullptr, Struct::Invalid);
         }
 
-        Struct structDef = GetStruct(structIndex);
+        Struct structDef = Struct(structIndex, this);
         uint32_t reqSize = structDef.CalcObjectSize();
         if (!m_Objects)
         {
@@ -279,7 +279,8 @@ namespace se::asset::binary
 
     Object Database::GetRoot()
     {
-        Struct structDef = GetStruct(*reinterpret_cast<uint32_t*>(m_Objects + sizeof(uint32_t)));
+        // assuming root struct is first struct
+        Struct structDef = Struct(0, this);
         return Object(sizeof(uint32_t), this, structDef);
     }
 
@@ -317,7 +318,7 @@ namespace se::asset::binary
     {
         auto objData = GetObjectDataAt(offset);
         auto structIndex = *reinterpret_cast<uint32_t*>(objData);
-        return Object(offset, this, GetStruct(structIndex));
+        return Object(offset, this, Struct(structIndex, this));
     }
 
     char* Database::GetObjectDataAt(uint32_t offset) const
@@ -332,7 +333,7 @@ namespace se::asset::binary
             return Array(std::numeric_limits<uint32_t>().max(), nullptr);
         }
 
-        Struct structDef = GetStruct(structIndex);
+        Struct structDef = Struct(structIndex, this);
         uint32_t reqSize = s_ArrayHeaderSize + structDef.CalcObjectSize() * count;
         if (!m_Objects)
         {
@@ -344,6 +345,13 @@ namespace se::asset::binary
         std::memcpy(objData, &count, sizeof(uint32_t));
         std::memcpy(objData + sizeof(uint32_t), &structIndex, sizeof(uint32_t));
 
+        return Array(offset, this);
+    }
+
+    Array Database::GetArrayAt(uint32_t offset)
+    {
+        auto objData = GetObjectDataAt(offset);
+        auto structIndex = *reinterpret_cast<uint32_t*>(objData);
         return Array(offset, this);
     }
 
