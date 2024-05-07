@@ -26,6 +26,47 @@ namespace se::render::opengl
         render::Material::Bind();
         glUseProgram(m_CompiledProgram);
 
+        for (size_t i = 0; i < m_Textures.size(); ++i)
+        {
+            switch (i)
+            {
+                case 0:
+                    glActiveTexture(GL_TEXTURE0);
+                    break;
+                case 1:
+                    glActiveTexture(GL_TEXTURE1);
+                    break;
+                case 2:
+                    glActiveTexture(GL_TEXTURE2);
+                    break;
+                case 3:
+                    glActiveTexture(GL_TEXTURE3);
+                    break;
+                case 4:
+                    glActiveTexture(GL_TEXTURE4);
+                    break;
+                case 5:
+                    glActiveTexture(GL_TEXTURE5);
+                    break;
+                case 6:
+                    glActiveTexture(GL_TEXTURE6);
+                    break;
+                case 7:
+                    glActiveTexture(GL_TEXTURE7);
+                    break;
+                case 8:
+                    glActiveTexture(GL_TEXTURE8);
+                    break;
+                case 9:
+                    glActiveTexture(GL_TEXTURE9);
+                    break;
+                case 10:
+                    glActiveTexture(GL_TEXTURE10);
+                    break;
+            }
+
+            m_Textures[i]->Bind();
+        }
     }
 
     void Material::CreatePlatformResources()
@@ -132,45 +173,6 @@ namespace se::render::opengl
             {
                 m_Textures.push_back(platformResource);
             }
-
-            size_t index = std::ranges::find(m_Textures, platformResource) - m_Textures.begin();
-            switch (index)
-            {
-                case 0:
-                    glActiveTexture(GL_TEXTURE0);
-                    break;
-                case 1:
-                    glActiveTexture(GL_TEXTURE1);
-                    break;
-                case 2:
-                    glActiveTexture(GL_TEXTURE2);
-                    break;
-                case 3:
-                    glActiveTexture(GL_TEXTURE3);
-                    break;
-                case 4:
-                    glActiveTexture(GL_TEXTURE4);
-                    break;
-                case 5:
-                    glActiveTexture(GL_TEXTURE5);
-                    break;
-                case 6:
-                    glActiveTexture(GL_TEXTURE6);
-                    break;
-                case 7:
-                    glActiveTexture(GL_TEXTURE7);
-                    break;
-                case 8:
-                    glActiveTexture(GL_TEXTURE8);
-                    break;
-                case 9:
-                    glActiveTexture(GL_TEXTURE9);
-                    break;
-                case 10:
-                    glActiveTexture(GL_TEXTURE10);
-                    break;
-            }
-            platformResource->Bind();
             break;
         }
         case shader::ast::Type::Void:
