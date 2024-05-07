@@ -330,7 +330,7 @@ namespace se::asset::binary
     {
         if (!SPARK_VERIFY(!m_ReadOnly))
         {
-            return Array(std::numeric_limits<uint32_t>().max(), nullptr);
+            return Array(std::numeric_limits<uint32_t>().max(), nullptr, false);
         }
 
         Struct structDef = Struct(structIndex, this);
@@ -345,14 +345,13 @@ namespace se::asset::binary
         std::memcpy(objData, &count, sizeof(uint32_t));
         std::memcpy(objData + sizeof(uint32_t), &structIndex, sizeof(uint32_t));
 
-        return Array(offset, this);
+        return Array(offset, this, true);
     }
 
     Array Database::GetArrayAt(uint32_t offset)
     {
         auto objData = GetObjectDataAt(offset);
-        auto structIndex = *reinterpret_cast<uint32_t*>(objData);
-        return Array(offset, this);
+        return Array(offset, this, false);
     }
 
     uint32_t Database::GetStringsDataSize()

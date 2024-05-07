@@ -29,8 +29,8 @@ namespace se::asset::builder
             return nullptr;
         }
 
-        Texture texture = Texture::FromDDS(compressedData);
-        auto db = texture.Serialise();
+        auto texture = Texture::FromDDS(compressedData);
+        auto db = texture->Serialise();
         FreeImage(imageData);
         FreeCompressedImage(compressedData);
 

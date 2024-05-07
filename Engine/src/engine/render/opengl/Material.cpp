@@ -4,6 +4,7 @@
 #include "engine/shader/ShaderGenerator.h"
 #include "engine/shader/ast/Types.h"
 #include "engine/shader/ast/TypeUtil.h"
+#include "TextureResource.h"
 
 namespace se::render
 {
@@ -123,6 +124,55 @@ namespace se::render::opengl
         case shader::ast::Type::Mat4:
             glUniformMatrix4fv(uniformLoc, 1, false, static_cast<const float*>(value));
             break;
+        case shader::ast::Type::Sampler2D:
+        {
+            auto texture = reinterpret_cast<const asset::Texture *>(value);
+            const auto& platformResource = texture->GetPlatformResource();
+            if (!std::ranges::contains(m_Textures, platformResource))
+            {
+                m_Textures.push_back(platformResource);
+            }
+
+            size_t index = std::ranges::find(m_Textures, platformResource) - m_Textures.begin();
+            switch (index)
+            {
+                case 0:
+                    glActiveTexture(GL_TEXTURE0);
+                    break;
+                case 1:
+                    glActiveTexture(GL_TEXTURE1);
+                    break;
+                case 2:
+                    glActiveTexture(GL_TEXTURE2);
+                    break;
+                case 3:
+                    glActiveTexture(GL_TEXTURE3);
+                    break;
+                case 4:
+                    glActiveTexture(GL_TEXTURE4);
+                    break;
+                case 5:
+                    glActiveTexture(GL_TEXTURE5);
+                    break;
+                case 6:
+                    glActiveTexture(GL_TEXTURE6);
+                    break;
+                case 7:
+                    glActiveTexture(GL_TEXTURE7);
+                    break;
+                case 8:
+                    glActiveTexture(GL_TEXTURE8);
+                    break;
+                case 9:
+                    glActiveTexture(GL_TEXTURE9);
+                    break;
+                case 10:
+                    glActiveTexture(GL_TEXTURE10);
+                    break;
+            }
+            platformResource->Bind();
+            break;
+        }
         case shader::ast::Type::Void:
         case shader::ast::Type::Invalid:
             debug::Log::Error("Material::SetUniform - Unhandled unfiorm type {}", shader::ast::TypeUtil::GetTypeGlsl(type));

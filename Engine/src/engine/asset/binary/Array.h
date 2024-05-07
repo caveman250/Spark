@@ -13,7 +13,7 @@ namespace se::asset::binary
         uint32_t GetStructIndex();
         Object Get(uint32_t i);
     private:
-        Array(uint32_t offset, Database* database);
+        Array(uint32_t offset, Database* database, bool initialiseObjects);
         uint32_t GetOffsetOf(uint32_t i);
         char* GetData();
 
