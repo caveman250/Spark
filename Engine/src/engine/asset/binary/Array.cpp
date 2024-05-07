@@ -22,7 +22,7 @@ namespace se::asset::binary
 
     Struct Array::GetStruct()
     {
-        return m_DB->GetStruct(GetStructIndex());
+        return Struct(GetStructIndex(), m_DB);
     }
 
     Array::Array(uint32_t offset, Database* database)

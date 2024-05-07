@@ -23,7 +23,7 @@ namespace se::asset::builder
     class TextureBlueprint : public Blueprint
     {
     public:
-        uint32_t GetLatestVersion() const override { return 1; }
+        uint32_t GetLatestVersion() const override { return 2; }
         std::regex GetFilePattern() const override;
         std::shared_ptr<binary::Database> BuildAsset(const std::string& path, meta::MetaData& meta) const override;
 
@@ -32,7 +32,5 @@ namespace se::asset::builder
         CompressedImageData Compress(const RawImageData& imageData) const;
         void FreeImage(const RawImageData& imageData) const;
         void FreeCompressedImage(const CompressedImageData& imageData) const;
-        std::shared_ptr<binary::Database> ToBinaryAsset(const CompressedImageData& compData) const;
-
     };
 }

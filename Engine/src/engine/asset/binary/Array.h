@@ -22,5 +22,6 @@ namespace se::asset::binary
         uint32_t m_ElementSize; //cache
 
         friend class Database;
+        friend class Object;
     };
 }

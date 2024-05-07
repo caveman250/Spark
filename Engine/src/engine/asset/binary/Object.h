@@ -3,6 +3,7 @@
 #include "Struct.h"
 #include "Blob.h"
 #include "Database.h"
+#include "Array.h"
 
 namespace se::asset::binary
 {
@@ -33,6 +34,7 @@ namespace se::asset::binary
         char* GetData();
         Struct GetStruct(uint32_t structIndex);
         Object GetObjectAt(uint32_t offset);
+        Array GetArrayAt(uint32_t offset);
         uint32_t GetBlobOffset(const Blob& blob);
         Blob GetBlobAt(uint32_t offset);
 
@@ -81,6 +83,26 @@ namespace se::asset::binary
 #endif
         uint32_t offset = *reinterpret_cast<uint32_t*>(GetData() + m_Struct.GetFieldOffset(m_Struct.GetFieldIndex(field)));
         return GetObjectAt(offset);
+    }
+
+    // Array Specializations
+    template<>
+    inline void Object::Set<Array>(const std::string& field, const Array& val)
+    {
+#if !SPARK_DIST
+        CheckType<Array>(m_Struct.GetFieldType(m_Struct.GetFieldIndex(field)));
+#endif
+        Set(m_Struct.GetFieldIndex(field), reinterpret_cast<const char*>(&val.m_Offset), sizeof(uint32_t));
+    }
+
+    template<>
+    inline const Array Object::Get<Array>(const std::string& field)
+    {
+#if !SPARK_DIST
+        CheckType<Array>(m_Struct.GetFieldType(m_Struct.GetFieldIndex(field)));
+#endif
+        uint32_t offset = *reinterpret_cast<uint32_t*>(GetData() + m_Struct.GetFieldOffset(m_Struct.GetFieldIndex(field)));
+        return GetArrayAt(offset);
     }
 
     // String Specializations

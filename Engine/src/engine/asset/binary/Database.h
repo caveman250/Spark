@@ -14,13 +14,14 @@ namespace se::asset::binary
         static std::shared_ptr<Database> Create(bool readOnly);
         ~Database();
         [[nodiscard]] uint32_t CreateStruct(const StructLayout& structLayout);
-        Struct GetStruct(uint32_t structIndex);
+        char* GetStructData(uint32_t structIndex);
 
         Object CreateObject(uint32_t structIndex);
         Object GetObjectAt(uint32_t offset);
         char* GetObjectDataAt(uint32_t offset) const;
 
         Array CreateArray(uint32_t structIndex, uint32_t count);
+        Array GetArrayAt(uint32_t offset);
 
         uint32_t CreateString(const std::string& str);
         const char* GetStringAt(uint32_t offset);

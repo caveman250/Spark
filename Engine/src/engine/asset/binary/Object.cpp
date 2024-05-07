@@ -23,12 +23,17 @@ namespace se::asset::binary
 
     Struct Object::GetStruct(uint32_t structIndex)
     {
-        return Struct(m_DB->GetStruct(structIndex));
+        return Struct(structIndex, m_DB);
     }
 
     Object Object::GetObjectAt(uint32_t offset)
     {
         return m_DB->GetObjectAt(offset);
+    }
+
+    Array Object::GetArrayAt(uint32_t offset)
+    {
+        return m_DB->GetArrayAt(offset);
     }
 
     const char* Object::GetString(const std::string& field)
