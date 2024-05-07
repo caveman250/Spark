@@ -1,5 +1,6 @@
 #pragma once
 
+#include "engine/asset/texture/Texture.h"
 #include "engine/render/Material.h"
 #include "GL_fwd.h"
 
@@ -15,6 +16,7 @@ namespace se::render::opengl
 
         GLuint GetProgramID() { return m_CompiledProgram; }
     private:
+        std::vector<std::shared_ptr<TextureResource>> m_Textures;
         GLuint m_CompiledProgram = GL_INVALID_VALUE;
     };
 }

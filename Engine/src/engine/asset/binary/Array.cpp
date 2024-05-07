@@ -25,18 +25,21 @@ namespace se::asset::binary
         return Struct(GetStructIndex(), m_DB);
     }
 
-    Array::Array(uint32_t offset, Database* database)
+    Array::Array(uint32_t offset, Database* database, bool initialiseObjects)
         : m_Offset(offset)
         , m_DB(database)
     {
-        uint32_t structIndex = GetStructIndex();
-        uint32_t numElements = GetCount();
         m_ElementSize = GetStruct().CalcObjectSize();
-        for (uint32_t i = 0; i < numElements; ++i)
+        if (initialiseObjects)
         {
-            char* objData = GetData() + GetOffsetOf(i);
-            std::memset(objData, 0, m_ElementSize);
-            std::memcpy(objData, &structIndex, sizeof(uint32_t));
+            uint32_t structIndex = GetStructIndex();
+            uint32_t numElements = GetCount();
+            for (uint32_t i = 0; i < numElements; ++i)
+            {
+                char *objData = GetData() + GetOffsetOf(i);
+                std::memset(objData, 0, m_ElementSize);
+                std::memcpy(objData, &structIndex, sizeof(uint32_t));
+            }
         }
     }
 

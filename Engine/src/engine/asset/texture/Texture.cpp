@@ -5,6 +5,7 @@
 #include "engine/asset/binary/binary.h"
 #include "engine/asset/binary/Database.h"
 #include "engine/asset/builder/TextureBlueprint.h"
+#include "engine/render/TextureResource.h"
 
 namespace se::asset
 {
@@ -19,7 +20,7 @@ namespace se::asset
         }
     }
 
-    std::shared_ptr<binary::Database> Texture::Serialise()
+    std::shared_ptr<binary::Database> Texture:: Serialise()
     {
         auto db = binary::Database::Create(false);
         binary::StructLayout rootStructLayout =
@@ -57,8 +58,13 @@ namespace se::asset
             mipObj.Set("sizeX", mip.sizeX);
             mipObj.Set("sizeY", mip.sizeY);
 
+            uint32_t sizeX = mipObj.Get<uint32_t>("sizeX");
+
             auto blob = db->CreateBlob(static_cast<const char*>(mip.m_Data), mip.m_DataSize);
             mipObj.Set<binary::Blob>("data", blob);
+
+            sizeX = mipObj.Get<uint32_t>("sizeX");
+            int lol =1;
         }
 
         return db;
@@ -73,6 +79,7 @@ namespace se::asset
         m_Format = static_cast<texture::Format>(root.Get<uint32_t>("format"));
 
         auto mipArray = root.Get<binary::Array>("mips");
+        auto lol = mipArray.GetCount();
         for (uint32_t i = 0; i < m_MipCount; ++i)
         {
             auto& mip = m_Mips.emplace_back();
@@ -87,7 +94,7 @@ namespace se::asset
         }
     }
 
-    Texture Texture::FromDDS(const builder::CompressedImageData& rawDDSData)
+    std::shared_ptr<Texture>  Texture::FromDDS(const builder::CompressedImageData& rawDDSData)
     {
 #define FOURCC_DXT1 0x31545844
 #define FOURCC_DXT3 0x33545844
@@ -104,24 +111,29 @@ namespace se::asset
             return {};
         }
 
-        Texture ret;
+        std::shared_ptr<Texture> ret = std::make_shared<Texture>();
 
         uint8_t* header = reinterpret_cast<uint8_t*>(ddsData) + s_FileCodeSize;
         uint32_t width = *reinterpret_cast<uint32_t*>(&(header[8]));
         uint32_t height = *reinterpret_cast<uint32_t*>(&(header[12]));
         // uint32_t linearSize = *reinterpret_cast<uint32_t*>(&(header[16]));
-        ret.m_MipCount = *reinterpret_cast<uint32_t*>(&(header[24]));
+        ret->m_MipCount = *reinterpret_cast<uint32_t*>(&(header[24]));
         uint32_t fourCC = *reinterpret_cast<uint32_t*>(&(header[80]));
 
-        ret.m_Width = width;
-        ret.m_Height = height;
+        if (ret->m_MipCount == 0)
+        {
+            ret->m_MipCount++;
+        }
+
+        ret->m_Width = width;
+        ret->m_Height = height;
 
         uint8_t* imageData = reinterpret_cast<uint8_t*>(ddsData) + s_FileCodeSize + s_HeaderSize;
 
         switch (fourCC)
         {
             case FOURCC_DXT5:
-                ret.m_Format = texture::Format::DXT5;
+                ret->m_Format = texture::Format::DXT5;
                 break;
             default:
                 debug::Log::Error("ReadDDSData - Unhandled Texture Format! {:p}", fourCC);
@@ -131,16 +143,30 @@ namespace se::asset
         uint32_t offset = 0;
 
         for (unsigned int level = 0;
-             ((ret.m_MipCount == 0 && level == 0) || (level < ret.m_MipCount)) && (width || height);
+             ((ret->m_MipCount == 0 && level == 0) || (level < ret->m_MipCount)) && (width || height);
              ++level)
         {
             unsigned int size = ((width + 3) / 4) * ((height + 3) / 4) * blockSize;
-            ret.m_Mips.push_back({imageData + offset, size, width, height});
+
+            void* mipData = std::malloc(size);
+            std::memcpy(mipData, imageData + offset, size);
+            ret->m_Mips.push_back({mipData, size, width, height});
             offset += size;
             width /= 2;
             height /= 2;
         }
 
         return ret;
+    }
+
+    void Texture::CreatePlatformResource()
+    {
+        m_PlatformResource = render::TextureResource::Create(*this);
+        m_PlatformResource->CreatePlatformResources();
+    }
+
+    const std::shared_ptr<render::TextureResource> &Texture::GetPlatformResource() const
+    {
+        return m_PlatformResource;
     }
 }

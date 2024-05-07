@@ -11,6 +11,7 @@ namespace se::render
     {
         Position,
         Colour,
+        UV,
         Normal,
         Tangent,
         Bitangent
