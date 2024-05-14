@@ -350,7 +350,6 @@ namespace se::asset::binary
 
     Array Database::GetArrayAt(uint32_t offset)
     {
-        auto objData = GetObjectDataAt(offset);
         return Array(offset, this, false);
     }
 

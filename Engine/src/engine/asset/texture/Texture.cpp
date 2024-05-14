@@ -58,13 +58,8 @@ namespace se::asset
             mipObj.Set("sizeX", mip.sizeX);
             mipObj.Set("sizeY", mip.sizeY);
 
-            uint32_t sizeX = mipObj.Get<uint32_t>("sizeX");
-
             auto blob = db->CreateBlob(static_cast<const char*>(mip.m_Data), mip.m_DataSize);
             mipObj.Set<binary::Blob>("data", blob);
-
-            sizeX = mipObj.Get<uint32_t>("sizeX");
-            int lol =1;
         }
 
         return db;
@@ -79,7 +74,6 @@ namespace se::asset
         m_Format = static_cast<texture::Format>(root.Get<uint32_t>("format"));
 
         auto mipArray = root.Get<binary::Array>("mips");
-        auto lol = mipArray.GetCount();
         for (uint32_t i = 0; i < m_MipCount; ++i)
         {
             auto& mip = m_Mips.emplace_back();
