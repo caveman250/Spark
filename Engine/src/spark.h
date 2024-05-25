@@ -20,6 +20,7 @@
 #include <regex>
 #include <thread>
 #include <chrono>
+#include <execution>
 
 #include "engine/math/math.h"
 #include "engine/debug/Log.h"

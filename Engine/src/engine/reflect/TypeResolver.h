@@ -9,7 +9,7 @@ namespace se::reflect
     struct Class;
 
     template<typename T>
-    Type *getPrimitiveDescriptor();
+    Type* getPrimitiveDescriptor();
 
     struct DefaultResolver
     {
@@ -29,13 +29,13 @@ namespace se::reflect
         };
 
         template<typename T, typename std::enable_if<IsReflected<T>::value, int>::type = 0>
-        static Type *get()
+        static Type* get()
         {
             return &T::Reflection;
         }
 
         template<typename T, typename std::enable_if<!IsReflected<T>::value, int>::type = 0>
-        static Type *get()
+        static Type* get()
         {
             return getPrimitiveDescriptor<T>();
         }
@@ -44,7 +44,7 @@ namespace se::reflect
     template<typename T>
     struct TypeResolver
     {
-        static Type *get()
+        static Type* get()
         {
             return DefaultResolver::get<T>();
         }
@@ -55,8 +55,8 @@ namespace se::reflect
     {
         static Class* get()
         {
-#if SPARK_DEBUG
-            auto reflectClass =  dynamic_cast<Class*>(DefaultResolver::get<T>());
+#if !SPARK_DIST
+            auto reflectClass = dynamic_cast<Class*>(DefaultResolver::get<T>());
             SPARK_ASSERT(reflectClass);
             return reflectClass;
 #else
@@ -66,12 +66,12 @@ namespace se::reflect
         }
     };
 
-    template <typename T>
+    template<typename T>
     struct EnumResolver
     {
         static Enum* get()
         {
-#if SPARK_DEBUG
+#if !SPARK_DIST
             auto reflectEnum = dynamic_cast<Enum*>(DefaultResolver::get<T>());
             SPARK_ASSERT(reflectEnum);
             return reflectEnum;
