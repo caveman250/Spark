@@ -10,19 +10,24 @@ namespace se::ecs
     class BaseSystem
     {
     public:
+        virtual ~BaseSystem() {}
         virtual void Update(float dt) = 0;
-        virtual std::vector<std::pair<ComponentId, bool>> GetUsedComponents() = 0;
+
+    protected:
+        World* m_World = nullptr;
+
+        friend class World;
     };
 
     template <typename... Cs>
     class System : public BaseSystem
     {
     public:
-        System(World& world);
+        System() {}
 
         void Update(float dt) override;
 
-        std::vector<std::pair<ComponentId, bool>> GetUsedComponents() override;
+        static std::vector<std::pair<ComponentId, bool>> GetUsedComponents();
 
     private:
         virtual void OnUpdate(float dt, size_t count, Cs*... ts) = 0;
@@ -32,8 +37,6 @@ namespace se::ecs
 
         template<std::size_t Index, typename... Ts>
         std::enable_if_t<Index == sizeof...(Cs) + 1> UpdateBuilder(float dt, Ts... ts);
-
-        World& m_World;
     };
 
     template <typename T>
@@ -51,13 +54,6 @@ namespace se::ecs
     }
 
     template<typename... Cs>
-    System<Cs...>::System(World& world)
-        : m_World(world)
-    {
-
-    }
-
-    template<typename... Cs>
     template<std::size_t Index, typename... Ts>
     std::enable_if_t<Index != sizeof...(Cs) + 1> System<Cs...>::UpdateBuilder(float dt, Ts... ts)
     {
@@ -72,7 +68,7 @@ namespace se::ecs
     template<std::size_t Index, typename... Ts>
     std::enable_if_t<Index == sizeof...(Cs) + 1> System<Cs...>::UpdateBuilder(float dt, Ts... ts)
     {
-        m_World.Each<Cs...>(dt, std::bind(&System::OnUpdate, this, ts...));
+        m_World->Each<Cs...>(dt, std::bind(&System::OnUpdate, this, ts...));
     }
 
     template<typename... Cs>

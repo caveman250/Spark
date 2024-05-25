@@ -7,6 +7,7 @@ namespace se::ecs
 {
     EntityId World::CreateEntity()
     {
+        auto guard = MaybeLockGuard(m_UpdateMode, &m_EntityMutex);
         EntityId entityId;
 
         if (!m_FreeEntities.empty())
@@ -68,7 +69,7 @@ namespace se::ecs
         record.archetype = next_archetype;
     }
 
-    void World::DestroyEntity(EntityId entity)
+    void World::DestroyEntityInternal(EntityId entity)
     {
         if (entity == s_InvalidEntity)
         {
@@ -225,16 +226,93 @@ namespace se::ecs
     {
         for (const auto& updateGroup: m_SystemUpdateGroups)
         {
+            ProcessPendingComponents();
+            ProcessPendingSystems();
+            m_UpdateMode = updateGroup.size() > 1 ? UpdateMode::MultiThreaded : UpdateMode::SingleThreaded;
             std::for_each(std::execution::par,
                           updateGroup.begin(),
                           updateGroup.end(),
                           [this, dt](auto&& systemId)
                           {
-                              if (auto* system = m_Systems[systemId])
+                              if (auto* system = m_Systems[systemId].instance)
                               {
                                   system->Update(dt);
                               }
                           });
         }
     }
+
+    void World::DestroyEntity(EntityId entity)
+    {
+        auto guard = MaybeLockGuard(m_UpdateMode, &m_EntityMutex);
+        m_PendingEntityDeletions.push_back(entity);
+    }
+
+    void World::ProcessPendingComponents()
+    {
+        for (const auto& [entity, component] : m_PendingComponentCreations)
+        {
+            AddComponentInternal(entity, component);
+        }
+
+        m_PendingComponentCreations.clear();
+
+        for (const auto& [entity, component] : m_PendingComponentDeletions)
+        {
+            RemoveComponentInternal(entity, component);
+        }
+
+        m_PendingComponentDeletions.clear();
+    }
+
+    void World::ProcessPendingSystems()
+    {
+        for (SystemId system : m_PendingSystemCreations)
+        {
+            CreateSystemInternal(system);
+        }
+
+        m_PendingSystemCreations.clear();
+
+        for (SystemId system : m_PendingSystemDeletions)
+        {
+            DestroySystemInternal(system);
+        }
+
+        m_PendingSystemDeletions.clear();
+    }
+
+    void World::CreateSystemInternal(SystemId system)
+    {
+        if (SPARK_VERIFY(m_Systems.contains(system) && m_Systems.at(system).instance == nullptr))
+        {
+            m_Systems.at(system).instance = static_cast<BaseSystem*>(m_Systems.at(system).type->heap_constructor());
+            m_Systems.at(system).instance->m_World = this;
+        }
+    }
+
+    void World::DestroySystemInternal(SystemId system)
+    {
+        if (SPARK_VERIFY(m_Systems.contains(system)))
+        {
+            auto systemRecord = m_Systems.at(system);
+            delete systemRecord.instance;
+            m_Systems.at(system).instance = nullptr;
+        }
+    }
+
+    void World::AddComponentInternal(EntityId entity, ComponentId comp)
+    {
+        AddComponent(entity, comp);
+        void* compData = GetComponent(entity, comp);
+        m_ComponentRecords[comp].type->inplace_constructor(compData);
+    }
+
+    void World::RemoveComponentInternal(EntityId entity, ComponentId comp)
+    {
+        void* data = GetComponent(entity, comp);
+        m_ComponentRecords[comp].type->destructor(data);
+        RemoveComponent(entity, comp);
+    }
+
 }
