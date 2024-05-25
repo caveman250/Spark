@@ -228,6 +228,8 @@ namespace se::ecs
         {
             ProcessPendingComponents();
             ProcessPendingSystems();
+            ProcessPendingEntityDeletions();
+
             m_UpdateMode = updateGroup.size() > 1 ? UpdateMode::MultiThreaded : UpdateMode::SingleThreaded;
             std::for_each(std::execution::par,
                           updateGroup.begin(),
@@ -313,6 +315,16 @@ namespace se::ecs
         void* data = GetComponent(entity, comp);
         m_ComponentRecords[comp].type->destructor(data);
         RemoveComponent(entity, comp);
+    }
+
+    void World::ProcessPendingEntityDeletions()
+    {
+        for (EntityId entity : m_PendingEntityDeletions)
+        {
+            DestroyEntityInternal(entity);
+        }
+
+        m_PendingEntityDeletions.clear();
     }
 
 }
