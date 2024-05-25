@@ -99,6 +99,7 @@ namespace se::ecs
 
         void ProcessPendingComponents();
         void ProcessPendingSystems();
+        void ProcessPendingEntityDeletions();
 
         std::unordered_map<ArchetypeId, Archetype> m_Archetypes;
         std::unordered_map<Type, ArchetypeId> m_ArchetypeTypeLookup;
