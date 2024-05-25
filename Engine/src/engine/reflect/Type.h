@@ -10,6 +10,9 @@ namespace se::reflect
         const char* name;
         size_t size;
         asset::binary::Type binaryType;
+        std::function<void*()> heap_constructor;
+        std::function<void*(void*)> inplace_constructor;
+        std::function<void(void*)> destructor;
 
         Type(const char* name, size_t size, asset::binary::Type binaryType) : name(name), size(size), binaryType(binaryType) {}
         virtual ~Type() {}

@@ -8,17 +8,17 @@
 
 namespace se::reflect
 {
-#define DECLARE_SPARK_TYPE() \
+#define DECLARE_SPARK_TYPE(Type) \
+            Type() {}                     \
             static size_t s_StaticId;
 
 #define DEFINE_SPARK_TYPE(Type) \
             size_t Type::s_StaticId = typeid(Type).hash_code();
 
-
     /// Class ///
-#define DECLARE_SPARK_CLASS() \
-            public:                  \
-            DECLARE_SPARK_TYPE()                          \
+#define DECLARE_SPARK_CLASS(Type) \
+            public:               \
+            DECLARE_SPARK_TYPE(Type)                          \
             static se::reflect::Class Reflection; \
             static void initReflection(se::reflect::Class*);
 
@@ -28,7 +28,10 @@ namespace se::reflect
             void type::initReflection(se::reflect::Class* typeDesc) { \
                 using T = type; \
                 typeDesc->name = #type; \
-                typeDesc->size = sizeof(T); \
+                typeDesc->size = sizeof(T);                           \
+                typeDesc->heap_constructor = []{ return new T(); };        \
+                typeDesc->inplace_constructor = [](void* mem){ return new(mem) T(); }; \
+                typeDesc->destructor = [](void* data){ reinterpret_cast<T*>(data)->~T(); };        \
                 typeDesc->members = {
 
 #define DEFINE_MEMBER(name) \
@@ -39,8 +42,8 @@ namespace se::reflect
 
     /// Component ///
     // atm just enables registration in ECS. may be expanded later
-#define DECLARE_SPARK_COMPONENT() \
-            DECLARE_SPARK_CLASS()     \
+#define DECLARE_SPARK_COMPONENT(Type) \
+            DECLARE_SPARK_CLASS(Type)     \
             static size_t GetComponentId() { return s_StaticId; }
 
 #define DEFINE_SPARK_COMPONENT_BEGIN(type) \
@@ -50,9 +53,8 @@ namespace se::reflect
             DEFINE_SPARK_CLASS_END()
 
     /// System ///
-    // atm just enables registration in ECS. may be expanded later
-#define DECLARE_SPARK_SYSTEM() \
-            DECLARE_SPARK_CLASS()     \
+#define DECLARE_SPARK_SYSTEM(Type) \
+            DECLARE_SPARK_CLASS(Type) \
             static size_t GetSystemId() { return s_StaticId; }
 
 #define DEFINE_SPARK_SYSTEM(type) \
@@ -63,7 +65,7 @@ namespace se::reflect
 #define DECLARE_SPARK_ENUM_BEGIN(_enum, type) \
             struct _enum\
             {                                             \
-            DECLARE_SPARK_TYPE()                       \
+            DECLARE_SPARK_TYPE(_enum)                       \
             enum Type : type;\
             static std::string ToString(_enum::Type val); \
             static _enum::Type FromString(const std::string& str); \
