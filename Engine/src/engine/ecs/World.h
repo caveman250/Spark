@@ -1,5 +1,6 @@
 #pragma once
 
+#include <engine/memory/Arena.h>
 #include "spark.h"
 #include "Archetype.h"
 #include "engine/reflect/TypeResolver.h"
@@ -47,7 +48,7 @@ namespace se::ecs
         void DestroyEntity(EntityId entity);
 
         template<typename T>
-        void AddComponent(EntityId entity);
+        T* AddComponent(EntityId entity);
 
         template<typename T>
         void RemoveComponent(EntityId entity);
@@ -73,7 +74,14 @@ namespace se::ecs
         template<typename T>
         T* GetComponent(EntityId entity);
 
-        void AddComponentInternal(EntityId entity, ComponentId comp);
+        struct PendingComponent
+        {
+            EntityId entity;
+            ComponentId comp;
+            void* tempData;
+        };
+
+        void AddComponentInternal(const PendingComponent& pendingComp);
         void RemoveComponentInternal(EntityId entity, ComponentId comp);
 
         template<typename T>
@@ -84,8 +92,6 @@ namespace se::ecs
 
         bool HasComponent(EntityId entity, ComponentId component);
         void* GetComponent(EntityId entity, ComponentId component);
-        void AddComponent(EntityId entity, ComponentId component);
-        void RemoveComponent(EntityId entity, ComponentId component);
 
         EntityId NewEntity();
         EntityId RecycleEntity();
@@ -119,10 +125,11 @@ namespace se::ecs
         std::mutex m_SystemMutex = {};
 
         std::vector<EntityId> m_PendingEntityDeletions;
-        std::vector<std::pair<EntityId, ComponentId>> m_PendingComponentCreations;
+        std::vector<PendingComponent> m_PendingComponentCreations;
         std::vector<std::pair<EntityId, ComponentId>> m_PendingComponentDeletions;
         std::vector<SystemId> m_PendingSystemCreations;
         std::vector<SystemId> m_PendingSystemDeletions;
+        memory::Arena m_TempStore; // cleared after all pending creations/deletions
     };
 
     template<typename T>
@@ -246,11 +253,14 @@ namespace se::ecs
     }
 
     template<typename T>
-    void World::AddComponent(EntityId entity)
+    T* World::AddComponent(EntityId entity)
     {
         auto guard = MaybeLockGuard(m_UpdateMode, &m_ComponentMutex);
         RegisterComponent<T>();
-        m_PendingComponentCreations.push_back(std::make_pair(entity, T::GetComponentId()));
+
+        T* tempComp = m_TempStore.Alloc<T>();
+        m_PendingComponentCreations.emplace_back(PendingComponent { .entity=entity, .comp=T::GetComponentId(), .tempData=tempComp });
+        return tempComp;
     }
 
     template<typename T>
