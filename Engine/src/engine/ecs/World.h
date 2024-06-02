@@ -54,6 +54,12 @@ namespace se::ecs
         void RemoveComponent(EntityId entity);
 
         template <typename T>
+        T* AddSingletonComponent();
+
+        template <typename T>
+        void RemoveSingletonComponent();
+
+        template <typename T>
         void CreateSystem();
 
         template <typename T>
@@ -64,6 +70,7 @@ namespace se::ecs
 
         template<typename ...T, typename Func>
         void Each(float dt, Func&& func);
+
     private:
         template<typename T>
         void RegisterComponent();
@@ -111,6 +118,7 @@ namespace se::ecs
         std::unordered_map<Type, ArchetypeId> m_ArchetypeTypeLookup;
         std::unordered_map<EntityId, EntityRecord> m_EntityRecords;
         std::unordered_map<ComponentId, ComponentRecord> m_ComponentRecords;
+        std::unordered_map<ComponentId, void*> m_SingletonComponents;
         std::unordered_map<SystemId, SystemRecord> m_Systems;
 
         EntityId m_EntityCounter = 0;
@@ -149,6 +157,7 @@ namespace se::ecs
     template<typename T>
     void World::RegisterComponent()
     {
+        static_assert(!T::IsSingletonComponent());
         if (!m_ComponentRecords.contains(T::GetComponentId()))
         {
             m_ComponentRecords.insert(std::make_pair(T::GetComponentId(),
@@ -160,10 +169,20 @@ namespace se::ecs
         }
     }
 
+    template <typename T>
+    void CollectComponentId(std::vector<ComponentId>& compIds)
+    {
+        if (!T::IsSingletonComponent())
+        {
+            compIds.push_back(T::GetComponentId());
+        }
+    }
+
     template<typename ...T, typename Func>
     void World::Each(float dt, Func&& func)
     {
-        std::vector<ComponentId> compIds = {(T::GetComponentId(), ...)};
+        std::vector<ComponentId> compIds = {};
+        (CollectComponentId<T>(compIds), ...);
         std::unordered_map<ArchetypeId, std::unordered_map<ComponentId, size_t>> argIndexs;
 
         std::set<Archetype*> archetypes;
@@ -179,8 +198,7 @@ namespace se::ecs
                     auto& compKeys = argIndexs[archetypeId];
                     for (auto comp: compIds)
                     {
-                        compKeys.insert(
-                                std::make_pair(comp, std::ranges::find(archetype.type, comp) - archetype.type.begin()));
+                        compKeys.insert(std::make_pair(comp, std::ranges::find(archetype.type, comp) - archetype.type.begin()));
                     }
                 }
 
@@ -201,7 +219,7 @@ namespace se::ecs
 
         for (auto* archetype: archetypes)
         {
-            Action<T...>::DoAction(dt, archetype, func);
+            Action<T...>::DoAction(dt, m_SingletonComponents, archetype, func);
         }
     }
 
@@ -285,5 +303,33 @@ namespace se::ecs
         auto guard = MaybeLockGuard(m_UpdateMode, &m_SystemMutex);
         RegisterSystem<T>();
         m_PendingSystemDeletions.push_back(T::GetSystemId());
+    }
+
+    template<typename T>
+    T* World::AddSingletonComponent()
+    {
+        auto guard = MaybeLockGuard(m_UpdateMode, &m_ComponentMutex);
+
+        if (!SPARK_VERIFY(!m_SingletonComponents.contains(T::GetComponentId())))
+        {
+            return nullptr;
+        }
+
+        m_SingletonComponents.insert(std::make_pair(T::GetComponentId(), new T()));
+        return static_cast<T*>(m_SingletonComponents.at(T::GetComponentId()));
+    }
+
+    template<typename T>
+    void World::RemoveSingletonComponent()
+    {
+        auto guard = MaybeLockGuard(m_UpdateMode, &m_ComponentMutex);
+
+        if (!SPARK_VERIFY(m_SingletonComponents.contains(T::GetComponentId())))
+        {
+            return;
+        }
+
+        delete m_SingletonComponents.at(T::GetComponentId());
+        m_SingletonComponents.erase(T::GetComponentId());
     }
 }
