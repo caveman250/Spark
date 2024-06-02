@@ -5,6 +5,7 @@
 
 namespace se::ecs
 {
+    typedef uint64_t EntityId;
     typedef uint64_t ArchetypeId;
     typedef std::vector<ComponentId> Type;
 
@@ -19,6 +20,7 @@ namespace se::ecs
     {
         ArchetypeId id;
         Type type;
+        std::vector<EntityId> entities;
         std::vector<ComponentList> components;
         std::unordered_map<ComponentId, ArchetypeEdge> edges;
     };

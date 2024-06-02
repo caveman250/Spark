@@ -43,8 +43,13 @@ namespace se
         m_RunLoop = nullptr;
     }
 
-    void Application::Update(float)
+    void Application::Update()
     {
+        auto now = std::chrono::system_clock::now();
+        std::chrono::duration<float> elapsed_seconds = now-m_TimeLastFrame;
+        m_DeltaTime = elapsed_seconds.count();
+        m_TimeLastFrame = now;
+
 #if SPARK_EDITOR
         m_EditorRuntime.Update();
 #endif

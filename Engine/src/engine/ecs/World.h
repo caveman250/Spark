@@ -42,7 +42,7 @@ namespace se::ecs
     public:
         World();
 
-        void Update(float dt);
+        void Update();
 
         EntityId CreateEntity();
         void DestroyEntity(EntityId entity);
@@ -69,7 +69,7 @@ namespace se::ecs
         void RegisterSystemUpdateGroup();
 
         template<typename ...T, typename Func>
-        void Each(float dt, Func&& func);
+        void Each(Func&& func);
 
     private:
         template<typename T>
@@ -103,7 +103,7 @@ namespace se::ecs
         EntityId NewEntity();
         EntityId RecycleEntity();
         void DestroyEntityInternal(EntityId entity);
-        size_t MoveEntity(Archetype* archetype, size_t entityIdx, Archetype* nextArchetype);
+        size_t MoveEntity(EntityId entity, Archetype* archetype, size_t entityIdx, Archetype* nextArchetype);
 
         Archetype* GetArchetype(const Type& type);
         bool HasArchetype(const Type& type);
@@ -179,7 +179,7 @@ namespace se::ecs
     }
 
     template<typename ...T, typename Func>
-    void World::Each(float dt, Func&& func)
+    void World::Each(Func&& func)
     {
         std::vector<ComponentId> compIds = {};
         (CollectComponentId<T>(compIds), ...);
@@ -219,7 +219,7 @@ namespace se::ecs
 
         for (auto* archetype: archetypes)
         {
-            Action<T...>::DoAction(dt, m_SingletonComponents, archetype, func);
+            Action<T...>::DoAction(archetype->entities, m_SingletonComponents, archetype, func);
         }
     }
 
@@ -276,6 +276,11 @@ namespace se::ecs
         auto guard = MaybeLockGuard(m_UpdateMode, &m_ComponentMutex);
         RegisterComponent<T>();
 
+        if (!SPARK_VERIFY(!HasComponent<T>(entity)))
+        {
+            return nullptr;
+        }
+
         T* tempComp = m_TempStore.Alloc<T>();
         m_PendingComponentCreations.emplace_back(PendingComponent { .entity=entity, .comp=T::GetComponentId(), .tempData=tempComp });
         return tempComp;
@@ -286,6 +291,10 @@ namespace se::ecs
     {
         auto guard = MaybeLockGuard(m_UpdateMode, &m_ComponentMutex);
         RegisterComponent<T>();
+        if (!SPARK_VERIFY(HasComponent<T>(entity)))
+        {
+            return;
+        }
         m_PendingComponentDeletions.push_back(std::make_pair(entity, T::GetComponentId()));
     }
 

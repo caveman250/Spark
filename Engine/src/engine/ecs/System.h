@@ -11,7 +11,7 @@ namespace se::ecs
     {
     public:
         virtual ~BaseSystem() {}
-        virtual void Update(float dt) = 0;
+        virtual void Update() = 0;
 
     protected:
         World* m_World = nullptr;
@@ -25,18 +25,18 @@ namespace se::ecs
     public:
         System() {}
 
-        void Update(float dt) override;
+        void Update() override;
 
         static std::vector<std::pair<ComponentId, bool>> GetUsedComponents();
 
     private:
-        virtual void OnUpdate(float dt, size_t count, Cs*... ts) = 0;
+        virtual void OnUpdate(const std::vector<se::ecs::EntityId>& entities, Cs*... ts) = 0;
 
         template<std::size_t Index, typename... Ts>
-        std::enable_if_t<Index != sizeof...(Cs) + 1> UpdateBuilder(float dt, Ts... ts);
+        std::enable_if_t<Index != sizeof...(Cs) + 1> UpdateBuilder(Ts... ts);
 
         template<std::size_t Index, typename... Ts>
-        std::enable_if_t<Index == sizeof...(Cs) + 1> UpdateBuilder(float dt, Ts... ts);
+        std::enable_if_t<Index == sizeof...(Cs) + 1> UpdateBuilder(Ts... ts);
     };
 
     template <typename T>
@@ -55,25 +55,23 @@ namespace se::ecs
 
     template<typename... Cs>
     template<std::size_t Index, typename... Ts>
-    std::enable_if_t<Index != sizeof...(Cs) + 1> System<Cs...>::UpdateBuilder(float dt, Ts... ts)
+    std::enable_if_t<Index != sizeof...(Cs) + 1> System<Cs...>::UpdateBuilder(Ts... ts)
     {
         using IthT = std::tuple_element<Index - 1, std::tuple<Cs...>>::type;
 
-        UpdateBuilder<Index + 1>(dt,
-                            ts...,
-                            std::_Ph<Index + 2>());
+        UpdateBuilder<Index + 1>(ts..., std::_Ph<Index + 1>());
     }
 
     template<typename... Cs>
     template<std::size_t Index, typename... Ts>
-    std::enable_if_t<Index == sizeof...(Cs) + 1> System<Cs...>::UpdateBuilder(float dt, Ts... ts)
+    std::enable_if_t<Index == sizeof...(Cs) + 1> System<Cs...>::UpdateBuilder(Ts... ts)
     {
-        m_World->Each<Cs...>(dt, std::bind(&System::OnUpdate, this, ts...));
+        m_World->Each<Cs...>(std::bind(&System::OnUpdate, this, ts...));
     }
 
     template<typename... Cs>
-    void System<Cs...>::Update(float dt)
+    void System<Cs...>::Update()
     {
-        UpdateBuilder<1>(dt, std::placeholders::_1, std::placeholders::_2);
+        UpdateBuilder<1>(std::placeholders::_1);
     }
 }
