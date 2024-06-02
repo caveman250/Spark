@@ -60,15 +60,6 @@ namespace se::ecs
         return archetype->components[a_record].GetComponent(record.entity_idx);
     }
 
-    void World::AddComponent(EntityId entity, ComponentId component)
-    {
-        EntityRecord& record = m_EntityRecords.at(entity);
-        Archetype* archetype = record.archetype;
-        Archetype* next_archetype = GetNextArchetype(archetype, component, true);
-        record.entity_idx = MoveEntity(archetype, record.entity_idx, next_archetype);
-        record.archetype = next_archetype;
-    }
-
     void World::DestroyEntityInternal(EntityId entity)
     {
         if (entity == s_InvalidEntity)
@@ -78,7 +69,7 @@ namespace se::ecs
 
         for (const auto comp: m_EntityRecords.at(entity).archetype->type)
         {
-            RemoveComponent(entity, comp);
+            RemoveComponentInternal(entity, comp);
         }
 
         m_EntityRecords.erase(entity);
@@ -122,15 +113,6 @@ namespace se::ecs
             auto& compInfo = m_ComponentRecords[type[i]];
             compInfo.archetypeRecords.insert(std::make_pair(archetype.id, i));
         }
-    }
-
-    void World::RemoveComponent(EntityId entity, ComponentId component)
-    {
-        EntityRecord& record = m_EntityRecords.at(entity);
-        Archetype* archetype = record.archetype;
-        Archetype* next_archetype = GetNextArchetype(archetype, component, false);
-        record.entity_idx = MoveEntity(archetype, record.entity_idx, next_archetype);
-        record.archetype = next_archetype;
     }
 
     size_t World::MoveEntity(Archetype* archetype, size_t entityIdx, Archetype* nextArchetype)
@@ -229,6 +211,7 @@ namespace se::ecs
             ProcessPendingComponents();
             ProcessPendingSystems();
             ProcessPendingEntityDeletions();
+            m_TempStore.Reset();
 
             m_UpdateMode = updateGroup.size() > 1 ? UpdateMode::MultiThreaded : UpdateMode::SingleThreaded;
             std::for_each(std::execution::par,
@@ -252,9 +235,9 @@ namespace se::ecs
 
     void World::ProcessPendingComponents()
     {
-        for (const auto& [entity, component] : m_PendingComponentCreations)
+        for (const auto& pendingComp : m_PendingComponentCreations)
         {
-            AddComponentInternal(entity, component);
+            AddComponentInternal(pendingComp);
         }
 
         m_PendingComponentCreations.clear();
@@ -303,18 +286,26 @@ namespace se::ecs
         }
     }
 
-    void World::AddComponentInternal(EntityId entity, ComponentId comp)
+    void World::AddComponentInternal(const World::PendingComponent& pendingComp)
     {
-        AddComponent(entity, comp);
-        void* compData = GetComponent(entity, comp);
-        m_ComponentRecords[comp].type->inplace_constructor(compData);
+        EntityRecord& record = m_EntityRecords.at(pendingComp.entity);
+        Archetype* archetype = record.archetype;
+        Archetype* next_archetype = GetNextArchetype(archetype, pendingComp.comp, true);
+        record.entity_idx = MoveEntity(archetype, record.entity_idx, next_archetype);
+        record.archetype = next_archetype;
+        void* compData = GetComponent(pendingComp.entity, pendingComp.comp);
+        m_ComponentRecords[pendingComp.comp].type->inplace_copy_constructor(compData, pendingComp.tempData);
     }
 
     void World::RemoveComponentInternal(EntityId entity, ComponentId comp)
     {
         void* data = GetComponent(entity, comp);
         m_ComponentRecords[comp].type->destructor(data);
-        RemoveComponent(entity, comp);
+        EntityRecord& record = m_EntityRecords.at(entity);
+        Archetype* archetype = record.archetype;
+        Archetype* next_archetype = GetNextArchetype(archetype, comp, false);
+        record.entity_idx = MoveEntity(archetype, record.entity_idx, next_archetype);
+        record.archetype = next_archetype;
     }
 
     void World::ProcessPendingEntityDeletions()

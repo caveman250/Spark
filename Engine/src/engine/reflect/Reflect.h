@@ -31,6 +31,8 @@ namespace se::reflect
                 typeDesc->size = sizeof(T);                           \
                 typeDesc->heap_constructor = []{ return new T(); };        \
                 typeDesc->inplace_constructor = [](void* mem){ return new(mem) T(); }; \
+                typeDesc->heap_copy_constructor = [](void* other){ return new T(*reinterpret_cast<T*>(other)); }; \
+                typeDesc->inplace_copy_constructor = [](void* mem, void* other){ return new(mem) T(*reinterpret_cast<T*>(other)); }; \
                 typeDesc->destructor = [](void* data){ reinterpret_cast<T*>(data)->~T(); };        \
                 typeDesc->members = {
 
