@@ -210,7 +210,47 @@ namespace se::ecs
         return &m_Archetypes.at(m_ArchetypeTypeLookup.at(type));
     }
 
+    void World::Init()
+    {
+        ProcessPendingComponents();
+        ProcessPendingSystems();
+        ProcessPendingComponents(); // system init may have modified components
+    }
+
     void World::Update()
+    {
+        RunOnAllSystems([this](auto&& systemId)
+        {
+            if (auto* system = m_Systems[systemId].instance)
+            {
+                system->Update();
+            }
+        });
+    }
+
+    void World::Render()
+    {
+        RunOnAllSystems([this](auto&& systemId)
+        {
+            if (auto* system = m_Systems[systemId].instance)
+            {
+                system->Render();
+            }
+        });
+    }
+
+    void World::Shutdown()
+    {
+        RunOnAllSystems([this](auto&& systemId)
+        {
+            if (auto* system = m_Systems[systemId].instance)
+            {
+                system->Shutdown();
+            }
+        });
+    }
+
+    void World::RunOnAllSystems(const std::function<void(SystemId)>& func)
     {
         for (const auto& updateGroup: m_SystemUpdateGroups)
         {
@@ -223,13 +263,7 @@ namespace se::ecs
             std::for_each(std::execution::par,
                           updateGroup.begin(),
                           updateGroup.end(),
-                          [this](auto&& systemId)
-                          {
-                              if (auto* system = m_Systems[systemId].instance)
-                              {
-                                  system->Update();
-                              }
-                          });
+                          func);
         }
     }
 
@@ -261,12 +295,14 @@ namespace se::ecs
         for (SystemId system : m_PendingSystemCreations)
         {
             CreateSystemInternal(system);
+            m_Systems.at(system).instance->Init();
         }
 
         m_PendingSystemCreations.clear();
 
         for (SystemId system : m_PendingSystemDeletions)
         {
+            m_Systems.at(system).instance->Shutdown();
             DestroySystemInternal(system);
         }
 

@@ -1,9 +1,12 @@
 #pragma once
 
+#include "engine/reflect/Reflect.h"
+
 namespace se::math
 {
     class Mat3 
     {
+        DECLARE_SPARK_CLASS(Mat3)
     public:
         Mat3();
         explicit Mat3(float scalar);
@@ -27,7 +30,7 @@ namespace se::math
         Mat3& operator/=(float scalar);
 
     private:
-        Vec3 m_Value[3];
+        std::array<Vec3, 3> m_Value;
     };
 
     Mat3 operator+(const Mat3& lhs, const Mat3 &rhs);

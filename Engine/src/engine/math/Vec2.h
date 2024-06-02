@@ -1,9 +1,13 @@
 #pragma once
 
+#include "engine/reflect/Reflect.h"
+
 namespace se::math
 {
     struct Vec2
     {
+        DECLARE_SPARK_CLASS(Vec2)
+
         Vec2() : x(0.f), y(0.f)
         {
         }

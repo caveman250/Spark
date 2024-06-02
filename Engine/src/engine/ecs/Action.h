@@ -52,13 +52,20 @@ namespace se::ecs
     {
         using IthT = std::tuple_element<Index, std::tuple<Cs...>>::type;
 
-        IthT* argData = nullptr;
         if (IthT::IsSingletonComponent())
         {
-            SPARK_ASSERT(singletonCompData.contains(IthT::GetComponentId()));
-            argData = reinterpret_cast<IthT*>(singletonCompData.at(IthT::GetComponentId()));
+            IthT* data = nullptr;
+            if (singletonCompData.contains(IthT::GetComponentId()))
+                data = reinterpret_cast<IthT*>(singletonCompData.at(IthT::GetComponentId()));
+            ActionBuilder<Index + 1>(entities,
+                                     singletonCompData,
+                                     archetypeType,
+                                     compData,
+                                     func,
+                                     ts...,
+                                     data);
         }
-        else
+        else if (!archetypeType.empty())
         {
             std::size_t compIndex = 0;
             ComponentId thisTypeCS = IthT::s_StaticId;
@@ -74,16 +81,24 @@ namespace se::ecs
                 debug::Log::Fatal("System was executed against an incorrect Archetype");
             }
 
-            argData = reinterpret_cast<IthT*>(compData[compIndex].Data());
+            ActionBuilder<Index + 1>(entities,
+                                     singletonCompData,
+                                     archetypeType,
+                                     compData,
+                                     func,
+                                     ts...,
+                                     reinterpret_cast<IthT*>(compData[compIndex].Data()));
         }
-
-        ActionBuilder<Index + 1>(entities,
-                                 singletonCompData,
-                                 archetypeType,
-                                 compData,
-                                 func,
-                                 ts...,
-                                 argData);
+        else
+        {
+            ActionBuilder<Index + 1>(entities,
+                                     singletonCompData,
+                                     archetypeType,
+                                     compData,
+                                     func,
+                                     ts...,
+                                     nullptr);
+        }
     }
 
 
@@ -93,8 +108,8 @@ namespace se::ecs
     {
         ActionBuilder<0>(entities,
                          singletonCompData,
-                         archetype->type,
-                         archetype->components,
+                         archetype ? archetype->type : Type(),
+                         archetype ? archetype->components : std::vector<ComponentList>(),
                          func);
     }
 }

@@ -22,9 +22,6 @@
 #include <chrono>
 #include <execution>
 
-#include "engine/math/math.h"
-#include "engine/debug/Log.h"
-
 #include "json.hpp"
 
 #if SPARK_PLATFORM_WINDOWS
@@ -86,3 +83,6 @@ do { \
 #define SPARK_ASSERT_MESSAGE_1(...) std::string(__VA_ARGS__);
 #define SPARK_ASSERT_MESSAGE_N(msg, ...) std::format(msg, __VA_ARGS__);
 #define SPARK_ASSERT_MESSAGE(...) SPARK_CAT(SPARK_ASSERT_MESSAGE_, SPARK_VARG_COUNT_01N(__VA_ARGS__))(__VA_ARGS__)
+
+#include "engine/math/math.h"
+#include "engine/debug/Log.h"

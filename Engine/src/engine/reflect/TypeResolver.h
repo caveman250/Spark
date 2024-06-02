@@ -1,7 +1,7 @@
 #pragma once
 
-#include "spark.h"
 #include "Type.h"
+#include "spark.h"
 
 namespace se::reflect
 {
