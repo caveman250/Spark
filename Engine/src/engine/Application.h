@@ -1,6 +1,7 @@
 #pragma once
 
 #include "spark.h"
+#include "engine/ecs/World.h"
 
 #if SPARK_EDITOR
 #include "EditorRuntime.h"
@@ -16,20 +17,28 @@ namespace se
         template <typename T>
         static void CreateInstance();
         static Application* Get();
+        float GetDeltaTime() const { return m_DeltaTime; }
 
         virtual void Init();
         void Run() const;
         virtual void Shutdown();
 
         IWindow* GetPrimaryWindow() { return m_PrimaryWindow; }
+        ecs::World* GetWorld() { return &m_World; }
+
+    protected:
+        ecs::World m_World;
 
     private:
 
-        virtual void Update(float dt);
+        virtual void Update();
         virtual void Render() {}
 
         PlatformRunLoop* m_RunLoop = nullptr;
         IWindow* m_PrimaryWindow = nullptr;
+
+        std::chrono::time_point<std::chrono::system_clock> m_TimeLastFrame = {};
+        float m_DeltaTime = {};
 
         static Application* s_Instance;
 

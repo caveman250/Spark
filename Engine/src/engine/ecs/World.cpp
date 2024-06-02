@@ -94,6 +94,7 @@ namespace se::ecs
         Archetype archetype = {
                 .id = m_ArchetypeCounter++,
                 .type = type,
+                .entities = {},
                 .components = {},
                 .edges = {}
         };
@@ -115,7 +116,7 @@ namespace se::ecs
         }
     }
 
-    size_t World::MoveEntity(Archetype* archetype, size_t entityIdx, Archetype* nextArchetype)
+    size_t World::MoveEntity(EntityId entity, Archetype* archetype, size_t entityIdx, Archetype* nextArchetype)
     {
         std::vector<std::pair<ComponentId, uint8_t*>> compData;
         for (int i = 0; i < archetype->components.size(); ++i)
@@ -159,10 +160,15 @@ namespace se::ecs
             archetype->components[i].RemoveComponent(entityIdx);
         }
 
+        const auto [first, last] = std::ranges::remove(archetype->entities, entity);
+        archetype->entities.erase(first, last);
+        nextArchetype->entities.push_back(entity);
+
         if (nextArchetype->components.size() > 0)
         {
             return nextArchetype->components[0].m_Count - 1;
         }
+
         return 0;
     }
 
@@ -204,7 +210,7 @@ namespace se::ecs
         return &m_Archetypes.at(m_ArchetypeTypeLookup.at(type));
     }
 
-    void World::Update(float dt)
+    void World::Update()
     {
         for (const auto& updateGroup: m_SystemUpdateGroups)
         {
@@ -217,11 +223,11 @@ namespace se::ecs
             std::for_each(std::execution::par,
                           updateGroup.begin(),
                           updateGroup.end(),
-                          [this, dt](auto&& systemId)
+                          [this](auto&& systemId)
                           {
                               if (auto* system = m_Systems[systemId].instance)
                               {
-                                  system->Update(dt);
+                                  system->Update();
                               }
                           });
         }
@@ -296,7 +302,7 @@ namespace se::ecs
         EntityRecord& record = m_EntityRecords.at(pendingComp.entity);
         Archetype* archetype = record.archetype;
         Archetype* next_archetype = GetNextArchetype(archetype, pendingComp.comp, true);
-        record.entity_idx = MoveEntity(archetype, record.entity_idx, next_archetype);
+        record.entity_idx = MoveEntity(pendingComp.entity, archetype, record.entity_idx, next_archetype);
         record.archetype = next_archetype;
         void* compData = GetComponent(pendingComp.entity, pendingComp.comp);
         m_ComponentRecords[pendingComp.comp].type->inplace_copy_constructor(compData, pendingComp.tempData);
@@ -314,7 +320,7 @@ namespace se::ecs
         EntityRecord& record = m_EntityRecords.at(entity);
         Archetype* archetype = record.archetype;
         Archetype* next_archetype = GetNextArchetype(archetype, comp, false);
-        record.entity_idx = MoveEntity(archetype, record.entity_idx, next_archetype);
+        record.entity_idx = MoveEntity(entity, archetype, record.entity_idx, next_archetype);
         record.archetype = next_archetype;
     }
 
