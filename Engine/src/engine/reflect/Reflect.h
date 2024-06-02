@@ -46,12 +46,24 @@ namespace se::reflect
     // atm just enables registration in ECS. may be expanded later
 #define DECLARE_SPARK_COMPONENT(Type) \
             DECLARE_SPARK_CLASS(Type)     \
-            static size_t GetComponentId() { return s_StaticId; }
+            static size_t GetComponentId() { return s_StaticId; } \
+            static constexpr bool IsSingletonComponent() { return false; }
 
 #define DEFINE_SPARK_COMPONENT_BEGIN(type) \
             DEFINE_SPARK_CLASS_BEGIN(type)         \
 
 #define DEFINE_SPARK_COMPONENT_END() \
+            DEFINE_SPARK_CLASS_END()
+
+#define DECLARE_SPARK_SINGLETON_COMPONENT(Type) \
+            DECLARE_SPARK_CLASS(Type)     \
+            static size_t GetComponentId() { return s_StaticId; } \
+            static constexpr bool IsSingletonComponent() { return true; }
+
+#define DEFINE_SPARK_SINGLETON_COMPONENT_BEGIN(type) \
+            DEFINE_SPARK_CLASS_BEGIN(type)         \
+
+#define DEFINE_SPARK_SINGLETON_COMPONENT_END() \
             DEFINE_SPARK_CLASS_END()
 
     /// System ///

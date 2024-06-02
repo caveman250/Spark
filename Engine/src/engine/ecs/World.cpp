@@ -288,6 +288,11 @@ namespace se::ecs
 
     void World::AddComponentInternal(const World::PendingComponent& pendingComp)
     {
+        if (!SPARK_VERIFY(!HasComponent(pendingComp.entity, pendingComp.comp)))
+        {
+            return;
+        }
+
         EntityRecord& record = m_EntityRecords.at(pendingComp.entity);
         Archetype* archetype = record.archetype;
         Archetype* next_archetype = GetNextArchetype(archetype, pendingComp.comp, true);
@@ -299,6 +304,11 @@ namespace se::ecs
 
     void World::RemoveComponentInternal(EntityId entity, ComponentId comp)
     {
+        if (!SPARK_VERIFY(HasComponent(entity, comp)))
+        {
+            return;
+        }
+
         void* data = GetComponent(entity, comp);
         m_ComponentRecords[comp].type->destructor(data);
         EntityRecord& record = m_EntityRecords.at(entity);
@@ -317,5 +327,4 @@ namespace se::ecs
 
         m_PendingEntityDeletions.clear();
     }
-
 }

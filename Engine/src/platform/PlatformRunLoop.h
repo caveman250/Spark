@@ -20,7 +20,7 @@ namespace se
     protected:
         static PlatformRunLoop* s_Instance;
 
-        std::chrono::time_point<std::chrono::system_clock> m_TimeLastFrame;
-        float m_DeltaTime;
+        std::chrono::time_point<std::chrono::system_clock> m_TimeLastFrame = {};
+        float m_DeltaTime = {};
     };
 }
