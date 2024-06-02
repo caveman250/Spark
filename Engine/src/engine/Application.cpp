@@ -43,7 +43,7 @@ namespace se
         m_RunLoop = nullptr;
     }
 
-    void Application::Update()
+    void Application::Update(float dt)
     {
 #if SPARK_EDITOR
         m_EditorRuntime.Update();

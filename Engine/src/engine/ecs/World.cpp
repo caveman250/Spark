@@ -297,9 +297,9 @@ namespace se::ecs
     {
         if (SPARK_VERIFY(m_Systems.contains(system)))
         {
-            auto systemRecord = m_Systems.at(system);
+            auto& systemRecord = m_Systems.at(system);
             delete systemRecord.instance;
-            m_Systems.at(system).instance = nullptr;
+            systemRecord.instance = nullptr;
         }
     }
 

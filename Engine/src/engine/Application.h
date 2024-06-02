@@ -25,7 +25,7 @@ namespace se
 
     private:
 
-        virtual void Update();
+        virtual void Update(float dt);
         virtual void Render() {}
 
         PlatformRunLoop* m_RunLoop = nullptr;

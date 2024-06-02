@@ -235,10 +235,11 @@ namespace se::ecs
 
         for (auto type : mutableComponents)
         {
-            SPARK_ASSERT(componentCounts[type] == 1, "Cannot run systems in parallel if a component is mutable in one or more systems and accessed by multiple systems");
+            if (!SPARK_VERIFY(componentCounts[type] == 1, "Cannot run systems in parallel if a component is mutable in one or more systems and accessed by multiple systems"))
+            {
+                return;
+            }
         }
-
-
 #endif
 
         m_SystemUpdateGroups.push_back(updateGroup);
