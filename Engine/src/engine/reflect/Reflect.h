@@ -5,11 +5,11 @@
 #include "TypeResolver.h"
 #include "Class.h"
 #include "Enum.h"
+#include "Containers.h"
 
 namespace se::reflect
 {
 #define DECLARE_SPARK_TYPE(Type) \
-            Type() {}                     \
             static size_t s_StaticId;
 
 #define DEFINE_SPARK_TYPE(Type) \

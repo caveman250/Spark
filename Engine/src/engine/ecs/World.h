@@ -42,7 +42,11 @@ namespace se::ecs
     public:
         World();
 
+        void Init();
         void Update();
+        void Render();
+        void Shutdown();
+        void RunOnAllSystems(const std::function<void(SystemId)>& func);
 
         EntityId CreateEntity();
         void DestroyEntity(EntityId entity);
@@ -69,7 +73,7 @@ namespace se::ecs
         void RegisterSystemUpdateGroup();
 
         template<typename ...T, typename Func>
-        void Each(Func&& func);
+        void Each(Func&& func, bool force);
 
     private:
         template<typename T>
@@ -179,7 +183,7 @@ namespace se::ecs
     }
 
     template<typename ...T, typename Func>
-    void World::Each(Func&& func)
+    void World::Each(Func&& func, bool force)
     {
         std::vector<ComponentId> compIds = {};
         (CollectComponentId<T>(compIds), ...);
@@ -188,38 +192,48 @@ namespace se::ecs
         std::set<Archetype*> archetypes;
         for (auto compId: compIds)
         {
-            auto& compRecord = m_ComponentRecords[compId];
-            for (const auto& [archetypeId, _]: compRecord.archetypeRecords)
+            if (m_ComponentRecords.contains(compId))
             {
-                auto& archetype = m_Archetypes.at(archetypeId);
-
-                if (!argIndexs.contains(archetypeId))
+                auto& compRecord = m_ComponentRecords[compId];
+                for (const auto& [archetypeId, _]: compRecord.archetypeRecords)
                 {
-                    auto& compKeys = argIndexs[archetypeId];
+                    auto& archetype = m_Archetypes.at(archetypeId);
+
+                    if (!argIndexs.contains(archetypeId))
+                    {
+                        auto& compKeys = argIndexs[archetypeId];
+                        for (auto comp: compIds)
+                        {
+                            compKeys.insert(std::make_pair(comp, std::ranges::find(archetype.type, comp) -
+                                                                 archetype.type.begin()));
+                        }
+                    }
+
+                    bool containsAll = true;
                     for (auto comp: compIds)
                     {
-                        compKeys.insert(std::make_pair(comp, std::ranges::find(archetype.type, comp) - archetype.type.begin()));
+                        containsAll &= std::ranges::contains(archetype.type, comp);
                     }
-                }
 
-                bool containsAll = true;
-                for (auto comp: compIds)
-                {
-                    containsAll &= std::ranges::contains(archetype.type, comp);
-                }
+                    if (!containsAll)
+                    {
+                        continue;
+                    }
 
-                if (!containsAll)
-                {
-                    continue;
+                    archetypes.insert(&archetype);
                 }
-
-                archetypes.insert(&archetype);
             }
         }
 
         for (auto* archetype: archetypes)
         {
             Action<T...>::DoAction(archetype->entities, m_SingletonComponents, archetype, func);
+        }
+
+        bool hasStaticComps = compIds.size() != sizeof...(T);
+        if (archetypes.empty() && (force || hasStaticComps))
+        {
+            Action<T...>::DoAction({}, m_SingletonComponents, nullptr, func);
         }
     }
 

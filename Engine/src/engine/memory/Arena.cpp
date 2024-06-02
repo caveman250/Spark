@@ -17,6 +17,7 @@ namespace se::memory
     {
         ReleaseObjects();
         m_Current = 0;
+        m_ObjectRecordsBegin = nullptr;
     }
 
     void Arena::ResetAndReleaseMemory()
@@ -24,6 +25,7 @@ namespace se::memory
         ReleaseObjects();
         free(m_Arena);
         m_Current = 0;
+        m_ObjectRecordsBegin = nullptr;
     }
 
     void Arena::ReleaseObjects() const

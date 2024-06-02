@@ -1,9 +1,13 @@
 #pragma once
 
+#include "engine/reflect/Reflect.h"
+
 namespace se::math
 {
     class Mat4
     {
+        DECLARE_SPARK_CLASS(Mat4)
+
     public:
         Mat4();
         explicit Mat4(float scalar);
@@ -29,7 +33,7 @@ namespace se::math
         Mat4& operator/=(float scalar);
 
     private:
-        Vec4 m_Value[4];
+        std::array<Vec4, 4> m_Value;
     };
     
     Mat4 operator+(const Mat4& lhs, const Mat4 &rhs);

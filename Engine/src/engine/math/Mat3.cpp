@@ -2,6 +2,10 @@
 
 namespace se::math
 {
+    DEFINE_SPARK_CLASS_BEGIN(Mat3)
+        DEFINE_MEMBER(m_Value)
+    DEFINE_SPARK_CLASS_END()
+
     Mat3::Mat3()
     : m_Value { Vec3(1.f, 0, 0), Vec3(0, 1.f, 0), Vec3(0, 0, 1.f) }
     {
