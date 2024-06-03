@@ -73,12 +73,28 @@ namespace se::windows
         return SizeY;
     }
 
+    int Window::GetPosX()
+    {
+        return PosX;
+    }
+
+    int Window::GetPosY()
+    {
+        return PosY;
+    }
+
     void Window::OnResize(int x, int y)
     {
         SizeX = x;
         SizeY = y;
 
         glViewport(0, 0, x, y);
+    }
+
+    void Window::OnMove(int x, int y)
+    {
+        PosX = x;
+        PosY = y;
     }
 
     static LRESULT CALLBACK wndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
@@ -88,11 +104,17 @@ namespace se::windows
         switch (message)
         {
             case WM_PAINT:
+            {
                 break;
+            }
             case WM_SIZE:
+            {
                 window->OnResize(LOWORD(lParam), HIWORD(lParam));
+                SetCursorPos(window->GetPosX() + window->GetWidth() / 2.f, window->GetPosY() + window->GetHeight() / 2.f);
                 break;
+            }
             case WM_CLOSE:
+            {
                 wglMakeCurrent(window->GetHDC(), NULL);
                 wglDeleteContext(window->GetHGLRC());
                 ReleaseDC(hWnd, window->GetHDC());
@@ -100,8 +122,10 @@ namespace se::windows
                 s_WindowInstances.erase(hWnd);
                 delete window;
                 break;
+            }
             case WM_KEYDOWN:
             case WM_KEYUP:
+            {
                 uint32_t scanCode = (HIWORD(lParam) & (KF_EXTENDED | 0xff));
                 input::Key::Type key = KeyMap::WindowsKeyToSparkKey(scanCode);
                 auto inputComp = Application::Get()->GetWorld()->GetSingletonComponent<input::InputComponent>();
@@ -111,7 +135,24 @@ namespace se::windows
                     .state = message == WM_KEYDOWN ? input::KeyState::Down : input::KeyState::Up
                 };
                 inputComp->keyEvents.push_back(keyEvent);
+                inputComp->keyStates[key] = keyEvent.state;
                 break;
+            }
+            case WM_MOVE:
+            {
+                window->OnMove(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+                SetCursorPos(window->GetPosX() + window->GetWidth() / 2.f, window->GetPosY() + window->GetHeight() / 2.f);
+                break;
+            }
+            case WM_MOUSEMOVE:
+            {
+                auto app = Application::Get();
+                auto inputComp = app->GetWorld()->GetSingletonComponent<input::InputComponent>();
+                inputComp->mouseX = GET_X_LPARAM(lParam);
+                inputComp->mouseY = GET_Y_LPARAM(lParam);
+                SetCursorPos(window->GetPosX() + window->GetWidth() / 2.f, window->GetPosY() + window->GetHeight() / 2.f);
+                break;
+            }
         }
         return DefWindowProcW(hWnd, message, wParam, lParam);
     }

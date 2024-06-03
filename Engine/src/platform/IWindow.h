@@ -9,5 +9,7 @@ namespace se
         virtual void SetCurrent() = 0;
         virtual int GetWidth() = 0;
         virtual int GetHeight() = 0;
+        virtual int GetPosX() = 0;
+        virtual int GetPosY() = 0;
     };
 }

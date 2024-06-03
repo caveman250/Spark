@@ -83,6 +83,7 @@ DECLARE_SPARK_TYPE(_enum)                       \
 enum Type : type;\
 static std::string ToString(_enum::Type val); \
 static _enum::Type FromString(const std::string& str); \
+static size_t ValuesCount();\
 static se::reflect::Enum Reflection; \
 static void initReflection(se::reflect::Enum*);\
 enum Type : type\
@@ -109,6 +110,10 @@ return static_cast<type::Type>(enumReflection->FromString(str));\
     {\
         return TypeResolver<type>::get();\
     }\
+}\
+size_t type::ValuesCount() {\
+se::reflect::Enum* enumReflection = se::reflect::EnumResolver<type>::get();\
+return enumReflection->values.size();\
 }\
 void type::initReflection(se::reflect::Enum* typeDesc) { \
 using T = type; \
