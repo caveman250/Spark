@@ -32,21 +32,22 @@ namespace se::windows
 
     void WindowsRunLoop::Update()
     {
-        PlatformRunLoop::Update();
-
         for (const auto& window: m_Windows)
         {
-            window->SetCurrent();
-
-            render::Renderer::Get()->Render(window);
-
             MSG msg;
             while (PeekMessage(&msg, window->GetHWND(), 0, 0, PM_REMOVE))
             {
                 TranslateMessage(&msg);
                 DispatchMessage(&msg);
             }
+        }
 
+        PlatformRunLoop::Update();
+
+        for (const auto& window: m_Windows)
+        {
+            window->SetCurrent();
+            render::Renderer::Get()->Render(window);
             SwapBuffers(window->GetHDC());
         }
 

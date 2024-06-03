@@ -26,6 +26,7 @@
 
 #if SPARK_PLATFORM_WINDOWS
 #include <windows.h>
+#include <windowsx.h>
 #include <crtdbg.h>
 #include <dwmapi.h>
 

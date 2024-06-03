@@ -10,5 +10,10 @@ namespace se::input
 
         Key::Type key = {};
         KeyState::Type state = {};
+
+        bool operator==(const KeyEvent& rhs) const
+        {
+            return key == rhs.key && state == rhs.state;
+        }
     };
 }

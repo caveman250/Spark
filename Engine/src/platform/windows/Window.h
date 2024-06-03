@@ -12,8 +12,11 @@ namespace se::windows
         void SetCurrent() override;
         int GetWidth() override;
         int GetHeight() override;
+        int GetPosX() override;
+        int GetPosY() override;
 
         void OnResize(int x, int y);
+        void OnMove(int x, int y);
 
         HWND GetHWND() { return Hwnd; }
         HDC GetHDC() { return Hdc; }
@@ -22,6 +25,9 @@ namespace se::windows
         void RegisterWindowClass(HINSTANCE instance);
         void CreateWindowsWindow(HINSTANCE instance);
         void CreateContext();
+
+        uint32_t PosX = 0;
+        uint32_t PosY = 0;
 
         HWND Hwnd;
         HDC Hdc;
