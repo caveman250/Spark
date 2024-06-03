@@ -4,6 +4,8 @@
 
 #include <unordered_map>
 
+#include "KeyMap.h"
+#include "engine/input/Key.h"
 #include "engine/render/Renderer.h"
 #include "engine/render/opengl/OpenGLRenderer.h"
 #include "platform/PlatformRunLoop.h"
@@ -97,6 +99,11 @@ namespace se::windows
                 DestroyWindow(hWnd);
                 s_WindowInstances.erase(hWnd);
                 delete window;
+                break;
+            case WM_KEYUP:
+                uint32_t scanCode = (HIWORD(lParam) & (KF_EXTENDED | 0xff));
+                input::Key::Type key = KeyMap::WindowsKeyToSparkKey(scanCode);
+                debug::Log::Info("KeyUp: {}", input::Key::ToString(key));
                 break;
         }
         return DefWindowProcW(hWnd, message, wParam, lParam);

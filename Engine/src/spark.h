@@ -32,6 +32,7 @@
 #undef min
 #undef max
 #undef LoadImage
+#undef DELETE
 #endif
 
 #if SPARK_RELEASE
