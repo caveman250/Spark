@@ -27,7 +27,7 @@ namespace se::reflect
             getItem = [](const void* vecPtr, size_t index)
             {
                 const auto& vec = *static_cast<const std::vector<T>*>(vecPtr);
-                return &vec[index];
+                return static_cast<const void*>(&vec.at(index));
             };
         }
 

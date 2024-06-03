@@ -1,8 +1,14 @@
 #include "PlatformRunLoop.h"
 #include "engine/Application.h"
+#include "engine/input/InputComponent.h"
 
 namespace se
 {
+    namespace input
+    {
+        struct InputComponent;
+    }
+
     PlatformRunLoop* PlatformRunLoop::Get()
     {
         return s_Instance;
@@ -11,7 +17,11 @@ namespace se
     void PlatformRunLoop::Update()
     {
         Application* app = Application::Get();
+
         app->Update();
         app->Render();
+
+        auto inputComp = app->GetWorld()->GetSingletonComponent<input::InputComponent>();
+        inputComp->keyEvents.clear();
     }
 }
