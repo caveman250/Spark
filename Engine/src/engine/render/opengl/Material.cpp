@@ -141,7 +141,7 @@ namespace se::render::opengl
 
     void Material::SetUniform(const std::string& name, shader::ast::Type type, const void* value)
     {
-        Bind();
+        glUseProgram(m_CompiledProgram);
         GLuint uniformLoc = glGetUniformLocation(m_CompiledProgram, name.c_str());
         GL_CHECK_ERROR()
 

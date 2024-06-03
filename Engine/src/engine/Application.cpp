@@ -19,6 +19,7 @@ namespace se
         render::Renderer::Create();
         m_PrimaryWindow = IWindow::CreatePlatformWindow(1280, 720);
         m_RunLoop = PlatformRunLoop::CreatePlatformRunloop({m_PrimaryWindow });
+        m_TimeLastFrame = std::chrono::system_clock::now();
 
         io::VFS::Get().Mount(std::format("{}/{}", ENGINE_DIR, "builtin_assets"), "/builtin_assets");
         io::VFS::Get().Mount(std::format("{}/{}", APP_DIR, "assets"), "/source_assets");
@@ -46,7 +47,7 @@ namespace se
     void Application::Update()
     {
         auto now = std::chrono::system_clock::now();
-        std::chrono::duration<float> elapsed_seconds = now-m_TimeLastFrame;
+        std::chrono::duration<float> elapsed_seconds = now - m_TimeLastFrame;
         m_DeltaTime = elapsed_seconds.count();
         m_TimeLastFrame = now;
 

@@ -253,6 +253,7 @@ namespace se::math
         ret[3][1] = -Dot(u, eye);
         ret[3][2] = Dot(f, eye);
         return ret;
+        return ret;
     }
 
     Mat4 Translation(const Vec3& v)
@@ -260,5 +261,13 @@ namespace se::math
         Mat4 ret;
         ret[3] = ret[0] * v[0] + ret[1] * v[1] + ret[2] * v[2] + ret[3];
         return ret;
+    }
+
+    Mat4 Scale(const Vec3& scale)
+    {
+        return { scale.x,    0.f,           0.f,        0.f,
+                   0.f,         scale.y,        0.f,        0.f,
+                   0.f,         0.f,            scale.z,    0.f,
+                   0.f,         0.f,            0.f,        1.f };
     }
 }

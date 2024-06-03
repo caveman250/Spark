@@ -9,8 +9,8 @@ namespace se::ecs::components
     {
         DECLARE_SPARK_COMPONENT(TransformComponent)
 
-        math::Vec3 pos;
-        math::Vec3 rot;
-        math::Vec3 scale;
+        math::Vec3 pos = {};
+        math::Vec3 rot = {};
+        math::Vec3 scale = math::Vec3(1.f, 1.f, 1.f);
     };
 }

@@ -43,6 +43,7 @@ namespace se::math
     bool operator==(const Vec3& lhs, const Vec3 &rhs);
     bool operator!=(const Vec3& lhs, const Vec3 &rhs);
 
+    float MagnitudeSquared(const Vec3& vec);
     Vec3 Normalized(const Vec3& vec);
     float Dot(const Vec3& v1, const Vec3& v2);
     Vec3 Cross(const Vec3& v1, const Vec3& v2);
