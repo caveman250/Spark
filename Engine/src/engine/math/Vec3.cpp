@@ -150,6 +150,11 @@ namespace se::math
         return !(lhs == rhs);
     }
 
+    float MagnitudeSquared(const Vec3& vec)
+    {
+        return Dot(vec, vec);
+    }
+
     Vec3 Normalized(const Vec3& vec)
     {
         return vec * InverseSqrt(Dot(vec, vec));

@@ -11,4 +11,5 @@ namespace se::math
     float Radians(float degrees);
     float Degrees(float radians);
     float InverseSqrt(float f);
+    Mat4 AxisAngle(Vec3 axis, float angle);
 }

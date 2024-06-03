@@ -29,10 +29,10 @@ namespace se
     protected:
         ecs::World m_World;
 
-    private:
-
         virtual void Update();
         virtual void Render() {}
+
+    private:
 
         PlatformRunLoop* m_RunLoop = nullptr;
         IWindow* m_PrimaryWindow = nullptr;
