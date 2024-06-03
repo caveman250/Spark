@@ -11,6 +11,7 @@
 #include "engine/render/Renderer.h"
 #include "engine/render/opengl/OpenGLRenderer.h"
 #include "platform/PlatformRunLoop.h"
+#include "engine/input/MouseButton.h"
 
 #ifndef DWMWA_USE_IMMERSIVE_DARK_MODE
 #define DWMWA_USE_IMMERSIVE_DARK_MODE 20
@@ -110,7 +111,8 @@ namespace se::windows
             case WM_SIZE:
             {
                 window->OnResize(LOWORD(lParam), HIWORD(lParam));
-                SetCursorPos(window->GetPosX() + window->GetWidth() / 2.f, window->GetPosY() + window->GetHeight() / 2.f);
+                SetCursorPos(window->GetPosX() + window->GetWidth() / 2.f,
+                             window->GetPosY() + window->GetHeight() / 2.f);
                 break;
             }
             case WM_CLOSE:
@@ -130,10 +132,10 @@ namespace se::windows
                 input::Key::Type key = KeyMap::WindowsKeyToSparkKey(scanCode);
                 auto inputComp = Application::Get()->GetWorld()->GetSingletonComponent<input::InputComponent>();
                 auto keyEvent = input::KeyEvent
-                {
-                    .key = key,
-                    .state = message == WM_KEYDOWN ? input::KeyState::Down : input::KeyState::Up
-                };
+                        {
+                                .key = key,
+                                .state = message == WM_KEYDOWN ? input::KeyState::Down : input::KeyState::Up
+                        };
                 inputComp->keyEvents.push_back(keyEvent);
                 inputComp->keyStates[key] = keyEvent.state;
                 break;
@@ -141,7 +143,6 @@ namespace se::windows
             case WM_MOVE:
             {
                 window->OnMove(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
-                SetCursorPos(window->GetPosX() + window->GetWidth() / 2.f, window->GetPosY() + window->GetHeight() / 2.f);
                 break;
             }
             case WM_MOUSEMOVE:
@@ -150,7 +151,64 @@ namespace se::windows
                 auto inputComp = app->GetWorld()->GetSingletonComponent<input::InputComponent>();
                 inputComp->mouseX = GET_X_LPARAM(lParam);
                 inputComp->mouseY = GET_Y_LPARAM(lParam);
-                SetCursorPos(window->GetPosX() + window->GetWidth() / 2.f, window->GetPosY() + window->GetHeight() / 2.f);
+                break;
+            }
+            case WM_LBUTTONDOWN:
+            {
+                auto app = Application::Get();
+                auto inputComp = app->GetWorld()->GetSingletonComponent<input::InputComponent>();
+                inputComp->mouseButtonStates[input::MouseButton::Left] = input::KeyState::Down;
+                break;
+            }
+            case WM_LBUTTONUP:
+            {
+                auto app = Application::Get();
+                auto inputComp = app->GetWorld()->GetSingletonComponent<input::InputComponent>();
+                inputComp->mouseButtonStates[input::MouseButton::Left] = input::KeyState::Up;
+                break;
+            }
+            case WM_RBUTTONDOWN:
+            {
+                auto app = Application::Get();
+                auto inputComp = app->GetWorld()->GetSingletonComponent<input::InputComponent>();
+                inputComp->mouseButtonStates[input::MouseButton::Right] = input::KeyState::Down;
+                break;
+            }
+            case WM_RBUTTONUP:
+            {
+                auto app = Application::Get();
+                auto inputComp = app->GetWorld()->GetSingletonComponent<input::InputComponent>();
+                inputComp->mouseButtonStates[input::MouseButton::Right] = input::KeyState::Up;
+                break;
+            }
+            case WM_MBUTTONDOWN:
+            {
+                auto app = Application::Get();
+                auto inputComp = app->GetWorld()->GetSingletonComponent<input::InputComponent>();
+                inputComp->mouseButtonStates[input::MouseButton::Middle] = input::KeyState::Down;
+                break;
+            }
+            case WM_MBUTTONUP:
+            {
+                auto app = Application::Get();
+                auto inputComp = app->GetWorld()->GetSingletonComponent<input::InputComponent>();
+                inputComp->mouseButtonStates[input::MouseButton::Middle] = input::KeyState::Up;
+                break;
+            }
+            case WM_XBUTTONDOWN:
+            {
+                auto app = Application::Get();
+                auto inputComp = app->GetWorld()->GetSingletonComponent<input::InputComponent>();
+                input::MouseButton::Type btn = lParam == XBUTTON1 ? input::MouseButton::Btn4 : input::MouseButton::Btn5;
+                inputComp->mouseButtonStates[btn] = input::KeyState::Down;
+                break;
+            }
+            case WM_XBUTTONUP:
+            {
+                auto app = Application::Get();
+                auto inputComp = app->GetWorld()->GetSingletonComponent<input::InputComponent>();
+                input::MouseButton::Type btn = lParam == XBUTTON1 ? input::MouseButton::Btn4 : input::MouseButton::Btn5;
+                inputComp->mouseButtonStates[btn] = input::KeyState::Up;
                 break;
             }
         }

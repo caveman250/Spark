@@ -1,0 +1,15 @@
+#pragma once
+
+#include "spark.h"
+
+namespace se::input
+{
+    DECLARE_SPARK_ENUM_BEGIN(MouseButton, int)
+        Unknown,
+        Left,
+        Right,
+        Middle,
+        Btn4,
+        Btn5
+    DECLARE_SPARK_ENUM_END()
+}
