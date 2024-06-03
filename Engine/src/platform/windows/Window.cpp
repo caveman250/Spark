@@ -5,6 +5,8 @@
 #include <unordered_map>
 
 #include "KeyMap.h"
+#include "engine/Application.h"
+#include "engine/input/InputComponent.h"
 #include "engine/input/Key.h"
 #include "engine/render/Renderer.h"
 #include "engine/render/opengl/OpenGLRenderer.h"
@@ -90,8 +92,6 @@ namespace se::windows
             case WM_SIZE:
                 window->OnResize(LOWORD(lParam), HIWORD(lParam));
                 break;
-            case WM_KEYDOWN:
-                break;
             case WM_CLOSE:
                 wglMakeCurrent(window->GetHDC(), NULL);
                 wglDeleteContext(window->GetHGLRC());
@@ -100,10 +100,17 @@ namespace se::windows
                 s_WindowInstances.erase(hWnd);
                 delete window;
                 break;
+            case WM_KEYDOWN:
             case WM_KEYUP:
                 uint32_t scanCode = (HIWORD(lParam) & (KF_EXTENDED | 0xff));
                 input::Key::Type key = KeyMap::WindowsKeyToSparkKey(scanCode);
-                debug::Log::Info("KeyUp: {}", input::Key::ToString(key));
+                auto inputComp = Application::Get()->GetWorld()->GetSingletonComponent<input::InputComponent>();
+                auto keyEvent = input::KeyEvent
+                {
+                    .key = key,
+                    .state = message == WM_KEYDOWN ? input::KeyState::Down : input::KeyState::Up
+                };
+                inputComp->keyEvents.push_back(keyEvent);
                 break;
         }
         return DefWindowProcW(hWnd, message, wParam, lParam);

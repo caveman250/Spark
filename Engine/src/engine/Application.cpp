@@ -1,5 +1,6 @@
 #include "Application.h"
 
+#include "input/InputComponent.h"
 #include "platform/PlatformRunLoop.h"
 #include "platform/IWindow.h"
 #include "render/Renderer.h"
@@ -24,6 +25,8 @@ namespace se
         io::VFS::Get().Mount(std::format("{}/{}", ENGINE_DIR, "builtin_assets"), "/builtin_assets");
         io::VFS::Get().Mount(std::format("{}/{}", APP_DIR, "assets"), "/source_assets");
         io::VFS::Get().Mount(std::format("{}/{}", APP_DIR, "built"), "/assets");
+
+        m_World.AddSingletonComponent<input::InputComponent>();
 
 #if SPARK_EDITOR
         m_EditorRuntime.Init();

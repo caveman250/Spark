@@ -212,13 +212,19 @@ namespace se::ecs
 
     void World::Init()
     {
+        m_Running = true;
+
         ProcessPendingComponents();
         ProcessPendingSystems();
         ProcessPendingComponents(); // system init may have modified components
+
+        m_Running = false;
     }
 
     void World::Update()
     {
+        m_Running = true;
+
         RunOnAllSystems([this](auto&& systemId)
         {
             if (auto* system = m_Systems[systemId].instance)
@@ -226,10 +232,14 @@ namespace se::ecs
                 system->Update();
             }
         });
+
+        m_Running = false;
     }
 
     void World::Render()
     {
+        m_Running = true;
+
         RunOnAllSystems([this](auto&& systemId)
         {
             if (auto* system = m_Systems[systemId].instance)
@@ -237,10 +247,14 @@ namespace se::ecs
                 system->Render();
             }
         });
+
+        m_Running = false;
     }
 
     void World::Shutdown()
     {
+        m_Running = true;
+
         RunOnAllSystems([this](auto&& systemId)
         {
             if (auto* system = m_Systems[systemId].instance)
@@ -248,6 +262,8 @@ namespace se::ecs
                 system->Shutdown();
             }
         });
+
+        m_Running = false;
     }
 
     void World::RunOnAllSystems(const std::function<void(SystemId)>& func)

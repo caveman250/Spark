@@ -46,7 +46,6 @@ namespace se::ecs
         void Update();
         void Render();
         void Shutdown();
-        void RunOnAllSystems(const std::function<void(SystemId)>& func);
 
         EntityId CreateEntity();
         void DestroyEntity(EntityId entity);
@@ -64,6 +63,9 @@ namespace se::ecs
         void RemoveSingletonComponent();
 
         template <typename T>
+        T* GetSingletonComponent();
+
+        template <typename T>
         void CreateSystem();
 
         template <typename T>
@@ -76,11 +78,15 @@ namespace se::ecs
         void Each(Func&& func, bool force);
 
     private:
+        bool IsRunning() { return m_Running; }
+
         template<typename T>
         void RegisterComponent();
 
         template<typename T>
         void RegisterSystem();
+
+        void RunOnAllSystems(const std::function<void(SystemId)>& func);
 
         template<typename T>
         T* GetComponent(EntityId entity);
@@ -117,6 +123,8 @@ namespace se::ecs
         void ProcessPendingComponents();
         void ProcessPendingSystems();
         void ProcessPendingEntityDeletions();
+
+        bool m_Running = false;
 
         std::unordered_map<ArchetypeId, Archetype> m_Archetypes;
         std::unordered_map<Type, ArchetypeId> m_ArchetypeTypeLookup;
@@ -354,5 +362,21 @@ namespace se::ecs
 
         delete m_SingletonComponents.at(T::GetComponentId());
         m_SingletonComponents.erase(T::GetComponentId());
+    }
+
+    template <typename T>
+    T* World::GetSingletonComponent()
+    {
+        if (!SPARK_VERIFY(!IsRunning()))
+        {
+            return nullptr;
+        }
+
+        if (!SPARK_VERIFY(m_SingletonComponents.contains(T::GetComponentId())))
+        {
+            return nullptr;
+        }
+
+        return static_cast<T*>(m_SingletonComponents.at(T::GetComponentId()));
     }
 }
