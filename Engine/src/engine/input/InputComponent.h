@@ -14,7 +14,9 @@ namespace se::input
 
         std::vector<KeyEvent> keyEvents;
         std::vector<KeyState::Type> keyStates;
-        uint32_t mouseX = 0;
-        uint32_t mouseY = 0;
+
+        int mouseX = 0;
+        int mouseY = 0;
+        std::vector<KeyState::Type> mouseButtonStates;
     };
 }

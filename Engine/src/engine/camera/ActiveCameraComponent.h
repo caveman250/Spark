@@ -11,10 +11,12 @@ namespace se::camera
     {
         DECLARE_SPARK_SINGLETON_COMPONENT(ActiveCameraComponent)
 
+
         math::Vec3 pos = math::Vec3(0, 2.f, 10.f);
-        float horizontalAngle = 3.14f;
-        float verticalAngle = 0.0f;
+        math::Vec3 rot = { 0.f, 3.14f, 0.f };
         se::math::Mat4 proj = {};
         se::math::Mat4 view = {};
+        int lastMouseX = {};
+        int lastMouseY = {};
     };
 }
