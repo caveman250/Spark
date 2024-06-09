@@ -12,14 +12,34 @@ namespace se
     class IWindow;
 }
 
-namespace se::render
+namespace se::render::commands
 {
-    struct RenderCommand
+    class RenderCommand
     {
-        RenderCommand(const std::function<void()>& cmd) : command(cmd) {}
-        std::function<void()> command;
+    public:
+        virtual void Execute() = 0;
+    };
 
-        static void Clear(bool clearColour, bool clearDepth);
-        static void SubmitGeo(const std::shared_ptr<Material>& material, const std::shared_ptr<VertexBuffer>& vertBuffer, int indexCount);
+    class Clear : public RenderCommand
+    {
+    public:
+        Clear(bool clearColour, bool clearDepth);
+        void Execute() override;
+
+    private:
+        bool m_ClearColour = {};
+        bool m_ClearDepth = {};
+    };
+
+    class SubmitGeo : public RenderCommand
+    {
+    public:
+        SubmitGeo(const std::shared_ptr<Material>& material, const std::shared_ptr<VertexBuffer>& vertBuffer, int indexCount);
+        void Execute() override;
+
+    private:
+        std::shared_ptr<Material> m_Material = {};
+        std::shared_ptr<VertexBuffer> m_VertBuffer = {};
+        int m_IndexCount = {};
     };
 }

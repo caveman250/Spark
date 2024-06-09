@@ -52,6 +52,16 @@ namespace se::windows
         }
 
         render::Renderer::Get()->EndFrame();
+
+        auto safeCopy = m_Windows;
+        for (const auto& window: safeCopy)
+        {
+            if (window->ShouldClose())
+            {
+                window->Cleanup();
+                delete window;
+            }
+        }
     }
 
     bool WindowsRunLoop::ShouldExit()

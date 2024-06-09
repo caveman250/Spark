@@ -1,4 +1,6 @@
 #pragma once
+
+#include "engine/memory/Arena.h"
 #include "RenderCommand.h"
 #include "RenderState.h"
 #include "spark.h"
@@ -10,6 +12,9 @@ namespace se
 
 namespace se::render
 {
+    template<typename T>
+    concept ARenderCommand = std::is_base_of<commands::RenderCommand, T>::value;
+
     class Renderer
     {
     public:
@@ -20,7 +25,8 @@ namespace se::render
         virtual ~Renderer() {}
         virtual void Init() = 0;
 
-        void Submit(IWindow* window, const RenderCommand& renderCmd);
+        template <ARenderCommand T, typename... Args>
+        void Submit(IWindow* window, Args&&... args);
         void ApplyRenderState(const RenderState& rs);
 
         virtual void Render(IWindow* window) = 0;
@@ -29,7 +35,14 @@ namespace se::render
         void ExecuteDrawCommands(IWindow* window);
         virtual void ApplyDepthCompare(DepthCompare comp) = 0;
 
-        std::pmr::unordered_map<IWindow*, std::vector<RenderCommand>> RenderCommands;
+        std::unordered_map<IWindow*, std::vector<commands::RenderCommand*>> m_RenderCommands;
         RenderState m_CachedRenderState;
+        memory::Arena m_RenderCommandsArena;
     };
+
+    template<ARenderCommand T, typename... Args>
+    void Renderer::Submit(IWindow* window, Args&&... args)
+    {
+        m_RenderCommands[window].push_back(m_RenderCommandsArena.Alloc<T>(std::forward<Args>(args)...));
+    }
 }

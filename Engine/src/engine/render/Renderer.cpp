@@ -22,11 +22,6 @@ namespace se::render
         return s_Renderer;
     }
 
-    void Renderer::Submit(IWindow* window, const RenderCommand &renderCmd)
-    {
-        RenderCommands[window].push_back(renderCmd);
-    }
-
     void Renderer::ApplyRenderState(const RenderState& rs)
     {
         if (rs != m_CachedRenderState)
@@ -38,14 +33,15 @@ namespace se::render
 
     void Renderer::EndFrame()
     {
-        RenderCommands.clear();
+        m_RenderCommands.clear();
+        m_RenderCommandsArena.Reset();
     }
 
     void Renderer::ExecuteDrawCommands(IWindow* window)
     {
-        for (const auto& renderCmd : RenderCommands[window])
+        for (const auto& renderCmd : m_RenderCommands[window])
         {
-            renderCmd.command();
+            renderCmd->Execute();
         }
     }
 }
