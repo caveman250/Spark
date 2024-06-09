@@ -17,22 +17,28 @@ namespace se::windows
 
         void OnResize(int x, int y);
         void OnMove(int x, int y);
+        void OnClose();
+        bool ShouldClose();
+        void Cleanup();
 
-        HWND GetHWND() { return Hwnd; }
-        HDC GetHDC() { return Hdc; }
-        HGLRC GetHGLRC() { return Gglrc; }
+        HWND GetHWND() { return m_Hwnd; }
+        HDC GetHDC() { return m_Hdc; }
+        HGLRC GetHGLRC() { return m_Gglrc; }
     private:
         void RegisterWindowClass(HINSTANCE instance);
         void CreateWindowsWindow(HINSTANCE instance);
         void CreateContext();
 
-        uint32_t PosX = 0;
-        uint32_t PosY = 0;
+        uint32_t m_PosX = 0;
+        uint32_t m_PosY = 0;
+        int m_SizeX = 0;
+        int m_SizeY = 0;
 
-        HWND Hwnd;
-        HDC Hdc;
-        HGLRC Gglrc;
-        int SizeX, SizeY;
+        bool m_ShouldClose = false;
+
+        HWND m_Hwnd = {};
+        HDC m_Hdc = {};
+        HGLRC m_Gglrc = {};
     };
 
     HGLRC wglCreateContextAttribsARB(HDC hDC, HGLRC hshareContext, const int *attribList);

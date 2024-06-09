@@ -30,8 +30,7 @@ namespace se::windows
     static std::unordered_map<HWND, Window*> s_WindowInstances;
 
     Window::Window(int sizeX, int sizeY)
-        : SizeX(sizeX)
-          , SizeY(sizeY)
+            : m_SizeX(sizeX), m_SizeY(sizeY)
     {
         auto hInstance = GetModuleHandle(NULL);
 
@@ -50,8 +49,8 @@ namespace se::windows
         CreateContext();
 
         SetCurrent();
-        ShowWindow(Hwnd, SW_NORMAL);
-        UpdateWindow(Hwnd);
+        ShowWindow(m_Hwnd, SW_NORMAL);
+        UpdateWindow(m_Hwnd);
     }
 
     Window::~Window()
@@ -61,41 +60,41 @@ namespace se::windows
 
     void Window::SetCurrent()
     {
-        wglMakeCurrent(Hdc, Gglrc);
+        wglMakeCurrent(m_Hdc, m_Gglrc);
     }
 
     int Window::GetWidth()
     {
-        return SizeX;
+        return m_SizeX;
     }
 
     int Window::GetHeight()
     {
-        return SizeY;
+        return m_SizeY;
     }
 
     int Window::GetPosX()
     {
-        return PosX;
+        return m_PosX;
     }
 
     int Window::GetPosY()
     {
-        return PosY;
+        return m_PosY;
     }
 
     void Window::OnResize(int x, int y)
     {
-        SizeX = x;
-        SizeY = y;
+        m_SizeX = x;
+        m_SizeY = y;
 
         glViewport(0, 0, x, y);
     }
 
     void Window::OnMove(int x, int y)
     {
-        PosX = x;
-        PosY = y;
+        m_PosX = x;
+        m_PosY = y;
     }
 
     static LRESULT CALLBACK wndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
@@ -117,12 +116,7 @@ namespace se::windows
             }
             case WM_CLOSE:
             {
-                wglMakeCurrent(window->GetHDC(), NULL);
-                wglDeleteContext(window->GetHGLRC());
-                ReleaseDC(hWnd, window->GetHDC());
-                DestroyWindow(hWnd);
-                s_WindowInstances.erase(hWnd);
-                delete window;
+                window->OnClose();
                 break;
             }
             case WM_KEYDOWN:
@@ -243,14 +237,15 @@ namespace se::windows
     void Window::CreateWindowsWindow(HINSTANCE instance)
     {
         DWORD style = WS_OVERLAPPEDWINDOW | WS_CLIPSIBLINGS | WS_CLIPCHILDREN;
-        RECT rect = {0, 0, SizeX, SizeY};
+        RECT rect = {0, 0, m_SizeX, m_SizeY};
 
         if (AdjustWindowRect(&rect, style, false))
         {
             LPCWSTR title = L"Spark";
             LPCWSTR windowClass = L"SparkApplication";
-            Hwnd = CreateWindowW(windowClass, title, style, 0, 0, SizeX, SizeY, nullptr, nullptr, instance, nullptr);
-            if (!Hwnd)
+            m_Hwnd = CreateWindowW(windowClass, title, style, 0, 0, m_SizeX, m_SizeY, nullptr, nullptr, instance,
+                                   nullptr);
+            if (!m_Hwnd)
             {
                 debug::Log::Fatal("CreateWindowW failed: Can not create window.");
             }
@@ -262,50 +257,68 @@ namespace se::windows
 
     void Window::CreateContext()
     {
-        Hdc = GetDC(Hwnd);
-        if (Hdc)
+        m_Hdc = GetDC(m_Hwnd);
+        if (m_Hdc)
         {
             auto renderer = static_cast<render::opengl::OpenGLRenderer*>(render::Renderer::Get());
             PIXELFORMATDESCRIPTOR& pfd = renderer->GetPixelFormatDecriptor();
-            memset( &pfd, 0, sizeof( PIXELFORMATDESCRIPTOR ) );
-            pfd.nSize = sizeof( PIXELFORMATDESCRIPTOR );
+            memset(&pfd, 0, sizeof(PIXELFORMATDESCRIPTOR));
+            pfd.nSize = sizeof(PIXELFORMATDESCRIPTOR);
             pfd.dwFlags = PFD_DOUBLEBUFFER | PFD_SUPPORT_OPENGL | PFD_DRAW_TO_WINDOW;
             pfd.iPixelType = PFD_TYPE_RGBA;
             pfd.cColorBits = 32;
             pfd.cDepthBits = 32;
             pfd.iLayerType = PFD_MAIN_PLANE;
 
-            int nPixelFormat = ChoosePixelFormat( Hdc, &pfd );
+            int nPixelFormat = ChoosePixelFormat(m_Hdc, &pfd);
 
             const int iPixelFormatAttribList[] = {
-                WGL_DRAW_TO_WINDOW_ARB, GL_TRUE,
-                WGL_SUPPORT_OPENGL_ARB, GL_TRUE,
-                WGL_DOUBLE_BUFFER_ARB, GL_TRUE,
-                WGL_PIXEL_TYPE_ARB, WGL_TYPE_RGBA_ARB,
-                WGL_COLOR_BITS_ARB, 32,
-                WGL_DEPTH_BITS_ARB, 24,
-                WGL_STENCIL_BITS_ARB, 8,
-                0 // End of attributes list
+                    WGL_DRAW_TO_WINDOW_ARB, GL_TRUE,
+                    WGL_SUPPORT_OPENGL_ARB, GL_TRUE,
+                    WGL_DOUBLE_BUFFER_ARB, GL_TRUE,
+                    WGL_PIXEL_TYPE_ARB, WGL_TYPE_RGBA_ARB,
+                    WGL_COLOR_BITS_ARB, 32,
+                    WGL_DEPTH_BITS_ARB, 24,
+                    WGL_STENCIL_BITS_ARB, 8,
+                    0 // End of attributes list
             };
             int attributes[] = {
-                WGL_CONTEXT_MAJOR_VERSION_ARB, 3
-                , WGL_CONTEXT_MINOR_VERSION_ARB, 2
-                , WGL_CONTEXT_FLAGS_ARB, WGL_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB,
-                WGL_CONTEXT_PROFILE_MASK_ARB, WGL_CONTEXT_CORE_PROFILE_BIT_ARB
-                , 0
+                    WGL_CONTEXT_MAJOR_VERSION_ARB, 3, WGL_CONTEXT_MINOR_VERSION_ARB, 2, WGL_CONTEXT_FLAGS_ARB,
+                    WGL_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB,
+                    WGL_CONTEXT_PROFILE_MASK_ARB, WGL_CONTEXT_CORE_PROFILE_BIT_ARB, 0
             };
 
             nPixelFormat = 0;
             UINT iNumFormats = 0;
 
-            wglChoosePixelFormatARB( Hdc, iPixelFormatAttribList, NULL, 1, &nPixelFormat, (UINT*)&iNumFormats );
+            wglChoosePixelFormatARB(m_Hdc, iPixelFormatAttribList, NULL, 1, &nPixelFormat, (UINT*) &iNumFormats);
 
-            SetPixelFormat( Hdc, nPixelFormat, &pfd );
+            SetPixelFormat(m_Hdc, nPixelFormat, &pfd);
 
-            Gglrc = wglCreateContextAttribsARB( Hdc, 0, attributes );
-        } else
+            m_Gglrc = wglCreateContextAttribsARB(m_Hdc, 0, attributes);
+        }
+        else
         {
             debug::Log::Fatal("GetDC failed: Can not create device context.");
         }
+    }
+
+    void Window::OnClose()
+    {
+        m_ShouldClose = true;
+    }
+
+    bool Window::ShouldClose()
+    {
+        return m_ShouldClose;
+    }
+
+    void Window::Cleanup()
+    {
+        wglMakeCurrent(GetHDC(), NULL);
+        wglDeleteContext(GetHGLRC());
+        ReleaseDC(m_Hwnd, GetHDC());
+        DestroyWindow(m_Hwnd);
+        s_WindowInstances.erase(m_Hwnd);
     }
 }
