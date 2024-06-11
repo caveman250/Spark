@@ -16,8 +16,14 @@ namespace se::shader::compiler
     class ShaderStageCombiner
     {
     public:
-        static ast::ShaderStage Combine(const ast::ShaderStage& left, const ast::ShaderStage& right, memory::Arena& tempStore);
-        static void ResolveCombinedShaderPorts(ast::ShaderStage& shader, memory::Arena& arena);
-        static void ForEachChild(ast::ASTNode* node, std::function<void(ast::ASTNode* node)> func);
+        ast::ShaderStage Combine(const ast::ShaderStage& left, const ast::ShaderStage& right, memory::Arena& tempStore);
+        void ResolveCombinedShaderPorts(ast::ShaderStage& shader, memory::Arena& arena);
+        void ForEachChild(ast::ASTNode* node, std::function<void(ast::ASTNode* node)> func);
+
+    private:
+        uint8_t GetInputLoc(const std::string& inputName);
+        uint8_t GetOutputLoc(const std::string& outputName);
+        std::vector<std::string> m_ConsumedInputs;
+        std::vector<std::string> m_ConsumedOutputs;
     };
 }

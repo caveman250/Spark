@@ -22,6 +22,7 @@ namespace se::render
         uint8_t stride;
         std::vector<float> data;
     };
+
     class VertexBuffer
     {
     public:

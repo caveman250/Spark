@@ -269,16 +269,15 @@ namespace se::shader::compiler
         {
             if (port->GetPortName() == "InVertPos")
             {
-                //TODO Get attribute location from somewhere
-                shader.AddInput(arena.Alloc<ast::InputAttributeNode>(0ui8, port->GetType(), name));
+                shader.AddInput(arena.Alloc<ast::InputAttributeNode>(GetInputLoc(port->GetPortName()), port->GetType(), name));
             }
             else if (port->GetPortName() == "InVertColour")
             {
-                shader.AddInput(arena.Alloc<ast::InputAttributeNode>(1ui8, port->GetType(), name));
+                shader.AddInput(arena.Alloc<ast::InputAttributeNode>(GetInputLoc(port->GetPortName()), port->GetType(), name));
             }
             else if (port->GetPortName() == "InVertUV")
             {
-                shader.AddInput(arena.Alloc<ast::InputAttributeNode>(2ui8, port->GetType(), name));
+                shader.AddInput(arena.Alloc<ast::InputAttributeNode>(GetInputLoc(port->GetPortName()), port->GetType(), name));
             }
             else if (port->GetPortName() == "FragVertColour")
             {
@@ -308,7 +307,6 @@ namespace se::shader::compiler
         {
             if (port->GetPortName() == "FinalFragColour")
             {
-                //TODO Get attribute location from somewhere
                 shader.AddOutput(arena.Alloc<ast::OutputNode>(port->GetType(), name));
             }
             else if (port->GetPortName() == "FinalVertPos")
@@ -329,7 +327,6 @@ namespace se::shader::compiler
             }
             else if (port->GetPortName() == "FinalVertColour")
             {
-                //TODO Get attribute location from somewhere
                 shader.AddOutput(arena.Alloc<ast::OutputNode>(port->GetType(), "fragmentVertColour"));
                 // urgh names have to match the frag shader.
                 std::map<std::string, std::string> renameMap = { { name, "fragmentVertColour" } };
@@ -340,7 +337,6 @@ namespace se::shader::compiler
             }
             else if (port->GetPortName() == "FinalVertUV")
             {
-                //TODO Get attribute location from somewhere
                 shader.AddOutput(arena.Alloc<ast::OutputNode>(port->GetType(), "fragmentVertUV"));
                 // urgh names have to match the frag shader.
                 std::map<std::string, std::string> renameMap = { { name, "fragmentVertUV" } };
@@ -389,5 +385,27 @@ namespace se::shader::compiler
         MergeRemainingPorts(leftCopy, rightCopy);
 
         return leftCopy;
+    }
+
+    uint8_t ShaderStageCombiner::GetInputLoc(const std::string& inputName)
+    {
+        auto it = std::ranges::find(m_ConsumedInputs, inputName);
+        if (it == m_ConsumedInputs.end())
+        {
+            m_ConsumedInputs.push_back(inputName);
+            return m_ConsumedInputs.size() - 1;
+        }
+        return it - m_ConsumedInputs.begin();
+    }
+
+    uint8_t ShaderStageCombiner::GetOutputLoc(const std::string& outputName)
+    {
+        auto it = std::ranges::find(m_ConsumedOutputs, outputName);
+        if (it == m_ConsumedOutputs.end())
+        {
+            m_ConsumedOutputs.push_back(outputName);
+            return m_ConsumedOutputs.size() - 1;
+        }
+        return it - m_ConsumedOutputs.begin();
     }
 }

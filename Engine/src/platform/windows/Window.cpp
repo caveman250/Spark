@@ -110,8 +110,8 @@ namespace se::windows
             case WM_SIZE:
             {
                 window->OnResize(LOWORD(lParam), HIWORD(lParam));
-                SetCursorPos(window->GetPosX() + window->GetWidth() / 2.f,
-                             window->GetPosY() + window->GetHeight() / 2.f);
+                SetCursorPos(window->GetPosX() + window->GetWidth() / 2,
+                             window->GetPosY() + window->GetHeight() / 2);
                 break;
             }
             case WM_CLOSE:

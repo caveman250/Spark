@@ -2,6 +2,7 @@
 
 #include "spark.h"
 #include "engine/reflect/Reflect.h"
+#include "engine/asset/mesh/Model.h"
 
 namespace se::render
 {
@@ -19,5 +20,6 @@ namespace se::ecs::components
 
         std::shared_ptr<se::render::Material> material = {};
         std::shared_ptr<se::render::VertexBuffer> vertBuffer = {};
+        se::asset::Model model = {};
     };
 }

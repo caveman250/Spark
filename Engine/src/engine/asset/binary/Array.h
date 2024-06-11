@@ -11,10 +11,10 @@ namespace se::asset::binary
         uint32_t GetCount();
         Struct GetStruct();
         uint32_t GetStructIndex();
-        Object Get(uint32_t i);
+        Object Get(size_t i);
     private:
         Array(uint32_t offset, Database* database, bool initialiseObjects);
-        uint32_t GetOffsetOf(uint32_t i);
+        uint32_t GetOffsetOf(size_t i);
         char* GetData();
 
         uint32_t m_Offset;

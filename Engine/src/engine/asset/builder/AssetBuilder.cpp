@@ -3,12 +3,14 @@
 #include "AssetBuilder.h"
 #include "Blueprint.h"
 #include "TextureBlueprint.h"
+#include "FBXBlueprint.h"
 
 namespace se::asset::builder
 {
-    std::array<std::unique_ptr<Blueprint>, 1> s_AssetBlueprints =
+    std::array<std::unique_ptr<Blueprint>, 2> s_AssetBlueprints =
     {
-        std::make_unique<TextureBlueprint>()
+        std::make_unique<TextureBlueprint>(),
+        std::make_unique<FBXBlueprint>()
     };
 
     std::shared_ptr<binary::Database> AssetBuilder::ProcessAsset(const std::string& assetPath, meta::MetaData& meta)
