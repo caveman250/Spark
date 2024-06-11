@@ -17,6 +17,20 @@ namespace se::reflect
         return &typeDesc;
     }
 
+    struct Type_UInt32 : Type
+    {
+        Type_UInt32() : Type{"uint32", sizeof(uint32_t), asset::binary::Type::Uint32 }
+        {
+        }
+    };
+
+    template <>
+    Type* getPrimitiveDescriptor<uint32_t>()
+    {
+        static Type_UInt32 typeDesc;
+        return &typeDesc;
+    }
+
     struct Type_Float : Type
     {
         Type_Float() : Type{"float", sizeof(float), asset::binary::Type::Float}

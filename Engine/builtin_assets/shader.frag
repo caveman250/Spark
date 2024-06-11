@@ -1,4 +1,3 @@
-port(FragVertColour) in vec3 inColour;
 port(FragVertUV) in vec2 inUV;
 port(test) out vec3 color;
 

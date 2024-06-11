@@ -326,7 +326,7 @@ namespace se::asset::binary
         return m_Objects + offset;
     }
 
-    Array Database::CreateArray(uint32_t structIndex, uint32_t count)
+    Array Database::CreateArray(uint32_t structIndex, size_t count)
     {
         if (!SPARK_VERIFY(!m_ReadOnly))
         {
@@ -334,7 +334,7 @@ namespace se::asset::binary
         }
 
         Struct structDef = Struct(structIndex, this);
-        uint32_t reqSize = s_ArrayHeaderSize + structDef.CalcObjectSize() * count;
+        uint32_t reqSize = s_ArrayHeaderSize + structDef.CalcObjectSize() * (uint32_t)count;
         if (!m_Objects)
         {
             reqSize += s_ObjectsHeaderSize;

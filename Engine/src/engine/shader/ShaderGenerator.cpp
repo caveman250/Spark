@@ -42,12 +42,13 @@ std::optional<std::string> se::shader::ShaderGenerator::CompileShader(const std:
         }
     }
 
+    auto combiner = compiler::ShaderStageCombiner();
     for (auto& additionalStage : additionalStages)
     {
-        firstStage = compiler::ShaderStageCombiner::Combine(firstStage.value(), additionalStage, arena);
+        firstStage = combiner.Combine(firstStage.value(), additionalStage, arena);
     }
 
-    compiler::ShaderStageCombiner::ResolveCombinedShaderPorts(firstStage.value(), arena);
+    combiner.ResolveCombinedShaderPorts(firstStage.value(), arena);
 
     return AstToGlsl(firstStage.value());
 }

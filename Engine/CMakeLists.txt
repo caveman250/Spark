@@ -27,9 +27,10 @@ if (${PLATFORM} MATCHES Windows)
     file(GLOB_RECURSE PLATFORM_CODE src/platform/windows/*.cpp src/platform/windows/*.h)
 endif()
 file(GLOB_RECURSE ENGINE_CODE src/engine/*.cpp src/engine/*.h)
+file(GLOB_RECURSE OFBX_CODE third_party/OpenFBX-365f52c/*.cpp third_party/OpenFBX-365f52c/*.h)
 
 ###### Output ######
-add_library(Spark ${PLATFORM_SHARED_CODE} ${PLATFORM_CODE} ${ENGINE_CODE})
+add_library(Spark ${PLATFORM_SHARED_CODE} ${PLATFORM_CODE} ${ENGINE_CODE} ${OFBX_CODE})
 
 ###### PCH ######
 target_precompile_headers(Spark PUBLIC src/spark.h)

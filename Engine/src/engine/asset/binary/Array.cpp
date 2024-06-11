@@ -14,7 +14,7 @@ namespace se::asset::binary
         return  *(reinterpret_cast<uint32_t*>(GetData()) + 1);
     }
 
-    Object Array::Get(uint32_t i)
+    Object Array::Get(size_t i)
     {
         Struct st = GetStruct();
         return Object(m_Offset + GetOffsetOf(i), m_DB, st);
@@ -43,9 +43,9 @@ namespace se::asset::binary
         }
     }
 
-    uint32_t Array::GetOffsetOf(uint32_t i)
+    uint32_t Array::GetOffsetOf(size_t i)
     {
-        return s_ArrayHeaderSize + (i * m_ElementSize);
+        return s_ArrayHeaderSize + ((uint32_t)i * m_ElementSize);
     }
 
     char* Array::GetData()

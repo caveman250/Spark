@@ -20,7 +20,7 @@ namespace se::asset::binary
         Object GetObjectAt(uint32_t offset);
         char* GetObjectDataAt(uint32_t offset) const;
 
-        Array CreateArray(uint32_t structIndex, uint32_t count);
+        Array CreateArray(uint32_t structIndex, size_t count);
         Array GetArrayAt(uint32_t offset);
 
         uint32_t CreateString(const std::string& str);
