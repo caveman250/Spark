@@ -6,7 +6,7 @@ namespace se::shader::ast
     {
         auto alloc = outShader.get_allocator();
         outShader.append("vec4(");
-        for (int i = 0; i < m_Children.size(); ++i)
+        for (size_t i = 0; i < m_Children.size(); ++i)
         {
             auto* child = m_Children[i];
             child->ToGlsl(outShader);

@@ -28,7 +28,7 @@ namespace se::io
 
     private:
 #if SPARK_PLATFORM_WINDOWS
-    static void FixPath(std::string& path);
+        static void FixWindowsPath(std::string& path);
 #endif
         static bool IsMount(const std::string& path, const VFSMount& mount);
         std::string GetFSPath(const std::string& path, const VFSMount& mount);

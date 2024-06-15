@@ -5,6 +5,7 @@ namespace se::asset::binary
 {
     constexpr uint32_t s_ArrayHeaderSize = sizeof(uint32_t) * 2; // length, structindex
 
+    class Object;
     class Array
     {
     public:

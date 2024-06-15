@@ -9,6 +9,14 @@
 
 namespace se::asset
 {
+DEFINE_SPARK_CLASS_BEGIN(Texture)
+    DEFINE_MEMBER(m_Width)
+    DEFINE_MEMBER(m_Height)
+    DEFINE_MEMBER(m_MipCount)
+    DEFINE_MEMBER(m_Mips)
+    DEFINE_MEMBER(m_Format)
+DEFINE_SPARK_CLASS_END()
+
     Texture::~Texture()
     {
         for (uint32_t i = 0; i < m_MipCount; ++i)
@@ -71,7 +79,7 @@ namespace se::asset
         m_Width = root.Get<uint32_t>("sizeX");
         m_Height = root.Get<uint32_t>("sizeX");
         m_MipCount = root.Get<uint32_t>("mipCount");
-        m_Format = static_cast<texture::Format>(root.Get<uint32_t>("format"));
+        m_Format = static_cast<texture::Format::Type>(root.Get<uint32_t>("format"));
 
         auto mipArray = root.Get<binary::Array>("mips");
         for (uint32_t i = 0; i < m_MipCount; ++i)

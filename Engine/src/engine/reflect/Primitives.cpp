@@ -58,4 +58,18 @@ namespace se::reflect
         static Type_StdString typeDesc;
         return &typeDesc;
     }
+
+    struct Type_VoidPtr : Type
+    {
+        Type_VoidPtr() : Type{"void*", sizeof(void*), asset::binary::Type::Invalid }
+        {
+        }
+    };
+
+    template <>
+    Type* getPrimitiveDescriptor<void*>()
+    {
+        static Type_VoidPtr typeDesc;
+        return &typeDesc;
+    }
 }

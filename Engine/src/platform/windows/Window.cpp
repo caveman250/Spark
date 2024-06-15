@@ -13,10 +13,6 @@
 #include "platform/PlatformRunLoop.h"
 #include "engine/input/MouseButton.h"
 
-#ifndef DWMWA_USE_IMMERSIVE_DARK_MODE
-#define DWMWA_USE_IMMERSIVE_DARK_MODE 20
-#endif
-
 namespace se
 {
     IWindow* IWindow::CreatePlatformWindow(int resX, int resY)
@@ -42,9 +38,6 @@ namespace se::windows
         }
         CreateWindowsWindow(hInstance);
 
-        BOOL value = TRUE;
-        ::DwmSetWindowAttribute(GetHWND(), DWMWA_USE_IMMERSIVE_DARK_MODE, &value, sizeof(value));
-
         s_WindowInstances[GetHWND()] = this;
         CreateContext();
 
@@ -61,40 +54,6 @@ namespace se::windows
     void Window::SetCurrent()
     {
         wglMakeCurrent(m_Hdc, m_Gglrc);
-    }
-
-    int Window::GetWidth()
-    {
-        return m_SizeX;
-    }
-
-    int Window::GetHeight()
-    {
-        return m_SizeY;
-    }
-
-    int Window::GetPosX()
-    {
-        return m_PosX;
-    }
-
-    int Window::GetPosY()
-    {
-        return m_PosY;
-    }
-
-    void Window::OnResize(int x, int y)
-    {
-        m_SizeX = x;
-        m_SizeY = y;
-
-        glViewport(0, 0, x, y);
-    }
-
-    void Window::OnMove(int x, int y)
-    {
-        m_PosX = x;
-        m_PosY = y;
     }
 
     static LRESULT CALLBACK wndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
@@ -245,6 +204,8 @@ namespace se::windows
             LPCWSTR windowClass = L"SparkApplication";
             m_Hwnd = CreateWindowW(windowClass, title, style, 0, 0, m_SizeX, m_SizeY, nullptr, nullptr, instance,
                                    nullptr);
+
+			SetWindowLong(m_Hwnd, GWL_STYLE, 0);
             if (!m_Hwnd)
             {
                 debug::Log::Fatal("CreateWindowW failed: Can not create window.");
@@ -301,16 +262,6 @@ namespace se::windows
         {
             debug::Log::Fatal("GetDC failed: Can not create device context.");
         }
-    }
-
-    void Window::OnClose()
-    {
-        m_ShouldClose = true;
-    }
-
-    bool Window::ShouldClose()
-    {
-        return m_ShouldClose;
     }
 
     void Window::Cleanup()

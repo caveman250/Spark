@@ -47,8 +47,7 @@ namespace se::render::opengl
 
     void VertexBuffer::Unbind()
     {
-        uint8_t loc = 0;
-        for (const auto& [usage, stream] : m_VertexStreams)
+        for (size_t loc = 0; loc < m_VertexStreams.size(); ++loc)
         {
             glDisableVertexAttribArray(loc++);
         }

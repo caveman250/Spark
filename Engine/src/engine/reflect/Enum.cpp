@@ -16,7 +16,7 @@ namespace se::reflect
 
     const std::string& Enum::ToString(int value)
     {
-        SPARK_ASSERT(value < values.size());
+        SPARK_ASSERT(value < static_cast<int>(values.size()));
         return values[value].name;
     }
 

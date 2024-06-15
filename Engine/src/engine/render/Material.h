@@ -13,6 +13,8 @@ namespace se::render
     public:
         static std::shared_ptr<Material> CreateMaterial(const std::vector<std::string>& filePaths, const std::vector<std::string>& fragPaths);
 
+        virtual ~Material() = default;
+
         virtual void Bind();
         virtual void CreatePlatformResources() = 0;
         void SetRenderState(const RenderState& state);

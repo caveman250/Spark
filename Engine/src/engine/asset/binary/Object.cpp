@@ -5,8 +5,8 @@ namespace se::asset::binary
 {
     Object::Object(uint32_t offset, Database* database, const Struct& objStruct)
         : m_Offset(offset)
-        , m_DB(database)
         , m_Struct(objStruct)
+        , m_DB(database)
     {
 
     }

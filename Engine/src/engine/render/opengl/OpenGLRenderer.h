@@ -10,10 +10,10 @@ namespace se::render::opengl
         void Init() override;
         void Render(IWindow* window) override;
 
-        PIXELFORMATDESCRIPTOR& GetPixelFormatDecriptor() { return m_PFD; };
+        //PIXELFORMATDESCRIPTOR& GetPixelFormatDecriptor() { return m_PFD; };
 
     private:
         void ApplyDepthCompare(DepthCompare comp) override;
-        PIXELFORMATDESCRIPTOR m_PFD;
+        //PIXELFORMATDESCRIPTOR m_PFD;
     };
 }

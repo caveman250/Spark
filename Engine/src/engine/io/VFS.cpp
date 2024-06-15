@@ -194,7 +194,9 @@ namespace se::io
             if (path.contains(mount.fsPath))
             {
                 std::string temp = path;
-                FixPath(temp);
+#if SPARK_PLATFORM_WINDOWS
+                FixWindowsPath(temp);
+#endif
                 return mount.vfsPath + std::string(temp.begin() + mount.fsPath.size(),
                                                    temp.begin() + temp.size());
             }
@@ -203,10 +205,12 @@ namespace se::io
         return "";
     }
 
-    void VFS::FixPath(std::string& path)
+#if SPARK_PLATFORM_WINDOWS
+    void VFS::FixWindowsPath(std::string& path)
     {
         std::replace( path.begin(), path.end(), '\\', '/' );
     }
+#endif
 
     std::time_t VFS::GetLastModified(const std::string path)
     {
