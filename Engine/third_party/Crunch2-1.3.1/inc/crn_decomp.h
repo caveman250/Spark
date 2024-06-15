@@ -48,6 +48,7 @@
 #else
 #include <malloc.h>
 #endif
+#include <cstdint>
 #include <stdarg.h>
 #include <new>  // needed for placement new, _msize, _expand
 

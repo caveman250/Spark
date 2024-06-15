@@ -13,7 +13,7 @@ namespace se::asset
 {
     class Model : public AssetBase
     {
-        DECLARE_SPARK_CLASS(StaticMesh)
+        DECLARE_SPARK_CLASS(Model)
 
         std::shared_ptr<binary::Database> Serialise() override;
         void Deserialise(const std::shared_ptr<binary::Database> &db) override;

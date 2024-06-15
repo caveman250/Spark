@@ -53,13 +53,11 @@ namespace se::asset::binary
         std::memcpy(structData, &structSize, sizeof(uint32_t));
 
         uint32_t offset = s_StructHeaderSize;
-        int index = 0;
         uint32_t rowSize = sizeof(Type) + 32;
         for (const auto& [name, type] : structLayout)
         {
             std::memcpy(structData + offset, &name, 32);
             std::memcpy(structData + offset + 32, &type, sizeof(Type));
-            index++;
             offset += rowSize;
         }
     }

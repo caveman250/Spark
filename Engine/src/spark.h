@@ -13,7 +13,6 @@
 #include <optional>
 #include <set>
 #include <cstdint>
-#include <print>
 #include <algorithm>
 #include <ranges>
 #include <utility>
@@ -21,6 +20,7 @@
 #include <thread>
 #include <chrono>
 #include <execution>
+#include <cfloat>
 
 #include "json.hpp"
 
@@ -34,18 +34,22 @@
 #undef max
 #undef LoadImage
 #undef DELETE
+#elif SPARK_PLATFORM_LINUX
+#include <SDL2/SDL.h>
+#undef linux
 #endif
 
 #if SPARK_RELEASE
 #define SPARK_ASSERT(expr, ...) do {} while (0)
 #elif SPARK_DEBUG
+#if SPARK_PLATFORM_WINDOWS
 #define SPARK_ASSERT(expr, ...) \
 do { \
     if (!(expr))\
     {\
         std::string userMsg = SPARK_ASSERT_MESSAGE(__VA_ARGS__)\
         std::string assertMsg = std::format("{0}\n\nMessage: {1}\n", #expr, userMsg); \
-        std::print("\033[0;41mAssertion failed: {0}at {1}:{2}\033[0m\n\n", assertMsg,  __FILE__, __LINE__); \
+        printf(std::format("\033[0;41mAssertion failed: {0}at {1}:{2}\033[0m\n\n", assertMsg,  __FILE__, __LINE__).c_str()); \
         fflush(stdout);\
         bool assertResult = _CrtDbgReport(_CRT_ASSERT, __FILE__, __LINE__, "Spark Application", assertMsg.c_str()); \
         if (assertResult == 0)\
@@ -58,6 +62,20 @@ do { \
         }\
     }\
 } while (0)
+#elif SPARK_PLATFORM_LINUX
+#include "csignal"
+#define SPARK_ASSERT(expr, ...)\
+do { \
+    if (!(expr))\
+    {\
+        std::string userMsg = SPARK_ASSERT_MESSAGE(__VA_ARGS__)\
+        std::string assertMsg = std::format("{0}\n\nMessage: {1}\n", #expr, userMsg); \
+        printf("%s", std::format("\033[0;41mAssertion failed: {0}at {1}:{2}\033[0m\n\n", assertMsg,  __FILE__, __LINE__).c_str()); \
+        fflush(stdout);\
+        raise(SIGTRAP);\
+    }\
+} while (0)
+#endif
 #else
 #define SPARK_ASSERT(...) do {} while(0)
 #endif

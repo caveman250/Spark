@@ -9,6 +9,8 @@ namespace se::render
     {
     public:
         static std::shared_ptr<TextureResource> Create(const asset::Texture& texture);
+
+        virtual ~TextureResource() = default;
         virtual void CreatePlatformResources() = 0;
         virtual void Bind() = 0;
 

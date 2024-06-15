@@ -19,7 +19,7 @@ namespace se::math
 
     float InverseSqrt(float f)
     {
-        return 1.f / std::sqrtf(f);
+        return 1.f / sqrtf(f);
     }
 
     Mat4 AxisAngle(Vec3 axis, float angle)

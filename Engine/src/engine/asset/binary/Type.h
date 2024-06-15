@@ -19,7 +19,8 @@ namespace se::asset::binary
         Object,
         String,
         Blob,
-        Array
+        Array,
+        Invalid
     };
 
     std::string TypeToString(Type type);

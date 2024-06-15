@@ -61,7 +61,11 @@ namespace se::debug
         LogInternal(fmt, std::make_format_args(args...));
         END_COLOUR
 
+#if SPARK_PLATFORM_WINDOWS
         __debugbreak();
+#else
+        raise(SIGTRAP);
+#endif
         exit(0);
     }
 
@@ -69,7 +73,6 @@ namespace se::debug
     void Log::LogInternal(const std::string_view &_Fmt, const std::format_args &_Args)
     {
         std::string str;
-        str.reserve(_Fmt.size() + _Args._Estimate_required_capacity());
         std::vformat_to(std::back_insert_iterator{str}, _Fmt, _Args);
 
         printf("%s\n", str.c_str());

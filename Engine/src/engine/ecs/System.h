@@ -74,11 +74,18 @@ namespace se::ecs
         m_World->Each<Cs...>(std::bind(&System::OnShutdown, this, ts...), true);
     }
 
+
+#if SPARK_PLATFORM_WINDOWS
+#define PLACEHOLDER(i) std::_Ph<i>
+#else
+#define PLACEHOLDER(i) std::_Placeholder<i>
+#endif
+
     template<typename... Cs>
     template<std::size_t Index, typename... Ts>
     std::enable_if_t<Index != sizeof...(Cs) + 1> System<Cs...>::ShutdownBuilder(Ts... ts)
     {
-        ShutdownBuilder<Index + 1>(ts..., std::_Ph<Index + 1>());
+        ShutdownBuilder<Index + 1>(ts..., PLACEHOLDER(Index + 1)());
     }
 
     template<typename... Cs>
@@ -98,7 +105,7 @@ namespace se::ecs
     template<std::size_t Index, typename... Ts>
     std::enable_if_t<Index != sizeof...(Cs) + 1> System<Cs...>::RenderBuilder(Ts... ts)
     {
-        RenderBuilder<Index + 1>(ts..., std::_Ph<Index + 1>());
+        RenderBuilder<Index + 1>(ts..., PLACEHOLDER(Index + 1)());
     }
 
     template<typename... Cs>
@@ -118,7 +125,7 @@ namespace se::ecs
     template<std::size_t Index, typename... Ts>
     std::enable_if_t<Index != sizeof...(Cs) + 1> System<Cs...>::InitBuilder(Ts... ts)
     {
-        InitBuilder<Index + 1>(ts..., std::_Ph<Index + 1>());
+        InitBuilder<Index + 1>(ts..., PLACEHOLDER(Index + 1)());
     }
 
     template<typename... Cs>
@@ -145,7 +152,7 @@ namespace se::ecs
     template<std::size_t Index, typename... Ts>
     std::enable_if_t<Index != sizeof...(Cs) + 1> System<Cs...>::UpdateBuilder(Ts... ts)
     {
-        UpdateBuilder<Index + 1>(ts..., std::_Ph<Index + 1>());
+        UpdateBuilder<Index + 1>(ts..., PLACEHOLDER(Index + 1)());
     }
 
     template<typename... Cs>

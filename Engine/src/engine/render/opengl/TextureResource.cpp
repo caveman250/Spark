@@ -41,7 +41,7 @@ namespace se::render::opengl
         glGenerateMipmap(GL_TEXTURE_2D);
     }
 
-    GLuint TextureResource::TextureFormatToGLFormat(asset::texture::Format format)
+    GLuint TextureResource::TextureFormatToGLFormat(asset::texture::Format::Type format)
     {
         switch (format)
         {

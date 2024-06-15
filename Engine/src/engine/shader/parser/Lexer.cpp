@@ -151,7 +151,7 @@ namespace se::shader::parser
 
     bool Lexer::CanPeekChar()
     {
-        return m_CharIdx < m_Code.size();
+        return m_CharIdx < static_cast<int>(m_Code.size());
     }
 
     char Lexer::PeekChar()
@@ -161,7 +161,7 @@ namespace se::shader::parser
 
     bool Lexer::CanPeekChar(int n)
     {
-        return m_CharIdx + n < m_Code.size();
+        return m_CharIdx + n < static_cast<int>(m_Code.size());
     }
 
     char Lexer::PeekChar(int n)

@@ -100,7 +100,7 @@ namespace se::shader::ast
 
     bool ShaderStage::FindVariable(const std::string &name, Type &type) const
     {
-        for (size_t i = m_ScopeStack.size() - 1; i > -1; --i)
+        for (int i = static_cast<int>(m_ScopeStack.size()) - 1; i > -1; --i)
         {
             if (m_ScopeStack[i].m_Variables.contains(name))
             {

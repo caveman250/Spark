@@ -17,6 +17,7 @@ namespace se::render::commands
     class RenderCommand
     {
     public:
+        virtual ~RenderCommand() {}
         virtual void Execute() = 0;
     };
 

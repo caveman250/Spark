@@ -12,7 +12,7 @@ namespace se::math
 
     float& Vec3::operator[](size_t i)
     {
-        SPARK_ASSERT(i >= 0 && i <= 2);
+        SPARK_ASSERT(i <= 2);
         switch(i)
         {
         default:
@@ -27,7 +27,7 @@ namespace se::math
 
     const float& Vec3::operator[](size_t i) const
     {
-        SPARK_ASSERT(i >= 0 && i <= 2);
+        SPARK_ASSERT(i <= 2);
         switch(i)
         {
         default:

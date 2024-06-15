@@ -13,7 +13,7 @@ namespace se::math
 
     float& Vec4::operator[](size_t i)
     {
-        SPARK_ASSERT(i >= 0 && i <= 3);
+        SPARK_ASSERT(i <= 3u);
         switch(i)
         {
         default:
@@ -30,7 +30,7 @@ namespace se::math
 
     const float& Vec4::operator[](size_t i) const
     {
-        SPARK_ASSERT(i >= 0 && i <= 3);
+        SPARK_ASSERT(i <= 3);
         switch(i)
         {
         default:

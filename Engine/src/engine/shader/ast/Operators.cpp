@@ -4,15 +4,15 @@ namespace se::shader::ast
 {
     std::map<OperatorType, uint8_t> OperatorUtil::s_OperatorPriorities =
     {
-        {OperatorType::Multiply, 0ui8},
-        {OperatorType::MultiplyEquals, 0ui8},
-        {OperatorType::Divide, 0ui8},
-        {OperatorType::DivideEquals, 0ui8},
-        {OperatorType::Add, 1ui8},
-        {OperatorType::AddEquals, 1ui8},
-        {OperatorType::Subtract, 1ui8},
-        {OperatorType::SubtractEquals, 1ui8},
-        {OperatorType::Compare, 2ui8},
+        {OperatorType::Multiply, 0u},
+        {OperatorType::MultiplyEquals, 0u},
+        {OperatorType::Divide, 0u},
+        {OperatorType::DivideEquals, 0u},
+        {OperatorType::Add, 1u},
+        {OperatorType::AddEquals, 1u},
+        {OperatorType::Subtract, 1u},
+        {OperatorType::SubtractEquals, 1u},
+        {OperatorType::Compare, 2u},
     };
 
     std::map<std::string, OperatorType> OperatorUtil::s_ShaderLangToType =

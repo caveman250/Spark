@@ -126,8 +126,10 @@ namespace se::shader::parser
             case ast::Type::Mat4:
             case ast::Type::Void:
             case ast::Type::Invalid:
+            case ast::Type::Sampler2D:
                 outError = {nextToken.line, nextToken.pos, std::format("Unexpected type {}", ast::TypeUtil::GetTypeGlsl(argType)) };
                 return false;
+                break;
             }
 
             if (componentsAccountedFor < 2)
@@ -186,6 +188,7 @@ namespace se::shader::parser
             case ast::Type::Mat4:
             case ast::Type::Void:
             case ast::Type::Invalid:
+            case ast::Type::Sampler2D:
                 outError = {nextToken.line, nextToken.pos, std::format("Unexpected type {}", ast::TypeUtil::GetTypeGlsl(argType)) };
                 return false;
             }
@@ -247,6 +250,7 @@ namespace se::shader::parser
             case ast::Type::Mat3:
             case ast::Type::Mat4:
             case ast::Type::Void:
+            case ast::Type::Sampler2D:
             case ast::Type::Invalid:
                 outError = {nextToken.line, nextToken.pos, std::format("Unexpected type {}", ast::TypeUtil::GetTypeGlsl(argType)) };
                 return false;

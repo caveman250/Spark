@@ -1,9 +1,16 @@
 #pragma once
 
 #define GLEW_STATIC
-#include <Gl/glew.h>
-#include <gl/GL.h>
-#include <GL/wglew.h> // probably only want this on windows?
+#include <GL/glew.h>
+#include <GL/gl.h>
+
+#if SPARK_PLATFORM_LINUX
+#include <SDL2/SDL_opengl.h>
+#endif
+
+#if SPARK_PLATFORM_WINDOWS
+#include <GL/wglew.h>
+#endif
 
 #if !SPARK_DIST
 #define GL_CHECK_ERROR()\

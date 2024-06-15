@@ -14,7 +14,7 @@ namespace se::render::opengl
 
     private:
 
-        static GLuint TextureFormatToGLFormat(asset::texture::Format format);
+        static GLuint TextureFormatToGLFormat(asset::texture::Format::Type format);
 
         GLuint m_ID;
     };

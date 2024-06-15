@@ -109,7 +109,7 @@ namespace se::ecs
         m_Archetypes.insert(std::make_pair(archetype.id, archetype));
         m_ArchetypeTypeLookup.insert(std::make_pair(type, archetype.id));
 
-        for (int i = 0; i < type.size(); ++i)
+        for (size_t i = 0; i < type.size(); ++i)
         {
             auto& compInfo = m_ComponentRecords[type[i]];
             compInfo.archetypeRecords.insert(std::make_pair(archetype.id, i));
@@ -119,7 +119,7 @@ namespace se::ecs
     size_t World::MoveEntity(EntityId entity, Archetype* archetype, size_t entityIdx, Archetype* nextArchetype)
     {
         std::vector<std::pair<ComponentId, uint8_t*>> compData;
-        for (int i = 0; i < archetype->components.size(); ++i)
+        for (size_t i = 0; i < archetype->components.size(); ++i)
         {
             ComponentId id = archetype->type[i];
             uint8_t* data = archetype->components[i].GetComponent(entityIdx);
@@ -144,7 +144,7 @@ namespace se::ecs
         }
 
         // add missing components
-        for (int i = 0; i < nextArchetype->components.size(); ++i)
+        for (size_t i = 0; i < nextArchetype->components.size(); ++i)
         {
             if (!componentsAccountedFor.contains(nextArchetype->type[i]))
             {
@@ -155,7 +155,7 @@ namespace se::ecs
         }
 
         // remove from og archetype
-        for (int i = 0; i < archetype->components.size(); ++i)
+        for (size_t i = 0; i < archetype->components.size(); ++i)
         {
             archetype->components[i].RemoveComponent(entityIdx);
         }
