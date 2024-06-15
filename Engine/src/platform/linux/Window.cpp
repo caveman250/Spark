@@ -19,6 +19,9 @@ namespace se::linux
         uint32_t WindowFlags = SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE;
         m_Window = SDL_CreateWindow("Spark", 0, 0, m_SizeX, m_SizeY, WindowFlags);
         m_Context = SDL_GL_CreateContext(m_Window);
+        SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+        SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
+        SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 6);
         s_WindowInstances[m_Window] = this;
         SetCurrent();
     }
