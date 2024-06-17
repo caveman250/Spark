@@ -42,6 +42,7 @@ namespace se::linux
         {
             platformRunLoop->UnregisterWindow(this);
         }
+        SDL_DestroyWindow(m_Window);
     }
 
     void Window::SetCurrent()

@@ -18,7 +18,7 @@ if (${USE_EDITOR})
 endif()
 
 ###### Third Party ######
-include(${ROOT_DIR}/Cmake/ThirdParty.cmake)
+include(${ROOT_DIR}/CMake/ThirdParty.cmake)
 
 ###### Compile Opts (After Third party to avoid spam) ######
 include(${ROOT_DIR}/CMake/BuildOptions.cmake)

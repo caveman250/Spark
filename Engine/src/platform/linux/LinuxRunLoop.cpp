@@ -78,7 +78,10 @@ namespace se::linux
                     break;
                 }
             case SDL_WINDOWEVENT:
-                SPARK_ASSERT(m_Windows.contains(ev.window.windowID));
+                if (!m_Windows.contains(ev.window.windowID))
+                {
+                    break;
+                }
                 auto* window = m_Windows.at(ev.window.windowID);
                 switch (ev.window.event)
                 {
@@ -113,9 +116,6 @@ namespace se::linux
             return;
         }
 
-        //FOR NEXT TIME
-        // Platform resources can only be interacted with when the context that was active when they were created is active.
-        // make the renderer take care of CreatePlatfromResources, and convert SetUnfiform to a rendercommand
         PlatformRunLoop::Update();
 
         for (const auto& [id, window] : m_Windows)
@@ -149,7 +149,7 @@ namespace se::linux
         SPARK_ASSERT(platformWindow->GetSDLWindow());
         uint32_t id = SDL_GetWindowID(platformWindow->GetSDLWindow());
         m_Windows.erase(id);
-        if (m_Windows.empty())
+        if (m_Windows.empty() || window == Application::Get()->GetPrimaryWindow())
         {
             m_ShouldExit = true;
         }
