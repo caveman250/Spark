@@ -17,7 +17,13 @@ namespace se
 {
     IWindow* IWindow::CreatePlatformWindow(int resX, int resY)
     {
-        return new windows::Window(resX, resY);
+        auto* window = new windows::Window(resX, resY);
+        if (auto runLoop = Application::Get()->GetRunLoop())
+        {
+            runLoop->RegisterWindow(window);
+        }
+
+        return window;
     }
 }
 

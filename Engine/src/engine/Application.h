@@ -23,7 +23,8 @@ namespace se
         void Run() const;
         virtual void Shutdown();
 
-        IWindow* GetPrimaryWindow() { return m_PrimaryWindow; }
+        PlatformRunLoop* GetRunLoop() const { return m_RunLoop; }
+        IWindow* GetPrimaryWindow() const { return m_PrimaryWindow; }
         ecs::World* GetWorld() { return &m_World; }
 
     protected:

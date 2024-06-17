@@ -17,9 +17,9 @@ namespace se
 
     void Application::Init()
     {
+        m_RunLoop = PlatformRunLoop::CreatePlatformRunloop({});
         render::Renderer::Create();
         m_PrimaryWindow = IWindow::CreatePlatformWindow(1280, 720);
-        m_RunLoop = PlatformRunLoop::CreatePlatformRunloop({m_PrimaryWindow });
         m_TimeLastFrame = std::chrono::system_clock::now();
 
         io::VFS::Get().Mount(std::format("{}/{}", ENGINE_DIR, "builtin_assets"), "/builtin_assets");

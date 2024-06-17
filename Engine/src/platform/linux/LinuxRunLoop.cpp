@@ -13,7 +13,8 @@ namespace se
 
     PlatformRunLoop* PlatformRunLoop::CreatePlatformRunloop(std::vector<IWindow*> windows)
     {
-        return new linux::LinuxRunLoop(windows);
+        s_Instance = new linux::LinuxRunLoop(windows);
+        return s_Instance;
     }
 }
 
@@ -31,76 +32,78 @@ namespace se::linux
     {
         auto inputComp = Application::Get()->GetWorld()->GetSingletonComponent<input::InputComponent>();
 
-        for (const auto& window : m_Windows)
+        SDL_Event ev;
+        while (SDL_PollEvent(&ev))
         {
-            SDL_Event ev;
-            while (SDL_PollEvent(&ev))
+            switch (ev.type)
             {
-                switch (ev.type)
+            case SDL_KEYDOWN:
                 {
-                case SDL_KEYDOWN:
+                    input::Key::Type key = KeyMap::SDLKeyToSparkKey(ev.key.keysym.scancode);
+                    auto keyEvent = input::KeyEvent
                     {
-                        input::Key::Type key = KeyMap::SDLKeyToSparkKey(ev.key.keysym.scancode);
-                        auto keyEvent = input::KeyEvent
-                        {
-                            .key = key,
-                            .state = input::KeyState::Down
-                        };
-                        inputComp->keyEvents.push_back(keyEvent);
-                        inputComp->keyStates[key] = keyEvent.state;
-                        break;
-                    }
-                case SDL_KEYUP:
-                    {
-                        input::Key::Type key = KeyMap::SDLKeyToSparkKey(ev.key.keysym.scancode);
-                        auto keyEvent = input::KeyEvent
-                        {
-                            .key = key,
-                            .state = input::KeyState::Up
-                        };
-                        inputComp->keyEvents.push_back(keyEvent);
-                        inputComp->keyStates[key] = keyEvent.state;
-                        break;
-                    }
-                case SDL_MOUSEBUTTONDOWN:
-                    {
-                        inputComp->mouseButtonStates[ev.button.button] = input::KeyState::Down;
-                        break;
-                    }
-                case SDL_MOUSEBUTTONUP:
-                    {
-                        inputComp->mouseButtonStates[ev.button.button] = input::KeyState::Up;
-                        break;
-                    }
-                case SDL_MOUSEMOTION:
-                    {
-                        inputComp->mouseX = ev.motion.x;
-                        inputComp->mouseY = ev.motion.y;
-                        break;
-                    }
-                case SDL_WINDOWEVENT:
-                    switch (ev.window.event)
-                    {
-                        case SDL_WINDOWEVENT_RESIZED:
-                            window->OnResize(ev.window.data1, ev.window.data2);
-                            break;
-                        case SDL_WINDOWEVENT_MOVED:
-                            window->OnMove(ev.window.data1, ev.window.data2);
-                            break;
-                        default:
-                            break;//TODO
-                    }
-                    break;
-                case SDL_QUIT:
-                    window->OnClose();
+                        .key = key,
+                        .state = input::KeyState::Down
+                    };
+                    inputComp->keyEvents.push_back(keyEvent);
+                    inputComp->keyStates[key] = keyEvent.state;
                     break;
                 }
+            case SDL_KEYUP:
+                {
+                    input::Key::Type key = KeyMap::SDLKeyToSparkKey(ev.key.keysym.scancode);
+                    auto keyEvent = input::KeyEvent
+                    {
+                        .key = key,
+                        .state = input::KeyState::Up
+                    };
+                    inputComp->keyEvents.push_back(keyEvent);
+                    inputComp->keyStates[key] = keyEvent.state;
+                    break;
+                }
+            case SDL_MOUSEBUTTONDOWN:
+                {
+                    inputComp->mouseButtonStates[ev.button.button] = input::KeyState::Down;
+                    break;
+                }
+            case SDL_MOUSEBUTTONUP:
+                {
+                    inputComp->mouseButtonStates[ev.button.button] = input::KeyState::Up;
+                    break;
+                }
+            case SDL_MOUSEMOTION:
+                {
+                    inputComp->mouseX = ev.motion.x;
+                    inputComp->mouseY = ev.motion.y;
+                    break;
+                }
+            case SDL_WINDOWEVENT:
+                SPARK_ASSERT(m_Windows.contains(ev.window.windowID));
+                auto* window = m_Windows.at(ev.window.windowID);
+                switch (ev.window.event)
+                {
+                    case SDL_WINDOWEVENT_RESIZED:
+                        window->OnResize(ev.window.data1, ev.window.data2);
+                        break;
+                    case SDL_WINDOWEVENT_MOVED:
+                        window->OnMove(ev.window.data1, ev.window.data2);
+                        break;
+                    case SDL_WINDOWEVENT_CLOSE:
+                        window->OnClose();
+                        break;
+                    default:
+                        break;//TODO
+                }
+                break;
             }
         }
 
+        //FOR NEXT TIME
+        // Platform resources can only be interacted with when the context that was active when they were created is active.
+        // make the renderer take care of CreatePlatfromResources, and convert SetUnfiform to a rendercommand
         PlatformRunLoop::Update();
 
-        for (const auto& window : m_Windows)
+        for (const auto& [id, window] : m_Windows)
         {
             window->SetCurrent();
             render::Renderer::Get()->Render(window);
@@ -110,7 +113,7 @@ namespace se::linux
         render::Renderer::Get()->EndFrame();
 
         auto safeCopy = m_Windows;
-        for (const auto& window : safeCopy)
+        for (const auto& [id, window] : safeCopy)
         {
             if (window->ShouldClose())
             {
@@ -129,12 +132,18 @@ namespace se::linux
     {
         Window* platformWindow = dynamic_cast<Window*>(window);
         SPARK_ASSERT(platformWindow);
-        m_Windows.push_back(platformWindow);
+        SPARK_ASSERT(platformWindow->GetSDLWindow());
+        uint32_t id = SDL_GetWindowID(platformWindow->GetSDLWindow());
+        m_Windows[id] = platformWindow;
     }
 
     void LinuxRunLoop::UnregisterWindow(IWindow* window)
     {
-        std::erase(m_Windows, window);
+        Window* platformWindow = dynamic_cast<Window*>(window);
+        SPARK_ASSERT(platformWindow);
+        SPARK_ASSERT(platformWindow->GetSDLWindow());
+        uint32_t id = SDL_GetWindowID(platformWindow->GetSDLWindow());
+        m_Windows.erase(id);
         if (m_Windows.empty())
         {
             m_ShouldExit = true;

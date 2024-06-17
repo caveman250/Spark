@@ -66,7 +66,7 @@ namespace se::debug
 #else
         raise(SIGTRAP);
 #endif
-        exit(0);
+        exit(-1);
     }
 
     template<class ... _Types>
