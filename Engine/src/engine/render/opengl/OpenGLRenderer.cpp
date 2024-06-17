@@ -11,20 +11,17 @@ namespace se::render::opengl
 
     }
 
-    // static LRESULT CALLBACK wndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
-    // {
-    //     return DefWindowProc(hWnd, message, wParam, lParam);
-    // }
-
     void OpenGLRenderer::Init()
     {
-        auto window = IWindow::CreatePlatformWindow(1, 1);
+        auto window = IWindow::CreatePlatformWindow(500, 500);
 
         glewExperimental = true;
         if (glewInit() != GLEW_OK)
         {
             debug::Log::Fatal("Failed to initialize GLEW");
         }
+
+        m_GlewInit = true;
 
         window->OnClose();
     }
@@ -72,5 +69,10 @@ namespace se::render::opengl
         }
 
         GL_CHECK_ERROR()
+    }
+
+    bool OpenGLRenderer::IsGLEWInitialised() const
+    {
+        return m_GlewInit;
     }
 }

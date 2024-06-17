@@ -10,10 +10,11 @@ namespace se::render::opengl
         void Init() override;
         void Render(IWindow* window) override;
 
-        //PIXELFORMATDESCRIPTOR& GetPixelFormatDecriptor() { return m_PFD; };
+        bool IsGLEWInitialised() const;
 
     private:
         void ApplyDepthCompare(DepthCompare comp) override;
-        //PIXELFORMATDESCRIPTOR m_PFD;
+
+        bool m_GlewInit = false;
     };
 }

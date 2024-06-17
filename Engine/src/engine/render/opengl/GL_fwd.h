@@ -18,7 +18,7 @@
     GLenum error = glGetError();\
     if (error != GL_NONE)\
     {\
-        debug::Log::Fatal((char*)glewGetErrorString(error));\
+        debug::Log::Error((char*)glewGetErrorString(error));\
     }\
 }
 #else
