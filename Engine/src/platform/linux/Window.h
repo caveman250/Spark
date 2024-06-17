@@ -11,7 +11,7 @@ namespace se::linux
     {
     public:
         Window(int resX, int resY);
-        ~Window();
+        ~Window() override;
 
         void SetCurrent() override;
         void Cleanup() override;

@@ -17,7 +17,7 @@ namespace se::linux
         void RegisterWindow(IWindow *window) override;
         void UnregisterWindow(IWindow *window) override;
     private:
-        std::vector<Window*> m_Windows;
+        std::unordered_map<uint32_t, Window*> m_Windows;
         bool m_ShouldExit = false;
     };
 }
