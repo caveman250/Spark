@@ -393,9 +393,9 @@ namespace se::shader::compiler
         if (it == m_ConsumedInputs.end())
         {
             m_ConsumedInputs.push_back(inputName);
-            return m_ConsumedInputs.size() - 1;
+            return static_cast<uint8_t>(m_ConsumedInputs.size()) - 1;
         }
-        return it - m_ConsumedInputs.begin();
+        return static_cast<uint8_t>(it - m_ConsumedInputs.begin());
     }
 
     uint8_t ShaderStageCombiner::GetOutputLoc(const std::string& outputName)
@@ -404,8 +404,8 @@ namespace se::shader::compiler
         if (it == m_ConsumedOutputs.end())
         {
             m_ConsumedOutputs.push_back(outputName);
-            return m_ConsumedOutputs.size() - 1;
+            return static_cast<uint8_t>(m_ConsumedOutputs.size() - 1);
         }
-        return it - m_ConsumedOutputs.begin();
+        return static_cast<uint8_t>(it - m_ConsumedOutputs.begin());
     }
 }

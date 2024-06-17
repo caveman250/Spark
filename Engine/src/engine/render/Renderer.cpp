@@ -1,3 +1,4 @@
+#include <engine/render/opengl/GL_fwd.h>
 #include "Renderer.h"
 #include "opengl/OpenGLRenderer.h"
 

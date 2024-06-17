@@ -1,3 +1,4 @@
+
 #include "WindowsRunLoop.h"
 
 #include <algorithm>
@@ -42,6 +43,21 @@ namespace se::windows
             }
         }
 
+        auto safeCopy = m_Windows;
+        for (const auto& window: safeCopy)
+        {
+            if (window->ShouldClose())
+            {
+                window->Cleanup();
+                delete window;
+            }
+        }
+
+        if (ShouldExit())
+        {
+            return;
+        }
+
         PlatformRunLoop::Update();
 
         for (const auto& window: m_Windows)
@@ -52,16 +68,6 @@ namespace se::windows
         }
 
         render::Renderer::Get()->EndFrame();
-
-        auto safeCopy = m_Windows;
-        for (const auto& window: safeCopy)
-        {
-            if (window->ShouldClose())
-            {
-                window->Cleanup();
-                delete window;
-            }
-        }
     }
 
     bool WindowsRunLoop::ShouldExit()
@@ -79,7 +85,7 @@ namespace se::windows
     void WindowsRunLoop::UnregisterWindow(IWindow* window)
     {
         std::erase(m_Windows, window);
-        if (m_Windows.empty())
+        if (m_Windows.empty() || window == Application::Get()->GetPrimaryWindow())
         {
             m_ShouldExit = true;
         }

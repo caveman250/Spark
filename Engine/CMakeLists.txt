@@ -18,19 +18,7 @@ if (${USE_EDITOR})
 endif()
 
 ###### Third Party ######
-add_subdirectory(third_party/Crunch2-1.3.1)
-add_subdirectory(third_party/glew-2.1.0/build/cmake)
-add_subdirectory(third_party/OpenFBX-365f52c)
-
-if (MSVC)
-    target_compile_options(crn PRIVATE /W0)
-    target_compile_options(crunch PRIVATE /W0)
-    target_compile_options(miniz PRIVATE /W0)
-else()
-    target_compile_options(crn PRIVATE -w)
-    target_compile_options(crunch PRIVATE -w)
-    target_compile_options(miniz PRIVATE -w)
-endif()
+include(${ROOT_DIR}/Cmake/ThirdParty.cmake)
 
 ###### Compile Opts (After Third party to avoid spam) ######
 include(${ROOT_DIR}/CMake/BuildOptions.cmake)
@@ -47,17 +35,18 @@ file(GLOB_RECURSE ENGINE_CODE src/engine/*.cpp src/engine/*.h)
 ###### Output ######
 add_library(Spark ${PLATFORM_SHARED_CODE} ${PLATFORM_CODE} ${ENGINE_CODE})
 
-###### Platform ######
-if (${PLATFORM} MATCHES Linux)
-    include(${ROOT_DIR}/CMake/Linux.cmake)
+###### Linker ######
+target_link_libraries(Spark crn OpenFBX)
+if (WIN32)
+    target_link_libraries(Spark Dwmapi)
+endif()
+
+###### Platform Linker ######
+if (${PLATFORM} MATCHES Windows)
+    include(${ROOT_DIR}/CMake/WindowsLinker.cmake)
+elseif (${PLATFORM} MATCHES Linux)
+    include(${ROOT_DIR}/CMake/LinuxLinker.cmake)
 endif ()
 
 ###### PCH ######
 target_precompile_headers(Spark PUBLIC src/spark.h)
-
-###### Linker ######
-find_package(OpenGL REQUIRED)
-target_link_libraries(Spark glew OpenGL::OpenGL crn OpenFBX)
-if (WIN32)
-    target_link_libraries(Spark Dwmapi)
-endif()

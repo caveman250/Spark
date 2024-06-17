@@ -98,6 +98,21 @@ namespace se::linux
             }
         }
 
+        auto safeCopy = m_Windows;
+        for (const auto& [id, window] : safeCopy)
+        {
+            if (window->ShouldClose())
+            {
+                window->Cleanup();
+                delete window;
+            }
+        }
+
+        if (ShouldExit())
+        {
+            return;
+        }
+
         //FOR NEXT TIME
         // Platform resources can only be interacted with when the context that was active when they were created is active.
         // make the renderer take care of CreatePlatfromResources, and convert SetUnfiform to a rendercommand
@@ -111,16 +126,6 @@ namespace se::linux
         }
 
         render::Renderer::Get()->EndFrame();
-
-        auto safeCopy = m_Windows;
-        for (const auto& [id, window] : safeCopy)
-        {
-            if (window->ShouldClose())
-            {
-                window->Cleanup();
-                delete window;
-            }
-        }
     }
 
     bool LinuxRunLoop::ShouldExit()

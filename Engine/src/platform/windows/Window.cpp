@@ -13,6 +13,10 @@
 #include "platform/PlatformRunLoop.h"
 #include "engine/input/MouseButton.h"
 
+#ifndef DWMWA_USE_IMMERSIVE_DARK_MODE
+#define DWMWA_USE_IMMERSIVE_DARK_MODE 20
+#endif
+
 namespace se
 {
     IWindow* IWindow::CreatePlatformWindow(int resX, int resY)
@@ -32,7 +36,7 @@ namespace se::windows
     static std::unordered_map<HWND, Window*> s_WindowInstances;
 
     Window::Window(int sizeX, int sizeY)
-            : m_SizeX(sizeX), m_SizeY(sizeY)
+            : IWindow(sizeX, sizeY)
     {
         auto hInstance = GetModuleHandle(NULL);
 
@@ -44,8 +48,13 @@ namespace se::windows
         }
         CreateWindowsWindow(hInstance);
 
+        BOOL value = TRUE;
+        ::DwmSetWindowAttribute(GetHWND(), DWMWA_USE_IMMERSIVE_DARK_MODE, &value, sizeof(value));
+
         s_WindowInstances[GetHWND()] = this;
         CreateContext();
+
+
 
         SetCurrent();
         ShowWindow(m_Hwnd, SW_NORMAL);
@@ -211,12 +220,12 @@ namespace se::windows
             m_Hwnd = CreateWindowW(windowClass, title, style, 0, 0, m_SizeX, m_SizeY, nullptr, nullptr, instance,
                                    nullptr);
 
-			SetWindowLong(m_Hwnd, GWL_STYLE, 0);
             if (!m_Hwnd)
             {
                 debug::Log::Fatal("CreateWindowW failed: Can not create window.");
             }
-        } else
+        }
+        else
         {
             debug::Log::Fatal("AdjustWindowRect failed: Can not create window.");
         }
@@ -224,11 +233,15 @@ namespace se::windows
 
     void Window::CreateContext()
     {
+        // this will need to die if we ever support non GL/Vulkan renderers
+        auto renderer = se::render::Renderer::Get();
+        auto openGLRenderer = dynamic_cast<se::render::opengl::OpenGLRenderer*>(renderer);
+        SPARK_ASSERT(openGLRenderer);
+
         m_Hdc = GetDC(m_Hwnd);
         if (m_Hdc)
         {
-            auto renderer = static_cast<render::opengl::OpenGLRenderer*>(render::Renderer::Get());
-            PIXELFORMATDESCRIPTOR& pfd = renderer->GetPixelFormatDecriptor();
+            PIXELFORMATDESCRIPTOR pfd;
             memset(&pfd, 0, sizeof(PIXELFORMATDESCRIPTOR));
             pfd.nSize = sizeof(PIXELFORMATDESCRIPTOR);
             pfd.dwFlags = PFD_DOUBLEBUFFER | PFD_SUPPORT_OPENGL | PFD_DRAW_TO_WINDOW;
@@ -250,7 +263,7 @@ namespace se::windows
                     0 // End of attributes list
             };
             int attributes[] = {
-                    WGL_CONTEXT_MAJOR_VERSION_ARB, 3, WGL_CONTEXT_MINOR_VERSION_ARB, 2, WGL_CONTEXT_FLAGS_ARB,
+                    WGL_CONTEXT_MAJOR_VERSION_ARB, 4, WGL_CONTEXT_MINOR_VERSION_ARB, 6, WGL_CONTEXT_FLAGS_ARB,
                     WGL_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB,
                     WGL_CONTEXT_PROFILE_MASK_ARB, WGL_CONTEXT_CORE_PROFILE_BIT_ARB, 0
             };
@@ -258,11 +271,19 @@ namespace se::windows
             nPixelFormat = 0;
             UINT iNumFormats = 0;
 
-            wglChoosePixelFormatARB(m_Hdc, iPixelFormatAttribList, NULL, 1, &nPixelFormat, (UINT*) &iNumFormats);
+            if (openGLRenderer->IsGLEWInitialised())
+            {
+                wglChoosePixelFormatARB(m_Hdc, iPixelFormatAttribList, NULL, 1, &nPixelFormat, (UINT*) &iNumFormats);
+                SetPixelFormat(m_Hdc, nPixelFormat, &pfd);
+                m_Gglrc = wglCreateContextAttribsARB(m_Hdc, 0, attributes);
+            }
+            else
+            {
+                nPixelFormat = ChoosePixelFormat( m_Hdc, &pfd );
+                SetPixelFormat(m_Hdc, nPixelFormat, &pfd);
+                m_Gglrc = wglCreateContext( m_Hdc );
+            }
 
-            SetPixelFormat(m_Hdc, nPixelFormat, &pfd);
-
-            m_Gglrc = wglCreateContextAttribsARB(m_Hdc, 0, attributes);
         }
         else
         {
