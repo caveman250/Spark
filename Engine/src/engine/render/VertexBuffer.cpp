@@ -1,14 +1,54 @@
 #include "VertexBuffer.h"
 
+#include "engine/asset/mesh/StaticMesh.h"
+
 namespace se::render
 {
-    VertexBuffer::VertexBuffer(const std::vector<VertexStream>& streams)
+    VertexBuffer::VertexBuffer(const asset::StaticMesh& mesh)
     {
-        for (const auto& stream : streams)
+        GenerateVertexStreams(mesh);
+    }
+
+    void VertexBuffer::GenerateVertexStreams(const asset::StaticMesh& mesh)
+    {
+        if (!mesh.vertices.empty())
         {
-            if (SPARK_VERIFY(!m_VertexStreams.contains(stream.type)))
+            VertexStream& stream = m_VertexStreams[VertexStreamType::Position];
+            stream.type = VertexStreamType::Position;
+            stream.stride = 3;
+            stream.data.reserve(mesh.vertices.size() * 3);
+            for (const auto& vec : mesh.vertices)
             {
-                m_VertexStreams[stream.type] = stream;
+                stream.data.push_back(vec.x);
+                stream.data.push_back(vec.y);
+                stream.data.push_back(vec.z);
+            }
+        }
+
+        if (!mesh.normals.empty())
+        {
+            VertexStream& stream = m_VertexStreams[VertexStreamType::Normal];
+            stream.type = VertexStreamType::Normal;
+            stream.stride = 3;
+            stream.data.reserve(mesh.normals.size() * 3);
+            for (const auto& vec : mesh.normals)
+            {
+                stream.data.push_back(vec.x);
+                stream.data.push_back(vec.y);
+                stream.data.push_back(vec.z);
+            }
+        }
+
+        if (!mesh.uvs.empty())
+        {
+            VertexStream& stream = m_VertexStreams[VertexStreamType::UV];
+            stream.type = VertexStreamType::UV;
+            stream.stride = 2;
+            stream.data.reserve(mesh.uvs.size() * 3);
+            for (const auto& vec : mesh.uvs)
+            {
+                stream.data.push_back(vec.x);
+                stream.data.push_back(vec.y);
             }
         }
     }
