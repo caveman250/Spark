@@ -4,14 +4,20 @@
 
 namespace se::render
 {
-    std::shared_ptr<VertexBuffer> VertexBuffer::CreateVertexBuffer(const std::vector<VertexStream>& streams)
+    std::shared_ptr<VertexBuffer> VertexBuffer::CreateVertexBuffer(const asset::StaticMesh& mesh)
     {
-        return std::make_shared<opengl::VertexBuffer>(streams);
+        return std::make_shared<opengl::VertexBuffer>(mesh);
     }
 }
 
 namespace se::render::opengl
 {
+    VertexBuffer::VertexBuffer(const asset::StaticMesh& mesh)
+    : render::VertexBuffer(mesh)
+    {
+
+    }
+    
     void VertexBuffer::CreatePlatformResource()
     {
         GLuint VertexArrayID = {};
@@ -51,11 +57,5 @@ namespace se::render::opengl
         {
             glDisableVertexAttribArray(loc++);
         }
-    }
-
-    VertexBuffer::VertexBuffer(const std::vector<VertexStream>& streams)
-        : render::VertexBuffer(streams)
-    {
-
     }
 }
