@@ -38,6 +38,9 @@ namespace se::render
         virtual void CreatePlatformResource() = 0;
         virtual void Bind() = 0;
         virtual void Unbind() = 0;
+
+        const std::map<VertexStreamType, VertexStream>& GetVertexStreams() const { return m_VertexStreams; }
+
     protected:
         void GenerateVertexStreams(const asset::StaticMesh& mesh);
 

@@ -19,28 +19,39 @@ namespace se::shader::parser
         std::variant<ast::ShaderStage, ParseError> Parse();
 
     private:
-        bool ProcessBuiltin(const Token& token, ParseError& outError);
+        bool ProcessBuiltin(const Token& token, ast::Type& returnType, ParseError& outError);
         bool ProcessIdentifier(const Token& token, ParseError& outError);
         bool ProcessNumericLiteral(const Token& token, ParseError& outError);
         bool ProcessStringLiteral(const Token& token, ParseError& outError);
         bool ProcessSyntax(const Token& token, ParseError& outError);
 
-        bool ProcessPortDeclaration(const Token& token, ParseError& outError);
-        bool ProcessUniformDeclaration(const Token& token, ParseError& outError);
+        bool ProcessPortDeclaration(const Token& token, ast::Type& returnType, ParseError& outError);
+        bool ProcessUniformDeclaration(const Token& token, ast::Type& returnType, ParseError& outError);
         bool ProcessTextureRead(const Token& token, ParseError& outError);
+        bool ProcessLengthFunc(const Token& token, ParseError& outError);
+        bool ProcessPowFunc(const Token& token, ParseError& outError);
+        bool ProcessNormalizeFunc(const Token& token, ast::Type& returnType, ParseError& outError);
+        bool ProcessReflectFunc(const Token& token, ast::Type& returnType, ParseError& outError);
+        bool ProcessClampFunc(const Token& token, ParseError& outError);
+        bool ProcessDotFunc(const Token& token, ParseError& outError);
         bool ProcessVariableDeclaration(const Token& token, ParseError& outError);
         bool ProcessFunctionDeclaration(const Token& token, ParseError& outError);
         bool ProcessEndOfFunctionDeclaration(const Token& token, ParseError& outError);
-        bool ProcessPropertyAccess(const Token& token, ParseError& outError);
+        bool ProcessPropertyAccess(const Token& token, ast::Type& returnType, ParseError& outError);
 
         bool ProcessVec2(const Token& token, ParseError& error);
         bool ProcessVec3(const Token& token, ParseError& error);
         bool ProcessVec4(const Token& token, ParseError& error);
 
-        bool ProcessArgument(const Token& token, ast::Type& outType, ParseError& outError);
+        bool ProcessExpression(ast::Type& outType, ParseError& outError);
         bool ProcessAssignment(const Token& token, ParseError& outError);
         bool ProcessOperator(const Token& token, ParseError& outError);
 
+        bool Peek(int offset, const std::vector<TokenType>& allowedTypes, const std::vector<std::string>& allowedValues);
+        bool Peek(const std::vector<TokenType>& allowedTypes, const std::vector<std::string>& allowedValues);
+        bool Peek(const std::vector<TokenType>& allowedTypes, const std::vector<std::string>& allowedValues, Token& outToken);
+        bool Peek(int offset, const std::vector<TokenType>& allowedTypes, const std::vector<std::string>& allowedValues, Token& outToken);
+        bool IsNextTokenBinaryOperator();
         bool Expect(const std::vector<TokenType>& allowedTypes, const std::vector<std::string>& allowedValues,
                     ParseError& outError);
         bool ExpectedGetAndConsume(const std::vector<TokenType>& allowedTypes,
@@ -50,6 +61,7 @@ namespace se::shader::parser
 
         static bool IsInteger(const std::string& value);
         static bool EnsureInteger(const std::string& value, ParseError& outError);
+        bool EnsureTypeAndConsume(std::vector<ast::Type> allowedTypes, ParseError& outError);
 
         ast::ShaderStage m_ShaderStage;
         Lexer m_Lexer;

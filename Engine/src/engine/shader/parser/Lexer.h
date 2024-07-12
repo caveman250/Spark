@@ -16,6 +16,9 @@ namespace se::shader::parser
         std::variant<Token, std::string> PeekToken(int offset = 0);
         std::variant<Token, std::string> PeekTokenAt(int n);
         void ConsumeToken();
+
+        int GetCharIndex() const { return m_CharIdx; }
+        void SetCharIndex(int charIndex) { m_CharIdx = charIndex; }
     private:
         bool CanPeekChar();
         char PeekChar();

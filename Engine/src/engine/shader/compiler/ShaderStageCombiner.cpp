@@ -1,6 +1,7 @@
 #include "ShaderStageCombiner.h"
 
 #include "spark.h"
+#include "engine/render/VertexBuffer.h"
 #include "engine/shader/ast/EndOfExpressionNode.h"
 #include "engine/shader/ast/MainNode.h"
 
@@ -267,31 +268,16 @@ namespace se::shader::compiler
     {
         for (auto& [name, port] : shader.GetInputPorts())
         {
-            if (port->GetPortName() == "InVertPos")
+            if (port->GetPortName().starts_with("Vertex_In"))
             {
                 shader.AddInput(arena.Alloc<ast::InputAttributeNode>(GetInputLoc(port->GetPortName()), port->GetType(), name));
             }
-            else if (port->GetPortName() == "InVertColour")
+            else if (port->GetPortName().starts_with("Frag_In"))
             {
-                shader.AddInput(arena.Alloc<ast::InputAttributeNode>(GetInputLoc(port->GetPortName()), port->GetType(), name));
-            }
-            else if (port->GetPortName() == "InVertUV")
-            {
-                shader.AddInput(arena.Alloc<ast::InputAttributeNode>(GetInputLoc(port->GetPortName()), port->GetType(), name));
-            }
-            else if (port->GetPortName() == "FragVertColour")
-            {
-                shader.AddInput(arena.Alloc<ast::InputNode>(port->GetType(), "fragmentVertColour"));
-                std::map<std::string, std::string> renameMap = { { name, "fragmentVertColour" } };
-                for (auto* node : shader.GetNodes())
-                {
-                    node->ApplyNameRemapping(renameMap);
-                }
-            }
-            else if (port->GetPortName() == "FragVertUV")
-            {
-                shader.AddInput(arena.Alloc<ast::InputNode>(port->GetType(), "fragmentVertUV"));
-                std::map<std::string, std::string> renameMap = { { name, "fragmentVertUV" } };
+                std::string varName = port->GetPortName();
+                varName = std::regex_replace(varName, std::regex("Frag_In"), "Vertex_Out");
+                shader.AddInput(arena.Alloc<ast::InputNode>(port->GetType(), varName));
+                std::map<std::string, std::string> renameMap = { { name, varName } };
                 for (auto* node : shader.GetNodes())
                 {
                     node->ApplyNameRemapping(renameMap);
@@ -305,11 +291,7 @@ namespace se::shader::compiler
 
         for (auto& [name, port] : shader.GetOutputPorts())
         {
-            if (port->GetPortName() == "FinalFragColour")
-            {
-                shader.AddOutput(arena.Alloc<ast::OutputNode>(port->GetType(), name));
-            }
-            else if (port->GetPortName() == "FinalVertPos")
+            if (port->GetPortName() == "Vertex_OutPos")
             {
                 for (auto* node : shader.GetNodes())
                 {
@@ -325,21 +307,15 @@ namespace se::shader::compiler
                     });
                 }
             }
-            else if (port->GetPortName() == "FinalVertColour")
+            else if (port->GetPortName().starts_with("Frag_Out"))
             {
-                shader.AddOutput(arena.Alloc<ast::OutputNode>(port->GetType(), "fragmentVertColour"));
-                // urgh names have to match the frag shader.
-                std::map<std::string, std::string> renameMap = { { name, "fragmentVertColour" } };
-                for (auto* node : shader.GetNodes())
-                {
-                    node->ApplyNameRemapping(renameMap);
-                }
+                shader.AddOutput(arena.Alloc<ast::OutputNode>(port->GetType(), name));
             }
-            else if (port->GetPortName() == "FinalVertUV")
+            else if (port->GetPortName().starts_with("Vertex_Out"))
             {
-                shader.AddOutput(arena.Alloc<ast::OutputNode>(port->GetType(), "fragmentVertUV"));
-                // urgh names have to match the frag shader.
-                std::map<std::string, std::string> renameMap = { { name, "fragmentVertUV" } };
+                shader.AddOutput(arena.Alloc<ast::OutputNode>(port->GetType(), port->GetPortName()));
+                // names have to match the frag shader.
+                std::map<std::string, std::string> renameMap = { { name, port->GetPortName() } };
                 for (auto* node : shader.GetNodes())
                 {
                     node->ApplyNameRemapping(renameMap);
@@ -373,6 +349,12 @@ namespace se::shader::compiler
         }
     }
 
+    ShaderStageCombiner::ShaderStageCombiner(const render::VertexBuffer& vb)
+        : m_VertexBuffer(vb)
+    {
+
+    }
+
     ast::ShaderStage ShaderStageCombiner::Combine(const ast::ShaderStage &left, const ast::ShaderStage &right, memory::Arena &tempStore)
     {
         ast::ShaderStage leftCopy = left;
@@ -389,13 +371,25 @@ namespace se::shader::compiler
 
     uint8_t ShaderStageCombiner::GetInputLoc(const std::string& inputName)
     {
-        auto it = std::ranges::find(m_ConsumedInputs, inputName);
-        if (it == m_ConsumedInputs.end())
+        render::VertexStreamType targetType;
+        if (inputName == "Vertex_InPos")
         {
-            m_ConsumedInputs.push_back(inputName);
-            return static_cast<uint8_t>(m_ConsumedInputs.size()) - 1;
+            targetType = render::VertexStreamType::Position;
         }
-        return static_cast<uint8_t>(it - m_ConsumedInputs.begin());
+        else if (inputName == "Vertex_InUV")
+        {
+            targetType = render::VertexStreamType::UV;
+        }
+        else if (inputName == "Vertex_InNormal")
+        {
+            targetType = render::VertexStreamType::Normal;
+        }
+        else
+        {
+            SPARK_ASSERT(false);
+        }
+
+        return std::distance(std::begin(m_VertexBuffer.GetVertexStreams()), m_VertexBuffer.GetVertexStreams().find(targetType));
     }
 
     uint8_t ShaderStageCombiner::GetOutputLoc(const std::string& outputName)

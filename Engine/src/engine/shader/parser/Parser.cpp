@@ -4,15 +4,22 @@
 
 #include "engine/shader/ast/AnonymousScopeNode.h"
 #include "engine/shader/ast/AssignmentNode.h"
+#include "engine/shader/ast/BinaryExpressionNode.h"
+#include "engine/shader/ast/ClampNode.h"
 #include "engine/shader/ast/ConstantNode.h"
+#include "engine/shader/ast/DotNode.h"
 #include "engine/shader/ast/EndOfExpressionNode.h"
 #include "engine/shader/ast/InputAttributeNode.h"
 #include "engine/shader/ast/InputPortNode.h"
+#include "engine/shader/ast/LengthNode.h"
 #include "engine/shader/ast/MainNode.h"
+#include "engine/shader/ast/NormalizeNode.h"
 #include "engine/shader/ast/OperatorNode.h"
 #include "engine/shader/ast/Operators.h"
 #include "engine/shader/ast/OutputNode.h"
 #include "engine/shader/ast/OutputPortNode.h"
+#include "engine/shader/ast/PowNode.h"
+#include "engine/shader/ast/ReflectNode.h"
 #include "engine/shader/ast/Types.h"
 #include "engine/shader/ast/TypeUtil.h"
 #include "engine/shader/ast/VariableDeclarationNode.h"
@@ -49,7 +56,8 @@ namespace se::shader::parser
                 switch (token.type)
                 {
                 case TokenType::Builtin:
-                    if (!ProcessBuiltin(token, error))
+                    ast::Type builtinType;
+                    if (!ProcessBuiltin(token, builtinType, error))
                     {
                         return error;
                     }
@@ -107,7 +115,7 @@ namespace se::shader::parser
         while (componentsAccountedFor < 2)
         {
             ast::Type argType;
-            if (!ProcessArgument(nextToken, argType, outError))
+            if (!ProcessExpression(argType, outError))
             {
                 return false;
             }
@@ -127,7 +135,10 @@ namespace se::shader::parser
             case ast::Type::Void:
             case ast::Type::Invalid:
             case ast::Type::Sampler2D:
-                outError = {nextToken.line, nextToken.pos, std::format("Unexpected type {}", ast::TypeUtil::GetTypeGlsl(argType)) };
+                outError = {
+                    nextToken.line, nextToken.pos,
+                    std::format("Unexpected type {}", ast::TypeUtil::GetTypeGlsl(argType))
+                };
                 return false;
                 break;
             }
@@ -139,7 +150,6 @@ namespace se::shader::parser
                     return false;
                 }
             }
-
         }
 
         if (!ExpectedGetAndConsume({TokenType::Syntax}, {")"}, nextToken, outError))
@@ -167,7 +177,7 @@ namespace se::shader::parser
         while (componentsAccountedFor < 3)
         {
             ast::Type argType;
-            if (!ProcessArgument(nextToken, argType, outError))
+            if (!ProcessExpression(argType, outError))
             {
                 return false;
             }
@@ -181,26 +191,33 @@ namespace se::shader::parser
                 componentsAccountedFor += 2;
                 break;
             case ast::Type::Vec3:
+            case ast::Type::Vec4:
                 componentsAccountedFor += 3;
                 break;
-            case ast::Type::Vec4:
-            case ast::Type::Mat3:
             case ast::Type::Mat4:
+                if (!Expect({TokenType::Syntax}, {"*"}, outError))
+                {
+                    return false;
+                }
+                break;
+            case ast::Type::Mat3:
             case ast::Type::Void:
             case ast::Type::Invalid:
             case ast::Type::Sampler2D:
-                outError = {nextToken.line, nextToken.pos, std::format("Unexpected type {}", ast::TypeUtil::GetTypeGlsl(argType)) };
+                outError = {
+                    nextToken.line, nextToken.pos,
+                    std::format("Unexpected type {}", ast::TypeUtil::GetTypeGlsl(argType))
+                };
                 return false;
             }
 
             if (componentsAccountedFor < 3)
             {
-                if (!ExpectedGetAndConsume({TokenType::Syntax}, {","}, nextToken, outError))
+                if (!ExpectedGetAndConsume({TokenType::Syntax}, {",", "*", "/"}, nextToken, outError))
                 {
                     return false;
                 }
             }
-
         }
 
         if (!ExpectedGetAndConsume({TokenType::Syntax}, {")"}, nextToken, outError))
@@ -228,7 +245,7 @@ namespace se::shader::parser
         while (componentsAccountedFor < 4)
         {
             ast::Type argType;
-            if (!ProcessArgument(nextToken, argType, outError))
+            if (!ProcessExpression(argType, outError))
             {
                 return false;
             }
@@ -252,7 +269,10 @@ namespace se::shader::parser
             case ast::Type::Void:
             case ast::Type::Sampler2D:
             case ast::Type::Invalid:
-                outError = {nextToken.line, nextToken.pos, std::format("Unexpected type {}", ast::TypeUtil::GetTypeGlsl(argType)) };
+                outError = {
+                    nextToken.line, nextToken.pos,
+                    std::format("Unexpected type {}", ast::TypeUtil::GetTypeGlsl(argType))
+                };
                 return false;
             }
 
@@ -263,7 +283,6 @@ namespace se::shader::parser
                     return false;
                 }
             }
-
         }
 
         if (!ExpectedGetAndConsume({TokenType::Syntax}, {")"}, nextToken, outError))
@@ -276,8 +295,10 @@ namespace se::shader::parser
         return true;
     }
 
-    bool Parser::ProcessBuiltin(const Token& token, ParseError& outError)
+    bool Parser::ProcessBuiltin(const Token& token, ast::Type& returnType, ParseError& outError)
     {
+        returnType = ast::Type::Invalid;
+
         bool isPossibleVariableDec = ast::TypeUtil::StringToType(token.value) != ast::Type::Invalid;
         if (isPossibleVariableDec)
         {
@@ -302,31 +323,64 @@ namespace se::shader::parser
 
         if (token.value == "void")
         {
+            returnType = ast::Type::Void;
             return ProcessFunctionDeclaration(token, outError);
         }
         else if (token.value == "vec2")
         {
+            returnType = ast::Type::Vec2;
             return ProcessVec2(token, outError);
         }
         else if (token.value == "vec3")
         {
+            returnType = ast::Type::Vec3;
             return ProcessVec3(token, outError);
         }
         else if (token.value == "vec4")
         {
+            returnType = ast::Type::Vec4;
             return ProcessVec4(token, outError);
         }
         else if (token.value == "port")
         {
-            return ProcessPortDeclaration(token, outError);
+            return ProcessPortDeclaration(token, returnType, outError);
         }
         else if (token.value == "uniform")
         {
-            return ProcessUniformDeclaration(token, outError);
+            return ProcessUniformDeclaration(token, returnType, outError);
         }
         else if (token.value == "texture")
         {
+            returnType = ast::Type::Vec4;
             return ProcessTextureRead(token, outError);
+        }
+        else if (token.value == "length")
+        {
+            returnType = ast::Type::Float;
+            return ProcessLengthFunc(token, outError);
+        }
+        else if (token.value == "normalize")
+        {
+            return ProcessNormalizeFunc(token, returnType, outError);
+        }
+        else if (token.value == "clamp")
+        {
+            returnType = ast::Type::Float;
+            return ProcessClampFunc(token, outError);
+        }
+        else if (token.value == "dot")
+        {
+            returnType = ast::Type::Float;
+            return ProcessDotFunc(token, outError);
+        }
+        else if (token.value == "reflect")
+        {
+            return ProcessReflectFunc(token, returnType, outError);
+        }
+        else if (token.value == "pow")
+        {
+            returnType = ast::Type::Float;
+            return ProcessPowFunc(token, outError);
         }
 
         outError = {token.line, token.pos, std::format("Unexpected token {}", token.value)};
@@ -359,8 +413,8 @@ namespace se::shader::parser
             }
 
             if (!ExpectedGetAndConsume({TokenType::Syntax},
-                {";", "*", "/", "+", "-", "*=", "/=", "+=", "-="},
-                nextToken, outError))
+                                       {";", "*", "/", "+", "-", "*=", "/=", "+=", "-="},
+                                       nextToken, outError))
             {
                 return false;
             }
@@ -382,7 +436,25 @@ namespace se::shader::parser
 
     bool Parser::ProcessNumericLiteral(const Token& token, ParseError&)
     {
-        m_ShaderStage.AddNode(m_TempStorage->Alloc<ast::ConstantNode<float>>(std::stof(token.value)));
+        if (IsInteger(token.value))
+        {
+            m_ShaderStage.AddNode(m_TempStorage->Alloc<ast::ConstantNode<int>>(std::stoi(token.value)));
+        }
+        else
+        {
+            m_ShaderStage.AddNode(
+                m_TempStorage->Alloc<ast::ConstantNode<float>>(std::stof(token.value)));
+
+            auto peek = m_Lexer.PeekToken();
+            if (std::holds_alternative<Token>(peek))
+            {
+                auto token = std::get<Token>(peek);
+                if (token.value == "f")
+                {
+                    m_Lexer.ConsumeToken();
+                }
+            }
+        }
         return true;
     }
 
@@ -422,7 +494,7 @@ namespace se::shader::parser
         }
     }
 
-    bool Parser::ProcessPortDeclaration(const Token&, ParseError& outError)
+    bool Parser::ProcessPortDeclaration(const Token&, ast::Type& returnType, ParseError& outError)
     {
         if (!ExpectAndConsume({TokenType::Syntax}, {"("}, outError))
         {
@@ -453,6 +525,7 @@ namespace se::shader::parser
             return false;
         }
         ast::Type type = ast::TypeUtil::StringToType(typeToken.value);
+        returnType = type;
 
         Token nameToken;
         if (!ExpectedGetAndConsume({TokenType::Identifier}, {}, nameToken, outError))
@@ -478,7 +551,7 @@ namespace se::shader::parser
         return true;
     }
 
-    bool Parser::ProcessUniformDeclaration(const Token&, ParseError& outError)
+    bool Parser::ProcessUniformDeclaration(const Token&, ast::Type& returnType, ParseError& outError)
     {
         Token typeToken;
         if (!ExpectedGetAndConsume({TokenType::Builtin}, ast::TypeUtil::GetTypeStrings(), typeToken,
@@ -487,6 +560,7 @@ namespace se::shader::parser
             return false;
         }
         ast::Type type = ast::TypeUtil::StringToType(typeToken.value);
+        returnType = type;
 
         Token nameToken;
         if (!ExpectedGetAndConsume({TokenType::Identifier}, {}, nameToken, outError))
@@ -514,85 +588,52 @@ namespace se::shader::parser
     {
         m_ShaderStage.AddNode(m_TempStorage->Alloc<ast::AssignmentNode>());
 
-        Token nextToken;
-        if (!ExpectedGetAndConsume({
-                                       TokenType::Identifier, TokenType::Builtin, TokenType::StringLiteral,
-                                       TokenType::NumericLiteral
-                                   }, {}, nextToken, outError))
-        {
-            return false;
-        }
-
-        switch (nextToken.type)
-        {
-        case TokenType::Builtin:
-        {
-            if (!ProcessBuiltin(nextToken, outError))
-            {
-                return false;
-            }
-
-            // check for property access
-            auto peek = m_Lexer.PeekToken();
-            if (std::holds_alternative<Token>(peek) && std::get<Token>(peek).value == ".")
-            {
-                if (!ProcessPropertyAccess(nextToken, outError))
-                {
-                    return false;
-                }
-            }
-
-            break;
-        }
-        case TokenType::Identifier:
-        {
-            ast::Type nextType;
-            if (!m_ShaderStage.FindVariable(nextToken.value, nextType))
-            {
-                outError = {nextToken.line, nextToken.pos, std::format("Undefined variable: {}", nextToken.value)};
-                return false;
-            }
-            m_ShaderStage.AddNode(m_TempStorage->Alloc<ast::VariableReferenceNode>(nextToken.value, m_ShaderStage));
-
-            // check for property access
-            auto peek = m_Lexer.PeekToken();
-            if (std::holds_alternative<Token>(peek) && std::get<Token>(peek).value == ".")
-            {
-                if (!ProcessPropertyAccess(nextToken, outError))
-                {
-                    return false;
-                }
-            }
-
-            break;
-        }
-        case TokenType::NumericLiteral:
-        {
-            if (IsInteger(nextToken.value))
-            {
-                m_ShaderStage.AddNode(m_TempStorage->Alloc<ast::ConstantNode<int>>(std::stoi(nextToken.value)));
-            } else
-            {
-                m_ShaderStage.AddNode(m_TempStorage->Alloc<ast::ConstantNode<float>>(std::stof(nextToken.value)));
-            }
-            break;
-        }
-        case TokenType::StringLiteral:
-            m_ShaderStage.AddNode(m_TempStorage->Alloc<ast::ConstantNode<std::string>>(nextToken.value));
-            break;
-        default:
-            SPARK_ASSERT(false);
-            break;
-        }
-
-        return true;
+        ast::Type returnType;
+        return ProcessExpression(returnType, outError);
     }
 
     bool Parser::ProcessOperator(const Token& token, ParseError&)
     {
         // TODO type validation
-        m_ShaderStage.AddNode(m_TempStorage->Alloc<ast::OperatorNode>(ast::OperatorUtil::StringToOperatorType(token.value)));
+        m_ShaderStage.AddNode(
+            m_TempStorage->Alloc<ast::OperatorNode>(ast::OperatorUtil::StringToOperatorType(token.value)));
         return true;
+    }
+
+    bool Parser::Peek(int offset, const std::vector<TokenType>& allowedTypes,
+        const std::vector<std::string>& allowedValues)
+    {
+        Token token;
+        return Peek(offset, allowedTypes, allowedValues, token);
+    }
+
+    bool Parser::Peek(const std::vector<TokenType>& allowedTypes, const std::vector<std::string>& allowedValues)
+    {
+        return Peek(0, allowedTypes, allowedValues);
+    }
+
+    bool Parser::Peek(const std::vector<TokenType>& allowedTypes, const std::vector<std::string>& allowedValues, Token& outToken)
+    {
+        return Peek(0, allowedTypes, allowedValues, outToken);
+    }
+
+    bool Parser::Peek(int offset, const std::vector<TokenType>& allowedTypes,
+        const std::vector<std::string>& allowedValues, Token& outToken)
+    {
+        auto peek = m_Lexer.PeekTokenAt(offset);
+        if (!std::holds_alternative<Token>(peek))
+        {
+            return false;
+        }
+
+        outToken = std::get<Token>(peek);
+        return (allowedTypes.empty() || std::ranges::contains(allowedTypes, outToken.type)) &&
+            (allowedValues.empty() || std::ranges::contains(allowedValues, outToken.value));
+    }
+
+    bool Parser::IsNextTokenBinaryOperator()
+    {
+        return Peek({ TokenType::Syntax }, { "*", "/", "-", "+", "*=", "/=", "-=", "+="});
     }
 
     bool Parser::ProcessFunctionDeclaration(const Token&, ParseError& outError)
@@ -813,132 +854,749 @@ namespace se::shader::parser
         return true;
     }
 
-    bool Parser::ProcessArgument(const Token&, ast::Type& outType, ParseError& outError)
+    bool Parser::ProcessExpression(ast::Type& outType, ParseError& outError)
     {
-        Token nextToken;
-        if (!ExpectedGetAndConsume(
-            {TokenType::NumericLiteral, TokenType::Identifier, TokenType::NumericLiteral, TokenType::StringLiteral },
-            {}, nextToken, outError))
+        int numBinaryExpressions = 0;
+        while (true)
         {
-            return false;
-        }
-
-        if (nextToken.type == TokenType::Identifier)
-        {
-            ast::Type type;
-            if (!m_ShaderStage.FindVariable(nextToken.value, type))
+            Token binaryOpToken;
+            if (Peek({ TokenType::Syntax }, {"*", "/", "+", "-", "*=", "/=", "+=", "-="}, binaryOpToken))
             {
-                outError = {nextToken.line, nextToken.pos, std::format("Undefined variable {}", nextToken.value) };
-                return false;
+                auto binaryOp = m_TempStorage->Alloc<ast::BinaryExpressionNode>(ast::OperatorUtil::StringToOperatorType(binaryOpToken.value));
+                m_ShaderStage.AddNode(binaryOp);
+                m_ShaderStage.PushScope(binaryOp);
+                numBinaryExpressions++;
+                m_Lexer.ConsumeToken();
             }
 
-            m_ShaderStage.AddNode(m_TempStorage->Alloc<ast::VariableReferenceNode>(nextToken.value, m_ShaderStage));
-            outType = type;
-        }
-        else if (nextToken.type == TokenType::NumericLiteral)
-        {
-            if (!ProcessNumericLiteral(nextToken, outError))
+            Token nextToken;
+            if (!ExpectedGetAndConsume(
+                {
+                    TokenType::NumericLiteral, TokenType::Identifier,
+                    TokenType::StringLiteral,
+                    TokenType::Builtin
+                },
+                {}, nextToken, outError))
             {
                 return false;
             }
-            outType = ast::Type::Float; // TODO int?
-        }
-        else if (nextToken.type == TokenType::StringLiteral)
-        {
-            if (!ProcessStringLiteral(nextToken, outError))
+
+            bool deferBinaryOpConsume = false;
+            int binaryOpPeekOffset = 0;
+
+            // handle prop access in binary op
+            if (Peek({TokenType::Syntax}, {"."}))
             {
+                binaryOpPeekOffset = 2; // skip propery access
+            }
+
+            // handle func or constructor in binary op
+            if (Peek({ TokenType::Syntax }, {"("}))
+            {
+                std::variant<Token, std::string> peekVal = m_Lexer.PeekTokenAt(binaryOpPeekOffset);
+                while (std::holds_alternative<Token>(peekVal))
+                {
+                    peekVal = m_Lexer.PeekTokenAt(binaryOpPeekOffset);
+                    binaryOpPeekOffset++;
+
+                    Token peekToken = std::get<Token>(peekVal);
+                    if (peekToken.value == ")")
+                    {
+                        break;
+                    }
+                }
+
+                if (!std::holds_alternative<Token>(peekVal))
+                {
+                    outError = {0, 0, "Unexpected End of File!"};
+                    return false;
+                }
+            }
+
+            if (Peek(binaryOpPeekOffset, { TokenType::Syntax }, {"*", "/", "+", "-", "*=", "/=", "+=", "-="}, binaryOpToken))
+            {
+                auto binaryOp = m_TempStorage->Alloc<ast::BinaryExpressionNode>(ast::OperatorUtil::StringToOperatorType(binaryOpToken.value));
+                m_ShaderStage.AddNode(binaryOp);
+                m_ShaderStage.PushScope(binaryOp);
+                numBinaryExpressions++;
+                if (binaryOpPeekOffset == 0)
+                {
+                    m_Lexer.ConsumeToken();
+                }
+                else
+                {
+                    deferBinaryOpConsume = true;
+                }
+            }
+
+            if (nextToken.type == TokenType::Identifier)
+            {
+                ast::Type type;
+                if (!m_ShaderStage.FindVariable(nextToken.value, type))
+                {
+                    outError = {nextToken.line, nextToken.pos, std::format("Undefined variable {}", nextToken.value)};
+                    return false;
+                }
+
+                // check for property access
+                bool isPropertyAccess = false;
+                auto peek = m_Lexer.PeekToken();
+                if (std::holds_alternative<Token>(peek) && std::get<Token>(peek).value == ".")
+                {
+                    if (!ProcessPropertyAccess(nextToken, outType, outError))
+                    {
+                        return false;
+                    }
+
+                    isPropertyAccess = true;
+                }
+                else
+                {
+                    outType = type;
+                }
+
+                m_ShaderStage.AddNode(m_TempStorage->Alloc<ast::VariableReferenceNode>(nextToken.value, m_ShaderStage));
+                if (isPropertyAccess)
+                {
+                    m_ShaderStage.PopScope();
+                }
+            }
+            else if (nextToken.type == TokenType::NumericLiteral)
+            {
+                if (!ProcessNumericLiteral(nextToken, outError))
+                {
+                    return false;
+                }
+                outType = ast::Type::Float; // TODO int?
+            }
+            else if (nextToken.type == TokenType::StringLiteral)
+            {
+                if (!ProcessStringLiteral(nextToken, outError))
+                {
+                    return false;
+                }
+                outType = ast::Type::Invalid; //TODO
+            }
+            else if (nextToken.type == TokenType::Builtin)
+            {
+                ast::Type builtinType;
+                if (!ProcessBuiltin(nextToken, builtinType, outError))
+                {
+                    return false;
+                }
+
+                // check for property access
+                bool isPropertyAccess = false;
+                auto peek = m_Lexer.PeekToken();
+                if (std::holds_alternative<Token>(peek) && std::get<Token>(peek).value == ".")
+                {
+                    if (!ProcessPropertyAccess(nextToken, outType, outError))
+                    {
+                        return false;
+                    }
+
+                    isPropertyAccess = true;
+                }
+                else
+                {
+                    outType = builtinType;
+                }
+
+                //TODO handle property access of temproary variables in binary operations.
+                if (isPropertyAccess)
+                {
+                    m_ShaderStage.PopScope();
+                }
+            }
+            else
+            {
+                outError = {nextToken.line, nextToken.pos, std::format("Unexpected token {}", nextToken.value)};
                 return false;
             }
-            outType = ast::Type::Invalid; //TODO
-        }
-        else if (nextToken.type == TokenType::Builtin)
-        {
-            if (!ProcessBuiltin(nextToken, outError))
+
+            if (deferBinaryOpConsume)
             {
-                return false;
+                if (SPARK_VERIFY(Peek({ TokenType::Syntax }, {"*", "/", "+", "-", "*=", "/=", "+=", "-="})))
+                {
+                    m_Lexer.ConsumeToken();
+                }
             }
-            outType = ast::TypeUtil::StringToType(nextToken.value);
+
+            if (Peek({ TokenType::Syntax }, {")", ",", ";"}))
+            {
+                break;
+            }
         }
-        else
+
+        for (int i = 0; i < numBinaryExpressions; ++i)
         {
-            outError = {nextToken.line, nextToken.pos, std::format("Unexpected token {}", nextToken.value) };
-            return false;
+            m_ShaderStage.PopScope();
         }
 
         return true;
     }
 
-    bool Parser::ProcessTextureRead(const Token &, ParseError &outError)
+    bool Parser::ProcessTextureRead(const Token&, ParseError& outError)
     {
-        if (!ExpectAndConsume({ TokenType::Syntax }, { "(" }, outError))
+        if (!ExpectAndConsume({TokenType::Syntax}, {"("}, outError))
         {
             return false;
         }
 
         Token textureVariableToken;
-        if (!ExpectedGetAndConsume({ TokenType::Identifier }, {}, textureVariableToken, outError))
+        if (!ExpectedGetAndConsume({TokenType::Identifier}, {}, textureVariableToken, outError))
         {
             return false;
         }
         ast::Type varType;
         if (!m_ShaderStage.FindVariable(textureVariableToken.value, varType))
         {
-            outError = { textureVariableToken.line, textureVariableToken.pos, std::format("Undefined variable: {}", textureVariableToken.value)};
+            outError = {
+                textureVariableToken.line, textureVariableToken.pos,
+                std::format("Undefined variable: {}", textureVariableToken.value)
+            };
             return false;
         }
         if (varType != ast::Type::Sampler2D)
         {
-            outError = { textureVariableToken.line, textureVariableToken.pos, std::format("Unexpected type: {} Expected: sampler2D", ast::TypeUtil::GetTypeGlsl(varType)) };
+            outError = {
+                textureVariableToken.line, textureVariableToken.pos,
+                std::format("Unexpected type: {} Expected: sampler2D", ast::TypeUtil::GetTypeGlsl(varType))
+            };
             return false;
         }
 
-        if (!ExpectAndConsume({ TokenType::Syntax }, { "," }, outError))
+        if (!ExpectAndConsume({TokenType::Syntax}, {","}, outError))
         {
             return false;
         }
 
         Token uvVariableToken;
-        if (!ExpectedGetAndConsume({ TokenType::Identifier }, {}, uvVariableToken, outError))
+        if (!ExpectedGetAndConsume({TokenType::Identifier}, {}, uvVariableToken, outError))
         {
             return false;
         }
         ast::Type uvVarType;
         if (!m_ShaderStage.FindVariable(uvVariableToken.value, uvVarType))
         {
-            outError = { textureVariableToken.line, textureVariableToken.pos, std::format("Undefined variable: {}", textureVariableToken.value)};
+            outError = {
+                textureVariableToken.line, textureVariableToken.pos,
+                std::format("Undefined variable: {}", textureVariableToken.value)
+            };
             return false;
         }
         if (uvVarType != ast::Type::Vec2)
         {
-            outError = { textureVariableToken.line, textureVariableToken.pos, std::format("Unexpected type: {} Expected: vec2", ast::TypeUtil::GetTypeGlsl(varType)) };
+            outError = {
+                textureVariableToken.line, textureVariableToken.pos,
+                std::format("Unexpected type: {} Expected: vec2", ast::TypeUtil::GetTypeGlsl(varType))
+            };
             return false;
         }
 
-        if (!ExpectAndConsume({ TokenType::Syntax }, { ")" }, outError))
+        if (!ExpectAndConsume({TokenType::Syntax}, {")"}, outError))
         {
             return false;
         }
 
-        m_ShaderStage.AddNode(m_TempStorage->Alloc<ast::TextureSampleNode>(textureVariableToken.value, uvVariableToken.value));
+        m_ShaderStage.AddNode(
+            m_TempStorage->Alloc<ast::TextureSampleNode>(textureVariableToken.value, uvVariableToken.value));
 
         return true;
     }
 
-    bool Parser::ProcessPropertyAccess(const Token&, ParseError &outError)
+    bool Parser::ProcessLengthFunc(const Token& token, ParseError& outError)
     {
-        if (!ExpectAndConsume({ TokenType::Syntax }, { "." }, outError))
+        if (!ExpectAndConsume({TokenType::Syntax}, {"("}, outError))
+        {
+            return false;
+        }
+
+        auto* length = m_TempStorage->Alloc<ast::LengthNode>();
+        m_ShaderStage.AddNode(length);
+        m_ShaderStage.PushScope(length);
+
+        int componentsAccountedFor = 0;
+        Token nextToken;
+        while (true)
+        {
+            if (Peek({TokenType::Syntax}, {")"}))
+            {
+                break;
+            }
+
+            ast::Type argType;
+            if (!ProcessExpression(argType, outError))
+            {
+                return false;
+            }
+
+            switch (argType)
+            {
+            case ast::Type::Float:
+                componentsAccountedFor++;
+                break;
+            case ast::Type::Vec2:
+                componentsAccountedFor += 2;
+                break;
+            case ast::Type::Vec3:
+                componentsAccountedFor += 3;
+                break;
+            case ast::Type::Vec4:
+                componentsAccountedFor += 4;
+                break;
+            case ast::Type::Mat3:
+            case ast::Type::Mat4:
+            case ast::Type::Void:
+            case ast::Type::Invalid:
+            case ast::Type::Sampler2D:
+                outError = {
+                    token.line, token.pos,
+                    std::format("Unexpected type {}", ast::TypeUtil::GetTypeGlsl(argType))
+                };
+                return false;
+            }
+
+            if (Peek({TokenType::Syntax}, {")"}))
+            {
+                break;
+            }
+
+            if (!ExpectedGetAndConsume({TokenType::Syntax}, {","}, nextToken, outError))
+            {
+                return false;
+            }
+        }
+
+        if (!ExpectedGetAndConsume({TokenType::Syntax}, {")"}, nextToken, outError))
+        {
+            return false;
+        }
+
+        if (componentsAccountedFor > 4)
+        {
+            outError = {
+                nextToken.line, nextToken.pos, "Too many arguments for function call length"
+            };
+            return false;
+        }
+
+        m_ShaderStage.PopScope();
+
+        return true;
+    }
+
+    bool Parser::ProcessPowFunc(const Token& token, ParseError& outError)
+    {
+        if (!ExpectAndConsume({TokenType::Syntax}, {"("}, outError))
+        {
+            return false;
+        }
+
+        auto* normalize = m_TempStorage->Alloc<ast::PowNode>();
+        m_ShaderStage.AddNode(normalize);
+        m_ShaderStage.PushScope(normalize);
+
+        int argumentsAccountedFor = 0;
+        Token nextToken;
+        while (true)
+        {
+            if (Peek({TokenType::Syntax}, {")"}))
+            {
+                break;
+            }
+
+            ast::Type argType;
+            if (!ProcessExpression(argType, outError))
+            {
+                return false;
+            }
+
+            switch (argType)
+            {
+            case ast::Type::Float:
+                argumentsAccountedFor ++;
+                break;
+            default:
+                outError = {
+                    token.line, token.pos,
+                    std::format("Unexpected type {}", ast::TypeUtil::GetTypeGlsl(argType))
+                };
+                return false;
+            }
+
+            if (Peek({TokenType::Syntax}, {")"}))
+            {
+                break;
+            }
+
+            if (!ExpectedGetAndConsume({TokenType::Syntax}, {","}, nextToken, outError))
+            {
+                return false;
+            }
+        }
+
+        if (!ExpectedGetAndConsume({TokenType::Syntax}, {")"}, nextToken, outError))
+        {
+            return false;
+        }
+
+        if (argumentsAccountedFor != 2)
+        {
+            outError = {
+                nextToken.line, nextToken.pos, "Too many arguments for function call length"
+            };
+            return false;
+        }
+
+        m_ShaderStage.PopScope();
+
+        return true;
+    }
+
+    bool Parser::ProcessNormalizeFunc(const Token& token, ast::Type& returnType, ParseError& outError)
+    {
+        if (!ExpectAndConsume({TokenType::Syntax}, {"("}, outError))
+        {
+            return false;
+        }
+
+        auto* normalize = m_TempStorage->Alloc<ast::NormalizeNode>();
+        m_ShaderStage.AddNode(normalize);
+        m_ShaderStage.PushScope(normalize);
+
+        int argumentsAccountedFor = 0;
+        Token nextToken;
+        while (true)
+        {
+            if (Peek({TokenType::Syntax}, {")"}))
+            {
+                break;
+            }
+
+            ast::Type argType;
+            if (!ProcessExpression(argType, outError))
+            {
+                return false;
+            }
+
+            switch (argType)
+            {
+            case ast::Type::Vec2:
+                returnType = ast::Type::Vec2;
+                argumentsAccountedFor ++;
+                break;
+            case ast::Type::Vec3:
+                returnType = ast::Type::Vec3;
+                argumentsAccountedFor ++;
+                break;
+            case ast::Type::Vec4:
+                returnType = ast::Type::Vec4;
+                argumentsAccountedFor ++;
+                break;
+            case ast::Type::Float:
+            case ast::Type::Mat3:
+            case ast::Type::Mat4:
+            case ast::Type::Void:
+            case ast::Type::Invalid:
+            case ast::Type::Sampler2D:
+                outError = {
+                    token.line, token.pos,
+                    std::format("Unexpected type {}", ast::TypeUtil::GetTypeGlsl(argType))
+                };
+                return false;
+            }
+
+            if (Peek({TokenType::Syntax}, {")"}))
+            {
+                break;
+            }
+
+            if (!ExpectedGetAndConsume({TokenType::Syntax}, {","}, nextToken, outError))
+            {
+                return false;
+            }
+        }
+
+        if (!ExpectedGetAndConsume({TokenType::Syntax}, {")"}, nextToken, outError))
+        {
+            return false;
+        }
+
+        if (argumentsAccountedFor != 1)
+        {
+            outError = {
+                nextToken.line, nextToken.pos, "Too many arguments for function call length"
+            };
+            return false;
+        }
+
+        m_ShaderStage.PopScope();
+
+        return true;
+    }
+
+    bool Parser::ProcessReflectFunc(const Token& token, ast::Type& returnType, ParseError& outError)
+    {
+        if (!ExpectAndConsume({TokenType::Syntax}, {"("}, outError))
+        {
+            return false;
+        }
+
+        auto* normalize = m_TempStorage->Alloc<ast::ReflectNode>();
+        m_ShaderStage.AddNode(normalize);
+        m_ShaderStage.PushScope(normalize);
+
+        int argumentsAccountedFor = 0;
+        Token nextToken;
+        while (true)
+        {
+            if (Peek({TokenType::Syntax}, {")"}))
+            {
+                break;
+            }
+
+            ast::Type argType;
+            if (!ProcessExpression(argType, outError))
+            {
+                return false;
+            }
+
+            switch (argType)
+            {
+            case ast::Type::Vec2:
+                returnType = ast::Type::Vec2;
+                argumentsAccountedFor ++;
+                break;
+            case ast::Type::Vec3:
+                returnType = ast::Type::Vec3;
+                argumentsAccountedFor ++;
+                break;
+            case ast::Type::Vec4:
+                returnType = ast::Type::Vec4;
+                argumentsAccountedFor ++;
+                break;
+            case ast::Type::Float:
+            case ast::Type::Mat3:
+            case ast::Type::Mat4:
+            case ast::Type::Void:
+            case ast::Type::Invalid:
+            case ast::Type::Sampler2D:
+                outError = {
+                    token.line, token.pos,
+                    std::format("Unexpected type {}", ast::TypeUtil::GetTypeGlsl(argType))
+                };
+                return false;
+                break;
+            }
+
+            if (Peek({TokenType::Syntax}, {")"}))
+            {
+                break;
+            }
+
+            if (!ExpectedGetAndConsume({TokenType::Syntax}, {","}, nextToken, outError))
+            {
+                return false;
+            }
+        }
+
+        if (!ExpectedGetAndConsume({TokenType::Syntax}, {")"}, nextToken, outError))
+        {
+            return false;
+        }
+
+        if (argumentsAccountedFor != 2)
+        {
+            outError = {
+                nextToken.line, nextToken.pos, "Too many arguments for function call length"
+            };
+            return false;
+        }
+
+        m_ShaderStage.PopScope();
+
+        return true;
+    }
+
+    bool Parser::ProcessClampFunc(const Token& token, ParseError& outError)
+    {
+        if (!ExpectAndConsume({TokenType::Syntax}, {"("}, outError))
+        {
+            return false;
+        }
+
+        auto* normalize = m_TempStorage->Alloc<ast::ClampNode>();
+        m_ShaderStage.AddNode(normalize);
+        m_ShaderStage.PushScope(normalize);
+
+        Token nextToken;
+        int componentsAccountedFor = 0;
+        while (true)
+        {
+            if (Peek({TokenType::Syntax}, {")"}))
+            {
+                break;
+            }
+
+            ast::Type argType;
+            if (!ProcessExpression(argType, outError))
+            {
+                return false;
+            }
+
+            switch (argType)
+            {
+            case ast::Type::Float:
+                componentsAccountedFor++;
+                break;
+            default:
+                outError = {
+                    token.line, token.pos,
+                    std::format("Unexpected type {}", ast::TypeUtil::GetTypeGlsl(argType))
+                };
+                return false;
+            }
+
+            if (Peek({TokenType::Syntax}, {")"}))
+            {
+                break;
+            }
+
+            if (!ExpectedGetAndConsume({TokenType::Syntax}, {","}, nextToken, outError))
+            {
+                return false;
+            }
+        }
+
+        if (componentsAccountedFor != 3)
+        {
+            outError = {
+                nextToken.line, nextToken.pos, "wrong number of arguments for function call clamp"
+            };
+            return false;
+        }
+
+        if (!ExpectedGetAndConsume({TokenType::Syntax}, {")"}, nextToken, outError))
+        {
+            return false;
+        }
+
+        m_ShaderStage.PopScope();
+
+        return true;
+    }
+
+    bool Parser::ProcessDotFunc(const Token& token, ParseError& outError)
+    {
+        if (!ExpectAndConsume({TokenType::Syntax}, {"("}, outError))
+        {
+            return false;
+        }
+
+        auto* dot = m_TempStorage->Alloc<ast::DotNode>();
+        m_ShaderStage.AddNode(dot);
+        m_ShaderStage.PushScope(dot);
+
+        Token nextToken;
+        int argumentsAccountedFor = 0;
+        while (true)
+        {
+            if (Peek({TokenType::Syntax}, {")"}))
+            {
+                break;
+            }
+
+            ast::Type argType;
+            if (!ProcessExpression(argType, outError))
+            {
+                return false;
+            }
+
+            switch (argType)
+            {
+            case ast::Type::Vec2:
+            case ast::Type::Vec3:
+            case ast::Type::Vec4:
+                argumentsAccountedFor++;
+                break;
+            default:
+                outError = {
+                token.line, token.pos,
+                std::format("Unexpected type {}", ast::TypeUtil::GetTypeGlsl(argType))
+            };
+                return false;
+            }
+
+            if (Peek({TokenType::Syntax}, {")"}))
+            {
+                break;
+            }
+
+            if (!ExpectedGetAndConsume({TokenType::Syntax}, {","}, nextToken, outError))
+            {
+                return false;
+            }
+        }
+
+        if (argumentsAccountedFor != 2)
+        {
+            outError = {
+                nextToken.line, nextToken.pos, "wrong number of arguments for function call clamp"
+            };
+            return false;
+        }
+
+        if (!ExpectedGetAndConsume({TokenType::Syntax}, {")"}, nextToken, outError))
+        {
+            return false;
+        }
+
+        m_ShaderStage.PopScope();
+
+        return true;
+    }
+
+    bool Parser::ProcessPropertyAccess(const Token&, ast::Type& returnType, ParseError& outError)
+    {
+        if (!ExpectAndConsume({TokenType::Syntax}, {"."}, outError))
         {
             return false;
         }
 
         Token propertyNameToken;
-        if (!ExpectedGetAndConsume({ TokenType::Identifier }, {}, propertyNameToken, outError))
+        if (!ExpectedGetAndConsume({TokenType::Identifier}, {}, propertyNameToken, outError))
         {
             return false;
         }
 
-        m_ShaderStage.AddNode(m_TempStorage->Alloc<ast::PropertyAccessNode>(propertyNameToken.value));
+        //TODO make this a function
+        if (propertyNameToken.value == "x" ||
+            propertyNameToken.value == "y" ||
+            propertyNameToken.value == "z" ||
+            propertyNameToken.value == "r" ||
+            propertyNameToken.value == "g" ||
+            propertyNameToken.value == "b")
+        {
+            returnType = ast::Type::Float;
+        }
+        else if (propertyNameToken.value == "xyz" ||
+                 propertyNameToken.value == "rgb")
+        {
+            returnType = ast::Type::Vec3;
+        }
+        else
+        {
+            outError = {
+                propertyNameToken.line, propertyNameToken.pos,
+                std::format("Unhandled property access {}", propertyNameToken.value)
+            };
+            return false;
+        }
 
+        auto propertyAccessNode = m_TempStorage->Alloc<ast::PropertyAccessNode>(propertyNameToken.value);
+        m_ShaderStage.AddNode(propertyAccessNode);
+        m_ShaderStage.PushScope(propertyAccessNode);
         return true;
     }
 }
