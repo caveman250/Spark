@@ -1,16 +1,19 @@
 #pragma once
+
 #include "ASTNode.h"
 #include "Operators.h"
+#include "spark.h"
 
 namespace se::shader::ast
 {
-    class OperatorNode : public ASTNode
+    class BinaryExpressionNode : public ASTNode
     {
     public:
-        OperatorNode(OperatorType type);
+        explicit BinaryExpressionNode(OperatorType opType);
         std::string GetDebugString() const override;
         void ToGlsl(string::ArenaString& outShader) const override;
+
     private:
-        OperatorType m_Type;
+        OperatorType m_OpType;
     };
 }

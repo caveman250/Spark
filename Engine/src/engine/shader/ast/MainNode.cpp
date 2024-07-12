@@ -2,6 +2,11 @@
 
 namespace se::shader::ast
 {
+    std::string MainNode::GetDebugString() const
+    {
+        return "MainNode";
+    }
+
     void MainNode::ToGlsl(string::ArenaString& outShader) const
     {
         outShader.append("void main()\n{\n");

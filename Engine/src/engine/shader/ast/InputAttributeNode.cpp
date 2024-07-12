@@ -13,6 +13,11 @@ namespace se::shader::ast
     {
     }
 
+    std::string InputAttributeNode::GetDebugString() const
+    {
+        return std::format("InputAttributeNode - {}, {}, {}", m_Location, TypeUtil::GetTypeGlsl(m_Type), m_Name);
+    }
+
     void InputAttributeNode::ToGlsl(string::ArenaString& outShader) const
     {
         auto alloc = outShader.get_allocator();

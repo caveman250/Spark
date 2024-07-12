@@ -10,6 +10,11 @@ namespace se::shader::ast
     {
     }
 
+    std::string VariableDeclarationNode::GetDebugString() const
+    {
+        return std::format("VariableDeclarationNode - {}, {}", TypeUtil::GetTypeGlsl(m_Type), m_Name);
+    }
+
     void VariableDeclarationNode::ToGlsl(string::ArenaString &outShader) const
     {
         auto alloc = outShader.get_allocator();

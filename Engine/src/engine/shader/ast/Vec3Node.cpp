@@ -2,6 +2,11 @@
 
 namespace se::shader::ast
 {
+    std::string Vec3Node::GetDebugString() const
+    {
+        return "Vec3Node";
+    }
+
     void Vec3Node::ToGlsl(string::ArenaString& outShader) const
     {
         auto alloc = outShader.get_allocator();
@@ -10,7 +15,7 @@ namespace se::shader::ast
         {
             auto* child = m_Children[i];
             child->ToGlsl(outShader);
-            if (i < m_Children.size() - 1)
+            if (i < m_Children.size() - 1 && outShader.back() != '-')
             {
                 outShader.append(",");
             }

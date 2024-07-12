@@ -8,6 +8,8 @@ namespace se::shader::ast
 
 namespace se::render
 {
+    class VertexBuffer;
+
     class Material
     {
     public:
@@ -16,7 +18,7 @@ namespace se::render
         virtual ~Material() = default;
 
         virtual void Bind();
-        virtual void CreatePlatformResources() = 0;
+        virtual void CreatePlatformResources(const VertexBuffer& vb) = 0;
         void SetRenderState(const RenderState& state);
 
         virtual void SetUniform(const std::string& name, shader::ast::Type type, const void* value) = 0;

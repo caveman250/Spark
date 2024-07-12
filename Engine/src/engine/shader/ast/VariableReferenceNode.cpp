@@ -9,6 +9,7 @@ namespace se::shader::ast
 {
     VariableReferenceNode::VariableReferenceNode(const std::string& name, const ShaderStage& shaderStageAst)
     {
+        SPARK_ASSERT(name != " ");
         Type type;
         if (shaderStageAst.FindVariable(name, type))
         {
@@ -19,6 +20,11 @@ namespace se::shader::ast
         {
             debug::Log::Error("ShaderCompiler: VariableReferenceNode cannot find variable with name {0}", name);
         }
+    }
+
+    std::string VariableReferenceNode::GetDebugString() const
+    {
+        return std::format("VariableReferenceNode - {}", m_Name);
     }
 
     void VariableReferenceNode::ToGlsl(string::ArenaString& outShader) const

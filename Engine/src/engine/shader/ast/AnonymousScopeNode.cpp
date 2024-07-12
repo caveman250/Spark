@@ -2,6 +2,11 @@
 
 namespace se::shader::ast
 {
+    std::string AnonymousScopeNode::GetDebugString() const
+    {
+        return "AnonymousScopeNode";
+    }
+
     void AnonymousScopeNode::ToGlsl(string::ArenaString &outShader) const
     {
         outShader.append("{\n");

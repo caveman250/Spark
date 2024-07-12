@@ -8,6 +8,7 @@ namespace se::shader::ast
     {
     public:
         VariableDeclarationNode(const std::string& name, Type type);
+        std::string GetDebugString() const override;
         void ToGlsl(string::ArenaString& outShader) const override;
 
         void CollectUsedNames(std::map<std::string, std::string> &nameMap) const override;

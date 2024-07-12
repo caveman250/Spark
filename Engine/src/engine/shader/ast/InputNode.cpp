@@ -11,6 +11,11 @@ namespace se::shader::ast
     {
     }
 
+    std::string InputNode::GetDebugString() const
+    {
+        return std::format("InputNode - {}, {}", TypeUtil::GetTypeGlsl(m_Type), m_Name);
+    }
+
     void InputNode::ToGlsl(string::ArenaString& outShader) const
     {
         auto alloc = outShader.get_allocator();

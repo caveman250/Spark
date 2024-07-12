@@ -10,6 +10,7 @@ namespace se::shader::ast
     public:
         OutputPortNode(const std::string& portName, Type type, const std::string& name);
 
+        std::string GetDebugString() const override;
         void ToGlsl(string::ArenaString& outShader) const override;
 
         void CollectUsedNames(std::map<std::string, std::string> &nameMap) const override;

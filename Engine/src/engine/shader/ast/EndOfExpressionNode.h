@@ -5,6 +5,7 @@ namespace se::shader::ast
 {
     class EndOfExpressionNode : public ASTNode
     {
+        std::string GetDebugString() const override;
         void ToGlsl(string::ArenaString& outShader) const override;
     };
 }

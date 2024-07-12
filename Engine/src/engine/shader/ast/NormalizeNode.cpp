@@ -1,16 +1,16 @@
-#include "Vec2Node.h"
+#include "NormalizeNode.h"
 
 namespace se::shader::ast
 {
-    std::string Vec2Node::GetDebugString() const
+    std::string NormalizeNode::GetDebugString() const
     {
-        return "Vec2Node";
+        return "NormalizeNode";
     }
 
-    void Vec2Node::ToGlsl(string::ArenaString& outShader) const
+    void NormalizeNode::ToGlsl(string::ArenaString& outShader) const
     {
         auto alloc = outShader.get_allocator();
-        outShader.append("vec2(");
+        outShader.append("normalize(");
         for (size_t i = 0; i < m_Children.size(); ++i)
         {
             auto* child = m_Children[i];

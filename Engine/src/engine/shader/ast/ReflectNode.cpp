@@ -1,16 +1,16 @@
-#include "Vec2Node.h"
+#include "ReflectNode.h"
 
 namespace se::shader::ast
 {
-    std::string Vec2Node::GetDebugString() const
+    std::string ReflectNode::GetDebugString() const
     {
-        return "Vec2Node";
+        return "ReflectNode";
     }
 
-    void Vec2Node::ToGlsl(string::ArenaString& outShader) const
+    void ReflectNode::ToGlsl(string::ArenaString& outShader) const
     {
         auto alloc = outShader.get_allocator();
-        outShader.append("vec2(");
+        outShader.append("reflect(");
         for (size_t i = 0; i < m_Children.size(); ++i)
         {
             auto* child = m_Children[i];
