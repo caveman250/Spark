@@ -8,9 +8,14 @@ namespace se::shader::ast
 
     }
 
+    std::string OperatorNode::GetDebugString() const
+    {
+        return std::format("{}", OperatorUtil::OperatorTypeToGlsl(m_Type));
+    }
+
     void OperatorNode::ToGlsl(string::ArenaString& outShader) const
     {
         auto alloc = outShader.get_allocator();
-        outShader.append(string::ArenaFormat(" {} ", alloc, OperatorUtil::OperatorTypeToGlsl(m_Type)));
+        outShader.append(string::ArenaFormat("{}", alloc, OperatorUtil::OperatorTypeToGlsl(m_Type)));
     }
 }

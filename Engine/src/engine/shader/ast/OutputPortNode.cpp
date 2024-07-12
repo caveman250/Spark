@@ -11,6 +11,11 @@ namespace se::shader::ast
     {
     }
 
+    std::string OutputPortNode::GetDebugString() const
+    {
+        return std::format("OutputPortNode - {}, {}, {}", m_PortName, TypeUtil::GetTypeGlsl(m_Type), m_Name);
+    }
+
     void OutputPortNode::ToGlsl(string::ArenaString &outShader) const
     {
         auto alloc = outShader.get_allocator();

@@ -7,9 +7,19 @@ namespace se::shader::ast
     {
     }
 
+    std::string PropertyAccessNode::GetDebugString() const
+    {
+        return "PropertyAccessNode";
+    }
+
     void PropertyAccessNode::ToGlsl(string::ArenaString& outShader) const
     {
         auto alloc = outShader.get_allocator();
+        SPARK_ASSERT(m_Children.size() <= 1);
+        if (!m_Children.empty())
+        {
+            m_Children[0]->ToGlsl(outShader);
+        }
         outShader.append(string::ArenaFormat(".{}", alloc, m_PropertyName));
     }
 }

@@ -11,6 +11,7 @@ namespace se::shader::ast
     public:
         InputAttributeNode(uint8_t location, Type type, const std::string& name);
 
+        std::string GetDebugString() const override;
         void ToGlsl(string::ArenaString& outShader) const override;
 
         Type GetType() const { return m_Type; }

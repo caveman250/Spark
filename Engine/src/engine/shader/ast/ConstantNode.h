@@ -9,6 +9,7 @@ namespace se::shader::ast
     {
     public:
         ConstantNode(T t);
+        std::string GetDebugString() const override;
         void ToGlsl(string::ArenaString& outShader) const override;
     private:
         T m_Constant;
@@ -18,6 +19,12 @@ namespace se::shader::ast
     ConstantNode<T>::ConstantNode(T t)
     {
         m_Constant = t;
+    }
+
+    template <typename T>
+    std::string ConstantNode<T>::GetDebugString() const
+    {
+        return std::format("ConstantNode - {}", m_Constant);
     }
 
     template <typename T>

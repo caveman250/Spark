@@ -9,6 +9,11 @@ namespace se::shader::ast
 
     }
 
+    std::string TextureSampleNode::GetDebugString() const
+    {
+        return "TextureSampleNode";
+    }
+
     void TextureSampleNode::ToGlsl(string::ArenaString &outShader) const
     {
         auto alloc = outShader.get_allocator();

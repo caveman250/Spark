@@ -10,6 +10,7 @@ namespace se::shader::ast
     public:
         InputNode(Type type, const std::string& name);
 
+        std::string GetDebugString() const override;
         void ToGlsl(string::ArenaString& outShader) const override;
 
         Type GetType() const;
