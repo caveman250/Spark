@@ -48,6 +48,7 @@ namespace se::shader::parser
             case '+':
             case '-':
             case '*':
+            case '/':
                 return ProcessComplexSyntax(offset);
             case 'a':
             case 'b':
@@ -106,6 +107,16 @@ namespace se::shader::parser
             case '\n':
                 m_CurrLine++;
                 m_CurrLinePosOffset = -(m_CharIdx + 1);
+                if (offset == 0)
+                {
+                    ConsumeChar();
+                }
+                else
+                {
+                    offset++;
+                }
+                return PeekToken(offset);
+            case '\t':
                 if (offset == 0)
                 {
                     ConsumeChar();
@@ -250,6 +261,7 @@ namespace se::shader::parser
             {'<', '='},
             {'>', '='},
             {'*', '='},
+            {'/', '='},
             {'+', '='},
             {'-', '='},
             {'=', '='},

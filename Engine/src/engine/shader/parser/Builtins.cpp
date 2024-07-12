@@ -4,7 +4,7 @@
 
 namespace se::shader::parser
 {
-    std::array<std::string, 18> Builtins::s_Builtins =
+    std::array<std::string, 23> Builtins::s_Builtins =
         {
             "int",
             "float",
@@ -22,7 +22,13 @@ namespace se::shader::parser
             "port",
             "uniform",
             "sampler2D",
-            "texture"
+            "texture",
+            "length",
+            "normalize",
+            "clamp",
+            "dot",
+            "reflect",
+            "pow"
         };
 
     bool Builtins::IsBuiltin(const std::string& str)

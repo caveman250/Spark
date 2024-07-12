@@ -12,7 +12,7 @@
 #include "parser/Lexer.h"
 #include "parser/Parser.h"
 
-std::optional<std::string> se::shader::ShaderGenerator::CompileShader(const std::vector<std::string>& filePaths)
+std::optional<std::string> se::shader::ShaderGenerator::CompileShader(const std::vector<std::string>& filePaths, const render::VertexBuffer& vb)
 {
     memory::Arena arena;
     std::optional<ast::ShaderStage> firstStage = std::nullopt;
@@ -42,7 +42,7 @@ std::optional<std::string> se::shader::ShaderGenerator::CompileShader(const std:
         }
     }
 
-    auto combiner = compiler::ShaderStageCombiner();
+    auto combiner = compiler::ShaderStageCombiner(vb);
     for (auto& additionalStage : additionalStages)
     {
         firstStage = combiner.Combine(firstStage.value(), additionalStage, arena);
@@ -55,11 +55,19 @@ std::optional<std::string> se::shader::ShaderGenerator::CompileShader(const std:
 
 std::string se::shader::ShaderGenerator::AstToGlsl(ast::ShaderStage &ast)
 {
+#if 0
+    for (const auto *node: ast.GetNodes())
+    {
+        node->DebugPrint(0);
+    }
+#endif
+
     memory::Arena arena;
     memory::ArenaAllocator<char> alloc(arena);
     string::ArenaString shader(alloc);
 
     shader.append("#version 330 core\n"); //TODO this is old right?
+
 
     for (const auto &[name, node]: ast.GetInputs())
     {

@@ -69,10 +69,10 @@ namespace se::render::opengl
         }
     }
 
-    void Material::CreatePlatformResources()
+    void Material::CreatePlatformResources(const render::VertexBuffer& vb)
     {
-        std::optional<std::string> vert = se::shader::ShaderGenerator::CompileShader(m_VertShaderPaths);
-        std::optional<std::string> frag = se::shader::ShaderGenerator::CompileShader(m_FragShaderPaths);
+        std::optional<std::string> vert = se::shader::ShaderGenerator::CompileShader(m_VertShaderPaths, vb);
+        std::optional<std::string> frag = se::shader::ShaderGenerator::CompileShader(m_FragShaderPaths, vb);
 
         if (!vert.has_value() || !frag.has_value())
         {
