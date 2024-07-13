@@ -1,0 +1,25 @@
+#include "ReflectNode.h"
+
+namespace se::asset::shader::ast
+{
+    std::string ReflectNode::GetDebugString() const
+    {
+        return "ReflectNode";
+    }
+
+    void ReflectNode::ToGlsl(string::ArenaString& outShader) const
+    {
+        auto alloc = outShader.get_allocator();
+        outShader.append("reflect(");
+        for (size_t i = 0; i < m_Children.size(); ++i)
+        {
+            auto* child = m_Children[i];
+            child->ToGlsl(outShader);
+            if (i < m_Children.size() - 1 && outShader.back() != '-')
+            {
+                outShader.append(",");
+            }
+        }
+        outShader.append(")");
+    }
+}
