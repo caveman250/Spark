@@ -24,6 +24,12 @@ namespace se::render::opengl
         m_GlewInit = true;
 
         window->OnClose();
+
+        const GLubyte* vendor = glGetString(GL_VENDOR); // Returns the vendor
+        const GLubyte* renderer = glGetString(GL_RENDERER); // Returns a hint to the model
+
+        debug::Log::Info("GPU Vendor: {}", (char*)vendor);
+        debug::Log::Info("GPU model: {}", (char*)renderer);
     }
 
     void OpenGLRenderer::Render(IWindow* window)

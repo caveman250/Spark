@@ -31,6 +31,7 @@ namespace se::linux
         SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
         SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 6);
         m_Context = SDL_GL_CreateContext(m_Window);
+        SDL_GL_SetSwapInterval(0);
         if (auto primaryWindow = Application::Get()->GetPrimaryWindow())
         {
             // SDL_GL_CreateContext sets the new context as current.
