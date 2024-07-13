@@ -1,0 +1,35 @@
+port(Vertex_InPos) in vec3 inPos;
+port(Vertex_InUV) in vec2 inUV;
+port(Vertex_InNormal) in vec3 inNormal;
+
+port(Vertex_OutPos) out vec4 outPos;
+port(Vertex_OutWorldPos) out vec3 outWorldPos;
+port(Vertex_OutCameraNormal) out vec3 outNormal;
+port(Vertex_OutUV) out vec2 outUV;
+port(Vertex_OutCameraEyeDir) out vec3 outEyeDir;
+port(Vertex_OutCameraLightDir) out vec3 outLightDir;
+
+uniform mat4 model;
+uniform mat4 view;
+uniform mat4 proj;
+uniform vec3 lightPos;
+
+void main()
+{
+    mat4 MVP = proj * view * model;
+    outPos = MVP * vec4(inPos, 1.0);
+
+    vec4 worldPos = model * vec4(inPos, 1);
+    outWorldPos = worldPos.xyz;
+
+    vec4 vertPosCameraSpace = view * model * vec4(inPos,1);
+    outEyeDir = vec3(0,0,0) - vertPosCameraSpace.xyz;
+
+    vec4 lightPosCameraSpace = view * vec4(lightPos,1);
+    outLightDir = lightPosCameraSpace.xyz + outEyeDir;
+
+    vec4 cameraSpaceNormal = view * model * vec4(inNormal, 0);
+    outNormal = cameraSpaceNormal.xyz;
+
+    outUV = inUV;
+}

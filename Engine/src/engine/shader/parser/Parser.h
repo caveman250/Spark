@@ -20,7 +20,6 @@ namespace se::shader::parser
 
     private:
         bool ProcessBuiltin(const Token& token, ast::Type& returnType, ParseError& outError);
-        bool ProcessIdentifier(const Token& token, ParseError& outError);
         bool ProcessNumericLiteral(const Token& token, ParseError& outError);
         bool ProcessStringLiteral(const Token& token, ParseError& outError);
         bool ProcessSyntax(const Token& token, ParseError& outError);
@@ -44,8 +43,6 @@ namespace se::shader::parser
         bool ProcessVec4(const Token& token, ParseError& error);
 
         bool ProcessExpression(ast::Type& outType, ParseError& outError);
-        bool ProcessAssignment(const Token& token, ParseError& outError);
-        bool ProcessOperator(const Token& token, ParseError& outError);
 
         bool Peek(int offset, const std::vector<TokenType>& allowedTypes, const std::vector<std::string>& allowedValues);
         bool Peek(const std::vector<TokenType>& allowedTypes, const std::vector<std::string>& allowedValues);
@@ -54,6 +51,8 @@ namespace se::shader::parser
         bool IsNextTokenBinaryOperator();
         bool Expect(const std::vector<TokenType>& allowedTypes, const std::vector<std::string>& allowedValues,
                     ParseError& outError);
+        bool ExpectedGet(const std::vector<TokenType>& allowedTypes,
+                           const std::vector<std::string>& allowedValues, Token& token, ParseError& outError);
         bool ExpectedGetAndConsume(const std::vector<TokenType>& allowedTypes,
                                    const std::vector<std::string>& allowedValues, Token& token, ParseError& outError);
         bool ExpectAndConsume(const std::vector<TokenType>& allowedTypes, const std::vector<std::string>& allowedValues,

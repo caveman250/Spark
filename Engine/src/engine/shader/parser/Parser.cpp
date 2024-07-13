@@ -3,20 +3,16 @@
 #include "Parser.h"
 
 #include "engine/shader/ast/AnonymousScopeNode.h"
-#include "engine/shader/ast/AssignmentNode.h"
 #include "engine/shader/ast/BinaryExpressionNode.h"
 #include "engine/shader/ast/ClampNode.h"
 #include "engine/shader/ast/ConstantNode.h"
 #include "engine/shader/ast/DotNode.h"
 #include "engine/shader/ast/EndOfExpressionNode.h"
-#include "engine/shader/ast/InputAttributeNode.h"
 #include "engine/shader/ast/InputPortNode.h"
 #include "engine/shader/ast/LengthNode.h"
 #include "engine/shader/ast/MainNode.h"
 #include "engine/shader/ast/NormalizeNode.h"
-#include "engine/shader/ast/OperatorNode.h"
 #include "engine/shader/ast/Operators.h"
-#include "engine/shader/ast/OutputNode.h"
 #include "engine/shader/ast/OutputPortNode.h"
 #include "engine/shader/ast/PowNode.h"
 #include "engine/shader/ast/ReflectNode.h"
@@ -51,11 +47,11 @@ namespace se::shader::parser
             if (std::holds_alternative<Token>(nextToken))
             {
                 Token token = std::get<Token>(nextToken);
-                m_Lexer.ConsumeToken();
 
                 switch (token.type)
                 {
                 case TokenType::Builtin:
+                    m_Lexer.ConsumeToken();
                     ast::Type builtinType;
                     if (!ProcessBuiltin(token, builtinType, error))
                     {
@@ -63,24 +59,28 @@ namespace se::shader::parser
                     }
                     break;
                 case TokenType::Identifier:
-                    if (!ProcessIdentifier(token, error))
+                    ast::Type type;
+                    if (!ProcessExpression(type, error))
                     {
                         return error;
                     }
                     break;
                 case TokenType::NumericLiteral:
+                    m_Lexer.ConsumeToken();
                     if (!ProcessNumericLiteral(token, error))
                     {
                         return error;
                     }
                     break;
                 case TokenType::StringLiteral:
+                    m_Lexer.ConsumeToken();
                     if (!ProcessStringLiteral(token, error))
                     {
                         return error;
                     }
                     break;
                 case TokenType::Syntax:
+                    m_Lexer.ConsumeToken();
                     if (!ProcessSyntax(token, error))
                     {
                         return error;
@@ -388,52 +388,6 @@ namespace se::shader::parser
         return false;
     }
 
-    bool Parser::ProcessIdentifier(const Token& token, ParseError& outError)
-    {
-        ast::Type type;
-        if (!m_ShaderStage.FindVariable(token.value, type))
-        {
-            outError = {token.line, token.pos, std::format("Undefined variable: {}", token.value)};
-            return false;
-        }
-
-        m_ShaderStage.AddNode(m_TempStorage->Alloc<ast::VariableReferenceNode>(token.value, m_ShaderStage));
-
-        Token nextToken;
-        if (!ExpectedGetAndConsume({TokenType::Syntax}, {"=", "."}, nextToken, outError))
-        {
-            return false;
-        }
-
-        if (nextToken.value == "=")
-        {
-            if (!ProcessAssignment(nextToken, outError))
-            {
-                return false;
-            }
-
-            if (!ExpectedGetAndConsume({TokenType::Syntax},
-                                       {";", "*", "/", "+", "-", "*=", "/=", "+=", "-="},
-                                       nextToken, outError))
-            {
-                return false;
-            }
-
-            if (!ProcessSyntax(nextToken, outError))
-            {
-                return false;
-            }
-
-            return true;
-        }
-
-        outError = {
-            nextToken.line, nextToken.pos,
-            std::format("Parser::ProcessIdentifier - Not Implemented: {}", nextToken.value)
-        };
-        return false;
-    }
-
     bool Parser::ProcessNumericLiteral(const Token& token, ParseError&)
     {
         if (IsInteger(token.value))
@@ -482,10 +436,6 @@ namespace se::shader::parser
         {
             m_ShaderStage.AddNode(m_TempStorage->Alloc<ast::EndOfExpressionNode>());
             return true;
-        }
-        else if (ast::OperatorUtil::IsOperator(token.value))
-        {
-            return ProcessOperator(token, outError);
         }
         else
         {
@@ -581,22 +531,6 @@ namespace se::shader::parser
             return false;
         }
 
-        return true;
-    }
-
-    bool Parser::ProcessAssignment(const Token&, ParseError& outError)
-    {
-        m_ShaderStage.AddNode(m_TempStorage->Alloc<ast::AssignmentNode>());
-
-        ast::Type returnType;
-        return ProcessExpression(returnType, outError);
-    }
-
-    bool Parser::ProcessOperator(const Token& token, ParseError&)
-    {
-        // TODO type validation
-        m_ShaderStage.AddNode(
-            m_TempStorage->Alloc<ast::OperatorNode>(ast::OperatorUtil::StringToOperatorType(token.value)));
         return true;
     }
 
@@ -720,55 +654,33 @@ namespace se::shader::parser
     bool Parser::ProcessVariableDeclaration(const Token& token, ParseError& outError)
     {
         Token nameToken;
-        if (!ExpectedGetAndConsume({TokenType::Identifier}, {}, nameToken, outError))
+        if (!ExpectedGet({TokenType::Identifier}, {}, nameToken, outError))
         {
             return false;
         }
 
-        auto peek = m_Lexer.PeekToken();
-        if (std::holds_alternative<Token>(peek))
+        ast::Type declarationType = ast::TypeUtil::StringToType(token.value);
+        m_ShaderStage.AddNode(m_TempStorage->Alloc<ast::VariableDeclarationNode>(nameToken.value,
+                                                       declarationType));
+        m_ShaderStage.AddNode(m_TempStorage->Alloc<ast::EndOfExpressionNode>());
+
+        std::string error;
+        if (!m_ShaderStage.RecordVariableForScope(nameToken.value, declarationType, error))
         {
-            auto nextToken = std::get<Token>(peek);
-            if (nextToken.type != TokenType::Syntax)
-            {
-                outError = {nextToken.line, nextToken.pos, std::format("Unexpected Token {0}", nextToken.value)};
-            }
+            outError = {nameToken.line, nameToken.pos, error};
+            return false;
+        }
 
-            if (nextToken.value == "=")
-            {
-                m_Lexer.ConsumeToken();
-                //cheat and split dec assignment since its still valid code
-                ast::Type type = ast::TypeUtil::StringToType(token.value);
-                m_ShaderStage.AddNode(m_TempStorage->Alloc<ast::VariableDeclarationNode>(nameToken.value, type));
+        ast::Type expressionType;
+        if (!ProcessExpression(expressionType, outError))
+        {
+            return false;
+        }
 
-                std::string error;
-                if (!m_ShaderStage.RecordVariableForScope(nameToken.value, type, error))
-                {
-                    outError = {nameToken.line, nameToken.pos, error};
-                    return false;
-                }
-
-                if (!ProcessAssignment(nextToken, outError))
-                {
-                    return false;
-                }
-
-                if (!ExpectedGetAndConsume({TokenType::Syntax}, {";"}, nextToken, outError))
-                {
-                    return false;
-                }
-
-                m_ShaderStage.AddNode(m_TempStorage->Alloc<ast::EndOfExpressionNode>());
-            }
-            else if (nextToken.value == ";")
-            {
-                // we are done;
-                m_Lexer.ConsumeToken();
-                m_ShaderStage.AddNode(
-                    m_TempStorage->Alloc<ast::VariableDeclarationNode>(nameToken.value,
-                                                                       ast::TypeUtil::StringToType(token.value)));
-                m_ShaderStage.AddNode(m_TempStorage->Alloc<ast::EndOfExpressionNode>());
-            }
+        if (declarationType != expressionType)
+        {
+            outError = {token.line, token.pos, std::format("Cannot assign value of type {} to {}", token.value, ast::TypeUtil::GetTypeGlsl(expressionType))};
+            return false;
         }
 
         return true;
@@ -805,15 +717,25 @@ namespace se::shader::parser
         return result;
     }
 
-    bool Parser::ExpectedGetAndConsume(const std::vector<TokenType>& allowedTypes,
-                                       const std::vector<std::string>& allowedValues, Token& token,
-                                       ParseError& outError)
+    bool Parser::ExpectedGet(const std::vector<TokenType>& allowedTypes, const std::vector<std::string>& allowedValues,
+        Token& token, ParseError& outError)
     {
         if (!Expect(allowedTypes, allowedValues, outError))
         {
             return false;
         }
         token = std::get<Token>(m_Lexer.PeekToken());
+        return true;
+    }
+
+    bool Parser::ExpectedGetAndConsume(const std::vector<TokenType>& allowedTypes,
+                                       const std::vector<std::string>& allowedValues, Token& token,
+                                       ParseError& outError)
+    {
+        if (!ExpectedGet(allowedTypes, allowedValues, token, outError))
+        {
+            return false;
+        }
         m_Lexer.ConsumeToken();
         return true;
     }
@@ -860,7 +782,7 @@ namespace se::shader::parser
         while (true)
         {
             Token binaryOpToken;
-            if (Peek({ TokenType::Syntax }, {"*", "/", "+", "-", "*=", "/=", "+=", "-="}, binaryOpToken))
+            if (Peek({ TokenType::Syntax }, {"*", "/", "+", "-", "*=", "/=", "+=", "-=", "="}, binaryOpToken))
             {
                 auto binaryOp = m_TempStorage->Alloc<ast::BinaryExpressionNode>(ast::OperatorUtil::StringToOperatorType(binaryOpToken.value));
                 m_ShaderStage.AddNode(binaryOp);
@@ -883,12 +805,6 @@ namespace se::shader::parser
 
             bool deferBinaryOpConsume = false;
             int binaryOpPeekOffset = 0;
-
-            // handle prop access in binary op
-            if (Peek({TokenType::Syntax}, {"."}))
-            {
-                binaryOpPeekOffset = 2; // skip propery access
-            }
 
             // handle func or constructor in binary op
             if (Peek({ TokenType::Syntax }, {"("}))
@@ -913,7 +829,13 @@ namespace se::shader::parser
                 }
             }
 
-            if (Peek(binaryOpPeekOffset, { TokenType::Syntax }, {"*", "/", "+", "-", "*=", "/=", "+=", "-="}, binaryOpToken))
+            // handle prop access in binary op
+            if (Peek(binaryOpPeekOffset, {TokenType::Syntax}, {"."}))
+            {
+                binaryOpPeekOffset += 2; // skip propery access
+            }
+
+            if (Peek(binaryOpPeekOffset, { TokenType::Syntax }, {"*", "/", "+", "-", "*=", "/=", "+=", "-=", "="}, binaryOpToken))
             {
                 auto binaryOp = m_TempStorage->Alloc<ast::BinaryExpressionNode>(ast::OperatorUtil::StringToOperatorType(binaryOpToken.value));
                 m_ShaderStage.AddNode(binaryOp);
@@ -1001,10 +923,18 @@ namespace se::shader::parser
                 {
                     outType = builtinType;
                 }
-
-                //TODO handle property access of temproary variables in binary operations.
+                
                 if (isPropertyAccess)
                 {
+                    // we need to move the builtin to a child of the property access.
+                    // This would ideally be refactored to add them in the correct order in the first place.
+                    auto currentParentNode = (m_ShaderStage.GetScopeStack().end() - 2)->m_Node;
+                    auto propertyAccess = currentParentNode->m_Children.back();
+                    auto builtinIt = currentParentNode->m_Children.end() - 2;
+                    auto builtin = *builtinIt;
+                    currentParentNode->m_Children.erase(builtinIt);
+                    propertyAccess->m_Children.push_back(builtin);
+
                     m_ShaderStage.PopScope();
                 }
             }
@@ -1016,7 +946,7 @@ namespace se::shader::parser
 
             if (deferBinaryOpConsume)
             {
-                if (SPARK_VERIFY(Peek({ TokenType::Syntax }, {"*", "/", "+", "-", "*=", "/=", "+=", "-="})))
+                if (SPARK_VERIFY(Peek({ TokenType::Syntax }, {"*", "/", "+", "-", "*=", "/=", "+=", "-=", "="})))
                 {
                     m_Lexer.ConsumeToken();
                 }

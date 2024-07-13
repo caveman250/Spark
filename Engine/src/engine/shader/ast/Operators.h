@@ -13,6 +13,7 @@ namespace se::shader::ast
         AddEquals,
         Subtract,
         SubtractEquals,
+        Equals,
         Compare,
     }; // im sure ive missed some...
     class OperatorUtil

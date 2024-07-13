@@ -1,4 +1,4 @@
-port(FragVertUV) in vec2 inUV;
+port(Frag_InUV) in vec2 inUV;
 port(test) out vec3 color;
 
 uniform sampler2D Texture;

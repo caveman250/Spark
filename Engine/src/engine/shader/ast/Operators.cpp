@@ -12,6 +12,7 @@ namespace se::shader::ast
         {OperatorType::AddEquals, 1u},
         {OperatorType::Subtract, 1u},
         {OperatorType::SubtractEquals, 1u},
+        {OperatorType::Equals, 1u},
         {OperatorType::Compare, 2u},
     };
 
@@ -20,11 +21,12 @@ namespace se::shader::ast
         {"*", OperatorType::Multiply},
         {"*=", OperatorType::MultiplyEquals},
         {"/", OperatorType::Divide},
-        {"/", OperatorType::DivideEquals},
+        {"/=", OperatorType::DivideEquals},
         {"+", OperatorType::Add},
-        {"+", OperatorType::AddEquals},
+        {"+=", OperatorType::AddEquals},
         {"-", OperatorType::Subtract},
-        {"-", OperatorType::SubtractEquals},
+        {"-=", OperatorType::SubtractEquals},
+        {"=", OperatorType::Equals },
         {"==", OperatorType::Compare},
     };
 
@@ -33,11 +35,12 @@ namespace se::shader::ast
         {OperatorType::Multiply, "*"},
         {OperatorType::MultiplyEquals, "*="},
         {OperatorType::Divide, "/"},
-        {OperatorType::DivideEquals, "/"},
+        {OperatorType::DivideEquals, "/="},
         {OperatorType::Add, "+"},
-        {OperatorType::AddEquals, "+"},
+        {OperatorType::AddEquals, "+="},
         {OperatorType::Subtract, "-"},
-        {OperatorType::SubtractEquals, "-"},
+        {OperatorType::SubtractEquals, "-="},
+        {OperatorType::Equals, "="},
         {OperatorType::Compare, "=="},
     };
 

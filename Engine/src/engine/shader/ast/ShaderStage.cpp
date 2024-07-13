@@ -2,7 +2,6 @@
 
 #include <set>
 
-#include "AssignmentNode.h"
 #include "ASTNode.h"
 #include "EndOfExpressionNode.h"
 #include "InputNode.h"
