@@ -10,7 +10,7 @@ namespace se::shader::ast
 
     std::string BinaryExpressionNode::GetDebugString() const
     {
-        return std::format("BinaryExpressionNode - children {}", m_Children.size());
+        return std::format("BinaryExpressionNode - {}, children {}", OperatorUtil::OperatorTypeToGlsl(m_OpType), m_Children.size());
     }
 
     void BinaryExpressionNode::ToGlsl(string::ArenaString& outShader) const

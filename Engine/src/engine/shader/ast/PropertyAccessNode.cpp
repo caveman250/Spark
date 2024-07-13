@@ -9,7 +9,7 @@ namespace se::shader::ast
 
     std::string PropertyAccessNode::GetDebugString() const
     {
-        return "PropertyAccessNode";
+        return std::format("PropertyAccessNode - {}", m_PropertyName);
     }
 
     void PropertyAccessNode::ToGlsl(string::ArenaString& outShader) const
