@@ -1,9 +1,9 @@
 #include "Material.h"
 
 #include "GL_fwd.h"
-#include "engine/shader/ShaderGenerator.h"
-#include "engine/shader/ast/Types.h"
-#include "engine/shader/ast/TypeUtil.h"
+#include "engine/asset/shader/compiler/ShaderCompiler.h"
+#include "engine/asset/shader/ast/Types.h"
+#include "engine/asset/shader/ast/TypeUtil.h"
 #include "TextureResource.h"
 
 namespace se::render
@@ -71,8 +71,8 @@ namespace se::render::opengl
 
     void Material::CreatePlatformResources(const render::VertexBuffer& vb)
     {
-        std::optional<std::string> vert = se::shader::ShaderGenerator::CompileShader(m_VertShaderPaths, vb);
-        std::optional<std::string> frag = se::shader::ShaderGenerator::CompileShader(m_FragShaderPaths, vb);
+        std::optional<std::string> vert = se::asset::shader::ShaderCompiler::CompileShader(m_VertShaderPaths, vb);
+        std::optional<std::string> frag = se::asset::shader::ShaderCompiler::CompileShader(m_FragShaderPaths, vb);
 
         if (!vert.has_value() || !frag.has_value())
         {
@@ -139,7 +139,7 @@ namespace se::render::opengl
         glDeleteShader(FragmentShaderID);
     }
 
-    void Material::SetUniform(const std::string& name, shader::ast::Type type, const void* value)
+    void Material::SetUniform(const std::string& name, asset::shader::ast::Type type, const void* value)
     {
         glUseProgram(m_CompiledProgram);
         GLuint uniformLoc = glGetUniformLocation(m_CompiledProgram, name.c_str());
@@ -147,25 +147,25 @@ namespace se::render::opengl
 
         switch (type)
         {
-        case shader::ast::Type::Float:
+        case asset::shader::ast::Type::Float:
             glUniform1f(uniformLoc, *static_cast<const float*>(value));
             break;
-        case shader::ast::Type::Vec2:
+        case asset::shader::ast::Type::Vec2:
             glUniform2fv(uniformLoc, 1, static_cast<const float*>(value));
             break;
-        case shader::ast::Type::Vec3:
+        case asset::shader::ast::Type::Vec3:
             glUniform3fv(uniformLoc, 1, static_cast<const float*>(value));
             break;
-        case shader::ast::Type::Vec4:
+        case asset::shader::ast::Type::Vec4:
             glUniform4fv(uniformLoc, 1, static_cast<const float*>(value));
             break;
-        case shader::ast::Type::Mat3:
+        case asset::shader::ast::Type::Mat3:
             glUniformMatrix3fv(uniformLoc, 1, false, static_cast<const float*>(value));
             break;
-        case shader::ast::Type::Mat4:
+        case asset::shader::ast::Type::Mat4:
             glUniformMatrix4fv(uniformLoc, 1, false, static_cast<const float*>(value));
             break;
-        case shader::ast::Type::Sampler2D:
+        case asset::shader::ast::Type::Sampler2D:
         {
             auto texture = reinterpret_cast<const asset::Texture *>(value);
             const auto& platformResource = texture->GetPlatformResource();
@@ -175,9 +175,9 @@ namespace se::render::opengl
             }
             break;
         }
-        case shader::ast::Type::Void:
-        case shader::ast::Type::Invalid:
-            debug::Log::Error("Material::SetUniform - Unhandled unfiorm type {}", shader::ast::TypeUtil::GetTypeGlsl(type));
+        case asset::shader::ast::Type::Void:
+        case asset::shader::ast::Type::Invalid:
+            debug::Log::Error("Material::SetUniform - Unhandled unfiorm type {}", asset::shader::ast::TypeUtil::GetTypeGlsl(type));
             break;
         }
 

@@ -20,5 +20,6 @@ namespace se::reflect
         virtual ~Type() {}
         virtual std::string GetTypeName() const { return name; }
         virtual size_t GetTypeSize() const { return size; }
+
     };
 }
