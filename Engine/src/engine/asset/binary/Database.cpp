@@ -11,7 +11,6 @@ namespace se::asset::binary
     constexpr uint32_t s_StringsHeaderSize = sizeof(uint32_t); // totalSize (uint32_t)
     constexpr uint32_t s_BlobsHeaderSize = sizeof(uint32_t); // totalSize (uint32_t)
 
-
     Database::Database(bool readOnly)
             : m_ReadOnly(readOnly)
     {
@@ -67,18 +66,25 @@ namespace se::asset::binary
         return s_StructRowSize * static_cast<uint32_t>(structLayout.size()) + s_StructHeaderSize;
     }
 
-    uint32_t Database::CreateStruct(const StructLayout& structLayout)
+    uint32_t Database::GetOrCreateStruct(const StructLayout& structLayout)
     {
         if (!SPARK_VERIFY(!m_ReadOnly))
         {
             return std::numeric_limits<uint32_t>().max();
         }
 
+        if (m_StructLayoutCache.contains(structLayout))
+        {
+            return m_StructLayoutCache.at(structLayout);
+        }
+
         uint32_t reqSize = CalcStructDefinitionDataSize(structLayout);
         uint32_t pos = GrowStructData(reqSize);
         CreateStructData(structLayout, m_Structs + pos);
 
-        return GetNumStructs() - 1;
+        uint32_t structIndex = GetNumStructs() - 1;
+        m_StructLayoutCache[structLayout] = structIndex;
+        return structIndex;
     }
 
     uint32_t Database::GetStructsDataSize()

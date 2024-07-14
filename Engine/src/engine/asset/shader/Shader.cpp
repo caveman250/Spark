@@ -18,9 +18,10 @@ namespace se::asset::shader::ast
     std::shared_ptr<binary::Database> Shader::Serialise()
     {
         SPARK_ASSERT(false, "Not implemented");
+        return nullptr;
     }
 
-    void Shader::Deserialise(const std::shared_ptr<binary::Database>& db)
+    void Shader::Deserialise(const std::shared_ptr<binary::Database>&)
     {
         SPARK_ASSERT(false, "Not implemented");
     }

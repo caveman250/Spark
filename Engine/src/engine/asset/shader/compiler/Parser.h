@@ -62,7 +62,7 @@ namespace se::asset::shader::compiler
         static bool EnsureInteger(const std::string& value, ParseError& outError);
         bool EnsureTypeAndConsume(std::vector<ast::Type> allowedTypes, ParseError& outError);
 
-        ast::Shader m_ShaderStage;
+        ast::Shader m_Shader;
         Lexer m_Lexer;
         memory::Arena* m_TempStorage = nullptr;
     };

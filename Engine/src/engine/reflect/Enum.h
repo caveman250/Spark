@@ -13,10 +13,14 @@ namespace se::reflect
     {
         std::vector<EnumValue> values;
 
-        Enum(void (*init)(Enum *));
-        Enum(const char *, size_t, const std::initializer_list<EnumValue> &init);
+        Enum(void (*init)(Enum*));
+        Enum(const char*, size_t, const std::initializer_list<EnumValue>& init);
 
-        const std::string& ToString(int value);
-        int FromString(const std::string& str);
+        const std::string& ToString(int value) const;
+        int FromString(const std::string& str) const;
+
+        void Serialize(const void* obj, asset::binary::Object& parentObj, const std::string& fieldName) const override;
+        void Deserialize(void* obj, asset::binary::Object& parentObj, const std::string& fieldName) const override;
+        asset::binary::StructLayout GetStructLayout() const override;
     };
-}
+};

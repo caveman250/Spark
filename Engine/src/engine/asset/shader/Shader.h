@@ -4,6 +4,11 @@
 #include "ast/Types.h"
 #include "engine/asset/AssetBase.h"
 
+namespace se::asset::shader::compiler
+{
+    class Parser;
+}
+
 namespace se::asset::shader::ast
 {
     class MainNode;
@@ -28,7 +33,16 @@ namespace se::asset::shader::ast
         std::shared_ptr<binary::Database> Serialise() override;
         void Deserialise(const std::shared_ptr<binary::Database>& db) override;
 
-    private:
+        bool FindVariable(const std::string& name, Type& type) const;
+        const std::map<std::string, InputNode*>& GetInputs() const { return m_Inputs; }
+        const std::map<std::string, OutputNode*>& GetOutputs() const { return m_Outputs; }
+        const std::map<std::string, InputPortNode*>& GetInputPorts() const { return m_InputPorts; }
+        const std::map<std::string, OutputPortNode*>& GetOutputPorts() const { return m_OutputPorts; }
+        const std::vector<ASTNode*>& GetNodes() const { return m_AstNodes; }
+        std::map<std::string, Type>& GetGlobalVariables() { return m_GlobalVariables; }
+        const std::map<std::string, Type>& GetUniformVariables() const { return m_Uniforms; }
+        std::vector<AstScope>& GetScopeStack() { return m_ScopeStack; }
+
         void AddInputPort(InputPortNode* node);
         void AddOutputPort(OutputPortNode* node);
         void RemoveInputPort(const std::string& varName);
@@ -44,7 +58,6 @@ namespace se::asset::shader::ast
 
         std::pair<uint32_t, MainNode*> FindMain() const;
 
-        bool FindVariable(const std::string& name, Type& type) const;
         InputPortNode* FindInputPort(const std::string& name) const;
         InputPortNode* FindInputPortByPortName(const std::string& portName) const;
         OutputPortNode* FindOutputPort(const std::string& name) const;
@@ -54,17 +67,10 @@ namespace se::asset::shader::ast
         bool RecordVariableForScope(const std::string& name, const Type& type, std::string& outError);
         bool AddUniform(const std::string& name, const Type& type, std::string& outError);
 
-        const std::map<std::string, InputNode*>& GetInputs() const { return m_Inputs; }
-        const std::map<std::string, OutputNode*>& GetOutputs() const { return m_Outputs; }
-        const std::map<std::string, InputPortNode*>& GetInputPorts() const { return m_InputPorts; }
-        const std::map<std::string, OutputPortNode*>& GetOutputPorts() const { return m_OutputPorts; }
-        const std::vector<ASTNode*>& GetNodes() const { return m_AstNodes; }
         void InsertNode(size_t at, ASTNode* node);
-        std::vector<AstScope>& GetScopeStack() { return m_ScopeStack; }
-        std::map<std::string, Type>& GetGlobalVariables() { return m_GlobalVariables; }
-        const std::map<std::string, Type>& GetUniformVariables() const { return m_Uniforms; }
         bool HasUniform(const std::string& name, Type type);
 
+    private:
         bool m_MainDeclared = false;
         std::map<std::string, InputPortNode*> m_InputPorts;
         std::map<std::string, OutputPortNode*> m_OutputPorts;

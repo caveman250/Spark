@@ -91,7 +91,7 @@ namespace se::asset::shader::compiler
             }
         }
 
-        return m_ShaderStage;
+        return m_Shader;
     }
 
     bool Parser::ProcessVec2(const Token&, ParseError& outError)
@@ -103,8 +103,8 @@ namespace se::asset::shader::compiler
         }
 
         auto* vec4 = m_TempStorage->Alloc<ast::Vec2Node>();
-        m_ShaderStage.AddNode(vec4);
-        m_ShaderStage.PushScope(vec4);
+        m_Shader.AddNode(vec4);
+        m_Shader.PushScope(vec4);
         int componentsAccountedFor = 0;
         while (componentsAccountedFor < 2)
         {
@@ -151,7 +151,7 @@ namespace se::asset::shader::compiler
             return false;
         }
 
-        m_ShaderStage.PopScope();
+        m_Shader.PopScope();
 
         return true;
     }
@@ -165,8 +165,8 @@ namespace se::asset::shader::compiler
         }
 
         auto* vec4 = m_TempStorage->Alloc<ast::Vec3Node>();
-        m_ShaderStage.AddNode(vec4);
-        m_ShaderStage.PushScope(vec4);
+        m_Shader.AddNode(vec4);
+        m_Shader.PushScope(vec4);
         int componentsAccountedFor = 0;
         while (componentsAccountedFor < 3)
         {
@@ -219,7 +219,7 @@ namespace se::asset::shader::compiler
             return false;
         }
 
-        m_ShaderStage.PopScope();
+        m_Shader.PopScope();
 
         return true;
     }
@@ -233,8 +233,8 @@ namespace se::asset::shader::compiler
         }
 
         auto* vec4 = m_TempStorage->Alloc<ast::Vec4Node>();
-        m_ShaderStage.AddNode(vec4);
-        m_ShaderStage.PushScope(vec4);
+        m_Shader.AddNode(vec4);
+        m_Shader.PushScope(vec4);
         int componentsAccountedFor = 0;
         while (componentsAccountedFor < 4)
         {
@@ -284,7 +284,7 @@ namespace se::asset::shader::compiler
             return false;
         }
 
-        m_ShaderStage.PopScope();
+        m_Shader.PopScope();
 
         return true;
     }
@@ -386,11 +386,11 @@ namespace se::asset::shader::compiler
     {
         if (IsInteger(token.value))
         {
-            m_ShaderStage.AddNode(m_TempStorage->Alloc<ast::ConstantNode<int>>(std::stoi(token.value)));
+            m_Shader.AddNode(m_TempStorage->Alloc<ast::ConstantNode<int>>(std::stoi(token.value)));
         }
         else
         {
-            m_ShaderStage.AddNode(
+            m_Shader.AddNode(
                 m_TempStorage->Alloc<ast::ConstantNode<float>>(std::stof(token.value)));
 
             auto peek = m_Lexer.PeekToken();
@@ -408,7 +408,7 @@ namespace se::asset::shader::compiler
 
     bool Parser::ProcessStringLiteral(const Token& token, ParseError&)
     {
-        m_ShaderStage.AddNode(m_TempStorage->Alloc<ast::ConstantNode<std::string>>(token.value));
+        m_Shader.AddNode(m_TempStorage->Alloc<ast::ConstantNode<std::string>>(token.value));
         return true;
     }
 
@@ -416,19 +416,19 @@ namespace se::asset::shader::compiler
     {
         if (token.value == "}")
         {
-            m_ShaderStage.PopScope();
+            m_Shader.PopScope();
             return true;
         }
         else if (token.value == "{")
         {
             auto scope = m_TempStorage->Alloc<ast::AnonymousScopeNode>();
-            m_ShaderStage.AddNode(scope);
-            m_ShaderStage.PushScope(scope);
+            m_Shader.AddNode(scope);
+            m_Shader.PushScope(scope);
             return true;
         }
         else if (token.value == ";")
         {
-            m_ShaderStage.AddNode(m_TempStorage->Alloc<ast::EndOfExpressionNode>());
+            m_Shader.AddNode(m_TempStorage->Alloc<ast::EndOfExpressionNode>());
             return true;
         }
         else
@@ -485,11 +485,11 @@ namespace se::asset::shader::compiler
 
         if (in)
         {
-            m_ShaderStage.AddInputPort(m_TempStorage->Alloc<ast::InputPortNode>(portName.value, type, name));
+            m_Shader.AddInputPort(m_TempStorage->Alloc<ast::InputPortNode>(portName.value, type, name));
         }
         else
         {
-            m_ShaderStage.AddOutputPort(m_TempStorage->Alloc<ast::OutputPortNode>(portName.value, type, name));
+            m_Shader.AddOutputPort(m_TempStorage->Alloc<ast::OutputPortNode>(portName.value, type, name));
         }
 
         return true;
@@ -519,7 +519,7 @@ namespace se::asset::shader::compiler
         }
 
         std::string temp;
-        if (!m_ShaderStage.AddUniform(name, type, temp))
+        if (!m_Shader.AddUniform(name, type, temp))
         {
             outError = {nameToken.line, nameToken.pos, temp};
             return false;
@@ -575,12 +575,12 @@ namespace se::asset::shader::compiler
         bool isMain = nameToken.value == "main";
         if (isMain)
         {
-            if (m_ShaderStage.IsMainDeclared())
+            if (m_Shader.IsMainDeclared())
             {
                 outError = {nameToken.line, nameToken.pos, "encountered second declaration of main!"};
                 return false;
             }
-            else if (m_ShaderStage.ScopeDepth() > 0)
+            else if (m_Shader.ScopeDepth() > 0)
             {
                 outError = {nameToken.line, nameToken.pos, "main must be declared in the root scope of the shader"};
                 return false;
@@ -608,8 +608,8 @@ namespace se::asset::shader::compiler
                 if (isMain)
                 {
                     auto main = m_TempStorage->Alloc<ast::MainNode>();
-                    m_ShaderStage.AddNode(main);
-                    m_ShaderStage.PushScope(main);
+                    m_Shader.AddNode(main);
+                    m_Shader.PushScope(main);
                 }
                 else
                 {
@@ -654,12 +654,12 @@ namespace se::asset::shader::compiler
         }
 
         ast::Type declarationType = ast::TypeUtil::StringToType(token.value);
-        m_ShaderStage.AddNode(m_TempStorage->Alloc<ast::VariableDeclarationNode>(nameToken.value,
+        m_Shader.AddNode(m_TempStorage->Alloc<ast::VariableDeclarationNode>(nameToken.value,
                                                        declarationType));
-        m_ShaderStage.AddNode(m_TempStorage->Alloc<ast::EndOfExpressionNode>());
+        m_Shader.AddNode(m_TempStorage->Alloc<ast::EndOfExpressionNode>());
 
         std::string error;
-        if (!m_ShaderStage.RecordVariableForScope(nameToken.value, declarationType, error))
+        if (!m_Shader.RecordVariableForScope(nameToken.value, declarationType, error))
         {
             outError = {nameToken.line, nameToken.pos, error};
             return false;
@@ -779,8 +779,8 @@ namespace se::asset::shader::compiler
             if (Peek({ TokenType::Syntax }, {"*", "/", "+", "-", "*=", "/=", "+=", "-=", "="}, binaryOpToken))
             {
                 auto binaryOp = m_TempStorage->Alloc<ast::BinaryExpressionNode>(ast::OperatorUtil::StringToOperatorType(binaryOpToken.value));
-                m_ShaderStage.AddNode(binaryOp);
-                m_ShaderStage.PushScope(binaryOp);
+                m_Shader.AddNode(binaryOp);
+                m_Shader.PushScope(binaryOp);
                 numBinaryExpressions++;
                 m_Lexer.ConsumeToken();
             }
@@ -832,8 +832,8 @@ namespace se::asset::shader::compiler
             if (Peek(binaryOpPeekOffset, { TokenType::Syntax }, {"*", "/", "+", "-", "*=", "/=", "+=", "-=", "="}, binaryOpToken))
             {
                 auto binaryOp = m_TempStorage->Alloc<ast::BinaryExpressionNode>(ast::OperatorUtil::StringToOperatorType(binaryOpToken.value));
-                m_ShaderStage.AddNode(binaryOp);
-                m_ShaderStage.PushScope(binaryOp);
+                m_Shader.AddNode(binaryOp);
+                m_Shader.PushScope(binaryOp);
                 numBinaryExpressions++;
                 if (binaryOpPeekOffset == 0)
                 {
@@ -848,7 +848,7 @@ namespace se::asset::shader::compiler
             if (nextToken.type == TokenType::Identifier)
             {
                 ast::Type type;
-                if (!m_ShaderStage.FindVariable(nextToken.value, type))
+                if (!m_Shader.FindVariable(nextToken.value, type))
                 {
                     outError = {nextToken.line, nextToken.pos, std::format("Undefined variable {}", nextToken.value)};
                     return false;
@@ -871,10 +871,10 @@ namespace se::asset::shader::compiler
                     outType = type;
                 }
 
-                m_ShaderStage.AddNode(m_TempStorage->Alloc<ast::VariableReferenceNode>(nextToken.value, m_ShaderStage));
+                m_Shader.AddNode(m_TempStorage->Alloc<ast::VariableReferenceNode>(nextToken.value, m_Shader));
                 if (isPropertyAccess)
                 {
-                    m_ShaderStage.PopScope();
+                    m_Shader.PopScope();
                 }
             }
             else if (nextToken.type == TokenType::NumericLiteral)
@@ -917,19 +917,19 @@ namespace se::asset::shader::compiler
                 {
                     outType = builtinType;
                 }
-                
+
                 if (isPropertyAccess)
                 {
                     // we need to move the builtin to a child of the property access.
                     // This would ideally be refactored to add them in the correct order in the first place.
-                    auto currentParentNode = (m_ShaderStage.GetScopeStack().end() - 2)->m_Node;
+                    auto currentParentNode = (m_Shader.GetScopeStack().end() - 2)->m_Node;
                     auto propertyAccess = currentParentNode->m_Children.back();
                     auto builtinIt = currentParentNode->m_Children.end() - 2;
                     auto builtin = *builtinIt;
                     currentParentNode->m_Children.erase(builtinIt);
                     propertyAccess->m_Children.push_back(builtin);
 
-                    m_ShaderStage.PopScope();
+                    m_Shader.PopScope();
                 }
             }
             else
@@ -954,7 +954,7 @@ namespace se::asset::shader::compiler
 
         for (int i = 0; i < numBinaryExpressions; ++i)
         {
-            m_ShaderStage.PopScope();
+            m_Shader.PopScope();
         }
 
         return true;
@@ -973,7 +973,7 @@ namespace se::asset::shader::compiler
             return false;
         }
         ast::Type varType;
-        if (!m_ShaderStage.FindVariable(textureVariableToken.value, varType))
+        if (!m_Shader.FindVariable(textureVariableToken.value, varType))
         {
             outError = {
                 textureVariableToken.line, textureVariableToken.pos,
@@ -1001,7 +1001,7 @@ namespace se::asset::shader::compiler
             return false;
         }
         ast::Type uvVarType;
-        if (!m_ShaderStage.FindVariable(uvVariableToken.value, uvVarType))
+        if (!m_Shader.FindVariable(uvVariableToken.value, uvVarType))
         {
             outError = {
                 textureVariableToken.line, textureVariableToken.pos,
@@ -1023,7 +1023,7 @@ namespace se::asset::shader::compiler
             return false;
         }
 
-        m_ShaderStage.AddNode(
+        m_Shader.AddNode(
             m_TempStorage->Alloc<ast::TextureSampleNode>(textureVariableToken.value, uvVariableToken.value));
 
         return true;
@@ -1037,8 +1037,8 @@ namespace se::asset::shader::compiler
         }
 
         auto* length = m_TempStorage->Alloc<ast::LengthNode>();
-        m_ShaderStage.AddNode(length);
-        m_ShaderStage.PushScope(length);
+        m_Shader.AddNode(length);
+        m_Shader.PushScope(length);
 
         int componentsAccountedFor = 0;
         Token nextToken;
@@ -1105,7 +1105,7 @@ namespace se::asset::shader::compiler
             return false;
         }
 
-        m_ShaderStage.PopScope();
+        m_Shader.PopScope();
 
         return true;
     }
@@ -1118,8 +1118,8 @@ namespace se::asset::shader::compiler
         }
 
         auto* normalize = m_TempStorage->Alloc<ast::PowNode>();
-        m_ShaderStage.AddNode(normalize);
-        m_ShaderStage.PushScope(normalize);
+        m_Shader.AddNode(normalize);
+        m_Shader.PushScope(normalize);
 
         int argumentsAccountedFor = 0;
         Token nextToken;
@@ -1173,7 +1173,7 @@ namespace se::asset::shader::compiler
             return false;
         }
 
-        m_ShaderStage.PopScope();
+        m_Shader.PopScope();
 
         return true;
     }
@@ -1186,8 +1186,8 @@ namespace se::asset::shader::compiler
         }
 
         auto* normalize = m_TempStorage->Alloc<ast::NormalizeNode>();
-        m_ShaderStage.AddNode(normalize);
-        m_ShaderStage.PushScope(normalize);
+        m_Shader.AddNode(normalize);
+        m_Shader.PushScope(normalize);
 
         int argumentsAccountedFor = 0;
         Token nextToken;
@@ -1255,7 +1255,7 @@ namespace se::asset::shader::compiler
             return false;
         }
 
-        m_ShaderStage.PopScope();
+        m_Shader.PopScope();
 
         return true;
     }
@@ -1268,8 +1268,8 @@ namespace se::asset::shader::compiler
         }
 
         auto* normalize = m_TempStorage->Alloc<ast::ReflectNode>();
-        m_ShaderStage.AddNode(normalize);
-        m_ShaderStage.PushScope(normalize);
+        m_Shader.AddNode(normalize);
+        m_Shader.PushScope(normalize);
 
         int argumentsAccountedFor = 0;
         Token nextToken;
@@ -1338,7 +1338,7 @@ namespace se::asset::shader::compiler
             return false;
         }
 
-        m_ShaderStage.PopScope();
+        m_Shader.PopScope();
 
         return true;
     }
@@ -1351,8 +1351,8 @@ namespace se::asset::shader::compiler
         }
 
         auto* normalize = m_TempStorage->Alloc<ast::ClampNode>();
-        m_ShaderStage.AddNode(normalize);
-        m_ShaderStage.PushScope(normalize);
+        m_Shader.AddNode(normalize);
+        m_Shader.PushScope(normalize);
 
         Token nextToken;
         int componentsAccountedFor = 0;
@@ -1406,7 +1406,7 @@ namespace se::asset::shader::compiler
             return false;
         }
 
-        m_ShaderStage.PopScope();
+        m_Shader.PopScope();
 
         return true;
     }
@@ -1419,8 +1419,8 @@ namespace se::asset::shader::compiler
         }
 
         auto* dot = m_TempStorage->Alloc<ast::DotNode>();
-        m_ShaderStage.AddNode(dot);
-        m_ShaderStage.PushScope(dot);
+        m_Shader.AddNode(dot);
+        m_Shader.PushScope(dot);
 
         Token nextToken;
         int argumentsAccountedFor = 0;
@@ -1476,7 +1476,7 @@ namespace se::asset::shader::compiler
             return false;
         }
 
-        m_ShaderStage.PopScope();
+        m_Shader.PopScope();
 
         return true;
     }
@@ -1519,8 +1519,8 @@ namespace se::asset::shader::compiler
         }
 
         auto propertyAccessNode = m_TempStorage->Alloc<ast::PropertyAccessNode>(propertyNameToken.value);
-        m_ShaderStage.AddNode(propertyAccessNode);
-        m_ShaderStage.PushScope(propertyAccessNode);
+        m_Shader.AddNode(propertyAccessNode);
+        m_Shader.PushScope(propertyAccessNode);
         return true;
     }
 }

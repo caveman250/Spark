@@ -13,7 +13,7 @@ namespace se::asset::binary
     public:
         static std::shared_ptr<Database> Create(bool readOnly);
         ~Database();
-        [[nodiscard]] uint32_t CreateStruct(const StructLayout& structLayout);
+        [[nodiscard]] uint32_t GetOrCreateStruct(const StructLayout& structLayout);
         char* GetStructData(uint32_t structIndex);
 
         Object CreateObject(uint32_t structIndex);
@@ -63,6 +63,7 @@ namespace se::asset::binary
         uint32_t GrowBlobData(uint32_t size);
 
         bool m_ReadOnly = true;
+        std::map<StructLayout, uint32_t> m_StructLayoutCache = {};
 
         char* m_Structs = nullptr;
         // numStructs (uint32_t)

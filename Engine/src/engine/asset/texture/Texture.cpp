@@ -40,7 +40,7 @@ DEFINE_SPARK_CLASS_END()
             {binary::CreateFixedString32("mips"), binary::Type::Array}
         };
 
-        auto rootStructIndex = db->CreateStruct(rootStructLayout);
+        auto rootStructIndex = db->GetOrCreateStruct(rootStructLayout);
         db->SetRootStruct(rootStructIndex);
 
         auto root = db->GetRoot();
@@ -56,7 +56,7 @@ DEFINE_SPARK_CLASS_END()
             {binary::CreateFixedString32("sizeY"), binary::Type::Uint32}
         };
 
-        auto mipStructIndex = db->CreateStruct(mipStructLayout);
+        auto mipStructIndex = db->GetOrCreateStruct(mipStructLayout);
         auto mipArray = db->CreateArray(mipStructIndex, m_MipCount);
         root.Set<binary::Array>("mips", mipArray);
         for (uint32_t i = 0; i < m_MipCount; ++i)
