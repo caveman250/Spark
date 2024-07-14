@@ -1,7 +1,12 @@
 #pragma once
 
 #include "spark.h"
-#include "engine/asset/binary/Type.h"
+#include "engine/asset/binary/binary.h"
+
+namespace se::asset::binary
+{
+    class Object;
+}
 
 namespace se::reflect
 {
@@ -20,6 +25,10 @@ namespace se::reflect
         virtual ~Type() {}
         virtual std::string GetTypeName() const { return name; }
         virtual size_t GetTypeSize() const { return size; }
+
+        virtual void Serialize(const void* obj, asset::binary::Object& parentObj, const std::string& fieldName) const = 0;
+        virtual void Deserialize(void* obj, asset::binary::Object& parentObj, const std::string& fieldName) const = 0;
+        virtual asset::binary::StructLayout GetStructLayout() const = 0;
 
     };
 }

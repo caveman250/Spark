@@ -23,12 +23,14 @@ namespace se::asset::binary
         template<typename T>
         void Set(const std::string& field, const T& val);
 
+        void Set(uint32_t fieldIndex, const char* data, size_t size);
+
         const char* GetString(const std::string& field);
         void SetString(const std::string& field, const char* val);
 
-    private:
-        void Set(uint32_t fieldIndex, const char* data, size_t size);
+        Database* GetDatabase() const { return m_DB; }
 
+    private:
         Object(uint32_t offset, Database* database, const Struct& objStruct);
 
         char* GetData();

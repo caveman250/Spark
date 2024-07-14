@@ -17,7 +17,7 @@ namespace se::asset
             { binary::CreateFixedString32("meshes"), binary::Type::Array }
         };
 
-        auto rootStructIndex = db->CreateStruct(rootStructLayout);
+        auto rootStructIndex = db->GetOrCreateStruct(rootStructLayout);
         db->SetRootStruct(rootStructIndex);
 
         auto root = db->GetRoot();
@@ -45,10 +45,10 @@ namespace se::asset
             {binary::CreateFixedString32("indices"), binary::Type::Array}
         };
 
-        auto vec3StructIndex = db->CreateStruct(vec3ObjLayout);
-        auto vec2StructIndex = db->CreateStruct(vec2ObjLayout);
-        auto uintStructIndex = db->CreateStruct(uintObjLayout);
-        auto mipStructIndex = db->CreateStruct(meshStructLayout);
+        auto vec3StructIndex = db->GetOrCreateStruct(vec3ObjLayout);
+        auto vec2StructIndex = db->GetOrCreateStruct(vec2ObjLayout);
+        auto uintStructIndex = db->GetOrCreateStruct(uintObjLayout);
+        auto mipStructIndex = db->GetOrCreateStruct(meshStructLayout);
 
         auto meshArray = db->CreateArray(mipStructIndex, m_Meshes.size());
         root.Set<binary::Array>("meshes", meshArray);
