@@ -14,14 +14,13 @@
 
 std::optional<std::string> se::asset::shader::ShaderCompiler::CompileShader(const std::vector<std::string>& filePaths, const render::VertexBuffer& vb)
 {
-    memory::Arena arena;
     std::optional<ast::Shader> firstStage = std::nullopt;
     std::vector<ast::Shader> additionalStages;
     for (auto& path : filePaths)
     {
         debug::Log::Info("Compiling shader: {0}", path.c_str());
         compiler::Lexer lexer(path);
-        compiler::Parser parser(lexer, &arena);
+        compiler::Parser parser(lexer);
         auto result = parser.Parse();
         if (std::holds_alternative<compiler::ParseError>(result))
         {
@@ -45,10 +44,10 @@ std::optional<std::string> se::asset::shader::ShaderCompiler::CompileShader(cons
     auto combiner = compiler::ShaderCombiner(vb);
     for (auto& additionalStage : additionalStages)
     {
-        firstStage = combiner.Combine(firstStage.value(), additionalStage, arena);
+        firstStage = combiner.Combine(firstStage.value(), additionalStage);
     }
 
-    combiner.ResolveCombinedShaderPorts(firstStage.value(), arena);
+    combiner.ResolveCombinedShaderPorts(firstStage.value());
 
     return AstToGlsl(firstStage.value());
 }
@@ -84,7 +83,7 @@ std::string se::asset::shader::ShaderCompiler::AstToGlsl(ast::Shader &ast)
         shader.append(std::format("uniform {0} {1};\n", ast::TypeUtil::GetTypeGlsl(type), name));
     }
 
-    for (const auto *node: ast.GetNodes())
+    for (const auto& node: ast.GetNodes())
     {
         node->ToGlsl(shader);
     }

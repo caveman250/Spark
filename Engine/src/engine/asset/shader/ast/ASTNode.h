@@ -7,7 +7,8 @@ namespace se::asset::shader::ast
     {
     public:
         virtual ~ASTNode() = default;
-        std::vector<ASTNode*> m_Children;
+
+        std::vector<std::shared_ptr<ASTNode>> m_Children;
         void DebugPrint(int indent) const;
         virtual std::string GetDebugString() const = 0;
         virtual void ToGlsl(string::ArenaString& outShader) const = 0;

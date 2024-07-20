@@ -12,7 +12,7 @@ namespace se::asset::shader::ast
         str += GetDebugString();
         debug::Log::Info(str);
 
-        for (auto* child : m_Children)
+        for (const auto& child : m_Children)
         {
             child->DebugPrint(indent + 1);
         }
@@ -20,7 +20,7 @@ namespace se::asset::shader::ast
 
     void ASTNode::CollectUsedNames(std::map<std::string, std::string> &nameMap) const
     {
-        for (auto* child : m_Children)
+        for (const auto& child : m_Children)
         {
             child->CollectUsedNames(nameMap);
         }
@@ -28,7 +28,7 @@ namespace se::asset::shader::ast
 
     void ASTNode::ApplyNameRemapping(const std::map<std::string, std::string> &newNames)
     {
-        for (auto* child : m_Children)
+        for (const auto& child : m_Children)
         {
             child->ApplyNameRemapping(newNames);
         }

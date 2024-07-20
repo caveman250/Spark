@@ -19,7 +19,7 @@ namespace se::asset::shader::compiler
     void FixDuplicateNames(const ast::Shader &left, ast::Shader &right)
     {
         std::map<std::string, std::string> nameMap;
-        for (auto *node: left.GetNodes())
+        for (const auto& node: left.GetNodes())
         {
             node->CollectUsedNames(nameMap);
         }
@@ -35,7 +35,7 @@ namespace se::asset::shader::compiler
         {
             newName = ast::NameGenerator::GetName();
         }
-        for (auto *node: right.GetNodes())
+        for (const auto& node: right.GetNodes())
         {
             node->ApplyNameRemapping(nameMap);
         }
@@ -72,10 +72,9 @@ namespace se::asset::shader::compiler
         }
     }
 
-    std::map<std::string, std::string> RemapOutputsToOthersInputs(ast::Shader &left,
-        const ast::Shader &right, memory::Arena &tempStore)
+    std::map<std::string, std::string> RemapOutputsToOthersInputs(ast::Shader &left, const ast::Shader &right)
     {
-        std::set<const ast::OutputPortNode *> outputPortsToRemove;
+        std::set<std::shared_ptr<ast::OutputPortNode>> outputPortsToRemove;
         std::map<std::string, std::string> ret;
         auto main = left.FindMain();
         for (const auto &[name, port]: left.GetOutputPorts())
@@ -89,15 +88,14 @@ namespace se::asset::shader::compiler
 
                     // replae all writes in current shader with new name
                     std::map<std::string, std::string> renameMap = { {name, newName} };
-                    for (auto *node: left.GetNodes())
+                    for (const auto& node: left.GetNodes())
                     {
                         node->ApplyNameRemapping(renameMap);
                     }
 
                     // insert local variable declaration for port being removed
-                    main.second->m_Children.insert(main.second->m_Children.begin(),
-                                                 tempStore.Alloc<ast::VariableDeclarationNode>(newName, port->GetType()));
-                    main.second->m_Children.insert(main.second->m_Children.begin() + 1, tempStore.Alloc<ast::EndOfExpressionNode>());
+                    main.second->m_Children.insert(main.second->m_Children.begin(), std::make_shared<ast::VariableDeclarationNode>(newName, port->GetType()));
+                    main.second->m_Children.insert(main.second->m_Children.begin() + 1, std::make_shared<ast::EndOfExpressionNode>());
 
                     // mark for removal
                     outputPortsToRemove.insert(port);
@@ -107,7 +105,7 @@ namespace se::asset::shader::compiler
             }
         }
 
-        for (auto* port : outputPortsToRemove)
+        for (const auto& port : outputPortsToRemove)
         {
             left.RemoveOutputPort(port->GetName());
         }
@@ -117,14 +115,14 @@ namespace se::asset::shader::compiler
 
     void ReplaceInputPortsWithPreviousStageLocalVars(ast::Shader &left, const std::map<std::string, std::string> &nameMap)
     {
-        std::set<const ast::InputPortNode *> inputPortsToRemove;
+        std::set<std::shared_ptr<ast::InputPortNode>> inputPortsToRemove;
         for (const auto &[name, port]: left.GetInputPorts())
         {
             if (nameMap.contains(port->GetPortName()))
             {
                 // replae all reads in current shader with new name
                 std::map<std::string, std::string> renameMap = { { name, nameMap.at(port->GetPortName()) } };
-                for (auto *node: left.GetNodes())
+                for (const auto& node: left.GetNodes())
                 {
                     node->ApplyNameRemapping(renameMap);
                 }
@@ -134,22 +132,22 @@ namespace se::asset::shader::compiler
             }
         }
 
-        for (auto* port : inputPortsToRemove)
+        for (const auto& port : inputPortsToRemove)
         {
             left.RemoveInputPort(port->GetName());
         }
     }
 
-    void ConnectPorts(ast::Shader &left, ast::Shader &right, memory::Arena& tempStore)
+    void ConnectPorts(ast::Shader &left, ast::Shader &right)
     {
-        auto portRemap = RemapOutputsToOthersInputs(left, right, tempStore);
+        auto portRemap = RemapOutputsToOthersInputs(left, right);
         ReplaceInputPortsWithPreviousStageLocalVars(right, portRemap);
     }
 
     void CleanupDuplicatePorts(ast::Shader& left, const ast::Shader& right)
     {
         // inputs
-        std::set<const ast::InputPortNode *> inputPortsToRemove;
+        std::set<std::shared_ptr<ast::InputPortNode>> inputPortsToRemove;
         for (auto& [name, port] : left.GetInputPorts())
         {
             auto portName = port->GetPortName();
@@ -159,7 +157,7 @@ namespace se::asset::shader::compiler
                 if (otherPortName == portName)
                 {
                     std::map<std::string, std::string> renameMap = { { name, otherName } };
-                    for (auto *node: left.GetNodes())
+                    for (const auto& node: left.GetNodes())
                     {
                         node->ApplyNameRemapping(renameMap);
                     }
@@ -171,13 +169,13 @@ namespace se::asset::shader::compiler
             }
         }
 
-        for (auto* port : inputPortsToRemove)
+        for (const auto& port : inputPortsToRemove)
         {
             left.RemoveInputPort(port->GetName());
         }
 
         // outputs
-        std::set<const ast::OutputPortNode *> outputPortsToRemove;
+        std::set<std::shared_ptr<ast::OutputPortNode>> outputPortsToRemove;
         for (auto& [name, port] : left.GetOutputPorts())
         {
             auto portName = port->GetPortName();
@@ -187,7 +185,7 @@ namespace se::asset::shader::compiler
                 if (otherPortName == portName)
                 {
                     std::map<std::string, std::string> renameMap = { { name, otherName } };
-                    for (auto *node: left.GetNodes())
+                    for (const auto& node: left.GetNodes())
                     {
                         node->ApplyNameRemapping(renameMap);
                     }
@@ -199,7 +197,7 @@ namespace se::asset::shader::compiler
             }
         }
 
-        for (auto* port : outputPortsToRemove)
+        for (const auto& port : outputPortsToRemove)
         {
             left.RemoveOutputPort(port->GetName());
         }
@@ -207,14 +205,13 @@ namespace se::asset::shader::compiler
 
     void CombineLogic(ast::Shader &left, const ast::Shader &right)
     {
-        std::pair<uint32_t, ast::ASTNode *> main = left.FindMain();
-
-        std::pair<uint32_t, ast::ASTNode *> otherMain = right.FindMain();
-        std::vector<ast::ASTNode *> nodesBeforeMain = {};
-        std::vector<ast::ASTNode *> nodesAfterMain = {};
+        auto main = left.FindMain();
+        auto otherMain = right.FindMain();
+        std::vector<std::shared_ptr<ast::ASTNode>> nodesBeforeMain = {};
+        std::vector<std::shared_ptr<ast::ASTNode>> nodesAfterMain = {};
         bool hitMain = false;
 
-        for (auto *node: right.GetNodes())
+        for (const auto& node: right.GetNodes())
         {
             if (node == otherMain.second)
             {
@@ -232,19 +229,19 @@ namespace se::asset::shader::compiler
             }
         }
 
-        for (auto *node: nodesBeforeMain)
+        for (const auto& node: nodesBeforeMain)
         {
             left.InsertNode(main.first, node);
             main.first++;
         }
 
-        for (auto *node: otherMain.second->m_Children)
+        for (const auto& node: otherMain.second->m_Children)
         {
             main.second->m_Children.push_back(node);
         }
 
         uint32_t offset = main.first + 1u;
-        for (auto *node: nodesAfterMain)
+        for (const auto& node: nodesAfterMain)
         {
             left.InsertNode(offset, node);
             offset++;
@@ -264,21 +261,21 @@ namespace se::asset::shader::compiler
         }
     }
 
-    void ShaderCombiner::ResolveCombinedShaderPorts(ast::Shader& shader, memory::Arena& arena)
+    void ShaderCombiner::ResolveCombinedShaderPorts(ast::Shader& shader)
     {
         for (auto& [name, port] : shader.GetInputPorts())
         {
             if (port->GetPortName().starts_with("Vertex_In"))
             {
-                shader.AddInput(arena.Alloc<ast::InputAttributeNode>(GetInputLoc(port->GetPortName()), port->GetType(), name));
+                shader.AddInput(std::make_shared<ast::InputAttributeNode>(GetInputLoc(port->GetPortName()), port->GetType(), name));
             }
             else if (port->GetPortName().starts_with("Frag_In"))
             {
                 std::string varName = port->GetPortName();
                 varName = std::regex_replace(varName, std::regex("Frag_In"), "Vertex_Out");
-                shader.AddInput(arena.Alloc<ast::InputNode>(port->GetType(), varName));
+                shader.AddInput(std::make_shared<ast::InputNode>(port->GetType(), varName));
                 std::map<std::string, std::string> renameMap = { { name, varName } };
-                for (auto* node : shader.GetNodes())
+                for (const auto& node : shader.GetNodes())
                 {
                     node->ApplyNameRemapping(renameMap);
                 }
@@ -293,11 +290,11 @@ namespace se::asset::shader::compiler
         {
             if (port->GetPortName() == "Vertex_OutPos")
             {
-                for (auto* node : shader.GetNodes())
+                for (const auto& node : shader.GetNodes())
                 {
-                    ForEachChild(node, [port](ast::ASTNode* child)
+                    ForEachChild(node, [port](const std::shared_ptr<ast::ASTNode>& child)
                     {
-                        if (auto* varRefNode = dynamic_cast<ast::VariableReferenceNode*>(child))
+                        if (const auto& varRefNode = std::dynamic_pointer_cast<ast::VariableReferenceNode>(child))
                         {
                             if (varRefNode->GetName() == port->GetName())
                             {
@@ -309,14 +306,14 @@ namespace se::asset::shader::compiler
             }
             else if (port->GetPortName().starts_with("Frag_Out"))
             {
-                shader.AddOutput(arena.Alloc<ast::OutputNode>(port->GetType(), name));
+                shader.AddOutput(std::make_shared<ast::OutputNode>(port->GetType(), name));
             }
             else if (port->GetPortName().starts_with("Vertex_Out"))
             {
-                shader.AddOutput(arena.Alloc<ast::OutputNode>(port->GetType(), port->GetPortName()));
+                shader.AddOutput(std::make_shared<ast::OutputNode>(port->GetType(), port->GetPortName()));
                 // names have to match the frag shader.
                 std::map<std::string, std::string> renameMap = { { name, port->GetPortName() } };
-                for (auto* node : shader.GetNodes())
+                for (const auto& node : shader.GetNodes())
                 {
                     node->ApplyNameRemapping(renameMap);
                 }
@@ -328,9 +325,9 @@ namespace se::asset::shader::compiler
         }
     }
 
-    void ShaderCombiner::ForEachChild(ast::ASTNode* node, std::function<void(ast::ASTNode* node)> func)
+    void ShaderCombiner::ForEachChild(const std::shared_ptr<ast::ASTNode>& node, std::function<void(const std::shared_ptr<ast::ASTNode>& node)> func)
     {
-        for (auto* child : node->m_Children)
+        for (const auto& child : node->m_Children)
         {
             func(child);
             ForEachChild(child, func);
@@ -355,12 +352,12 @@ namespace se::asset::shader::compiler
 
     }
 
-    ast::Shader ShaderCombiner::Combine(const ast::Shader &left, const ast::Shader &right, memory::Arena &tempStore)
+    ast::Shader ShaderCombiner::Combine(const ast::Shader &left, const ast::Shader &right)
     {
         ast::Shader leftCopy = left;
         ast::Shader rightCopy = right;
         FixDuplicateNames(leftCopy, rightCopy);
-        ConnectPorts(leftCopy, rightCopy, tempStore);
+        ConnectPorts(leftCopy, rightCopy);
         CleanupDuplicatePorts(leftCopy, rightCopy);
         CombineUniforms(leftCopy, rightCopy);
         CombineLogic(leftCopy, rightCopy);

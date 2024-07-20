@@ -15,7 +15,7 @@
 
 namespace se::asset::shader::ast
 {
-    void Shader::AddInputPort(InputPortNode *node)
+    void Shader::AddInputPort(const std::shared_ptr<InputPortNode>& node)
     {
         if (SPARK_VERIFY(FindInputPortByPortName(node->GetPortName()) == nullptr))
         {
@@ -23,7 +23,7 @@ namespace se::asset::shader::ast
         }
     }
 
-    void Shader::AddOutputPort(OutputPortNode *node)
+    void Shader::AddOutputPort(const std::shared_ptr<OutputPortNode>& node)
     {
         if (SPARK_VERIFY(FindOutputPortByPortName(node->GetPortName()) == nullptr))
         {
@@ -41,7 +41,7 @@ namespace se::asset::shader::ast
         m_OutputPorts.erase(varName);
     }
 
-    void Shader::AddInput(InputNode *node)
+    void Shader::AddInput(const std::shared_ptr<InputNode>& node)
     {
         if (SPARK_VERIFY(!m_Inputs.contains(node->GetName())))
         {
@@ -49,7 +49,7 @@ namespace se::asset::shader::ast
         }
     }
 
-    void Shader::AddOutput(OutputNode *node)
+    void Shader::AddOutput(const std::shared_ptr<OutputNode>& node)
     {
         if (SPARK_VERIFY(!m_Outputs.contains(node->GetName())))
         {
@@ -57,9 +57,9 @@ namespace se::asset::shader::ast
         }
     }
 
-    void Shader::AddNode(ASTNode *node)
+    void Shader::AddNode(const std::shared_ptr<ASTNode>& node)
     {
-        if (dynamic_cast<MainNode *>(node))
+        if (std::dynamic_pointer_cast<MainNode>(node))
         {
             if (!SPARK_VERIFY(m_ScopeStack.empty()))
             {
@@ -79,7 +79,7 @@ namespace se::asset::shader::ast
         }
     }
 
-    void Shader::PushScope(ASTNode *node)
+    void Shader::PushScope(const std::shared_ptr<ASTNode>& node)
     {
         m_ScopeStack.push_back(AstScope(node));
     }
@@ -94,7 +94,7 @@ namespace se::asset::shader::ast
 
     bool Shader::IsMainCurrentScope()
     {
-        return m_ScopeStack.size() == 1 && dynamic_cast<MainNode *>(m_ScopeStack[0].m_Node) != nullptr;
+        return m_ScopeStack.size() == 1 && std::dynamic_pointer_cast<MainNode>(m_ScopeStack[0].m_Node) != nullptr;
     }
 
     bool Shader::FindVariable(const std::string &name, Type &type) const
@@ -120,25 +120,25 @@ namespace se::asset::shader::ast
             return true;
         }
 
-        if (InputPortNode *input = FindInputPort(name))
+        if (const std::shared_ptr<InputPortNode>& input = FindInputPort(name))
         {
             type = input->GetType();
             return true;
         }
 
-        if (OutputPortNode *output = FindOutputPort(name))
+        if (const std::shared_ptr<OutputPortNode>& output = FindOutputPort(name))
         {
             type = output->GetType();
             return true;
         }
 
-        if (InputNode *input = FindInput(name))
+        if (const std::shared_ptr<InputNode>& input = FindInput(name))
         {
             type = input->GetType();
             return true;
         }
 
-        if (OutputNode *output = FindOutput(name))
+        if (const std::shared_ptr<OutputNode>& output = FindOutput(name))
         {
             type = output->GetType();
             return true;
@@ -147,17 +147,18 @@ namespace se::asset::shader::ast
         return false;
     }
 
-    InputPortNode *Shader::FindInputPort(const std::string &name) const
+    const std::shared_ptr<InputPortNode>& Shader::FindInputPort(const std::string &name) const
     {
         if (m_InputPorts.contains(name))
         {
             return m_InputPorts.at(name);
         }
 
-        return nullptr;
+        static std::shared_ptr<InputPortNode> nullRet = nullptr;
+        return nullRet;
     }
 
-    InputPortNode * Shader::FindInputPortByPortName(const std::string &portName) const
+    const std::shared_ptr<InputPortNode>&  Shader::FindInputPortByPortName(const std::string &portName) const
     {
         for (const auto &[varName, port]: m_InputPorts)
         {
@@ -166,20 +167,23 @@ namespace se::asset::shader::ast
                 return port;
             }
         }
-        return nullptr;
+
+        static std::shared_ptr<InputPortNode> nullRet = nullptr;
+        return nullRet;
     }
 
-    OutputPortNode *Shader::FindOutputPort(const std::string &name) const
+    const std::shared_ptr<OutputPortNode>& Shader::FindOutputPort(const std::string &name) const
     {
         if (m_OutputPorts.contains(name))
         {
             return m_OutputPorts.at(name);
         }
 
-        return nullptr;
+        static std::shared_ptr<OutputPortNode> nullRet = nullptr;
+        return nullRet;
     }
 
-    OutputPortNode *Shader::FindOutputPortByPortName(const std::string &portName) const
+    const std::shared_ptr<OutputPortNode>& Shader::FindOutputPortByPortName(const std::string &portName) const
     {
         for (const auto &[varName, port]: m_OutputPorts)
         {
@@ -188,27 +192,31 @@ namespace se::asset::shader::ast
                 return port;
             }
         }
-        return nullptr;
+
+        static std::shared_ptr<OutputPortNode> nullRet = nullptr;
+        return nullRet;
     }
 
-    InputNode *Shader::FindInput(const std::string &name) const
+    const std::shared_ptr<InputNode>& Shader::FindInput(const std::string &name) const
     {
         if (m_Inputs.contains(name))
         {
             return m_Inputs.at(name);
         }
 
-        return nullptr;
+        static std::shared_ptr<InputNode> nullRet = nullptr;
+        return nullRet;
     }
 
-    OutputNode *Shader::FindOutput(const std::string &name) const
+    const std::shared_ptr<OutputNode>& Shader::FindOutput(const std::string &name) const
     {
         if (m_Outputs.contains(name))
         {
             return m_Outputs.at(name);
         }
 
-        return nullptr;
+        static std::shared_ptr<OutputNode> nullRet = nullptr;
+        return nullRet;
     }
 
     bool Shader::RecordVariableForScope(const std::string &name, const Type &type, std::string &outError)
@@ -250,7 +258,7 @@ namespace se::asset::shader::ast
         return true;
     }
 
-    void Shader::InsertNode(size_t at, ASTNode *node)
+    void Shader::InsertNode(size_t at, const std::shared_ptr<ASTNode>& node)
     {
         m_AstNodes.insert(m_AstNodes.begin() + at, node);
     }
@@ -268,16 +276,17 @@ namespace se::asset::shader::ast
         return false;
     }
 
-    std::pair<uint32_t, MainNode *> Shader::FindMain() const
+    std::pair<uint32_t, std::shared_ptr<MainNode>> Shader::FindMain() const
     {
         for (size_t i = 0; i < m_AstNodes.size(); ++i)
         {
-            if (auto main = dynamic_cast<MainNode *>(m_AstNodes[i]))
+            if (const auto& main = std::dynamic_pointer_cast<MainNode>(m_AstNodes[i]))
             {
                 return {static_cast<uint32_t>(i), main};
             }
         }
 
-        return {-1, nullptr};
+        static std::shared_ptr<MainNode> nullRet = nullptr;
+        return {-1, nullRet };
     }
 }

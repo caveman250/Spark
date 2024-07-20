@@ -13,7 +13,7 @@ namespace se::asset::shader::ast
         outShader.append("length(");
         for (size_t i = 0; i < m_Children.size(); ++i)
         {
-            auto* child = m_Children[i];
+            const auto& child = m_Children[i];
             child->ToGlsl(outShader);
             if (i < m_Children.size() - 1 && outShader.back() != '-')
             {
