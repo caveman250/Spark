@@ -19,7 +19,7 @@ namespace se::reflect
     template<typename T>
     T DeserialiseType(const std::shared_ptr<asset::binary::Database>& db)
     {
-       T obj;
+        T obj;
         const Type* reflect = TypeResolver<T>::get();
         auto root = db->GetRoot();
         reflect->Deserialize(&obj, root, {});

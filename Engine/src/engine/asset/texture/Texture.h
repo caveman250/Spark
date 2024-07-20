@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Format.h"
-#include "engine/asset/AssetBase.h"
+#include "engine/asset/binary/Database.h"
 #include "engine/asset/texture/Mipmap.h"
 
 namespace se::render
@@ -16,15 +16,12 @@ namespace se::asset::builder
 
 namespace se::asset
 {
-    class Texture : public AssetBase
+    class Texture
     {
         DECLARE_SPARK_CLASS(Texture)
 
     public:
-        Texture() : AssetBase() {}
         void Release();
-        std::shared_ptr<binary::Database> Serialise() override;
-        void Deserialise(const std::shared_ptr<binary::Database>& db) override;
         static std::shared_ptr<Texture> FromDDS(const builder::CompressedImageData& rawDDSData);
 
         uint32_t GetWidth() const { return m_Width; }

@@ -171,10 +171,9 @@ namespace se::asset::binary
         }
 
         offset += s_StructsHeaderSize;
-        char* structStart = m_Structs + offset;
         for (uint8_t i = 0; i < structIndex; ++i)
         {
-            uint32_t structSize = GetNumStructFields(structStart);
+            uint32_t structSize = GetNumStructFields(m_Structs + offset);
             offset += (structSize * s_StructRowSize) + s_StructHeaderSize;
         }
 

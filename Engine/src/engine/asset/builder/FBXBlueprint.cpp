@@ -3,6 +3,7 @@
 #include "ofbx.h"
 #include "engine/asset/mesh/Model.h"
 #include "engine/io/VFS.h"
+#include "engine/reflect/Util.h"
 
 namespace se::asset::builder
 {
@@ -33,7 +34,7 @@ namespace se::asset::builder
         char* data = io::VFS::Get().ReadBinary(path, fileSize);
         ofbx::IScene* scene = ofbx::load((ofbx::u8*)data, fileSize, (ofbx::u16)flags);
         auto model = Model::FromFBX(scene);
-        auto db = model->Serialise();
+        auto db = reflect::SerialiseType<Model>(model.get());
 
         std::free(data);
         scene->destroy();

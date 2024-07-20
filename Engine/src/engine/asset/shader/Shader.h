@@ -2,7 +2,6 @@
 #include "ast/InputPortNode.h"
 #include "spark.h"
 #include "ast/Types.h"
-#include "engine/asset/AssetBase.h"
 
 namespace se::asset::shader::compiler
 {
@@ -27,11 +26,9 @@ namespace se::asset::shader::ast
         std::map<std::string, Type> m_Variables;
     };
 
-    class Shader : public AssetBase
+    class Shader
     {
     public:
-        std::shared_ptr<binary::Database> Serialise() override;
-        void Deserialise(const std::shared_ptr<binary::Database>& db) override;
 
         bool FindVariable(const std::string& name, Type& type) const;
         const std::map<std::string, InputNode*>& GetInputs() const { return m_Inputs; }
