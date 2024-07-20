@@ -22,7 +22,7 @@ namespace se::asset
 
     public:
         Texture() : AssetBase() {}
-        ~Texture() override;
+        void Release();
         std::shared_ptr<binary::Database> Serialise() override;
         void Deserialise(const std::shared_ptr<binary::Database>& db) override;
         static std::shared_ptr<Texture> FromDDS(const builder::CompressedImageData& rawDDSData);

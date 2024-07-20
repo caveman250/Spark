@@ -2,17 +2,14 @@
 
 #include "engine/asset/binary/Object.h"
 #include "engine/asset/binary/Type.h"
+#include "engine/asset/texture/Mipmap.h"
+#include "engine/asset/texture/Texture.h"
 
 namespace se::reflect
 {
     Class::Class(void(* init)(Class*)): Type{nullptr, 0, asset::binary::Type::Object }
     {
         init(this);
-    }
-
-    Class::Class(const char*, size_t, const std::initializer_list<Member>& init): Type{ nullptr, 0, asset::binary::Type::Object }
-        , members{ init }
-    {
     }
 
     Type* Class::GetMemberType(const std::string& fieldName)
@@ -64,7 +61,7 @@ namespace se::reflect
         for (size_t i = 0; i < members.size(); ++i)
         {
             const Member& member = members[i];
-            member.type->Serialize(static_cast<const char*>(obj) + member.offset, binaryObj.value(), member.name);
+            member.type->Serialize(member.get(obj), binaryObj.value(), member.name);
         }
 
         if (!fieldName.empty())
@@ -79,7 +76,7 @@ namespace se::reflect
         asset::binary::Object thisObj = fieldName.empty() ? parentObj : parentObj.Get<asset::binary::Object>(fieldName);
         for (size_t i = 0; i < members.size(); ++i)
         {
-            members[i].type->Deserialize((char*)obj + members[i].offset, thisObj, members[i].name);
+            members[i].type->Deserialize(members[i].get(obj), thisObj, members[i].name);
         }
     }
 }

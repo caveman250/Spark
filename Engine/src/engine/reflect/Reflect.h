@@ -37,7 +37,7 @@ typeDesc->destructor = [](void* data){ reinterpret_cast<T*>(data)->~T(); };     
 typeDesc->members = {
 
 #define DEFINE_MEMBER(name) \
-{#name, offsetof(T, name), se::reflect::TypeResolver<decltype(T::name)>::get()},
+{#name, se::reflect::TypeResolver<decltype(T::name)>::get(), [](const void* obj){ return (void*)&((T*)obj)->name; }},
 
 #define DEFINE_SPARK_CLASS_END() \
 }; };                    \
