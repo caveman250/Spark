@@ -29,8 +29,8 @@ namespace se::render::opengl
                                    mip.sizeX,
                                    mip.sizeY,
                                    0,
-                                   mip.m_DataSize,
-                                   mip.m_Data);
+                                   mip.m_Data.GetSize(),
+                                   mip.m_Data.GetData());
             level++;
         }
 

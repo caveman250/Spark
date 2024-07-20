@@ -6,6 +6,7 @@
 #include "crnlib.h"
 #include "engine/asset/texture/Mipmap.h"
 #include "engine/asset/texture/Texture.h"
+#include "engine/reflect/Util.h"
 
 namespace se::asset::builder
 {
@@ -30,7 +31,9 @@ namespace se::asset::builder
         }
 
         auto texture = Texture::FromDDS(compressedData);
-        auto db = texture->Serialise();
+        auto db = reflect::SerialiseType<Texture>(texture.get());
+
+        //auto db = texture->Serialise();
         FreeImage(imageData);
         FreeCompressedImage(compressedData);
 

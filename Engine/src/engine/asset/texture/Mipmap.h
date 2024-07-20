@@ -1,6 +1,7 @@
 #pragma once
 
 #include "spark.h"
+#include "engine/memory/BinaryBlob.h"
 
 namespace se::asset::texture
 {
@@ -8,8 +9,7 @@ namespace se::asset::texture
     {
         DECLARE_SPARK_CLASS(Mipmap)
 
-        void* m_Data;
-        uint32_t m_DataSize;
+        memory::BinaryBlob m_Data;
         uint32_t sizeX;
         uint32_t sizeY;
     };

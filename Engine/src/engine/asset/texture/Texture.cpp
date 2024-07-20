@@ -17,14 +17,12 @@ DEFINE_SPARK_CLASS_BEGIN(Texture)
     DEFINE_MEMBER(m_Format)
 DEFINE_SPARK_CLASS_END()
 
-    Texture::~Texture()
+
+    void Texture::Release()
     {
-        for (uint32_t i = 0; i < m_MipCount; ++i)
+        for (auto& mip : m_Mips)
         {
-            if (m_Mips[i].m_Data)
-            {
-                std::free(m_Mips[i].m_Data);
-            }
+            mip.m_Data.Release();
         }
     }
 
@@ -66,7 +64,7 @@ DEFINE_SPARK_CLASS_END()
             mipObj.Set("sizeX", mip.sizeX);
             mipObj.Set("sizeY", mip.sizeY);
 
-            auto blob = db->CreateBlob(static_cast<const char*>(mip.m_Data), mip.m_DataSize);
+            auto blob = db->CreateBlob(static_cast<const char*>(mip.m_Data.GetData()), mip.m_Data.GetSize());
             mipObj.Set<binary::Blob>("data", blob);
         }
 
@@ -90,9 +88,10 @@ DEFINE_SPARK_CLASS_END()
             mip.sizeY = mipObj.Get<uint32_t>("sizeY");
 
             auto blob = mipObj.Get<binary::Blob>("data");
-            mip.m_Data = std::malloc(blob.GetSize());
-            std::memcpy(mip.m_Data, blob.GetData(), blob.GetSize());
-            mip.m_DataSize = blob.GetSize();
+            auto newData = std::malloc(blob.GetSize());
+            std::memcpy(newData, blob.GetData(), blob.GetSize());
+            mip.m_Data.SetData(newData);
+            mip.m_Data.SetSize(blob.GetSize());
         }
     }
 
@@ -152,7 +151,7 @@ DEFINE_SPARK_CLASS_END()
 
             void* mipData = std::malloc(size);
             std::memcpy(mipData, imageData + offset, size);
-            ret->m_Mips.push_back({mipData, size, width, height});
+            ret->m_Mips.push_back({memory::BinaryBlob(mipData, size), width, height});
             offset += size;
             width /= 2;
             height /= 2;
