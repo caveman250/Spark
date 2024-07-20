@@ -26,9 +26,8 @@
 
 namespace se::asset::shader::compiler
 {
-    Parser::Parser(Lexer lexer, memory::Arena* arena)
+    Parser::Parser(Lexer lexer)
         : m_Lexer(std::move(lexer))
-          , m_TempStorage(arena)
     {
     }
 
@@ -102,7 +101,7 @@ namespace se::asset::shader::compiler
             return false;
         }
 
-        auto* vec4 = m_TempStorage->Alloc<ast::Vec2Node>();
+        auto vec4 = std::make_shared<ast::Vec2Node>();
         m_Shader.AddNode(vec4);
         m_Shader.PushScope(vec4);
         int componentsAccountedFor = 0;
@@ -164,7 +163,7 @@ namespace se::asset::shader::compiler
             return false;
         }
 
-        auto* vec4 = m_TempStorage->Alloc<ast::Vec3Node>();
+        auto vec4 = std::make_shared<ast::Vec3Node>();
         m_Shader.AddNode(vec4);
         m_Shader.PushScope(vec4);
         int componentsAccountedFor = 0;
@@ -232,7 +231,7 @@ namespace se::asset::shader::compiler
             return false;
         }
 
-        auto* vec4 = m_TempStorage->Alloc<ast::Vec4Node>();
+        auto vec4 = std::make_shared<ast::Vec4Node>();
         m_Shader.AddNode(vec4);
         m_Shader.PushScope(vec4);
         int componentsAccountedFor = 0;
@@ -386,12 +385,12 @@ namespace se::asset::shader::compiler
     {
         if (IsInteger(token.value))
         {
-            m_Shader.AddNode(m_TempStorage->Alloc<ast::ConstantNode<int>>(std::stoi(token.value)));
+            m_Shader.AddNode(std::make_shared<ast::ConstantNode<int>>(std::stoi(token.value)));
         }
         else
         {
             m_Shader.AddNode(
-                m_TempStorage->Alloc<ast::ConstantNode<float>>(std::stof(token.value)));
+                std::make_shared<ast::ConstantNode<float>>(std::stof(token.value)));
 
             auto peek = m_Lexer.PeekToken();
             if (std::holds_alternative<Token>(peek))
@@ -408,7 +407,7 @@ namespace se::asset::shader::compiler
 
     bool Parser::ProcessStringLiteral(const Token& token, ParseError&)
     {
-        m_Shader.AddNode(m_TempStorage->Alloc<ast::ConstantNode<std::string>>(token.value));
+        m_Shader.AddNode(std::make_shared<ast::ConstantNode<std::string>>(token.value));
         return true;
     }
 
@@ -421,14 +420,14 @@ namespace se::asset::shader::compiler
         }
         else if (token.value == "{")
         {
-            auto scope = m_TempStorage->Alloc<ast::AnonymousScopeNode>();
+            auto scope = std::make_shared<ast::AnonymousScopeNode>();
             m_Shader.AddNode(scope);
             m_Shader.PushScope(scope);
             return true;
         }
         else if (token.value == ";")
         {
-            m_Shader.AddNode(m_TempStorage->Alloc<ast::EndOfExpressionNode>());
+            m_Shader.AddNode(std::make_shared<ast::EndOfExpressionNode>());
             return true;
         }
         else
@@ -485,11 +484,11 @@ namespace se::asset::shader::compiler
 
         if (in)
         {
-            m_Shader.AddInputPort(m_TempStorage->Alloc<ast::InputPortNode>(portName.value, type, name));
+            m_Shader.AddInputPort(std::make_shared<ast::InputPortNode>(portName.value, type, name));
         }
         else
         {
-            m_Shader.AddOutputPort(m_TempStorage->Alloc<ast::OutputPortNode>(portName.value, type, name));
+            m_Shader.AddOutputPort(std::make_shared<ast::OutputPortNode>(portName.value, type, name));
         }
 
         return true;
@@ -607,7 +606,7 @@ namespace se::asset::shader::compiler
 
                 if (isMain)
                 {
-                    auto main = m_TempStorage->Alloc<ast::MainNode>();
+                    auto main = std::make_shared<ast::MainNode>();
                     m_Shader.AddNode(main);
                     m_Shader.PushScope(main);
                 }
@@ -654,9 +653,8 @@ namespace se::asset::shader::compiler
         }
 
         ast::Type declarationType = ast::TypeUtil::StringToType(token.value);
-        m_Shader.AddNode(m_TempStorage->Alloc<ast::VariableDeclarationNode>(nameToken.value,
-                                                       declarationType));
-        m_Shader.AddNode(m_TempStorage->Alloc<ast::EndOfExpressionNode>());
+        m_Shader.AddNode(std::make_shared<ast::VariableDeclarationNode>(nameToken.value, declarationType));
+        m_Shader.AddNode(std::make_shared<ast::EndOfExpressionNode>());
 
         std::string error;
         if (!m_Shader.RecordVariableForScope(nameToken.value, declarationType, error))
@@ -778,7 +776,7 @@ namespace se::asset::shader::compiler
             Token binaryOpToken;
             if (Peek({ TokenType::Syntax }, {"*", "/", "+", "-", "*=", "/=", "+=", "-=", "="}, binaryOpToken))
             {
-                auto binaryOp = m_TempStorage->Alloc<ast::BinaryExpressionNode>(ast::OperatorUtil::StringToOperatorType(binaryOpToken.value));
+                auto binaryOp = std::make_shared<ast::BinaryExpressionNode>(ast::OperatorUtil::StringToOperatorType(binaryOpToken.value));
                 m_Shader.AddNode(binaryOp);
                 m_Shader.PushScope(binaryOp);
                 numBinaryExpressions++;
@@ -831,7 +829,7 @@ namespace se::asset::shader::compiler
 
             if (Peek(binaryOpPeekOffset, { TokenType::Syntax }, {"*", "/", "+", "-", "*=", "/=", "+=", "-=", "="}, binaryOpToken))
             {
-                auto binaryOp = m_TempStorage->Alloc<ast::BinaryExpressionNode>(ast::OperatorUtil::StringToOperatorType(binaryOpToken.value));
+                auto binaryOp = std::make_shared<ast::BinaryExpressionNode>(ast::OperatorUtil::StringToOperatorType(binaryOpToken.value));
                 m_Shader.AddNode(binaryOp);
                 m_Shader.PushScope(binaryOp);
                 numBinaryExpressions++;
@@ -871,7 +869,7 @@ namespace se::asset::shader::compiler
                     outType = type;
                 }
 
-                m_Shader.AddNode(m_TempStorage->Alloc<ast::VariableReferenceNode>(nextToken.value, m_Shader));
+                m_Shader.AddNode(std::make_shared<ast::VariableReferenceNode>(nextToken.value, m_Shader));
                 if (isPropertyAccess)
                 {
                     m_Shader.PopScope();
@@ -1024,7 +1022,7 @@ namespace se::asset::shader::compiler
         }
 
         m_Shader.AddNode(
-            m_TempStorage->Alloc<ast::TextureSampleNode>(textureVariableToken.value, uvVariableToken.value));
+            std::make_shared<ast::TextureSampleNode>(textureVariableToken.value, uvVariableToken.value));
 
         return true;
     }
@@ -1036,7 +1034,7 @@ namespace se::asset::shader::compiler
             return false;
         }
 
-        auto* length = m_TempStorage->Alloc<ast::LengthNode>();
+        auto length = std::make_shared<ast::LengthNode>();
         m_Shader.AddNode(length);
         m_Shader.PushScope(length);
 
@@ -1117,7 +1115,7 @@ namespace se::asset::shader::compiler
             return false;
         }
 
-        auto* normalize = m_TempStorage->Alloc<ast::PowNode>();
+        auto normalize = std::make_shared<ast::PowNode>();
         m_Shader.AddNode(normalize);
         m_Shader.PushScope(normalize);
 
@@ -1185,7 +1183,7 @@ namespace se::asset::shader::compiler
             return false;
         }
 
-        auto* normalize = m_TempStorage->Alloc<ast::NormalizeNode>();
+        auto normalize = std::make_shared<ast::NormalizeNode>();
         m_Shader.AddNode(normalize);
         m_Shader.PushScope(normalize);
 
@@ -1267,7 +1265,7 @@ namespace se::asset::shader::compiler
             return false;
         }
 
-        auto* normalize = m_TempStorage->Alloc<ast::ReflectNode>();
+        auto normalize = std::make_shared<ast::ReflectNode>();
         m_Shader.AddNode(normalize);
         m_Shader.PushScope(normalize);
 
@@ -1350,7 +1348,7 @@ namespace se::asset::shader::compiler
             return false;
         }
 
-        auto* normalize = m_TempStorage->Alloc<ast::ClampNode>();
+        auto normalize = std::make_shared<ast::ClampNode>();
         m_Shader.AddNode(normalize);
         m_Shader.PushScope(normalize);
 
@@ -1418,7 +1416,7 @@ namespace se::asset::shader::compiler
             return false;
         }
 
-        auto* dot = m_TempStorage->Alloc<ast::DotNode>();
+        auto dot = std::make_shared<ast::DotNode>();
         m_Shader.AddNode(dot);
         m_Shader.PushScope(dot);
 
@@ -1518,7 +1516,7 @@ namespace se::asset::shader::compiler
             return false;
         }
 
-        auto propertyAccessNode = m_TempStorage->Alloc<ast::PropertyAccessNode>(propertyNameToken.value);
+        auto propertyAccessNode = std::make_shared<ast::PropertyAccessNode>(propertyNameToken.value);
         m_Shader.AddNode(propertyAccessNode);
         m_Shader.PushScope(propertyAccessNode);
         return true;

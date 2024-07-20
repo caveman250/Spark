@@ -15,7 +15,7 @@ namespace se::asset::shader::compiler
     class Parser
     {
     public:
-        Parser(Lexer lexer, memory::Arena* arena);
+        Parser(Lexer lexer);
         std::variant<ast::Shader, ParseError> Parse();
 
     private:
@@ -64,6 +64,5 @@ namespace se::asset::shader::compiler
 
         ast::Shader m_Shader;
         Lexer m_Lexer;
-        memory::Arena* m_TempStorage = nullptr;
     };
 }

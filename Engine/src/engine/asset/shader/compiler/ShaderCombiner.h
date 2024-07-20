@@ -22,11 +22,11 @@ namespace se::asset::shader::compiler
     {
     public:
         explicit ShaderCombiner(const render::VertexBuffer& vb);
-        ast::Shader Combine(const ast::Shader& left, const ast::Shader& right, memory::Arena& tempStore);
-        void ResolveCombinedShaderPorts(ast::Shader& shader, memory::Arena& arena);
+        ast::Shader Combine(const ast::Shader& left, const ast::Shader& right);
+        void ResolveCombinedShaderPorts(ast::Shader& shader);
 
     private:
-        void ForEachChild(ast::ASTNode* node, std::function<void(ast::ASTNode* node)> func);
+        void ForEachChild(const std::shared_ptr<ast::ASTNode>& node, std::function<void(const std::shared_ptr<ast::ASTNode>& node)> func);
 
         uint8_t GetInputLoc(const std::string& inputName);
         uint8_t GetOutputLoc(const std::string& outputName);
