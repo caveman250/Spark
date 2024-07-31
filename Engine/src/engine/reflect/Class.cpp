@@ -7,6 +7,10 @@
 
 namespace se::reflect
 {
+    Class::Class() : Type{nullptr, 0, asset::binary::Type::Object }
+    {
+    }
+
     Class::Class(void(* init)(Class*)): Type{nullptr, 0, asset::binary::Type::Object }
     {
         init(this);
@@ -28,12 +32,12 @@ namespace se::reflect
         return members[i].name;
     }
 
-    asset::binary::StructLayout Class::GetStructLayout() const
+    asset::binary::StructLayout Class::GetStructLayout(const void*) const
     {
         asset::binary::StructLayout structLayout;
         for (const Member& member : members)
         {
-            structLayout.push_back( { asset::binary::CreateFixedString32(member.name), member.type->binaryType });
+            structLayout.push_back( { asset::binary::CreateFixedString32(member.name), member.type->GetBinaryType() });
         }
         return structLayout;
     }
@@ -44,16 +48,12 @@ namespace se::reflect
 
         if (!fieldName.empty()) // parent is an object
         {
-            asset::binary::StructLayout structLayout = GetStructLayout();
-            for (const Member& member : members)
-            {
-                structLayout.push_back( { asset::binary::CreateFixedString32(member.name), member.type->binaryType });
-            }
+            asset::binary::StructLayout structLayout = GetStructLayout(nullptr);
             auto db = parentObj.GetDatabase();
-            auto structIndex = db->GetOrCreateStruct(structLayout);
+            auto structIndex = db->GetOrCreateStruct(name, structLayout);
             binaryObj = db->CreateObject(structIndex);
         }
-        else // parent is an array
+        else // parent is this
         {
             binaryObj = parentObj;
         }

@@ -4,7 +4,13 @@
 
 namespace se::asset::shader::ast
 {
-    OutputPortNode::OutputPortNode(const std::string &portName, Type type, const std::string &name)
+    DEFINE_SPARK_CLASS_BEGIN(OutputPortNode)
+        DEFINE_MEMBER(m_Children)
+        DEFINE_MEMBER(m_Type)
+        DEFINE_MEMBER(m_Name)
+    DEFINE_SPARK_CLASS_END()
+
+    OutputPortNode::OutputPortNode(const std::string &portName, AstType::Type type, const std::string &name)
         : m_PortName(portName)
         , m_Type(type)
         , m_Name(name)

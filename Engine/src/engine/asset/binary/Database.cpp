@@ -44,14 +44,16 @@ namespace se::asset::binary
         }
     }
 
-    void Database::CreateStructData(const std::vector<std::pair<FixedString32, Type>>& structLayout, void* createAt)
+    void Database::CreateStructData(const std::string& name, const std::vector<std::pair<FixedString32, Type>>& structLayout, void* createAt)
     {
         char* structData = static_cast<char*>(createAt);
 
         size_t structSize = structLayout.size();
         std::memcpy(structData, &structSize, sizeof(uint32_t));
-
+        FixedString32 fixedName = CreateFixedString32(name.c_str());
+        std::memcpy(structData + sizeof(uint32_t), &fixedName, 32);
         uint32_t offset = s_StructHeaderSize;
+
         uint32_t rowSize = sizeof(Type) + 32;
         for (const auto& [name, type] : structLayout)
         {
@@ -66,25 +68,39 @@ namespace se::asset::binary
         return s_StructRowSize * static_cast<uint32_t>(structLayout.size()) + s_StructHeaderSize;
     }
 
-    uint32_t Database::GetOrCreateStruct(const StructLayout& structLayout)
+    uint32_t Database::GetOrCreateStruct(const std::string& name, const StructLayout& structLayout)
     {
         if (!SPARK_VERIFY(!m_ReadOnly))
         {
             return std::numeric_limits<uint32_t>().max();
         }
 
-        if (m_StructLayoutCache.contains(structLayout))
+        if (m_StructCache.contains(name))
         {
-            return m_StructLayoutCache.at(structLayout);
+            return m_StructCache.at(name);
         }
 
         uint32_t reqSize = CalcStructDefinitionDataSize(structLayout);
         uint32_t pos = GrowStructData(reqSize);
-        CreateStructData(structLayout, m_Structs + pos);
+        CreateStructData(name, structLayout, m_Structs + pos);
 
         uint32_t structIndex = GetNumStructs() - 1;
-        m_StructLayoutCache[structLayout] = structIndex;
+        m_StructCache[name] = structIndex;
+        m_StructNameCache[structIndex] = name;
         return structIndex;
+    }
+
+    std::string Database::GetStructName(uint32_t structIndex)
+    {
+        if (!m_StructNameCache.contains(structIndex))
+        {
+            std::string name = std::string(GetStructData(structIndex) + s_StructHeaderSize, 32);
+            m_StructNameCache[structIndex] = name;
+            m_StructCache[name] = structIndex;
+            return name;
+        }
+
+        return m_StructNameCache.at(structIndex);
     }
 
     uint32_t Database::GetStructsDataSize()
@@ -210,6 +226,27 @@ namespace se::asset::binary
         stream.Close();
     }
 
+    nlohmann::ordered_json Database::ToJson()
+    {
+        nlohmann::ordered_json ret;
+
+        nlohmann::ordered_json structs;
+        for (uint32_t i = 0; i < GetNumStructs(); ++i)
+        {
+            auto name = GetStructName(i);
+            auto dbStruct = Struct(name, i, this);
+
+            nlohmann::ordered_json structJson;
+            structJson[name] = dbStruct.ToJson();
+            structs.push_back(structJson);
+        }
+
+        ret["structs"] = structs;
+        ret["root"] = GetRoot().ToJson();
+
+        return ret;
+    }
+
     std::shared_ptr<Database> Database::Load(const std::string& path, bool readOnly)
     {
         if (readOnly)
@@ -222,6 +259,9 @@ namespace se::asset::binary
             asset->m_Objects = asset->m_Structs + asset->GetStructsDataSize();
             asset->m_Strings = asset->m_Objects + asset->GetObjectsDataSize();
             asset->m_BlobData = asset->m_Strings + asset->GetStringsDataSize();
+
+            asset->CacheStructs();
+
             return asset;
         }
         else
@@ -245,6 +285,8 @@ namespace se::asset::binary
             asset->m_BlobData = static_cast<char*>(std::malloc(blobsSize));
             std::memcpy(asset->m_BlobData, temp->m_BlobData, blobsSize);
 
+            asset->CacheStructs();
+
             return asset;
         }
     }
@@ -256,7 +298,7 @@ namespace se::asset::binary
             return Object(std::numeric_limits<uint32_t>().max(), nullptr, Struct::Invalid);
         }
 
-        Struct structDef = Struct(structIndex, this);
+        Struct structDef = Struct(m_StructNameCache.at(structIndex), structIndex, this);
         uint32_t reqSize = structDef.CalcObjectSize();
         if (!m_Objects)
         {
@@ -280,10 +322,20 @@ namespace se::asset::binary
         CreateObject(structIndex);
     }
 
+    void Database::CacheStructs()
+    {
+        for (uint32_t i = 0; i < GetNumStructs(); ++i)
+        {
+            auto name = GetStructName(i);
+            m_StructCache[name] = i;
+            m_StructNameCache[i] = name;
+        }
+    }
+
     Object Database::GetRoot()
     {
         // assuming root struct is first struct
-        Struct structDef = Struct(0, this);
+        Struct structDef = Struct(GetStructName(0), 0, this);
         return Object(sizeof(uint32_t), this, structDef);
     }
 
@@ -321,7 +373,7 @@ namespace se::asset::binary
     {
         auto objData = GetObjectDataAt(offset);
         auto structIndex = *reinterpret_cast<uint32_t*>(objData);
-        return Object(offset, this, Struct(structIndex, this));
+        return Object(offset, this, Struct(m_StructNameCache.at(structIndex), structIndex, this));
     }
 
     char* Database::GetObjectDataAt(uint32_t offset) const
@@ -336,7 +388,7 @@ namespace se::asset::binary
             return Array(std::numeric_limits<uint32_t>().max(), nullptr, false);
         }
 
-        Struct structDef = Struct(structIndex, this);
+        Struct structDef = Struct(m_StructNameCache.at(structIndex), structIndex, this);
         uint32_t reqSize = s_ArrayHeaderSize + structDef.CalcObjectSize() * (uint32_t)count;
         if (!m_Objects)
         {
@@ -354,6 +406,39 @@ namespace se::asset::binary
     Array Database::GetArrayAt(uint32_t offset)
     {
         return Array(offset, this, false);
+    }
+
+    PolymorphicArray Database::GetPolymorphicArrayAt(uint32_t offset)
+    {
+        return PolymorphicArray(offset, this);
+    }
+
+    PolymorphicArray Database::CreatePolymorphicArray(size_t count)
+    {
+        if (!SPARK_VERIFY(!m_ReadOnly))
+        {
+            return PolymorphicArray(std::numeric_limits<uint32_t>().max(), nullptr);
+        }
+
+        static StructLayout structLayout = {
+            { CreateFixedString32("valid"), Type::Bool },
+            { CreateFixedString32("offset"), Type::Uint32 }
+        };
+
+        auto structIndex = GetOrCreateStruct("Internal_ArrayItem", structLayout);
+        Struct structDef = Struct(m_StructNameCache.at(structIndex), structIndex, this);
+        uint32_t reqSize = s_ArrayHeaderSize + structDef.CalcObjectSize() * (uint32_t)count;
+        if (!m_Objects)
+        {
+            reqSize += s_ObjectsHeaderSize;
+        }
+        auto offset = GrowObjectsData(reqSize);
+        char* objData = m_Objects + offset;
+        std::memset(objData, 0, reqSize);
+        std::memcpy(objData, &count, sizeof(uint32_t));
+        std::memcpy(objData + sizeof(uint32_t), &structIndex, sizeof(uint32_t));
+
+        return PolymorphicArray(offset, this);
     }
 
     uint32_t Database::GetStringsDataSize()

@@ -4,7 +4,7 @@
 
 namespace se::input
 {
-    struct KeyEvent
+    struct KeyEvent : reflect::ObjectBase
     {
         DECLARE_SPARK_CLASS(KeyEvent)
 

@@ -1,9 +1,10 @@
 #pragma once
 
+#include "engine/reflect/Reflect.h"
+
 namespace se::asset::shader::ast
 {
-    enum class Type
-    {
+    DECLARE_SPARK_ENUM_BEGIN(AstType, int)
         Float,
         Vec2,
         Vec3,
@@ -13,5 +14,5 @@ namespace se::asset::shader::ast
         Void,
         Sampler2D,
         Invalid
-    };
+    DECLARE_SPARK_ENUM_END()
 }

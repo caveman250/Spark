@@ -15,6 +15,17 @@
 
 namespace se::asset::shader::ast
 {
+    DEFINE_SPARK_CLASS_BEGIN(Shader)
+        DEFINE_MEMBER(m_MainDeclared)
+        DEFINE_MEMBER(m_InputPorts)
+        DEFINE_MEMBER(m_OutputPorts)
+        DEFINE_MEMBER(m_Inputs)
+        DEFINE_MEMBER(m_Outputs)
+        DEFINE_MEMBER(m_AstNodes)
+        DEFINE_MEMBER(m_Uniforms)
+        DEFINE_MEMBER(m_GlobalVariables)
+    DEFINE_SPARK_CLASS_END()
+
     void Shader::AddInputPort(const std::shared_ptr<InputPortNode>& node)
     {
         if (SPARK_VERIFY(FindInputPortByPortName(node->GetPortName()) == nullptr))
@@ -97,7 +108,7 @@ namespace se::asset::shader::ast
         return m_ScopeStack.size() == 1 && std::dynamic_pointer_cast<MainNode>(m_ScopeStack[0].m_Node) != nullptr;
     }
 
-    bool Shader::FindVariable(const std::string &name, Type &type) const
+    bool Shader::FindVariable(const std::string &name, AstType::Type &type) const
     {
         for (int i = static_cast<int>(m_ScopeStack.size()) - 1; i > -1; --i)
         {
@@ -219,7 +230,7 @@ namespace se::asset::shader::ast
         return nullRet;
     }
 
-    bool Shader::RecordVariableForScope(const std::string &name, const Type &type, std::string &outError)
+    bool Shader::RecordVariableForScope(const std::string &name, const AstType::Type &type, std::string &outError)
     {
         if (m_GlobalVariables.contains(name))
         {
@@ -246,7 +257,7 @@ namespace se::asset::shader::ast
         return true;
     }
 
-    bool Shader::AddUniform(const std::string& name, const Type& type, std::string& outError)
+    bool Shader::AddUniform(const std::string& name, const AstType::Type& type, std::string& outError)
     {
         if (m_Uniforms.contains(name))
         {
@@ -263,7 +274,7 @@ namespace se::asset::shader::ast
         m_AstNodes.insert(m_AstNodes.begin() + at, node);
     }
 
-    bool Shader::HasUniform(const std::string& name, Type type)
+    bool Shader::HasUniform(const std::string& name, AstType::Type type)
     {
         for (const auto& [uniformName, uniformType] : m_Uniforms)
         {

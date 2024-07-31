@@ -22,7 +22,8 @@ namespace se::asset::binary
 
     Struct Array::GetStruct()
     {
-        return Struct(GetStructIndex(), m_DB);
+        auto structIndex = GetStructIndex();
+        return Struct(m_DB->GetStructName(structIndex), structIndex, m_DB);
     }
 
     Array::Array(uint32_t offset, Database* database, bool initialiseObjects)

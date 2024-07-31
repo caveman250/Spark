@@ -2,6 +2,9 @@
 
 namespace se::asset::shader::ast
 {
+    DEFINE_SPARK_CLASS_BEGIN(PowNode)
+        DEFINE_MEMBER(m_Children)
+    DEFINE_SPARK_CLASS_END()
     std::string PowNode::GetDebugString() const
     {
         return "PowNode";

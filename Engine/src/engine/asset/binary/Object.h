@@ -1,9 +1,12 @@
 #pragma once
 
+#include <typeindex>
+
 #include "Struct.h"
 #include "Blob.h"
 #include "Database.h"
 #include "Array.h"
+#include "PolymorphicArray.h"
 
 namespace se::asset::binary
 {
@@ -12,33 +15,41 @@ namespace se::asset::binary
 #if !SPARK_DIST
     template<typename T>
     void CheckType(Type type);
+    void CheckType(Type type, const std::type_index& typeId);
 #endif
 
     class Object
     {
     public:
         template<typename T>
-        const T Get(const std::string& field);
+        const T Get(const std::string& field) const;
 
         template<typename T>
         void Set(const std::string& field, const T& val);
 
         void Set(uint32_t fieldIndex, const char* data, size_t size);
 
-        const char* GetString(const std::string& field);
+        const char* GetString(const std::string& field) const;
         void SetString(const std::string& field, const char* val);
 
         Database* GetDatabase() const { return m_DB; }
 
+        Struct GetStruct() const { return m_Struct; }
+        uint32_t GetStructIndex() const { return m_Struct.m_Index; }
+        uint32_t GetOffset() const { return m_Offset; }
+
+        nlohmann::ordered_json ToJson() const;
+
     private:
         Object(uint32_t offset, Database* database, const Struct& objStruct);
 
-        char* GetData();
-        Struct GetStruct(uint32_t structIndex);
-        Object GetObjectAt(uint32_t offset);
-        Array GetArrayAt(uint32_t offset);
-        uint32_t GetBlobOffset(const Blob& blob);
-        Blob GetBlobAt(uint32_t offset);
+        char* GetData() const;
+        Struct GetStruct(uint32_t structIndex) const;
+        Object GetObjectAt(uint32_t offset) const;
+        Array GetArrayAt(uint32_t offset) const;
+        PolymorphicArray GetPolymorphicArrayAt(uint32_t offset) const;
+        uint32_t GetBlobOffset(const Blob& blob) const;
+        Blob GetBlobAt(uint32_t offset) const;
 
         uint32_t m_Offset;
         Struct m_Struct;
@@ -58,7 +69,7 @@ namespace se::asset::binary
     }
 
     template<typename T>
-    const T Object::Get(const std::string& field)
+    const T Object::Get(const std::string& field) const
     {
         uint32_t fieldIndex = m_Struct.GetFieldIndex(field);
 #if !SPARK_DIST
@@ -78,7 +89,7 @@ namespace se::asset::binary
     }
 
     template<>
-    inline const Object Object::Get<Object>(const std::string& field)
+    inline const Object Object::Get<Object>(const std::string& field) const
     {
 #if !SPARK_DIST
         CheckType<Object>(m_Struct.GetFieldType(m_Struct.GetFieldIndex(field)));
@@ -98,13 +109,32 @@ namespace se::asset::binary
     }
 
     template<>
-    inline const Array Object::Get<Array>(const std::string& field)
+    inline const Array Object::Get<Array>(const std::string& field) const
     {
 #if !SPARK_DIST
         CheckType<Array>(m_Struct.GetFieldType(m_Struct.GetFieldIndex(field)));
 #endif
         uint32_t offset = *reinterpret_cast<uint32_t*>(GetData() + m_Struct.GetFieldOffset(m_Struct.GetFieldIndex(field)));
         return GetArrayAt(offset);
+    }
+
+    template<>
+    inline void Object::Set<PolymorphicArray>(const std::string& field, const PolymorphicArray& val)
+    {
+#if !SPARK_DIST
+        CheckType<PolymorphicArray>(m_Struct.GetFieldType(m_Struct.GetFieldIndex(field)));
+#endif
+        Set(m_Struct.GetFieldIndex(field), reinterpret_cast<const char*>(&val.m_ArrayOffset), sizeof(uint32_t));
+    }
+
+    template<>
+    inline const PolymorphicArray Object::Get<PolymorphicArray>(const std::string& field) const
+    {
+#if !SPARK_DIST
+        CheckType<PolymorphicArray>(m_Struct.GetFieldType(m_Struct.GetFieldIndex(field)));
+#endif
+        uint32_t offset = *reinterpret_cast<uint32_t*>(GetData() + m_Struct.GetFieldOffset(m_Struct.GetFieldIndex(field)));
+        return GetPolymorphicArrayAt(offset);
     }
 
     // String Specializations
@@ -115,7 +145,7 @@ namespace se::asset::binary
     }
 
     template<>
-    inline const std::string Object::Get<std::string>(const std::string& field)
+    inline const std::string Object::Get<std::string>(const std::string& field) const
     {
         return GetString(field);
     }
@@ -132,7 +162,7 @@ namespace se::asset::binary
     }
 
     template<>
-    inline const Blob Object::Get<Blob>(const std::string& field)
+    inline const Blob Object::Get<Blob>(const std::string& field) const
     {
 #if !SPARK_DIST
         CheckType<Blob>(m_Struct.GetFieldType(m_Struct.GetFieldIndex(field)));
@@ -145,60 +175,7 @@ namespace se::asset::binary
     template<typename T>
     void CheckType(Type type)
     {
-        switch (type)
-        {
-            case Type::Int8:
-                SPARK_ASSERT(typeid(T) == typeid(int8_t));
-                break;
-            case Type::Uint8:
-                SPARK_ASSERT(typeid(T) == typeid(uint8_t));
-                break;
-            case Type::Int16:
-                SPARK_ASSERT(typeid(T) == typeid(int16_t));
-                break;
-            case Type::Uint16:
-                SPARK_ASSERT(typeid(T) == typeid(uint16_t));
-                break;
-            case Type::Int32:
-                SPARK_ASSERT(typeid(T) == typeid(int32_t));
-                break;
-            case Type::Uint32:
-                SPARK_ASSERT(typeid(T) == typeid(uint32_t));
-                break;
-            case Type::Int64:
-                SPARK_ASSERT(typeid(T) == typeid(int64_t));
-                break;
-            case Type::Uint64:
-                SPARK_ASSERT(typeid(T) == typeid(uint64_t));
-                break;
-            case Type::Float:
-                SPARK_ASSERT(typeid(T) == typeid(float));
-                break;
-            case Type::Vec2:
-                SPARK_ASSERT(typeid(T) == typeid(math::Vec2));
-                break;
-            case Type::Vec3:
-                SPARK_ASSERT(typeid(T) == typeid(math::Vec3));
-                break;
-            case Type::Vec4:
-                SPARK_ASSERT(typeid(T) == typeid(math::Vec4));
-                break;
-            case Type::Object:
-                SPARK_ASSERT(typeid(T) == typeid(Object));
-                break;
-            case Type::String:
-                SPARK_ASSERT(typeid(T) == typeid(const char*));
-                break;
-            case Type::Blob:
-                SPARK_ASSERT(typeid(T) == typeid(Blob));
-                break;
-            case Type::Array:
-                SPARK_ASSERT(typeid(T) == typeid(binary::Array));
-                break;
-            default:
-                SPARK_ASSERT(false, "CheckType - Unrecognized type!");
-                break;
-        }
+        CheckType(type, typeid(T));
     }
 #endif
 }

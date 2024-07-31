@@ -7,12 +7,14 @@ namespace se::asset::shader::ast
     template <typename T>
     class ConstantNode : public ASTNode
     {
+        DECLARE_SPARK_CLASS_TEMPLATED(ConstantNode, T)
     public:
+        ConstantNode() {}
         ConstantNode(T t);
         std::string GetDebugString() const override;
         void ToGlsl(string::ArenaString& outShader) const override;
     private:
-        T m_Constant;
+        T m_Constant = {};
     };
 
     template <typename T>
@@ -33,4 +35,9 @@ namespace se::asset::shader::ast
         auto alloc = outShader.get_allocator();
         outShader += string::ArenaFormat("{}", alloc, m_Constant);
     }
+
+    DEFINE_SPARK_CLASS_TEMPLATED_BEGIN(ConstantNode, TEMPLATE_TYPES(T), TEMPLATE_PARAMETERS(typename T))
+        DEFINE_MEMBER_TEMPLATED(ConstantNode, m_Children, TEMPLATE_TYPES(T))
+        DEFINE_MEMBER_TEMPLATED(ConstantNode, m_Constant, TEMPLATE_TYPES(T))
+    DEFINE_SPARK_CLASS_END()
 }

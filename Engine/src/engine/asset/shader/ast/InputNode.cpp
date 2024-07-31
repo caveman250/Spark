@@ -1,11 +1,15 @@
 #include "InputNode.h"
-
-#include "NameGenerator.h"
 #include "TypeUtil.h"
 
 namespace se::asset::shader::ast
 {
-    InputNode::InputNode(Type type, const std::string& name)
+    DEFINE_SPARK_CLASS_BEGIN(InputNode)
+        DEFINE_MEMBER(m_Children)
+        DEFINE_MEMBER(m_Type)
+        DEFINE_MEMBER(m_Name)
+    DEFINE_SPARK_CLASS_END()
+
+    InputNode::InputNode(AstType::Type type, const std::string& name)
         : m_Type(type)
         , m_Name(name)
     {
@@ -22,7 +26,7 @@ namespace se::asset::shader::ast
         outShader += string::ArenaFormat("in {} {};\n", alloc, TypeUtil::GetTypeGlsl(m_Type), m_Name);
     }
 
-    Type InputNode::GetType() const
+    AstType::Type InputNode::GetType() const
     {
         return m_Type;
     }

@@ -2,6 +2,10 @@
 
 namespace se::asset::shader::ast
 {
+    DEFINE_SPARK_CLASS_BEGIN(Vec2Node)
+        DEFINE_MEMBER(m_Children)
+    DEFINE_SPARK_CLASS_END()
+
     std::string Vec2Node::GetDebugString() const
     {
         return "Vec2Node";

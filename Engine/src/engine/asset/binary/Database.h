@@ -5,6 +5,7 @@
 #include "Object.h"
 #include "Array.h"
 #include "Blob.h"
+#include "PolymorphicArray.h"
 
 namespace se::asset::binary
 {
@@ -13,8 +14,10 @@ namespace se::asset::binary
     public:
         static std::shared_ptr<Database> Create(bool readOnly);
         ~Database();
-        [[nodiscard]] uint32_t GetOrCreateStruct(const StructLayout& structLayout);
+        [[nodiscard]] uint32_t GetOrCreateStruct(const std::string& name, const StructLayout& structLayout);
+        std::string GetStructName(uint32_t structIndex);
         char* GetStructData(uint32_t structIndex);
+        void CacheStructs();
 
         Object CreateObject(uint32_t structIndex);
         Object GetObjectAt(uint32_t offset);
@@ -22,6 +25,8 @@ namespace se::asset::binary
 
         Array CreateArray(uint32_t structIndex, size_t count);
         Array GetArrayAt(uint32_t offset);
+        PolymorphicArray GetPolymorphicArrayAt(uint32_t offset);
+        PolymorphicArray CreatePolymorphicArray(size_t count);
 
         uint32_t CreateString(const std::string& str);
         const char* GetStringAt(uint32_t offset);
@@ -35,11 +40,12 @@ namespace se::asset::binary
 
         static std::shared_ptr<Database> Load(const std::string& path, bool readOnly);
         void Save(const std::string& path);
+        nlohmann::ordered_json ToJson();
 
     private:
         explicit Database(bool readOnly);
 
-        static void CreateStructData(const std::vector<std::pair<FixedString32, Type>>& structLayout, void* createAt);
+        static void CreateStructData(const std::string& name, const std::vector<std::pair<FixedString32, Type>>& structLayout, void* createAt);
         static uint32_t CalcStructDefinitionDataSize(const std::vector<std::pair<FixedString32, Type>>& structLayout);
 
         uint32_t GetStructsDataSize();
@@ -63,7 +69,8 @@ namespace se::asset::binary
         uint32_t GrowBlobData(uint32_t size);
 
         bool m_ReadOnly = true;
-        std::map<StructLayout, uint32_t> m_StructLayoutCache = {};
+        std::map<std::string, uint32_t> m_StructCache = {};
+        std::map<uint32_t, std::string> m_StructNameCache = {};
 
         char* m_Structs = nullptr;
         // numStructs (uint32_t)

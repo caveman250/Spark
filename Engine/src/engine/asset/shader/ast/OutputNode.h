@@ -1,24 +1,26 @@
 #pragma once
 #include "ASTNode.h"
+#include "Types.h"
 
 namespace se::asset::shader::ast
 {
-    enum class Type;
-
     class OutputNode : public ASTNode
     {
+        DECLARE_SPARK_CLASS(OutputNode)
+
     public:
-        OutputNode(Type type, const std::string& name);
+        OutputNode() = default;
+        OutputNode(AstType::Type type, const std::string& name);
 
         std::string GetDebugString() const override;
         void ToGlsl(string::ArenaString& outShader) const override;
 
-        Type GetType() const;
+        AstType::Type GetType() const;
 
         const std::string& GetName() const;
 
     private:
-        Type m_Type;
-        std::string m_Name;
+        AstType::Type m_Type = {};
+        std::string m_Name = {};
     };
 }

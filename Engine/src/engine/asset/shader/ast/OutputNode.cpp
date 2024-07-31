@@ -5,7 +5,13 @@
 
 namespace se::asset::shader::ast
 {
-    OutputNode::OutputNode(Type type, const std::string& name)
+    DEFINE_SPARK_CLASS_BEGIN(OutputNode)
+        DEFINE_MEMBER(m_Children)
+        DEFINE_MEMBER(m_Type)
+        DEFINE_MEMBER(m_Name)
+    DEFINE_SPARK_CLASS_END()
+
+    OutputNode::OutputNode(AstType::Type type, const std::string& name)
         : m_Type(type)
         , m_Name(name)
     {
@@ -22,7 +28,7 @@ namespace se::asset::shader::ast
         outShader += string::ArenaFormat("out {} {};\n", alloc, TypeUtil::GetTypeGlsl(m_Type), m_Name);
     }
 
-    Type OutputNode::GetType() const
+    AstType::Type OutputNode::GetType() const
     {
         return m_Type;
     }

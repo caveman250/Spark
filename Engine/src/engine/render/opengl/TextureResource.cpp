@@ -26,8 +26,8 @@ namespace se::render::opengl
             glCompressedTexImage2D(GL_TEXTURE_2D,
                                    level,
                                    TextureFormatToGLFormat(m_Texture.GetFormat()),
-                                   mip.sizeX,
-                                   mip.sizeY,
+                                   mip.m_SizeX,
+                                   mip.m_SizeY,
                                    0,
                                    mip.m_Data.GetSize(),
                                    mip.m_Data.GetData());

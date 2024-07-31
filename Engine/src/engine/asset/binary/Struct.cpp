@@ -3,7 +3,12 @@
 
 namespace se::asset::binary
 {
-    Struct Struct::Invalid = Struct(std::numeric_limits<uint32_t>().max(), nullptr);
+    Struct Struct::Invalid = Struct("None", std::numeric_limits<uint32_t>().max(), nullptr);
+
+    const std::string& Struct::GetName() const
+    {
+        return m_Name;
+    }
 
     uint32_t Struct::GetFieldCount() const
     {
@@ -38,6 +43,18 @@ namespace se::asset::binary
         }
 
         return offset;
+    }
+
+    nlohmann::json Struct::ToJson() const
+    {
+        nlohmann::json ret;
+
+        for (uint32_t i = 0; i < GetFieldCount(); ++i)
+        {
+            ret[GetFieldName(i)] = TypeToString(GetFieldType(i));
+        }
+
+        return ret;
     }
 
     char* Struct::GetData() const

@@ -4,6 +4,7 @@ namespace se::asset::binary
 {
     enum class Type
     {
+        Bool,
         Int8,
         Uint8,
         Int16,
@@ -20,6 +21,7 @@ namespace se::asset::binary
         String,
         Blob,
         Array,
+        PolymorphicArray,
         Invalid
     };
 

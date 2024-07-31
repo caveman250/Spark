@@ -82,7 +82,7 @@ DEFINE_SPARK_CLASS_END()
 
             void* mipData = std::malloc(size);
             std::memcpy(mipData, imageData + offset, size);
-            ret->m_Mips.push_back({memory::BinaryBlob(mipData, size), width, height});
+            ret->m_Mips.push_back(texture::Mipmap(memory::BinaryBlob(mipData, size), width, height));
             offset += size;
             width /= 2;
             height /= 2;

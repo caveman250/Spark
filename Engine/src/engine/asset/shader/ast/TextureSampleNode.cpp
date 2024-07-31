@@ -2,6 +2,12 @@
 
 namespace se::asset::shader::ast
 {
+    DEFINE_SPARK_CLASS_BEGIN(TextureSampleNode)
+        DEFINE_MEMBER(m_Children)
+        DEFINE_MEMBER(m_SamplerName)
+        DEFINE_MEMBER(m_UVVariableName)
+    DEFINE_SPARK_CLASS_END()
+
     TextureSampleNode::TextureSampleNode(const std::string &samplerName, const std::string &uvVarName)
         : m_SamplerName(samplerName)
         , m_UVVariableName(uvVarName)

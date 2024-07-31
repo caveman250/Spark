@@ -2,6 +2,9 @@
 
 namespace se::asset::shader::ast
 {
+    DEFINE_ABSTRACT_SPARK_CLASS_BEGIN(ASTNode)
+    DEFINE_SPARK_CLASS_END()
+
     void ASTNode::DebugPrint(int indent) const
     {
         std::string str = "-";

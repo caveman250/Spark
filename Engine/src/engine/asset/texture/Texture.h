@@ -16,7 +16,7 @@ namespace se::asset::builder
 
 namespace se::asset
 {
-    class Texture
+    class Texture : public reflect::ObjectBase
     {
         DECLARE_SPARK_CLASS(Texture)
 

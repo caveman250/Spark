@@ -2,6 +2,10 @@
 
 namespace se::asset::shader::ast
 {
+    DEFINE_SPARK_CLASS_BEGIN(LengthNode)
+        DEFINE_MEMBER(m_Children)
+    DEFINE_SPARK_CLASS_END()
+
     std::string LengthNode::GetDebugString() const
     {
         return "LengthNode";

@@ -37,11 +37,11 @@ namespace se::reflect
     {
         if (!fieldName.empty())
         {
-            parentObj.Set(fieldName, *(int*)obj);
+            parentObj.Set(fieldName, ToString(*(int*)obj));
         }
         else
         {
-            parentObj.Set("val", *(int*)obj);
+            parentObj.Set("val", ToString(*(int*)obj));
         }
     }
 
@@ -49,17 +49,22 @@ namespace se::reflect
     {
         if (!fieldName.empty())
         {
-            *(int*)obj = parentObj.Get<int>(fieldName);
+            *(int*)obj = FromString(parentObj.Get<std::string>(fieldName));
         }
         else
         {
-            *(int*)obj = parentObj.Get<int>("val");
+            *(int*)obj = FromString(parentObj.Get<std::string>("val"));
         }
     }
 
-    asset::binary::StructLayout Enum::GetStructLayout() const
+    asset::binary::StructLayout Enum::GetStructLayout(const void*) const
     {
-        asset::binary::StructLayout structLayout = {{ asset::binary::CreateFixedString32("val"), asset::binary::Type::Int32 }};
+        asset::binary::StructLayout structLayout = {{ asset::binary::CreateFixedString32("val"), asset::binary::Type::String }};
         return structLayout;
+    }
+
+    asset::binary::Type Enum::GetBinaryType() const
+    {
+        return asset::binary::Type::String;
     }
 }

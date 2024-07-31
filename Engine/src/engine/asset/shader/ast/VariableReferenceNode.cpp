@@ -7,10 +7,16 @@
 
 namespace se::asset::shader::ast
 {
+    DEFINE_SPARK_CLASS_BEGIN(VariableReferenceNode)
+        DEFINE_MEMBER(m_Children)
+        DEFINE_MEMBER(m_Type)
+        DEFINE_MEMBER(m_Name)
+    DEFINE_SPARK_CLASS_END()
+
     VariableReferenceNode::VariableReferenceNode(const std::string& name, const Shader& shaderStageAst)
     {
         SPARK_ASSERT(name != " ");
-        Type type;
+        AstType::Type type;
         if (shaderStageAst.FindVariable(name, type))
         {
             m_Type = type;

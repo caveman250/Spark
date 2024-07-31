@@ -4,7 +4,13 @@
 
 namespace se::asset::shader::ast
 {
-    InputPortNode::InputPortNode(const std::string &portName, Type type, const std::string &name)
+    DEFINE_SPARK_CLASS_BEGIN(InputPortNode)
+        DEFINE_MEMBER(m_Children)
+        DEFINE_MEMBER(m_Type)
+        DEFINE_MEMBER(m_Name)
+    DEFINE_SPARK_CLASS_END()
+
+    InputPortNode::InputPortNode(const std::string &portName, AstType::Type type, const std::string &name)
         : m_PortName(portName)
         , m_Type(type)
         , m_Name(name)

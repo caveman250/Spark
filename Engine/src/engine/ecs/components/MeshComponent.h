@@ -12,7 +12,7 @@ namespace se::render
 
 namespace se::ecs::components
 {
-    struct MeshComponent
+    struct MeshComponent : reflect::ObjectBase
     {
         DECLARE_SPARK_COMPONENT(MeshComponent)
 

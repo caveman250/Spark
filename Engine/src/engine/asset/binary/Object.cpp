@@ -1,5 +1,7 @@
 #include "Object.h"
 #include "Database.h"
+#include "engine/math/math.h"
+#include "engine/memory/BinaryBlob.h"
 
 namespace se::asset::binary
 {
@@ -11,9 +13,73 @@ namespace se::asset::binary
 
     }
 
-    char* Object::GetData()
+    char* Object::GetData() const
     {
         return m_DB->GetObjectDataAt(m_Offset);
+    }
+
+    void CheckType(Type type, const std::type_index& typeId)
+    {
+        switch (type)
+        {
+        case Type::Bool:
+            SPARK_ASSERT(typeId == typeid(bool));
+            break;
+        case Type::Int8:
+            SPARK_ASSERT(typeId == typeid(int8_t));
+            break;
+        case Type::Uint8:
+            SPARK_ASSERT(typeId == typeid(uint8_t));
+            break;
+        case Type::Int16:
+            SPARK_ASSERT(typeId == typeid(int16_t));
+            break;
+        case Type::Uint16:
+            SPARK_ASSERT(typeId == typeid(uint16_t));
+            break;
+        case Type::Int32:
+            SPARK_ASSERT(typeId == typeid(int32_t));
+            break;
+        case Type::Uint32:
+            SPARK_ASSERT(typeId == typeid(uint32_t));
+            break;
+        case Type::Int64:
+            SPARK_ASSERT(typeId == typeid(int64_t));
+            break;
+        case Type::Uint64:
+            SPARK_ASSERT(typeId == typeid(uint64_t));
+            break;
+        case Type::Float:
+            SPARK_ASSERT(typeId == typeid(float));
+            break;
+        case Type::Vec2:
+            SPARK_ASSERT(typeId == typeid(math::Vec2));
+            break;
+        case Type::Vec3:
+            SPARK_ASSERT(typeId == typeid(math::Vec3));
+            break;
+        case Type::Vec4:
+            SPARK_ASSERT(typeId == typeid(math::Vec4));
+            break;
+        case Type::Object:
+            SPARK_ASSERT(typeId == typeid(Object));
+            break;
+        case Type::String:
+            SPARK_ASSERT(typeId == typeid(const char*));
+            break;
+        case Type::Blob:
+            SPARK_ASSERT(typeId == typeid(Blob));
+            break;
+        case Type::Array:
+            SPARK_ASSERT(typeId == typeid(binary::Array));
+            break;
+        case Type::PolymorphicArray:
+            SPARK_ASSERT(typeId == typeid(PolymorphicArray));
+            break;
+        default:
+            SPARK_ASSERT(false, "CheckType - Unrecognized type!");
+            break;
+        }
     }
 
     void Object::Set(uint32_t fieldIndex, const char* data, size_t size)
@@ -21,22 +87,27 @@ namespace se::asset::binary
         std::memcpy(GetData() + m_Struct.GetFieldOffset(fieldIndex), data, size);
     }
 
-    Struct Object::GetStruct(uint32_t structIndex)
+    Struct Object::GetStruct(uint32_t structIndex) const
     {
-        return Struct(structIndex, m_DB);
+        return Struct(m_DB->GetStructName(structIndex), structIndex, m_DB);
     }
 
-    Object Object::GetObjectAt(uint32_t offset)
+    Object Object::GetObjectAt(uint32_t offset) const
     {
         return m_DB->GetObjectAt(offset);
     }
 
-    Array Object::GetArrayAt(uint32_t offset)
+    Array Object::GetArrayAt(uint32_t offset) const
     {
         return m_DB->GetArrayAt(offset);
     }
 
-    const char* Object::GetString(const std::string& field)
+    PolymorphicArray Object::GetPolymorphicArrayAt(uint32_t offset) const
+    {
+        return m_DB->GetPolymorphicArrayAt(offset);
+    }
+
+    const char* Object::GetString(const std::string& field) const
     {
 #if !SPARK_DIST
         CheckType<const char*>(m_Struct.GetFieldType(m_Struct.GetFieldIndex(field)));
@@ -55,13 +126,141 @@ namespace se::asset::binary
         Set(m_Struct.GetFieldIndex(field), reinterpret_cast<const char*>(&offset), sizeof(uint32_t));
     }
 
-    uint32_t Object::GetBlobOffset(const Blob& blob)
+    uint32_t Object::GetBlobOffset(const Blob& blob) const
     {
         return m_DB->GetBlobOffset(blob);
     }
 
-    Blob Object::GetBlobAt(uint32_t offset)
+    Blob Object::GetBlobAt(uint32_t offset) const
     {
         return m_DB->GetBlobAt(offset);
+    }
+
+    nlohmann::ordered_json Object::ToJson() const
+    {
+        nlohmann::ordered_json ret = {};
+        nlohmann::ordered_json obj;
+        auto objStruct = GetStruct();
+        auto fieldCount = objStruct.GetFieldCount();
+        for (uint32_t i = 0; i < fieldCount; ++i)
+        {
+            auto fieldName = objStruct.GetFieldName(i);
+            auto fieldType = objStruct.GetFieldType(i);
+
+            switch (fieldType)
+            {
+            case Type::Bool:
+                obj[fieldName] = Get<bool>(fieldName);
+                break;
+            case Type::Int8:
+                obj[fieldName] = Get<int8_t>(fieldName);
+                break;
+            case Type::Uint8:
+                obj[fieldName] = Get<uint8_t>(fieldName);
+                break;
+            case Type::Int16:
+                obj[fieldName] = Get<int16_t>(fieldName);
+                break;
+            case Type::Uint16:
+                obj[fieldName] = Get<uint16_t>(fieldName);
+                break;
+            case Type::Int32:
+                obj[fieldName] = static_cast<int64_t>(Get<int32_t>(fieldName)); // y tho
+                break;
+            case Type::Uint32:
+                obj[fieldName] = Get<uint32_t>(fieldName);
+                break;
+            case Type::Int64:
+                obj[fieldName] = Get<int64_t>(fieldName);
+                break;
+            case Type::Uint64:
+                obj[fieldName] = Get<uint64_t>(fieldName);
+                break;
+            case Type::Float:
+                obj[fieldName] = Get<float>(fieldName);
+                break;
+            case Type::Vec2:
+                {
+                    nlohmann::ordered_json vecJson = {};
+                    math::Vec2 vec = Get<math::Vec2>(fieldName);
+                    vecJson["x"] = vec.x;
+                    vecJson["y"] = vec.y;
+                    obj[fieldName] = vecJson;
+                    break;
+                }
+            case Type::Vec3:
+                {
+                    nlohmann::ordered_json vecJson = {};
+                    math::Vec3 vec = Get<math::Vec3>(fieldName);
+                    vecJson["x"] = vec.x;
+                    vecJson["y"] = vec.y;
+                    vecJson["z"] = vec.z;
+                    obj[fieldName] = vecJson;
+                    break;
+                }
+            case Type::Vec4:
+                {
+                    nlohmann::ordered_json vecJson = {};
+                    math::Vec4 vec = Get<math::Vec4>(fieldName);
+                    vecJson["x"] = vec.x;
+                    vecJson["y"] = vec.y;
+                    vecJson["z"] = vec.z;
+                    vecJson["w"] = vec.w;
+                    obj[fieldName] = vecJson;
+                    break;
+                }
+            case Type::Object:
+                {
+                    Object binaryObj = Get<Object>(fieldName);
+                    obj[fieldName] = binaryObj.ToJson();
+                    break;
+                }
+            case Type::String:
+                obj[fieldName] = Get<std::string>(fieldName);
+                break;
+            case Type::Blob:
+                {
+                    nlohmann::ordered_json blobJson = {};
+                    Blob blob = Get<Blob>(fieldName);
+                    for (size_t i = 0; i < blob.GetSize(); ++i)
+                    {
+                        blobJson.push_back(blob.GetData()[i]);
+                    }
+                    obj[fieldName] = blobJson;
+                    break;
+                }
+            case Type::Array:
+                {
+                    nlohmann::ordered_json arrayJson = {};
+                    auto array = Get<Array>(fieldName);
+                    for (size_t i = 0; i < array.GetCount(); ++i)
+                    {
+                        nlohmann::ordered_json itemJson = array.Get(i).ToJson();
+                        arrayJson.push_back(itemJson);
+                    }
+                    obj[fieldName] = arrayJson;
+                    break;
+                }
+            case Type::PolymorphicArray:
+                {
+                    nlohmann::ordered_json arrayJson = {};
+                    auto array = Get<PolymorphicArray>(fieldName);
+                    for (size_t i = 0; i < array.GetCount(); ++i)
+                    {
+                        nlohmann::ordered_json itemJson = array.Get(i).ToJson();
+                        arrayJson.push_back(itemJson);
+                    }
+                    obj[fieldName] = arrayJson;
+                    break;
+                }
+            case Type::Invalid:
+                SPARK_ASSERT(false);
+                break;
+            }
+        }
+
+        ret[m_Struct.GetName()] = obj;
+
+        return ret;
     }
 }
