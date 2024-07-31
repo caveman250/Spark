@@ -7,7 +7,14 @@
 
 namespace se::asset::shader::ast
 {
-    InputAttributeNode::InputAttributeNode(uint8_t location, Type type, const std::string& name)
+    DEFINE_SPARK_CLASS_BEGIN(InputAttributeNode)
+        DEFINE_MEMBER(m_Children)
+        DEFINE_MEMBER(m_Type)
+        DEFINE_MEMBER(m_Name)
+        DEFINE_MEMBER(m_Location)
+    DEFINE_SPARK_CLASS_END()
+
+    InputAttributeNode::InputAttributeNode(uint8_t location, AstType::Type type, const std::string& name)
         : InputNode(type, name)
         , m_Location(location)
     {

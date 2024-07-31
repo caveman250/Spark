@@ -12,7 +12,7 @@ namespace se::render::opengl
         Material(const std::vector<std::string>& vertPaths, const std::vector<std::string>& fragPaths);
         void Bind() override;
         void CreatePlatformResources(const render::VertexBuffer& vb) override;
-        void SetUniform(const std::string& name, asset::shader::ast::Type type, const void* value) override;
+        void SetUniform(const std::string& name, asset::shader::ast::AstType::Type type, const void* value) override;
 
         GLuint GetProgramID() { return m_CompiledProgram; }
     private:

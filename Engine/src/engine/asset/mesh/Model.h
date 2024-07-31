@@ -10,7 +10,7 @@ namespace ofbx
 
 namespace se::asset
 {
-    class Model
+    class Model : public reflect::ObjectBase
     {
         DECLARE_SPARK_CLASS(Model)
 

@@ -4,40 +4,163 @@
 #include "Type.h"
 #include "TypeResolver.h"
 #include "Class.h"
+#include "TemplatedClass.h"
 #include "Enum.h"
 #include "Containers.h"
 
 namespace se::reflect
 {
+    struct TypeLookup
+    {
+        static Type* GetType(const std::string& type) { SPARK_ASSERT(GetTypeMap().contains(type)); return GetTypeMap().at(type); }
+        // Warning: Accessed during static initialization.
+        static std::unordered_map<std::string, Type*>& GetTypeMap()
+        {
+            static std::unordered_map<std::string, Type*> typeMap;
+            return typeMap;
+        }
+    };
+
 #define DECLARE_SPARK_TYPE(Type) \
 static size_t s_StaticId;
 
-#define DEFINE_SPARK_TYPE(Type) \
+#define DEFINE_SPARK_POD_TYPE(Type) \
 size_t Type::s_StaticId = typeid(Type).hash_code();
 
+#define DEFINE_SPARK_TYPE(Type) \
+static_assert(std::is_convertible<Type*, se::reflect::ObjectBase*>::value, "Reflectable types must inherit from reflect::ObjectBase");\
+size_t Type::s_StaticId = typeid(Type).hash_code();
+
+#define DEFINE_SPARK_TYPE_TEMPLATED(Type, templateTypes, templateParameters)\
+template <templateParameters>\
+size_t Type<templateTypes>::s_StaticId = typeid(Type<templateTypes>).hash_code();
+
     /// Class ///
+
+#define DECLARE_SPARK_POD_CLASS(Type) \
+public:               \
+DECLARE_SPARK_TYPE(Type)                          \
+static constexpr bool s_IsPOD = true;\
+static se::reflect::Class Reflection; \
+static void initReflection(se::reflect::Class*);
+
+#define DECLARE_SPARK_CLASS_TEMPLATED(Type, templateTypes) \
+public:               \
+DECLARE_SPARK_TYPE(Type)                          \
+static constexpr bool s_IsPOD = false;\
+virtual void Serialize(const void* obj, asset::binary::Object& parentObj, const std::string& fieldName) override\
+{\
+reflect::TypeResolver<Type>::get()->Serialize(obj, parentObj, fieldName);\
+}\
+virtual void Deserialize(void* obj, asset::binary::Object& parentObj, const std::string& fieldName) override\
+{\
+reflect::TypeResolver<Type>::get()->Deserialize(obj, parentObj, fieldName);\
+}\
+virtual asset::binary::StructLayout GetStructLayout(const void*) const override\
+{\
+return reflect::TypeResolver<Type>::get()->GetStructLayout(nullptr);\
+}\
+std::string GetTypeName() const\
+{\
+return reflect::TypeResolver<Type>::get()->GetTypeName(nullptr);\
+}\
+static se::reflect::TemplatedClass<templateTypes> Reflection; \
+static void initReflection(se::reflect::TemplatedClass<templateTypes>*);
+
 #define DECLARE_SPARK_CLASS(Type) \
 public:               \
 DECLARE_SPARK_TYPE(Type)                          \
+static constexpr bool s_IsPOD = false;\
+    virtual void Serialize(const void* obj, asset::binary::Object& parentObj, const std::string& fieldName) override\
+    {\
+        reflect::TypeResolver<Type>::get()->Serialize(obj, parentObj, fieldName);\
+    }\
+    virtual void Deserialize(void* obj, asset::binary::Object& parentObj, const std::string& fieldName) override\
+    {\
+        reflect::TypeResolver<Type>::get()->Deserialize(obj, parentObj, fieldName);\
+    }\
+    virtual asset::binary::StructLayout GetStructLayout(const void*) const override\
+    {\
+        return reflect::TypeResolver<Type>::get()->GetStructLayout(nullptr);\
+    }\
+    std::string GetTypeName() const\
+    {\
+        return reflect::TypeResolver<Type>::get()->GetTypeName(nullptr);\
+    }\
 static se::reflect::Class Reflection; \
 static void initReflection(se::reflect::Class*);
+
+#define DEFINE_ABSTRACT_SPARK_CLASS_BEGIN(type) \
+DEFINE_SPARK_TYPE(type)                                   \
+se::reflect::Class type::Reflection{type::initReflection}; \
+void type::initReflection(se::reflect::Class* typeDesc) { \
+using VarType = type; \
+se::reflect::TypeLookup::GetTypeMap()[#type] = typeDesc;\
+typeDesc->name = #type; \
+typeDesc->size = sizeof(VarType);                           \
+typeDesc->heap_constructor = nullptr;        \
+typeDesc->inplace_constructor = nullptr; \
+typeDesc->heap_copy_constructor = nullptr; \
+typeDesc->inplace_copy_constructor = nullptr; \
+typeDesc->destructor = nullptr;      \
+typeDesc->members = {
 
 #define DEFINE_SPARK_CLASS_BEGIN(type) \
 DEFINE_SPARK_TYPE(type)                                   \
 se::reflect::Class type::Reflection{type::initReflection}; \
 void type::initReflection(se::reflect::Class* typeDesc) { \
-using T = type; \
+using VarType = type; \
+se::reflect::TypeLookup::GetTypeMap()[#type] = typeDesc;\
 typeDesc->name = #type; \
-typeDesc->size = sizeof(T);                           \
-typeDesc->heap_constructor = []{ return new T(); };        \
-typeDesc->inplace_constructor = [](void* mem){ return new(mem) T(); }; \
-typeDesc->heap_copy_constructor = [](void* other){ return new T(*reinterpret_cast<T*>(other)); }; \
-typeDesc->inplace_copy_constructor = [](void* mem, void* other){ return new(mem) T(*reinterpret_cast<T*>(other)); }; \
-typeDesc->destructor = [](void* data){ reinterpret_cast<T*>(data)->~T(); };        \
+typeDesc->size = sizeof(VarType);                           \
+typeDesc->heap_constructor = []{ return new VarType(); };        \
+typeDesc->inplace_constructor = [](void* mem){ return new(mem) VarType(); }; \
+typeDesc->heap_copy_constructor = [](void* other){ return new VarType(*reinterpret_cast<VarType*>(other)); }; \
+typeDesc->inplace_copy_constructor = [](void* mem, void* other){ return new(mem) VarType(*reinterpret_cast<VarType*>(other)); }; \
+typeDesc->destructor = [](void* data){ reinterpret_cast<VarType*>(data)->~VarType(); };        \
+typeDesc->members = {
+
+#define DEFINE_SPARK_POD_CLASS_BEGIN(type) \
+DEFINE_SPARK_POD_TYPE(type)                                   \
+se::reflect::Class type::Reflection{type::initReflection}; \
+void type::initReflection(se::reflect::Class* typeDesc) { \
+using VarType = type; \
+se::reflect::TypeLookup::GetTypeMap()[#type] = typeDesc;\
+typeDesc->name = #type; \
+typeDesc->size = sizeof(VarType);                           \
+typeDesc->heap_constructor = []{ return new VarType(); };        \
+typeDesc->inplace_constructor = [](void* mem){ return new(mem) VarType(); }; \
+typeDesc->heap_copy_constructor = [](void* other){ return new VarType(*reinterpret_cast<VarType*>(other)); }; \
+typeDesc->inplace_copy_constructor = [](void* mem, void* other){ return new(mem) VarType(*reinterpret_cast<VarType*>(other)); }; \
+typeDesc->destructor = [](void* data){ reinterpret_cast<VarType*>(data)->~VarType(); };        \
+typeDesc->members = {
+
+#define TEMPLATE_TYPES(...) __VA_ARGS__
+#define TEMPLATE_PARAMETERS(...) __VA_ARGS__
+#define TO_STRING(val) #val
+
+#define DEFINE_SPARK_CLASS_TEMPLATED_BEGIN(type, templateTypes, templateParameters) \
+DEFINE_SPARK_TYPE_TEMPLATED(type, templateTypes, templateParameters)                                   \
+template<templateParameters>\
+se::reflect::TemplatedClass<templateTypes> type<templateTypes>::Reflection{type::initReflection}; \
+template<templateParameters>\
+void type<templateTypes>::initReflection(se::reflect::TemplatedClass<templateTypes>* typeDesc) { \
+static_assert(std::is_convertible<type<templateTypes>*, se::reflect::ObjectBase*>::value, "Reflectable types must inherit from reflect::ObjectBase");\
+typeDesc->name = #type;\
+se::reflect::TypeLookup::GetTypeMap()[typeDesc->GetTypeName(nullptr)] = typeDesc;\
+typeDesc->size = sizeof(type<templateTypes>);                           \
+typeDesc->heap_constructor = []{ return new type<templateTypes>(); };        \
+typeDesc->inplace_constructor = [](void* mem){ return new(mem) type<templateTypes>(); }; \
+typeDesc->heap_copy_constructor = [](void* other){ return new type<templateTypes>(*reinterpret_cast<type<templateTypes>*>(other)); }; \
+typeDesc->inplace_copy_constructor = [](void* mem, void* other){ return new(mem) type<templateTypes>(*reinterpret_cast<type<templateTypes>*>(other)); }; \
+typeDesc->destructor = [](void* data){ reinterpret_cast<type<templateTypes>*>(data)->~type(); };        \
 typeDesc->members = {
 
 #define DEFINE_MEMBER(name) \
-{#name, se::reflect::TypeResolver<decltype(T::name)>::get(), [](const void* obj){ return (void*)&((T*)obj)->name; }},
+{#name, se::reflect::TypeResolver<decltype(VarType::name)>::get(), [](const void* obj){ return (void*)&((VarType*)obj)->name; }},
+
+#define DEFINE_MEMBER_TEMPLATED(type, name, templateTypes) \
+{#name, se::reflect::TypeResolver<decltype(name)>::get(), [](const void* obj){ return (void*)&((type<templateTypes>*)obj)->name; }},
 
 #define DEFINE_SPARK_CLASS_END() \
 }; };                    \
@@ -77,9 +200,10 @@ DEFINE_SPARK_CLASS_END()
 
     /// Enum ///
 #define DECLARE_SPARK_ENUM_BEGIN(_enum, type) \
-struct _enum\
+struct _enum : reflect::ObjectBase\
 {                                             \
 DECLARE_SPARK_TYPE(_enum)                       \
+static constexpr bool s_IsPOD = true;\
 enum Type : type;\
 static std::string ToString(_enum::Type val); \
 static _enum::Type FromString(const std::string& str); \
@@ -116,9 +240,10 @@ se::reflect::Enum* enumReflection = se::reflect::EnumResolver<type>::get();\
 return enumReflection->values.size();\
 }\
 void type::initReflection(se::reflect::Enum* typeDesc) { \
-using T = type; \
+se::reflect::TypeLookup::GetTypeMap()[#type] = typeDesc;\
+using VarType = type; \
 typeDesc->name = #type; \
-typeDesc->size = sizeof(T); \
+typeDesc->size = sizeof(VarType); \
 typeDesc->values = {
 
 #define DEFINE_ENUM_VALUE(_enum, name) \

@@ -40,11 +40,9 @@ namespace se::linux
             case SDL_KEYDOWN:
                 {
                     input::Key::Type key = KeyMap::SDLKeyToSparkKey(ev.key.keysym.scancode);
-                    auto keyEvent = input::KeyEvent
-                    {
-                        .key = key,
-                        .state = input::KeyState::Down
-                    };
+                    input::KeyEvent keyEvent;
+                    keyEvent.key = key;
+                    keyEvent.state = input::KeyState::Down;
                     inputComp->keyEvents.push_back(keyEvent);
                     inputComp->keyStates[key] = keyEvent.state;
                     break;
@@ -52,11 +50,9 @@ namespace se::linux
             case SDL_KEYUP:
                 {
                     input::Key::Type key = KeyMap::SDLKeyToSparkKey(ev.key.keysym.scancode);
-                    auto keyEvent = input::KeyEvent
-                    {
-                        .key = key,
-                        .state = input::KeyState::Up
-                    };
+                    input::KeyEvent keyEvent;
+                    keyEvent.key = key;
+                    keyEvent.state = input::KeyState::Up;
                     inputComp->keyEvents.push_back(keyEvent);
                     inputComp->keyStates[key] = keyEvent.state;
                     break;

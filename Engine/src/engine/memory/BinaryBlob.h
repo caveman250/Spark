@@ -1,6 +1,7 @@
 #pragma once
 
 #include "spark.h"
+#include "engine/reflect/Reflect.h"
 
 namespace se::reflect
 {
@@ -8,7 +9,7 @@ namespace se::reflect
     {
         BinaryBlob(void (*init)(BinaryBlob*));
 
-        asset::binary::StructLayout GetStructLayout() const override;
+        asset::binary::StructLayout GetStructLayout(const void* obj) const override;
         void Serialize(const void* obj, asset::binary::Object& parentObj, const std::string& fieldName) const override;
         void Deserialize(void* obj, asset::binary::Object& parentObj, const std::string& fieldName) const override;
     };
@@ -16,12 +17,18 @@ namespace se::reflect
 
 namespace se::memory
 {
-    class BinaryBlob
+    class BinaryBlob : public reflect::ObjectBase
     {
     public:
+        static constexpr bool s_IsPOD = false;
         static reflect::BinaryBlob Reflection;
         static void initReflection(reflect::BinaryBlob*);
         DECLARE_SPARK_TYPE(BinaryBlob)
+
+        void Serialize(const void* obj, asset::binary::Object& parentObj, const std::string& fieldName) override;
+        void Deserialize(void* obj, asset::binary::Object& parentObj, const std::string& fieldName) override;
+        asset::binary::StructLayout GetStructLayout(const void* obj) const override;
+        std::string GetTypeName() const override;
 
         BinaryBlob();
         BinaryBlob(void* data, size_t size);

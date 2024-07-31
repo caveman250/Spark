@@ -21,6 +21,7 @@ namespace se::reflect
 
         void Serialize(const void* obj, asset::binary::Object& parentObj, const std::string& fieldName) const override;
         void Deserialize(void* obj, asset::binary::Object& parentObj, const std::string& fieldName) const override;
-        asset::binary::StructLayout GetStructLayout() const override;
+        asset::binary::StructLayout GetStructLayout(const void*) const override;
+        asset::binary::Type GetBinaryType() const override;
     };
 };

@@ -10,7 +10,7 @@ namespace se::reflect
         init(this);
     }
 
-    asset::binary::StructLayout BinaryBlob::GetStructLayout() const
+    asset::binary::StructLayout BinaryBlob::GetStructLayout(const void*) const
     {
         asset::binary::StructLayout structLayout = {{ asset::binary::CreateFixedString32("val"), asset::binary::Type::Blob }};
         return structLayout;
@@ -68,6 +68,26 @@ namespace se::memory
         typeDesc->heap_copy_constructor = [](void* other){ return new BinaryBlob(*static_cast<BinaryBlob*>(other)); };
         typeDesc->inplace_copy_constructor = [](void* mem, void* other){ return new(mem) BinaryBlob(*static_cast<BinaryBlob*>(other)); };
         typeDesc->destructor = [](void* data){ static_cast<BinaryBlob*>(data)->~BinaryBlob(); };
+    }
+
+    void BinaryBlob::Serialize(const void* obj, asset::binary::Object& parentObj, const std::string& fieldName)
+    {
+        reflect::TypeResolver<BinaryBlob>::get()->Serialize(obj, parentObj, fieldName);
+    }
+
+    void BinaryBlob::Deserialize(void* obj, asset::binary::Object& parentObj, const std::string& fieldName)
+    {
+        reflect::TypeResolver<BinaryBlob>::get()->Deserialize(obj, parentObj, fieldName);
+    }
+
+    asset::binary::StructLayout BinaryBlob::GetStructLayout(const void* obj) const
+    {
+        return reflect::TypeResolver<BinaryBlob>::get()->GetStructLayout(obj);
+    }
+
+    std::string BinaryBlob::GetTypeName() const
+    {
+        return "BinaryBlob";
     }
 
     BinaryBlob::BinaryBlob()

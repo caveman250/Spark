@@ -4,7 +4,7 @@
 
 namespace se::math
 {
-    DEFINE_SPARK_CLASS_BEGIN(Vec2)
+    DEFINE_SPARK_POD_CLASS_BEGIN(Vec2)
         DEFINE_MEMBER(x)
         DEFINE_MEMBER(y)
     DEFINE_SPARK_CLASS_END()

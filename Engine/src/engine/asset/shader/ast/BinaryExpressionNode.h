@@ -8,12 +8,15 @@ namespace se::asset::shader::ast
 {
     class BinaryExpressionNode : public ASTNode
     {
+        DECLARE_SPARK_CLASS(BinaryExpressionNode)
+
     public:
-        explicit BinaryExpressionNode(OperatorType opType);
+        BinaryExpressionNode() {}
+        explicit BinaryExpressionNode(OperatorType::Type opType);
         std::string GetDebugString() const override;
         void ToGlsl(string::ArenaString& outShader) const override;
 
     private:
-        OperatorType m_OpType;
+        OperatorType::Type m_OpType;
     };
 }

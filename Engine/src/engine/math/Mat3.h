@@ -1,14 +1,16 @@
 #pragma once
 
+#include "Vec3.h"
 #include "engine/reflect/Reflect.h"
 
 namespace se::math
 {
-    class Mat3 
+    class Mat3
     {
-        DECLARE_SPARK_CLASS(Mat3)
+        DECLARE_SPARK_POD_CLASS(Mat3)
     public:
         Mat3();
+        Mat3(const Mat3& other);
         explicit Mat3(float scalar);
         Mat3(float x0, float y0, float z0,
             float x1, float y1, float z1,
@@ -42,5 +44,5 @@ namespace se::math
     bool operator==(const Mat3& lhs, const Mat3 &rhs);
     bool operator!=(const Mat3& lhs, const Mat3 &rhs);
 
-    static Mat3 Inverse(const Mat3& m);
+    Mat3 Inverse(const Mat3& m);
 }

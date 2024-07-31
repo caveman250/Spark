@@ -7,6 +7,8 @@ namespace se::asset::shader::ast
 {
     class PowNode : public ASTNode
     {
+        DECLARE_SPARK_CLASS(PowNode)
+
         std::string GetDebugString() const override;
         void ToGlsl(string::ArenaString& outShader) const override;
     };

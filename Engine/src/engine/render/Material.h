@@ -1,5 +1,6 @@
 #pragma once
 #include "RenderState.h"
+#include "engine/asset/shader/ast/Types.h"
 
 namespace se::asset::shader::ast
 {
@@ -21,7 +22,7 @@ namespace se::render
         virtual void CreatePlatformResources(const VertexBuffer& vb) = 0;
         void SetRenderState(const RenderState& state);
 
-        virtual void SetUniform(const std::string& name, asset::shader::ast::Type type, const void* value) = 0;
+        virtual void SetUniform(const std::string& name, asset::shader::ast::AstType::Type type, const void* value) = 0;
     protected:
         Material(const std::vector<std::string>& vertPaths, const std::vector<std::string>& fragPaths);
         std::vector<std::string> m_VertShaderPaths;

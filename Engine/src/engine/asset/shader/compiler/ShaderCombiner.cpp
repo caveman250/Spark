@@ -54,7 +54,7 @@ namespace se::asset::shader::compiler
             {
                 if (scope.m_Variables.contains(name))
                 {
-                    ast::Type type = scope.m_Variables.at(name);
+                    ast::AstType::Type type = scope.m_Variables.at(name);
                     scope.m_Variables.erase(name);
                     scope.m_Variables.insert({newName, type});
                 }
@@ -65,7 +65,7 @@ namespace se::asset::shader::compiler
         {
             if (right.GetGlobalVariables().contains(name))
             {
-                ast::Type type = right.GetGlobalVariables().at(name);
+                ast::AstType::Type type = right.GetGlobalVariables().at(name);
                 right.GetGlobalVariables().erase(name);
                 right.GetGlobalVariables().insert({newName, type});
             }

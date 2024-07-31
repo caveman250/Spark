@@ -1,4 +1,5 @@
 #include "Type.h"
+#include "engine/math/math.h"
 
 namespace se::asset::binary
 {
@@ -6,6 +7,8 @@ namespace se::asset::binary
     {
         switch (type)
         {
+            case Type::Bool:
+                return "bool";
             case Type::Int8:
                 return "Int8";
             case Type::Uint8:
@@ -38,6 +41,8 @@ namespace se::asset::binary
                 return "Blob";
             case Type::Array:
                 return "Array";
+            case Type::PolymorphicArray:
+                return "PolymorphicArray";
             default:
                 SPARK_ASSERT(false);
                 return "error";
@@ -48,6 +53,8 @@ namespace se::asset::binary
     {
         switch (type)
         {
+            case Type::Bool:
+                return sizeof(bool);
             case Type::Int8:
                 return sizeof(int8_t);
             case Type::Uint8:
@@ -76,6 +83,7 @@ namespace se::asset::binary
             case Type::String:
             case Type::Blob:
             case Type::Array:
+        case Type::PolymorphicArray:
                 return sizeof(uint32_t); //offset of object data
             default:
                 SPARK_ASSERT(false);

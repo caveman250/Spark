@@ -45,14 +45,14 @@ namespace se::asset::shader::compiler
                 {
                 case TokenType::Builtin:
                     m_Lexer.ConsumeToken();
-                    ast::Type builtinType;
+                    ast::AstType::Type builtinType;
                     if (!ProcessBuiltin(token, builtinType, error))
                     {
                         return error;
                     }
                     break;
                 case TokenType::Identifier:
-                    ast::Type type;
+                    ast::AstType::Type type;
                     if (!ProcessExpression(type, error))
                     {
                         return error;
@@ -107,7 +107,7 @@ namespace se::asset::shader::compiler
         int componentsAccountedFor = 0;
         while (componentsAccountedFor < 2)
         {
-            ast::Type argType;
+            ast::AstType::Type argType;
             if (!ProcessExpression(argType, outError))
             {
                 return false;
@@ -115,19 +115,19 @@ namespace se::asset::shader::compiler
 
             switch (argType)
             {
-            case ast::Type::Float:
+            case ast::AstType::Float:
                 componentsAccountedFor++;
                 break;
-            case ast::Type::Vec2:
+            case ast::AstType::Vec2:
                 componentsAccountedFor += 2;
                 break;
-            case ast::Type::Vec3:
-            case ast::Type::Vec4:
-            case ast::Type::Mat3:
-            case ast::Type::Mat4:
-            case ast::Type::Void:
-            case ast::Type::Invalid:
-            case ast::Type::Sampler2D:
+            case ast::AstType::Vec3:
+            case ast::AstType::Vec4:
+            case ast::AstType::Mat3:
+            case ast::AstType::Mat4:
+            case ast::AstType::Void:
+            case ast::AstType::Invalid:
+            case ast::AstType::Sampler2D:
                 outError = {
                     nextToken.line, nextToken.pos,
                     std::format("Unexpected type {}", ast::TypeUtil::GetTypeGlsl(argType))
@@ -169,7 +169,7 @@ namespace se::asset::shader::compiler
         int componentsAccountedFor = 0;
         while (componentsAccountedFor < 3)
         {
-            ast::Type argType;
+            ast::AstType::Type argType;
             if (!ProcessExpression(argType, outError))
             {
                 return false;
@@ -177,26 +177,26 @@ namespace se::asset::shader::compiler
 
             switch (argType)
             {
-            case ast::Type::Float:
+            case ast::AstType::Float:
                 componentsAccountedFor++;
                 break;
-            case ast::Type::Vec2:
+            case ast::AstType::Vec2:
                 componentsAccountedFor += 2;
                 break;
-            case ast::Type::Vec3:
-            case ast::Type::Vec4:
+            case ast::AstType::Vec3:
+            case ast::AstType::Vec4:
                 componentsAccountedFor += 3;
                 break;
-            case ast::Type::Mat4:
+            case ast::AstType::Mat4:
                 if (!Expect({TokenType::Syntax}, {"*"}, outError))
                 {
                     return false;
                 }
                 break;
-            case ast::Type::Mat3:
-            case ast::Type::Void:
-            case ast::Type::Invalid:
-            case ast::Type::Sampler2D:
+            case ast::AstType::Mat3:
+            case ast::AstType::Void:
+            case ast::AstType::Invalid:
+            case ast::AstType::Sampler2D:
                 outError = {
                     nextToken.line, nextToken.pos,
                     std::format("Unexpected type {}", ast::TypeUtil::GetTypeGlsl(argType))
@@ -237,7 +237,7 @@ namespace se::asset::shader::compiler
         int componentsAccountedFor = 0;
         while (componentsAccountedFor < 4)
         {
-            ast::Type argType;
+            ast::AstType::Type argType;
             if (!ProcessExpression(argType, outError))
             {
                 return false;
@@ -245,23 +245,23 @@ namespace se::asset::shader::compiler
 
             switch (argType)
             {
-            case ast::Type::Float:
+            case ast::AstType::Float:
                 componentsAccountedFor++;
                 break;
-            case ast::Type::Vec2:
+            case ast::AstType::Vec2:
                 componentsAccountedFor += 2;
                 break;
-            case ast::Type::Vec3:
+            case ast::AstType::Vec3:
                 componentsAccountedFor += 3;
                 break;
-            case ast::Type::Vec4:
+            case ast::AstType::Vec4:
                 componentsAccountedFor += 4;
                 break;
-            case ast::Type::Mat3:
-            case ast::Type::Mat4:
-            case ast::Type::Void:
-            case ast::Type::Sampler2D:
-            case ast::Type::Invalid:
+            case ast::AstType::Mat3:
+            case ast::AstType::Mat4:
+            case ast::AstType::Void:
+            case ast::AstType::Sampler2D:
+            case ast::AstType::Invalid:
                 outError = {
                     nextToken.line, nextToken.pos,
                     std::format("Unexpected type {}", ast::TypeUtil::GetTypeGlsl(argType))
@@ -288,11 +288,11 @@ namespace se::asset::shader::compiler
         return true;
     }
 
-    bool Parser::ProcessBuiltin(const Token& token, ast::Type& returnType, ParseError& outError)
+    bool Parser::ProcessBuiltin(const Token& token, ast::AstType::Type& returnType, ParseError& outError)
     {
-        returnType = ast::Type::Invalid;
+        returnType = ast::AstType::Invalid;
 
-        bool isPossibleVariableDec = ast::TypeUtil::StringToType(token.value) != ast::Type::Invalid;
+        bool isPossibleVariableDec = ast::TypeUtil::StringToType(token.value) != ast::AstType::Invalid;
         if (isPossibleVariableDec)
         {
             auto peek = m_Lexer.PeekToken();
@@ -316,22 +316,22 @@ namespace se::asset::shader::compiler
 
         if (token.value == "void")
         {
-            returnType = ast::Type::Void;
+            returnType = ast::AstType::Void;
             return ProcessFunctionDeclaration(token, outError);
         }
         else if (token.value == "vec2")
         {
-            returnType = ast::Type::Vec2;
+            returnType = ast::AstType::Vec2;
             return ProcessVec2(token, outError);
         }
         else if (token.value == "vec3")
         {
-            returnType = ast::Type::Vec3;
+            returnType = ast::AstType::Vec3;
             return ProcessVec3(token, outError);
         }
         else if (token.value == "vec4")
         {
-            returnType = ast::Type::Vec4;
+            returnType = ast::AstType::Vec4;
             return ProcessVec4(token, outError);
         }
         else if (token.value == "port")
@@ -344,12 +344,12 @@ namespace se::asset::shader::compiler
         }
         else if (token.value == "texture")
         {
-            returnType = ast::Type::Vec4;
+            returnType = ast::AstType::Vec4;
             return ProcessTextureRead(token, outError);
         }
         else if (token.value == "length")
         {
-            returnType = ast::Type::Float;
+            returnType = ast::AstType::Float;
             return ProcessLengthFunc(token, outError);
         }
         else if (token.value == "normalize")
@@ -358,12 +358,12 @@ namespace se::asset::shader::compiler
         }
         else if (token.value == "clamp")
         {
-            returnType = ast::Type::Float;
+            returnType = ast::AstType::Float;
             return ProcessClampFunc(token, outError);
         }
         else if (token.value == "dot")
         {
-            returnType = ast::Type::Float;
+            returnType = ast::AstType::Float;
             return ProcessDotFunc(token, outError);
         }
         else if (token.value == "reflect")
@@ -372,7 +372,7 @@ namespace se::asset::shader::compiler
         }
         else if (token.value == "pow")
         {
-            returnType = ast::Type::Float;
+            returnType = ast::AstType::Float;
             return ProcessPowFunc(token, outError);
         }
 
@@ -437,7 +437,7 @@ namespace se::asset::shader::compiler
         }
     }
 
-    bool Parser::ProcessPortDeclaration(const Token&, ast::Type& returnType, ParseError& outError)
+    bool Parser::ProcessPortDeclaration(const Token&, ast::AstType::Type& returnType, ParseError& outError)
     {
         if (!ExpectAndConsume({TokenType::Syntax}, {"("}, outError))
         {
@@ -467,7 +467,7 @@ namespace se::asset::shader::compiler
         {
             return false;
         }
-        ast::Type type = ast::TypeUtil::StringToType(typeToken.value);
+        ast::AstType::Type type = ast::TypeUtil::StringToType(typeToken.value);
         returnType = type;
 
         Token nameToken;
@@ -494,7 +494,7 @@ namespace se::asset::shader::compiler
         return true;
     }
 
-    bool Parser::ProcessUniformDeclaration(const Token&, ast::Type& returnType, ParseError& outError)
+    bool Parser::ProcessUniformDeclaration(const Token&, ast::AstType::Type& returnType, ParseError& outError)
     {
         Token typeToken;
         if (!ExpectedGetAndConsume({TokenType::Builtin}, ast::TypeUtil::GetTypeStrings(), typeToken,
@@ -502,7 +502,7 @@ namespace se::asset::shader::compiler
         {
             return false;
         }
-        ast::Type type = ast::TypeUtil::StringToType(typeToken.value);
+        ast::AstType::Type type = ast::TypeUtil::StringToType(typeToken.value);
         returnType = type;
 
         Token nameToken;
@@ -652,7 +652,7 @@ namespace se::asset::shader::compiler
             return false;
         }
 
-        ast::Type declarationType = ast::TypeUtil::StringToType(token.value);
+        ast::AstType::Type declarationType = ast::TypeUtil::StringToType(token.value);
         m_Shader.AddNode(std::make_shared<ast::VariableDeclarationNode>(nameToken.value, declarationType));
         m_Shader.AddNode(std::make_shared<ast::EndOfExpressionNode>());
 
@@ -663,7 +663,7 @@ namespace se::asset::shader::compiler
             return false;
         }
 
-        ast::Type expressionType;
+        ast::AstType::Type expressionType;
         if (!ProcessExpression(expressionType, outError))
         {
             return false;
@@ -768,7 +768,7 @@ namespace se::asset::shader::compiler
         return true;
     }
 
-    bool Parser::ProcessExpression(ast::Type& outType, ParseError& outError)
+    bool Parser::ProcessExpression(ast::AstType::Type& outType, ParseError& outError)
     {
         int numBinaryExpressions = 0;
         while (true)
@@ -845,7 +845,7 @@ namespace se::asset::shader::compiler
 
             if (nextToken.type == TokenType::Identifier)
             {
-                ast::Type type;
+                ast::AstType::Type type;
                 if (!m_Shader.FindVariable(nextToken.value, type))
                 {
                     outError = {nextToken.line, nextToken.pos, std::format("Undefined variable {}", nextToken.value)};
@@ -881,7 +881,7 @@ namespace se::asset::shader::compiler
                 {
                     return false;
                 }
-                outType = ast::Type::Float; // TODO int?
+                outType = ast::AstType::Float; // TODO int?
             }
             else if (nextToken.type == TokenType::StringLiteral)
             {
@@ -889,11 +889,11 @@ namespace se::asset::shader::compiler
                 {
                     return false;
                 }
-                outType = ast::Type::Invalid; //TODO
+                outType = ast::AstType::Invalid; //TODO
             }
             else if (nextToken.type == TokenType::Builtin)
             {
-                ast::Type builtinType;
+                ast::AstType::Type builtinType;
                 if (!ProcessBuiltin(nextToken, builtinType, outError))
                 {
                     return false;
@@ -970,7 +970,7 @@ namespace se::asset::shader::compiler
         {
             return false;
         }
-        ast::Type varType;
+        ast::AstType::Type varType;
         if (!m_Shader.FindVariable(textureVariableToken.value, varType))
         {
             outError = {
@@ -979,7 +979,7 @@ namespace se::asset::shader::compiler
             };
             return false;
         }
-        if (varType != ast::Type::Sampler2D)
+        if (varType != ast::AstType::Sampler2D)
         {
             outError = {
                 textureVariableToken.line, textureVariableToken.pos,
@@ -998,7 +998,7 @@ namespace se::asset::shader::compiler
         {
             return false;
         }
-        ast::Type uvVarType;
+        ast::AstType::Type uvVarType;
         if (!m_Shader.FindVariable(uvVariableToken.value, uvVarType))
         {
             outError = {
@@ -1007,7 +1007,7 @@ namespace se::asset::shader::compiler
             };
             return false;
         }
-        if (uvVarType != ast::Type::Vec2)
+        if (uvVarType != ast::AstType::Vec2)
         {
             outError = {
                 textureVariableToken.line, textureVariableToken.pos,
@@ -1047,7 +1047,7 @@ namespace se::asset::shader::compiler
                 break;
             }
 
-            ast::Type argType;
+            ast::AstType::Type argType;
             if (!ProcessExpression(argType, outError))
             {
                 return false;
@@ -1055,23 +1055,23 @@ namespace se::asset::shader::compiler
 
             switch (argType)
             {
-            case ast::Type::Float:
+            case ast::AstType::Float:
                 componentsAccountedFor++;
                 break;
-            case ast::Type::Vec2:
+            case ast::AstType::Vec2:
                 componentsAccountedFor += 2;
                 break;
-            case ast::Type::Vec3:
+            case ast::AstType::Vec3:
                 componentsAccountedFor += 3;
                 break;
-            case ast::Type::Vec4:
+            case ast::AstType::Vec4:
                 componentsAccountedFor += 4;
                 break;
-            case ast::Type::Mat3:
-            case ast::Type::Mat4:
-            case ast::Type::Void:
-            case ast::Type::Invalid:
-            case ast::Type::Sampler2D:
+            case ast::AstType::Mat3:
+            case ast::AstType::Mat4:
+            case ast::AstType::Void:
+            case ast::AstType::Invalid:
+            case ast::AstType::Sampler2D:
                 outError = {
                     token.line, token.pos,
                     std::format("Unexpected type {}", ast::TypeUtil::GetTypeGlsl(argType))
@@ -1128,7 +1128,7 @@ namespace se::asset::shader::compiler
                 break;
             }
 
-            ast::Type argType;
+            ast::AstType::Type argType;
             if (!ProcessExpression(argType, outError))
             {
                 return false;
@@ -1136,7 +1136,7 @@ namespace se::asset::shader::compiler
 
             switch (argType)
             {
-            case ast::Type::Float:
+            case ast::AstType::Float:
                 argumentsAccountedFor ++;
                 break;
             default:
@@ -1176,7 +1176,7 @@ namespace se::asset::shader::compiler
         return true;
     }
 
-    bool Parser::ProcessNormalizeFunc(const Token& token, ast::Type& returnType, ParseError& outError)
+    bool Parser::ProcessNormalizeFunc(const Token& token, ast::AstType::Type& returnType, ParseError& outError)
     {
         if (!ExpectAndConsume({TokenType::Syntax}, {"("}, outError))
         {
@@ -1196,7 +1196,7 @@ namespace se::asset::shader::compiler
                 break;
             }
 
-            ast::Type argType;
+            ast::AstType::Type argType;
             if (!ProcessExpression(argType, outError))
             {
                 return false;
@@ -1204,24 +1204,24 @@ namespace se::asset::shader::compiler
 
             switch (argType)
             {
-            case ast::Type::Vec2:
-                returnType = ast::Type::Vec2;
+            case ast::AstType::Vec2:
+                returnType = ast::AstType::Vec2;
                 argumentsAccountedFor ++;
                 break;
-            case ast::Type::Vec3:
-                returnType = ast::Type::Vec3;
+            case ast::AstType::Vec3:
+                returnType = ast::AstType::Vec3;
                 argumentsAccountedFor ++;
                 break;
-            case ast::Type::Vec4:
-                returnType = ast::Type::Vec4;
+            case ast::AstType::Vec4:
+                returnType = ast::AstType::Vec4;
                 argumentsAccountedFor ++;
                 break;
-            case ast::Type::Float:
-            case ast::Type::Mat3:
-            case ast::Type::Mat4:
-            case ast::Type::Void:
-            case ast::Type::Invalid:
-            case ast::Type::Sampler2D:
+            case ast::AstType::Float:
+            case ast::AstType::Mat3:
+            case ast::AstType::Mat4:
+            case ast::AstType::Void:
+            case ast::AstType::Invalid:
+            case ast::AstType::Sampler2D:
                 outError = {
                     token.line, token.pos,
                     std::format("Unexpected type {}", ast::TypeUtil::GetTypeGlsl(argType))
@@ -1258,7 +1258,7 @@ namespace se::asset::shader::compiler
         return true;
     }
 
-    bool Parser::ProcessReflectFunc(const Token& token, ast::Type& returnType, ParseError& outError)
+    bool Parser::ProcessReflectFunc(const Token& token, ast::AstType::Type& returnType, ParseError& outError)
     {
         if (!ExpectAndConsume({TokenType::Syntax}, {"("}, outError))
         {
@@ -1278,7 +1278,7 @@ namespace se::asset::shader::compiler
                 break;
             }
 
-            ast::Type argType;
+            ast::AstType::Type argType;
             if (!ProcessExpression(argType, outError))
             {
                 return false;
@@ -1286,24 +1286,24 @@ namespace se::asset::shader::compiler
 
             switch (argType)
             {
-            case ast::Type::Vec2:
-                returnType = ast::Type::Vec2;
+            case ast::AstType::Vec2:
+                returnType = ast::AstType::Vec2;
                 argumentsAccountedFor ++;
                 break;
-            case ast::Type::Vec3:
-                returnType = ast::Type::Vec3;
+            case ast::AstType::Vec3:
+                returnType = ast::AstType::Vec3;
                 argumentsAccountedFor ++;
                 break;
-            case ast::Type::Vec4:
-                returnType = ast::Type::Vec4;
+            case ast::AstType::Vec4:
+                returnType = ast::AstType::Vec4;
                 argumentsAccountedFor ++;
                 break;
-            case ast::Type::Float:
-            case ast::Type::Mat3:
-            case ast::Type::Mat4:
-            case ast::Type::Void:
-            case ast::Type::Invalid:
-            case ast::Type::Sampler2D:
+            case ast::AstType::Float:
+            case ast::AstType::Mat3:
+            case ast::AstType::Mat4:
+            case ast::AstType::Void:
+            case ast::AstType::Invalid:
+            case ast::AstType::Sampler2D:
                 outError = {
                     token.line, token.pos,
                     std::format("Unexpected type {}", ast::TypeUtil::GetTypeGlsl(argType))
@@ -1361,7 +1361,7 @@ namespace se::asset::shader::compiler
                 break;
             }
 
-            ast::Type argType;
+            ast::AstType::Type argType;
             if (!ProcessExpression(argType, outError))
             {
                 return false;
@@ -1369,7 +1369,7 @@ namespace se::asset::shader::compiler
 
             switch (argType)
             {
-            case ast::Type::Float:
+            case ast::AstType::Float:
                 componentsAccountedFor++;
                 break;
             default:
@@ -1429,7 +1429,7 @@ namespace se::asset::shader::compiler
                 break;
             }
 
-            ast::Type argType;
+            ast::AstType::Type argType;
             if (!ProcessExpression(argType, outError))
             {
                 return false;
@@ -1437,9 +1437,9 @@ namespace se::asset::shader::compiler
 
             switch (argType)
             {
-            case ast::Type::Vec2:
-            case ast::Type::Vec3:
-            case ast::Type::Vec4:
+            case ast::AstType::Vec2:
+            case ast::AstType::Vec3:
+            case ast::AstType::Vec4:
                 argumentsAccountedFor++;
                 break;
             default:
@@ -1479,7 +1479,7 @@ namespace se::asset::shader::compiler
         return true;
     }
 
-    bool Parser::ProcessPropertyAccess(const Token&, ast::Type& returnType, ParseError& outError)
+    bool Parser::ProcessPropertyAccess(const Token&, ast::AstType::Type& returnType, ParseError& outError)
     {
         if (!ExpectAndConsume({TokenType::Syntax}, {"."}, outError))
         {
@@ -1500,12 +1500,12 @@ namespace se::asset::shader::compiler
             propertyNameToken.value == "g" ||
             propertyNameToken.value == "b")
         {
-            returnType = ast::Type::Float;
+            returnType = ast::AstType::Float;
         }
         else if (propertyNameToken.value == "xyz" ||
                  propertyNameToken.value == "rgb")
         {
-            returnType = ast::Type::Vec3;
+            returnType = ast::AstType::Vec3;
         }
         else
         {

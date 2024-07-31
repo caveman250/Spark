@@ -21,7 +21,7 @@ if (!fieldName.empty())\
 else\
     *(type*)obj = parentObj.Get<type>("val");\
 }\
-asset::binary::StructLayout GetStructLayout() const override\
+asset::binary::StructLayout GetStructLayout(const void*) const override\
 {\
     asset::binary::StructLayout structLayout = {{ asset::binary::CreateFixedString32("val"), binaryType }};\
     return structLayout;\
@@ -33,15 +33,17 @@ static Type_##type typeDesc;\
 return &typeDesc;\
 }
 
+    DEFINE_PRIMITIVE(bool, asset::binary::Type::Bool)
+    DEFINE_PRIMITIVE(uint8_t, asset::binary::Type::Uint8)
     DEFINE_PRIMITIVE(int, asset::binary::Type::Int32)
     DEFINE_PRIMITIVE(uint32_t, asset::binary::Type::Uint32)
     DEFINE_PRIMITIVE(float, asset::binary::Type::Float)
     using namespace std;
     DEFINE_PRIMITIVE(string, asset::binary::Type::String)
 
-    struct Type_VoidPtr : Type
+    struct Type_ObjectBase : Type
     {
-        Type_VoidPtr() : Type{"void*", sizeof(void*), asset::binary::Type::Invalid }
+        Type_ObjectBase() : Type{"ObjectBase", sizeof(ObjectBase), asset::binary::Type::Invalid }
         {
 
         }
@@ -56,7 +58,7 @@ return &typeDesc;\
             SPARK_ASSERT(false, "Unimplemented");
         }
 
-        asset::binary::StructLayout GetStructLayout() const override
+        asset::binary::StructLayout GetStructLayout(const void*) const override
         {
             asset::binary::StructLayout structLayout = {{ asset::binary::CreateFixedString32("val"), asset::binary::Type::Invalid }};
             return structLayout;
@@ -64,9 +66,9 @@ return &typeDesc;\
     };
 
     template <>
-    Type* getPrimitiveDescriptor<void*>()
+    Type* getPrimitiveDescriptor<ObjectBase>()
     {
-        static Type_VoidPtr typeDesc;
+        static Type_ObjectBase typeDesc;
         return &typeDesc;
     }
 }

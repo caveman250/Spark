@@ -2,25 +2,25 @@
 
 namespace se::asset::shader::ast
 {
-    std::string TypeUtil::GetTypeGlsl(Type type)
+    std::string TypeUtil::GetTypeGlsl(AstType::Type type)
     {
         switch (type)
         {
-            case Type::Float:
+            case AstType::Float:
                 return "float";
-            case Type::Vec2:
+            case AstType::Vec2:
                 return "vec2";
-            case Type::Vec3:
+            case AstType::Vec3:
                 return "vec3";
-            case Type::Vec4:
+            case AstType::Vec4:
                 return "vec4";
-            case Type::Mat3:
+            case AstType::Mat3:
                 return "mat3";
-            case Type::Mat4:
+            case AstType::Mat4:
                 return "mat4";
-            case Type::Void:
+            case AstType::Void:
                 return "void";
-            case Type::Sampler2D:
+            case AstType::Sampler2D:
                 return "sampler2D";
             default:
                 SPARK_ASSERT(false);
@@ -28,26 +28,26 @@ namespace se::asset::shader::ast
         }
     }
 
-    Type TypeUtil::StringToType(const std::string& type)
+    AstType::Type TypeUtil::StringToType(const std::string& type)
     {
         if (type == "float")
-            return Type::Float;
+            return AstType::Float;
         else if (type == "vec2")
-            return Type::Vec2;
+            return AstType::Vec2;
         else if (type == "vec3")
-            return Type::Vec3;
+            return AstType::Vec3;
         else if (type == "vec4")
-            return Type::Vec4;
+            return AstType::Vec4;
         else if (type == "mat3")
-            return Type::Mat3;
+            return AstType::Mat3;
         else if (type == "mat4")
-            return Type::Mat4;
+            return AstType::Mat4;
         else if (type == "void")
-            return Type::Void;
+            return AstType::Void;
         else if (type == "sampler2D")
-            return Type::Sampler2D;
+            return AstType::Sampler2D;
 
-        return Type::Invalid;
+        return AstType::Invalid;
     }
 
     const std::vector<std::string>& TypeUtil::GetTypeStrings()

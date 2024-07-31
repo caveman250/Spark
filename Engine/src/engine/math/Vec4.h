@@ -6,7 +6,7 @@ namespace se::math
 {
     struct Vec4
     {
-        DECLARE_SPARK_CLASS(Vec4)
+        DECLARE_SPARK_POD_CLASS(Vec4)
 
         inline Vec4() : x(0.f), y(0.f), z(0.f), w(0.f)
         {

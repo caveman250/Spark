@@ -4,7 +4,13 @@
 
 namespace se::asset::shader::ast
 {
-    VariableDeclarationNode::VariableDeclarationNode(const std::string &name, Type type)
+    DEFINE_SPARK_CLASS_BEGIN(VariableDeclarationNode)
+        DEFINE_MEMBER(m_Children)
+        DEFINE_MEMBER(m_Type)
+        DEFINE_MEMBER(m_Name)
+    DEFINE_SPARK_CLASS_END()
+
+    VariableDeclarationNode::VariableDeclarationNode(const std::string &name, AstType::Type type)
         : m_Type(type)
         , m_Name(name)
     {

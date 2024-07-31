@@ -6,7 +6,7 @@
 
 namespace se::input
 {
-    struct InputComponent
+    struct InputComponent : reflect::ObjectBase
     {
         DECLARE_SPARK_SINGLETON_COMPONENT(InputComponent)
 

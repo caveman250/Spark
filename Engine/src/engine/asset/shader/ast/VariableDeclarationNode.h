@@ -6,8 +6,11 @@ namespace se::asset::shader::ast
 {
     class VariableDeclarationNode : public ASTNode
     {
+        DECLARE_SPARK_CLASS(VariableDeclarationNode)
+
     public:
-        VariableDeclarationNode(const std::string& name, Type type);
+        VariableDeclarationNode() = default;
+        VariableDeclarationNode(const std::string& name, AstType::Type type);
         std::string GetDebugString() const override;
         void ToGlsl(string::ArenaString& outShader) const override;
 
@@ -16,11 +19,11 @@ namespace se::asset::shader::ast
 
         void SetName(const std::string& name) { m_Name = name; }
 
-        Type GetType() { return m_Type; }
+        AstType::Type GetType() { return m_Type; }
         const std::string& GetName() { return m_Name; }
 
     private:
-        Type m_Type;
-        std::string m_Name;
+        AstType::Type m_Type = {};
+        std::string m_Name = {};
     };
 }

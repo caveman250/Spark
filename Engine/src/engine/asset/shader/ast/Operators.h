@@ -1,10 +1,10 @@
 #pragma once
 #include "spark.h"
+#include "engine/reflect/Reflect.h"
 
 namespace se::asset::shader::ast
 {
-    enum class OperatorType
-    {
+    DECLARE_SPARK_ENUM_BEGIN(OperatorType, int)
         Multiply,
         MultiplyEquals,
         Divide,
@@ -15,17 +15,18 @@ namespace se::asset::shader::ast
         SubtractEquals,
         Equals,
         Compare,
-    }; // im sure ive missed some...
+    DECLARE_SPARK_ENUM_END()
+
     class OperatorUtil
     {
     public:
-        static uint8_t GetOperatorPriority(OperatorType type);
-        static OperatorType StringToOperatorType(const std::string& token);
-        static std::string OperatorTypeToGlsl(OperatorType type); // todo arena
+        static uint8_t GetOperatorPriority(OperatorType::Type type);
+        static OperatorType::Type StringToOperatorType(const std::string& token);
+        static std::string OperatorTypeToGlsl(OperatorType::Type type);
         static bool IsOperator(const std::string& str);
     private:
-        static std::map<OperatorType, uint8_t> s_OperatorPriorities;
-        static std::map<std::string, OperatorType> s_ShaderLangToType;
-        static std::map<OperatorType, std::string> s_TypeToGlsl;
+        static std::map<OperatorType::Type, uint8_t> s_OperatorPriorities;
+        static std::map<std::string, OperatorType::Type> s_ShaderLangToType;
+        static std::map<OperatorType::Type, std::string> s_TypeToGlsl;
     };
 }

@@ -2,6 +2,7 @@
 #include "ast/InputPortNode.h"
 #include "spark.h"
 #include "ast/Types.h"
+#include "engine/reflect/Reflect.h"
 
 namespace se::asset::shader::compiler
 {
@@ -20,23 +21,25 @@ namespace se::asset::shader::ast
     class AstScope
     {
     public:
+        AstScope() {}
         AstScope(const std::shared_ptr<ASTNode>& node) : m_Node(node) {}
         std::shared_ptr<ASTNode> m_Node;
 
-        std::map<std::string, Type> m_Variables;
+        std::map<std::string, AstType::Type> m_Variables;
     };
 
-    class Shader
+    class Shader : public reflect::ObjectBase
     {
-    public:
-        bool FindVariable(const std::string& name, Type& type) const;
+        DECLARE_SPARK_CLASS(Shader)
+
+        bool FindVariable(const std::string& name, AstType::Type& type) const;
         const std::map<std::string, std::shared_ptr<InputNode>>& GetInputs() const { return m_Inputs; }
         const std::map<std::string, std::shared_ptr<OutputNode>>& GetOutputs() const { return m_Outputs; }
         const std::map<std::string, std::shared_ptr<InputPortNode>>& GetInputPorts() const { return m_InputPorts; }
         const std::map<std::string, std::shared_ptr<OutputPortNode>>& GetOutputPorts() const { return m_OutputPorts; }
         const std::vector<std::shared_ptr<ASTNode>>& GetNodes() const { return m_AstNodes; }
-        std::map<std::string, Type>& GetGlobalVariables() { return m_GlobalVariables; }
-        const std::map<std::string, Type>& GetUniformVariables() const { return m_Uniforms; }
+        std::map<std::string, AstType::Type>& GetGlobalVariables() { return m_GlobalVariables; }
+        const std::map<std::string, AstType::Type>& GetUniformVariables() const { return m_Uniforms; }
         std::vector<AstScope>& GetScopeStack() { return m_ScopeStack; }
 
         void AddInputPort(const std::shared_ptr<InputPortNode>& node);
@@ -60,11 +63,11 @@ namespace se::asset::shader::ast
         const std::shared_ptr<OutputPortNode>& FindOutputPortByPortName(const std::string& portName) const;
         const std::shared_ptr<InputNode>& FindInput(const std::string& name) const;
         const std::shared_ptr<OutputNode>& FindOutput(const std::string& name) const;
-        bool RecordVariableForScope(const std::string& name, const Type& type, std::string& outError);
-        bool AddUniform(const std::string& name, const Type& type, std::string& outError);
+        bool RecordVariableForScope(const std::string& name, const AstType::Type& type, std::string& outError);
+        bool AddUniform(const std::string& name, const AstType::Type& type, std::string& outError);
 
         void InsertNode(size_t at, const std::shared_ptr<ASTNode>& node);
-        bool HasUniform(const std::string& name, Type type);
+        bool HasUniform(const std::string& name, AstType::Type type);
 
     private:
         bool m_MainDeclared = false;
@@ -74,7 +77,7 @@ namespace se::asset::shader::ast
         std::map<std::string, std::shared_ptr<OutputNode>> m_Outputs;
         std::vector<std::shared_ptr<ASTNode>> m_AstNodes;
         std::vector<AstScope> m_ScopeStack;
-        std::map<std::string, Type> m_Uniforms;
-        std::map<std::string, Type> m_GlobalVariables;
+        std::map<std::string, AstType::Type> m_Uniforms;
+        std::map<std::string, AstType::Type> m_GlobalVariables;
     };
 }

@@ -2,7 +2,12 @@
 
 namespace se::asset::shader::ast
 {
-    BinaryExpressionNode::BinaryExpressionNode(OperatorType opType)
+    DEFINE_SPARK_CLASS_BEGIN(BinaryExpressionNode)
+        DEFINE_MEMBER(m_Children)
+        DEFINE_MEMBER(m_OpType)
+    DEFINE_SPARK_CLASS_END()
+
+    BinaryExpressionNode::BinaryExpressionNode(OperatorType::Type opType)
         : m_OpType(opType)
     {
 
