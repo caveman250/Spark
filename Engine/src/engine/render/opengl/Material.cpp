@@ -8,8 +8,8 @@
 
 namespace se::render
 {
-    std::shared_ptr<Material> Material::CreateMaterial(const std::vector<std::shared_ptr<asset::shader::ast::Shader>>& vertShaders,
-                                                        const std::vector<std::shared_ptr<asset::shader::ast::Shader>>& fragShaders)
+    std::shared_ptr<Material> Material::CreateMaterial(const std::vector<std::shared_ptr<asset::Shader>>& vertShaders,
+                                                        const std::vector<std::shared_ptr<asset::Shader>>& fragShaders)
     {
         return std::make_shared<opengl::Material>(vertShaders, fragShaders);
     }
@@ -17,8 +17,8 @@ namespace se::render
 
 namespace se::render::opengl
 {
-    Material::Material(const std::vector<std::shared_ptr<asset::shader::ast::Shader>>& vertShaders,
-                        const std::vector<std::shared_ptr<asset::shader::ast::Shader>>& fragShaders)
+    Material::Material(const std::vector<std::shared_ptr<asset::Shader>>& vertShaders,
+                        const std::vector<std::shared_ptr<asset::Shader>>& fragShaders)
         : render::Material(vertShaders, fragShaders)
     {
     }

@@ -16,7 +16,7 @@ namespace se::asset::shader::compiler
     {
     public:
         Parser(Lexer lexer);
-        std::variant<ast::Shader, ParseError> Parse();
+        std::variant<Shader, ParseError> Parse();
 
     private:
         bool ProcessBuiltin(const Token& token, ast::AstType::Type& returnType, ParseError& outError);
@@ -62,7 +62,7 @@ namespace se::asset::shader::compiler
         static bool EnsureInteger(const std::string& value, ParseError& outError);
         bool EnsureTypeAndConsume(std::vector<ast::AstType> allowedTypes, ParseError& outError);
 
-        ast::Shader m_Shader;
+        Shader m_Shader;
         Lexer m_Lexer;
     };
 }

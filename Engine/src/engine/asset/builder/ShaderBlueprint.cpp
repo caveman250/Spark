@@ -1,11 +1,7 @@
 #include "spark.h"
 #include "ShaderBlueprint.h"
-#include "ofbx.h"
-#include "engine/asset/mesh/Model.h"
 #include "engine/asset/shader/Shader.h"
 #include "engine/asset/shader/compiler/ShaderCompiler.h"
-#include "engine/io/OutputFileStream.h"
-#include "engine/io/VFS.h"
 #include "engine/reflect/Util.h"
 
 namespace se::asset::builder
@@ -20,7 +16,7 @@ namespace se::asset::builder
         auto shader = shader::ShaderCompiler::CompileShader(path);
         if (shader.has_value())
         {
-            return reflect::SerialiseType<shader::ast::Shader>(&shader.value());
+            return reflect::SerialiseType<Shader>(&shader.value());
         }
 
         return nullptr;

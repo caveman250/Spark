@@ -14,7 +14,7 @@
 
 namespace se::asset::shader
 {
-    std::optional<ast::Shader> ShaderCompiler::CompileShader(const std::string& filePath)
+    std::optional<Shader> ShaderCompiler::CompileShader(const std::string& filePath)
     {
         debug::Log::Info("Compiling shader: {0}", filePath.c_str());
         compiler::Lexer lexer(filePath);
@@ -28,22 +28,22 @@ namespace se::asset::shader
             return std::nullopt;
         }
         debug::Log::Info("Sucess");
-        return std::get<ast::Shader>(result);
+        return std::get<Shader>(result);
     }
 
-    std::optional<std::string> ShaderCompiler::GeneratePlatformShader(const std::vector<std::shared_ptr<ast::Shader>>& shaderAssets, const render::VertexBuffer& vb)
+    std::optional<std::string> ShaderCompiler::GeneratePlatformShader(const std::vector<std::shared_ptr<Shader>>& shaderAssets, const render::VertexBuffer& vb)
     {
-        std::optional<ast::Shader> newShader = std::nullopt;
-        std::vector<ast::Shader> additionalStages;
+        std::optional<Shader> newShader = std::nullopt;
+        std::vector<Shader> additionalStages;
         for (auto& shader : shaderAssets)
         {
             if (!newShader.has_value())
             {
-                newShader = ast::Shader(*shader.get());
+                newShader = Shader(*shader.get());
             }
             else
             {
-                additionalStages.emplace_back(ast::Shader(*shader.get()));
+                additionalStages.emplace_back(Shader(*shader.get()));
             }
         }
 
@@ -60,7 +60,7 @@ namespace se::asset::shader
         return AstToGlsl(newShader.value());
     }
 
-    std::string ShaderCompiler::AstToGlsl(ast::Shader &ast)
+    std::string ShaderCompiler::AstToGlsl(Shader &ast)
     {
 #if 0
         for (const auto *node: ast.GetNodes())

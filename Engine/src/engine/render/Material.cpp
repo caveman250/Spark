@@ -14,8 +14,8 @@ namespace se::render
         m_RenderState = state;
     }
 
-    Material:: Material(const std::vector<std::shared_ptr<asset::shader::ast::Shader>>& vertShaders,
-                         const std::vector<std::shared_ptr<asset::shader::ast::Shader>>& fragShaders)
+    Material:: Material(const std::vector<std::shared_ptr<asset::Shader>>& vertShaders,
+                         const std::vector<std::shared_ptr<asset::Shader>>& fragShaders)
         : m_VertShaders(vertShaders)
         , m_FragShaders(fragShaders)
     {
