@@ -16,7 +16,48 @@
 
 namespace se::asset::shader::compiler
 {
-    void FixDuplicateNames(const ast::Shader &left, ast::Shader &right)
+    std::map<std::string, std::string> RemapOutputsToOthersInputs(Shader &left, const Shader &right)
+    {
+        std::set<std::shared_ptr<ast::OutputPortNode>> outputPortsToRemove;
+        std::map<std::string, std::string> ret;
+        auto main = left.FindMain();
+        for (const auto &[name, port]: left.GetOutputPorts())
+        {
+            for (const auto &[otherName, otherPort]: right.GetInputPorts())
+            {
+                if (port->GetPortName() == otherPort->GetPortName())
+                {
+                    auto newName = ast::NameGenerator::GetName();
+                    ret[otherPort->GetPortName()] = newName;
+
+                    // replae all writes in current shader with new name
+                    std::map<std::string, std::string> renameMap = { {name, newName} };
+                    for (const auto& node: left.GetNodes())
+                    {
+                        node->ApplyNameRemapping(renameMap);
+                    }
+
+                    // insert local variable declaration for port being removed
+                    main.second->m_Children.insert(main.second->m_Children.begin(), std::make_shared<ast::VariableDeclarationNode>(newName, port->GetType()));
+                    main.second->m_Children.insert(main.second->m_Children.begin() + 1, std::make_shared<ast::EndOfExpressionNode>());
+
+                    // mark for removal
+                    outputPortsToRemove.insert(port);
+
+                    break;
+                }
+            }
+        }
+
+        for (const auto& port : outputPortsToRemove)
+        {
+            left.RemoveOutputPort(port->GetName());
+        }
+
+        return ret;
+    }
+
+    void FixDuplicateNames(const Shader &left, Shader &right)
     {
         std::map<std::string, std::string> nameMap;
         for (const auto& node: left.GetNodes())
@@ -72,48 +113,7 @@ namespace se::asset::shader::compiler
         }
     }
 
-    std::map<std::string, std::string> RemapOutputsToOthersInputs(ast::Shader &left, const ast::Shader &right)
-    {
-        std::set<std::shared_ptr<ast::OutputPortNode>> outputPortsToRemove;
-        std::map<std::string, std::string> ret;
-        auto main = left.FindMain();
-        for (const auto &[name, port]: left.GetOutputPorts())
-        {
-            for (const auto &[otherName, otherPort]: right.GetInputPorts())
-            {
-                if (port->GetPortName() == otherPort->GetPortName())
-                {
-                    auto newName = ast::NameGenerator::GetName();
-                    ret[otherPort->GetPortName()] = newName;
-
-                    // replae all writes in current shader with new name
-                    std::map<std::string, std::string> renameMap = { {name, newName} };
-                    for (const auto& node: left.GetNodes())
-                    {
-                        node->ApplyNameRemapping(renameMap);
-                    }
-
-                    // insert local variable declaration for port being removed
-                    main.second->m_Children.insert(main.second->m_Children.begin(), std::make_shared<ast::VariableDeclarationNode>(newName, port->GetType()));
-                    main.second->m_Children.insert(main.second->m_Children.begin() + 1, std::make_shared<ast::EndOfExpressionNode>());
-
-                    // mark for removal
-                    outputPortsToRemove.insert(port);
-
-                    break;
-                }
-            }
-        }
-
-        for (const auto& port : outputPortsToRemove)
-        {
-            left.RemoveOutputPort(port->GetName());
-        }
-
-        return ret;
-    }
-
-    void ReplaceInputPortsWithPreviousStageLocalVars(ast::Shader &left, const std::map<std::string, std::string> &nameMap)
+    void ReplaceInputPortsWithPreviousStageLocalVars(Shader &left, const std::map<std::string, std::string> &nameMap)
     {
         std::set<std::shared_ptr<ast::InputPortNode>> inputPortsToRemove;
         for (const auto &[name, port]: left.GetInputPorts())
@@ -138,13 +138,13 @@ namespace se::asset::shader::compiler
         }
     }
 
-    void ConnectPorts(ast::Shader &left, ast::Shader &right)
+    void ConnectPorts(Shader &left, Shader &right)
     {
         auto portRemap = RemapOutputsToOthersInputs(left, right);
         ReplaceInputPortsWithPreviousStageLocalVars(right, portRemap);
     }
 
-    void CleanupDuplicatePorts(ast::Shader& left, const ast::Shader& right)
+    void CleanupDuplicatePorts(Shader& left, const Shader& right)
     {
         // inputs
         std::set<std::shared_ptr<ast::InputPortNode>> inputPortsToRemove;
@@ -203,7 +203,7 @@ namespace se::asset::shader::compiler
         }
     }
 
-    void CombineLogic(ast::Shader &left, const ast::Shader &right)
+    void CombineLogic(Shader &left, const Shader &right)
     {
         auto main = left.FindMain();
         auto otherMain = right.FindMain();
@@ -248,7 +248,7 @@ namespace se::asset::shader::compiler
         }
     }
 
-    void MergeRemainingPorts(ast::Shader &left, const ast::Shader &right)
+    void MergeRemainingPorts(Shader &left, const Shader &right)
     {
         for (auto& [name, port] : right.GetInputPorts())
         {
@@ -261,7 +261,7 @@ namespace se::asset::shader::compiler
         }
     }
 
-    void ShaderCombiner::ResolveCombinedShaderPorts(ast::Shader& shader)
+    void ShaderCombiner::ResolveCombinedShaderPorts(Shader& shader)
     {
         for (auto& [name, port] : shader.GetInputPorts())
         {
@@ -334,7 +334,7 @@ namespace se::asset::shader::compiler
         }
     }
 
-    void CombineUniforms(ast::Shader& leftCopy, const ast::Shader& rightCopy)
+    void CombineUniforms(Shader& leftCopy, const Shader& rightCopy)
     {
         for (const auto& [name, type] : rightCopy.GetUniformVariables())
         {
@@ -352,10 +352,10 @@ namespace se::asset::shader::compiler
 
     }
 
-    ast::Shader ShaderCombiner::Combine(const ast::Shader &left, const ast::Shader &right)
+    Shader ShaderCombiner::Combine(const Shader &left, const Shader &right)
     {
-        ast::Shader leftCopy = left;
-        ast::Shader rightCopy = right;
+        Shader leftCopy = left;
+        Shader rightCopy = right;
         FixDuplicateNames(leftCopy, rightCopy);
         ConnectPorts(leftCopy, rightCopy);
         CleanupDuplicatePorts(leftCopy, rightCopy);

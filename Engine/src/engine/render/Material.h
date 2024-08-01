@@ -15,8 +15,8 @@ namespace se::render
     class Material
     {
     public:
-        static std::shared_ptr<Material> CreateMaterial(const std::vector<std::shared_ptr<asset::shader::ast::Shader>>& vertShaders,
-                                                        const std::vector<std::shared_ptr<asset::shader::ast::Shader>>& fragShaders);
+        static std::shared_ptr<Material> CreateMaterial(const std::vector<std::shared_ptr<asset::Shader>>& vertShaders,
+                                                        const std::vector<std::shared_ptr<asset::Shader>>& fragShaders);
 
         virtual ~Material() = default;
 
@@ -26,10 +26,10 @@ namespace se::render
 
         virtual void SetUniform(const std::string& name, asset::shader::ast::AstType::Type type, const void* value) = 0;
     protected:
-        Material(const std::vector<std::shared_ptr<asset::shader::ast::Shader>>& vertShaders,
-                const std::vector<std::shared_ptr<asset::shader::ast::Shader>>& fragShaders);
-        std::vector<std::shared_ptr<asset::shader::ast::Shader>> m_VertShaders;
-        std::vector<std::shared_ptr<asset::shader::ast::Shader>> m_FragShaders;
+        Material(const std::vector<std::shared_ptr<asset::Shader>>& vertShaders,
+                const std::vector<std::shared_ptr<asset::Shader>>& fragShaders);
+        std::vector<std::shared_ptr<asset::Shader>> m_VertShaders;
+        std::vector<std::shared_ptr<asset::Shader>> m_FragShaders;
         RenderState m_RenderState;
     };
 }

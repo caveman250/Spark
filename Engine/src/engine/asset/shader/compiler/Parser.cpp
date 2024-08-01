@@ -31,7 +31,7 @@ namespace se::asset::shader::compiler
     {
     }
 
-    std::variant<ast::Shader, ParseError> Parser::Parse()
+    std::variant<Shader, ParseError> Parser::Parse()
     {
         ParseError error;
         while (!m_Lexer.Finished())

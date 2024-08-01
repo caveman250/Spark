@@ -2,7 +2,7 @@
 #include "ASTNode.h"
 #include "Types.h"
 
-namespace se::asset::shader::ast
+namespace se::asset
 {
     class Shader;
 }

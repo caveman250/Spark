@@ -10,10 +10,14 @@ namespace se::memory
     class Arena;
 }
 
-namespace se::asset::shader::ast
+namespace se::asset
 {
-    class ASTNode;
     class Shader;
+
+    namespace shader::ast
+    {
+        class ASTNode;
+    }
 }
 
 namespace se::asset::shader::compiler
@@ -22,8 +26,8 @@ namespace se::asset::shader::compiler
     {
     public:
         explicit ShaderCombiner(const render::VertexBuffer& vb);
-        ast::Shader Combine(const ast::Shader& left, const ast::Shader& right);
-        void ResolveCombinedShaderPorts(ast::Shader& shader);
+        Shader Combine(const Shader& left, const Shader& right);
+        void ResolveCombinedShaderPorts(Shader& shader);
 
     private:
         void ForEachChild(const std::shared_ptr<ast::ASTNode>& node, std::function<void(const std::shared_ptr<ast::ASTNode>& node)> func);
