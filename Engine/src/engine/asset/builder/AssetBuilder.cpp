@@ -4,13 +4,16 @@
 #include "Blueprint.h"
 #include "TextureBlueprint.h"
 #include "FBXBlueprint.h"
+#include "ShaderBlueprint.h"
+#include "engine/io/OutputFileStream.h"
 
 namespace se::asset::builder
 {
-    std::array<std::unique_ptr<Blueprint>, 2> s_AssetBlueprints =
+    std::array<std::unique_ptr<Blueprint>, 3> s_AssetBlueprints =
     {
         std::make_unique<TextureBlueprint>(),
-        std::make_unique<FBXBlueprint>()
+        std::make_unique<FBXBlueprint>(),
+        std::make_unique<ShaderBlueprint>()
     };
 
     std::shared_ptr<binary::Database> AssetBuilder::ProcessAsset(const std::string& assetPath, meta::MetaData& meta)
@@ -19,7 +22,9 @@ namespace se::asset::builder
         {
             if (std::regex_match(assetPath, bp->GetFilePattern()))
             {
-                return bp->BuildAsset(assetPath, meta);
+                auto db = bp->BuildAsset(assetPath, meta);
+                meta.SetFormatVersion(bp->GetLatestVersion());
+                return db;
             }
         }
 

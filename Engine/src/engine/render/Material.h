@@ -1,5 +1,6 @@
 #pragma once
 #include "RenderState.h"
+#include "engine/asset/shader/Shader.h"
 #include "engine/asset/shader/ast/Types.h"
 
 namespace se::asset::shader::ast
@@ -14,7 +15,8 @@ namespace se::render
     class Material
     {
     public:
-        static std::shared_ptr<Material> CreateMaterial(const std::vector<std::string>& filePaths, const std::vector<std::string>& fragPaths);
+        static std::shared_ptr<Material> CreateMaterial(const std::vector<std::shared_ptr<asset::shader::ast::Shader>>& vertShaders,
+                                                        const std::vector<std::shared_ptr<asset::shader::ast::Shader>>& fragShaders);
 
         virtual ~Material() = default;
 
@@ -24,9 +26,10 @@ namespace se::render
 
         virtual void SetUniform(const std::string& name, asset::shader::ast::AstType::Type type, const void* value) = 0;
     protected:
-        Material(const std::vector<std::string>& vertPaths, const std::vector<std::string>& fragPaths);
-        std::vector<std::string> m_VertShaderPaths;
-        std::vector<std::string> m_FragShaderPaths;
+        Material(const std::vector<std::shared_ptr<asset::shader::ast::Shader>>& vertShaders,
+                const std::vector<std::shared_ptr<asset::shader::ast::Shader>>& fragShaders);
+        std::vector<std::shared_ptr<asset::shader::ast::Shader>> m_VertShaders;
+        std::vector<std::shared_ptr<asset::shader::ast::Shader>> m_FragShaders;
         RenderState m_RenderState;
     };
 }

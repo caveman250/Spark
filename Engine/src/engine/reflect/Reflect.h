@@ -44,48 +44,56 @@ static constexpr bool s_IsPOD = true;\
 static se::reflect::Class Reflection; \
 static void initReflection(se::reflect::Class*);
 
-#define DECLARE_SPARK_CLASS_TEMPLATED(Type, templateTypes) \
+#define DECLARE_SPARK_CLASS_TEMPLATED(type, templateTypes) \
 public:               \
-DECLARE_SPARK_TYPE(Type)                          \
+DECLARE_SPARK_TYPE(type)                          \
 static constexpr bool s_IsPOD = false;\
+virtual reflect::Type* GetReflectType() const override\
+{\
+return reflect::TypeResolver<type>::get();\
+}\
 virtual void Serialize(const void* obj, asset::binary::Object& parentObj, const std::string& fieldName) override\
 {\
-reflect::TypeResolver<Type>::get()->Serialize(obj, parentObj, fieldName);\
+reflect::TypeResolver<type>::get()->Serialize(obj, parentObj, fieldName);\
 }\
 virtual void Deserialize(void* obj, asset::binary::Object& parentObj, const std::string& fieldName) override\
 {\
-reflect::TypeResolver<Type>::get()->Deserialize(obj, parentObj, fieldName);\
+reflect::TypeResolver<type>::get()->Deserialize(obj, parentObj, fieldName);\
 }\
 virtual asset::binary::StructLayout GetStructLayout(const void*) const override\
 {\
-return reflect::TypeResolver<Type>::get()->GetStructLayout(nullptr);\
+return reflect::TypeResolver<type>::get()->GetStructLayout(nullptr);\
 }\
 std::string GetTypeName() const\
 {\
-return reflect::TypeResolver<Type>::get()->GetTypeName(nullptr);\
+return reflect::TypeResolver<type>::get()->GetTypeName(nullptr);\
 }\
 static se::reflect::TemplatedClass<templateTypes> Reflection; \
 static void initReflection(se::reflect::TemplatedClass<templateTypes>*);
 
-#define DECLARE_SPARK_CLASS(Type) \
+#define DECLARE_SPARK_CLASS(type) \
 public:               \
-DECLARE_SPARK_TYPE(Type)                          \
+DECLARE_SPARK_TYPE(type)                          \
 static constexpr bool s_IsPOD = false;\
+    virtual reflect::Type* GetReflectType() const override\
+    {\
+        return reflect::TypeResolver<type>::get();\
+    }\
     virtual void Serialize(const void* obj, asset::binary::Object& parentObj, const std::string& fieldName) override\
     {\
-        reflect::TypeResolver<Type>::get()->Serialize(obj, parentObj, fieldName);\
+        reflect::TypeResolver<type>::get()->Serialize(obj, parentObj, fieldName);\
     }\
     virtual void Deserialize(void* obj, asset::binary::Object& parentObj, const std::string& fieldName) override\
     {\
-        reflect::TypeResolver<Type>::get()->Deserialize(obj, parentObj, fieldName);\
+        reflect::TypeResolver<type>::get()->Deserialize(obj, parentObj, fieldName);\
     }\
     virtual asset::binary::StructLayout GetStructLayout(const void*) const override\
     {\
-        return reflect::TypeResolver<Type>::get()->GetStructLayout(nullptr);\
+        return reflect::TypeResolver<type>::get()->GetStructLayout(nullptr);\
     }\
     std::string GetTypeName() const\
     {\
-        return reflect::TypeResolver<Type>::get()->GetTypeName(nullptr);\
+        return reflect::TypeResolver<type>::get()->GetTypeName(nullptr);\
     }\
 static se::reflect::Class Reflection; \
 static void initReflection(se::reflect::Class*);

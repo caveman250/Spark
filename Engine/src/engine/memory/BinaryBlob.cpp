@@ -70,6 +70,11 @@ namespace se::memory
         typeDesc->destructor = [](void* data){ static_cast<BinaryBlob*>(data)->~BinaryBlob(); };
     }
 
+    reflect::Type* BinaryBlob::GetReflectType() const
+    {
+        return reflect::TypeResolver<BinaryBlob>::get();
+    }
+
     void BinaryBlob::Serialize(const void* obj, asset::binary::Object& parentObj, const std::string& fieldName)
     {
         reflect::TypeResolver<BinaryBlob>::get()->Serialize(obj, parentObj, fieldName);

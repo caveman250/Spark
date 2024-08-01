@@ -94,7 +94,7 @@ namespace se::asset::binary
     {
         if (!m_StructNameCache.contains(structIndex))
         {
-            std::string name = std::string(GetStructData(structIndex) + s_StructHeaderSize, 32);
+            std::string name = std::string(GetStructData(structIndex) + sizeof(uint32_t));
             m_StructNameCache[structIndex] = name;
             m_StructCache[name] = structIndex;
             return name;

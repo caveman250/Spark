@@ -5,6 +5,19 @@ namespace se::asset::shader::ast
     DEFINE_ABSTRACT_SPARK_CLASS_BEGIN(ASTNode)
     DEFINE_SPARK_CLASS_END()
 
+    ASTNode::ASTNode(const ASTNode& rhs)
+    {
+        m_Children.reserve(rhs.m_Children.size());
+        for (const auto& child : rhs.m_Children)
+        {
+            auto* objBase = static_cast<ObjectBase*>(child.get());
+            if (SPARK_VERIFY(objBase))
+            {
+                m_Children.push_back(std::shared_ptr<ASTNode>((ASTNode*)objBase->GetReflectType()->heap_copy_constructor(child.get())));
+            }
+        }
+    }
+
     void ASTNode::DebugPrint(int indent) const
     {
         std::string str = "-";

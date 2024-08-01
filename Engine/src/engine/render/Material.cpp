@@ -14,9 +14,10 @@ namespace se::render
         m_RenderState = state;
     }
 
-    Material:: Material(const std::vector<std::string>& vertPaths, const std::vector<std::string>& fragPaths)
-        : m_VertShaderPaths(vertPaths)
-        , m_FragShaderPaths(fragPaths)
+    Material:: Material(const std::vector<std::shared_ptr<asset::shader::ast::Shader>>& vertShaders,
+                         const std::vector<std::shared_ptr<asset::shader::ast::Shader>>& fragShaders)
+        : m_VertShaders(vertShaders)
+        , m_FragShaders(fragShaders)
     {
     }
 }
