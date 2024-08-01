@@ -101,9 +101,8 @@ namespace se::asset::shader::compiler
             return false;
         }
 
-        auto vec4 = std::make_shared<ast::Vec2Node>();
-        m_Shader.AddNode(vec4);
-        m_Shader.PushScope(vec4);
+        auto vec2 = m_Shader.AddNode<ast::Vec2Node>();
+        m_Shader.PushScope(vec2);
         int componentsAccountedFor = 0;
         while (componentsAccountedFor < 2)
         {
@@ -163,9 +162,8 @@ namespace se::asset::shader::compiler
             return false;
         }
 
-        auto vec4 = std::make_shared<ast::Vec3Node>();
-        m_Shader.AddNode(vec4);
-        m_Shader.PushScope(vec4);
+        auto vec3 = m_Shader.AddNode<ast::Vec3Node>();
+        m_Shader.PushScope(vec3);
         int componentsAccountedFor = 0;
         while (componentsAccountedFor < 3)
         {
@@ -231,8 +229,7 @@ namespace se::asset::shader::compiler
             return false;
         }
 
-        auto vec4 = std::make_shared<ast::Vec4Node>();
-        m_Shader.AddNode(vec4);
+        auto vec4 = m_Shader.AddNode<ast::Vec4Node>();
         m_Shader.PushScope(vec4);
         int componentsAccountedFor = 0;
         while (componentsAccountedFor < 4)
@@ -385,12 +382,11 @@ namespace se::asset::shader::compiler
     {
         if (IsInteger(token.value))
         {
-            m_Shader.AddNode(std::make_shared<ast::ConstantNode<int>>(std::stoi(token.value)));
+            m_Shader.AddNode<ast::ConstantNode<int>>(std::stoi(token.value));
         }
         else
         {
-            m_Shader.AddNode(
-                std::make_shared<ast::ConstantNode<float>>(std::stof(token.value)));
+            m_Shader.AddNode<ast::ConstantNode<float>>(std::stof(token.value));
 
             auto peek = m_Lexer.PeekToken();
             if (std::holds_alternative<Token>(peek))
@@ -407,7 +403,7 @@ namespace se::asset::shader::compiler
 
     bool Parser::ProcessStringLiteral(const Token& token, ParseError&)
     {
-        m_Shader.AddNode(std::make_shared<ast::ConstantNode<std::string>>(token.value));
+        m_Shader.AddNode<ast::ConstantNode<std::string>>(token.value);
         return true;
     }
 
@@ -420,14 +416,13 @@ namespace se::asset::shader::compiler
         }
         else if (token.value == "{")
         {
-            auto scope = std::make_shared<ast::AnonymousScopeNode>();
-            m_Shader.AddNode(scope);
+            auto scope = m_Shader.AddNode<ast::AnonymousScopeNode>();
             m_Shader.PushScope(scope);
             return true;
         }
         else if (token.value == ";")
         {
-            m_Shader.AddNode(std::make_shared<ast::EndOfExpressionNode>());
+            m_Shader.AddNode<ast::EndOfExpressionNode>();
             return true;
         }
         else
@@ -606,8 +601,7 @@ namespace se::asset::shader::compiler
 
                 if (isMain)
                 {
-                    auto main = std::make_shared<ast::MainNode>();
-                    m_Shader.AddNode(main);
+                    auto main = m_Shader.AddNode<ast::MainNode>();
                     m_Shader.PushScope(main);
                 }
                 else
@@ -653,8 +647,8 @@ namespace se::asset::shader::compiler
         }
 
         ast::AstType::Type declarationType = ast::TypeUtil::StringToType(token.value);
-        m_Shader.AddNode(std::make_shared<ast::VariableDeclarationNode>(nameToken.value, declarationType));
-        m_Shader.AddNode(std::make_shared<ast::EndOfExpressionNode>());
+        m_Shader.AddNode<ast::VariableDeclarationNode>(nameToken.value, declarationType);
+        m_Shader.AddNode<ast::EndOfExpressionNode>();
 
         std::string error;
         if (!m_Shader.RecordVariableForScope(nameToken.value, declarationType, error))
@@ -776,8 +770,7 @@ namespace se::asset::shader::compiler
             Token binaryOpToken;
             if (Peek({ TokenType::Syntax }, {"*", "/", "+", "-", "*=", "/=", "+=", "-=", "="}, binaryOpToken))
             {
-                auto binaryOp = std::make_shared<ast::BinaryExpressionNode>(ast::OperatorUtil::StringToOperatorType(binaryOpToken.value));
-                m_Shader.AddNode(binaryOp);
+                auto binaryOp = m_Shader.AddNode<ast::BinaryExpressionNode>(ast::OperatorUtil::StringToOperatorType(binaryOpToken.value));
                 m_Shader.PushScope(binaryOp);
                 numBinaryExpressions++;
                 m_Lexer.ConsumeToken();
@@ -829,8 +822,7 @@ namespace se::asset::shader::compiler
 
             if (Peek(binaryOpPeekOffset, { TokenType::Syntax }, {"*", "/", "+", "-", "*=", "/=", "+=", "-=", "="}, binaryOpToken))
             {
-                auto binaryOp = std::make_shared<ast::BinaryExpressionNode>(ast::OperatorUtil::StringToOperatorType(binaryOpToken.value));
-                m_Shader.AddNode(binaryOp);
+                auto binaryOp = m_Shader.AddNode<ast::BinaryExpressionNode>(ast::OperatorUtil::StringToOperatorType(binaryOpToken.value));
                 m_Shader.PushScope(binaryOp);
                 numBinaryExpressions++;
                 if (binaryOpPeekOffset == 0)
@@ -869,7 +861,7 @@ namespace se::asset::shader::compiler
                     outType = type;
                 }
 
-                m_Shader.AddNode(std::make_shared<ast::VariableReferenceNode>(nextToken.value, m_Shader));
+                m_Shader.AddNode<ast::VariableReferenceNode>(nextToken.value, m_Shader);
                 if (isPropertyAccess)
                 {
                     m_Shader.PopScope();
@@ -1021,8 +1013,7 @@ namespace se::asset::shader::compiler
             return false;
         }
 
-        m_Shader.AddNode(
-            std::make_shared<ast::TextureSampleNode>(textureVariableToken.value, uvVariableToken.value));
+        m_Shader.AddNode<ast::TextureSampleNode>(textureVariableToken.value, uvVariableToken.value);
 
         return true;
     }
@@ -1034,8 +1025,7 @@ namespace se::asset::shader::compiler
             return false;
         }
 
-        auto length = std::make_shared<ast::LengthNode>();
-        m_Shader.AddNode(length);
+        auto length = m_Shader.AddNode<ast::LengthNode>();
         m_Shader.PushScope(length);
 
         int componentsAccountedFor = 0;
@@ -1115,9 +1105,8 @@ namespace se::asset::shader::compiler
             return false;
         }
 
-        auto normalize = std::make_shared<ast::PowNode>();
-        m_Shader.AddNode(normalize);
-        m_Shader.PushScope(normalize);
+        auto pow = m_Shader.AddNode<ast::PowNode>();
+        m_Shader.PushScope(pow);
 
         int argumentsAccountedFor = 0;
         Token nextToken;
@@ -1183,8 +1172,7 @@ namespace se::asset::shader::compiler
             return false;
         }
 
-        auto normalize = std::make_shared<ast::NormalizeNode>();
-        m_Shader.AddNode(normalize);
+        auto normalize = m_Shader.AddNode<ast::NormalizeNode>();
         m_Shader.PushScope(normalize);
 
         int argumentsAccountedFor = 0;
@@ -1265,9 +1253,8 @@ namespace se::asset::shader::compiler
             return false;
         }
 
-        auto normalize = std::make_shared<ast::ReflectNode>();
-        m_Shader.AddNode(normalize);
-        m_Shader.PushScope(normalize);
+        auto reflect = m_Shader.AddNode<ast::ReflectNode>();
+        m_Shader.PushScope(reflect);
 
         int argumentsAccountedFor = 0;
         Token nextToken;
@@ -1348,9 +1335,8 @@ namespace se::asset::shader::compiler
             return false;
         }
 
-        auto normalize = std::make_shared<ast::ClampNode>();
-        m_Shader.AddNode(normalize);
-        m_Shader.PushScope(normalize);
+        auto clamp = m_Shader.AddNode<ast::ClampNode>();
+        m_Shader.PushScope(clamp);
 
         Token nextToken;
         int componentsAccountedFor = 0;
@@ -1416,8 +1402,7 @@ namespace se::asset::shader::compiler
             return false;
         }
 
-        auto dot = std::make_shared<ast::DotNode>();
-        m_Shader.AddNode(dot);
+        auto dot = m_Shader.AddNode<ast::DotNode>();
         m_Shader.PushScope(dot);
 
         Token nextToken;
@@ -1516,8 +1501,7 @@ namespace se::asset::shader::compiler
             return false;
         }
 
-        auto propertyAccessNode = std::make_shared<ast::PropertyAccessNode>(propertyNameToken.value);
-        m_Shader.AddNode(propertyAccessNode);
+        auto propertyAccessNode = m_Shader.AddNode<ast::PropertyAccessNode>(propertyNameToken.value);
         m_Shader.PushScope(propertyAccessNode);
         return true;
     }

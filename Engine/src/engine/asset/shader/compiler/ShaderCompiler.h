@@ -16,7 +16,8 @@ namespace se::asset::shader
     class ShaderCompiler
     {
     public:
-        static std::optional<std::string> CompileShader(const std::vector<std::string>& filePaths, const render::VertexBuffer& vb);
+        static std::optional<ast::Shader> CompileShader(const std::string& filePath);
+        static std::optional<std::string> GeneratePlatformShader(const std::vector<std::shared_ptr<ast::Shader>>& shaderAssets, const render::VertexBuffer& vb);
         static std::string AstToGlsl(ast::Shader& ast);
     };
 }

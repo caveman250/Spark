@@ -1,0 +1,28 @@
+#include "spark.h"
+#include "ShaderBlueprint.h"
+#include "ofbx.h"
+#include "engine/asset/mesh/Model.h"
+#include "engine/asset/shader/Shader.h"
+#include "engine/asset/shader/compiler/ShaderCompiler.h"
+#include "engine/io/OutputFileStream.h"
+#include "engine/io/VFS.h"
+#include "engine/reflect/Util.h"
+
+namespace se::asset::builder
+{
+    std::regex ShaderBlueprint::GetFilePattern() const
+    {
+        return std::regex(".*.ssl");
+    }
+
+    std::shared_ptr<binary::Database> ShaderBlueprint::BuildAsset(const std::string& path, asset::meta::MetaData&) const
+    {
+        auto shader = shader::ShaderCompiler::CompileShader(path);
+        if (shader.has_value())
+        {
+            return reflect::SerialiseType<shader::ast::Shader>(&shader.value());
+        }
+
+        return nullptr;
+    }
+}

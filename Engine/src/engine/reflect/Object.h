@@ -11,6 +11,7 @@ namespace se::reflect
     public:
         static constexpr bool s_IsPOD = false;
 
+        virtual Type* GetReflectType() const = 0;
         virtual void Serialize(const void* obj, asset::binary::Object& parentObj, const std::string& fieldName) = 0;
         virtual void Deserialize(void* obj, asset::binary::Object& parentObj, const std::string& fieldName) = 0;
         virtual asset::binary::StructLayout GetStructLayout(const void*) const = 0;

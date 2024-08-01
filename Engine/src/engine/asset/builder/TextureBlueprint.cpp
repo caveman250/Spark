@@ -16,7 +16,7 @@ namespace se::asset::builder
         return std::regex(".*.(png|jpeg|jpg|tga|bmp|psd)");
     }
 
-    std::shared_ptr<binary::Database> TextureBlueprint::BuildAsset(const std::string& path, meta::MetaData& meta) const
+    std::shared_ptr<binary::Database> TextureBlueprint::BuildAsset(const std::string& path, meta::MetaData&) const
     {
         auto imageData = LoadImage(path);
         if (!imageData.data)
@@ -36,8 +36,6 @@ namespace se::asset::builder
 
         FreeImage(imageData);
         FreeCompressedImage(compressedData);
-
-        meta.SetFormatVersion(GetLatestVersion());
 
         return db;
     }

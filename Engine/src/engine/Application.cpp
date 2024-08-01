@@ -23,7 +23,8 @@ namespace se
         m_PrimaryWindow->SetCurrent();
         m_TimeLastFrame = std::chrono::system_clock::now();
 
-        io::VFS::Get().Mount(std::format("{}/{}", ENGINE_DIR, "builtin_assets"), "/builtin_assets");
+        io::VFS::Get().Mount(std::format("{}/{}", ENGINE_DIR, "builtin_assets"), "/builtin_source_assets");
+        io::VFS::Get().Mount(std::format("{}/{}", ENGINE_DIR, "built"), "/builtin_assets");
         io::VFS::Get().Mount(std::format("{}/{}", APP_DIR, "assets"), "/source_assets");
         io::VFS::Get().Mount(std::format("{}/{}", APP_DIR, "built"), "/assets");
 

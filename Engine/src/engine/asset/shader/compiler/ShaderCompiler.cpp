@@ -12,81 +12,90 @@
 #include "Lexer.h"
 #include "Parser.h"
 
-std::optional<std::string> se::asset::shader::ShaderCompiler::CompileShader(const std::vector<std::string>& filePaths, const render::VertexBuffer& vb)
+namespace se::asset::shader
 {
-    std::optional<ast::Shader> firstStage = std::nullopt;
-    std::vector<ast::Shader> additionalStages;
-    for (auto& path : filePaths)
+    std::optional<ast::Shader> ShaderCompiler::CompileShader(const std::string& filePath)
     {
-        debug::Log::Info("Compiling shader: {0}", path.c_str());
-        compiler::Lexer lexer(path);
+        debug::Log::Info("Compiling shader: {0}", filePath.c_str());
+        compiler::Lexer lexer(filePath);
         compiler::Parser parser(lexer);
         auto result = parser.Parse();
         if (std::holds_alternative<compiler::ParseError>(result))
         {
             auto parseError = std::get<compiler::ParseError>(result);
-            debug::Log::Error("Shader Compile Error - {0} - line:{1} pos:{2}: {3}", path, parseError.line,
+            debug::Log::Error("Shader Compile Error - {0} - line:{1} pos:{2}: {3}", filePath, parseError.line,
                                     parseError.pos, parseError.error);
             return std::nullopt;
         }
         debug::Log::Info("Sucess");
-
-        if (!firstStage.has_value())
-        {
-            firstStage = std::get<ast::Shader>(result);
-        }
-        else
-        {
-            additionalStages.push_back(std::get<ast::Shader>(result));
-        }
+        return std::get<ast::Shader>(result);
     }
 
-    auto combiner = compiler::ShaderCombiner(vb);
-    for (auto& additionalStage : additionalStages)
+    std::optional<std::string> ShaderCompiler::GeneratePlatformShader(const std::vector<std::shared_ptr<ast::Shader>>& shaderAssets, const render::VertexBuffer& vb)
     {
-        firstStage = combiner.Combine(firstStage.value(), additionalStage);
+        std::optional<ast::Shader> newShader = std::nullopt;
+        std::vector<ast::Shader> additionalStages;
+        for (auto& shader : shaderAssets)
+        {
+            if (!newShader.has_value())
+            {
+                newShader = ast::Shader(*shader.get());
+            }
+            else
+            {
+                additionalStages.emplace_back(ast::Shader(*shader.get()));
+            }
+        }
+
+        SPARK_ASSERT(newShader.has_value());
+
+        auto combiner = compiler::ShaderCombiner(vb);
+        for (auto additionalStage : additionalStages)
+        {
+            newShader = combiner.Combine(newShader.value(), additionalStage);
+        }
+
+        combiner.ResolveCombinedShaderPorts(newShader.value());
+
+        return AstToGlsl(newShader.value());
     }
 
-    combiner.ResolveCombinedShaderPorts(firstStage.value());
-
-    return AstToGlsl(firstStage.value());
-}
-
-std::string se::asset::shader::ShaderCompiler::AstToGlsl(ast::Shader &ast)
-{
+    std::string ShaderCompiler::AstToGlsl(ast::Shader &ast)
+    {
 #if 0
-    for (const auto *node: ast.GetNodes())
-    {
-        node->DebugPrint(0);
-    }
+        for (const auto *node: ast.GetNodes())
+        {
+            node->DebugPrint(0);
+        }
 #endif
 
-    memory::Arena arena;
-    memory::ArenaAllocator<char> alloc(arena);
-    string::ArenaString shader(alloc);
+        memory::Arena arena;
+        memory::ArenaAllocator<char> alloc(arena);
+        string::ArenaString shader(alloc);
 
-    shader.append("#version 330 core\n"); //TODO this is old right?
+        shader.append("#version 330 core\n"); //TODO this is old right?
 
 
-    for (const auto &[name, node]: ast.GetInputs())
-    {
-        node->ToGlsl(shader);
+        for (const auto &[name, node]: ast.GetInputs())
+        {
+            node->ToGlsl(shader);
+        }
+
+        for (const auto &[name, node]: ast.GetOutputs())
+        {
+            node->ToGlsl(shader);
+        }
+
+        for (const auto& [name, type] : ast.GetUniformVariables())
+        {
+            shader.append(std::format("uniform {0} {1};\n", ast::TypeUtil::GetTypeGlsl(type), name));
+        }
+
+        for (const auto& node: ast.GetNodes())
+        {
+            node->ToGlsl(shader);
+        }
+
+        return shader.c_str();
     }
-
-    for (const auto &[name, node]: ast.GetOutputs())
-    {
-        node->ToGlsl(shader);
-    }
-
-    for (const auto& [name, type] : ast.GetUniformVariables())
-    {
-        shader.append(std::format("uniform {0} {1};\n", ast::TypeUtil::GetTypeGlsl(type), name));
-    }
-
-    for (const auto& node: ast.GetNodes())
-    {
-        node->ToGlsl(shader);
-    }
-
-    return shader.c_str();
 }

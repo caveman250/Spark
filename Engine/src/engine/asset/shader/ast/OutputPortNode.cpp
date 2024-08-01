@@ -6,6 +6,7 @@ namespace se::asset::shader::ast
 {
     DEFINE_SPARK_CLASS_BEGIN(OutputPortNode)
         DEFINE_MEMBER(m_Children)
+        DEFINE_MEMBER(m_PortName)
         DEFINE_MEMBER(m_Type)
         DEFINE_MEMBER(m_Name)
     DEFINE_SPARK_CLASS_END()

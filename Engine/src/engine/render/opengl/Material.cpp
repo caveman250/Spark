@@ -8,16 +8,18 @@
 
 namespace se::render
 {
-    std::shared_ptr<Material> Material::CreateMaterial(const std::vector<std::string>& vertPaths, const std::vector<std::string>& fragPaths)
+    std::shared_ptr<Material> Material::CreateMaterial(const std::vector<std::shared_ptr<asset::shader::ast::Shader>>& vertShaders,
+                                                        const std::vector<std::shared_ptr<asset::shader::ast::Shader>>& fragShaders)
     {
-        return std::make_shared<opengl::Material>(vertPaths, fragPaths);
+        return std::make_shared<opengl::Material>(vertShaders, fragShaders);
     }
 }
 
 namespace se::render::opengl
 {
-    Material::Material(const std::vector<std::string>& vertPaths, const std::vector<std::string>& fragPaths)
-        : render::Material(vertPaths, fragPaths)
+    Material::Material(const std::vector<std::shared_ptr<asset::shader::ast::Shader>>& vertShaders,
+                        const std::vector<std::shared_ptr<asset::shader::ast::Shader>>& fragShaders)
+        : render::Material(vertShaders, fragShaders)
     {
     }
 
@@ -69,10 +71,10 @@ namespace se::render::opengl
         }
     }
 
-    void Material::CreatePlatformResources(const render::VertexBuffer& vb)
+    void Material::CreatePlatformResources(const VertexBuffer& vb)
     {
-        std::optional<std::string> vert = se::asset::shader::ShaderCompiler::CompileShader(m_VertShaderPaths, vb);
-        std::optional<std::string> frag = se::asset::shader::ShaderCompiler::CompileShader(m_FragShaderPaths, vb);
+        std::optional<std::string> vert = asset::shader::ShaderCompiler::GeneratePlatformShader(m_VertShaders, vb);
+        std::optional<std::string> frag = asset::shader::ShaderCompiler::GeneratePlatformShader(m_FragShaders, vb);
 
         if (!vert.has_value() || !frag.has_value())
         {

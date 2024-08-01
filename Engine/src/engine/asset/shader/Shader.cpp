@@ -30,7 +30,7 @@ namespace se::asset::shader::ast
     {
         if (SPARK_VERIFY(FindInputPortByPortName(node->GetPortName()) == nullptr))
         {
-            m_InputPorts[node->GetName()] = node;
+            m_InputPorts[node->GetName()] = std::make_shared<InputPortNode>(*node);
         }
     }
 
@@ -38,7 +38,7 @@ namespace se::asset::shader::ast
     {
         if (SPARK_VERIFY(FindOutputPortByPortName(node->GetPortName()) == nullptr))
         {
-            m_OutputPorts[node->GetName()] = node;
+            m_OutputPorts[node->GetName()] = std::make_shared<OutputPortNode>(*node);
         }
     }
 
@@ -56,7 +56,8 @@ namespace se::asset::shader::ast
     {
         if (SPARK_VERIFY(!m_Inputs.contains(node->GetName())))
         {
-            m_Inputs[node->GetName()] = node;
+            auto newVal = std::shared_ptr<InputNode>((InputNode*)node->GetReflectType()->heap_copy_constructor(node.get()));
+            m_Inputs.insert(std::make_pair(node->GetName(), newVal));
         }
     }
 
@@ -64,13 +65,14 @@ namespace se::asset::shader::ast
     {
         if (SPARK_VERIFY(!m_Outputs.contains(node->GetName())))
         {
-            m_Outputs[node->GetName()] = node;
+            auto newVal = std::shared_ptr<OutputNode>((OutputNode*)node->GetReflectType()->heap_copy_constructor(node.get()));
+            m_Outputs[node->GetName()] = newVal;
         }
     }
 
-    void Shader::AddNode(const std::shared_ptr<ASTNode>& node)
+    std::shared_ptr<ASTNode> Shader::AddNode(ASTNode* node)
     {
-        if (std::dynamic_pointer_cast<MainNode>(node))
+        if (dynamic_cast<MainNode*>(node))
         {
             if (!SPARK_VERIFY(m_ScopeStack.empty()))
             {
@@ -82,11 +84,13 @@ namespace se::asset::shader::ast
 
         if (!m_ScopeStack.empty())
         {
-            m_ScopeStack.back().m_Node->m_Children.push_back(node);
+            m_ScopeStack.back().m_Node->m_Children.push_back(std::shared_ptr<ASTNode>((ASTNode*)node->GetReflectType()->heap_copy_constructor(node)));
+            return m_ScopeStack.back().m_Node->m_Children.back();
         }
         else
         {
-            m_AstNodes.push_back(node);
+            m_AstNodes.push_back(std::shared_ptr<ASTNode>((ASTNode*)node->GetReflectType()->heap_copy_constructor(node)));
+            return m_AstNodes.back();
         }
     }
 
@@ -106,6 +110,57 @@ namespace se::asset::shader::ast
     bool Shader::IsMainCurrentScope()
     {
         return m_ScopeStack.size() == 1 && std::dynamic_pointer_cast<MainNode>(m_ScopeStack[0].m_Node) != nullptr;
+    }
+
+    Shader::Shader(const Shader& rhs)
+    {
+        *this = rhs;
+    }
+
+    Shader& Shader::operator=(const Shader& rhs)
+    {
+        m_MainDeclared = rhs.m_MainDeclared;
+        m_InputPorts.clear();
+        for (const auto& [key, value] : rhs.m_InputPorts)
+        {
+            m_InputPorts[key] = std::make_shared<InputPortNode>(*value);
+        }
+
+        m_OutputPorts.clear();
+        for (const auto& [key, value] : rhs.m_OutputPorts)
+        {
+            m_OutputPorts[key] = std::make_shared<OutputPortNode>(*value);
+        }
+
+        m_Inputs.clear();
+        for (const auto& [key, value] : rhs.m_Inputs)
+        {
+            m_Inputs[key] = std::make_shared<InputNode>(*value);
+        }
+
+        m_Outputs.clear();
+        for (const auto& [key, value] : rhs.m_Outputs)
+        {
+            m_Outputs[key] = std::make_shared<OutputNode>(*value);
+        }
+
+        m_AstNodes.clear();
+        m_AstNodes.reserve(rhs.m_AstNodes.size());
+        for (const auto& node : rhs.m_AstNodes)
+        {
+            auto* objBase = static_cast<ObjectBase*>(node.get());
+            if (SPARK_VERIFY(objBase))
+            {
+                m_AstNodes.push_back(std::shared_ptr<ASTNode>((ASTNode*)objBase->GetReflectType()->heap_copy_constructor(node.get())));
+            }
+        }
+
+        m_ScopeStack = rhs.m_ScopeStack; // this is busted. TODO move scope stack out of shader class.
+
+        m_Uniforms = rhs.m_Uniforms;
+        m_GlobalVariables = rhs.m_GlobalVariables;
+
+        return *this;
     }
 
     bool Shader::FindVariable(const std::string &name, AstType::Type &type) const
@@ -271,7 +326,7 @@ namespace se::asset::shader::ast
 
     void Shader::InsertNode(size_t at, const std::shared_ptr<ASTNode>& node)
     {
-        m_AstNodes.insert(m_AstNodes.begin() + at, node);
+        m_AstNodes.insert(m_AstNodes.begin() + at, std::shared_ptr<ASTNode>((ASTNode*)node->GetReflectType()->heap_copy_constructor(node.get())));
     }
 
     bool Shader::HasUniform(const std::string& name, AstType::Type type)

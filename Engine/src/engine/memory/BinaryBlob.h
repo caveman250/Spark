@@ -25,6 +25,7 @@ namespace se::memory
         static void initReflection(reflect::BinaryBlob*);
         DECLARE_SPARK_TYPE(BinaryBlob)
 
+        reflect::Type* GetReflectType() const override;
         void Serialize(const void* obj, asset::binary::Object& parentObj, const std::string& fieldName) override;
         void Deserialize(void* obj, asset::binary::Object& parentObj, const std::string& fieldName) override;
         asset::binary::StructLayout GetStructLayout(const void* obj) const override;

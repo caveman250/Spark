@@ -32,6 +32,10 @@ namespace se::asset::shader::ast
     {
         DECLARE_SPARK_CLASS(Shader)
 
+        Shader() = default;
+        Shader(const Shader& rhs);
+        Shader& operator=(const Shader& rhs);
+
         bool FindVariable(const std::string& name, AstType::Type& type) const;
         const std::map<std::string, std::shared_ptr<InputNode>>& GetInputs() const { return m_Inputs; }
         const std::map<std::string, std::shared_ptr<OutputNode>>& GetOutputs() const { return m_Outputs; }
@@ -48,7 +52,10 @@ namespace se::asset::shader::ast
         void RemoveOutputPort(const std::string& varName);
         void AddInput(const std::shared_ptr<InputNode>& node);
         void AddOutput(const std::shared_ptr<OutputNode>& node);
-        void AddNode(const std::shared_ptr<ASTNode>& node);
+
+        template <typename T, typename... Args>
+        std::shared_ptr<ASTNode> AddNode(Args&&... args);
+        std::shared_ptr<ASTNode> AddNode(ASTNode* node);
         void PushScope(const std::shared_ptr<ASTNode>& node);
         void PopScope();
         uint8_t ScopeDepth() { return static_cast<uint8_t>(m_ScopeStack.size()); }
@@ -80,4 +87,11 @@ namespace se::asset::shader::ast
         std::map<std::string, AstType::Type> m_Uniforms;
         std::map<std::string, AstType::Type> m_GlobalVariables;
     };
+
+    template <typename T, typename ... Args>
+    std::shared_ptr<ASTNode> Shader::AddNode(Args&&... args)
+    {
+        T t = T(std::forward<Args>(args)...);
+        return AddNode(&t);
+    }
 }

@@ -8,7 +8,9 @@ namespace se::asset::shader::ast
     {
         DECLARE_SPARK_CLASS(ASTNode)
     public:
+        ASTNode() = default;
         virtual ~ASTNode() = default;
+        ASTNode(const ASTNode& rhs);
 
         void DebugPrint(int indent) const;
         virtual std::string GetDebugString() const = 0;
