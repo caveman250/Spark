@@ -1,6 +1,7 @@
 #pragma once
 
 #include "spark.h"
+#include "engine/reflect/Reflect.h"
 #include "engine/asset/binary/Database.h"
 
 namespace se::reflect
@@ -34,5 +35,13 @@ namespace se::reflect
         auto root = db->GetRoot();
         reflect->Deserialize(&obj, root, {});
         return obj;
+    }
+
+    template<NotSharedPtr T>
+    void DeserialiseType(const std::shared_ptr<asset::binary::Database>& db, T& obj)
+    {
+        const Type* reflect = TypeResolver<T>::get();
+        auto root = db->GetRoot();
+        reflect->Deserialize(&obj, root, {});
     }
 }
