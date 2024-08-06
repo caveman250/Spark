@@ -20,7 +20,7 @@ namespace se::asset::shader::ast
 
     public:
         VariableReferenceNode() = default;
-        VariableReferenceNode(const std::string& name, const Shader& shaderStageAst);
+        VariableReferenceNode(const std::string& name, const Shader& shaderStageAst, int index, const std::string& indexVar);
         std::string GetDebugString() const override;
         void ToGlsl(string::ArenaString& outShader) const override;
 
@@ -31,9 +31,12 @@ namespace se::asset::shader::ast
 
         AstType::Type GetType() { return m_Type; }
         const std::string& GetName() { return m_Name; }
+        int GetIndex() { return m_Index; }
 
     private:
         AstType::Type m_Type = {};
         std::string m_Name = {};
+        int m_Index = -1;
+        std::string m_IndexVar = "";
     };
 }

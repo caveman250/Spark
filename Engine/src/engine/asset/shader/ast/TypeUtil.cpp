@@ -54,6 +54,7 @@ namespace se::asset::shader::ast
     {
         static std::vector<std::string> s_TypeStrings =
         {
+            "int",
             "float",
             "vec2",
             "vec3",

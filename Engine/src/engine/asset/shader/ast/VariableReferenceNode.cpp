@@ -11,9 +11,11 @@ namespace se::asset::shader::ast
         DEFINE_MEMBER(m_Children)
         DEFINE_MEMBER(m_Type)
         DEFINE_MEMBER(m_Name)
+        DEFINE_MEMBER(m_Index)
+        DEFINE_MEMBER(m_IndexVar)
     DEFINE_SPARK_CLASS_END()
 
-    VariableReferenceNode::VariableReferenceNode(const std::string& name, const Shader& shaderStageAst)
+    VariableReferenceNode::VariableReferenceNode(const std::string& name, const Shader& shaderStageAst, int index, const std::string& indexVar)
     {
         SPARK_ASSERT(name != " ");
         AstType::Type type;
@@ -21,6 +23,8 @@ namespace se::asset::shader::ast
         {
             m_Type = type;
             m_Name = name;
+            m_Index = index;
+            m_IndexVar = indexVar;
         }
         else
         {
@@ -36,6 +40,16 @@ namespace se::asset::shader::ast
     void VariableReferenceNode::ToGlsl(string::ArenaString& outShader) const
     {
         outShader += m_Name;
+        if (m_Index >= 0)
+        {
+            auto alloc = outShader.get_allocator();
+            outShader += string::ArenaFormat("[{}]", alloc, m_Index);
+        }
+        else if (!m_IndexVar.empty())
+        {
+            auto alloc = outShader.get_allocator();
+            outShader += string::ArenaFormat("[{}]", alloc, m_IndexVar);
+        }
     }
 
     void VariableReferenceNode::CollectUsedNames(std::map<std::string, std::string> &nameMap) const
@@ -53,6 +67,11 @@ namespace se::asset::shader::ast
         if (newNames.contains(m_Name))
         {
             m_Name = newNames.at(m_Name);
+        }
+
+        if (newNames.contains(m_IndexVar))
+        {
+            m_IndexVar = newNames.at(m_IndexVar);
         }
     }
 }
