@@ -75,10 +75,29 @@ namespace se::asset::shader
                 return false;
             }
 
-            std::map<std::string, std::string> renameMap = { { name, settings.GetSettingText(name) } };
+            auto replacementText = settings.GetSettingText(name);
+            std::map<std::string, std::string> renameMap = { { name, replacementText } };
             for (const auto& node : shader.GetNodes())
             {
                 node->ApplyNameRemapping(renameMap);
+            }
+
+            for (auto& [uniformName, var] : shader.m_Uniforms)
+            {
+                if (var.arraySizeVariable == name)
+                {
+                    var.arraySizeConstant = std::stoi(replacementText);
+                    var.arraySizeVariable = {};
+                }
+            }
+
+            for (auto& [uniformName, var] : shader.m_GlobalVariables)
+            {
+                if (var.arraySizeVariable == name)
+                {
+                    var.arraySizeConstant = std::stoi(replacementText);
+                    var.arraySizeVariable = {};
+                }
             }
         }
 
@@ -111,9 +130,20 @@ namespace se::asset::shader
             node->ToGlsl(shader);
         }
 
-        for (const auto& [name, type] : ast.GetUniformVariables())
+        for (const auto& [name, var] : ast.GetUniformVariables())
         {
-            shader.append(std::format("uniform {0} {1};\n", ast::TypeUtil::GetTypeGlsl(type), name));
+            std::string arrayText = "";
+            if (!var.arraySizeVariable.empty())
+            {
+                arrayText = std::format("[{}]", var.arraySizeVariable);
+            }
+            else if (var.arraySizeConstant != 0)
+            {
+                arrayText = std::format("[{}]", var.arraySizeConstant);
+            }
+
+            auto uniformText = std::format("uniform {0} {1}{2};\n", ast::TypeUtil::GetTypeGlsl(var.type), name, arrayText);
+            shader.append(uniformText);
         }
 
         for (const auto& node: ast.GetNodes())

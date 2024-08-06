@@ -1,6 +1,7 @@
 #pragma once
 #include "ASTNode.h"
 #include "Types.h"
+#include "Variable.h"
 
 namespace se::asset::shader::ast
 {
@@ -10,7 +11,7 @@ namespace se::asset::shader::ast
 
     public:
         VariableDeclarationNode() = default;
-        VariableDeclarationNode(const std::string& name, AstType::Type type);
+        VariableDeclarationNode(const std::string& name, const Variable& var);
         std::string GetDebugString() const override;
         void ToGlsl(string::ArenaString& outShader) const override;
 
@@ -19,11 +20,11 @@ namespace se::asset::shader::ast
 
         void SetName(const std::string& name) { m_Name = name; }
 
-        AstType::Type GetType() { return m_Type; }
+        const Variable& GetVar() { return m_Var; }
         const std::string& GetName() { return m_Name; }
 
     private:
-        AstType::Type m_Type = {};
+        Variable m_Var = {};
         std::string m_Name = {};
     };
 }

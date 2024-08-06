@@ -30,8 +30,8 @@ namespace se::editor::startup
 
                 if (se::asset::builder::AssetBuilder::IsOutOfDate(path, meta.value(), outputPath))
                 {
-                    auto db = se::asset::builder::AssetBuilder::ProcessAsset(path, meta.value());
-                    db->Save(outputPath);
+                    if (auto db = se::asset::builder::AssetBuilder::ProcessAsset(path, meta.value()))
+                        db->Save(outputPath);
                     // io::OutputFileStream fs(outputPath + ".json", false);
                     // fs << db->ToJson().dump();
                     // fs.Close();

@@ -38,7 +38,7 @@ namespace se::asset::shader::compiler
                     }
 
                     // insert local variable declaration for port being removed
-                    main.second->m_Children.insert(main.second->m_Children.begin(), std::make_shared<ast::VariableDeclarationNode>(newName, port->GetType()));
+                    main.second->m_Children.insert(main.second->m_Children.begin(), std::make_shared<ast::VariableDeclarationNode>(newName, ast::Variable(port->GetType(), 0)));
                     main.second->m_Children.insert(main.second->m_Children.begin() + 1, std::make_shared<ast::EndOfExpressionNode>());
 
                     // mark for removal
@@ -95,9 +95,9 @@ namespace se::asset::shader::compiler
             {
                 if (scope.m_Variables.contains(name))
                 {
-                    ast::AstType::Type type = scope.m_Variables.at(name);
+                    auto var = scope.m_Variables.at(name);
                     scope.m_Variables.erase(name);
-                    scope.m_Variables.insert({newName, type});
+                    scope.m_Variables.insert({newName, var});
                 }
             }
         }
@@ -106,9 +106,9 @@ namespace se::asset::shader::compiler
         {
             if (right.GetGlobalVariables().contains(name))
             {
-                ast::AstType::Type type = right.GetGlobalVariables().at(name);
+                auto var = right.GetGlobalVariables().at(name);
                 right.GetGlobalVariables().erase(name);
-                right.GetGlobalVariables().insert({newName, type});
+                right.GetGlobalVariables().insert({newName, var});
             }
         }
     }

@@ -8,9 +8,11 @@ port(Frag_InCameraLightDir) in vec3 lightDirCameraSpace;
 
 port(Frag_OutColour) out vec3 color;
 
+setting int numLights;
+
 uniform mat4 model;
 uniform mat4 view;
-uniform vec3 lightPos;
+uniform vec3 lightPos[numLights];
 
 void main()
 {
@@ -24,7 +26,7 @@ void main()
     vec3 MaterialAmbientColor = ambientStr * MaterialDiffuseColor;
     vec3 MaterialSpecularColor = vec3(0.3, 0.3, 0.3);
 
-    float distance = length(lightPos - posCameraSpace);
+    float distance = length(lightPos[0] - posCameraSpace);
 
     vec3 n = normalize(normCameraSpace);
     vec3 l = normalize(lightDirCameraSpace);

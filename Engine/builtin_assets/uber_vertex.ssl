@@ -9,10 +9,12 @@ port(Vertex_OutUV) out vec2 outUV;
 port(Vertex_OutCameraEyeDir) out vec3 outEyeDir;
 port(Vertex_OutCameraLightDir) out vec3 outLightDir;
 
+setting int numLights;
+
 uniform mat4 model;
 uniform mat4 view;
 uniform mat4 proj;
-uniform vec3 lightPos;
+uniform vec3 lightPos[numLights];
 
 void main()
 {
@@ -25,7 +27,7 @@ void main()
     vec4 vertPosCameraSpace = view * model * vec4(inPos,1);
     outEyeDir = vec3(0,0,0) - vertPosCameraSpace.xyz;
 
-    vec4 lightPosCameraSpace = view * vec4(lightPos,1);
+    vec4 lightPosCameraSpace = view * vec4(lightPos[0],1);
     outLightDir = lightPosCameraSpace.xyz + outEyeDir;
 
     vec4 cameraSpaceNormal = view * model * vec4(inNormal, 0);

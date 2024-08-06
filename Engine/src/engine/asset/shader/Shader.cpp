@@ -165,26 +165,26 @@ namespace se::asset
         {
             if (m_ScopeStack[i].m_Variables.contains(name))
             {
-                type = m_ScopeStack[i].m_Variables.at(name);
+                type = m_ScopeStack[i].m_Variables.at(name).type;
                 return true;
             }
         }
 
         if (m_GlobalVariables.contains(name))
         {
-            type = m_GlobalVariables.at(name);
+            type = m_GlobalVariables.at(name).type;
             return true;
         }
 
         if (m_Settings.contains(name))
         {
-            type = m_Settings.at(name);
+            type = m_Settings.at(name).type;
             return true;
         }
 
         if (m_Uniforms.contains(name))
         {
-            type = m_Uniforms.at(name);
+            type = m_Uniforms.at(name).type;
             return true;
         }
 
@@ -287,7 +287,7 @@ namespace se::asset
         return nullRet;
     }
 
-    bool Shader::RecordVariableForScope(const std::string &name, const shader::ast::AstType::Type &type, std::string &outError)
+    bool Shader::RecordVariableForScope(const std::string &name, const shader::ast::Variable& var, std::string &outError)
     {
         if (m_GlobalVariables.contains(name))
         {
@@ -309,7 +309,7 @@ namespace se::asset
 
         if (m_ScopeStack.empty())
         {
-            m_GlobalVariables[name] = type;
+            m_GlobalVariables[name] = var;
             return true;
         }
 
@@ -322,11 +322,11 @@ namespace se::asset
             }
         }
 
-        m_ScopeStack.back().m_Variables[name] = type;
+        m_ScopeStack.back().m_Variables[name] = var;
         return true;
     }
 
-    bool Shader::AddUniform(const std::string& name, const shader::ast::AstType::Type& type, std::string& outError)
+    bool Shader::AddUniform(const std::string& name, const shader::ast::Variable& var, std::string& outError)
     {
         if (m_GlobalVariables.contains(name))
         {
@@ -346,11 +346,11 @@ namespace se::asset
             return false;
         }
 
-        m_Uniforms[name] = type;
+        m_Uniforms[name] = var;
         return true;
     }
 
-    bool Shader::AddSetting(const std::string& name, const shader::ast::AstType::Type& type, std::string& outError)
+    bool Shader::AddSetting(const std::string& name, const shader::ast::Variable& var, std::string& outError)
     {
         if (m_GlobalVariables.contains(name))
         {
@@ -370,7 +370,7 @@ namespace se::asset
             return false;
         }
 
-        m_Settings[name] = type;
+        m_Settings[name] = var;
         return true;
     }
 
@@ -379,11 +379,11 @@ namespace se::asset
         m_AstNodes.insert(m_AstNodes.begin() + at, std::shared_ptr<shader::ast::ASTNode>((shader::ast::ASTNode*)node->GetReflectType()->heap_copy_constructor(node.get())));
     }
 
-    bool Shader::HasUniform(const std::string& name, shader::ast::AstType::Type type)
+    bool Shader::HasUniform(const std::string& name, const shader::ast::Variable& var)
     {
-        for (const auto& [uniformName, uniformType] : m_Uniforms)
+        for (const auto& [uniformName, uniformVar] : m_Uniforms)
         {
-            if (name == uniformName && type == uniformType)
+            if (name == uniformName && var == uniformVar)
             {
                 return true;
             }
@@ -392,11 +392,11 @@ namespace se::asset
         return false;
     }
 
-    bool Shader::HasSetting(const std::string& name, shader::ast::AstType::Type type)
+    bool Shader::HasSetting(const std::string& name, const shader::ast::Variable& var)
     {
-        for (const auto& [settingName, settingType] : m_Settings)
+        for (const auto& [settingName, settingVar] : m_Settings)
         {
-            if (name == settingName && type == settingType)
+            if (name == settingName && var == settingVar)
             {
                 return true;
             }

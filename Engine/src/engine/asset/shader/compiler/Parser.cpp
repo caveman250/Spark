@@ -511,13 +511,43 @@ namespace se::asset::shader::compiler
         }
         std::string name = nameToken.value;
 
+        auto var = ast::Variable(type, 0);
+        if (Peek({TokenType::Syntax}, {"["}))
+        {
+            //array
+            if (!ExpectAndConsume({TokenType::Syntax}, {"["}, outError))
+            {
+                return false;
+            }
+
+            Token sizeArg;
+            if (!ExpectedGetAndConsume({TokenType::Identifier, TokenType::NumericLiteral}, {}, sizeArg, outError))
+            {
+                return false;
+            }
+
+            if (sizeArg.type == TokenType::NumericLiteral)
+            {
+                var.arraySizeConstant = std::stoi(sizeArg.value);
+            }
+            else
+            {
+                var.arraySizeVariable = sizeArg.value;
+            }
+
+            if (!ExpectAndConsume({TokenType::Syntax}, {"]"}, outError))
+            {
+                return false;
+            }
+        }
+
         if (!ExpectAndConsume({TokenType::Syntax}, {";"}, outError))
         {
             return false;
         }
 
         std::string temp;
-        if (!m_Shader.AddUniform(name, type, temp))
+        if (!m_Shader.AddUniform(name, var, temp))
         {
             outError = {nameToken.line, nameToken.pos, temp};
             return false;
@@ -550,7 +580,7 @@ namespace se::asset::shader::compiler
         }
 
         std::string temp;
-        if (!m_Shader.AddSetting(name, type, temp))
+        if (!m_Shader.AddSetting(name, ast::Variable(type, 0), temp))
         {
             outError = {nameToken.line, nameToken.pos, temp};
             return false;
@@ -684,11 +714,11 @@ namespace se::asset::shader::compiler
         }
 
         ast::AstType::Type declarationType = ast::TypeUtil::StringToType(token.value);
-        m_Shader.AddNode<ast::VariableDeclarationNode>(nameToken.value, declarationType);
+        m_Shader.AddNode<ast::VariableDeclarationNode>(nameToken.value, ast::Variable(declarationType, 0));
         m_Shader.AddNode<ast::EndOfExpressionNode>();
 
         std::string error;
-        if (!m_Shader.RecordVariableForScope(nameToken.value, declarationType, error))
+        if (!m_Shader.RecordVariableForScope(nameToken.value, ast::Variable(declarationType, 0), error))
         {
             outError = {nameToken.line, nameToken.pos, error};
             return false;
@@ -857,6 +887,12 @@ namespace se::asset::shader::compiler
                 binaryOpPeekOffset += 2; // skip propery access
             }
 
+            // handle array access in binary op
+            if (Peek(binaryOpPeekOffset, {TokenType::Syntax}, {"["}))
+            {
+                binaryOpPeekOffset += 3; // skip array access
+            }
+
             if (Peek(binaryOpPeekOffset, { TokenType::Syntax }, {"*", "/", "+", "-", "*=", "/=", "+=", "-=", "="}, binaryOpToken))
             {
                 auto binaryOp = m_Shader.AddNode<ast::BinaryExpressionNode>(ast::OperatorUtil::StringToOperatorType(binaryOpToken.value));
@@ -898,7 +934,38 @@ namespace se::asset::shader::compiler
                     outType = type;
                 }
 
-                m_Shader.AddNode<ast::VariableReferenceNode>(nextToken.value, m_Shader);
+                int arrayIndex = -1;
+                std::string arrayIndexVar = "";
+                if (Peek({TokenType::Syntax}, {"["}))
+                {
+                    //array
+                    if (!ExpectAndConsume({TokenType::Syntax}, {"["}, outError))
+                    {
+                        return false;
+                    }
+
+                    Token sizeArg;
+                    if (!ExpectedGetAndConsume({TokenType::Identifier, TokenType::NumericLiteral}, {}, sizeArg, outError))
+                    {
+                        return false;
+                    }
+
+                    if (sizeArg.type == TokenType::NumericLiteral)
+                    {
+                        arrayIndex = std::stoi(sizeArg.value);
+                    }
+                    else
+                    {
+                        arrayIndexVar = sizeArg.value;
+                    }
+
+                    if (!ExpectAndConsume({TokenType::Syntax}, {"]"}, outError))
+                    {
+                        return false;
+                    }
+                }
+
+                m_Shader.AddNode<ast::VariableReferenceNode>(nextToken.value, m_Shader, arrayIndex, arrayIndexVar);
                 if (isPropertyAccess)
                 {
                     m_Shader.PopScope();
