@@ -346,6 +346,18 @@ namespace se::asset::shader::compiler
         }
     }
 
+    void CombineSettings(Shader& leftCopy, const Shader& rightCopy)
+    {
+        for (const auto& [name, type] : rightCopy.GetSettingVariables())
+        {
+            if (!leftCopy.HasSetting(name, type))
+            {
+                std::string outError;
+                leftCopy.AddSetting(name, type, outError);
+            }
+        }
+    }
+
     ShaderCombiner::ShaderCombiner(const render::VertexBuffer& vb)
         : m_VertexBuffer(vb)
     {
@@ -360,6 +372,7 @@ namespace se::asset::shader::compiler
         ConnectPorts(leftCopy, rightCopy);
         CleanupDuplicatePorts(leftCopy, rightCopy);
         CombineUniforms(leftCopy, rightCopy);
+        CombineSettings(leftCopy, rightCopy);
         CombineLogic(leftCopy, rightCopy);
         MergeRemainingPorts(leftCopy, rightCopy);
 

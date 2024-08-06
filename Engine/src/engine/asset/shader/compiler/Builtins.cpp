@@ -4,7 +4,7 @@
 
 namespace se::asset::shader::compiler
 {
-    std::array<std::string, 23> Builtins::s_Builtins =
+    std::array<std::string, 24> Builtins::s_Builtins =
         {
             "int",
             "float",
@@ -21,6 +21,7 @@ namespace se::asset::shader::compiler
             "out",
             "port",
             "uniform",
+            "setting",
             "sampler2D",
             "texture",
             "length",

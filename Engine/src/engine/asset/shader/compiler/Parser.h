@@ -26,6 +26,7 @@ namespace se::asset::shader::compiler
 
         bool ProcessPortDeclaration(const Token& token, ast::AstType::Type& returnType, ParseError& outError);
         bool ProcessUniformDeclaration(const Token& token, ast::AstType::Type& returnType, ParseError& outError);
+        bool ProcessSettingDeclaration(const Token& token, ast::AstType::Type& returnType, ParseError& outError);
         bool ProcessTextureRead(const Token& token, ParseError& outError);
         bool ProcessLengthFunc(const Token& token, ParseError& outError);
         bool ProcessPowFunc(const Token& token, ParseError& outError);

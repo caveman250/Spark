@@ -1,6 +1,7 @@
 #pragma once
 #include "RenderState.h"
 #include "engine/asset/shader/Shader.h"
+#include "engine/asset/shader/ShaderSettings.h"
 #include "engine/asset/shader/ast/Types.h"
 
 namespace se::asset::shader::ast
@@ -23,6 +24,7 @@ namespace se::render
         virtual void Bind();
         virtual void CreatePlatformResources(const VertexBuffer& vb) = 0;
         void SetRenderState(const RenderState& state);
+        void SetShaderSettings(const ShaderSettings& settings);
 
         virtual void SetUniform(const std::string& name, asset::shader::ast::AstType::Type type, const void* value) = 0;
     protected:
@@ -31,5 +33,6 @@ namespace se::render
         std::vector<std::shared_ptr<asset::Shader>> m_VertShaders;
         std::vector<std::shared_ptr<asset::Shader>> m_FragShaders;
         RenderState m_RenderState;
+        ShaderSettings m_ShaderSettings; // ignored after platform resources have been created.
     };
 }

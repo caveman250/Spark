@@ -46,6 +46,7 @@ namespace se::asset
         const std::vector<std::shared_ptr<shader::ast::ASTNode>>& GetNodes() const { return m_AstNodes; }
         std::map<std::string, shader::ast::AstType::Type>& GetGlobalVariables() { return m_GlobalVariables; }
         const std::map<std::string, shader::ast::AstType::Type>& GetUniformVariables() const { return m_Uniforms; }
+        const std::map<std::string, shader::ast::AstType::Type>& GetSettingVariables() const { return m_Settings; }
         std::vector<AstScope>& GetScopeStack() { return m_ScopeStack; }
 
         void AddInputPort(const std::shared_ptr<shader::ast::InputPortNode>& node);
@@ -74,9 +75,11 @@ namespace se::asset
         const std::shared_ptr<shader::ast::OutputNode>& FindOutput(const std::string& name) const;
         bool RecordVariableForScope(const std::string& name, const shader::ast::AstType::Type& type, std::string& outError);
         bool AddUniform(const std::string& name, const shader::ast::AstType::Type& type, std::string& outError);
+        bool AddSetting(const std::string& name, const shader::ast::AstType::Type& type, std::string& outError);
 
         void InsertNode(size_t at, const std::shared_ptr<shader::ast::ASTNode>& node);
         bool HasUniform(const std::string& name, shader::ast::AstType::Type type);
+        bool HasSetting(const std::string& name, shader::ast::AstType::Type type);
 
     private:
         bool m_MainDeclared = false;
@@ -88,6 +91,7 @@ namespace se::asset
         std::vector<AstScope> m_ScopeStack;
         std::map<std::string, shader::ast::AstType::Type> m_Uniforms;
         std::map<std::string, shader::ast::AstType::Type> m_GlobalVariables;
+        std::map<std::string, shader::ast::AstType::Type> m_Settings;
     };
 
     template <typename T, typename ... Args>

@@ -1,5 +1,11 @@
 #pragma once
 #include "spark.h"
+#include "engine/asset/shader/ShaderSettings.h"
+
+namespace se
+{
+    class ShaderSettings;
+}
 
 namespace se::render
 {
@@ -15,7 +21,9 @@ namespace se::asset::shader
     {
     public:
         static std::optional<Shader> CompileShader(const std::string& filePath);
-        static std::optional<std::string> GeneratePlatformShader(const std::vector<std::shared_ptr<Shader>>& shaderAssets, const render::VertexBuffer& vb);
+        static std::optional<std::string> GeneratePlatformShader(const std::vector<std::shared_ptr<Shader>>& shaderAssets, const ShaderSettings& settings,  const render::VertexBuffer& vb);
+
+        static bool ResolveSettings(Shader& shader, const ShaderSettings& settings);
         static std::string AstToGlsl(Shader& ast);
     };
 }
