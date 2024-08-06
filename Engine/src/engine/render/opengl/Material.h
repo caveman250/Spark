@@ -3,6 +3,7 @@
 #include "engine/asset/texture/Texture.h"
 #include "engine/render/Material.h"
 #include "GL_fwd.h"
+#include "engine/asset/shader/ShaderSettings.h"
 
 namespace se::render::opengl
 {

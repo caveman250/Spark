@@ -339,6 +339,10 @@ namespace se::asset::shader::compiler
         {
             return ProcessUniformDeclaration(token, returnType, outError);
         }
+        else if (token.value == "setting")
+        {
+            return ProcessSettingDeclaration(token, returnType, outError);
+        }
         else if (token.value == "texture")
         {
             returnType = ast::AstType::Vec4;
@@ -522,8 +526,41 @@ namespace se::asset::shader::compiler
         return true;
     }
 
+    bool Parser::ProcessSettingDeclaration(const Token&, ast::AstType::Type& returnType, ParseError& outError)
+    {
+        Token typeToken;
+        if (!ExpectedGetAndConsume({TokenType::Builtin}, ast::TypeUtil::GetTypeStrings(), typeToken,
+                                   outError))
+        {
+            return false;
+        }
+        ast::AstType::Type type = ast::TypeUtil::StringToType(typeToken.value);
+        returnType = type;
+
+        Token nameToken;
+        if (!ExpectedGetAndConsume({TokenType::Identifier}, {}, nameToken, outError))
+        {
+            return false;
+        }
+        std::string name = nameToken.value;
+
+        if (!ExpectAndConsume({TokenType::Syntax}, {";"}, outError))
+        {
+            return false;
+        }
+
+        std::string temp;
+        if (!m_Shader.AddSetting(name, type, temp))
+        {
+            outError = {nameToken.line, nameToken.pos, temp};
+            return false;
+        }
+
+        return true;
+    }
+
     bool Parser::Peek(int offset, const std::vector<TokenType>& allowedTypes,
-        const std::vector<std::string>& allowedValues)
+                      const std::vector<std::string>& allowedValues)
     {
         Token token;
         return Peek(offset, allowedTypes, allowedValues, token);

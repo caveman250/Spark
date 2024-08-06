@@ -1,17 +1,11 @@
 #include "Shader.h"
 
-#include <set>
-
 #include "ast/ASTNode.h"
-#include "ast/EndOfExpressionNode.h"
 #include "ast/InputNode.h"
 #include "ast/InputPortNode.h"
 #include "ast/OutputPortNode.h"
 #include "ast/MainNode.h"
-#include "ast/NameGenerator.h"
 #include "ast/OutputNode.h"
-#include "ast/VariableDeclarationNode.h"
-#include "ast/VariableReferenceNode.h"
 
 namespace se::asset
 {
@@ -24,6 +18,7 @@ namespace se::asset
         DEFINE_MEMBER(m_AstNodes)
         DEFINE_MEMBER(m_Uniforms)
         DEFINE_MEMBER(m_GlobalVariables)
+        DEFINE_MEMBER(m_Settings)
     DEFINE_SPARK_CLASS_END()
 
     void Shader::AddInputPort(const std::shared_ptr<shader::ast::InputPortNode>& node)
@@ -159,6 +154,7 @@ namespace se::asset
 
         m_Uniforms = rhs.m_Uniforms;
         m_GlobalVariables = rhs.m_GlobalVariables;
+        m_Settings = rhs.m_Settings;
 
         return *this;
     }
@@ -177,6 +173,12 @@ namespace se::asset
         if (m_GlobalVariables.contains(name))
         {
             type = m_GlobalVariables.at(name);
+            return true;
+        }
+
+        if (m_Settings.contains(name))
+        {
+            type = m_Settings.at(name);
             return true;
         }
 
@@ -293,6 +295,18 @@ namespace se::asset
             return false;
         }
 
+        if (m_Settings.contains(name))
+        {
+            outError = std::format("Varible {0} has already been declared!", name);
+            return false;
+        }
+
+        if (m_Uniforms.contains(name))
+        {
+            outError = std::format("Varible {0} has already been declared!", name);
+            return false;
+        }
+
         if (m_ScopeStack.empty())
         {
             m_GlobalVariables[name] = type;
@@ -314,6 +328,18 @@ namespace se::asset
 
     bool Shader::AddUniform(const std::string& name, const shader::ast::AstType::Type& type, std::string& outError)
     {
+        if (m_GlobalVariables.contains(name))
+        {
+            outError = std::format("{} redefinition", name);
+            return false;
+        }
+
+        if (m_Settings.contains(name))
+        {
+            outError = std::format("{} redefinition", name);
+            return false;
+        }
+
         if (m_Uniforms.contains(name))
         {
             outError = std::format("{} redefinition", name);
@@ -321,6 +347,30 @@ namespace se::asset
         }
 
         m_Uniforms[name] = type;
+        return true;
+    }
+
+    bool Shader::AddSetting(const std::string& name, const shader::ast::AstType::Type& type, std::string& outError)
+    {
+        if (m_GlobalVariables.contains(name))
+        {
+            outError = std::format("{} redefinition", name);
+            return false;
+        }
+
+        if (m_Settings.contains(name))
+        {
+            outError = std::format("{} redefinition", name);
+            return false;
+        }
+
+        if (m_Uniforms.contains(name))
+        {
+            outError = std::format("{} redefinition", name);
+            return false;
+        }
+
+        m_Settings[name] = type;
         return true;
     }
 
@@ -334,6 +384,19 @@ namespace se::asset
         for (const auto& [uniformName, uniformType] : m_Uniforms)
         {
             if (name == uniformName && type == uniformType)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    bool Shader::HasSetting(const std::string& name, shader::ast::AstType::Type type)
+    {
+        for (const auto& [settingName, settingType] : m_Settings)
+        {
+            if (name == settingName && type == settingType)
             {
                 return true;
             }

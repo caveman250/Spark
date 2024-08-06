@@ -116,6 +116,7 @@ namespace se::asset::shader::compiler
                     offset++;
                 }
                 return PeekToken(offset);
+            case '\0':
             case '\t':
                 if (offset == 0)
                 {

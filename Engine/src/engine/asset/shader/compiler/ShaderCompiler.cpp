@@ -11,6 +11,7 @@
 #include "engine/memory/Arena.h"
 #include "Lexer.h"
 #include "Parser.h"
+#include "engine/asset/shader/ShaderSettings.h"
 
 namespace se::asset::shader
 {
@@ -31,7 +32,7 @@ namespace se::asset::shader
         return std::get<Shader>(result);
     }
 
-    std::optional<std::string> ShaderCompiler::GeneratePlatformShader(const std::vector<std::shared_ptr<Shader>>& shaderAssets, const render::VertexBuffer& vb)
+    std::optional<std::string> ShaderCompiler::GeneratePlatformShader(const std::vector<std::shared_ptr<Shader>>& shaderAssets, const ShaderSettings& settings, const render::VertexBuffer& vb)
     {
         std::optional<Shader> newShader = std::nullopt;
         std::vector<Shader> additionalStages;
@@ -57,7 +58,31 @@ namespace se::asset::shader
 
         combiner.ResolveCombinedShaderPorts(newShader.value());
 
+        if (!ResolveSettings(newShader.value(), settings))
+        {
+            return std::nullopt;
+        }
+
         return AstToGlsl(newShader.value());
+    }
+
+    bool ShaderCompiler::ResolveSettings(Shader& shader, const ShaderSettings& settings)
+    {
+        for (const auto& [name, type] : shader.GetSettingVariables())
+        {
+            if (!SPARK_VERIFY(settings.HasDefinition(name)))
+            {
+                return false;
+            }
+
+            std::map<std::string, std::string> renameMap = { { name, settings.GetSettingText(name) } };
+            for (const auto& node : shader.GetNodes())
+            {
+                node->ApplyNameRemapping(renameMap);
+            }
+        }
+
+        return true;
     }
 
     std::string ShaderCompiler::AstToGlsl(Shader &ast)
