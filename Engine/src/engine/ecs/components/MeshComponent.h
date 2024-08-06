@@ -18,8 +18,8 @@ namespace se::ecs::components
 
         MeshComponent();
 
-        std::shared_ptr<se::render::Material> material = {};
-        std::shared_ptr<se::render::VertexBuffer> vertBuffer = {};
-        se::asset::Model model = {};
+        std::shared_ptr<render::Material> material = {};
+        std::shared_ptr<render::VertexBuffer> vertBuffer = {};
+        std::shared_ptr<asset::Model> model = {};
     };
 }

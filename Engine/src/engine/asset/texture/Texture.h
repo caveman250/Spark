@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Format.h"
+#include "engine/asset/Asset.h"
 #include "engine/asset/binary/Database.h"
 #include "engine/asset/texture/Mipmap.h"
 
@@ -16,7 +17,7 @@ namespace se::asset::builder
 
 namespace se::asset
 {
-    class Texture : public reflect::ObjectBase
+    class Texture : public Asset
     {
         DECLARE_SPARK_CLASS(Texture)
 

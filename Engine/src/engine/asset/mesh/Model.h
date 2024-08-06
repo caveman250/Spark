@@ -2,6 +2,7 @@
 
 #include "spark.h"
 #include "StaticMesh.h"
+#include "engine/asset/Asset.h"
 
 namespace ofbx
 {
@@ -10,7 +11,7 @@ namespace ofbx
 
 namespace se::asset
 {
-    class Model : public reflect::ObjectBase
+    class Model : public Asset
     {
         DECLARE_SPARK_CLASS(Model)
 

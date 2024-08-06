@@ -2,6 +2,7 @@
 #include "ast/InputPortNode.h"
 #include "spark.h"
 #include "ast/Types.h"
+#include "engine/asset/Asset.h"
 #include "engine/reflect/Reflect.h"
 
 namespace se::asset::shader::compiler
@@ -29,7 +30,7 @@ namespace se::asset
         std::map<std::string, shader::ast::AstType::Type> m_Variables;
     };
 
-    class Shader : public reflect::ObjectBase
+    class Shader : public Asset
     {
         DECLARE_SPARK_CLASS(Shader)
 
