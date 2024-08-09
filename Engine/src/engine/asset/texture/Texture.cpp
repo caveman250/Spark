@@ -28,9 +28,7 @@ DEFINE_SPARK_CLASS_END()
 
     std::shared_ptr<Texture>  Texture::FromDDS(const builder::CompressedImageData& rawDDSData)
     {
-#define FOURCC_DXT1 0x31545844
-#define FOURCC_DXT3 0x33545844
-#define FOURCC_DXT5 0x35545844
+        constexpr int FOURCC_DXT5 = 0x35545844;
 
         constexpr size_t s_FileCodeSize = 4;
         constexpr size_t s_HeaderSize = 124;

@@ -265,14 +265,13 @@ namespace se::asset::shader::compiler
     {
         for (auto& [name, port] : shader.GetInputPorts())
         {
-            if (port->GetPortName().starts_with("Vertex_In"))
+            if (shader.GetType() == ShaderType::Vertex)
             {
                 shader.AddInput(std::make_shared<ast::InputAttributeNode>(GetInputLoc(port->GetPortName()), port->GetVar(), name));
             }
-            else if (port->GetPortName().starts_with("Frag_In"))
+            else if (shader.GetType() == ShaderType::Fragment)
             {
                 std::string varName = port->GetPortName();
-                varName = std::regex_replace(varName, std::regex("Frag_In"), "Vertex_Out");
                 shader.AddInput(std::make_shared<ast::InputNode>(port->GetVar(), varName));
                 std::map<std::string, std::string> renameMap = { { name, varName } };
                 for (const auto& node : shader.GetNodes())
@@ -280,15 +279,11 @@ namespace se::asset::shader::compiler
                     node->ApplyNameRemapping(renameMap);
                 }
             }
-            else
-            {
-                debug::Log::Error("Unhandled unresolved input port! {0}", port->GetPortName());
-            }
         }
 
         for (auto& [name, port] : shader.GetOutputPorts())
         {
-            if (port->GetPortName() == "Vertex_OutPos")
+            if (port->GetPortName() == "FinalVertPos")
             {
                 for (const auto& node : shader.GetNodes())
                 {
@@ -304,11 +299,11 @@ namespace se::asset::shader::compiler
                     });
                 }
             }
-            else if (port->GetPortName().starts_with("Frag_Out"))
+            else if (shader.GetType() == ShaderType::Fragment)
             {
                 shader.AddOutput(std::make_shared<ast::OutputNode>(port->GetVar(), name));
             }
-            else if (port->GetPortName().starts_with("Vertex_Out"))
+            else if (shader.GetType() == ShaderType::Vertex)
             {
                 shader.AddOutput(std::make_shared<ast::OutputNode>(port->GetVar(), port->GetPortName()));
                 // names have to match the frag shader.
@@ -317,10 +312,6 @@ namespace se::asset::shader::compiler
                 {
                     node->ApplyNameRemapping(renameMap);
                 }
-            }
-            else
-            {
-                debug::Log::Error("Unhandled unresolved output port! {0}", port->GetPortName());
             }
         }
     }
@@ -382,15 +373,15 @@ namespace se::asset::shader::compiler
     uint8_t ShaderCombiner::GetInputLoc(const std::string& inputName)
     {
         render::VertexStreamType targetType;
-        if (inputName == "Vertex_InPos")
+        if (inputName == "VertexPos")
         {
             targetType = render::VertexStreamType::Position;
         }
-        else if (inputName == "Vertex_InUV")
+        else if (inputName == "VertexUV")
         {
             targetType = render::VertexStreamType::UV;
         }
-        else if (inputName == "Vertex_InNormal")
+        else if (inputName == "VertexNormal")
         {
             targetType = render::VertexStreamType::Normal;
         }

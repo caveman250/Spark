@@ -5,12 +5,12 @@
 
 namespace se::reflect
 {
-    Enum::Enum(void(* init)(Enum*)): Type{nullptr, 0, asset::binary::Type::Int32 }
+    Enum::Enum(void(* init)(Enum*)): Type{nullptr, 0, asset::binary::Type::String }
     {
         init(this);
     }
 
-    Enum::Enum(const char*, size_t, const std::initializer_list<EnumValue>& init): Type{ nullptr, 0, asset::binary::Type::Int32 }
+    Enum::Enum(const char*, size_t, const std::initializer_list<EnumValue>& init): Type{ nullptr, 0, asset::binary::Type::String }
     , values{ init }
     {
     }

@@ -1,14 +1,16 @@
+SSL_FRAGMENT
+
 port(test) in vec3 inColor;
 
 setting int numLights;
 
-port(Frag_InCameraNormal) in vec3 normCameraSpace;
-port(Frag_InUV) in vec2 UV;
-port(Frag_InWorldPos) in vec3 posCameraSpace;
-port(Frag_InCameraEyeDir) in vec3 eyeDirCameraSpace;
-port(Frag_InCameraLightDir) in vec3[numLights] lightDirCameraSpace;
+port(VertexCameraNormal) in vec3 normCameraSpace;
+port(FragUV) in vec2 UV;
+port(VertexWorldPos) in vec3 posCameraSpace;
+port(CameraEyeDir) in vec3 eyeDirCameraSpace;
+port(CameraLightDir) in vec3[numLights] lightDirCameraSpace;
 
-port(Frag_OutColour) out vec3 color;
+port(FinalFragColor) out vec3 color;
 
 uniform mat4 model;
 uniform mat4 view;

@@ -1,15 +1,17 @@
+SSL_VERTEX
+
 setting int numLights;
 
-port(Vertex_InPos) in vec3 inPos;
-port(Vertex_InUV) in vec2 inUV;
-port(Vertex_InNormal) in vec3 inNormal;
+port(VertexPos) in vec3 inPos;
+port(VertexUV) in vec2 inUV;
+port(VertexNormal) in vec3 inNormal;
 
-port(Vertex_OutPos) out vec4 outPos;
-port(Vertex_OutWorldPos) out vec3 outWorldPos;
-port(Vertex_OutCameraNormal) out vec3 outNormal;
-port(Vertex_OutUV) out vec2 outUV;
-port(Vertex_OutCameraEyeDir) out vec3 outEyeDir;
-port(Vertex_OutCameraLightDir) out vec3[numLights] outLightDir;
+port(FinalVertPos) out vec4 outPos;
+port(VertexWorldPos) out vec3 outWorldPos;
+port(VertexCameraNormal) out vec3 outNormal;
+port(FragUV) out vec2 outUV;
+port(CameraEyeDir) out vec3 outEyeDir;
+port(CameraLightDir) out vec3[numLights] outLightDir;
 
 uniform mat4 model;
 uniform mat4 view;
