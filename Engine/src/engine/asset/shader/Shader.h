@@ -63,7 +63,7 @@ namespace se::asset
         void AddOutput(const std::shared_ptr<shader::ast::OutputNode>& node);
 
         template <typename T, typename... Args>
-        std::shared_ptr<shader::ast::ASTNode> AddNode(Args&&... args);
+        std::shared_ptr<T> AddNode(Args&&... args);
         std::shared_ptr<shader::ast::ASTNode> AddNode(shader::ast::ASTNode* node);
         void PushScope(const std::shared_ptr<shader::ast::ASTNode>& node);
         void PopScope();
@@ -103,9 +103,9 @@ namespace se::asset
     };
 
     template <typename T, typename ... Args>
-    std::shared_ptr<shader::ast::ASTNode> Shader::AddNode(Args&&... args)
+    std::shared_ptr<T> Shader::AddNode(Args&&... args)
     {
         T t = T(std::forward<Args>(args)...);
-        return AddNode(&t);
+        return std::static_pointer_cast<T>(AddNode(&t));
     }
 }

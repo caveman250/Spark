@@ -141,7 +141,7 @@ namespace se::render::opengl
         glDeleteShader(FragmentShaderID);
     }
 
-    void Material::SetUniform(const std::string& name, asset::shader::ast::AstType::Type type, const void* value)
+    void Material::SetUniform(const std::string& name, asset::shader::ast::AstType::Type type, int count, const void* value)
     {
         glUseProgram(m_CompiledProgram);
         GLuint uniformLoc = glGetUniformLocation(m_CompiledProgram, name.c_str());
@@ -149,26 +149,30 @@ namespace se::render::opengl
 
         switch (type)
         {
+        case asset::shader::ast::AstType::Int:
+            glUniform1iv(uniformLoc, count, static_cast<const int*>(value));
+            break;
         case asset::shader::ast::AstType::Float:
-            glUniform1f(uniformLoc, *static_cast<const float*>(value));
+            glUniform1fv(uniformLoc, count, static_cast<const float*>(value));
             break;
         case asset::shader::ast::AstType::Vec2:
-            glUniform2fv(uniformLoc, 1, static_cast<const float*>(value));
+            glUniform2fv(uniformLoc, count, static_cast<const float*>(value));
             break;
         case asset::shader::ast::AstType::Vec3:
-            glUniform3fv(uniformLoc, 1, static_cast<const float*>(value));
+            glUniform3fv(uniformLoc, count, static_cast<const float*>(value));
             break;
         case asset::shader::ast::AstType::Vec4:
-            glUniform4fv(uniformLoc, 1, static_cast<const float*>(value));
+            glUniform4fv(uniformLoc, count, static_cast<const float*>(value));
             break;
         case asset::shader::ast::AstType::Mat3:
-            glUniformMatrix3fv(uniformLoc, 1, false, static_cast<const float*>(value));
+            glUniformMatrix3fv(uniformLoc, count, false, static_cast<const float*>(value));
             break;
         case asset::shader::ast::AstType::Mat4:
-            glUniformMatrix4fv(uniformLoc, 1, false, static_cast<const float*>(value));
+            glUniformMatrix4fv(uniformLoc, count, false, static_cast<const float*>(value));
             break;
         case asset::shader::ast::AstType::Sampler2D:
         {
+            SPARK_ASSERT(count == 1, "Setting arrays of texture uniforms not supported.");
             auto texture = reinterpret_cast<const asset::Texture *>(value);
             const auto& platformResource = texture->GetPlatformResource();
             if (!std::ranges::contains(m_Textures, platformResource))

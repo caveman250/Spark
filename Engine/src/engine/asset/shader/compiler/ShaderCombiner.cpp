@@ -38,7 +38,7 @@ namespace se::asset::shader::compiler
                     }
 
                     // insert local variable declaration for port being removed
-                    main.second->m_Children.insert(main.second->m_Children.begin(), std::make_shared<ast::VariableDeclarationNode>(newName, ast::Variable(port->GetType(), 0)));
+                    main.second->m_Children.insert(main.second->m_Children.begin(), std::make_shared<ast::VariableDeclarationNode>(newName, port->GetVar()));
                     main.second->m_Children.insert(main.second->m_Children.begin() + 1, std::make_shared<ast::EndOfExpressionNode>());
 
                     // mark for removal
@@ -267,13 +267,13 @@ namespace se::asset::shader::compiler
         {
             if (port->GetPortName().starts_with("Vertex_In"))
             {
-                shader.AddInput(std::make_shared<ast::InputAttributeNode>(GetInputLoc(port->GetPortName()), port->GetType(), name));
+                shader.AddInput(std::make_shared<ast::InputAttributeNode>(GetInputLoc(port->GetPortName()), port->GetVar(), name));
             }
             else if (port->GetPortName().starts_with("Frag_In"))
             {
                 std::string varName = port->GetPortName();
                 varName = std::regex_replace(varName, std::regex("Frag_In"), "Vertex_Out");
-                shader.AddInput(std::make_shared<ast::InputNode>(port->GetType(), varName));
+                shader.AddInput(std::make_shared<ast::InputNode>(port->GetVar(), varName));
                 std::map<std::string, std::string> renameMap = { { name, varName } };
                 for (const auto& node : shader.GetNodes())
                 {
@@ -306,11 +306,11 @@ namespace se::asset::shader::compiler
             }
             else if (port->GetPortName().starts_with("Frag_Out"))
             {
-                shader.AddOutput(std::make_shared<ast::OutputNode>(port->GetType(), name));
+                shader.AddOutput(std::make_shared<ast::OutputNode>(port->GetVar(), name));
             }
             else if (port->GetPortName().starts_with("Vertex_Out"))
             {
-                shader.AddOutput(std::make_shared<ast::OutputNode>(port->GetType(), port->GetPortName()));
+                shader.AddOutput(std::make_shared<ast::OutputNode>(port->GetVar(), port->GetPortName()));
                 // names have to match the frag shader.
                 std::map<std::string, std::string> renameMap = { { name, port->GetPortName() } };
                 for (const auto& node : shader.GetNodes())

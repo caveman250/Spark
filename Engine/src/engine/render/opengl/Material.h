@@ -14,7 +14,7 @@ namespace se::render::opengl
                  const std::vector<std::shared_ptr<asset::Shader>>& fragShaders);
         void Bind() override;
         void CreatePlatformResources(const render::VertexBuffer& vb) override;
-        void SetUniform(const std::string& name, asset::shader::ast::AstType::Type type, const void* value) override;
+        void SetUniform(const std::string& name, asset::shader::ast::AstType::Type type, int count, const void* value) override;
 
         GLuint GetProgramID() { return m_CompiledProgram; }
     private:

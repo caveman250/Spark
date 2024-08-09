@@ -8,6 +8,7 @@
 #include "engine/asset/shader/ast/ConstantNode.h"
 #include "engine/asset/shader/ast/DotNode.h"
 #include "engine/asset/shader/ast/EndOfExpressionNode.h"
+#include "engine/asset/shader/ast/ForLoopNode.h"
 #include "engine/asset/shader/ast/InputPortNode.h"
 #include "engine/asset/shader/ast/LengthNode.h"
 #include "engine/asset/shader/ast/MainNode.h"
@@ -114,6 +115,7 @@ namespace se::asset::shader::compiler
 
             switch (argType)
             {
+            case ast::AstType::Int:
             case ast::AstType::Float:
                 componentsAccountedFor++;
                 break;
@@ -175,6 +177,7 @@ namespace se::asset::shader::compiler
 
             switch (argType)
             {
+            case ast::AstType::Int:
             case ast::AstType::Float:
                 componentsAccountedFor++;
                 break;
@@ -242,6 +245,7 @@ namespace se::asset::shader::compiler
 
             switch (argType)
             {
+            case ast::AstType::Int:
             case ast::AstType::Float:
                 componentsAccountedFor++;
                 break;
@@ -376,6 +380,11 @@ namespace se::asset::shader::compiler
             returnType = ast::AstType::Float;
             return ProcessPowFunc(token, outError);
         }
+        else if (token.value == "for")
+        {
+            returnType = ast::AstType::Void;
+            return ProcessForLoop(outError);
+        }
 
         outError = {token.line, token.pos, std::format("Unexpected token {}", token.value)};
         SPARK_ASSERT(false);
@@ -469,6 +478,36 @@ namespace se::asset::shader::compiler
         ast::AstType::Type type = ast::TypeUtil::StringToType(typeToken.value);
         returnType = type;
 
+        auto var = ast::Variable(type, 0);
+        if (Peek({TokenType::Syntax}, {"["}))
+        {
+            //array
+            if (!ExpectAndConsume({TokenType::Syntax}, {"["}, outError))
+            {
+                return false;
+            }
+
+            Token sizeArg;
+            if (!ExpectedGetAndConsume({TokenType::Identifier, TokenType::NumericLiteral}, {}, sizeArg, outError))
+            {
+                return false;
+            }
+
+            if (sizeArg.type == TokenType::NumericLiteral)
+            {
+                var.arraySizeConstant = std::stoi(sizeArg.value);
+            }
+            else
+            {
+                var.arraySizeVariable = sizeArg.value;
+            }
+
+            if (!ExpectAndConsume({TokenType::Syntax}, {"]"}, outError))
+            {
+                return false;
+            }
+        }
+
         Token nameToken;
         if (!ExpectedGetAndConsume({TokenType::Identifier}, {}, nameToken, outError))
         {
@@ -483,11 +522,11 @@ namespace se::asset::shader::compiler
 
         if (in)
         {
-            m_Shader.AddInputPort(std::make_shared<ast::InputPortNode>(portName.value, type, name));
+            m_Shader.AddInputPort(std::make_shared<ast::InputPortNode>(portName.value, var, name));
         }
         else
         {
-            m_Shader.AddOutputPort(std::make_shared<ast::OutputPortNode>(portName.value, type, name));
+            m_Shader.AddOutputPort(std::make_shared<ast::OutputPortNode>(portName.value, var, name));
         }
 
         return true;
@@ -835,7 +874,7 @@ namespace se::asset::shader::compiler
         while (true)
         {
             Token binaryOpToken;
-            if (Peek({ TokenType::Syntax }, {"*", "/", "+", "-", "*=", "/=", "+=", "-=", "="}, binaryOpToken))
+            if (Peek({ TokenType::Syntax }, ast::OperatorUtil::GetOperatorStrings(), binaryOpToken))
             {
                 auto binaryOp = m_Shader.AddNode<ast::BinaryExpressionNode>(ast::OperatorUtil::StringToOperatorType(binaryOpToken.value));
                 m_Shader.PushScope(binaryOp);
@@ -893,7 +932,7 @@ namespace se::asset::shader::compiler
                 binaryOpPeekOffset += 3; // skip array access
             }
 
-            if (Peek(binaryOpPeekOffset, { TokenType::Syntax }, {"*", "/", "+", "-", "*=", "/=", "+=", "-=", "="}, binaryOpToken))
+            if (Peek(binaryOpPeekOffset, { TokenType::Syntax }, ast::OperatorUtil::GetOperatorStrings(), binaryOpToken))
             {
                 auto binaryOp = m_Shader.AddNode<ast::BinaryExpressionNode>(ast::OperatorUtil::StringToOperatorType(binaryOpToken.value));
                 m_Shader.PushScope(binaryOp);
@@ -977,7 +1016,7 @@ namespace se::asset::shader::compiler
                 {
                     return false;
                 }
-                outType = ast::AstType::Float; // TODO int?
+                outType = IsInteger(nextToken.value) ? ast::AstType::Int : ast::AstType::Float;
             }
             else if (nextToken.type == TokenType::StringLiteral)
             {
@@ -1034,7 +1073,7 @@ namespace se::asset::shader::compiler
 
             if (deferBinaryOpConsume)
             {
-                if (SPARK_VERIFY(Peek({ TokenType::Syntax }, {"*", "/", "+", "-", "*=", "/=", "+=", "-=", "="})))
+                if (SPARK_VERIFY(Peek({ TokenType::Syntax }, ast::OperatorUtil::GetOperatorStrings())))
                 {
                     m_Lexer.ConsumeToken();
                 }
@@ -1049,6 +1088,75 @@ namespace se::asset::shader::compiler
         for (int i = 0; i < numBinaryExpressions; ++i)
         {
             m_Shader.PopScope();
+        }
+
+        return true;
+    }
+
+    bool Parser::ProcessForLoop(ParseError& outError)
+    {
+        auto forLoop = m_Shader.AddNode<ast::ForLoopNode>();
+        m_Shader.PushScope(forLoop);
+
+        if (!ExpectAndConsume({TokenType::Syntax}, {"("}, outError))
+        {
+            return false;
+        }
+
+        Token itToken;
+        if (!ExpectedGetAndConsume({TokenType::Builtin}, {}, itToken, outError))
+        {
+            return false;
+        }
+
+        auto itType = ast::TypeUtil::StringToType(itToken.value);
+        if (itType == ast::AstType::Invalid)
+        {
+            outError = { itToken.line, itToken.pos, std::format("Unexpected token {}", itToken.value) };
+            return false;
+        }
+
+        if (!ProcessVariableDeclaration(itToken, outError))
+        {
+            return false;
+        }
+
+        if (!ExpectAndConsume({TokenType::Syntax}, {";"}, outError))
+        {
+            return false;
+        }
+
+        forLoop->m_DeclarationEnded = true;
+
+        ast::AstType::Type expression1Type;
+        if (!ProcessExpression(expression1Type, outError))
+        {
+            return false;
+        }
+
+        if (!ExpectAndConsume({TokenType::Syntax}, {";"}, outError))
+        {
+            return false;
+        }
+
+        forLoop->m_ConditionEnded = true;
+
+        ast::AstType::Type expression2Type;
+        if (!ProcessExpression(expression2Type, outError))
+        {
+            return false;
+        }
+
+        if (!ExpectAndConsume({TokenType::Syntax}, {")"}, outError))
+        {
+            return false;
+        }
+
+        forLoop->m_ExpressionEnded = true;
+
+        if (!ExpectAndConsume({TokenType::Syntax}, {"{"}, outError))
+        {
+            return false;
         }
 
         return true;
@@ -1149,6 +1257,7 @@ namespace se::asset::shader::compiler
 
             switch (argType)
             {
+            case ast::AstType::Int:
             case ast::AstType::Float:
                 componentsAccountedFor++;
                 break;
@@ -1229,6 +1338,7 @@ namespace se::asset::shader::compiler
 
             switch (argType)
             {
+            case ast::AstType::Int:
             case ast::AstType::Float:
                 argumentsAccountedFor ++;
                 break;
@@ -1308,6 +1418,7 @@ namespace se::asset::shader::compiler
                 returnType = ast::AstType::Vec4;
                 argumentsAccountedFor ++;
                 break;
+            case ast::AstType::Int:
             case ast::AstType::Float:
             case ast::AstType::Mat3:
             case ast::AstType::Mat4:
@@ -1389,6 +1500,7 @@ namespace se::asset::shader::compiler
                 returnType = ast::AstType::Vec4;
                 argumentsAccountedFor ++;
                 break;
+            case ast::AstType::Int:
             case ast::AstType::Float:
             case ast::AstType::Mat3:
             case ast::AstType::Mat4:
@@ -1459,6 +1571,7 @@ namespace se::asset::shader::compiler
 
             switch (argType)
             {
+            case ast::AstType::Int:
             case ast::AstType::Float:
                 componentsAccountedFor++;
                 break;

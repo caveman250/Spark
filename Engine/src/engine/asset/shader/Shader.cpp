@@ -79,8 +79,7 @@ namespace se::asset
 
         if (!m_ScopeStack.empty())
         {
-            m_ScopeStack.back().m_Node->m_Children.push_back(std::shared_ptr<shader::ast::ASTNode>((shader::ast::ASTNode*)node->GetReflectType()->heap_copy_constructor(node)));
-            return m_ScopeStack.back().m_Node->m_Children.back();
+            return m_ScopeStack.back().m_Node->AddChild((shader::ast::ASTNode*)node->GetReflectType()->heap_copy_constructor(node));
         }
         else
         {
@@ -190,25 +189,25 @@ namespace se::asset
 
         if (const std::shared_ptr<shader::ast::InputPortNode>& input = FindInputPort(name))
         {
-            type = input->GetType();
+            type = input->GetVar().type;
             return true;
         }
 
         if (const std::shared_ptr<shader::ast::OutputPortNode>& output = FindOutputPort(name))
         {
-            type = output->GetType();
+            type = output->GetVar().type;
             return true;
         }
 
         if (const std::shared_ptr<shader::ast::InputNode>& input = FindInput(name))
         {
-            type = input->GetType();
+            type = input->GetVar().type;
             return true;
         }
 
         if (const std::shared_ptr<shader::ast::OutputNode>& output = FindOutput(name))
         {
-            type = output->GetType();
+            type = output->GetVar().type;
             return true;
         }
 

@@ -18,6 +18,11 @@ namespace se::asset::shader::ast
         }
     }
 
+    const std::shared_ptr<ASTNode>& ASTNode::AddChild(ASTNode* node)
+    {
+        return m_Children.emplace_back(std::shared_ptr<ASTNode>(node));
+    }
+
     void ASTNode::DebugPrint(int indent) const
     {
         std::string str = "-";
