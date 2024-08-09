@@ -28,15 +28,13 @@ void main()
 
     color = MaterialAmbientColor;
 
+    vec3 n = normalize(normCameraSpace);
+    vec3 E = normalize(eyeDirCameraSpace);
     for (int i = 0; i < numLights; i += 1)
     {
         float distance = length(lightPos[i] - posCameraSpace);
-
-        vec3 n = normalize(normCameraSpace);
         vec3 l = normalize(lightDirCameraSpace[i]);
         float cosTheta = clamp(dot(n, l), 0, 1);
-
-        vec3 E = normalize(eyeDirCameraSpace);
         vec3 R = reflect(-l, n);
         float cosAlpha = clamp(dot(E, R), 0, 1);
 
