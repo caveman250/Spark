@@ -26,7 +26,7 @@ namespace se::render
         void SetRenderState(const RenderState& state);
         void SetShaderSettings(const ShaderSettings& settings);
 
-        virtual void SetUniform(const std::string& name, asset::shader::ast::AstType::Type type, const void* value) = 0;
+        virtual void SetUniform(const std::string& name, asset::shader::ast::AstType::Type type, int count, const void* value) = 0;
     protected:
         Material(const std::vector<std::shared_ptr<asset::Shader>>& vertShaders,
                 const std::vector<std::shared_ptr<asset::Shader>>& fragShaders);

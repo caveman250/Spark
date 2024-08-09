@@ -99,6 +99,22 @@ namespace se::asset::shader
                     var.arraySizeVariable = {};
                 }
             }
+
+            for (auto& [inputName, input] : shader.m_Inputs)
+            {
+                if (input->GetVar().arraySizeVariable == name)
+                {
+                    input->SetVar(ast::Variable(input->GetVar().type, std::stoi(replacementText)));
+                }
+            }
+
+            for (auto& [outputName, output] : shader.m_Outputs)
+            {
+                if (output->GetVar().arraySizeVariable == name)
+                {
+                    output->SetVar(ast::Variable(output->GetVar().type, std::stoi(replacementText)));
+                }
+            }
         }
 
         return true;

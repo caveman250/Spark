@@ -5,6 +5,7 @@
 namespace se::asset::shader::ast
 {
     DECLARE_SPARK_ENUM_BEGIN(AstType, int)
+        Int,
         Float,
         Vec2,
         Vec3,

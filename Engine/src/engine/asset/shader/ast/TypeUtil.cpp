@@ -6,6 +6,8 @@ namespace se::asset::shader::ast
     {
         switch (type)
         {
+            case AstType::Int:
+                return "int";
             case AstType::Float:
                 return "float";
             case AstType::Vec2:
@@ -30,7 +32,9 @@ namespace se::asset::shader::ast
 
     AstType::Type TypeUtil::StringToType(const std::string& type)
     {
-        if (type == "float")
+        if (type == "int")
+            return AstType::Int;
+        else if (type == "float")
             return AstType::Float;
         else if (type == "vec2")
             return AstType::Vec2;

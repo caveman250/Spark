@@ -1,6 +1,7 @@
 #pragma once
 #include "ASTNode.h"
 #include "Types.h"
+#include "Variable.h"
 
 namespace se::asset::shader::ast
 {
@@ -10,12 +11,12 @@ namespace se::asset::shader::ast
 
     public:
         InputPortNode() = default;
-        InputPortNode(const std::string& portName, AstType::Type type, const std::string& name);
+        InputPortNode(const std::string& portName, const Variable& var, const std::string& name);
 
         std::string GetDebugString() const override;
         void ToGlsl(string::ArenaString& outShader) const override;
 
-        AstType::Type GetType() const { return m_Type; }
+        Variable GetVar() const { return m_Var; }
         const std::string& GetPortName() { return m_PortName; }
         const std::string& GetName() const { return m_Name; }
         void SetName(const std::string& name) { m_Name = name; }
@@ -25,7 +26,7 @@ namespace se::asset::shader::ast
 
     private:
         std::string m_PortName = {};
-        AstType::Type m_Type = {};
+        Variable m_Var = {};
         std::string m_Name = {};
     };
 }

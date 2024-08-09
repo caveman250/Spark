@@ -11,6 +11,10 @@ DEFINE_SPARK_ENUM_BEGIN(se::asset::shader::ast::OperatorType)
     DEFINE_ENUM_VALUE(OperatorType, SubtractEquals)
     DEFINE_ENUM_VALUE(OperatorType, Equals)
     DEFINE_ENUM_VALUE(OperatorType, Compare)
+    DEFINE_ENUM_VALUE(OperatorType, Less)
+    DEFINE_ENUM_VALUE(OperatorType, LessEquals)
+    DEFINE_ENUM_VALUE(OperatorType, Greater)
+    DEFINE_ENUM_VALUE(OperatorType, GreaterEquals)
 DEFINE_SPARK_ENUM_END()
 
 namespace se::asset::shader::ast
@@ -27,6 +31,10 @@ namespace se::asset::shader::ast
         {OperatorType::SubtractEquals, 1u},
         {OperatorType::Equals, 1u},
         {OperatorType::Compare, 2u},
+        {OperatorType::Less, 2u},
+        {OperatorType::LessEquals, 2u},
+        {OperatorType::Greater, 2u},
+        {OperatorType::GreaterEquals, 2u},
     };
 
     std::map<std::string, OperatorType::Type> OperatorUtil::s_ShaderLangToType =
@@ -41,6 +49,10 @@ namespace se::asset::shader::ast
         {"-=", OperatorType::SubtractEquals},
         {"=", OperatorType::Equals },
         {"==", OperatorType::Compare},
+        {"<", OperatorType::Less},
+        {"<=", OperatorType::LessEquals},
+        {">", OperatorType::Greater},
+        {">=", OperatorType::GreaterEquals},
     };
 
     std::map<OperatorType::Type, std::string> OperatorUtil::s_TypeToGlsl =
@@ -55,6 +67,10 @@ namespace se::asset::shader::ast
         {OperatorType::SubtractEquals, "-="},
         {OperatorType::Equals, "="},
         {OperatorType::Compare, "=="},
+        {OperatorType::Less, "<"},
+        {OperatorType::LessEquals, "<="},
+        {OperatorType::Greater, ">"},
+        {OperatorType::GreaterEquals, ">="},
     };
 
     uint8_t OperatorUtil::GetOperatorPriority(OperatorType::Type type)
@@ -75,5 +91,11 @@ namespace se::asset::shader::ast
     bool OperatorUtil::IsOperator(const std::string& str)
     {
         return s_ShaderLangToType.contains(str);
+    }
+
+    const std::vector<std::string>& OperatorUtil::GetOperatorStrings()
+    {
+        static std::vector<std::string> ret = {"*", "/", "+", "-", "*=", "/=", "+=", "-=", "=", "<", ">", "<=", ">="};
+        return ret;
     }
 }

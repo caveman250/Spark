@@ -12,14 +12,12 @@ namespace se::asset::shader::ast
 
     public:
         InputAttributeNode() = default;
-        InputAttributeNode(uint8_t location, AstType::Type type, const std::string& name);
+        InputAttributeNode(uint8_t location, const Variable& var, const std::string& name);
 
         std::string GetDebugString() const override;
         void ToGlsl(string::ArenaString& outShader) const override;
 
-        AstType::Type GetType() const { return m_Type; }
         uint8_t GetLocation() const { return m_Location; }
-        const std::string& GetName() const { return m_Name; }
     private:
         uint8_t m_Location = {};
     };

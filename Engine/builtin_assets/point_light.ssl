@@ -1,24 +1,24 @@
 port(test) in vec3 inColor;
 
+setting int numLights;
+
 port(Frag_InCameraNormal) in vec3 normCameraSpace;
 port(Frag_InUV) in vec2 UV;
 port(Frag_InWorldPos) in vec3 posCameraSpace;
 port(Frag_InCameraEyeDir) in vec3 eyeDirCameraSpace;
-port(Frag_InCameraLightDir) in vec3 lightDirCameraSpace;
+port(Frag_InCameraLightDir) in vec3[numLights] lightDirCameraSpace;
 
 port(Frag_OutColour) out vec3 color;
-
-setting int numLights;
 
 uniform mat4 model;
 uniform mat4 view;
 uniform vec3 lightPos[numLights];
+uniform vec3 lightColor[numLights];
 
 void main()
 {
     mat4 MV = view * model;
 
-    vec3 LightColor = vec3(1, 1, 1);
     float LightPower = 50.0f;
 
     vec3 MaterialDiffuseColor = inColor;
@@ -26,19 +26,22 @@ void main()
     vec3 MaterialAmbientColor = ambientStr * MaterialDiffuseColor;
     vec3 MaterialSpecularColor = vec3(0.3, 0.3, 0.3);
 
-    float distance = length(lightPos[0] - posCameraSpace);
+    color = MaterialAmbientColor;
 
-    vec3 n = normalize(normCameraSpace);
-    vec3 l = normalize(lightDirCameraSpace);
-    float cosTheta = clamp(dot(n, l), 0, 1);
+    for (int i = 0; i < numLights; i += 1)
+    {
+        float distance = length(lightPos[i] - posCameraSpace);
 
-    vec3 E = normalize(eyeDirCameraSpace);
-    vec3 R = reflect(-l, n);
-    float cosAlpha = clamp(dot(E, R), 0, 1);
+        vec3 n = normalize(normCameraSpace);
+        vec3 l = normalize(lightDirCameraSpace[i]);
+        float cosTheta = clamp(dot(n, l), 0, 1);
 
-    float distSq = distance * distance;
-    color =
-        MaterialAmbientColor +
-        MaterialDiffuseColor * LightColor * LightPower * cosTheta / distSq +
-        MaterialSpecularColor * LightColor * LightPower * pow(cosAlpha, 5) / distSq;
+        vec3 E = normalize(eyeDirCameraSpace);
+        vec3 R = reflect(-l, n);
+        float cosAlpha = clamp(dot(E, R), 0, 1);
+
+        float distSq = distance * distance;
+        color += MaterialDiffuseColor * lightColor[i] * LightPower * cosTheta / distSq +
+                 MaterialSpecularColor * lightColor[i] * LightPower * pow(cosAlpha, 5) / distSq;
+    }
 }

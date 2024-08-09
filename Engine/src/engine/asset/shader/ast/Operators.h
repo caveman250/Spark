@@ -15,6 +15,10 @@ namespace se::asset::shader::ast
         SubtractEquals,
         Equals,
         Compare,
+        Less,
+        LessEquals,
+        Greater,
+        GreaterEquals,
     DECLARE_SPARK_ENUM_END()
 
     class OperatorUtil
@@ -24,6 +28,7 @@ namespace se::asset::shader::ast
         static OperatorType::Type StringToOperatorType(const std::string& token);
         static std::string OperatorTypeToGlsl(OperatorType::Type type);
         static bool IsOperator(const std::string& str);
+        static const std::vector<std::string>& GetOperatorStrings();
     private:
         static std::map<OperatorType::Type, uint8_t> s_OperatorPriorities;
         static std::map<std::string, OperatorType::Type> s_ShaderLangToType;

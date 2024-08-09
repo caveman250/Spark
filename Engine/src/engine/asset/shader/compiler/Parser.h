@@ -44,6 +44,7 @@ namespace se::asset::shader::compiler
         bool ProcessVec4(const Token& token, ParseError& error);
 
         bool ProcessExpression(ast::AstType::Type& outType, ParseError& outError);
+        bool ProcessForLoop(ParseError& outError);
 
         bool Peek(int offset, const std::vector<TokenType>& allowedTypes, const std::vector<std::string>& allowedValues);
         bool Peek(const std::vector<TokenType>& allowedTypes, const std::vector<std::string>& allowedValues);

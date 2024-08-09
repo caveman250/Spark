@@ -1,6 +1,7 @@
 #pragma once
 #include "ASTNode.h"
 #include "Types.h"
+#include "Variable.h"
 
 namespace se::asset::shader::ast
 {
@@ -10,7 +11,7 @@ namespace se::asset::shader::ast
 
     public:
         OutputPortNode() = default;
-        OutputPortNode(const std::string& portName, AstType::Type type, const std::string& name);
+        OutputPortNode(const std::string& portName, const Variable& type, const std::string& name);
 
         std::string GetDebugString() const override;
         void ToGlsl(string::ArenaString& outShader) const override;
@@ -18,13 +19,13 @@ namespace se::asset::shader::ast
         void CollectUsedNames(std::map<std::string, std::string> &nameMap) const override;
         void ApplyNameRemapping(const std::map<std::string, std::string> &newNames) override;
 
-        AstType::Type GetType() const { return m_Type; }
+        Variable GetVar() const { return m_Var; }
         const std::string& GetPortName() const { return m_PortName; }
         const std::string& GetName() const { return m_Name; }
         void SetName(const std::string& name) { m_Name = name; }
     private:
         std::string m_PortName = {};
-        AstType::Type m_Type = {};
+        Variable m_Var = {};
         std::string m_Name = {};
     };
 }

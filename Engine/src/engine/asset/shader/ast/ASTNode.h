@@ -12,6 +12,8 @@ namespace se::asset::shader::ast
         virtual ~ASTNode() = default;
         ASTNode(const ASTNode& rhs);
 
+
+        virtual const std::shared_ptr<ASTNode>& AddChild(ASTNode* node);
         void DebugPrint(int indent) const;
         virtual std::string GetDebugString() const = 0;
         virtual void ToGlsl(string::ArenaString& outShader) const = 0;
