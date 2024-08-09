@@ -7,9 +7,15 @@
 #include "ast/MainNode.h"
 #include "ast/OutputNode.h"
 
+DEFINE_SPARK_ENUM_BEGIN(se::asset::ShaderType)
+    DEFINE_ENUM_VALUE(ShaderType, Vertex)
+    DEFINE_ENUM_VALUE(ShaderType, Fragment)
+DEFINE_SPARK_ENUM_END()
+
 namespace se::asset
 {
     DEFINE_SPARK_CLASS_BEGIN(Shader)
+        DEFINE_MEMBER(m_Type)
         DEFINE_MEMBER(m_MainDeclared)
         DEFINE_MEMBER(m_InputPorts)
         DEFINE_MEMBER(m_OutputPorts)
@@ -113,6 +119,7 @@ namespace se::asset
 
     Shader& Shader::operator=(const Shader& rhs)
     {
+        m_Type = rhs.m_Type;
         m_MainDeclared = rhs.m_MainDeclared;
         m_InputPorts.clear();
         for (const auto& [key, value] : rhs.m_InputPorts)

@@ -36,6 +36,11 @@ namespace se::asset
         std::map<std::string, shader::ast::Variable> m_Variables;
     };
 
+    DECLARE_SPARK_ENUM_BEGIN(ShaderType, int)
+        Vertex,
+        Fragment
+    DECLARE_SPARK_ENUM_END()
+
     class Shader : public Asset
     {
         DECLARE_SPARK_CLASS(Shader)
@@ -87,7 +92,11 @@ namespace se::asset
         bool HasUniform(const std::string& name, const shader::ast::Variable& type);
         bool HasSetting(const std::string& name, const shader::ast::Variable& type);
 
+        void SetType(ShaderType::Type type) { m_Type = type; }
+        ShaderType::Type GetType() { return m_Type; }
+
     private:
+        ShaderType::Type m_Type = {};
         bool m_MainDeclared = false;
         std::map<std::string, std::shared_ptr<shader::ast::InputPortNode>> m_InputPorts;
         std::map<std::string, std::shared_ptr<shader::ast::OutputPortNode>> m_OutputPorts;

@@ -35,6 +35,21 @@ namespace se::asset::shader::compiler
     std::variant<Shader, ParseError> Parser::Parse()
     {
         ParseError error;
+        Token shaderTypeToken;
+        if (!ExpectedGetAndConsume({TokenType::Builtin}, {"SSL_VERTEX", "SSL_FRAGMENT"}, shaderTypeToken, error))
+        {
+            return error;
+        }
+
+        if (shaderTypeToken.value == "SSL_VERTEX")
+        {
+            m_Shader.SetType(ShaderType::Vertex);
+        }
+        else
+        {
+            m_Shader.SetType(ShaderType::Fragment);
+        }
+
         while (!m_Lexer.Finished())
         {
             auto nextToken = m_Lexer.PeekToken();

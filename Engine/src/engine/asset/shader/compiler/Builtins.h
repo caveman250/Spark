@@ -9,6 +9,6 @@ namespace se::asset::shader::compiler
     public:
         static bool IsBuiltin(const std::string& str);
     private:
-        static std::array<std::string, 25> s_Builtins;
+        static std::array<std::string, 27> s_Builtins;
     };
 }
