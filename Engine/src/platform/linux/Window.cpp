@@ -30,6 +30,9 @@ namespace se::linux
         SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
         SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
         SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 6);
+#if SPARK_DEBUG
+        SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_DEBUG_FLAG);
+#endif
         m_Context = SDL_GL_CreateContext(m_Window);
         SDL_GL_SetSwapInterval(0);
         if (auto primaryWindow = Application::Get()->GetPrimaryWindow())

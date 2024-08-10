@@ -18,7 +18,18 @@
     GLenum error = glGetError();\
     if (error != GL_NONE)\
     {\
-        debug::Log::Error((char*)glewGetErrorString(error));\
+        switch(error)\
+        {\
+        case GL_INVALID_ENUM: debug::Log::Error("GL_INVALID_ENUM"); break;\
+        case GL_INVALID_VALUE: debug::Log::Error("GL_INVALID_VALUE"); break;\
+        case GL_INVALID_OPERATION: debug::Log::Error("GL_INVALID_OPERATION"); break;\
+        case GL_STACK_OVERFLOW: debug::Log::Error("GL_STACK_OVERFLOW"); break;\
+        case GL_STACK_UNDERFLOW: debug::Log::Error("GL_STACK_UNDERFLOW"); break;\
+        case GL_OUT_OF_MEMORY: debug::Log::Error("GL_OUT_OF_MEMORY"); break;\
+        case GL_INVALID_FRAMEBUFFER_OPERATION: debug::Log::Error("GL_INVALID_FRAMEBUFFER_OPERATION"); break;\
+        case GL_CONTEXT_LOST: debug::Log::Error("GL_CONTEXT_LOST"); break;\
+        default: debug::Log::Error("Unknown GL Error"); break;\
+        }\
     }\
 }
 #else

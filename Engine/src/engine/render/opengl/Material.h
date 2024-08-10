@@ -15,10 +15,11 @@ namespace se::render::opengl
         void Bind(const VertexBuffer&) override;
         void CreatePlatformResources(const VertexBuffer& vb) override;
         void DestroyPlatformResources() override;
-        void SetUniform(const std::string& name, asset::shader::ast::AstType::Type type, int count, const void* value) override;
 
         GLuint GetProgramID() { return m_CompiledProgram; }
     private:
+        void SetUniformInternal(const std::string& name, asset::shader::ast::AstType::Type type, int count, const void* value) override;
+
         std::vector<std::shared_ptr<TextureResource>> m_Textures;
         GLuint m_CompiledProgram = GL_INVALID_VALUE;
     };

@@ -90,20 +90,25 @@ namespace se::render::opengl
 
         // Create the shaders
         GLuint VertexShaderID = glCreateShader(GL_VERTEX_SHADER);
+        GL_CHECK_ERROR()
         GLuint FragmentShaderID = glCreateShader(GL_FRAGMENT_SHADER);
+        GL_CHECK_ERROR()
 
         char const *VertexSourcePointer = vert.value().c_str();
         glShaderSource(VertexShaderID, 1, &VertexSourcePointer, NULL);
         glCompileShader(VertexShaderID);
+        GL_CHECK_ERROR()
 
         GLint Result = GL_FALSE;
         int InfoLogLength;
         glGetShaderiv(VertexShaderID, GL_COMPILE_STATUS, &Result);
         glGetShaderiv(VertexShaderID, GL_INFO_LOG_LENGTH, &InfoLogLength);
+        GL_CHECK_ERROR()
         if (InfoLogLength > 0)
         {
             std::vector<char> VertexShaderErrorMessage(InfoLogLength + 1);
             glGetShaderInfoLog(VertexShaderID, InfoLogLength, NULL, &VertexShaderErrorMessage[0]);
+            GL_CHECK_ERROR()
             printf("%s\n", &VertexShaderErrorMessage[0]);
         }
 
@@ -111,50 +116,76 @@ namespace se::render::opengl
         char const *FragmentSourcePointer = frag.value().c_str();
         glShaderSource(FragmentShaderID, 1, &FragmentSourcePointer, NULL);
         glCompileShader(FragmentShaderID);
+        GL_CHECK_ERROR()
 
         glGetShaderiv(FragmentShaderID, GL_COMPILE_STATUS, &Result);
         glGetShaderiv(FragmentShaderID, GL_INFO_LOG_LENGTH, &InfoLogLength);
+        GL_CHECK_ERROR()
         if (InfoLogLength > 0)
         {
             std::vector<char> FragmentShaderErrorMessage(InfoLogLength + 1);
             glGetShaderInfoLog(FragmentShaderID, InfoLogLength, NULL, &FragmentShaderErrorMessage[0]);
+            GL_CHECK_ERROR()
             debug::Log::Error("{0}", &FragmentShaderErrorMessage[0]);
         }
 
         m_CompiledProgram = glCreateProgram();
         glAttachShader(m_CompiledProgram, VertexShaderID);
         glAttachShader(m_CompiledProgram, FragmentShaderID);
+        GL_CHECK_ERROR()
         glLinkProgram(m_CompiledProgram);
+        GL_CHECK_ERROR()
 
         // Check the program
         glGetProgramiv(m_CompiledProgram, GL_LINK_STATUS, &Result);
+        GL_CHECK_ERROR()
         glGetProgramiv(m_CompiledProgram, GL_INFO_LOG_LENGTH, &InfoLogLength);
+        GL_CHECK_ERROR()
         if (InfoLogLength > 0)
         {
             std::vector<char> ProgramErrorMessage(InfoLogLength + 1);
             glGetProgramInfoLog(m_CompiledProgram, InfoLogLength, NULL, &ProgramErrorMessage[0]);
+            GL_CHECK_ERROR()
             debug::Log::Error("{0}", &ProgramErrorMessage[0]);
         }
 
         glDetachShader(m_CompiledProgram, VertexShaderID);
         glDetachShader(m_CompiledProgram, FragmentShaderID);
+        GL_CHECK_ERROR()
 
         glDeleteShader(VertexShaderID);
         glDeleteShader(FragmentShaderID);
+        GL_CHECK_ERROR()
+
+        render::Material::CreatePlatformResources(vb);
     }
 
     void Material::DestroyPlatformResources()
     {
-        glDeleteProgram(m_CompiledProgram);
-        m_CompiledProgram = GL_INVALID_VALUE;
+        if (m_CompiledProgram != GL_INVALID_VALUE)
+        {
+            glDeleteProgram(m_CompiledProgram);
+            GL_CHECK_ERROR()
+            m_CompiledProgram = GL_INVALID_VALUE;
+        }
         render::Material::DestroyPlatformResources();
     }
 
-    void Material::SetUniform(const std::string& name, asset::shader::ast::AstType::Type type, int count, const void* value)
+    void Material::SetUniformInternal(const std::string& name, asset::shader::ast::AstType::Type type, int count, const void* value)
     {
+        if (!m_PlatformResourcesCreated)
+        {
+            return;
+        }
+
+
         glUseProgram(m_CompiledProgram);
-        GLuint uniformLoc = glGetUniformLocation(m_CompiledProgram, name.c_str());
-        GL_CHECK_ERROR()
+        GLuint uniformLoc = {};
+        if (type != asset::shader::ast::AstType::Sampler2D)
+        {
+            uniformLoc = glGetUniformLocation(m_CompiledProgram, name.c_str());
+            GL_CHECK_ERROR()
+        }
 
         switch (type)
         {
@@ -182,7 +213,7 @@ namespace se::render::opengl
         case asset::shader::ast::AstType::Sampler2D:
         {
             SPARK_ASSERT(count == 1, "Setting arrays of texture uniforms not supported.");
-            auto texture = reinterpret_cast<const asset::Texture *>(value);
+            const auto& texture = *reinterpret_cast<const std::shared_ptr<asset::Texture>*>(value);
             const auto& platformResource = texture->GetPlatformResource();
             if (!std::ranges::contains(m_Textures, platformResource))
             {

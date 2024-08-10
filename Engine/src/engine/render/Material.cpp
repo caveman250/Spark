@@ -40,6 +40,12 @@ namespace se::render
         }
     }
 
+    void Material::CreatePlatformResources(const VertexBuffer&)
+    {
+        m_PlatformResourcesCreated = true;
+        m_UniformStorage.Apply(this);
+    }
+
     void Material::DestroyPlatformResources()
     {
         m_PlatformResourcesCreated = false;
