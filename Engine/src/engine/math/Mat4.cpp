@@ -45,6 +45,18 @@ namespace se::math
         return m_Value[i];
     }
 
+    Mat4& Mat4::operator=(Mat4& m)
+    {
+        if (this == &m)
+            return *this;
+
+        m_Value[0] = m[0];
+        m_Value[1] = m[1];
+        m_Value[2] = m[2];
+        m_Value[3] = m[3];
+        return *this;
+    }
+
     Mat4& Mat4::operator=(const Mat4& m)
     {
         if (this == &m)

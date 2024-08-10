@@ -11,6 +11,17 @@ namespace se::render::opengl
 
     }
 
+    void DebugCallbackARB(GLenum source,
+                      GLenum type,
+                      GLuint id,
+                      GLenum severity,
+                      GLsizei length,
+                      const GLchar* message,
+                      const GLvoid* userParam)
+    {
+        debug::Log::Error(message);
+    }
+
     void OpenGLRenderer::Init()
     {
         auto window = IWindow::CreatePlatformWindow(500, 500);
@@ -20,6 +31,11 @@ namespace se::render::opengl
         {
             debug::Log::Fatal("Failed to initialize GLEW");
         }
+
+#if SPARK_DEBUG
+        glEnable              ( GL_DEBUG_OUTPUT );
+        glDebugMessageCallback( &DebugCallbackARB, 0 );
+#endif
 
         m_GlewInit = true;
 
