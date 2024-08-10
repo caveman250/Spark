@@ -4,9 +4,45 @@
 
 namespace se::render
 {
-    void Material::Bind()
+    void Material::Bind(const VertexBuffer& vb)
     {
-        Renderer::Get()->ApplyRenderState(m_RenderState);
+        auto renderer = Renderer::Get();
+        renderer->ApplyRenderState(m_RenderState);
+        if (m_RenderState.lit)
+        {
+            const auto& lightSetup = renderer->GetLightSetup();
+            if (m_CachedLightSetup != lightSetup)
+            {
+                m_ShaderSettings.SetSetting("numLights", lightSetup.pointLights.size());
+                DestroyPlatformResources();
+                m_CachedLightSetup = lightSetup;
+            }
+        }
+
+        if (!m_PlatformResourcesCreated)
+        {
+            CreatePlatformResources(vb);
+
+            const auto& lightSetup = Renderer::Get()->GetLightSetup();
+            // TODO improve shader parser so i can just pass an array of structs
+            std::vector<math::Vec3> pos;
+            pos.resize(lightSetup.pointLights.size());
+            std::transform(lightSetup.pointLights.begin(), lightSetup.pointLights.end(), pos.begin(), [](const PointLight& light){ return light.pos; });
+
+            std::vector<math::Vec3> color;
+            color.resize(lightSetup.pointLights.size());
+            std::transform(lightSetup.pointLights.begin(), lightSetup.pointLights.end(), color.begin(), [](const PointLight& light){ return light.color; });
+
+            SetUniform("lightPos", asset::shader::ast::AstType::Vec3, pos.size(), &pos[0]);
+            SetUniform("lightColor", asset::shader::ast::AstType::Vec3, color.size(), &color[0]);
+
+            m_PlatformResourcesCreated = true;
+        }
+    }
+
+    void Material::DestroyPlatformResources()
+    {
+        m_PlatformResourcesCreated = false;
     }
 
     void Material::SetRenderState(const RenderState& state)
@@ -14,9 +50,9 @@ namespace se::render
         m_RenderState = state;
     }
 
-    void Material::SetShaderSettings(const ShaderSettings& settings)
+    ShaderSettings& Material::GetShaderSettings()
     {
-        m_ShaderSettings = settings;
+        return m_ShaderSettings;
     }
 
     Material:: Material(const std::vector<std::shared_ptr<asset::Shader>>& vertShaders,

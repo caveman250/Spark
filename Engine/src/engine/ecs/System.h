@@ -7,7 +7,7 @@ namespace se::ecs
 {
     typedef uint64_t SystemId;
 
-    class BaseSystem
+    class BaseSystem : public reflect::ObjectBase
     {
     public:
         virtual ~BaseSystem() {}

@@ -46,7 +46,8 @@ namespace se::asset
         }
 
         auto db = binary::Database::Load(path, true);
-        std::shared_ptr<T> asset = std::make_shared<T>(reflect::DeserialiseType<T>(db));
+        std::shared_ptr<T> asset = std::make_shared<T>();
+        reflect::DeserialiseType<T>(db, *asset);
         m_AssetCache[fullPath] = asset;
 
         return asset;

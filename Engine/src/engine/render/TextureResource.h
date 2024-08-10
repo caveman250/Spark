@@ -11,11 +11,16 @@ namespace se::render
         static std::shared_ptr<TextureResource> Create(const asset::Texture& texture);
 
         virtual ~TextureResource() = default;
-        virtual void CreatePlatformResources() = 0;
+        virtual void CreatePlatformResources()
+        {
+            m_HasCreatedPlatformResources = true;
+        }
         virtual void Bind() = 0;
 
+        bool HasCreatedPlatformResources() const { return m_HasCreatedPlatformResources; }
     protected:
         TextureResource(const asset::Texture& texture) : m_Texture(texture) {}
         const asset::Texture& m_Texture;
+        bool m_HasCreatedPlatformResources = false;
     };
 }

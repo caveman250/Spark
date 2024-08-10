@@ -23,9 +23,9 @@ namespace se::render::opengl
     {
     }
 
-    void Material::Bind()
+    void Material::Bind(const VertexBuffer& vb)
     {
-        render::Material::Bind();
+        render::Material::Bind(vb);
         glUseProgram(m_CompiledProgram);
 
         for (size_t i = 0; i < m_Textures.size(); ++i)
@@ -73,6 +73,8 @@ namespace se::render::opengl
 
     void Material::CreatePlatformResources(const VertexBuffer& vb)
     {
+        SPARK_ASSERT(m_CompiledProgram == GL_INVALID_VALUE);
+
         std::optional<std::string> vert = asset::shader::ShaderCompiler::GeneratePlatformShader(m_VertShaders, m_ShaderSettings, vb);
         std::optional<std::string> frag = asset::shader::ShaderCompiler::GeneratePlatformShader(m_FragShaders, m_ShaderSettings, vb);
 
@@ -139,6 +141,13 @@ namespace se::render::opengl
 
         glDeleteShader(VertexShaderID);
         glDeleteShader(FragmentShaderID);
+    }
+
+    void Material::DestroyPlatformResources()
+    {
+        glDeleteProgram(m_CompiledProgram);
+        m_CompiledProgram = GL_INVALID_VALUE;
+        render::Material::DestroyPlatformResources();
     }
 
     void Material::SetUniform(const std::string& name, asset::shader::ast::AstType::Type type, int count, const void* value)

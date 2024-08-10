@@ -20,6 +20,9 @@ namespace se
         float GetDeltaTime() const { return m_DeltaTime; }
 
         virtual void Init();
+        virtual void CreateInitialSingletonComponents();
+        virtual void CreateInitialSystems();
+        virtual void CreateInitialSystemUpdateGroups();
         void Run() const;
         virtual void Shutdown();
 

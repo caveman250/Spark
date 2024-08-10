@@ -22,6 +22,10 @@ namespace se::asset
         DECLARE_SPARK_CLASS(Texture)
 
     public:
+        Texture();
+        Texture(const Texture& rhs);
+        ~Texture();
+
         void Release();
         static std::shared_ptr<Texture> FromDDS(const builder::CompressedImageData& rawDDSData);
 
@@ -41,6 +45,7 @@ namespace se::asset
         std::vector<texture::Mipmap> m_Mips = {};
         texture::Format::Type m_Format = {};
 
+        // Not serialised
         std::shared_ptr<render::TextureResource> m_PlatformResource = nullptr;
     };
 }

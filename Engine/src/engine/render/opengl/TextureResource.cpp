@@ -17,8 +17,9 @@ namespace se::render::opengl
 {
     void TextureResource::CreatePlatformResources()
     {
+        render::TextureResource::CreatePlatformResources();
         glGenTextures(1, &m_ID);
-        Bind();
+        glBindTexture(GL_TEXTURE_2D, m_ID);
 
         int level = 0;
         for (const auto& mip : m_Texture.GetMips())
