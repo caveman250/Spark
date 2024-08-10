@@ -15,6 +15,7 @@ namespace se::render
     struct RenderState
     {
         DepthCompare depthComp = DepthCompare::None;
+        bool lit;
     };
 
     bool operator==(const RenderState& lhs, const RenderState& rhs);

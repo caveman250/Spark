@@ -1,4 +1,5 @@
 #pragma once
+#include "LightSetup.h"
 #include "RenderState.h"
 #include "engine/asset/shader/Shader.h"
 #include "engine/asset/shader/ShaderSettings.h"
@@ -21,10 +22,11 @@ namespace se::render
 
         virtual ~Material() = default;
 
-        virtual void Bind();
+        virtual void Bind(const VertexBuffer& vb);
         virtual void CreatePlatformResources(const VertexBuffer& vb) = 0;
+        virtual void DestroyPlatformResources();
         void SetRenderState(const RenderState& state);
-        void SetShaderSettings(const ShaderSettings& settings);
+        ShaderSettings& GetShaderSettings();
 
         virtual void SetUniform(const std::string& name, asset::shader::ast::AstType::Type type, int count, const void* value) = 0;
     protected:
@@ -34,5 +36,7 @@ namespace se::render
         std::vector<std::shared_ptr<asset::Shader>> m_FragShaders;
         RenderState m_RenderState;
         ShaderSettings m_ShaderSettings; // ignored after platform resources have been created.
+        LightSetup m_CachedLightSetup;
+        bool m_PlatformResourcesCreated = false;
     };
 }

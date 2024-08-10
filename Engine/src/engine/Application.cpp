@@ -5,6 +5,7 @@
 #include "platform/IWindow.h"
 #include "render/Renderer.h"
 #include "io/VFS.h"
+#include "render/systems/PointLightSystem.h"
 
 namespace se
 {
@@ -28,11 +29,29 @@ namespace se
         io::VFS::Get().Mount(std::format("{}/{}", APP_DIR, "assets"), "/source_assets");
         io::VFS::Get().Mount(std::format("{}/{}", APP_DIR, "built"), "/assets");
 
-        m_World.AddSingletonComponent<input::InputComponent>();
+        CreateInitialSingletonComponents();
+        CreateInitialSystemUpdateGroups();
+        CreateInitialSystems();
+        m_World.Init();
 
 #if SPARK_EDITOR
         m_EditorRuntime.Init();
 #endif
+    }
+
+    void Application::CreateInitialSingletonComponents()
+    {
+        m_World.AddSingletonComponent<input::InputComponent>();
+    }
+
+    void Application::CreateInitialSystems()
+    {
+        m_World.CreateSystem<render::systems::PointLightSystem>();
+    }
+
+    void Application::CreateInitialSystemUpdateGroups()
+    {
+        m_World.RegisterSystemUpdateGroup<render::systems::PointLightSystem>();
     }
 
     void Application::Run() const

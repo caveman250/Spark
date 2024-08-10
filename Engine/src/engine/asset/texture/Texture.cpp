@@ -17,6 +17,20 @@ DEFINE_SPARK_CLASS_BEGIN(Texture)
     DEFINE_MEMBER(m_Format)
 DEFINE_SPARK_CLASS_END()
 
+    Texture::Texture()
+    {
+        m_PlatformResource = render::TextureResource::Create(*this);
+    }
+
+    Texture::Texture(const Texture&)
+    {
+        m_PlatformResource = render::TextureResource::Create(*this);
+    }
+
+    Texture::~Texture()
+    {
+        Release();
+    }
 
     void Texture::Release()
     {
@@ -91,12 +105,15 @@ DEFINE_SPARK_CLASS_END()
 
     void Texture::CreatePlatformResource()
     {
-        m_PlatformResource = render::TextureResource::Create(*this);
         m_PlatformResource->CreatePlatformResources();
     }
 
     const std::shared_ptr<render::TextureResource> &Texture::GetPlatformResource() const
     {
+        if (!m_PlatformResource->HasCreatedPlatformResources())
+        {
+            m_PlatformResource->CreatePlatformResources();
+        }
         return m_PlatformResource;
     }
 }

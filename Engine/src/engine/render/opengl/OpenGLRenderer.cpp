@@ -34,7 +34,7 @@ namespace se::render::opengl
 
     void OpenGLRenderer::Render(IWindow* window)
     {
-        ExecuteDrawCommands(window);
+        Renderer::Render(window);
         glFlush();
     }
 

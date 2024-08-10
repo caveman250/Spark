@@ -32,6 +32,21 @@ namespace se::render
         }
     }
 
+    void Renderer::AddPointLight(const PointLight& light)
+    {
+        m_LightSetup.pointLights.push_back(light);
+    }
+
+    void Renderer::Update()
+    {
+        m_LightSetup.Reset();
+    }
+
+    void Renderer::Render(IWindow* window)
+    {
+        ExecuteDrawCommands(window);
+    }
+
     void Renderer::EndFrame()
     {
         m_RenderCommands.clear();

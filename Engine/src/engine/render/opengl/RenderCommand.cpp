@@ -24,7 +24,7 @@ namespace se::render::commands
 
     void SubmitGeo::Execute()
     {
-        m_Material->Bind();
+        m_Material->Bind(*m_VertBuffer);
         m_VertBuffer->Bind();
 
         glDrawArrays(GL_TRIANGLES, 0, m_IndexCount);

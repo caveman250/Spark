@@ -1,5 +1,6 @@
 #pragma once
 
+#include "LightSetup.h"
 #include "engine/memory/Arena.h"
 #include "RenderCommand.h"
 #include "RenderState.h"
@@ -29,7 +30,11 @@ namespace se::render
         void Submit(IWindow* window, Args&&... args);
         void ApplyRenderState(const RenderState& rs);
 
-        virtual void Render(IWindow* window) = 0;
+        const LightSetup& GetLightSetup() const { return m_LightSetup; }
+        void AddPointLight(const PointLight& light);
+
+        void Update();
+        virtual void Render(IWindow* window);
         virtual void EndFrame();
     protected:
         void ExecuteDrawCommands(IWindow* window);
@@ -38,6 +43,7 @@ namespace se::render
         std::unordered_map<IWindow*, std::vector<commands::RenderCommand*>> m_RenderCommands;
         RenderState m_CachedRenderState;
         memory::Arena m_RenderCommandsArena;
+        LightSetup m_LightSetup;
     };
 
     template<ARenderCommand T, typename... Args>
