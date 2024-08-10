@@ -11,13 +11,13 @@ namespace se::render::opengl
 
     }
 
-    void DebugCallbackARB(GLenum source,
-                      GLenum type,
-                      GLuint id,
-                      GLenum severity,
-                      GLsizei length,
+    void DebugCallbackARB(GLenum,
+                      GLenum,
+                      GLuint,
+                      GLenum,
+                      GLsizei,
                       const GLchar* message,
-                      const GLvoid* userParam)
+                      const GLvoid*)
     {
         debug::Log::Error(message);
     }
