@@ -30,14 +30,14 @@ namespace se
         io::VFS::Get().Mount(std::format("{}/{}", APP_DIR, "assets"), "/source_assets");
         io::VFS::Get().Mount(std::format("{}/{}", APP_DIR, "built"), "/assets");
 
+#if SPARK_EDITOR
+        m_EditorRuntime.Init();
+#endif
+
         CreateInitialSingletonComponents();
         CreateInitialSystemUpdateGroups();
         CreateInitialSystems();
         m_World.Init();
-
-#if SPARK_EDITOR
-        m_EditorRuntime.Init();
-#endif
     }
 
     void Application::CreateInitialSingletonComponents()

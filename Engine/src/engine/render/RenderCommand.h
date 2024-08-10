@@ -1,4 +1,5 @@
 #pragma once
+#include "IndexBuffer.h"
 #include "spark.h"
 
 namespace se::render
@@ -35,12 +36,12 @@ namespace se::render::commands
     class SubmitGeo : public RenderCommand
     {
     public:
-        SubmitGeo(const std::shared_ptr<Material>& material, const std::shared_ptr<VertexBuffer>& vertBuffer, int indexCount);
+        SubmitGeo(const std::shared_ptr<Material>& material, const std::shared_ptr<VertexBuffer>& vertBuffer, const std::shared_ptr<IndexBuffer>& indexBuffer);
         void Execute() override;
 
     private:
         std::shared_ptr<Material> m_Material = {};
         std::shared_ptr<VertexBuffer> m_VertBuffer = {};
-        int m_IndexCount = {};
+        std::shared_ptr<IndexBuffer> m_IndexBuffer = {};
     };
 }

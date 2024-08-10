@@ -26,8 +26,9 @@ namespace se::render::commands
     {
         m_Material->Bind(*m_VertBuffer);
         m_VertBuffer->Bind();
+        m_IndexBuffer->Bind();
 
-        glDrawArrays(GL_TRIANGLES, 0, m_IndexCount);
+        glDrawElements(GL_TRIANGLES, m_IndexBuffer->GetIndices().size(), GL_UNSIGNED_INT, (void*)0);
         GL_CHECK_ERROR()
 
         m_VertBuffer->Unbind();
@@ -41,10 +42,10 @@ namespace se::render::commands
 
     }
 
-    SubmitGeo::SubmitGeo(const std::shared_ptr<Material>& material, const std::shared_ptr<VertexBuffer>& vertBuffer, int indexCount)
+    SubmitGeo::SubmitGeo(const std::shared_ptr<Material>& material, const std::shared_ptr<VertexBuffer>& vertBuffer, const std::shared_ptr<IndexBuffer>& indexBuffer)
         : m_Material(material)
         , m_VertBuffer(vertBuffer)
-        , m_IndexCount(indexCount)
+        , m_IndexBuffer(indexBuffer)
     {
 
     }

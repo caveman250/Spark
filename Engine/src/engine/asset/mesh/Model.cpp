@@ -65,7 +65,7 @@ namespace se::asset
                     const ofbx::GeometryPartition::Polygon& polygon = partition.polygons[polygon_idx];
                     for (int i = polygon.from_vertex; i < polygon.from_vertex + polygon.vertex_count; ++i)
                     {
-                        staticMesh.indices.push_back(1 + i + indices_offset);
+                        staticMesh.indices.push_back(i + indices_offset);
                     }
                 }
 

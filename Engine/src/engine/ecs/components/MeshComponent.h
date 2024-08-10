@@ -8,6 +8,7 @@ namespace se::render
 {
     class Material;
     class VertexBuffer;
+    class IndexBuffer;
 }
 
 namespace se::ecs::components
@@ -20,6 +21,7 @@ namespace se::ecs::components
 
         std::shared_ptr<render::Material> material = {};
         std::shared_ptr<render::VertexBuffer> vertBuffer = {};
+        std::shared_ptr<render::IndexBuffer> indexBuffer = {};
         std::shared_ptr<asset::Model> model = {};
     };
 }

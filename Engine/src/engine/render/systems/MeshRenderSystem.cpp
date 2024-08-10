@@ -52,7 +52,7 @@ namespace se::render::systems
         for (size_t i = 0; i < entities.size(); ++i)
         {
             const auto& meshComp = mesh[i];
-            renderer->Submit<render::commands::SubmitGeo>(window, meshComp.material, meshComp.vertBuffer, 36);
+            renderer->Submit<render::commands::SubmitGeo>(window, meshComp.material, meshComp.vertBuffer, meshComp.indexBuffer);
         }
     }
 }
