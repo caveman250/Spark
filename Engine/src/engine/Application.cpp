@@ -5,6 +5,7 @@
 #include "platform/IWindow.h"
 #include "render/Renderer.h"
 #include "io/VFS.h"
+#include "render/systems/MeshRenderSystem.h"
 #include "render/systems/PointLightSystem.h"
 
 namespace se
@@ -47,11 +48,13 @@ namespace se
     void Application::CreateInitialSystems()
     {
         m_World.CreateSystem<render::systems::PointLightSystem>();
+        m_World.CreateSystem<render::systems::MeshRenderSystem>();
     }
 
     void Application::CreateInitialSystemUpdateGroups()
     {
         m_World.RegisterSystemUpdateGroup<render::systems::PointLightSystem>();
+        m_World.RegisterSystemUpdateGroup<render::systems::MeshRenderSystem>();
     }
 
     void Application::Run() const
