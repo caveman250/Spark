@@ -37,6 +37,7 @@ return &typeDesc;\
     DEFINE_PRIMITIVE(uint8_t, asset::binary::Type::Uint8)
     DEFINE_PRIMITIVE(int, asset::binary::Type::Int32)
     DEFINE_PRIMITIVE(uint32_t, asset::binary::Type::Uint32)
+    DEFINE_PRIMITIVE(uint64_t, asset::binary::Type::Uint64)
     DEFINE_PRIMITIVE(float, asset::binary::Type::Float)
     using namespace std;
     DEFINE_PRIMITIVE(string, asset::binary::Type::String)

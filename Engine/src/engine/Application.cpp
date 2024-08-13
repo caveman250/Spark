@@ -47,8 +47,8 @@ namespace se
 
     void Application::CreateInitialSystems()
     {
-        m_World.CreateSystem<render::systems::PointLightSystem>();
-        m_World.CreateSystem<render::systems::MeshRenderSystem>();
+        m_World.CreateSystem<render::systems::PointLightSystem>({});
+        m_World.CreateSystem<render::systems::MeshRenderSystem>({});
     }
 
     void Application::CreateInitialSystemUpdateGroups()

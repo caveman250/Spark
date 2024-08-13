@@ -4,18 +4,19 @@
 #include "spark.h"
 #include "Archetype.h"
 #include "engine/reflect/TypeResolver.h"
-#include "engine/reflect/Type.h"
-#include "ComponentList.h"
 #include "Action.h"
 #include "UpdateMode.h"
 #include "MaybeLockGuard.h"
+#include "Relationship.h"
 
 namespace se::ecs
 {
     class BaseSystem;
+    class Relationship;
     typedef uint64_t SystemId;
     typedef uint64_t EntityId;
-    constexpr uint64_t s_InvalidEntity = 0xffffffff;
+    typedef uint64_t RelationshipId;
+    constexpr uint32_t s_InvalidEntity = 0;
 
     struct EntityRecord
     {
@@ -39,6 +40,8 @@ namespace se::ecs
 
     class World
     {
+        friend class BaseSystem;
+
     public:
         World();
 
@@ -53,6 +56,9 @@ namespace se::ecs
         template<typename T>
         T* AddComponent(EntityId entity);
 
+        void AddRelationship(EntityId entity, const Relationship& relationship);
+        void RemoveRelationship(EntityId entity, const Relationship& relationship);
+
         template<typename T>
         void RemoveComponent(EntityId entity);
 
@@ -66,7 +72,7 @@ namespace se::ecs
         T* GetSingletonComponent();
 
         template <typename T>
-        void CreateSystem();
+        void CreateSystem(const std::vector<Relationship>& relationships);
 
         template <typename T>
         void DestroySystem();
@@ -74,17 +80,19 @@ namespace se::ecs
         template <typename... T>
         void RegisterSystemUpdateGroup();
 
-        template<typename ...T, typename Func>
-        void Each(Func&& func, bool force);
+        template <typename T>
+        void RegisterComponent();
 
     private:
         bool IsRunning() { return m_Running; }
 
-        template<typename T>
-        void RegisterComponent();
+        template<typename ...T, typename Func>
+        void Each(Func&& func, const std::vector<Relationship>& relationships, bool force);
 
         template<typename T>
         void RegisterSystem();
+
+        void RegisterRelationship(RelationshipId id);
 
         void RunOnAllSystems(const std::function<void(SystemId)>& func);
 
@@ -104,14 +112,14 @@ namespace se::ecs
         template<typename T>
         bool HasComponent(EntityId entity);
 
-        void CreateSystemInternal(SystemId system);
+        void CreateSystemInternal(SystemId system, const std::vector<Relationship>& relationships);
         void DestroySystemInternal(SystemId system);
 
         bool HasComponent(EntityId entity, ComponentId component);
         void* GetComponent(EntityId entity, ComponentId component);
 
-        EntityId NewEntity();
-        EntityId RecycleEntity();
+        uint32_t NewEntity();
+        uint32_t RecycleEntity();
         void DestroyEntityInternal(EntityId entity);
         size_t MoveEntity(EntityId entity, Archetype* archetype, size_t entityIdx, Archetype* nextArchetype);
 
@@ -133,8 +141,8 @@ namespace se::ecs
         std::unordered_map<ComponentId, void*> m_SingletonComponents;
         std::unordered_map<SystemId, SystemRecord> m_Systems;
 
-        EntityId m_EntityCounter = 0;
-        std::vector<EntityId> m_FreeEntities = {};
+        uint32_t m_EntityCounter = 1;
+        std::vector<uint32_t> m_FreeEntities = {};
 
         ArchetypeId m_ArchetypeCounter = 0;
 
@@ -147,7 +155,7 @@ namespace se::ecs
         std::vector<EntityId> m_PendingEntityDeletions;
         std::vector<PendingComponent> m_PendingComponentCreations;
         std::vector<std::pair<EntityId, ComponentId>> m_PendingComponentDeletions;
-        std::vector<SystemId> m_PendingSystemCreations;
+        std::vector<std::pair<SystemId, std::vector<Relationship>>> m_PendingSystemCreations;
         std::vector<SystemId> m_PendingSystemDeletions;
         memory::Arena m_TempStore; // cleared after all pending creations/deletions
     };
@@ -169,8 +177,19 @@ namespace se::ecs
     template<typename T>
     void World::RegisterComponent()
     {
-        static_assert(!T::IsSingletonComponent());
-        if (!m_ComponentRecords.contains(T::GetComponentId()))
+        if (T::s_ComponentId == 0)
+        {
+            if (!m_FreeEntities.empty())
+            {
+                T::s_ComponentId = bits::PackUtil::Pack64(RecycleEntity(), 0);
+            }
+            else
+            {
+                T::s_ComponentId = bits::PackUtil::Pack64(NewEntity(), 0);
+            }
+        }
+
+        if (!T::IsSingletonComponent() && !m_ComponentRecords.contains(T::GetComponentId()))
         {
             m_ComponentRecords.insert(std::make_pair(T::GetComponentId(),
                                                      ComponentRecord
@@ -190,12 +209,16 @@ namespace se::ecs
         }
     }
 
+    void CollectRelationshipIds(std::vector<ComponentId>& compIds, const std::vector<Relationship>& relationships);
+
     template<typename ...T, typename Func>
-    void World::Each(Func&& func, bool force)
+    void World::Each(Func&& func, const std::vector<Relationship>& relationships, bool force)
     {
         std::vector<ComponentId> compIds = {};
+        compIds.reserve(sizeof...(T) + relationships.size());
         (CollectComponentId<T>(compIds), ...);
         std::unordered_map<ArchetypeId, std::unordered_map<ComponentId, size_t>> argIndexs;
+        CollectRelationshipIds(compIds, relationships);
 
         std::set<Archetype*> archetypes;
         for (auto compId: compIds)
@@ -238,7 +261,7 @@ namespace se::ecs
             Action<T...>::DoAction(archetype->entities, m_SingletonComponents, archetype, func);
         }
 
-        bool hasStaticComps = compIds.size() != sizeof...(T);
+        bool hasStaticComps = compIds.size() - relationships.size() != sizeof...(T);
         if (archetypes.empty() && (force || hasStaticComps))
         {
             Action<T...>::DoAction({}, m_SingletonComponents, nullptr, func);
@@ -321,11 +344,11 @@ namespace se::ecs
     }
 
     template<typename T>
-    void World::CreateSystem()
+    void World::CreateSystem(const std::vector<Relationship>& relationships)
     {
         auto guard = MaybeLockGuard(m_UpdateMode, &m_SystemMutex);
         RegisterSystem<T>();
-        m_PendingSystemCreations.push_back(T::GetSystemId());
+        m_PendingSystemCreations.push_back({T::GetSystemId(), relationships});
     }
 
     template<typename T>
@@ -346,6 +369,7 @@ namespace se::ecs
             return nullptr;
         }
 
+        RegisterComponent<T>();
         m_SingletonComponents.insert(std::make_pair(T::GetComponentId(), new T()));
         return static_cast<T*>(m_SingletonComponents.at(T::GetComponentId()));
     }

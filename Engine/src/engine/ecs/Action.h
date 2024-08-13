@@ -68,7 +68,7 @@ namespace se::ecs
         else if (!archetypeType.empty())
         {
             std::size_t compIndex = 0;
-            ComponentId thisTypeCS = IthT::s_StaticId;
+            ComponentId thisTypeCS = IthT::GetComponentId();
             ComponentId thisArchetypeID = archetypeType[compIndex];
             while (thisTypeCS != thisArchetypeID && compIndex < archetypeType.size())
             {
