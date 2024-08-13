@@ -2,6 +2,12 @@
 
 #include "Component.h"
 #include "World.h"
+#include "engine/Application.h"
+
+namespace se
+{
+    class Application;
+}
 
 namespace se::ecs
 {
@@ -19,6 +25,13 @@ namespace se::ecs
 
     protected:
         World* m_World = nullptr;
+        std::vector<Relationship> m_Relationships;
+
+        template<typename... Ts, typename Func>
+        void RunQuery(Func&& func)
+        {
+            m_World->Each<Ts...>(func, m_Relationships, true);
+        }
 
         friend class World;
     };
@@ -71,7 +84,7 @@ namespace se::ecs
     template<std::size_t Index, typename... Ts>
     std::enable_if_t<Index == sizeof...(Cs) + 1> System<Cs...>::ShutdownBuilder(Ts... ts)
     {
-        m_World->Each<Cs...>(std::bind(&System::OnShutdown, this, ts...), true);
+        RunQuery<Cs...>(std::bind(&System::OnShutdown, this, ts...));
     }
 
 
@@ -98,7 +111,7 @@ namespace se::ecs
     template<std::size_t Index, typename... Ts>
     std::enable_if_t<Index == sizeof...(Cs) + 1> System<Cs...>::RenderBuilder(Ts... ts)
     {
-        m_World->Each<Cs...>(std::bind(&System::OnRender, this, ts...), false);
+       RunQuery<Cs...>(std::bind(&System::OnRender, this, ts...));
     }
 
     template<typename... Cs>
@@ -118,7 +131,7 @@ namespace se::ecs
     template<std::size_t Index, typename... Ts>
     std::enable_if_t<Index == sizeof...(Cs) + 1> System<Cs...>::InitBuilder(Ts... ts)
     {
-        m_World->Each<Cs...>(std::bind(&System::OnInit, this, ts...), true);
+        RunQuery<Cs...>(std::bind(&System::OnInit, this, ts...));
     }
 
     template<typename... Cs>
@@ -137,6 +150,7 @@ namespace se::ecs
     template <typename T>
     void CollectUsedComponent(std::vector<std::pair<ComponentId, bool>>& vec)
     {
+        Application::Get()->GetWorld()->RegisterComponent<T>();
         vec.push_back(std::make_pair(T::GetComponentId(), std::is_const<T>()));
     }
 
@@ -159,7 +173,7 @@ namespace se::ecs
     template<std::size_t Index, typename... Ts>
     std::enable_if_t<Index == sizeof...(Cs) + 1> System<Cs...>::UpdateBuilder(Ts... ts)
     {
-        m_World->Each<Cs...>(std::bind(&System::OnUpdate, this, ts...), false);
+        RunQuery<Cs...>(std::bind(&System::OnUpdate, this, ts...));
     }
 
     template<typename... Cs>

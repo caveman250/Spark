@@ -22,22 +22,21 @@ namespace se::render
         if (!m_PlatformResourcesCreated)
         {
             CreatePlatformResources(vb);
-
-            const auto& lightSetup = Renderer::Get()->GetLightSetup();
-            // TODO improve shader parser so i can just pass an array of structs
-            std::vector<math::Vec3> pos;
-            pos.resize(lightSetup.pointLights.size());
-            std::transform(lightSetup.pointLights.begin(), lightSetup.pointLights.end(), pos.begin(), [](const PointLight& light){ return light.pos; });
-
-            std::vector<math::Vec3> color;
-            color.resize(lightSetup.pointLights.size());
-            std::transform(lightSetup.pointLights.begin(), lightSetup.pointLights.end(), color.begin(), [](const PointLight& light){ return light.color; });
-
-            SetUniform("lightPos", asset::shader::ast::AstType::Vec3, pos.size(), &pos[0]);
-            SetUniform("lightColor", asset::shader::ast::AstType::Vec3, color.size(), &color[0]);
-
             m_PlatformResourcesCreated = true;
         }
+
+        const auto& lightSetup = Renderer::Get()->GetLightSetup();
+        // TODO improve shader parser so i can just pass an array of structs
+        std::vector<math::Vec3> pos;
+        pos.resize(lightSetup.pointLights.size());
+        std::transform(lightSetup.pointLights.begin(), lightSetup.pointLights.end(), pos.begin(), [](const PointLight& light){ return light.pos; });
+
+        std::vector<math::Vec3> color;
+        color.resize(lightSetup.pointLights.size());
+        std::transform(lightSetup.pointLights.begin(), lightSetup.pointLights.end(), color.begin(), [](const PointLight& light){ return light.color; });
+
+        SetUniform("lightPos", asset::shader::ast::AstType::Vec3, pos.size(), &pos[0]);
+        SetUniform("lightColor", asset::shader::ast::AstType::Vec3, color.size(), &color[0]);
     }
 
     void Material::CreatePlatformResources(const VertexBuffer&)

@@ -8,12 +8,13 @@ namespace se::ecs
     EntityId World::CreateEntity()
     {
         auto guard = MaybeLockGuard(m_UpdateMode, &m_EntityMutex);
-        EntityId entityId;
+        uint32_t entityId;
 
         if (!m_FreeEntities.empty())
         {
             entityId = RecycleEntity();
-        } else
+        }
+        else
         {
             entityId = NewEntity();
         }
@@ -24,21 +25,22 @@ namespace se::ecs
             return s_InvalidEntity;
         }
 
-        m_EntityRecords.insert(std::make_pair(entityId, EntityRecord
+        EntityId packedId = bits::PackUtil::Pack64(entityId, 0);
+        m_EntityRecords.insert(std::make_pair(packedId, EntityRecord
                 {
                         .archetype = GetArchetype({}),
                         .entity_idx = 0 // not valid for null archetype
                 }));
 
-        return entityId;
+        return packedId;
     }
 
-    EntityId World::NewEntity()
+    uint32_t World::NewEntity()
     {
         return m_EntityCounter++;
     };
 
-    EntityId World::RecycleEntity()
+    uint32_t World::RecycleEntity()
     {
         const auto entity = m_FreeEntities.back();
         m_FreeEntities.pop_back();
@@ -266,6 +268,19 @@ namespace se::ecs
         m_Running = false;
     }
 
+    void World::RegisterRelationship(RelationshipId id)
+    {
+        if (!m_ComponentRecords.contains(id))
+        {
+            m_ComponentRecords.insert(std::make_pair(id,
+                                                     ComponentRecord
+                                                             {
+                                                                     .type = reflect::ClassResolver<Relationship>::get(),
+                                                                     .archetypeRecords = {}
+                                                             }));
+        }
+    }
+
     void World::RunOnAllSystems(const std::function<void(SystemId)>& func)
     {
         for (const auto& updateGroup: m_SystemUpdateGroups)
@@ -289,6 +304,32 @@ namespace se::ecs
         m_PendingEntityDeletions.push_back(entity);
     }
 
+    void World::AddRelationship(EntityId entity, const Relationship& relationship)
+    {
+        auto guard = MaybeLockGuard(m_UpdateMode, &m_ComponentMutex);
+        RegisterRelationship(relationship.GetId());
+
+        if (!SPARK_VERIFY(!HasComponent(entity, relationship.GetId())))
+        {
+            return;
+        }
+
+        m_PendingComponentCreations.emplace_back(PendingComponent { .entity=entity, .comp=relationship.GetId(), .tempData=new Relationship(relationship) });
+    }
+
+    void World::RemoveRelationship(EntityId entity, const Relationship& relationship)
+    {
+        auto guard = MaybeLockGuard(m_UpdateMode, &m_ComponentMutex);
+        RegisterRelationship(relationship.GetId());
+
+        if (!SPARK_VERIFY(!HasComponent(entity, relationship.GetId())))
+        {
+            return;
+        }
+
+        m_PendingComponentCreations.emplace_back(PendingComponent { .entity=entity, .comp=relationship.GetId(), .tempData=new Relationship(relationship) });
+    }
+
     void World::ProcessPendingComponents()
     {
         for (const auto& pendingComp : m_PendingComponentCreations)
@@ -308,13 +349,13 @@ namespace se::ecs
 
     void World::ProcessPendingSystems()
     {
-        for (SystemId system : m_PendingSystemCreations)
-        {
-            CreateSystemInternal(system);
-            m_Systems.at(system).instance->Init();
-        }
-
+        auto safeCopy = m_PendingSystemCreations;
         m_PendingSystemCreations.clear();
+        for (const auto& [systemId, relationships] : safeCopy)
+        {
+            CreateSystemInternal(systemId, relationships);
+            m_Systems.at(systemId).instance->Init();
+        }
 
         for (SystemId system : m_PendingSystemDeletions)
         {
@@ -325,11 +366,12 @@ namespace se::ecs
         m_PendingSystemDeletions.clear();
     }
 
-    void World::CreateSystemInternal(SystemId system)
+    void World::CreateSystemInternal(SystemId system, const std::vector<Relationship>& relationships)
     {
         if (SPARK_VERIFY(m_Systems.contains(system) && m_Systems.at(system).instance == nullptr))
         {
             m_Systems.at(system).instance = static_cast<BaseSystem*>(m_Systems.at(system).type->heap_constructor());
+            m_Systems.at(system).instance->m_Relationships = relationships;
             m_Systems.at(system).instance->m_World = this;
         }
     }
@@ -384,5 +426,10 @@ namespace se::ecs
         }
 
         m_PendingEntityDeletions.clear();
+    }
+
+    void CollectRelationshipIds(std::vector<ComponentId>& compIds, const std::vector<Relationship>& relationships)
+    {
+        std::ranges::for_each(relationships, [&compIds](const Relationship& relationship){ compIds.push_back(relationship.GetId()); });
     }
 }
