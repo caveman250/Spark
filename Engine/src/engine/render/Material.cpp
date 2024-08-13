@@ -11,7 +11,7 @@ namespace se::render
         if (m_RenderState.lit)
         {
             const auto& lightSetup = renderer->GetLightSetup();
-            if (m_CachedLightSetup != lightSetup)
+            if (m_CachedLightSetup != lightSetup || !m_PlatformResourcesCreated)
             {
                 m_ShaderSettings.SetSetting("numLights", lightSetup.pointLights.size());
                 DestroyPlatformResources();

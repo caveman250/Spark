@@ -5,7 +5,7 @@
 
 namespace se::ecs
 {
-    EntityId World::CreateEntity()
+    Id World::CreateEntity()
     {
         auto guard = MaybeLockGuard(m_UpdateMode, &m_EntityMutex);
         uint32_t entityId;
@@ -25,7 +25,7 @@ namespace se::ecs
             return s_InvalidEntity;
         }
 
-        EntityId packedId = bits::PackUtil::Pack64(entityId, 0);
+        Id packedId = bits::PackUtil::Pack64(entityId, 0);
         m_EntityRecords.insert(std::make_pair(packedId, EntityRecord
                 {
                         .archetype = GetArchetype({}),
@@ -48,7 +48,7 @@ namespace se::ecs
         return entity;
     }
 
-    void* World::GetComponent(EntityId entity, ComponentId component)
+    void* World::GetComponent(Id entity, Id component)
     {
         EntityRecord& record = m_EntityRecords.at(entity);
         Archetype* archetype = record.archetype;
@@ -62,7 +62,7 @@ namespace se::ecs
         return archetype->components[a_record].GetComponent(record.entity_idx);
     }
 
-    void World::DestroyEntityInternal(EntityId entity)
+    void World::DestroyEntityInternal(Id entity)
     {
         if (entity == s_InvalidEntity)
         {
@@ -78,7 +78,7 @@ namespace se::ecs
         m_FreeEntities.push_back(entity);
     }
 
-    bool World::HasComponent(EntityId entity, ComponentId component)
+    bool World::HasComponent(Id entity, Id component)
     {
         EntityRecord& record = m_EntityRecords.at(entity);
         Archetype* archetype = record.archetype;
@@ -118,19 +118,19 @@ namespace se::ecs
         }
     }
 
-    size_t World::MoveEntity(EntityId entity, Archetype* archetype, size_t entityIdx, Archetype* nextArchetype)
+    size_t World::MoveEntity(Id entity, Archetype* archetype, size_t entityIdx, Archetype* nextArchetype)
     {
-        std::vector<std::pair<ComponentId, uint8_t*>> compData;
+        std::vector<std::pair<Id, uint8_t*>> compData;
         for (size_t i = 0; i < archetype->components.size(); ++i)
         {
-            ComponentId id = archetype->type[i];
+            Id id = archetype->type[i];
             uint8_t* data = archetype->components[i].GetComponent(entityIdx);
 
             compData.emplace_back(std::make_pair(id, data));
         }
 
         // copy to new archetype
-        std::set<ComponentId> componentsAccountedFor = {};
+        std::set<Id> componentsAccountedFor = {};
         for (auto& data: compData)
         {
             auto compInfo = m_ComponentRecords[data.first];
@@ -179,7 +179,7 @@ namespace se::ecs
         CreateArchetype({});
     }
 
-    Archetype* World::GetNextArchetype(Archetype* archetype, ComponentId component, bool add)
+    Archetype* World::GetNextArchetype(Archetype* archetype, Id component, bool add)
     {
         if (!archetype->edges.contains(component))
         {
@@ -227,9 +227,17 @@ namespace se::ecs
     {
         m_Running = true;
 
-        RunOnAllSystems([this](auto&& systemId)
+        RunOnAllEngineSystems([this](auto&& systemId)
         {
-            if (auto* system = m_Systems[systemId].instance)
+            if (auto* system = m_EngineSystems[systemId].instance)
+            {
+                system->Update();
+            }
+        });
+
+        RunOnAllAppSystems([this](auto&& systemId)
+        {
+            if (auto* system = m_AppSystems[systemId].instance)
             {
                 system->Update();
             }
@@ -242,9 +250,17 @@ namespace se::ecs
     {
         m_Running = true;
 
-        RunOnAllSystems([this](auto&& systemId)
+        RunOnAllEngineSystems([this](auto&& systemId)
         {
-            if (auto* system = m_Systems[systemId].instance)
+            if (auto* system = m_EngineSystems[systemId].instance)
+            {
+                system->Render();
+            }
+        });
+
+        RunOnAllAppSystems([this](auto&& systemId)
+        {
+            if (auto* system = m_AppSystems[systemId].instance)
             {
                 system->Render();
             }
@@ -257,9 +273,17 @@ namespace se::ecs
     {
         m_Running = true;
 
-        RunOnAllSystems([this](auto&& systemId)
+        RunOnAllEngineSystems([this](auto&& systemId)
         {
-            if (auto* system = m_Systems[systemId].instance)
+            if (auto* system = m_EngineSystems[systemId].instance)
+            {
+                system->Shutdown();
+            }
+        });
+
+        RunOnAllAppSystems([this](auto&& systemId)
+        {
+            if (auto* system = m_EngineSystems[systemId].instance)
             {
                 system->Shutdown();
             }
@@ -268,7 +292,60 @@ namespace se::ecs
         m_Running = false;
     }
 
-    void World::RegisterRelationship(RelationshipId id)
+    void World::RebuildSystemUpdateGroups(std::vector<std::vector<Id>>& updateGroups, std::unordered_map<Id, SystemRecord>& systems)
+    {
+        updateGroups.clear();
+
+        std::unordered_map<Id, std::map<Id, bool>> usedComponents;
+        for (const auto& [id, systemRecord] : systems)
+        {
+            if (systemRecord.instance)
+            {
+                usedComponents.insert(std::make_pair(id, systemRecord.instance->GetUsedComponents()));
+            }
+        }
+
+        for (const auto& [id, systemRecord] : systems)
+        {
+            if (systemRecord.instance)
+            {
+                bool systemAdded = false;
+                for (auto& updateGroup : updateGroups)
+                {
+                    bool conflict = false;
+                    for (Id other_id : updateGroup)
+                    {
+                        const auto& usedComps = usedComponents[id];
+                        conflict = std::ranges::any_of(usedComponents[other_id],
+                            [usedComps](const std::pair<Id, bool> compId)
+                            {
+                                return usedComps.contains(compId.first)
+                                && (!compId.second || !usedComps.at(compId.first)); // only conflict if one is mutable.
+                            });
+
+                        if (conflict)
+                        {
+                            break;
+                        }
+                    }
+
+                    if (!conflict)
+                    {
+                        systemAdded = true;
+                        updateGroup.push_back(id);
+                        break;
+                    }
+                }
+
+                if (!systemAdded)
+                {
+                    updateGroups.push_back({id});
+                }
+            }
+        }
+    }
+
+    void World::RegisterRelationship(Id id)
     {
         if (!m_ComponentRecords.contains(id))
         {
@@ -281,9 +358,9 @@ namespace se::ecs
         }
     }
 
-    void World::RunOnAllSystems(const std::function<void(SystemId)>& func)
+    void World::RunOnAllAppSystems(const std::function<void(Id)>& func)
     {
-        for (const auto& updateGroup: m_SystemUpdateGroups)
+        for (const auto& updateGroup: m_AppSystemUpdateGroups)
         {
             ProcessPendingComponents();
             ProcessPendingSystems();
@@ -298,13 +375,30 @@ namespace se::ecs
         }
     }
 
-    void World::DestroyEntity(EntityId entity)
+    void World::RunOnAllEngineSystems(const std::function<void(Id)>& func)
+    {
+        for (const auto& updateGroup: m_EngineSystemUpdateGroups)
+        {
+            ProcessPendingComponents();
+            ProcessPendingSystems();
+            ProcessPendingEntityDeletions();
+            m_TempStore.Reset();
+
+            m_UpdateMode = updateGroup.size() > 1 ? UpdateMode::MultiThreaded : UpdateMode::SingleThreaded;
+            std::for_each(std::execution::par,
+                          updateGroup.begin(),
+                          updateGroup.end(),
+                          func);
+        }
+    }
+
+    void World::DestroyEntity(Id entity)
     {
         auto guard = MaybeLockGuard(m_UpdateMode, &m_EntityMutex);
         m_PendingEntityDeletions.push_back(entity);
     }
 
-    void World::AddRelationship(EntityId entity, const Relationship& relationship)
+    void World::AddRelationship(Id entity, const Relationship& relationship)
     {
         auto guard = MaybeLockGuard(m_UpdateMode, &m_ComponentMutex);
         RegisterRelationship(relationship.GetId());
@@ -317,7 +411,7 @@ namespace se::ecs
         m_PendingComponentCreations.emplace_back(PendingComponent { .entity=entity, .comp=relationship.GetId(), .tempData=new Relationship(relationship) });
     }
 
-    void World::RemoveRelationship(EntityId entity, const Relationship& relationship)
+    void World::RemoveRelationship(Id entity, const Relationship& relationship)
     {
         auto guard = MaybeLockGuard(m_UpdateMode, &m_ComponentMutex);
         RegisterRelationship(relationship.GetId());
@@ -349,38 +443,105 @@ namespace se::ecs
 
     void World::ProcessPendingSystems()
     {
-        auto safeCopy = m_PendingSystemCreations;
-        m_PendingSystemCreations.clear();
-        for (const auto& [systemId, relationships] : safeCopy)
-        {
-            CreateSystemInternal(systemId, relationships);
-            m_Systems.at(systemId).instance->Init();
-        }
-
-        for (SystemId system : m_PendingSystemDeletions)
-        {
-            m_Systems.at(system).instance->Shutdown();
-            DestroySystemInternal(system);
-        }
-
-        m_PendingSystemDeletions.clear();
+        ProcessPendingEngineSystems();
+        ProcessPendingAppSystems();
     }
 
-    void World::CreateSystemInternal(SystemId system, const std::vector<Relationship>& relationships)
+    void World::ProcessPendingAppSystems()
     {
-        if (SPARK_VERIFY(m_Systems.contains(system) && m_Systems.at(system).instance == nullptr))
+        bool shouldRebuildUpdateGroups = !m_PendingAppSystemCreations.empty() || !m_PendingAppSystemDeletions.empty();
+
         {
-            m_Systems.at(system).instance = static_cast<BaseSystem*>(m_Systems.at(system).type->heap_constructor());
-            m_Systems.at(system).instance->m_Relationships = relationships;
-            m_Systems.at(system).instance->m_World = this;
+            auto safeCopy = m_PendingAppSystemCreations;
+            m_PendingAppSystemCreations.clear();
+            for (const auto& [systemId, relationships] : safeCopy)
+            {
+                CreateAppSystemInternal(systemId, relationships);
+                m_AppSystems.at(systemId).instance->Init();
+            }
+        }
+
+        {
+            auto safeCopy = m_PendingAppSystemDeletions;
+            m_PendingAppSystemDeletions.clear();
+            for (Id system : safeCopy)
+            {
+                m_AppSystems.at(system).instance->Shutdown();
+                DestroyAppSystemInternal(system);
+            }
+        }
+
+        if (shouldRebuildUpdateGroups)
+        {
+            RebuildSystemUpdateGroups(m_AppSystemUpdateGroups, m_AppSystems);
         }
     }
 
-    void World::DestroySystemInternal(SystemId system)
+    void World::ProcessPendingEngineSystems()
     {
-        if (SPARK_VERIFY(m_Systems.contains(system)))
+        bool shouldRebuildUpdateGroups = !m_PendingEngineSystemCreations.empty() || !m_PendingEngineSystemDeletions.empty();
+
         {
-            auto& systemRecord = m_Systems.at(system);
+            auto safeCopy = m_PendingEngineSystemCreations;
+            m_PendingEngineSystemCreations.clear();
+            for (const auto& [systemId, relationships] : safeCopy)
+            {
+                CreateEngineSystemInternal(systemId, relationships);
+                m_EngineSystems.at(systemId).instance->Init();
+            }
+        }
+
+        {
+            auto safeCopy = m_PendingEngineSystemDeletions;
+            m_PendingEngineSystemDeletions.clear();
+            for (Id system : safeCopy)
+            {
+                m_EngineSystems.at(system).instance->Shutdown();
+                DestroyEngineSystemInternal(system);
+            }
+        }
+
+        if (shouldRebuildUpdateGroups)
+        {
+            RebuildSystemUpdateGroups(m_EngineSystemUpdateGroups, m_EngineSystems);
+        }
+    }
+
+    void World::CreateAppSystemInternal(Id system, const std::vector<Relationship>& relationships)
+    {
+        if (SPARK_VERIFY(m_AppSystems.contains(system) && m_AppSystems.at(system).instance == nullptr))
+        {
+            m_AppSystems.at(system).instance = static_cast<BaseSystem*>(m_AppSystems.at(system).type->heap_constructor());
+            m_AppSystems.at(system).instance->m_Relationships = relationships;
+            m_AppSystems.at(system).instance->m_World = this;
+        }
+    }
+
+    void World::DestroyAppSystemInternal(Id system)
+    {
+        if (SPARK_VERIFY(m_AppSystems.contains(system)))
+        {
+            auto& systemRecord = m_AppSystems.at(system);
+            delete systemRecord.instance;
+            systemRecord.instance = nullptr;
+        }
+    }
+
+    void World::CreateEngineSystemInternal(Id system, const std::vector<Relationship>& relationships)
+    {
+        if (SPARK_VERIFY(m_EngineSystems.contains(system) && m_EngineSystems.at(system).instance == nullptr))
+        {
+            m_EngineSystems.at(system).instance = static_cast<BaseSystem*>(m_EngineSystems.at(system).type->heap_constructor());
+            m_EngineSystems.at(system).instance->m_Relationships = relationships;
+            m_EngineSystems.at(system).instance->m_World = this;
+        }
+    }
+
+    void World::DestroyEngineSystemInternal(Id system)
+    {
+        if (SPARK_VERIFY(m_EngineSystems.contains(system)))
+        {
+            auto& systemRecord = m_EngineSystems.at(system);
             delete systemRecord.instance;
             systemRecord.instance = nullptr;
         }
@@ -402,7 +563,7 @@ namespace se::ecs
         m_ComponentRecords[pendingComp.comp].type->inplace_copy_constructor(compData, pendingComp.tempData);
     }
 
-    void World::RemoveComponentInternal(EntityId entity, ComponentId comp)
+    void World::RemoveComponentInternal(Id entity, Id comp)
     {
         if (!SPARK_VERIFY(HasComponent(entity, comp)))
         {
@@ -420,7 +581,7 @@ namespace se::ecs
 
     void World::ProcessPendingEntityDeletions()
     {
-        for (EntityId entity : m_PendingEntityDeletions)
+        for (Id entity : m_PendingEntityDeletions)
         {
             DestroyEntityInternal(entity);
         }
@@ -428,7 +589,7 @@ namespace se::ecs
         m_PendingEntityDeletions.clear();
     }
 
-    void CollectRelationshipIds(std::vector<ComponentId>& compIds, const std::vector<Relationship>& relationships)
+    void CollectRelationshipIds(std::vector<Id>& compIds, const std::vector<Relationship>& relationships)
     {
         std::ranges::for_each(relationships, [&compIds](const Relationship& relationship){ compIds.push_back(relationship.GetId()); });
     }

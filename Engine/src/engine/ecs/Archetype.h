@@ -1,13 +1,11 @@
 #pragma once
 
-#include "Component.h"
 #include "ComponentList.h"
 
 namespace se::ecs
 {
-    typedef uint64_t EntityId;
-    typedef uint64_t ArchetypeId;
-    typedef std::vector<ComponentId> Type;
+    typedef uint64_t Id;
+    typedef std::vector<Id> Type;
 
     struct Archetype;
     struct ArchetypeEdge
@@ -18,10 +16,10 @@ namespace se::ecs
 
     struct Archetype
     {
-        ArchetypeId id;
+        Id id;
         Type type;
-        std::vector<EntityId> entities;
+        std::vector<Id> entities;
         std::vector<ComponentList> components;
-        std::unordered_map<ComponentId, ArchetypeEdge> edges;
+        std::unordered_map<Id, ArchetypeEdge> edges;
     };
 }

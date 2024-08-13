@@ -11,11 +11,44 @@
 
 namespace se::ecs
 {
+    typedef uint64_t Id;
+    template <typename... Cs>
+    class EngineSystem;
+    template <typename... Cs>
+    class AppSystem;
+}
+
+template <class C>
+concept EngineSystemConcept = requires(C c) {
+    []<typename... Cs>(se::ecs::EngineSystem<Cs...>&){}(c);
+};
+
+template <class C>
+concept AppSystemConcept = requires(C c) {
+    []<typename... Cs>(se::ecs::AppSystem<Cs...>&){}(c);
+};
+
+template<class _Alloc>
+    struct std::hash<std::vector<se::ecs::Id, _Alloc>>
+{
+    std::size_t operator()(const std::vector<se::ecs::Id, _Alloc>& vec) const
+    {
+        std::size_t seed = vec.size();
+        for (auto x: vec)
+        {
+            x = ((x >> 16) ^ x) * 0x45d9f3b;
+            x = ((x >> 16) ^ x) * 0x45d9f3b;
+            x = (x >> 16) ^ x;
+            seed ^= x + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+        }
+        return seed;
+    }
+};
+
+namespace se::ecs
+{
     class BaseSystem;
     class Relationship;
-    typedef uint64_t SystemId;
-    typedef uint64_t EntityId;
-    typedef uint64_t RelationshipId;
     constexpr uint32_t s_InvalidEntity = 0;
 
     struct EntityRecord
@@ -25,7 +58,7 @@ namespace se::ecs
     };
 
     typedef size_t ArchetypeComponentKey; // index of the Component for the given archetype
-    using ComponentArchetypeRecord = std::unordered_map<ArchetypeId, ArchetypeComponentKey>; // Component Keys for each archetype that contains the component
+    using ComponentArchetypeRecord = std::unordered_map<Id, ArchetypeComponentKey>; // Component Keys for each archetype that contains the component
     struct ComponentRecord
     {
         reflect::Class* type;
@@ -50,17 +83,17 @@ namespace se::ecs
         void Render();
         void Shutdown();
 
-        EntityId CreateEntity();
-        void DestroyEntity(EntityId entity);
+        Id CreateEntity();
+        void DestroyEntity(Id entity);
 
         template<typename T>
-        T* AddComponent(EntityId entity);
+        T* AddComponent(Id entity);
 
-        void AddRelationship(EntityId entity, const Relationship& relationship);
-        void RemoveRelationship(EntityId entity, const Relationship& relationship);
+        void AddRelationship(Id entity, const Relationship& relationship);
+        void RemoveRelationship(Id entity, const Relationship& relationship);
 
         template<typename T>
-        void RemoveComponent(EntityId entity);
+        void RemoveComponent(Id entity);
 
         template <typename T>
         T* AddSingletonComponent();
@@ -71,14 +104,19 @@ namespace se::ecs
         template <typename T>
         T* GetSingletonComponent();
 
-        template <typename T>
-        void CreateSystem(const std::vector<Relationship>& relationships);
+        template <AppSystemConcept T>
+        void CreateAppSystem(const std::vector<Relationship>& relationships);
 
-        template <typename T>
-        void DestroySystem();
+        template <AppSystemConcept T>
+        void DestroyAppSystem();
 
-        template <typename... T>
-        void RegisterSystemUpdateGroup();
+        template <EngineSystemConcept T>
+        void CreateEngineSystem(const std::vector<Relationship>& relationships);
+
+        template <EngineSystemConcept T>
+        void DestroyEngineSystem();
+
+        void RebuildSystemUpdateGroups(std::vector<std::vector<Id>>& updateGroups, std::unordered_map<Id, SystemRecord>& systems);
 
         template <typename T>
         void RegisterComponent();
@@ -90,85 +128,98 @@ namespace se::ecs
         void Each(Func&& func, const std::vector<Relationship>& relationships, bool force);
 
         template<typename T>
-        void RegisterSystem();
-
-        void RegisterRelationship(RelationshipId id);
-
-        void RunOnAllSystems(const std::function<void(SystemId)>& func);
+        void RegisterEngineSystem();
 
         template<typename T>
-        T* GetComponent(EntityId entity);
+        void RegisterAppSystem();
+
+        void RegisterRelationship(Id id);
+
+        void RunOnAllAppSystems(const std::function<void(Id)>& func);
+        void RunOnAllEngineSystems(const std::function<void(Id)>& func);
+
+        template<typename T>
+        T* GetComponent(Id entity);
 
         struct PendingComponent
         {
-            EntityId entity;
-            ComponentId comp;
+            Id entity;
+            Id comp;
             void* tempData;
         };
 
         void AddComponentInternal(const PendingComponent& pendingComp);
-        void RemoveComponentInternal(EntityId entity, ComponentId comp);
+        void RemoveComponentInternal(Id entity, Id comp);
 
         template<typename T>
-        bool HasComponent(EntityId entity);
+        bool HasComponent(Id entity);
 
-        void CreateSystemInternal(SystemId system, const std::vector<Relationship>& relationships);
-        void DestroySystemInternal(SystemId system);
+        void CreateEngineSystemInternal(Id system, const std::vector<Relationship>& relationships);
+        void DestroyEngineSystemInternal(Id system);
 
-        bool HasComponent(EntityId entity, ComponentId component);
-        void* GetComponent(EntityId entity, ComponentId component);
+        void CreateAppSystemInternal(Id system, const std::vector<Relationship>& relationships);
+        void DestroyAppSystemInternal(Id system);
+
+        bool HasComponent(Id entity, Id component);
+        void* GetComponent(Id entity, Id component);
 
         uint32_t NewEntity();
         uint32_t RecycleEntity();
-        void DestroyEntityInternal(EntityId entity);
-        size_t MoveEntity(EntityId entity, Archetype* archetype, size_t entityIdx, Archetype* nextArchetype);
+        void DestroyEntityInternal(Id entity);
+        size_t MoveEntity(Id entity, Archetype* archetype, size_t entityIdx, Archetype* nextArchetype);
 
         Archetype* GetArchetype(const Type& type);
         bool HasArchetype(const Type& type);
         void CreateArchetype(const Type& type);
-        Archetype* GetNextArchetype(Archetype* archetype, ComponentId component, bool add);
+        Archetype* GetNextArchetype(Archetype* archetype, Id component, bool add);
 
         void ProcessPendingComponents();
         void ProcessPendingSystems();
+        void ProcessPendingAppSystems();
+        void ProcessPendingEngineSystems();
         void ProcessPendingEntityDeletions();
 
         bool m_Running = false;
 
-        std::unordered_map<ArchetypeId, Archetype> m_Archetypes;
-        std::unordered_map<Type, ArchetypeId> m_ArchetypeTypeLookup;
-        std::unordered_map<EntityId, EntityRecord> m_EntityRecords;
-        std::unordered_map<ComponentId, ComponentRecord> m_ComponentRecords;
-        std::unordered_map<ComponentId, void*> m_SingletonComponents;
-        std::unordered_map<SystemId, SystemRecord> m_Systems;
+        std::unordered_map<Id, Archetype> m_Archetypes = {};
+        std::unordered_map<Type, Id> m_ArchetypeTypeLookup = {};
+        std::unordered_map<Id, EntityRecord> m_EntityRecords = {};
+        std::unordered_map<Id, ComponentRecord> m_ComponentRecords = {};
+        std::unordered_map<Id, void*> m_SingletonComponents = {};
+        std::unordered_map<Id, SystemRecord> m_AppSystems = {};
+        std::unordered_map<Id, SystemRecord> m_EngineSystems = {};
 
         uint32_t m_EntityCounter = 1;
         std::vector<uint32_t> m_FreeEntities = {};
 
-        ArchetypeId m_ArchetypeCounter = 0;
+        Id m_ArchetypeCounter = 0;
 
-        std::vector<std::vector<SystemId>> m_SystemUpdateGroups = {};
+        std::vector<std::vector<Id>> m_AppSystemUpdateGroups = {};
+        std::vector<std::vector<Id>> m_EngineSystemUpdateGroups = {};
         UpdateMode::Type m_UpdateMode = UpdateMode::SingleThreaded;
         std::mutex m_EntityMutex = {};
         std::mutex m_ComponentMutex = {};
         std::mutex m_SystemMutex = {};
 
-        std::vector<EntityId> m_PendingEntityDeletions;
+        std::vector<Id> m_PendingEntityDeletions;
         std::vector<PendingComponent> m_PendingComponentCreations;
-        std::vector<std::pair<EntityId, ComponentId>> m_PendingComponentDeletions;
-        std::vector<std::pair<SystemId, std::vector<Relationship>>> m_PendingSystemCreations;
-        std::vector<SystemId> m_PendingSystemDeletions;
+        std::vector<std::pair<Id, Id>> m_PendingComponentDeletions;
+        std::vector<std::pair<Id, std::vector<Relationship>>> m_PendingAppSystemCreations;
+        std::vector<Id> m_PendingAppSystemDeletions;
+        std::vector<std::pair<Id, std::vector<Relationship>>> m_PendingEngineSystemCreations;
+        std::vector<Id> m_PendingEngineSystemDeletions;
         memory::Arena m_TempStore; // cleared after all pending creations/deletions
     };
 
     template<typename T>
-    bool World::HasComponent(EntityId entity)
+    bool World::HasComponent(Id entity)
     {
         RegisterComponent<T>();
         return HasComponent(entity, T::GetComponentId());
     }
 
     template<typename T>
-    T* World::GetComponent(EntityId entity)
+    T* World::GetComponent(Id entity)
     {
         RegisterComponent<T>();
         return static_cast<T*>(GetComponent(entity, T::GetComponentId()));
@@ -201,7 +252,7 @@ namespace se::ecs
     }
 
     template <typename T>
-    void CollectComponentId(std::vector<ComponentId>& compIds)
+    void CollectComponentId(std::vector<Id>& compIds)
     {
         if (!T::IsSingletonComponent())
         {
@@ -209,15 +260,15 @@ namespace se::ecs
         }
     }
 
-    void CollectRelationshipIds(std::vector<ComponentId>& compIds, const std::vector<Relationship>& relationships);
+    void CollectRelationshipIds(std::vector<Id>& compIds, const std::vector<Relationship>& relationships);
 
     template<typename ...T, typename Func>
     void World::Each(Func&& func, const std::vector<Relationship>& relationships, bool force)
     {
-        std::vector<ComponentId> compIds = {};
+        std::vector<Id> compIds = {};
         compIds.reserve(sizeof...(T) + relationships.size());
         (CollectComponentId<T>(compIds), ...);
-        std::unordered_map<ArchetypeId, std::unordered_map<ComponentId, size_t>> argIndexs;
+        std::unordered_map<Id, std::unordered_map<Id, size_t>> argIndexs;
         CollectRelationshipIds(compIds, relationships);
 
         std::set<Archetype*> archetypes;
@@ -268,55 +319,26 @@ namespace se::ecs
         }
     }
 
-    template<typename T>
-    void World::RegisterSystem()
+    template <typename T>
+    void World::RegisterAppSystem()
     {
-        if (!m_Systems.contains(T::GetSystemId()))
+        if (!m_AppSystems.contains(T::GetSystemId()))
         {
-            m_Systems.insert(std::make_pair(T::GetSystemId(), SystemRecord { reflect::ClassResolver<T>::get(), nullptr }));
+            m_AppSystems.insert(std::make_pair(T::GetSystemId(), SystemRecord { reflect::ClassResolver<T>::get(), nullptr }));
         }
-
-    }
-
-    template<typename... T>
-    void World::RegisterSystemUpdateGroup()
-    {
-        std::vector<SystemId> updateGroup;
-        ((updateGroup.emplace_back(T::GetSystemId())), ...);
-
-#if SPARK_DEBUG
-        std::unordered_map<SystemId, std::vector<std::pair<ComponentId, bool>>> usedComponents;
-        (usedComponents.insert(std::make_pair(T::GetSystemId(), T::GetUsedComponents())), ...);
-
-        std::set<ComponentId> mutableComponents;
-        std::unordered_map<ComponentId, int> componentCounts;
-        for (auto systemId : updateGroup)
-        {
-            for (const auto& [comp, isConst] : usedComponents[systemId])
-            {
-                if (!isConst)
-                {
-                    mutableComponents.insert(comp);
-                }
-
-                componentCounts[comp]++;
-            }
-        }
-
-        for (auto type : mutableComponents)
-        {
-            if (!SPARK_VERIFY(componentCounts[type] == 1, "Cannot run systems in parallel if a component is mutable in one or more systems and accessed by multiple systems"))
-            {
-                return;
-            }
-        }
-#endif
-
-        m_SystemUpdateGroups.push_back(updateGroup);
     }
 
     template<typename T>
-    T* World::AddComponent(EntityId entity)
+    void World::RegisterEngineSystem()
+    {
+        if (!m_EngineSystems.contains(T::GetSystemId()))
+        {
+            m_EngineSystems.insert(std::make_pair(T::GetSystemId(), SystemRecord { reflect::ClassResolver<T>::get(), nullptr }));
+        }
+    }
+
+    template<typename T>
+    T* World::AddComponent(Id entity)
     {
         auto guard = MaybeLockGuard(m_UpdateMode, &m_ComponentMutex);
         RegisterComponent<T>();
@@ -332,7 +354,7 @@ namespace se::ecs
     }
 
     template<typename T>
-    void World::RemoveComponent(EntityId entity)
+    void World::RemoveComponent(Id entity)
     {
         auto guard = MaybeLockGuard(m_UpdateMode, &m_ComponentMutex);
         RegisterComponent<T>();
@@ -343,20 +365,36 @@ namespace se::ecs
         m_PendingComponentDeletions.push_back(std::make_pair(entity, T::GetComponentId()));
     }
 
-    template<typename T>
-    void World::CreateSystem(const std::vector<Relationship>& relationships)
+    template<EngineSystemConcept T>
+    void World::CreateEngineSystem(const std::vector<Relationship>& relationships)
     {
         auto guard = MaybeLockGuard(m_UpdateMode, &m_SystemMutex);
-        RegisterSystem<T>();
-        m_PendingSystemCreations.push_back({T::GetSystemId(), relationships});
+        RegisterEngineSystem<T>();
+        m_PendingEngineSystemCreations.push_back({T::GetSystemId(), relationships});
     }
 
-    template<typename T>
-    void World::DestroySystem()
+    template<EngineSystemConcept T>
+    void World::DestroyEngineSystem()
     {
         auto guard = MaybeLockGuard(m_UpdateMode, &m_SystemMutex);
-        RegisterSystem<T>();
-        m_PendingSystemDeletions.push_back(T::GetSystemId());
+        RegisterEngineSystem<T>();
+        m_PendingEngineSystemDeletions.push_back(T::GetSystemId());
+    }
+
+    template <AppSystemConcept T>
+    void World::CreateAppSystem(const std::vector<Relationship>& relationships)
+    {
+        auto guard = MaybeLockGuard(m_UpdateMode, &m_SystemMutex);
+        RegisterAppSystem<T>();
+        m_PendingAppSystemCreations.push_back({T::GetSystemId(), relationships});
+    }
+
+    template <AppSystemConcept T>
+    void World::DestroyAppSystem()
+    {
+        auto guard = MaybeLockGuard(m_UpdateMode, &m_SystemMutex);
+        RegisterAppSystem<T>();
+        m_PendingAppSystemDeletions.push_back(T::GetSystemId());
     }
 
     template<typename T>
