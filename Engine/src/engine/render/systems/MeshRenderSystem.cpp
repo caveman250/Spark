@@ -18,7 +18,7 @@ namespace se::render::systems
 {
     DEFINE_SPARK_SYSTEM(MeshRenderSystem)
 
-    void MeshRenderSystem::OnUpdate(const std::vector<ecs::EntityId>& entities, TransformComponent* transform,
+    void MeshRenderSystem::OnUpdate(const std::vector<ecs::Id>& entities, TransformComponent* transform,
                               const MeshComponent* mesh, camera::ActiveCameraComponent* camera)
     {
         auto app = Application::Get();
@@ -42,7 +42,7 @@ namespace se::render::systems
         }
     }
 
-    void MeshRenderSystem::OnRender(const std::vector<ecs::EntityId>& entities, TransformComponent*, const MeshComponent* mesh, camera::ActiveCameraComponent*)
+    void MeshRenderSystem::OnRender(const std::vector<ecs::Id>& entities, TransformComponent*, const MeshComponent* mesh, camera::ActiveCameraComponent*)
     {
         auto app = Application::Get();
         auto renderer = render::Renderer::Get();

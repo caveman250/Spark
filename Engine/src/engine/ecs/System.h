@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Component.h"
 #include "World.h"
 #include "engine/Application.h"
 
@@ -11,7 +10,7 @@ namespace se
 
 namespace se::ecs
 {
-    typedef uint64_t SystemId;
+    typedef uint64_t Id;
 
     class BaseSystem : public reflect::ObjectBase
     {
@@ -22,6 +21,7 @@ namespace se::ecs
         virtual void Update() = 0;
         virtual void Render() = 0;
         virtual void Shutdown() = 0;
+        virtual std::map<Id, bool> GetUsedComponents() const = 0;
 
     protected:
         World* m_World = nullptr;
@@ -47,13 +47,13 @@ namespace se::ecs
         void Render() override;
         void Shutdown() override;
 
-        static std::vector<std::pair<ComponentId, bool>> GetUsedComponents();
+        std::map<Id, bool> GetUsedComponents() const override;
 
     private:
-        virtual void OnInit(const std::vector<se::ecs::EntityId>&, Cs*...) {}
-        virtual void OnUpdate(const std::vector<se::ecs::EntityId>&, Cs*...) {}
-        virtual void OnRender(const std::vector<se::ecs::EntityId>&, Cs*...) {}
-        virtual void OnShutdown(const std::vector<se::ecs::EntityId>&, Cs*...) {}
+        virtual void OnInit(const std::vector<se::ecs::Id>&, Cs*...) {}
+        virtual void OnUpdate(const std::vector<se::ecs::Id>&, Cs*...) {}
+        virtual void OnRender(const std::vector<se::ecs::Id>&, Cs*...) {}
+        virtual void OnShutdown(const std::vector<se::ecs::Id>&, Cs*...) {}
 
         template<std::size_t Index, typename... Ts>
         std::enable_if_t<Index != sizeof...(Cs) + 1> InitBuilder(Ts... ts);
@@ -86,7 +86,6 @@ namespace se::ecs
     {
         RunQuery<Cs...>(std::bind(&System::OnShutdown, this, ts...));
     }
-
 
 #if SPARK_PLATFORM_WINDOWS
 #define PLACEHOLDER(i) std::_Ph<i>
@@ -148,16 +147,16 @@ namespace se::ecs
     }
 
     template <typename T>
-    void CollectUsedComponent(std::vector<std::pair<ComponentId, bool>>& vec)
+    void CollectUsedComponent(std::map<Id, bool>& vec)
     {
         Application::Get()->GetWorld()->RegisterComponent<T>();
-        vec.push_back(std::make_pair(T::GetComponentId(), std::is_const<T>()));
+        vec.insert(std::make_pair(T::GetComponentId(), std::is_const<T>()));
     }
 
     template<typename... Cs>
-    std::vector<std::pair<ComponentId, bool>> System<Cs...>::GetUsedComponents()
+    std::map<Id, bool> System<Cs...>::GetUsedComponents() const
     {
-        std::vector<std::pair<ComponentId, bool>> ret;
+        std::map<Id, bool> ret;
         (CollectUsedComponent<Cs>(ret), ...);
         return ret;
     }
@@ -181,4 +180,9 @@ namespace se::ecs
     {
         UpdateBuilder<1>(std::placeholders::_1);
     }
+
+    template <typename... Cs>
+    class EngineSystem : public System<Cs...> {};
+    template <typename... Cs>
+    class AppSystem : public System<Cs...> {};
 }

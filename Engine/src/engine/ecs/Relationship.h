@@ -7,7 +7,7 @@
 
 namespace se::ecs
 {
-    typedef uint64_t RelationshipId;
+    typedef uint64_t Id;
 
     class Relationship
     {
@@ -15,15 +15,15 @@ namespace se::ecs
         DECLARE_SPARK_POD_CLASS(Relationship)
 
         Relationship() = default;
-        RelationshipId GetId() const;
-        void SetId(RelationshipId id);
+        Id GetId() const;
+        void SetId(Id id);
     private:
-        Relationship(EntityId entity);
-        RelationshipId m_Id;
+        Relationship(Id entity);
+        Id m_Id;
     };
 
     template <typename T>
-    Relationship CreateRelationship(EntityId entity)
+    Relationship CreateRelationship(Id entity)
     {
         static_assert(std::is_base_of_v<RelationshipComponent, T>, "Relationship components must inherit from RelationshipComponent.");
         Relationship relationship;

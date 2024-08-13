@@ -10,19 +10,19 @@ namespace se::ecs
     {
     public:
         template<typename Func>
-        static void DoAction(const std::vector<EntityId>& entities, const std::unordered_map<ComponentId, void*>& singletonCompData, Archetype* archetype, Func&& func);
+        static void DoAction(const std::vector<Id>& entities, const std::unordered_map<Id, void*>& singletonCompData, Archetype* archetype, Func&& func);
 
         template<std::size_t Index, typename Func, typename... Ts>
-        static std::enable_if_t<Index != sizeof...(Cs)> ActionBuilder(const std::vector<EntityId>& entities,
-                                                                      const std::unordered_map<ComponentId, void*>& singletonCompData,
+        static std::enable_if_t<Index != sizeof...(Cs)> ActionBuilder(const std::vector<Id>& entities,
+                                                                      const std::unordered_map<Id, void*>& singletonCompData,
                                                                       const Type& archetypeType,
                                                                       const std::vector<ComponentList>& compData,
                                                                       Func&& func,
                                                                       Ts... ts);
 
         template<std::size_t Index, typename Func, typename... Ts>
-        static std::enable_if_t<Index == sizeof...(Cs)> ActionBuilder(const std::vector<EntityId>& entities,
-                                                                      const std::unordered_map<ComponentId, void*>& singletonCompData,
+        static std::enable_if_t<Index == sizeof...(Cs)> ActionBuilder(const std::vector<Id>& entities,
+                                                                      const std::unordered_map<Id, void*>& singletonCompData,
                                                                       const Type& archetypeType,
                                                                       const std::vector<ComponentList>& compData,
                                                                       Func&& func,
@@ -31,8 +31,8 @@ namespace se::ecs
 
     template<typename... Cs>
     template<std::size_t Index, typename Func, typename... Ts>
-    std::enable_if_t<Index == sizeof...(Cs)> Action<Cs...>::ActionBuilder(const std::vector<EntityId>& entities,
-                                                                          const std::unordered_map<ComponentId, void*>&,
+    std::enable_if_t<Index == sizeof...(Cs)> Action<Cs...>::ActionBuilder(const std::vector<Id>& entities,
+                                                                          const std::unordered_map<Id, void*>&,
                                                                           const Type&,
                                                                           const std::vector<ComponentList>&,
                                                                           Func&& func,
@@ -43,8 +43,8 @@ namespace se::ecs
 
     template<typename... Cs>
     template<std::size_t Index, typename Func, typename... Ts>
-    std::enable_if_t<Index != sizeof...(Cs)> Action<Cs...>::ActionBuilder(const std::vector<EntityId>& entities,
-                                                                          const std::unordered_map<ComponentId, void*>& singletonCompData,
+    std::enable_if_t<Index != sizeof...(Cs)> Action<Cs...>::ActionBuilder(const std::vector<Id>& entities,
+                                                                          const std::unordered_map<Id, void*>& singletonCompData,
                                                                           const Type& archetypeType,
                                                                           const std::vector<ComponentList>& compData,
                                                                           Func&& func,
@@ -68,8 +68,8 @@ namespace se::ecs
         else if (!archetypeType.empty())
         {
             std::size_t compIndex = 0;
-            ComponentId thisTypeCS = IthT::GetComponentId();
-            ComponentId thisArchetypeID = archetypeType[compIndex];
+            Id thisTypeCS = IthT::GetComponentId();
+            Id thisArchetypeID = archetypeType[compIndex];
             while (thisTypeCS != thisArchetypeID && compIndex < archetypeType.size())
             {
                 ++compIndex;
@@ -104,7 +104,7 @@ namespace se::ecs
 
     template<typename... Cs>
     template<typename Func>
-    void Action<Cs...>::DoAction(const std::vector<EntityId>& entities, const std::unordered_map<ComponentId, void*>& singletonCompData, Archetype* archetype, Func&& func)
+    void Action<Cs...>::DoAction(const std::vector<Id>& entities, const std::unordered_map<Id, void*>& singletonCompData, Archetype* archetype, Func&& func)
     {
         ActionBuilder<0>(entities,
                          singletonCompData,

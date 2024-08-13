@@ -35,7 +35,6 @@ namespace se
 #endif
 
         CreateInitialSingletonComponents();
-        CreateInitialSystemUpdateGroups();
         CreateInitialSystems();
         m_World.Init();
     }
@@ -47,14 +46,8 @@ namespace se
 
     void Application::CreateInitialSystems()
     {
-        m_World.CreateSystem<render::systems::PointLightSystem>({});
-        m_World.CreateSystem<render::systems::MeshRenderSystem>({});
-    }
-
-    void Application::CreateInitialSystemUpdateGroups()
-    {
-        m_World.RegisterSystemUpdateGroup<render::systems::PointLightSystem>();
-        m_World.RegisterSystemUpdateGroup<render::systems::MeshRenderSystem>();
+        m_World.CreateEngineSystem<render::systems::PointLightSystem>({});
+        m_World.CreateEngineSystem<render::systems::MeshRenderSystem>({});
     }
 
     void Application::Run() const
