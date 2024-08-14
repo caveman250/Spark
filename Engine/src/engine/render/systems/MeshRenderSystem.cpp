@@ -36,9 +36,12 @@ namespace se::render::systems
 
             SPARK_ASSERT((float*)&model[0] == &model[0][0]);
 
-            mesh[i].material->SetUniform("model", asset::shader::ast::AstType::Mat4, 1, &model);
-            mesh[i].material->SetUniform("view", asset::shader::ast::AstType::Mat4, 1, &camera->view);
-            mesh[i].material->SetUniform("proj", asset::shader::ast::AstType::Mat4, 1, &camera->proj);
+            if (const auto& material =  mesh[i].material)
+            {
+                material->SetUniform("model", asset::shader::ast::AstType::Mat4, 1, &model);
+                material->SetUniform("view", asset::shader::ast::AstType::Mat4, 1, &camera->view);
+                material->SetUniform("proj", asset::shader::ast::AstType::Mat4, 1, &camera->proj);
+            }
         }
     }
 
@@ -47,12 +50,14 @@ namespace se::render::systems
         auto app = Application::Get();
         auto renderer = render::Renderer::Get();
         auto window = app->GetPrimaryWindow();
-        renderer->Submit<render::commands::Clear>(window, true, true);
 
         for (size_t i = 0; i < entities.size(); ++i)
         {
             const auto& meshComp = mesh[i];
-            renderer->Submit<render::commands::SubmitGeo>(window, meshComp.material, meshComp.vertBuffer, meshComp.indexBuffer);
+            if (meshComp.material && meshComp.vertBuffer && meshComp.indexBuffer)
+            {
+                renderer->Submit<render::commands::SubmitGeo>(window, meshComp.material, meshComp.vertBuffer, meshComp.indexBuffer);
+            }
         }
     }
 }

@@ -2,7 +2,6 @@
 
 #include "RelationshipComponent.h"
 #include "spark.h"
-#include "World.h"
 #include "engine/reflect/Reflect.h"
 
 namespace se::ecs

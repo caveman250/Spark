@@ -65,7 +65,7 @@ virtual asset::binary::StructLayout GetStructLayout(const void*) const override\
 {\
 return reflect::TypeResolver<type>::get()->GetStructLayout(nullptr);\
 }\
-std::string GetTypeName() const\
+virtual std::string GetTypeName() const override\
 {\
 return reflect::TypeResolver<type>::get()->GetTypeName(nullptr);\
 }\
@@ -92,7 +92,7 @@ static constexpr bool s_IsPOD = false;\
     {\
         return reflect::TypeResolver<type>::get()->GetStructLayout(nullptr);\
     }\
-    std::string GetTypeName() const\
+    virtual std::string GetTypeName() const override\
     {\
         return reflect::TypeResolver<type>::get()->GetTypeName(nullptr);\
     }\
@@ -206,7 +206,6 @@ DEFINE_SPARK_CLASS_END()
     /// System ///
 #define DECLARE_SPARK_SYSTEM(Type) \
 DECLARE_SPARK_CLASS(Type) \
-static size_t GetSystemId() { return s_StaticId; }
 
 #define DEFINE_SPARK_SYSTEM(type) \
 DEFINE_SPARK_CLASS_BEGIN(type) \
