@@ -33,7 +33,7 @@ namespace se
         ecs::World m_World;
 
         virtual void Update();
-        virtual void Render() {}
+        virtual void Render();
 
     private:
 

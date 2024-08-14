@@ -22,11 +22,14 @@ namespace se::asset
 
     private:
         std::unordered_map<std::string, std::weak_ptr<Asset>> m_AssetCache;
+        std::mutex m_Mutex;
     };
 
     template <typename T>
     std::shared_ptr<T> AssetManager::GetAsset(const std::string& path)
     {
+        std::lock_guard guard(m_Mutex);
+
         static_assert(std::is_convertible<T*, Asset*>::value, "Attempting to load a non asset type via AssetManager::GetAsset");
 
         auto optionalFullPath = io::VFS::Get().ResolveFSPath(path, false);

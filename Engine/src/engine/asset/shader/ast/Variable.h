@@ -11,6 +11,7 @@ namespace se::asset::shader::ast
 
         Variable() = default;
         Variable(const Variable&) = default;
+        Variable& operator=(const Variable& rhs) = default;
         Variable(AstType::Type _type, std::string& _arraySize)
             : type(_type)
             , arraySizeVariable(_arraySize)

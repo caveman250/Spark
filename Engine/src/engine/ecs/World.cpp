@@ -2,6 +2,7 @@
 
 #include "engine/reflect/Reflect.h"
 #include "engine/ecs/System.h"
+#include "engine/render/Renderer.h"
 
 namespace se::ecs
 {
@@ -33,6 +34,18 @@ namespace se::ecs
                 }));
 
         return packedId;
+    }
+
+    void World::DestroyEngineSystem(Id id)
+    {
+        auto guard = MaybeLockGuard(m_UpdateMode, &m_SystemMutex);
+        m_PendingEngineSystemDeletions.push_back(id);
+    }
+
+    void World::DestroyAppSystem(Id id)
+    {
+        auto guard = MaybeLockGuard(m_UpdateMode, &m_SystemMutex);
+        m_PendingAppSystemDeletions.push_back(id);
     }
 
     uint32_t World::NewEntity()
@@ -250,6 +263,8 @@ namespace se::ecs
     {
         m_Running = true;
 
+        render::Renderer::Get()->Submit<render::commands::Clear>(Application::Get()->GetPrimaryWindow(), true, true);
+
         RunOnAllEngineSystems([this](auto&& systemId)
         {
             if (auto* system = m_EngineSystems[systemId].instance)
@@ -365,7 +380,13 @@ namespace se::ecs
             ProcessPendingComponents();
             ProcessPendingSystems();
             ProcessPendingEntityDeletions();
-            m_TempStore.Reset();
+
+            if (m_PendingComponentCreations.empty() && m_PendingComponentDeletions.empty() &&
+                m_PendingAppSystemCreations.empty() && m_PendingAppSystemDeletions.empty() &&
+                m_PendingEngineSystemCreations.empty() && m_PendingEngineSystemDeletions.empty())
+            {
+                m_TempStore.Reset();
+            }
 
             m_UpdateMode = updateGroup.size() > 1 ? UpdateMode::MultiThreaded : UpdateMode::SingleThreaded;
             std::for_each(std::execution::par,
@@ -382,7 +403,13 @@ namespace se::ecs
             ProcessPendingComponents();
             ProcessPendingSystems();
             ProcessPendingEntityDeletions();
-            m_TempStore.Reset();
+
+            if (m_PendingComponentCreations.empty() && m_PendingComponentDeletions.empty() &&
+                m_PendingAppSystemCreations.empty() && m_PendingAppSystemDeletions.empty() &&
+                m_PendingEngineSystemCreations.empty() && m_PendingEngineSystemDeletions.empty())
+            {
+                m_TempStore.Reset();
+            }
 
             m_UpdateMode = updateGroup.size() > 1 ? UpdateMode::MultiThreaded : UpdateMode::SingleThreaded;
             std::for_each(std::execution::par,
@@ -408,7 +435,7 @@ namespace se::ecs
             return;
         }
 
-        m_PendingComponentCreations.emplace_back(PendingComponent { .entity=entity, .comp=relationship.GetId(), .tempData=new Relationship(relationship) });
+        m_PendingComponentCreations.emplace_back(PendingComponent { .entity=entity, .comp=relationship.GetId(), .tempData=m_TempStore.Alloc<Relationship>(relationship) });
     }
 
     void World::RemoveRelationship(Id entity, const Relationship& relationship)
@@ -523,7 +550,8 @@ namespace se::ecs
         {
             auto& systemRecord = m_AppSystems.at(system);
             delete systemRecord.instance;
-            systemRecord.instance = nullptr;
+            m_AppSystems.erase(system);
+            m_FreeSystems.push_back(system);
         }
     }
 
@@ -543,7 +571,8 @@ namespace se::ecs
         {
             auto& systemRecord = m_EngineSystems.at(system);
             delete systemRecord.instance;
-            systemRecord.instance = nullptr;
+            m_EngineSystems.erase(system);
+            m_FreeSystems.push_back(system);
         }
     }
 
@@ -577,6 +606,19 @@ namespace se::ecs
         Archetype* next_archetype = GetNextArchetype(archetype, comp, false);
         record.entity_idx = MoveEntity(entity, archetype, record.entity_idx, next_archetype);
         record.archetype = next_archetype;
+    }
+
+    Id World::NewSystem()
+    {
+        return m_SystemCounter++;
+    }
+
+    Id World::RecycleSystem()
+    {
+        const auto id = m_FreeSystems.back();
+        m_FreeSystems.pop_back();
+
+        return id;
     }
 
     void World::ProcessPendingEntityDeletions()

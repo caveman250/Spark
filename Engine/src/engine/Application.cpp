@@ -71,8 +71,15 @@ namespace se
         m_DeltaTime = elapsed_seconds.count();
         m_TimeLastFrame = now;
 
+        m_World.Update();
+
 #if SPARK_EDITOR
         m_EditorRuntime.Update();
 #endif
+    }
+
+    void Application::Render()
+    {
+        m_World.Render();
     }
 }

@@ -9,6 +9,7 @@ namespace se::reflect
     class ObjectBase
     {
     public:
+        virtual ~ObjectBase() {}
         static constexpr bool s_IsPOD = false;
 
         virtual Type* GetReflectType() const = 0;

@@ -106,15 +106,11 @@ namespace se::ecs
 
         template <AppSystemConcept T>
         void CreateAppSystem(const std::vector<Relationship>& relationships);
-
-        template <AppSystemConcept T>
-        void DestroyAppSystem();
+        void DestroyAppSystem(Id id);
 
         template <EngineSystemConcept T>
         void CreateEngineSystem(const std::vector<Relationship>& relationships);
-
-        template <EngineSystemConcept T>
-        void DestroyEngineSystem();
+        void DestroyEngineSystem(Id id);
 
         void RebuildSystemUpdateGroups(std::vector<std::vector<Id>>& updateGroups, std::unordered_map<Id, SystemRecord>& systems);
 
@@ -126,12 +122,6 @@ namespace se::ecs
 
         template<typename ...T, typename Func>
         void Each(Func&& func, const std::vector<Relationship>& relationships, bool force);
-
-        template<typename T>
-        void RegisterEngineSystem();
-
-        template<typename T>
-        void RegisterAppSystem();
 
         void RegisterRelationship(Id id);
 
@@ -154,9 +144,10 @@ namespace se::ecs
         template<typename T>
         bool HasComponent(Id entity);
 
+        Id NewSystem();
+        Id RecycleSystem();
         void CreateEngineSystemInternal(Id system, const std::vector<Relationship>& relationships);
         void DestroyEngineSystemInternal(Id system);
-
         void CreateAppSystemInternal(Id system, const std::vector<Relationship>& relationships);
         void DestroyAppSystemInternal(Id system);
 
@@ -191,7 +182,8 @@ namespace se::ecs
 
         uint32_t m_EntityCounter = 1;
         std::vector<uint32_t> m_FreeEntities = {};
-
+        Id m_SystemCounter;
+        std::vector<Id> m_FreeSystems = {};
         Id m_ArchetypeCounter = 0;
 
         std::vector<std::vector<Id>> m_AppSystemUpdateGroups = {};
@@ -319,24 +311,6 @@ namespace se::ecs
         }
     }
 
-    template <typename T>
-    void World::RegisterAppSystem()
-    {
-        if (!m_AppSystems.contains(T::GetSystemId()))
-        {
-            m_AppSystems.insert(std::make_pair(T::GetSystemId(), SystemRecord { reflect::ClassResolver<T>::get(), nullptr }));
-        }
-    }
-
-    template<typename T>
-    void World::RegisterEngineSystem()
-    {
-        if (!m_EngineSystems.contains(T::GetSystemId()))
-        {
-            m_EngineSystems.insert(std::make_pair(T::GetSystemId(), SystemRecord { reflect::ClassResolver<T>::get(), nullptr }));
-        }
-    }
-
     template<typename T>
     T* World::AddComponent(Id entity)
     {
@@ -369,32 +343,40 @@ namespace se::ecs
     void World::CreateEngineSystem(const std::vector<Relationship>& relationships)
     {
         auto guard = MaybeLockGuard(m_UpdateMode, &m_SystemMutex);
-        RegisterEngineSystem<T>();
-        m_PendingEngineSystemCreations.push_back({T::GetSystemId(), relationships});
-    }
-
-    template<EngineSystemConcept T>
-    void World::DestroyEngineSystem()
-    {
-        auto guard = MaybeLockGuard(m_UpdateMode, &m_SystemMutex);
-        RegisterEngineSystem<T>();
-        m_PendingEngineSystemDeletions.push_back(T::GetSystemId());
+        Id system;
+        if (!m_FreeSystems.empty())
+        {
+            system = RecycleSystem();
+        }
+        else
+        {
+            system = NewSystem();
+        }
+        m_PendingEngineSystemCreations.push_back({system, relationships});
+        if (SPARK_VERIFY(!m_EngineSystems.contains(system)))
+        {
+            m_EngineSystems.insert(std::make_pair(system, SystemRecord { reflect::ClassResolver<T>::get(), nullptr }));
+        }
     }
 
     template <AppSystemConcept T>
     void World::CreateAppSystem(const std::vector<Relationship>& relationships)
     {
         auto guard = MaybeLockGuard(m_UpdateMode, &m_SystemMutex);
-        RegisterAppSystem<T>();
-        m_PendingAppSystemCreations.push_back({T::GetSystemId(), relationships});
-    }
-
-    template <AppSystemConcept T>
-    void World::DestroyAppSystem()
-    {
-        auto guard = MaybeLockGuard(m_UpdateMode, &m_SystemMutex);
-        RegisterAppSystem<T>();
-        m_PendingAppSystemDeletions.push_back(T::GetSystemId());
+        Id system;
+        if (!m_FreeSystems.empty())
+        {
+            system = RecycleSystem();
+        }
+        else
+        {
+            system = NewSystem();
+        }
+        m_PendingAppSystemCreations.push_back({system, relationships});
+        if (SPARK_VERIFY(!m_AppSystems.contains(system)))
+        {
+            m_AppSystems.insert(std::make_pair(system, SystemRecord { reflect::ClassResolver<T>::get(), nullptr }));
+        }
     }
 
     template<typename T>
