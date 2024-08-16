@@ -28,7 +28,7 @@ namespace se::render::commands
         m_VertBuffer->Bind();
         m_IndexBuffer->Bind();
 
-        glDrawElements(GL_TRIANGLES, m_IndexBuffer->GetIndices().size(), GL_UNSIGNED_INT, (void*)0);
+        glDrawElements(GL_TRIANGLES, static_cast<int>(m_IndexBuffer->GetIndices().size()), GL_UNSIGNED_INT, (void*)0);
         GL_CHECK_ERROR()
 
         m_VertBuffer->Unbind();

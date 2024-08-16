@@ -21,13 +21,13 @@ namespace se::reflect
         if (!fieldName.empty())
         {
             const auto* blob = static_cast<const memory::BinaryBlob*>(obj);
-            auto assetBlob = parentObj.GetDatabase()->CreateBlob(static_cast<const char*>(blob->GetData()), blob->GetSize());
+            auto assetBlob = parentObj.GetDatabase()->CreateBlob(static_cast<const char*>(blob->GetData()), static_cast<uint32_t>(blob->GetSize()));
             parentObj.Set(fieldName, assetBlob);
         }
         else
         {
             const auto* blob = static_cast<const memory::BinaryBlob*>(obj);
-            auto assetBlob = parentObj.GetDatabase()->CreateBlob(static_cast<const char*>(blob->GetData()), blob->GetSize());
+            auto assetBlob = parentObj.GetDatabase()->CreateBlob(static_cast<const char*>(blob->GetData()), static_cast<uint32_t>(blob->GetSize()));
             parentObj.Set("val", assetBlob);
         }
     }

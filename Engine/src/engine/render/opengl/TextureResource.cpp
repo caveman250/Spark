@@ -30,7 +30,7 @@ namespace se::render::opengl
                                    mip.m_SizeX,
                                    mip.m_SizeY,
                                    0,
-                                   mip.m_Data.GetSize(),
+                                   static_cast<int>(mip.m_Data.GetSize()),
                                    mip.m_Data.GetData());
             level++;
         }

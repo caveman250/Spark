@@ -95,7 +95,7 @@ namespace se::ecs
         }
 
         m_EntityRecords.erase(entity);
-        m_FreeEntities.push_back(entity);
+        m_FreeEntities.push_back(bits::PackUtil::UnpackA64(entity));
     }
 
     bool World::HasRelationshipWildcardInternal(Id entity, uint32_t lhs)

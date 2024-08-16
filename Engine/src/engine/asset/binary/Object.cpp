@@ -222,9 +222,9 @@ namespace se::asset::binary
                 {
                     nlohmann::ordered_json blobJson = {};
                     Blob blob = Get<Blob>(fieldName);
-                    for (size_t i = 0; i < blob.GetSize(); ++i)
+                    for (size_t j = 0; j < blob.GetSize(); ++j)
                     {
-                        blobJson.push_back(blob.GetData()[i]);
+                        blobJson.push_back(blob.GetData()[j]);
                     }
                     obj[fieldName] = blobJson;
                     break;
@@ -233,9 +233,9 @@ namespace se::asset::binary
                 {
                     nlohmann::ordered_json arrayJson = {};
                     auto array = Get<Array>(fieldName);
-                    for (size_t i = 0; i < array.GetCount(); ++i)
+                    for (size_t j = 0; j < array.GetCount(); ++j)
                     {
-                        nlohmann::ordered_json itemJson = array.Get(i).ToJson();
+                        nlohmann::ordered_json itemJson = array.Get(j).ToJson();
                         arrayJson.push_back(itemJson);
                     }
                     obj[fieldName] = arrayJson;
@@ -245,9 +245,9 @@ namespace se::asset::binary
                 {
                     nlohmann::ordered_json arrayJson = {};
                     auto array = Get<PolymorphicArray>(fieldName);
-                    for (size_t i = 0; i < array.GetCount(); ++i)
+                    for (size_t j = 0; j < array.GetCount(); ++j)
                     {
-                        nlohmann::ordered_json itemJson = array.Get(i).ToJson();
+                        nlohmann::ordered_json itemJson = array.Get(j).ToJson();
                         arrayJson.push_back(itemJson);
                     }
                     obj[fieldName] = arrayJson;

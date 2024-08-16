@@ -55,7 +55,7 @@ namespace se::render::opengl
     {
         for (size_t loc = 0; loc < m_VertexStreams.size(); ++loc)
         {
-            glDisableVertexAttribArray(loc++);
+            glDisableVertexAttribArray(static_cast<int>(loc++));
         }
     }
 }
