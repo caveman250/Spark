@@ -390,7 +390,7 @@ namespace se::asset::shader::compiler
             SPARK_ASSERT(false);
         }
 
-        return std::distance(std::begin(m_VertexBuffer.GetVertexStreams()), m_VertexBuffer.GetVertexStreams().find(targetType));
+        return static_cast<uint8_t>(std::distance(std::begin(m_VertexBuffer.GetVertexStreams()), m_VertexBuffer.GetVertexStreams().find(targetType)));
     }
 
     uint8_t ShaderCombiner::GetOutputLoc(const std::string& outputName)

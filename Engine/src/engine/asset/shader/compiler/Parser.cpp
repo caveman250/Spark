@@ -419,8 +419,8 @@ namespace se::asset::shader::compiler
             auto peek = m_Lexer.PeekToken();
             if (std::holds_alternative<Token>(peek))
             {
-                auto token = std::get<Token>(peek);
-                if (token.value == "f")
+                auto nextToken = std::get<Token>(peek);
+                if (nextToken.value == "f")
                 {
                     m_Lexer.ConsumeToken();
                 }

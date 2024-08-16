@@ -55,9 +55,9 @@ namespace se::asset::binary
         uint32_t offset = s_StructHeaderSize;
 
         uint32_t rowSize = sizeof(Type) + 32;
-        for (const auto& [name, type] : structLayout)
+        for (const auto& [fieldName, type] : structLayout)
         {
-            std::memcpy(structData + offset, &name, 32);
+            std::memcpy(structData + offset, &fieldName, 32);
             std::memcpy(structData + offset + 32, &type, sizeof(Type));
             offset += rowSize;
         }

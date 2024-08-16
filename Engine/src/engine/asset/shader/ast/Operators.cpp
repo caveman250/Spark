@@ -21,20 +21,20 @@ namespace se::asset::shader::ast
 {
     std::map<OperatorType::Type, uint8_t> OperatorUtil::s_OperatorPriorities =
     {
-        {OperatorType::Multiply, 0u},
-        {OperatorType::MultiplyEquals, 0u},
-        {OperatorType::Divide, 0u},
-        {OperatorType::DivideEquals, 0u},
-        {OperatorType::Add, 1u},
-        {OperatorType::AddEquals, 1u},
-        {OperatorType::Subtract, 1u},
-        {OperatorType::SubtractEquals, 1u},
-        {OperatorType::Equals, 1u},
-        {OperatorType::Compare, 2u},
-        {OperatorType::Less, 2u},
-        {OperatorType::LessEquals, 2u},
-        {OperatorType::Greater, 2u},
-        {OperatorType::GreaterEquals, 2u},
+        { OperatorType::Multiply, static_cast<uint8_t>(0u) },
+        { OperatorType::MultiplyEquals, static_cast<uint8_t>(0u) },
+        { OperatorType::Divide, static_cast<uint8_t>(0u) },
+        { OperatorType::DivideEquals, static_cast<uint8_t>(0u) },
+        { OperatorType::Add, static_cast<uint8_t>(1u) },
+        { OperatorType::AddEquals, static_cast<uint8_t>(1u) },
+        { OperatorType::Subtract, static_cast<uint8_t>(1u) },
+        { OperatorType::SubtractEquals, static_cast<uint8_t>(1u) },
+        { OperatorType::Equals, static_cast<uint8_t>(1u) },
+        { OperatorType::Compare, static_cast<uint8_t>(2u) },
+        { OperatorType::Less, static_cast<uint8_t>(2u) },
+        { OperatorType::LessEquals, static_cast<uint8_t>(2u) },
+        { OperatorType::Greater, static_cast<uint8_t>(2u) },
+        { OperatorType::GreaterEquals, static_cast<uint8_t>(2u) },
     };
 
     std::map<std::string, OperatorType::Type> OperatorUtil::s_ShaderLangToType =

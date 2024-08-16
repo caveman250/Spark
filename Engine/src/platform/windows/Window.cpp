@@ -99,11 +99,11 @@ namespace se::windows
                 uint32_t scanCode = (HIWORD(lParam) & (KF_EXTENDED | 0xff));
                 input::Key::Type key = KeyMap::WindowsKeyToSparkKey(scanCode);
                 auto inputComp = Application::Get()->GetWorld()->GetSingletonComponent<input::InputComponent>();
-                auto keyEvent = input::KeyEvent
-                        {
-                                .key = key,
-                                .state = message == WM_KEYDOWN ? input::KeyState::Down : input::KeyState::Up
-                        };
+
+                input::KeyEvent keyEvent;
+                keyEvent.key = key;
+                keyEvent.state = message == WM_KEYDOWN ? input::KeyState::Down : input::KeyState::Up;
+
                 inputComp->keyEvents.push_back(keyEvent);
                 inputComp->keyStates[key] = keyEvent.state;
                 break;
