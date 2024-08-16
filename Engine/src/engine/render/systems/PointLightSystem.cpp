@@ -6,7 +6,7 @@ namespace se::render::systems
 {
     DEFINE_SPARK_SYSTEM(PointLightSystem)
 
-    void PointLightSystem::OnUpdate(const std::vector<ecs::Id>& entities, components::PointLightComponent* pointLights, ecs::components::TransformComponent* transforms)
+    void PointLightSystem::OnUpdate(const std::vector<ecs::Id>& entities, const components::PointLightComponent* pointLights, const ecs::components::TransformComponent* transforms)
     {
         auto* renderer = Renderer::Get();
         for (size_t i = 0; i < entities.size(); ++i)
