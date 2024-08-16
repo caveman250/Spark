@@ -7,10 +7,10 @@
 
 namespace se::render::systems
 {
-    class PointLightSystem : public ecs::EngineSystem<components::PointLightComponent, ecs::components::TransformComponent>
+    class PointLightSystem : public ecs::EngineSystem<const components::PointLightComponent, const ecs::components::TransformComponent>
     {
         DECLARE_SPARK_SYSTEM(PointLightSystem)
 
-        void OnUpdate(const std::vector<se::ecs::Id>&, components::PointLightComponent*, ecs::components::TransformComponent*) override;
+        void OnUpdate(const std::vector<se::ecs::Id>&, const components::PointLightComponent*, const ecs::components::TransformComponent*) override;
     };
 }

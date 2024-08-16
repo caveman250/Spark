@@ -9,6 +9,7 @@
 #include "io/VFS.h"
 #include "render/systems/MeshRenderSystem.h"
 #include "render/systems/PointLightSystem.h"
+#include "ui/systems/RectTransformSystem.h"
 
 namespace se
 {
@@ -52,6 +53,7 @@ namespace se
         m_World.CreateEngineSystem<render::systems::MeshRenderSystem>({}, {});
         m_World.CreateEngineSystem<ecs::systems::TransformSystem>({}, {});
         m_World.CreateEngineSystem<ecs::systems::WorldTransformSystem>({}, {});
+        m_World.CreateEngineSystem<ui::systems::RectTransformSystem>({}, {});
     }
 
     void Application::Run() const
