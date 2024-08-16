@@ -1,5 +1,7 @@
 #include "Application.h"
 
+#include "ecs/systems/TransformSystem.h"
+#include "ecs/systems/WorldTransformSystem.h"
 #include "input/InputComponent.h"
 #include "platform/PlatformRunLoop.h"
 #include "platform/IWindow.h"
@@ -46,8 +48,10 @@ namespace se
 
     void Application::CreateInitialSystems()
     {
-        m_World.CreateEngineSystem<render::systems::PointLightSystem>({});
-        m_World.CreateEngineSystem<render::systems::MeshRenderSystem>({});
+        m_World.CreateEngineSystem<render::systems::PointLightSystem>({}, {});
+        m_World.CreateEngineSystem<render::systems::MeshRenderSystem>({}, {});
+        m_World.CreateEngineSystem<ecs::systems::TransformSystem>({}, {});
+        m_World.CreateEngineSystem<ecs::systems::WorldTransformSystem>({}, {});
     }
 
     void Application::Run() const

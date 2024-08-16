@@ -12,4 +12,5 @@ namespace se::math
     float Degrees(float radians);
     float InverseSqrt(float f);
     Mat4 AxisAngle(Vec3 axis, float angle);
+    Vec3 EularFromMat4(const Mat4& mat);
 }

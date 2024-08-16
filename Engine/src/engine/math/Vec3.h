@@ -16,32 +16,43 @@ namespace se::math
         {
         }
 
-        union { float x, r, s; };
-        union { float y, g, t; };
-        union { float z, b, p; };
+        union
+        {
+            float x, r, s;
+        };
+
+        union
+        {
+            float y, g, t;
+        };
+
+        union
+        {
+            float z, b, p;
+        };
 
         float& operator[](size_t i);
         const float& operator[](size_t i) const;
 
-        Vec3& operator+=(const Vec3 &rhs);
+        Vec3& operator+=(const Vec3& rhs);
         Vec3& operator+=(float scalar);
-        Vec3& operator-=(const Vec3 &rhs);
+        Vec3& operator-=(const Vec3& rhs);
         Vec3& operator-=(float scalar);
-        Vec3& operator*=(const Vec3 &rhs);
+        Vec3& operator*=(const Vec3& rhs);
         Vec3& operator*=(float scalar);
-        Vec3& operator/=(const Vec3 &rhs);
+        Vec3& operator/=(const Vec3& rhs);
         Vec3& operator/=(float scalar);
     };
 
-    Vec3 operator-(const Vec3 &lhs);
-    Vec3 operator+(const Vec3& lhs, const Vec3 &rhs);
-    Vec3 operator-(const Vec3& lhs, const Vec3 &rhs);
-    Vec3 operator*(const Vec3& lhs, const Vec3 &rhs);
+    Vec3 operator-(const Vec3& lhs);
+    Vec3 operator+(const Vec3& lhs, const Vec3& rhs);
+    Vec3 operator-(const Vec3& lhs, const Vec3& rhs);
+    Vec3 operator*(const Vec3& lhs, const Vec3& rhs);
     Vec3 operator*(const Vec3& lhs, float scalar);
-    Vec3 operator/(const Vec3& lhs, const Vec3 &rhs);
+    Vec3 operator/(const Vec3& lhs, const Vec3& rhs);
     Vec3 operator/(const Vec3& lhs, float scalar);
-    bool operator==(const Vec3& lhs, const Vec3 &rhs);
-    bool operator!=(const Vec3& lhs, const Vec3 &rhs);
+    bool operator==(const Vec3& lhs, const Vec3& rhs);
+    bool operator!=(const Vec3& lhs, const Vec3& rhs);
 
     float MagnitudeSquared(const Vec3& vec);
     Vec3 Normalized(const Vec3& vec);
@@ -49,7 +60,8 @@ namespace se::math
     Vec3 Cross(const Vec3& v1, const Vec3& v2);
 }
 
-template <> struct std::formatter<se::math::Vec3>
+template <>
+struct std::formatter<se::math::Vec3>
 {
     constexpr auto parse(std::format_parse_context& ctx)
     {

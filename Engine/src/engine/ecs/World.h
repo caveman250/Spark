@@ -9,6 +9,11 @@
 #include "MaybeLockGuard.h"
 #include "Relationship.h"
 
+namespace se::ecs::components
+{
+    struct ChildOf;
+}
+
 namespace se::ecs
 {
     typedef uint64_t Id;
@@ -28,10 +33,10 @@ concept AppSystemConcept = requires(C c) {
     []<typename... Cs>(se::ecs::AppSystem<Cs...>&){}(c);
 };
 
-template<class _Alloc>
-    struct std::hash<std::vector<se::ecs::Id, _Alloc>>
+template<class Alloc>
+struct std::hash<std::vector<se::ecs::Id, Alloc>>
 {
-    std::size_t operator()(const std::vector<se::ecs::Id, _Alloc>& vec) const
+    std::size_t operator()(const std::vector<se::ecs::Id, Alloc>& vec) const
     {
         std::size_t seed = vec.size();
         for (auto x: vec)
@@ -65,6 +70,18 @@ namespace se::ecs
         ComponentArchetypeRecord archetypeRecords;
     };
 
+    DECLARE_SPARK_ENUM_BEGIN(ComponentMutability, int)
+        Mutable,
+        Immutable
+    DECLARE_SPARK_ENUM_END()
+
+    typedef std::vector<std::pair<Id, ComponentMutability::Type>> ChildQuery;
+    struct PendingSystemInfo
+    {
+        std::vector<Relationship> relationships;
+        ChildQuery childQuery;
+    };
+
     struct SystemRecord
     {
         reflect::Class* type;
@@ -91,6 +108,8 @@ namespace se::ecs
 
         void AddRelationship(Id entity, const Relationship& relationship);
         void RemoveRelationship(Id entity, const Relationship& relationship);
+        void AddChild(Id entity, Id childEntity);
+        void RemoveChild(Id entity, Id childEntity);
 
         template<typename T>
         void RemoveComponent(Id entity);
@@ -105,23 +124,43 @@ namespace se::ecs
         T* GetSingletonComponent();
 
         template <AppSystemConcept T>
-        void CreateAppSystem(const std::vector<Relationship>& relationships);
+        void CreateAppSystem(const std::vector<Relationship>& relationships, const ChildQuery& additionalChildQuery);
         void DestroyAppSystem(Id id);
 
         template <EngineSystemConcept T>
-        void CreateEngineSystem(const std::vector<Relationship>& relationships);
+        void CreateEngineSystem(const std::vector<Relationship>& relationships, const ChildQuery& additionalChildQuery);
         void DestroyEngineSystem(Id id);
-
-        void RebuildSystemUpdateGroups(std::vector<std::vector<Id>>& updateGroups, std::unordered_map<Id, SystemRecord>& systems);
 
         template <typename T>
         void RegisterComponent();
+        template <typename T>
+        std::pair<Id, ComponentMutability::Type> CreateComponentUsagePair(ComponentMutability::Type type);
+
+        template <typename T, typename Y>
+        Relationship CreateComponentRelationship();
+
+        template<typename T>
+        bool HasComponent(Id entity);
+
+        template<typename T, typename Y>
+        bool HasRelationship(Id entity);
+
+        template<typename T>
+        bool HasRelationshipWildcard(Id entity);
+
+        bool IsChildOf(Id entity, Id parent);
 
     private:
-        bool IsRunning() { return m_Running; }
+        bool IsRunning() const { return m_Running; }
 
         template<typename ...T, typename Func>
         void Each(Func&& func, const std::vector<Relationship>& relationships, bool force);
+
+        template<typename ...T, typename Func>
+        void ChildEach(Id entity, BaseSystem* system, Func&& func, const std::vector<Relationship>& relationships);
+        bool ValidateChildQuery(BaseSystem* system, const std::vector<std::pair<Id, ComponentMutability::Type>>& requestedComponents);
+        Relationship CreateChildRelationship(Id entity);
+        bool HasRelationshipWildcardInternal(Id entity, uint32_t lhs);
 
         void RegisterRelationship(Id id);
 
@@ -141,15 +180,11 @@ namespace se::ecs
         void AddComponentInternal(const PendingComponent& pendingComp);
         void RemoveComponentInternal(Id entity, Id comp);
 
-        template<typename T>
-        bool HasComponent(Id entity);
-
         Id NewSystem();
         Id RecycleSystem();
-        void CreateEngineSystemInternal(Id system, const std::vector<Relationship>& relationships);
-        void DestroyEngineSystemInternal(Id system);
-        void CreateAppSystemInternal(Id system, const std::vector<Relationship>& relationships);
-        void DestroyAppSystemInternal(Id system);
+
+        static void CreateSystemInternal(std::unordered_map<Id, SystemRecord>& systemMap, std::unordered_map<Id, ChildQuery>& allowedChildQueries, Id system, const PendingSystemInfo& pendingSystem);
+        static void DestroySystemInternal(std::unordered_map<Id, SystemRecord>& systemMap, std::unordered_map<Id, ChildQuery>& allowedChildQueries, std::vector<Id>& freeSystems, Id system);
 
         bool HasComponent(Id entity, Id component);
         void* GetComponent(Id entity, Id component);
@@ -160,12 +195,19 @@ namespace se::ecs
         size_t MoveEntity(Id entity, Archetype* archetype, size_t entityIdx, Archetype* nextArchetype);
 
         Archetype* GetArchetype(const Type& type);
-        bool HasArchetype(const Type& type);
+        bool HasArchetype(const Type& type) const;
         void CreateArchetype(const Type& type);
         Archetype* GetNextArchetype(Archetype* archetype, Id component, bool add);
 
         void ProcessPendingComponents();
         void ProcessPendingSystems();
+        static void ProcessPendingSystems(std::vector<std::pair<Id, PendingSystemInfo>>& pendingCreations,
+                                    std::vector<Id>& pendingDeletions,
+                                    std::unordered_map<Id, SystemRecord>& systemRecords,
+                                    std::vector<std::vector<Id>>& systsemUpdateGroups,
+                                    std::vector<Id>& freeSystems,
+                                    std::unordered_map<Id, ChildQuery>& allowedChildQueries);
+        static void RebuildSystemUpdateGroups(std::vector<std::vector<Id>>& updateGroups, std::unordered_map<Id, SystemRecord>& systems);
         void ProcessPendingAppSystems();
         void ProcessPendingEngineSystems();
         void ProcessPendingEntityDeletions();
@@ -179,6 +221,7 @@ namespace se::ecs
         std::unordered_map<Id, void*> m_SingletonComponents = {};
         std::unordered_map<Id, SystemRecord> m_AppSystems = {};
         std::unordered_map<Id, SystemRecord> m_EngineSystems = {};
+        std::unordered_map<Id, ChildQuery> m_AllowedChildQueries = {};
 
         uint32_t m_EntityCounter = 1;
         std::vector<uint32_t> m_FreeEntities = {};
@@ -196,9 +239,10 @@ namespace se::ecs
         std::vector<Id> m_PendingEntityDeletions;
         std::vector<PendingComponent> m_PendingComponentCreations;
         std::vector<std::pair<Id, Id>> m_PendingComponentDeletions;
-        std::vector<std::pair<Id, std::vector<Relationship>>> m_PendingAppSystemCreations;
+
+        std::vector<std::pair<Id, PendingSystemInfo>> m_PendingAppSystemCreations;
         std::vector<Id> m_PendingAppSystemDeletions;
-        std::vector<std::pair<Id, std::vector<Relationship>>> m_PendingEngineSystemCreations;
+        std::vector<std::pair<Id, PendingSystemInfo>> m_PendingEngineSystemCreations;
         std::vector<Id> m_PendingEngineSystemDeletions;
         memory::Arena m_TempStore; // cleared after all pending creations/deletions
     };
@@ -208,6 +252,21 @@ namespace se::ecs
     {
         RegisterComponent<T>();
         return HasComponent(entity, T::GetComponentId());
+    }
+
+    template <typename T, typename Y>
+    bool World::HasRelationship(Id entity)
+    {
+        RegisterComponent<T>();
+        RegisterComponent<Y>();
+        return HasComponent(entity, CreateComponentRelationship<T, Y>());
+    }
+
+    template <typename T>
+    bool World::HasRelationshipWildcard(Id entity)
+    {
+        RegisterComponent<T>();
+        return HasRelationshipWildcardInternal(entity, bits::PackUtil::UnpackA64(T::GetComponentId()));
     }
 
     template<typename T>
@@ -236,28 +295,46 @@ namespace se::ecs
         {
             m_ComponentRecords.insert(std::make_pair(T::GetComponentId(),
                                                      ComponentRecord
-                                                             {
-                                                                     .type = reflect::ClassResolver<T>::get(),
-                                                                     .archetypeRecords = {}
-                                                             }));
+                                                     {
+                                                         .type = reflect::ClassResolver<T>::get(),
+                                                         .archetypeRecords = {}
+                                                     }));
         }
     }
 
     template <typename T>
-    void CollectComponentId(std::vector<Id>& compIds)
+    std::pair<Id, ComponentMutability::Type> World::CreateComponentUsagePair(ComponentMutability::Type type)
+    {
+        RegisterComponent<T>();
+        return { T::GetComponentId(), type };
+    }
+
+    template <typename T, typename Y>
+    Relationship World::CreateComponentRelationship()
+    {
+        static_assert(!std::is_same_v<components::ChildOf, T>, "Child relationships should be created via World::AddChild");
+        static_assert(std::is_base_of_v<RelationshipComponent, T>, "Relationship components must inherit from RelationshipComponent.");
+        RegisterComponent<T>();
+        Relationship relationship;
+        relationship.SetId(bits::PackUtil::Pack64(bits::PackUtil::UnpackA64(T::GetComponentId()), bits::PackUtil::UnpackA64(Y::GetComponentId())));
+        return relationship;
+    }
+
+    template <typename T>
+    void CollectComponentId(std::vector<std::pair<Id, ComponentMutability::Type>>& compIds)
     {
         if (!T::IsSingletonComponent())
         {
-            compIds.push_back(T::GetComponentId());
+            compIds.push_back(std::make_pair(T::GetComponentId(), std::is_const<T>() ? ComponentMutability::Immutable : ComponentMutability::Mutable));
         }
     }
 
-    void CollectRelationshipIds(std::vector<Id>& compIds, const std::vector<Relationship>& relationships);
+    void CollectRelationshipIds(std::vector<std::pair<Id, ComponentMutability::Type>>& compIds, const std::vector<Relationship>& relationships);
 
     template<typename ...T, typename Func>
     void World::Each(Func&& func, const std::vector<Relationship>& relationships, bool force)
     {
-        std::vector<Id> compIds = {};
+        std::vector<std::pair<Id, ComponentMutability::Type>> compIds = {};
         compIds.reserve(sizeof...(T) + relationships.size());
         (CollectComponentId<T>(compIds), ...);
         std::unordered_map<Id, std::unordered_map<Id, size_t>> argIndexs;
@@ -266,10 +343,10 @@ namespace se::ecs
         std::set<Archetype*> archetypes;
         for (auto compId: compIds)
         {
-            if (m_ComponentRecords.contains(compId))
+            if (m_ComponentRecords.contains(compId.first))
             {
-                auto& compRecord = m_ComponentRecords[compId];
-                for (const auto& [archetypeId, _]: compRecord.archetypeRecords)
+                auto& compRecord = m_ComponentRecords[compId.first];
+                for (const auto& archetypeId : compRecord.archetypeRecords | std::views::keys)
                 {
                     auto& archetype = m_Archetypes.at(archetypeId);
 
@@ -278,7 +355,7 @@ namespace se::ecs
                         auto& compKeys = argIndexs[archetypeId];
                         for (auto comp: compIds)
                         {
-                            compKeys.insert(std::make_pair(comp, std::ranges::find(archetype.type, comp) -
+                            compKeys.insert(std::make_pair(comp.first, std::ranges::find(archetype.type, comp.first) -
                                                                  archetype.type.begin()));
                         }
                     }
@@ -286,7 +363,7 @@ namespace se::ecs
                     bool containsAll = true;
                     for (auto comp: compIds)
                     {
-                        containsAll &= std::ranges::contains(archetype.type, comp);
+                        containsAll &= std::ranges::contains(archetype.type, comp.first);
                     }
 
                     if (!containsAll)
@@ -309,6 +386,26 @@ namespace se::ecs
         {
             Action<T...>::DoAction({}, m_SingletonComponents, nullptr, func);
         }
+    }
+
+    template <typename ... T, typename Func>
+    void World::ChildEach(Id entity, BaseSystem* system, Func&& func, const std::vector<Relationship>& relationships)
+    {
+#if !SPARK_DIST
+        std::vector<std::pair<Id, ComponentMutability::Type>> compIds = {};
+        compIds.reserve(sizeof...(T) + relationships.size());
+        (CollectComponentId<T>(compIds), ...);
+        CollectRelationshipIds(compIds, relationships);
+
+        if (!ValidateChildQuery(system, compIds))
+        {
+            return;
+        }
+#endif
+
+        std::vector<Relationship> relationshipCopy = relationships;
+        relationshipCopy.push_back(CreateChildRelationship(entity));
+        Each<T...>(func, relationshipCopy, false);
     }
 
     template<typename T>
@@ -340,7 +437,7 @@ namespace se::ecs
     }
 
     template<EngineSystemConcept T>
-    void World::CreateEngineSystem(const std::vector<Relationship>& relationships)
+    void World::CreateEngineSystem(const std::vector<Relationship>& relationships, const ChildQuery& additionalChildQuery)
     {
         auto guard = MaybeLockGuard(m_UpdateMode, &m_SystemMutex);
         Id system;
@@ -352,7 +449,7 @@ namespace se::ecs
         {
             system = NewSystem();
         }
-        m_PendingEngineSystemCreations.push_back({system, relationships});
+        m_PendingEngineSystemCreations.push_back({system, { relationships, additionalChildQuery }});
         if (SPARK_VERIFY(!m_EngineSystems.contains(system)))
         {
             m_EngineSystems.insert(std::make_pair(system, SystemRecord { reflect::ClassResolver<T>::get(), nullptr }));
@@ -360,7 +457,7 @@ namespace se::ecs
     }
 
     template <AppSystemConcept T>
-    void World::CreateAppSystem(const std::vector<Relationship>& relationships)
+    void World::CreateAppSystem(const std::vector<Relationship>& relationships, const ChildQuery& additionalChildQuery)
     {
         auto guard = MaybeLockGuard(m_UpdateMode, &m_SystemMutex);
         Id system;
@@ -372,7 +469,7 @@ namespace se::ecs
         {
             system = NewSystem();
         }
-        m_PendingAppSystemCreations.push_back({system, relationships});
+        m_PendingAppSystemCreations.push_back({system, { relationships, additionalChildQuery }});
         if (SPARK_VERIFY(!m_AppSystems.contains(system)))
         {
             m_AppSystems.insert(std::make_pair(system, SystemRecord { reflect::ClassResolver<T>::get(), nullptr }));

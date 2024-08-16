@@ -39,4 +39,12 @@ namespace se::math
                    t * axis.x * axis.z + s * axis.y,  t * axis.y * axis.z - s * axis.x,   t * (axis.z * axis.z) + c,        0.f,
                    0.f,                               0.f,                                0.f,                              1.f };
     }
+
+    Vec3 EularFromMat4(const Mat4& mat)
+    {
+        auto beta = -std::asin(mat[2][0]);
+        auto alpha = std::atan2(mat[2][1] / std::cos(beta),mat[2][2] / std::cos(beta));
+        auto gamma = std::atan2(mat[1][0] / std::cos(beta),mat[0][0] / std::cos(beta));
+        return Vec3(alpha, beta, gamma);
+    }
 }

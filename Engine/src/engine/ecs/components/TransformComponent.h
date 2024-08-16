@@ -13,5 +13,8 @@ namespace se::ecs::components
         math::Vec3 pos = {};
         math::Vec3 rot = {};
         math::Vec3 scale = math::Vec3(1.f, 1.f, 1.f);
+
+        math::Mat4 transform = {};
+        math::Mat4 worldTransform = {};
     };
 }
