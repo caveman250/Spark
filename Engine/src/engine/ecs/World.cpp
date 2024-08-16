@@ -386,8 +386,6 @@ namespace se::ecs
                 }
             }
         }
-
-        int lol =1;
     }
 
     bool World::IsChildOf(Id entity, Id parent)

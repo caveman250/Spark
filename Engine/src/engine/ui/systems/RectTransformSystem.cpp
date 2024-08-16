@@ -56,8 +56,6 @@ namespace se::ui::systems
                     {
                         child.rect.bottomRight.y = trans.rect.topLeft.y + child.maxX;
                     }
-
-                    int lol = 1;
                 }
             });
         }
