@@ -21,17 +21,28 @@ namespace se::ecs
         virtual void Update() = 0;
         virtual void Render() = 0;
         virtual void Shutdown() = 0;
-        virtual std::map<Id, bool> GetUsedComponents() const = 0;
+        virtual std::map<Id, ComponentMutability::Type> GetUsedComponents() const = 0;
 
     protected:
-        World* m_World = nullptr;
-        std::vector<Relationship> m_Relationships;
-
         template<typename... Ts, typename Func>
         void RunQuery(Func&& func)
         {
-            m_World->Each<Ts...>(func, m_Relationships, true);
+            Application::Get()->GetWorld()->Each<Ts...>(func, m_Relationships, true);
         }
+
+        template<typename... Ts, typename Func>
+        void RunChildQuery(Id entity, Func&& func)
+        {
+            Application::Get()->GetWorld()->ChildEach<Ts...>(entity, this, func, m_Relationships);
+        }
+
+        const std::vector<Relationship>& GetRelationships() const { return m_Relationships; }
+        const ChildQuery& GetChildQuery() const { return m_ChildQuery; }
+
+    private:
+        virtual void RegisterComponents() = 0;
+        std::vector<Relationship> m_Relationships;
+        ChildQuery m_ChildQuery;
 
         friend class World;
     };
@@ -47,9 +58,11 @@ namespace se::ecs
         void Render() override;
         void Shutdown() override;
 
-        std::map<Id, bool> GetUsedComponents() const override;
+        std::map<Id, ComponentMutability::Type> GetUsedComponents() const override;
 
     private:
+        void RegisterComponents() override;
+
         virtual void OnInit(const std::vector<se::ecs::Id>&, Cs*...) {}
         virtual void OnUpdate(const std::vector<se::ecs::Id>&, Cs*...) {}
         virtual void OnRender(const std::vector<se::ecs::Id>&, Cs*...) {}
@@ -147,18 +160,28 @@ namespace se::ecs
     }
 
     template <typename T>
-    void CollectUsedComponent(std::map<Id, bool>& vec)
+    void CollectUsedComponent(std::map<Id, ComponentMutability::Type>& vec)
     {
         Application::Get()->GetWorld()->RegisterComponent<T>();
-        vec.insert(std::make_pair(T::GetComponentId(), std::is_const<T>()));
+        vec.insert(std::make_pair(T::GetComponentId(), std::is_const<T>() ? ComponentMutability::Immutable : ComponentMutability::Mutable));
     }
 
     template<typename... Cs>
-    std::map<Id, bool> System<Cs...>::GetUsedComponents() const
+    std::map<Id, ComponentMutability::Type> System<Cs...>::GetUsedComponents() const
     {
-        std::map<Id, bool> ret;
+        std::map<Id, ComponentMutability::Type> ret;
         (CollectUsedComponent<Cs>(ret), ...);
+        for (const auto& child : GetChildQuery())
+        {
+            ret.insert(std::make_pair(child.first, child.second));
+        }
         return ret;
+    }
+
+    template <typename ... Cs>
+    void System<Cs...>::RegisterComponents()
+    {
+        (Application::Get()->GetWorld()->RegisterComponent<Cs>(), ...);
     }
 
     template<typename... Cs>
@@ -182,7 +205,23 @@ namespace se::ecs
     }
 
     template <typename... Cs>
-    class EngineSystem : public System<Cs...> {};
+    class EngineSystem : public System<Cs...>
+    {
+    private:
+        template<typename... Ts, typename Func>
+        void RunQuery(Func&&)
+        {
+            SPARK_ASSERT(false, "RunQuery should not be called irectly by systems");
+        }
+    };
     template <typename... Cs>
-    class AppSystem : public System<Cs...> {};
+    class AppSystem : public System<Cs...>
+    {
+    private:
+        template<typename... Ts, typename Func>
+        void RunQuery(Func&&)
+        {
+            SPARK_ASSERT(false, "RunQuery should not be called irectly by systems");
+        }
+    };
 }

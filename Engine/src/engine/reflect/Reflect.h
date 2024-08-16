@@ -179,7 +179,7 @@ typeDesc->members = {
 #define DECLARE_SPARK_COMPONENT(Type) \
 DECLARE_SPARK_CLASS(Type)     \
 static uint64_t s_ComponentId;\
-static uint64_t GetComponentId() { return s_ComponentId; } \
+static uint64_t GetComponentId() { SPARK_ASSERT(s_ComponentId != 0, "GetComponentId called before RegisterComponent"); return s_ComponentId; } \
 static constexpr bool IsSingletonComponent() { return false; }
 
 #define DEFINE_SPARK_COMPONENT_BEGIN(type) \

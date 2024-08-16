@@ -25,20 +25,9 @@ namespace se::render::systems
         camera->proj = math::Perspective(math::Radians(45.f), (float)app->GetPrimaryWindow()->GetWidth() / (float)app->GetPrimaryWindow()->GetHeight(),.1f, 100.f);
         for (size_t i = 0; i < entities.size(); ++i)
         {
-            auto& transformComp = transform[i];
-
-            math::Mat4 model = Translation(transformComp.pos);
-            model = model * AxisAngle(math::Vec3(1.0f, 0.0f, 0.0f), transformComp.rot.x);
-            model = model * AxisAngle(math::Vec3(0.0f, 1.0f, 0.0f), transformComp.rot.y);
-            model = model * AxisAngle(math::Vec3(0.0f, 0.0f, 1.0f), transformComp.rot.z);
-
-            model = model * Scale(transformComp.scale);
-
-            SPARK_ASSERT((float*)&model[0] == &model[0][0]);
-
             if (const auto& material =  mesh[i].material)
             {
-                material->SetUniform("model", asset::shader::ast::AstType::Mat4, 1, &model);
+                material->SetUniform("model", asset::shader::ast::AstType::Mat4, 1, &transform[i].worldTransform);
                 material->SetUniform("view", asset::shader::ast::AstType::Mat4, 1, &camera->view);
                 material->SetUniform("proj", asset::shader::ast::AstType::Mat4, 1, &camera->proj);
             }
