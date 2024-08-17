@@ -5,8 +5,6 @@
 #include "RectTransformSystem.h"
 
 #include "engine/Application.h"
-#include "engine/ecs/components/TransformComponent.h"
-#include "engine/ecs/relationships/ChildOf.h"
 
 using namespace se;
 using namespace se::ecs::components;
@@ -17,12 +15,13 @@ namespace se::ui::systems
 
     void RectTransformSystem::OnUpdate(const std::vector<ecs::Id>& entities, components::RectTransformComponent* transform, ParentComponent*)
     {
+        auto world = Application::Get()->GetWorld();
         for (size_t i = 0; i < entities.size(); ++i)
         {
             auto& trans = transform[i];
             if (trans.needsLayout)
             {
-                RunChildQuery<components::RectTransformComponent>(entities[i], [trans](const std::vector<ecs::Id>& children, components::RectTransformComponent* childTransform)
+                RunChildQuery<components::RectTransformComponent>(entities[i], [world, trans](const std::vector<ecs::Id>& children, components::RectTransformComponent* childTransform)
                 {
                     for (size_t i = 0; i < children.size(); ++i)
                     {
@@ -50,6 +49,8 @@ namespace se::ui::systems
                         {
                             child.rect.bottomRight.y = trans.rect.topLeft.y + child.maxX;
                         }
+
+                        child.needsLayout = world->HasComponent<ParentComponent>(children[i]);
                     }
                 });
 
