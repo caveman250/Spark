@@ -33,7 +33,13 @@ endif()
 file(GLOB_RECURSE ENGINE_CODE src/engine/*.cpp src/engine/*.h)
 
 ###### Output ######
-add_library(Spark ${PLATFORM_SHARED_CODE} ${PLATFORM_CODE} ${ENGINE_CODE})
+add_library(Spark ${PLATFORM_SHARED_CODE} ${PLATFORM_CODE} ${ENGINE_CODE}
+        src/engine/ecs/components/RootComponent.cpp
+        src/engine/ecs/components/RootComponent.h
+        src/engine/ecs/systems/RootTransformSystem.cpp
+        src/engine/ecs/systems/RootTransformSystem.h
+        src/engine/ui/systems/RootRectTransformSystem.cpp
+        src/engine/ui/systems/RootRectTransformSystem.h)
 
 ###### Linker ######
 target_link_libraries(Spark crn OpenFBX)

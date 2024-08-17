@@ -25,9 +25,9 @@ namespace se::ecs
 
     protected:
         template<typename... Ts, typename Func>
-        void RunQuery(Func&& func)
+        void RunQuery(Func&& func, bool force)
         {
-            Application::Get()->GetWorld()->Each<Ts...>(func, m_Relationships, true);
+            Application::Get()->GetWorld()->Each<Ts...>(func, m_Relationships, force);
         }
 
         template<typename... Ts, typename Func>
@@ -97,7 +97,7 @@ namespace se::ecs
     template<std::size_t Index, typename... Ts>
     std::enable_if_t<Index == sizeof...(Cs) + 1> System<Cs...>::ShutdownBuilder(Ts... ts)
     {
-        RunQuery<Cs...>(std::bind(&System::OnShutdown, this, ts...));
+        RunQuery<Cs...>(std::bind(&System::OnShutdown, this, ts...), true);
     }
 
 #if SPARK_PLATFORM_WINDOWS
@@ -123,7 +123,7 @@ namespace se::ecs
     template<std::size_t Index, typename... Ts>
     std::enable_if_t<Index == sizeof...(Cs) + 1> System<Cs...>::RenderBuilder(Ts... ts)
     {
-       RunQuery<Cs...>(std::bind(&System::OnRender, this, ts...));
+       RunQuery<Cs...>(std::bind(&System::OnRender, this, ts...), false);
     }
 
     template<typename... Cs>
@@ -143,7 +143,7 @@ namespace se::ecs
     template<std::size_t Index, typename... Ts>
     std::enable_if_t<Index == sizeof...(Cs) + 1> System<Cs...>::InitBuilder(Ts... ts)
     {
-        RunQuery<Cs...>(std::bind(&System::OnInit, this, ts...));
+        RunQuery<Cs...>(std::bind(&System::OnInit, this, ts...), true);
     }
 
     template<typename... Cs>
@@ -195,7 +195,7 @@ namespace se::ecs
     template<std::size_t Index, typename... Ts>
     std::enable_if_t<Index == sizeof...(Cs) + 1> System<Cs...>::UpdateBuilder(Ts... ts)
     {
-        RunQuery<Cs...>(std::bind(&System::OnUpdate, this, ts...));
+        RunQuery<Cs...>(std::bind(&System::OnUpdate, this, ts...), false);
     }
 
     template<typename... Cs>

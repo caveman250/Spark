@@ -1,6 +1,7 @@
 #include "World.h"
 
 #include "components/ParentComponent.h"
+#include "components/RootComponent.h"
 #include "engine/reflect/Reflect.h"
 #include "engine/ecs/System.h"
 #include "engine/render/Renderer.h"
@@ -509,7 +510,7 @@ namespace se::ecs
     void World::AddChild(Id entity, Id childEntity)
     {
         AddRelationship(childEntity, CreateChildRelationship(entity));
-        components::ParentComponent* parentComp = nullptr;
+        components::ParentComponent* parentComp;
         if (!HasComponent<components::ParentComponent>(entity))
         {
             parentComp = AddComponent<components::ParentComponent>(entity);
@@ -520,6 +521,16 @@ namespace se::ecs
         }
 
         parentComp->childCount++;
+
+        if (!HasRelationshipWildcard<components::ChildOf>(entity))
+        {
+            AddComponent<components::RootComponent>(entity);
+        }
+
+        if (HasComponent<components::RootComponent>(childEntity))
+        {
+            RemoveComponent<components::RootComponent>(childEntity);
+        }
     }
 
     void World::RemoveChild(Id entity, Id childEntity)

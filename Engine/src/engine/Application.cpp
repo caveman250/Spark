@@ -1,5 +1,6 @@
 #include "Application.h"
 
+#include "ecs/systems/RootTransformSystem.h"
 #include "ecs/systems/TransformSystem.h"
 #include "ecs/systems/WorldTransformSystem.h"
 #include "input/InputComponent.h"
@@ -10,6 +11,7 @@
 #include "render/systems/MeshRenderSystem.h"
 #include "render/systems/PointLightSystem.h"
 #include "ui/systems/RectTransformSystem.h"
+#include "ui/systems/RootRectTransformSystem.h"
 
 namespace se
 {
@@ -53,7 +55,9 @@ namespace se
         m_World.CreateEngineSystem<render::systems::MeshRenderSystem>({}, {});
         m_World.CreateEngineSystem<ecs::systems::TransformSystem>({}, {});
         m_World.CreateEngineSystem<ecs::systems::WorldTransformSystem>({}, {});
+        m_World.CreateEngineSystem<ecs::systems::RootTransformSystem>({}, {});
         m_World.CreateEngineSystem<ui::systems::RectTransformSystem>({}, {});
+        m_World.CreateEngineSystem<ui::systems::RootRectTransformSystem>({}, {});
     }
 
     void Application::Run() const

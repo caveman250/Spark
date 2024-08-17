@@ -17,9 +17,6 @@ namespace se::ecs::systems
 
     void TransformSystem::OnUpdate(const std::vector<Id>& entities, TransformComponent* transform)
     {
-        auto app = Application::Get();
-        auto world = app->GetWorld();
-
         for (size_t i = 0; i < entities.size(); ++i)
         {
             auto& trans = transform[i];
@@ -28,11 +25,6 @@ namespace se::ecs::systems
             trans.transform = trans.transform * AxisAngle(math::Vec3(0.0f, 1.0f, 0.0f), trans.rot.y);
             trans.transform = trans.transform * AxisAngle(math::Vec3(0.0f, 0.0f, 1.0f), trans.rot.z);
             trans.transform = trans.transform *  Scale(trans.scale);
-
-            if (!world->HasRelationshipWildcard<ChildOf>(entities[i]))
-            {
-                trans.worldTransform = trans.transform;
-            }
         }
     }
 }

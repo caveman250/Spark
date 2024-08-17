@@ -378,7 +378,10 @@ namespace se::ecs
 
         for (auto* archetype: archetypes)
         {
-            Action<T...>::DoAction(archetype->entities, m_SingletonComponents, archetype, func);
+            if (!archetype->entities.empty())
+            {
+                Action<T...>::DoAction(archetype->entities, m_SingletonComponents, archetype, func);
+            }
         }
 
         bool hasStaticComps = compIds.size() - relationships.size() != sizeof...(T);
