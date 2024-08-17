@@ -18,7 +18,8 @@ namespace se::ui::components
         float maxY = 0;
 
         Rect rect = {};
+        Rect lastRect = {};
 
-        bool needsArrange = true; // runtime only
+        bool needsLayout = true; // runtime only
     };
 }

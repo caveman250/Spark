@@ -10,5 +10,10 @@ namespace se::ui
 
         math::Vec2 topLeft;
         math::Vec2 bottomRight;
+
+        bool operator==(const Rect& rhs) const
+        {
+            return topLeft == rhs.topLeft && bottomRight == rhs.bottomRight;
+        }
     };
 }

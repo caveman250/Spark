@@ -17,47 +17,44 @@ namespace se::ui::systems
 
     void RectTransformSystem::OnUpdate(const std::vector<ecs::Id>& entities, components::RectTransformComponent* transform, ParentComponent*)
     {
-        auto app = Application::Get();
-        auto world = app->GetWorld();
-
         for (size_t i = 0; i < entities.size(); ++i)
         {
             auto& trans = transform[i];
-            if (!world->HasRelationshipWildcard<ChildOf>(entities[i]))
+            if (trans.needsLayout)
             {
-                trans.rect = {{ trans.minX, trans.minY }, { trans.maxX, trans.maxY }};
-            }
-
-            RunChildQuery<components::RectTransformComponent>(entities[i], [trans](const std::vector<ecs::Id>& children, components::RectTransformComponent* childTransform)
-            {
-                for (size_t i = 0; i < children.size(); ++i)
+                RunChildQuery<components::RectTransformComponent>(entities[i], [trans](const std::vector<ecs::Id>& children, components::RectTransformComponent* childTransform)
                 {
-                    components::RectTransformComponent& child = childTransform[i];
-                    float parentWidth = trans.rect.bottomRight.x - trans.rect.topLeft.x;
-                    float parentHeight = trans.rect.bottomRight.y - trans.rect.topLeft.y;
+                    for (size_t i = 0; i < children.size(); ++i)
+                    {
+                        components::RectTransformComponent& child = childTransform[i];
+                        float parentWidth = trans.rect.bottomRight.x - trans.rect.topLeft.x;
+                        float parentHeight = trans.rect.bottomRight.y - trans.rect.topLeft.y;
 
-                    child.rect.topLeft = { trans.rect.topLeft.x + child.minX + child.anchors.left * parentWidth,
-                                                trans.rect.topLeft.y + child.minY + child.anchors.top * parentHeight };
+                        child.rect.topLeft = { trans.rect.topLeft.x + child.minX + child.anchors.left * parentWidth,
+                                                    trans.rect.topLeft.y + child.minY + child.anchors.top * parentHeight };
 
-                    if (child.anchors.right > 0)
-                    {
-                        child.rect.bottomRight.x = trans.rect.bottomRight.x - child.maxX - ((1.f - child.anchors.right) * parentWidth);
-                    }
-                    else
-                    {
-                        child.rect.bottomRight.x = trans.rect.topLeft.x + child.maxX;
-                    }
+                        if (child.anchors.right > 0)
+                        {
+                            child.rect.bottomRight.x = trans.rect.bottomRight.x - child.maxX - ((1.f - child.anchors.right) * parentWidth);
+                        }
+                        else
+                        {
+                            child.rect.bottomRight.x = trans.rect.topLeft.x + child.maxX;
+                        }
 
-                    if (child.anchors.bottom > 0)
-                    {
-                        child.rect.bottomRight.y = trans.rect.bottomRight.y - child.maxY - ((1.f - child.anchors.bottom) * parentHeight);
+                        if (child.anchors.bottom > 0)
+                        {
+                            child.rect.bottomRight.y = trans.rect.bottomRight.y - child.maxY - ((1.f - child.anchors.bottom) * parentHeight);
+                        }
+                        else
+                        {
+                            child.rect.bottomRight.y = trans.rect.topLeft.y + child.maxX;
+                        }
                     }
-                    else
-                    {
-                        child.rect.bottomRight.y = trans.rect.topLeft.y + child.maxX;
-                    }
-                }
-            });
+                });
+
+                trans.needsLayout = false;
+            }
         }
     }
 }
