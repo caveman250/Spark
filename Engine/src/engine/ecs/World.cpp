@@ -275,7 +275,7 @@ namespace se::ecs
             {
                 system->Update();
             }
-        });
+        }, true);
 
         RunOnAllAppSystems([this](auto&& systemId)
         {
@@ -283,7 +283,7 @@ namespace se::ecs
             {
                 system->Update();
             }
-        });
+        }, true);
 
         m_Running = false;
     }
@@ -300,7 +300,7 @@ namespace se::ecs
             {
                 system->Render();
             }
-        });
+        }, false);
 
         RunOnAllAppSystems([this](auto&& systemId)
         {
@@ -308,7 +308,7 @@ namespace se::ecs
             {
                 system->Render();
             }
-        });
+        }, false);
 
         m_Running = false;
     }
@@ -323,7 +323,7 @@ namespace se::ecs
             {
                 system->Shutdown();
             }
-        });
+        }, true);
 
         RunOnAllAppSystems([this](auto&& systemId)
         {
@@ -331,7 +331,7 @@ namespace se::ecs
             {
                 system->Shutdown();
             }
-        });
+        }, true);
 
         m_Running = false;
     }
@@ -429,9 +429,9 @@ namespace se::ecs
         }
     }
 
-    void World::RunOnAllAppSystems(const std::function<void(Id)>& func)
+    void World::RunOnAllSystems(const std::function<void(Id)> &func, const std::vector<std::vector<Id>>& systemUpdateGroups, bool parallel)
     {
-        for (const auto& updateGroup: m_AppSystemUpdateGroups)
+        for (const auto& updateGroup: systemUpdateGroups)
         {
             ProcessPendingComponents();
             ProcessPendingSystems();
@@ -444,35 +444,32 @@ namespace se::ecs
                 m_TempStore.Reset();
             }
 
-            m_UpdateMode = updateGroup.size() > 1 ? UpdateMode::MultiThreaded : UpdateMode::SingleThreaded;
-            std::for_each(std::execution::par,
-                          updateGroup.begin(),
-                          updateGroup.end(),
-                          func);
+            m_UpdateMode = parallel && updateGroup.size() > 1 ? UpdateMode::MultiThreaded : UpdateMode::SingleThreaded;
+            if (m_UpdateMode == UpdateMode::MultiThreaded)
+            {
+                std::for_each(std::execution::par_unseq,
+                              updateGroup.begin(),
+                              updateGroup.end(),
+                              func);
+            }
+            else
+            {
+                std::for_each(std::execution::unseq,
+                              updateGroup.begin(),
+                              updateGroup.end(),
+                              func);
+            }
         }
     }
 
-    void World::RunOnAllEngineSystems(const std::function<void(Id)>& func)
+    void World::RunOnAllAppSystems(const std::function<void(Id)>& func, bool parallel)
     {
-        for (const auto& updateGroup: m_EngineSystemUpdateGroups)
-        {
-            ProcessPendingComponents();
-            ProcessPendingSystems();
-            ProcessPendingEntityDeletions();
+        RunOnAllSystems(func, m_AppSystemUpdateGroups, parallel);
+    }
 
-            if (m_PendingComponentCreations.empty() && m_PendingComponentDeletions.empty() &&
-                m_PendingAppSystemCreations.empty() && m_PendingAppSystemDeletions.empty() &&
-                m_PendingEngineSystemCreations.empty() && m_PendingEngineSystemDeletions.empty())
-            {
-                m_TempStore.Reset();
-            }
-
-            m_UpdateMode = updateGroup.size() > 1 ? UpdateMode::MultiThreaded : UpdateMode::SingleThreaded;
-            std::for_each(std::execution::par,
-                          updateGroup.begin(),
-                          updateGroup.end(),
-                          func);
-        }
+    void World::RunOnAllEngineSystems(const std::function<void(Id)>& func, bool parallel)
+    {
+        RunOnAllSystems(func, m_EngineSystemUpdateGroups, parallel);
     }
 
     void World::DestroyEntity(Id entity)

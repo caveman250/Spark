@@ -10,6 +10,7 @@
 #include "io/VFS.h"
 #include "render/systems/MeshRenderSystem.h"
 #include "render/systems/PointLightSystem.h"
+#include "ui/systems/ImageRenderSystem.h"
 #include "ui/systems/RectTransformSystem.h"
 #include "ui/systems/RootRectTransformSystem.h"
 
@@ -58,6 +59,7 @@ namespace se
         m_World.CreateEngineSystem<ecs::systems::RootTransformSystem>({}, {});
         m_World.CreateEngineSystem<ui::systems::RectTransformSystem>({}, {});
         m_World.CreateEngineSystem<ui::systems::RootRectTransformSystem>({}, {});
+        m_World.CreateEngineSystem<ui::systems::ImageRenderSystem>({}, {});
     }
 
     void Application::Run() const
