@@ -44,6 +44,7 @@ namespace se::render
 
     void Renderer::Render(IWindow* window)
     {
+        SortDrawCommands(window);
         ExecuteDrawCommands(window);
     }
 
@@ -51,6 +52,20 @@ namespace se::render
     {
         m_RenderCommands.clear();
         m_RenderCommandsArena.Reset();
+    }
+
+    void Renderer::SortDrawCommands(IWindow *window)
+    {
+        auto& renderCmds = m_RenderCommands[window];
+        std::ranges::sort(renderCmds, [](const auto& lhs, const auto& rhs)
+        {
+            if (lhs->GetRenderStage() != rhs->GetRenderStage())
+            {
+                return lhs->GetRenderStage() < rhs->GetRenderStage();
+            }
+
+            return lhs->GetSortKey() < rhs->GetSortKey();
+        });
     }
 
     void Renderer::ExecuteDrawCommands(IWindow* window)

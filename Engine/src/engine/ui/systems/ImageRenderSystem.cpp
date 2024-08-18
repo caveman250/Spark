@@ -8,6 +8,7 @@
 #include "engine/render/Renderer.h"
 #include "engine/render/VertexBuffer.h"
 #include "engine/ui/util/MeshUtil.h"
+#include "platform/IWindow.h"
 
 using namespace se;
 using namespace se::ecs::components;
@@ -21,6 +22,7 @@ namespace se::ui::systems
         auto app = Application::Get();
         auto renderer = render::Renderer::Get();
         auto window = app->GetPrimaryWindow();
+        auto windowsSize = math::Vec2(window->GetWidth(), window->GetHeight());
 
         for (size_t i = 0; i < entities.size(); ++i)
         {
@@ -38,7 +40,9 @@ namespace se::ui::systems
                     image.lastRect = transform.rect;
                 }
 
-                renderer->Submit<render::commands::SubmitGeo>(window, image.material, image.vertBuffer, image.indexBuffer);
+                image.material->SetUniform("screenSize", asset::shader::ast::AstType::Vec2, 1, &windowsSize);
+
+                renderer->Submit<render::commands::SubmitUI>(window, image.material, image.vertBuffer, image.indexBuffer, transform.layer);
             }
         }
     }
