@@ -15,6 +15,11 @@ namespace se::render::opengl
     {
     }
 
+    IndexBuffer::~IndexBuffer()
+    {
+        Cleanup();
+    }
+
     void IndexBuffer::CreatePlatformResource()
     {
         glGenBuffers(1, &m_Resource);
@@ -25,5 +30,13 @@ namespace se::render::opengl
     void IndexBuffer::Bind()
     {
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_Resource);
+    }
+
+    void IndexBuffer::Cleanup()
+    {
+        if (m_Resource != GL_INVALID_VALUE)
+        {
+            glDeleteBuffers(1, &m_Resource);
+        }
     }
 }

@@ -20,6 +20,8 @@ namespace se::ui::components
         Rect rect = {};
         Rect lastRect = {};
 
+        int layer = 0;
+
         bool needsLayout = true; // runtime only
     };
 }

@@ -34,9 +34,11 @@ namespace se::render
         void AddPointLight(const PointLight& light);
 
         void Update();
+
         virtual void Render(IWindow* window);
         virtual void EndFrame();
     protected:
+        void SortDrawCommands(IWindow* window);
         void ExecuteDrawCommands(IWindow* window);
         virtual void ApplyDepthCompare(DepthCompare comp) = 0;
 

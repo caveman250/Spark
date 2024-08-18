@@ -6,12 +6,15 @@ port(VertexUV) in vec2 inUV;
 port(FinalVertPos) out vec4 outPos;
 port(FragUV) out vec2 outUV;
 
+uniform vec2 screenSize;
+
 void main()
 {
     vec2 posScreenSpace = vec2(inPos.x, inPos.y);
-    vec2 vertexPosition_homoneneousspace = posScreenSpace - vec2(640,360);
-    vertexPosition_homoneneousspace = vertexPosition_homoneneousspace / vec2(640,360);
-    outPos = vec4(vertexPosition_homoneneousspace, 0.0, 1.0);
+    float halfScreenSize = screenSize / 2;
+    vec2 homogeneousSpace = posScreenSpace - vec2(halfScreenSize.x, halfScreenSize.y);
+    homogeneousSpace = homogeneousSpace / vec2(halfScreenSize.x, halfScreenSize.y);
+    outPos = vec4(homogeneousSpace, 0.0, 1.0);
 
     outUV = inUV;
 }

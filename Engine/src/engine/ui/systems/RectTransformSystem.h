@@ -14,5 +14,8 @@ namespace se::ui::systems
         DECLARE_SPARK_SYSTEM(RectTransformSystem)
     public:
         void OnUpdate(const std::vector<ecs::Id>& entities, components::RectTransformComponent* transform, ParentComponent*) override;
+
+    private:
+        void LayoutChildren(ecs::World* world, ecs::Id entity, const components::RectTransformComponent& parentRect, int depth);
     };
 }

@@ -10,10 +10,13 @@ namespace se::render::opengl
     {
     public:
         IndexBuffer(const asset::StaticMesh& mesh);
+        ~IndexBuffer();
 
         void CreatePlatformResource() override;
         void Bind() override;
     private:
-        GLuint m_Resource;
+        void Cleanup();
+
+        GLuint m_Resource = GL_INVALID_VALUE;
     };
 }

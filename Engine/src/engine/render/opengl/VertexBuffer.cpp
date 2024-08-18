@@ -17,12 +17,18 @@ namespace se::render::opengl
     {
 
     }
-    
+
+    VertexBuffer::~VertexBuffer()
+    {
+        Cleanup();
+    }
+
     void VertexBuffer::CreatePlatformResource()
     {
-        GLuint VertexArrayID = {};
-        glGenVertexArrays(1, &VertexArrayID);
-        glBindVertexArray(VertexArrayID);
+        Cleanup();
+
+        glGenVertexArrays(1, &m_VertexArrayID);
+        glBindVertexArray(m_VertexArrayID);
 
         for (const auto& [usage, stream] : m_VertexStreams)
         {
@@ -56,6 +62,18 @@ namespace se::render::opengl
         for (size_t loc = 0; loc < m_VertexStreams.size(); ++loc)
         {
             glDisableVertexAttribArray(static_cast<int>(loc++));
+        }
+    }
+
+    void VertexBuffer::Cleanup()
+    {
+        if (m_VertexArrayID != GL_INVALID_VALUE)
+        {
+            glDeleteVertexArrays(1, &m_VertexArrayID);
+        }
+        for (const auto& [usage, stream] : m_VertexStreams)
+        {
+            glDeleteBuffers(1, &m_GlResources[usage]);
         }
     }
 }
