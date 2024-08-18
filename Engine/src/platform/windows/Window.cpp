@@ -54,8 +54,6 @@ namespace se::windows
         s_WindowInstances[GetHWND()] = this;
         CreateContext();
 
-
-
         SetCurrent();
         ShowWindow(m_Hwnd, SW_NORMAL);
         UpdateWindow(m_Hwnd);

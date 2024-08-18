@@ -11,9 +11,8 @@ uniform vec2 screenSize;
 void main()
 {
     vec2 posScreenSpace = vec2(inPos.x, inPos.y);
-    float halfScreenSize = screenSize / 2;
-    vec2 homogeneousSpace = posScreenSpace - vec2(halfScreenSize.x, halfScreenSize.y);
-    homogeneousSpace = homogeneousSpace / vec2(halfScreenSize.x, halfScreenSize.y);
+    vec2 homogeneousSpace = posScreenSpace - vec2(screenSize.x / 2, screenSize.y / 2);
+    homogeneousSpace = homogeneousSpace / vec2(screenSize.x / 2, screenSize.y / 2);
     outPos = vec4(homogeneousSpace, 0.0, 1.0);
 
     outUV = inUV;
