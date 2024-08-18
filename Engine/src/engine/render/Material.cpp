@@ -25,6 +25,11 @@ namespace se::render
             m_PlatformResourcesCreated = true;
         }
 
+        if (m_UniformStorage.IsStale())
+        {
+            m_UniformStorage.Apply(this);
+        }
+
         const auto& lightSetup = Renderer::Get()->GetLightSetup();
         // TODO improve shader parser so i can just pass an array of structs
         std::vector<math::Vec3> pos;
@@ -42,7 +47,6 @@ namespace se::render
     void Material::CreatePlatformResources(const VertexBuffer&)
     {
         m_PlatformResourcesCreated = true;
-        m_UniformStorage.Apply(this);
     }
 
     void Material::DestroyPlatformResources()

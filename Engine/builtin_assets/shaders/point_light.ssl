@@ -1,6 +1,6 @@
 SSL_FRAGMENT
 
-port(test) in vec3 inColor;
+port(FinalFragColor) in vec3 inColor;
 
 setting int numLights;
 

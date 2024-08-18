@@ -50,6 +50,5 @@ namespace se::render
     void Material::SetUniform(const std::string& name, asset::shader::ast::AstType::Type type, int count, const T* value)
     {
         m_UniformStorage.SetValue(name, type, count, value);
-        SetUniformInternal(name, type, count, value);
     }
 }
