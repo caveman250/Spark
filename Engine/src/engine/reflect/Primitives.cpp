@@ -34,6 +34,7 @@ return &typeDesc;\
 }
 
     DEFINE_PRIMITIVE(bool, asset::binary::Type::Bool)
+    DEFINE_PRIMITIVE(char, asset::binary::Type::Int8)
     DEFINE_PRIMITIVE(uint8_t, asset::binary::Type::Uint8)
     DEFINE_PRIMITIVE(int, asset::binary::Type::Int32)
     DEFINE_PRIMITIVE(uint32_t, asset::binary::Type::Uint32)

@@ -4,31 +4,33 @@
 #include "Blueprint.h"
 #include "TextureBlueprint.h"
 #include "FBXBlueprint.h"
+#include "FontBlueprint.h"
 #include "ShaderBlueprint.h"
 #include "engine/io/OutputFileStream.h"
 
 namespace se::asset::builder
 {
-    std::array<std::unique_ptr<Blueprint>, 3> s_AssetBlueprints =
+    std::array<std::unique_ptr<Blueprint>, 4> s_AssetBlueprints =
     {
         std::make_unique<TextureBlueprint>(),
         std::make_unique<FBXBlueprint>(),
-        std::make_unique<ShaderBlueprint>()
+        std::make_unique<ShaderBlueprint>(),
+        std::make_unique<FontBlueprint>()
     };
 
-    std::shared_ptr<binary::Database> AssetBuilder::ProcessAsset(const std::string& assetPath, meta::MetaData& meta)
+    std::vector<BuiltAsset> AssetBuilder::ProcessAsset(const std::string& assetPath, const std::string& outputPath, meta::MetaData& meta)
     {
         for (const auto& bp : s_AssetBlueprints)
         {
             if (std::regex_match(assetPath, bp->GetFilePattern()))
             {
-                auto db = bp->BuildAsset(assetPath, meta);
+                auto dbs = bp->BuildAsset(assetPath, outputPath, meta);
                 meta.SetFormatVersion(bp->GetLatestVersion());
-                return db;
+                return dbs;
             }
         }
 
-        return nullptr;
+        return { };
     }
 
     bool AssetBuilder::IsRelevantFile(const std::string &assetPath)

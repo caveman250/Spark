@@ -1,5 +1,6 @@
 #include "Vec2.h"
 
+#include "IntVec2.h"
 #include "math.h"
 
 namespace se::math
@@ -8,6 +9,14 @@ namespace se::math
         DEFINE_MEMBER(x)
         DEFINE_MEMBER(y)
     DEFINE_SPARK_CLASS_END()
+
+    Vec2::Vec2(const IntVec2 &v)
+        : x(v.x)
+        , y(v.y)
+    {
+
+    }
+
 
     Vec2& Vec2::operator+=(const Vec2& rhs)
     {
@@ -65,6 +74,21 @@ namespace se::math
         return *this;
     }
 
+    float MagnitudeSquared(const Vec2 &vec)
+    {
+        return Dot(vec, vec);
+    }
+
+    Vec2 Normalized(const Vec2 &vec)
+    {
+        return vec * InverseSqrt(Dot(vec, vec));
+    }
+
+    float Dot(const Vec2 &v1, const Vec2 &v2)
+    {
+        return v1.x * v2.x + v1.y * v2.y;
+    }
+
     Vec2 operator-(const Vec2& lhs)
     {
         return {-lhs.x, -lhs.y };
@@ -109,5 +133,15 @@ namespace se::math
     bool operator!=(const Vec2& lhs, const Vec2& rhs)
     {
         return !(lhs == rhs);
+    }
+
+    bool operator<(const Vec2 &lhs, const Vec2 &rhs)
+    {
+        return MagnitudeSquared(lhs) < MagnitudeSquared(rhs);
+    }
+
+    bool operator>(const Vec2 &lhs, const Vec2 &rhs)
+    {
+        return MagnitudeSquared(lhs) > MagnitudeSquared(rhs);
     }
 }

@@ -4,6 +4,8 @@
 
 namespace se::math
 {
+    struct IntVec2;
+
     struct Vec2
     {
         DECLARE_SPARK_POD_CLASS(Vec2)
@@ -16,8 +18,11 @@ namespace se::math
         {
         }
 
-        union { float x, r, s; };
-        union { float y, g, t; };
+        Vec2(const IntVec2 &v);
+
+
+        float x;
+        float y;
 
         Vec2& operator+=(const Vec2 &rhs);
         Vec2& operator+=(float scalar);
@@ -29,6 +34,10 @@ namespace se::math
         Vec2& operator/=(float scalar);
     };
 
+    float MagnitudeSquared(const Vec2& vec);
+    Vec2 Normalized(const Vec2& vec);
+    float Dot(const Vec2& v1, const Vec2& v2);
+
     Vec2 operator-(const Vec2 &lhs);
     Vec2 operator+(const Vec2& lhs, const Vec2 &rhs);
     Vec2 operator-(const Vec2& lhs, const Vec2 &rhs);
@@ -38,6 +47,8 @@ namespace se::math
     Vec2 operator/(const Vec2& lhs, float scalar);
     bool operator==(const Vec2& lhs, const Vec2 &rhs);
     bool operator!=(const Vec2& lhs, const Vec2 &rhs);
+    bool operator<(const Vec2 & lhs, const Vec2& rhs);
+    bool operator>(const Vec2 & lhs, const Vec2& rhs);
 }
 
 template <> struct std::formatter<se::math::Vec2>

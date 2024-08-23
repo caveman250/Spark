@@ -16,20 +16,9 @@ namespace se::math
         {
         }
 
-        union
-        {
-            float x, r, s;
-        };
-
-        union
-        {
-            float y, g, t;
-        };
-
-        union
-        {
-            float z, b, p;
-        };
+        float x;
+        float y;
+        float z;
 
         float& operator[](size_t i);
         const float& operator[](size_t i) const;

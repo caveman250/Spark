@@ -12,10 +12,10 @@ namespace se::ui::components
         DECLARE_SPARK_COMPONENT(RectTransformComponent)
 
         Anchors anchors = {};
-        float minX = 0;
-        float minY = 0;
-        float maxX = 0;
-        float maxY = 0;
+        int minX = 0;
+        int minY = 0;
+        int maxX = 0;
+        int maxY = 0;
 
         Rect rect = {};
         Rect lastRect = {};

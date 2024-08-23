@@ -13,6 +13,7 @@
 #include "ui/systems/ImageRenderSystem.h"
 #include "ui/systems/RectTransformSystem.h"
 #include "ui/systems/RootRectTransformSystem.h"
+#include "ui/systems/TextRenderSystem.h"
 
 namespace se
 {
@@ -60,6 +61,7 @@ namespace se
         m_World.CreateEngineSystem<ui::systems::RectTransformSystem>({}, {});
         m_World.CreateEngineSystem<ui::systems::RootRectTransformSystem>({}, {});
         m_World.CreateEngineSystem<ui::systems::ImageRenderSystem>({}, {});
+        m_World.CreateEngineSystem<ui::systems::TextRenderSystem>({}, {});
     }
 
     void Application::Run() const

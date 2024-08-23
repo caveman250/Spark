@@ -34,28 +34,29 @@ namespace se::ui::systems
             for (size_t i = 0; i < children.size(); ++i)
             {
                 components::RectTransformComponent& child = childTransform[i];
-                float parentWidth = parentRect.rect.bottomRight.x - parentRect.rect.topLeft.x;
-                float parentHeight = parentRect.rect.bottomRight.y - parentRect.rect.topLeft.y;
+                math::IntVec2 parentBottomRight = parentRect.rect.topLeft + parentRect.rect.size;
+                int parentWidth = parentBottomRight.x - parentRect.rect.topLeft.x;
+                int parentHeight = parentBottomRight.y - parentRect.rect.topLeft.y;
 
-                child.rect.topLeft = { parentRect.rect.topLeft.x + child.minX + child.anchors.left * parentWidth,
-                    parentRect.rect.topLeft.y + child.minY + child.anchors.top * parentHeight };
+                child.rect.topLeft = { static_cast<int>(parentRect.rect.topLeft.x + child.minX + child.anchors.left * parentWidth),
+                                          static_cast<int>(parentRect.rect.topLeft.y + child.minY + child.anchors.top * parentHeight) };
 
                 if (child.anchors.right > 0)
                 {
-                    child.rect.bottomRight.x = parentRect.rect.bottomRight.x - child.maxX - ((1.f - child.anchors.right) * parentWidth);
+                    child.rect.size.x = static_cast<int>(parentBottomRight.x - child.maxX - ((1.f - child.anchors.right) * parentWidth) - child.rect.topLeft.x);
                 }
                 else
                 {
-                    child.rect.bottomRight.x = parentRect.rect.topLeft.x + child.maxX;
+                    child.rect.size.x = parentRect.rect.topLeft.x + child.maxX - child.rect.topLeft.x;
                 }
 
                 if (child.anchors.bottom > 0)
                 {
-                    child.rect.bottomRight.y = parentRect.rect.bottomRight.y - child.maxY - ((1.f - child.anchors.bottom) * parentHeight);
+                    child.rect.size.y = static_cast<int>(parentBottomRight.y - child.maxY - ((1.f - child.anchors.bottom) * parentHeight) - child.rect.topLeft.y);
                 }
                 else
                 {
-                    child.rect.bottomRight.y = parentRect.rect.topLeft.y + child.maxX;
+                    child.rect.size.y = parentRect.rect.topLeft.y + child.maxY - child.rect.topLeft.y;
                 }
 
                 child.layer = depth;
