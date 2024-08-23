@@ -25,12 +25,12 @@ namespace se::asset::builder
     public:
         uint32_t GetLatestVersion() const override { return 2; }
         std::regex GetFilePattern() const override;
-        std::shared_ptr<binary::Database> BuildAsset(const std::string& path, meta::MetaData& meta) const override;
+        std::vector<BuiltAsset> BuildAsset(const std::string& path, const std::string& outputPath, meta::MetaData& meta) const override;
 
-    private:
-        RawImageData LoadImage(const std::string& path) const;
-        CompressedImageData Compress(const RawImageData& imageData) const;
-        void FreeImage(const RawImageData& imageData) const;
-        void FreeCompressedImage(const CompressedImageData& imageData) const;
+        static RawImageData LoadImage(const std::string& path);
+        static RawImageData LoadImageFromBytes(void* bytes, size_t size);
+        static CompressedImageData Compress(const RawImageData& imageData);
+        static void FreeImage(const RawImageData& imageData);
+        static void FreeCompressedImage(const CompressedImageData& imageData);
     };
 }

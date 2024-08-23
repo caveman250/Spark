@@ -400,4 +400,120 @@ namespace se::reflect
             return &typeDesc;
         }
     };
+
+    template <typename T, typename Y>
+    struct Type_StdUnorderedMap : Type
+    {
+        Type* keyType;
+        Type* itemType;
+
+        size_t (*getSize)(const void*);
+        std::function<void*(void*, const T& key, const Y& val)> insert;
+
+        Type_StdUnorderedMap(T*, Y*)
+            : Type{"std::unordered_map<>", sizeof(std::unordered_map<T, Y>), asset::binary::Type::Array}
+            , keyType(TypeResolver<T>::get())
+            , itemType(TypeResolver<Y>::get())
+        {
+            getSize = [](const void* vecPtr)
+            {
+                const auto& vec = *static_cast<const std::unordered_map<T, Y>*>(vecPtr);
+                return vec.size();
+            };
+        }
+
+        std::string GetTypeName(const void*) const override;
+
+        void Serialize(const void* obj, asset::binary::Object& parentObj, const std::string& fieldName) const override;
+        void Deserialize(void* obj, asset::binary::Object& parentObj, const std::string& fieldName) const override;
+        asset::binary::StructLayout GetStructLayout(const void*) const override;
+    };
+
+    template <typename T, typename Y>
+    std::string Type_StdUnorderedMap<T, Y>::GetTypeName(const void* obj) const
+    {
+        return std::string("std::unordered_map<") + keyType->GetTypeName(obj) + ", " + itemType->GetTypeName(obj) + ">";
+    }
+
+    template <typename T, typename Y>
+    void Type_StdUnorderedMap<T, Y>::Serialize(const void* obj, asset::binary::Object& parentObj,
+        const std::string& fieldName) const
+    {
+        size_t numItems = getSize(obj);
+        auto db = parentObj.GetDatabase();
+
+        asset::binary::StructLayout structLayout = {
+            {asset::binary::CreateFixedString32("key"), keyType->GetBinaryType() },
+            {asset::binary::CreateFixedString32("value"), itemType->GetBinaryType() },
+            {asset::binary::CreateFixedString32("key_type"), asset::binary::Type::String },
+            {asset::binary::CreateFixedString32("value_type"), asset::binary::Type::String }
+        };
+        std::unordered_map<T, Y>* map = (std::unordered_map<T, Y>*)obj;
+        auto array = db->CreateArray(db->GetOrCreateStruct(
+                                        std::format("Internal_MapItem{}_{}", TypeToString(keyType->GetBinaryType()), TypeToString(itemType->GetBinaryType())),
+                                        structLayout),
+                                    numItems);
+        int index = 0;
+        for (const auto& [key, value] : *map)
+        {
+            asset::binary::Object arrayObj = array.Get(index);
+
+            arrayObj.Set("key_type", keyType->GetTypeName(&key));
+            arrayObj.Set("value_type", itemType->GetTypeName(&value));
+
+            keyType->Serialize(&key, arrayObj, "key");
+            itemType->Serialize(&value, arrayObj, "value");
+            index++;
+        }
+
+        if (!fieldName.empty())
+        {
+            parentObj.Set(fieldName, array);
+        }
+        else
+        {
+            parentObj.Set("val", array);
+        }
+    }
+
+    template <typename T, typename Y>
+    void Type_StdUnorderedMap<T, Y>::Deserialize(void* obj, asset::binary::Object& parentObj, const std::string& fieldName) const
+    {
+        std::unordered_map<T, Y>* map = (std::unordered_map<T, Y>*)obj;
+        auto array = parentObj.Get<asset::binary::Array>(fieldName.empty() ? "val" : fieldName);
+        if (array.GetCount() == 0)
+        {
+            return;
+        }
+
+        for (size_t i = 0; i < array.GetCount(); ++i)
+        {
+            asset::binary::Object arrayObj = array.Get(i);
+            T key = Instantiate<T>(arrayObj.GetString("key_type"));
+            keyType->Deserialize(&key, arrayObj, "key");
+            Y item = Instantiate<Y>(arrayObj.GetString("value_type"));
+            itemType->Deserialize(&item, arrayObj, "value");
+            map->insert(std::make_pair(key, item));
+        }
+    }
+
+    template <typename T, typename Y>
+    asset::binary::StructLayout Type_StdUnorderedMap<T, Y>::GetStructLayout(const void*) const
+    {
+        asset::binary::StructLayout structLayout = {
+            {asset::binary::CreateFixedString32("val"), asset::binary::Type::Array}
+        };
+        return structLayout;
+    }
+
+    template <typename T, typename Y>
+    class TypeResolver<std::unordered_map<T, Y>>
+    {
+    public:
+        static Type* get()
+        {
+            static Type_StdUnorderedMap<T, Y> typeDesc{nullptr, nullptr};
+            return &typeDesc;
+        }
+    };
 }

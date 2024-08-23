@@ -23,18 +23,31 @@ namespace se::editor::startup
 
                 // todo meta options go here
 
-                std::string outputPath = path;
-                outputPath.replace(0, dir.length(), outputDir);
-                auto extensionIt = outputPath.find_last_of(".");
-                outputPath.replace(extensionIt, outputPath.length() - extensionIt, ".sass");
+                std::string outputPathBase = path;
+                outputPathBase.replace(0, dir.length(), outputDir);
+                auto extensionIt = outputPathBase.find_last_of(".");
+                outputPathBase.replace(extensionIt, outputPathBase.length() - extensionIt, ".sass");
 
-                if (se::asset::builder::AssetBuilder::IsOutOfDate(path, meta.value(), outputPath))
+                if (se::asset::builder::AssetBuilder::IsOutOfDate(path, meta.value(), outputPathBase))
                 {
-                    if (auto db = se::asset::builder::AssetBuilder::ProcessAsset(path, meta.value()))
-                        db->Save(outputPath);
-                    // io::OutputFileStream fs(outputPath + ".json", false);
-                    // fs << db->ToJson().dump();
-                    // fs.Close();
+                    for (const auto& builtAsset : se::asset::builder::AssetBuilder::ProcessAsset(path, outputPathBase, meta.value()))
+                    {
+                        if (!builtAsset.fileNameSuffix.empty())
+                        {
+                            auto outputPath = outputPathBase;
+                            extensionIt = outputPath.find_last_of(".");
+                            outputPath.insert(extensionIt, builtAsset.fileNameSuffix);
+                            builtAsset.db->Save(outputPath);
+                        }
+                        else
+                        {
+                            builtAsset.db->Save(outputPathBase);
+
+                            // io::OutputFileStream fs(outputPathBase + ".json", false);
+                            // fs << builtAsset.db->ToJson().dump();
+                            // fs.Close();
+                        }
+                    }
                 }
 
                 meta.value().Save();

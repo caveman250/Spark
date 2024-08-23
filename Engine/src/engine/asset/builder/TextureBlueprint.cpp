@@ -16,19 +16,19 @@ namespace se::asset::builder
         return std::regex(".*.(png|jpeg|jpg|tga|bmp|psd)");
     }
 
-    std::shared_ptr<binary::Database> TextureBlueprint::BuildAsset(const std::string& path, meta::MetaData&) const
+    std::vector<BuiltAsset> TextureBlueprint::BuildAsset(const std::string& path, const std::string&, meta::MetaData&) const
     {
         auto imageData = LoadImage(path);
         if (!imageData.data)
         {
             debug::Log::Error("Failed to load image {}", path);
-            return nullptr;
+            return { };
         }
         auto compressedData = Compress(imageData);
         if (!compressedData.data)
         {
             debug::Log::Error("Failed to compress image! {}", path);
-            return nullptr;
+            return { };
         }
 
         auto texture = Texture::FromDDS(compressedData);
@@ -37,19 +37,25 @@ namespace se::asset::builder
         FreeImage(imageData);
         FreeCompressedImage(compressedData);
 
-        return db;
+        return { { db, "" } };
     }
 
-    RawImageData TextureBlueprint::LoadImage(const std::string& path) const
+    RawImageData TextureBlueprint::LoadImage(const std::string& path)
     {
-        RawImageData ret;
         size_t srcImageSize;
-        ret.sourceData = reinterpret_cast<uint8_t*>(io::VFS::Get().ReadBinary(path, srcImageSize));
-        ret.data = reinterpret_cast<uint32_t*>(stbi_load_from_memory(ret.sourceData, static_cast<int>(srcImageSize), &ret.x, &ret.y, &ret.numComponents, 4));
+        void* data = io::VFS::Get().ReadBinary(path, srcImageSize);
+        return LoadImageFromBytes(data, srcImageSize);
+    }
+
+    RawImageData TextureBlueprint::LoadImageFromBytes(void *bytes, size_t size)
+    {
+        RawImageData ret = {};
+        ret.sourceData = reinterpret_cast<uint8_t*>(bytes);
+        ret.data = reinterpret_cast<uint32_t*>(stbi_load_from_memory(ret.sourceData, static_cast<int>(size), &ret.x, &ret.y, &ret.numComponents, 4));
         return ret;
     }
 
-    CompressedImageData TextureBlueprint::Compress(const RawImageData& imageData) const
+    CompressedImageData TextureBlueprint::Compress(const RawImageData& imageData)
     {
         CompressedImageData ret;
 
@@ -67,13 +73,13 @@ namespace se::asset::builder
         return ret;
     }
 
-    void TextureBlueprint::FreeImage(const RawImageData& imageData) const
+    void TextureBlueprint::FreeImage(const RawImageData& imageData)
     {
         stbi_image_free(imageData.data);
         std::free(imageData.sourceData);
     }
 
-    void TextureBlueprint::FreeCompressedImage(const CompressedImageData& imageData) const
+    void TextureBlueprint::FreeCompressedImage(const CompressedImageData& imageData)
     {
         crn_free_block(imageData.data);
     }

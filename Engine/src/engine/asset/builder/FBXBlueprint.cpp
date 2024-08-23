@@ -12,7 +12,7 @@ namespace se::asset::builder
         return std::regex(".*.fbx");
     }
 
-    std::shared_ptr<binary::Database> FBXBlueprint::BuildAsset(const std::string& path, asset::meta::MetaData&) const
+    std::vector<BuiltAsset> FBXBlueprint::BuildAsset(const std::string& path, const std::string&, meta::MetaData&) const
     {
         ofbx::LoadFlags flags =
                 //		ofbx::LoadFlags::IGNORE_MODELS |
@@ -39,6 +39,6 @@ namespace se::asset::builder
         std::free(data);
         scene->destroy();
 
-        return db;
+        return { { db, ""} };
     }
 }

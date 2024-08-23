@@ -34,7 +34,7 @@ namespace se::ecs
             return s_InvalidEntity;
         }
 
-        Id packedId = bits::PackUtil::Pack64(entityId, 0);
+        Id packedId = bits::Pack64(entityId, 0);
         m_EntityRecords.insert(std::make_pair(packedId, EntityRecord
                 {
                         .archetype = GetArchetype({}),
@@ -96,7 +96,7 @@ namespace se::ecs
         }
 
         m_EntityRecords.erase(entity);
-        m_FreeEntities.push_back(bits::PackUtil::UnpackA64(entity));
+        m_FreeEntities.push_back(bits::UnpackA64(entity));
     }
 
     bool World::HasRelationshipWildcardInternal(Id entity, uint32_t lhs)
@@ -105,12 +105,12 @@ namespace se::ecs
         Archetype* archetype = record.archetype;
         for (const auto& id : archetype->type)
         {
-            uint32_t typeRhs = bits::PackUtil::UnpackB64(id);
+            uint32_t typeRhs = bits::UnpackB64(id);
             if (typeRhs == 0)
             {
                 continue; // not a relationship
             }
-            uint32_t typeLhs = bits::PackUtil::UnpackA64(id);
+            uint32_t typeLhs = bits::UnpackA64(id);
             if (typeLhs == lhs)
             {
                 return true;
@@ -412,7 +412,7 @@ namespace se::ecs
     {
         RegisterComponent<components::ChildOf>();
         Relationship childOf;
-        childOf.SetId(bits::PackUtil::Pack64(bits::PackUtil::UnpackA64(components::ChildOf::GetComponentId()), bits::PackUtil::UnpackA64(entity)));
+        childOf.SetId(bits::Pack64(bits::UnpackA64(components::ChildOf::GetComponentId()), bits::UnpackA64(entity)));
         return childOf;
     }
 

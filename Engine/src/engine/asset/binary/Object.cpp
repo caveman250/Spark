@@ -26,7 +26,7 @@ namespace se::asset::binary
             SPARK_ASSERT(typeId == typeid(bool));
             break;
         case Type::Int8:
-            SPARK_ASSERT(typeId == typeid(int8_t));
+            SPARK_ASSERT(typeId == typeid(int8_t) || typeId == typeid(char));
             break;
         case Type::Uint8:
             SPARK_ASSERT(typeId == typeid(uint8_t));

@@ -22,7 +22,7 @@ namespace se::ui::systems
         auto app = Application::Get();
         auto renderer = render::Renderer::Get();
         auto window = app->GetPrimaryWindow();
-        auto windowsSize = math::Vec2(window->GetWidth(), window->GetHeight());
+        auto windowsSize = math::Vec2(static_cast<float>(window->GetWidth()), static_cast<float>(window->GetHeight()));
 
         for (size_t i = 0; i < entities.size(); ++i)
         {

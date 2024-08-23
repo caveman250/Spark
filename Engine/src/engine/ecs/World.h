@@ -267,7 +267,7 @@ namespace se::ecs
     bool World::HasRelationshipWildcard(Id entity)
     {
         RegisterComponent<T>();
-        return HasRelationshipWildcardInternal(entity, bits::PackUtil::UnpackA64(T::GetComponentId()));
+        return HasRelationshipWildcardInternal(entity, bits::UnpackA64(T::GetComponentId()));
     }
 
     template<typename T>
@@ -284,11 +284,11 @@ namespace se::ecs
         {
             if (!m_FreeEntities.empty())
             {
-                T::s_ComponentId = bits::PackUtil::Pack64(RecycleEntity(), 0);
+                T::s_ComponentId = bits::Pack64(RecycleEntity(), 0);
             }
             else
             {
-                T::s_ComponentId = bits::PackUtil::Pack64(NewEntity(), 0);
+                T::s_ComponentId = bits::Pack64(NewEntity(), 0);
             }
         }
 
@@ -317,7 +317,7 @@ namespace se::ecs
         static_assert(std::is_base_of_v<RelationshipComponent, T>, "Relationship components must inherit from RelationshipComponent.");
         RegisterComponent<T>();
         Relationship relationship;
-        relationship.SetId(bits::PackUtil::Pack64(bits::PackUtil::UnpackA64(T::GetComponentId()), bits::PackUtil::UnpackA64(Y::GetComponentId())));
+        relationship.SetId(bits::Pack64(bits::UnpackA64(T::GetComponentId()), bits::UnpackA64(Y::GetComponentId())));
         return relationship;
     }
 

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <engine/asset/binary/Database.h>
+#include "BuiltAsset.h"
 #include "spark.h"
 
 namespace se::asset::meta
@@ -15,6 +15,6 @@ namespace se::asset::builder
         virtual ~Blueprint() {}
         virtual uint32_t GetLatestVersion() const = 0;
         virtual std::regex GetFilePattern() const = 0;
-        virtual std::shared_ptr<binary::Database> BuildAsset(const std::string& path, meta::MetaData& meta) const = 0;
+        virtual std::vector<BuiltAsset> BuildAsset(const std::string& path, const std::string& outputPath, meta::MetaData& meta) const = 0;
     };
 }

@@ -1,5 +1,5 @@
 #pragma once
-#include "engine/math/Vec2.h"
+#include "engine/math/IntVec2.h"
 #include "engine/reflect/Reflect.h"
 
 namespace se::ui
@@ -8,12 +8,14 @@ namespace se::ui
     {
         DECLARE_SPARK_POD_CLASS(Rect)
 
-        math::Vec2 topLeft;
-        math::Vec2 bottomRight;
+        math::IntVec2 topLeft;
+        math::IntVec2 size;
 
         bool operator==(const Rect& rhs) const
         {
-            return topLeft == rhs.topLeft && bottomRight == rhs.bottomRight;
+            return topLeft == rhs.topLeft && size == rhs.size;
         }
+
+        bool Overlaps(const Rect& bb) const;
     };
 }

@@ -11,14 +11,14 @@ namespace se::asset::builder
         return std::regex(".*.ssl");
     }
 
-    std::shared_ptr<binary::Database> ShaderBlueprint::BuildAsset(const std::string& path, asset::meta::MetaData&) const
+    std::vector<BuiltAsset> ShaderBlueprint::BuildAsset(const std::string& path, const std::string&, meta::MetaData&) const
     {
         auto shader = shader::ShaderCompiler::CompileShader(path);
         if (shader.has_value())
         {
-            return reflect::SerialiseType<Shader>(&shader.value());
+            return { { reflect::SerialiseType<Shader>(&shader.value()), "" } };
         }
 
-        return nullptr;
+        return { };
     }
 }
