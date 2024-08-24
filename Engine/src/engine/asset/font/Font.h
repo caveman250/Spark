@@ -25,7 +25,7 @@ namespace se::asset
         int yOffset = 0;
         int advanceWidth;
         int leftSideBearing;
-        std::unordered_map<char, float> kerning;
+        std::unordered_map<char, int> kerning;
         ui::Rect rect;
         math::Vec2 uvTopLeft;
         math::Vec2 uvBottomRight;

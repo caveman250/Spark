@@ -54,7 +54,7 @@ namespace se::render::opengl
         glFlush();
     }
 
-    void OpenGLRenderer::ApplyDepthCompare(DepthCompare comp)
+    void OpenGLRenderer::ApplyDepthCompare(DepthCompare::Type comp)
     {
         if (comp == DepthCompare::None)
         {
@@ -89,6 +89,24 @@ namespace se::render::opengl
             SPARK_ASSERT(false);
             break;
         }
+
+        GL_CHECK_ERROR()
+    }
+
+    void OpenGLRenderer::ApplyBlendMode(BlendMode::Type src, BlendMode::Type dst)
+    {
+        if (src == BlendMode::None || dst == BlendMode::None)
+        {
+            glDisable(GL_BLEND);
+            return;
+        }
+        else
+        {
+            glEnable(GL_BLEND);
+        }
+
+        GL_CHECK_ERROR()
+        glBlendFunc(BlendModeToGLBlendMode(src), BlendModeToGLBlendMode(dst));
 
         GL_CHECK_ERROR()
     }

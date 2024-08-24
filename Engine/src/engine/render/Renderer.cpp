@@ -28,6 +28,7 @@ namespace se::render
         if (rs != m_CachedRenderState)
         {
             ApplyDepthCompare(rs.depthComp);
+            ApplyBlendMode(rs.srcBlend, rs.dstBlend);
             m_CachedRenderState = rs;
         }
     }
