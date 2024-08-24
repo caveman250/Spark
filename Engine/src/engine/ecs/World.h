@@ -7,6 +7,7 @@
 #include "Action.h"
 #include "UpdateMode.h"
 #include "MaybeLockGuard.h"
+#include "Observer.h"
 #include "Relationship.h"
 
 namespace se::ecs::components
@@ -151,6 +152,11 @@ namespace se::ecs
 
         bool IsChildOf(Id entity, Id parent);
 
+        template<typename T, typename Y>
+        Id CreateObserver();
+
+        void DestroyObserver(Id id);
+
     private:
         bool IsRunning() const { return m_Running; }
 
@@ -188,6 +194,9 @@ namespace se::ecs
         static void CreateSystemInternal(std::unordered_map<Id, SystemRecord>& systemMap, std::unordered_map<Id, ChildQuery>& allowedChildQueries, Id system, const PendingSystemInfo& pendingSystem);
         static void DestroySystemInternal(std::unordered_map<Id, SystemRecord>& systemMap, std::unordered_map<Id, ChildQuery>& allowedChildQueries, std::vector<Id>& freeSystems, Id system);
 
+        Id NewObserver();
+        Id RecycleObserver();
+
         bool HasComponent(Id entity, Id component);
         void* GetComponent(Id entity, Id component);
 
@@ -224,12 +233,16 @@ namespace se::ecs
         std::unordered_map<Id, SystemRecord> m_AppSystems = {};
         std::unordered_map<Id, SystemRecord> m_EngineSystems = {};
         std::unordered_map<Id, ChildQuery> m_AllowedChildQueries = {};
+        std::unordered_map<Id, std::unordered_map<Id, std::shared_ptr<BaseObserver>>> m_Observers;
 
         uint32_t m_EntityCounter = 1;
         std::vector<uint32_t> m_FreeEntities = {};
-        Id m_SystemCounter;
+        Id m_SystemCounter = 0;
         std::vector<Id> m_FreeSystems = {};
         Id m_ArchetypeCounter = 0;
+        Id m_ObserverCounter = 0;
+        std::vector<Id> m_FreeObservers = {};
+
 
         std::vector<std::vector<Id>> m_AppSystemUpdateGroups = {};
         std::vector<std::vector<Id>> m_EngineSystemUpdateGroups = {};
@@ -237,6 +250,7 @@ namespace se::ecs
         std::mutex m_EntityMutex = {};
         std::mutex m_ComponentMutex = {};
         std::mutex m_SystemMutex = {};
+        std::mutex m_ObserverMutex = {};
 
         std::vector<Id> m_PendingEntityDeletions;
         std::vector<PendingComponent> m_PendingComponentCreations;
@@ -269,6 +283,28 @@ namespace se::ecs
     {
         RegisterComponent<T>();
         return HasRelationshipWildcardInternal(entity, bits::UnpackA64(T::GetComponentId()));
+    }
+
+    template<typename T, typename Y>
+    Id World::CreateObserver()
+    {
+        static_assert(std::is_base_of_v<BaseObserver, T>, "Observers must inherit from BaseObserver");
+        static_assert(std::is_base_of_v<Observer<Y>, T>, "Observers must inherit from Observer<Y>");
+
+        auto guard = MaybeLockGuard(m_UpdateMode, &m_ObserverMutex);
+
+        Id observer;
+        if (!m_FreeObservers.empty())
+        {
+            observer = RecycleObserver();
+        }
+        else
+        {
+            observer = NewObserver();
+        }
+
+        m_Observers[Y::GetComponentId()][observer] = std::make_shared<T>();
+        return observer;
     }
 
     template<typename T>

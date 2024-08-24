@@ -421,6 +421,19 @@ namespace se::ecs
         return HasComponent(entity, CreateChildRelationship(parent).GetId());
     }
 
+    void World::DestroyObserver(Id id)
+    {
+        auto guard = MaybeLockGuard(m_UpdateMode, &m_ObserverMutex);
+        for (auto& [comp, kvp] : m_Observers)
+        {
+            if (kvp.contains(id))
+            {
+                kvp.erase(id);
+                break;
+            }
+        }
+    }
+
     bool World::ValidateChildQuery(BaseSystem* system, const std::vector<std::pair<Id, ComponentMutability::Type>>& requestedComponents)
     {
         auto usedComponents = system->GetUsedComponents();
@@ -661,6 +674,19 @@ namespace se::ecs
         }
     }
 
+    Id World::NewObserver()
+    {
+        return m_ObserverCounter++;
+    }
+
+    Id World::RecycleObserver()
+    {
+        const auto id = m_FreeObservers.back();
+        m_FreeObservers.pop_back();
+
+        return id;
+    }
+
     void World::AddComponentInternal(const World::PendingComponent& pendingComp)
     {
         if (!SPARK_VERIFY(!HasComponent(pendingComp.entity, pendingComp.comp)))
@@ -675,6 +701,11 @@ namespace se::ecs
         record.archetype = next_archetype;
         void* compData = GetComponent(pendingComp.entity, pendingComp.comp);
         m_ComponentRecords[pendingComp.comp].type->inplace_copy_constructor(compData, pendingComp.tempData);
+
+        for (const auto& observer : m_Observers[pendingComp.comp])
+        {
+            observer.second->Added(pendingComp.entity, compData);
+        }
     }
 
     void World::RemoveComponentInternal(Id entity, Id comp)
@@ -685,6 +716,11 @@ namespace se::ecs
         }
 
         void* data = GetComponent(entity, comp);
+        for (const auto& observer : m_Observers[comp])
+        {
+            observer.second->Removed(entity, data);
+        }
+
         m_ComponentRecords[comp].type->destructor(data);
         EntityRecord& record = m_EntityRecords.at(entity);
         Archetype* archetype = record.archetype;
