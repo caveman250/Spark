@@ -21,6 +21,7 @@ namespace se
 
         virtual void Init();
         virtual void CreateInitialSingletonComponents();
+        virtual void CreateInitialObservers();
         virtual void CreateInitialSystems();
         void Run() const;
         virtual void Shutdown();
