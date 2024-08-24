@@ -7,6 +7,12 @@ namespace se::ui
         DEFINE_MEMBER(size)
     DEFINE_SPARK_CLASS_END()
 
+    bool Rect::Contains(const math::IntVec2 &point) const
+    {
+        return point.x >= topLeft.x && point.y >= topLeft.y &&
+                point.x <= topLeft.x + size.x && point.y <= topLeft.y + size.y;
+    }
+
     bool Rect::Overlaps(const Rect &bb) const
     {
         math::IntVec2 bottomRight = topLeft + size;

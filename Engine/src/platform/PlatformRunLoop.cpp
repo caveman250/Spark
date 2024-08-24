@@ -27,5 +27,6 @@ namespace se
 
         auto inputComp = app->GetWorld()->GetSingletonComponent<input::InputComponent>();
         inputComp->keyEvents.clear();
+        inputComp->mouseEvents.clear();
     }
 }

@@ -16,6 +16,7 @@
 #include "ui/systems/RectTransformSystem.h"
 #include "ui/systems/RootRectTransformSystem.h"
 #include "ui/systems/TextRenderSystem.h"
+#include "ui/systems/ButtonSystem.h"
 
 namespace se
 {
@@ -69,7 +70,8 @@ namespace se
         m_World.CreateEngineSystem<ecs::systems::TransformSystem>({}, {}, { worldTransform });
         auto rootRect = m_World.CreateEngineSystem<ui::systems::RootRectTransformSystem>({}, {}, {});
         m_World.CreateEngineSystem<ui::systems::RectTransformSystem>({}, {}, { rootRect });
-        m_World.CreateEngineSystem<ui::systems::ImageRenderSystem>({}, {}, {});
+        auto button = m_World.CreateEngineSystem<ui::systems::ButtonSystem>({}, {}, {});
+        m_World.CreateEngineSystem<ui::systems::ImageRenderSystem>({}, {}, { button });
         m_World.CreateEngineSystem<ui::systems::TextRenderSystem>({}, {}, {});
     }
 

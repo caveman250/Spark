@@ -20,7 +20,7 @@ namespace se::render::opengl
     private:
         void SetUniformInternal(const std::string& name, asset::shader::ast::AstType::Type type, int count, const void* value) override;
 
-        std::vector<std::shared_ptr<TextureResource>> m_Textures;
+        std::vector<std::pair<std::string, std::shared_ptr<TextureResource>>> m_Textures;
         GLuint m_CompiledProgram = GL_INVALID_VALUE;
     };
 }

@@ -124,6 +124,11 @@ namespace se::windows
                 auto app = Application::Get();
                 auto inputComp = app->GetWorld()->GetSingletonComponent<input::InputComponent>();
                 inputComp->mouseButtonStates[input::MouseButton::Left] = input::KeyState::Down;
+
+                input::MouseEvent mouseEvent;
+                mouseEvent.button = input::MouseButton::Left;
+                mouseEvent.state = input::KeyState::Down;
+                inputComp->mouseEvents.push_back(mouseEvent);
                 break;
             }
             case WM_LBUTTONUP:
@@ -131,6 +136,11 @@ namespace se::windows
                 auto app = Application::Get();
                 auto inputComp = app->GetWorld()->GetSingletonComponent<input::InputComponent>();
                 inputComp->mouseButtonStates[input::MouseButton::Left] = input::KeyState::Up;
+
+                input::MouseEvent mouseEvent;
+                mouseEvent.button = input::MouseButton::Left;
+                mouseEvent.state = input::KeyState::Up;
+                inputComp->mouseEvents.push_back(mouseEvent);
                 break;
             }
             case WM_RBUTTONDOWN:
@@ -138,6 +148,11 @@ namespace se::windows
                 auto app = Application::Get();
                 auto inputComp = app->GetWorld()->GetSingletonComponent<input::InputComponent>();
                 inputComp->mouseButtonStates[input::MouseButton::Right] = input::KeyState::Down;
+
+                input::MouseEvent mouseEvent;
+                mouseEvent.button = input::MouseButton::Right;
+                mouseEvent.state = input::KeyState::Down;
+                inputComp->mouseEvents.push_back(mouseEvent);
                 break;
             }
             case WM_RBUTTONUP:
@@ -145,6 +160,11 @@ namespace se::windows
                 auto app = Application::Get();
                 auto inputComp = app->GetWorld()->GetSingletonComponent<input::InputComponent>();
                 inputComp->mouseButtonStates[input::MouseButton::Right] = input::KeyState::Up;
+
+                input::MouseEvent mouseEvent;
+                mouseEvent.button = input::MouseButton::Right;
+                mouseEvent.state = input::KeyState::Up;
+                inputComp->mouseEvents.push_back(mouseEvent);
                 break;
             }
             case WM_MBUTTONDOWN:
@@ -152,6 +172,11 @@ namespace se::windows
                 auto app = Application::Get();
                 auto inputComp = app->GetWorld()->GetSingletonComponent<input::InputComponent>();
                 inputComp->mouseButtonStates[input::MouseButton::Middle] = input::KeyState::Down;
+
+                input::MouseEvent mouseEvent;
+                mouseEvent.button = input::MouseButton::Middle;
+                mouseEvent.state = input::KeyState::Down;
+                inputComp->mouseEvents.push_back(mouseEvent);
                 break;
             }
             case WM_MBUTTONUP:
@@ -159,6 +184,11 @@ namespace se::windows
                 auto app = Application::Get();
                 auto inputComp = app->GetWorld()->GetSingletonComponent<input::InputComponent>();
                 inputComp->mouseButtonStates[input::MouseButton::Middle] = input::KeyState::Up;
+
+                input::MouseEvent mouseEvent;
+                mouseEvent.button = input::MouseButton::Middle;
+                mouseEvent.state = input::KeyState::Up;
+                inputComp->mouseEvents.push_back(mouseEvent);
                 break;
             }
             case WM_XBUTTONDOWN:
@@ -167,6 +197,11 @@ namespace se::windows
                 auto inputComp = app->GetWorld()->GetSingletonComponent<input::InputComponent>();
                 input::MouseButton::Type btn = lParam == XBUTTON1 ? input::MouseButton::Btn4 : input::MouseButton::Btn5;
                 inputComp->mouseButtonStates[btn] = input::KeyState::Down;
+
+                input::MouseEvent mouseEvent;
+                mouseEvent.button = btn;
+                mouseEvent.state = input::KeyState::Down;
+                inputComp->mouseEvents.push_back(mouseEvent);
                 break;
             }
             case WM_XBUTTONUP:
@@ -175,6 +210,11 @@ namespace se::windows
                 auto inputComp = app->GetWorld()->GetSingletonComponent<input::InputComponent>();
                 input::MouseButton::Type btn = lParam == XBUTTON1 ? input::MouseButton::Btn4 : input::MouseButton::Btn5;
                 inputComp->mouseButtonStates[btn] = input::KeyState::Up;
+
+                input::MouseEvent mouseEvent;
+                mouseEvent.button = btn;
+                mouseEvent.state = input::KeyState::Up;
+                inputComp->mouseEvents.push_back(mouseEvent);
                 break;
             }
         }

@@ -57,7 +57,7 @@ namespace se::ui::systems
                 if (text.lastFontSize != text.fontSize)
                 {
                     auto texture = text.font->GetTextureAsset(text.fontSize);
-                    text.material->SetUniform("Image", asset::shader::ast::AstType::Sampler2D, 1, &texture);
+                    text.material->SetUniform("Texture", asset::shader::ast::AstType::Sampler2D, 1, &texture);
                 }
 
                 text.lastRect = transform.rect;

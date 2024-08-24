@@ -16,8 +16,8 @@ namespace se::math
         {
         }
 
-        union { int x, r, s; };
-        union { int y, g, t; };
+        int x;
+        int y;
 
         IntVec2& operator+=(const IntVec2 &rhs);
         IntVec2& operator+=(int scalar);
