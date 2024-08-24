@@ -357,7 +357,7 @@ namespace se::ecs
             }
         }
 
-        for (const auto& [id, systemRecord] : systems)
+        for (const auto& [id, systemRecord] : sortedSystemRecords)
         {
             if (systemRecord.instance)
             {
