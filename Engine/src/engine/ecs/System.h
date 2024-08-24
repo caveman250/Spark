@@ -38,14 +38,21 @@ namespace se::ecs
 
         const std::vector<Relationship>& GetRelationships() const { return m_Relationships; }
         const ChildQuery& GetChildQuery() const { return m_ChildQuery; }
+        bool DependsOn(Id other) const;
 
     private:
         virtual void RegisterComponents() = 0;
         std::vector<Relationship> m_Relationships;
         ChildQuery m_ChildQuery;
+        std::unordered_set<Id> m_DependsOn;
 
         friend class World;
     };
+
+    inline bool BaseSystem::DependsOn(Id other) const
+    {
+        return m_DependsOn.contains(other);
+    }
 
     template <typename... Cs>
     class System : public BaseSystem
