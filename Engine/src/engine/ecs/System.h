@@ -39,6 +39,7 @@ namespace se::ecs
         const std::vector<Relationship>& GetRelationships() const { return m_Relationships; }
         const ChildQuery& GetChildQuery() const { return m_ChildQuery; }
         bool DependsOn(Id other) const;
+        const std::unordered_set<Id>& GetDependencies() const { return m_DependsOn; }
 
     private:
         virtual void RegisterComponents() = 0;

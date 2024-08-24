@@ -367,9 +367,9 @@ namespace se::ecs
                     auto& updateGroup = updateGroups[i];
 
                     bool blockedOnDependency = false;
-                    for (Id other_id : updateGroup)
+                    for (Id dependency : systemRecord.instance->GetDependencies())
                     {
-                        if (systemRecord.instance->DependsOn(other_id))
+                        if (SPARK_VERIFY(updateGroupLookup.contains(dependency)) && updateGroupLookup[dependency] >= i)
                         {
                             blockedOnDependency = true;
                             break;
@@ -410,6 +410,7 @@ namespace se::ecs
                 if (!systemAdded)
                 {
                     updateGroups.push_back({id});
+                    updateGroupLookup[id] = updateGroups.size() - 1;
                 }
             }
         }
