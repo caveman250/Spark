@@ -80,6 +80,7 @@ namespace se::ecs
     {
         std::vector<Relationship> relationships;
         ChildQuery childQuery;
+        std::unordered_set<Id> dependsOn;
     };
 
     struct SystemRecord
@@ -124,11 +125,11 @@ namespace se::ecs
         T* GetSingletonComponent();
 
         template <AppSystemConcept T>
-        void CreateAppSystem(const std::vector<Relationship>& relationships, const ChildQuery& additionalChildQuery);
+        Id CreateAppSystem(const std::vector<Relationship>& relationships, const ChildQuery& additionalChildQuery, const std::unordered_set<Id>& dependsOn);
         void DestroyAppSystem(Id id);
 
         template <EngineSystemConcept T>
-        void CreateEngineSystem(const std::vector<Relationship>& relationships, const ChildQuery& additionalChildQuery);
+        Id CreateEngineSystem(const std::vector<Relationship>& relationships, const ChildQuery& additionalChildQuery, const std::unordered_set<Id>& dependsOn);
         void DestroyEngineSystem(Id id);
 
         template <typename T>
@@ -441,7 +442,7 @@ namespace se::ecs
     }
 
     template<EngineSystemConcept T>
-    void World::CreateEngineSystem(const std::vector<Relationship>& relationships, const ChildQuery& additionalChildQuery)
+    Id World::CreateEngineSystem(const std::vector<Relationship>& relationships, const ChildQuery& additionalChildQuery, const std::unordered_set<Id>& dependsOn)
     {
         auto guard = MaybeLockGuard(m_UpdateMode, &m_SystemMutex);
         Id system;
@@ -453,15 +454,17 @@ namespace se::ecs
         {
             system = NewSystem();
         }
-        m_PendingEngineSystemCreations.push_back({system, { relationships, additionalChildQuery }});
+        m_PendingEngineSystemCreations.push_back({system, { relationships, additionalChildQuery, dependsOn }});
         if (SPARK_VERIFY(!m_EngineSystems.contains(system)))
         {
             m_EngineSystems.insert(std::make_pair(system, SystemRecord { reflect::ClassResolver<T>::get(), nullptr }));
         }
+
+        return system;
     }
 
     template <AppSystemConcept T>
-    void World::CreateAppSystem(const std::vector<Relationship>& relationships, const ChildQuery& additionalChildQuery)
+    Id World::CreateAppSystem(const std::vector<Relationship>& relationships, const ChildQuery& additionalChildQuery, const std::unordered_set<Id>& dependsOn)
     {
         auto guard = MaybeLockGuard(m_UpdateMode, &m_SystemMutex);
         Id system;
@@ -473,11 +476,13 @@ namespace se::ecs
         {
             system = NewSystem();
         }
-        m_PendingAppSystemCreations.push_back({system, { relationships, additionalChildQuery }});
+        m_PendingAppSystemCreations.push_back({system, { relationships, additionalChildQuery, dependsOn }});
         if (SPARK_VERIFY(!m_AppSystems.contains(system)))
         {
             m_AppSystems.insert(std::make_pair(system, SystemRecord { reflect::ClassResolver<T>::get(), nullptr }));
         }
+
+        return system;
     }
 
     template<typename T>

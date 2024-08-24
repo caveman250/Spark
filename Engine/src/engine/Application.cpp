@@ -53,15 +53,15 @@ namespace se
 
     void Application::CreateInitialSystems()
     {
-        m_World.CreateEngineSystem<render::systems::PointLightSystem>({}, {});
-        m_World.CreateEngineSystem<render::systems::MeshRenderSystem>({}, {});
-        m_World.CreateEngineSystem<ecs::systems::TransformSystem>({}, {});
-        m_World.CreateEngineSystem<ecs::systems::WorldTransformSystem>({}, {});
-        m_World.CreateEngineSystem<ecs::systems::RootTransformSystem>({}, {});
-        m_World.CreateEngineSystem<ui::systems::RectTransformSystem>({}, {});
-        m_World.CreateEngineSystem<ui::systems::RootRectTransformSystem>({}, {});
-        m_World.CreateEngineSystem<ui::systems::ImageRenderSystem>({}, {});
-        m_World.CreateEngineSystem<ui::systems::TextRenderSystem>({}, {});
+        m_World.CreateEngineSystem<render::systems::PointLightSystem>({}, {}, {});
+        m_World.CreateEngineSystem<render::systems::MeshRenderSystem>({}, {}, {});
+        auto rootTransform = m_World.CreateEngineSystem<ecs::systems::RootTransformSystem>({}, {}, {});
+        auto worldTransform = m_World.CreateEngineSystem<ecs::systems::WorldTransformSystem>({}, {}, { rootTransform });
+        m_World.CreateEngineSystem<ecs::systems::TransformSystem>({}, {}, { worldTransform });
+        auto rootRect = m_World.CreateEngineSystem<ui::systems::RootRectTransformSystem>({}, {}, {});
+        m_World.CreateEngineSystem<ui::systems::RectTransformSystem>({}, {}, { rootRect });
+        m_World.CreateEngineSystem<ui::systems::ImageRenderSystem>({}, {}, {});
+        m_World.CreateEngineSystem<ui::systems::TextRenderSystem>({}, {}, {});
     }
 
     void Application::Run() const

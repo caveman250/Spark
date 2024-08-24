@@ -9,6 +9,7 @@
 #include <sstream>
 #include <format>
 #include <map>
+#include <unordered_set>
 #include <array>
 #include <optional>
 #include <set>

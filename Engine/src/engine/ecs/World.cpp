@@ -340,7 +340,15 @@ namespace se::ecs
     {
         updateGroups.clear();
 
+        std::vector<std::pair<Id, SystemRecord>> sortedSystemRecords = {};
+        std::ranges::for_each(systems, [&sortedSystemRecords](const std::pair<Id, SystemRecord>& kvp){ sortedSystemRecords.push_back(kvp); });
+        std::ranges::sort(sortedSystemRecords, [](const std::pair<Id, SystemRecord>& a, const std::pair<Id, SystemRecord>& b)
+        {
+            return !a.second.instance->DependsOn(b.first);
+        });
+
         std::unordered_map<Id, std::map<Id, ComponentMutability::Type>> usedComponents;
+        std::unordered_map<Id, size_t> updateGroupLookup;
         for (const auto& [id, systemRecord] : systems)
         {
             if (systemRecord.instance)
@@ -354,8 +362,25 @@ namespace se::ecs
             if (systemRecord.instance)
             {
                 bool systemAdded = false;
-                for (auto& updateGroup : updateGroups)
+                for (int i = 0; i < updateGroups.size(); ++i)
                 {
+                    auto& updateGroup = updateGroups[i];
+
+                    bool blockedOnDependency = false;
+                    for (Id other_id : updateGroup)
+                    {
+                        if (systemRecord.instance->DependsOn(other_id))
+                        {
+                            blockedOnDependency = true;
+                            break;
+                        }
+                    }
+
+                    if (blockedOnDependency)
+                    {
+                        continue;
+                    }
+
                     bool conflict = false;
                     for (Id other_id : updateGroup)
                     {
@@ -377,6 +402,7 @@ namespace se::ecs
                     {
                         systemAdded = true;
                         updateGroup.push_back(id);
+                        updateGroupLookup[id] = i;
                         break;
                     }
                 }
@@ -618,6 +644,7 @@ namespace se::ecs
             record.instance->m_Relationships = pendingSystem.relationships;
             record.instance->m_ChildQuery = pendingSystem.childQuery;
             allowedChildQueries[system] = pendingSystem.childQuery;
+            record.instance->m_DependsOn = pendingSystem.dependsOn;
         }
     }
 
