@@ -235,6 +235,7 @@ namespace se::ecs
         std::unordered_map<Id, ChildQuery> m_AllowedChildQueries = {};
         std::unordered_map<Id, std::unordered_map<Id, std::shared_ptr<BaseObserver>>> m_Observers;
 
+
         uint32_t m_EntityCounter = 1;
         std::vector<uint32_t> m_FreeEntities = {};
         Id m_SystemCounter = 0;
@@ -303,6 +304,7 @@ namespace se::ecs
             observer = NewObserver();
         }
 
+        RegisterComponent<Y>();
         m_Observers[Y::GetComponentId()][observer] = std::make_shared<T>();
         return observer;
     }

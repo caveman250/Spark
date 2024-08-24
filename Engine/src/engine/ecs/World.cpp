@@ -582,19 +582,28 @@ namespace se::ecs
 
     void World::ProcessPendingComponents()
     {
-        for (const auto& pendingComp : m_PendingComponentCreations)
+        auto creationsCopy = m_PendingComponentCreations;
+        m_PendingComponentCreations.clear();
+        for (const auto& pendingComp : creationsCopy)
         {
             AddComponentInternal(pendingComp);
         }
 
-        m_PendingComponentCreations.clear();
+        for (const auto& pendingComp : creationsCopy)
+        {
+            for (const auto& observer : m_Observers[pendingComp.comp])
+            {
+                observer.second->Added(pendingComp.entity, GetComponent(pendingComp.entity, pendingComp.comp));
+            }
+        }
 
-        for (const auto& [entity, component] : m_PendingComponentDeletions)
+        auto deletionsCopy = m_PendingComponentDeletions;
+        m_PendingComponentDeletions.clear();
+
+        for (const auto& [entity, component] : deletionsCopy)
         {
             RemoveComponentInternal(entity, component);
         }
-
-        m_PendingComponentDeletions.clear();
     }
 
     void World::ProcessPendingSystems()
@@ -701,11 +710,6 @@ namespace se::ecs
         record.archetype = next_archetype;
         void* compData = GetComponent(pendingComp.entity, pendingComp.comp);
         m_ComponentRecords[pendingComp.comp].type->inplace_copy_constructor(compData, pendingComp.tempData);
-
-        for (const auto& observer : m_Observers[pendingComp.comp])
-        {
-            observer.second->Added(pendingComp.entity, compData);
-        }
     }
 
     void World::RemoveComponentInternal(Id entity, Id comp)

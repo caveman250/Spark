@@ -10,6 +10,8 @@
 #include "io/VFS.h"
 #include "render/systems/MeshRenderSystem.h"
 #include "render/systems/PointLightSystem.h"
+#include "ui/observers/ButtonObserver.h"
+#include "ui/observers/RectTransformObserver.h"
 #include "ui/systems/ImageRenderSystem.h"
 #include "ui/systems/RectTransformSystem.h"
 #include "ui/systems/RootRectTransformSystem.h"
@@ -42,6 +44,7 @@ namespace se
 #endif
 
         CreateInitialSingletonComponents();
+        CreateInitialObservers();
         CreateInitialSystems();
         m_World.Init();
     }
@@ -49,6 +52,12 @@ namespace se
     void Application::CreateInitialSingletonComponents()
     {
         m_World.AddSingletonComponent<input::InputComponent>();
+    }
+
+    void Application::CreateInitialObservers()
+    {
+        m_World.CreateObserver<ui::observers::ButtonObserver, ui::components::ButtonComponent>();
+        m_World.CreateObserver<ui::observers::RectTransformObserver, ui::components::RectTransformComponent>();
     }
 
     void Application::CreateInitialSystems()
