@@ -40,7 +40,7 @@ DEFINE_SPARK_CLASS_END()
         }
     }
 
-    std::shared_ptr<Texture>  Texture::FromDDS(const builder::CompressedImageData& rawDDSData)
+    std::shared_ptr<Texture> Texture::FromDDS(const builder::CompressedImageData& rawDDSData)
     {
         constexpr int FOURCC_DXT5 = 0x35545844;
 
@@ -100,6 +100,17 @@ DEFINE_SPARK_CLASS_END()
             height /= 2;
         }
 
+        return ret;
+    }
+
+    std::shared_ptr<Texture> Texture::FromRawData(uint32_t width, uint32_t height, const memory::BinaryBlob &blob, texture::Format::Type format)
+    {
+        std::shared_ptr<Texture> ret = std::make_shared<Texture>();
+        ret->m_Width = width;
+        ret->m_Height = height;
+        ret->m_Mips.push_back(texture::Mipmap(blob, width, height));
+        ret->m_Format = format;
+        ret->m_MipCount = 1;
         return ret;
     }
 

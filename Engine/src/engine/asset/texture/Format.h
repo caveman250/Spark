@@ -5,6 +5,7 @@
 namespace se::asset::texture
 {
     DECLARE_SPARK_ENUM_BEGIN(Format, int)
+        R8,
         DXT5,
     DECLARE_SPARK_ENUM_END()
 }

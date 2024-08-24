@@ -13,7 +13,8 @@ namespace se::render::opengl
         bool IsGLEWInitialised() const;
 
     private:
-        void ApplyDepthCompare(DepthCompare comp) override;
+        void ApplyDepthCompare(DepthCompare::Type comp) override;
+        void ApplyBlendMode(BlendMode::Type src, BlendMode::Type dest) override;
 
         bool m_GlewInit = false;
     };

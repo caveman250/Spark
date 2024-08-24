@@ -33,9 +33,14 @@ namespace se::ui::systems
             if (!text.material)
             {
                 auto vert = assetManager->GetAsset<asset::Shader>("/builtin_assets/shaders/ui.sass");
-                auto frag = assetManager->GetAsset<asset::Shader>("/builtin_assets/shaders/diffuse_texture.sass");
+                auto frag = assetManager->GetAsset<asset::Shader>("/builtin_assets/shaders/text.sass");
 
                 text.material = render::Material::CreateMaterial({vert}, {frag});
+
+                render::RenderState rs;
+                rs.srcBlend = render::BlendMode::SrcAlpha;
+                rs.dstBlend = render::BlendMode::OneMinusSrcAlpha;
+                text.material->SetRenderState(rs);
             }
 
             if (!text.vertBuffer ||

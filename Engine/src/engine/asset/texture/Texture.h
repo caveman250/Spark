@@ -28,6 +28,7 @@ namespace se::asset
 
         void Release();
         static std::shared_ptr<Texture> FromDDS(const builder::CompressedImageData& rawDDSData);
+        static std::shared_ptr<Texture> FromRawData(uint32_t width, uint32_t height, const memory::BinaryBlob& blob, texture::Format::Type format);
 
         uint32_t GetWidth() const { return m_Width; }
         uint32_t GetHeight() const { return m_Height; }

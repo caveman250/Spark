@@ -125,31 +125,11 @@ namespace se::asset::builder
             }
 
             addFontSize(fontSize, charDataMap);
-            uint8_t *monochromeBitmap = GenerateMonochromeBitmap(info, imageWidth, imageHeight, scale,
+            memory::BinaryBlob monochromeBitmap = GenerateMonochromeBitmap(info, imageWidth, imageHeight, scale,
                                                                boundingBoxes, placedBoundingBoxes);
 
-            // convert to RGB
-            memory::BinaryBlob bmp = CreateRGBBitmap(monochromeBitmap, imageWidth, imageHeight);
-            std::free(monochromeBitmap);
-
-            auto imageData = TextureBlueprint::LoadImageFromBytes(bmp.GetData(), bmp.GetSize());
-            if (!imageData.data)
-            {
-                debug::Log::Error("FontBlueprint - Failed to load new font bitmap");
-                return;
-            }
-            auto compressedData = TextureBlueprint::Compress(imageData);
-            if (!compressedData.data)
-            {
-                debug::Log::Error("FontBlueprint - Failed to compress image!");
-                return;
-            }
-
-            auto texture = Texture::FromDDS(compressedData);
+            auto texture = Texture::FromRawData(imageWidth, imageHeight, monochromeBitmap, texture::Format::R8);
             addReturnItem(reflect::SerialiseType<Texture>(texture.get()), std::format("_{}", fontSize));
-
-            stbi_image_free(imageData.data);
-            bmp.Release();
         });
 
         std::free(fontData);
@@ -270,7 +250,7 @@ namespace se::asset::builder
         }
     }
 
-    uint8_t *FontBlueprint::GenerateMonochromeBitmap(stbtt_fontinfo &font, int width, int height, float scale,
+    memory::BinaryBlob FontBlueprint::GenerateMonochromeBitmap(stbtt_fontinfo &font, int width, int height, float scale,
                                                      const std::vector<std::pair<ui::Rect, int> > &boundingBoxes,
                                                      const std::vector<ui::Rect> &placedBoundingBoxes)
     {
@@ -285,25 +265,6 @@ namespace se::asset::builder
                                       s_FontMapChars[boundingBoxes[i].second]);
         }
 
-        return bitmap;
-    }
-
-    memory::BinaryBlob FontBlueprint::CreateRGBBitmap(uint8_t *bitmap, int width, int height)
-    {
-        auto bmp = util::CreateBitmapData(width, height);
-        uint8_t *bmpData = static_cast<uint8_t *>(bmp.GetData());
-        for (int x = 0; x < width; ++x)
-        {
-            for (int y = 0; y < height; ++y)
-            {
-                int i = x + (height - 1 - y) * width;
-                int newI = x + y * width;
-                bmpData[newI * 3 + util::s_BitmapHeaderSize] = bitmap[i];
-                bmpData[newI * 3 + 1 + util::s_BitmapHeaderSize] = bitmap[i];
-                bmpData[newI * 3 + 2 + util::s_BitmapHeaderSize] = bitmap[i];
-            }
-        }
-
-        return bmp;
+        return memory::BinaryBlob(bitmap, width * height);
     }
 }
