@@ -16,6 +16,7 @@ namespace se::ui
             return topLeft == rhs.topLeft && size == rhs.size;
         }
 
+        bool Contains(const math::IntVec2& point) const;
         bool Overlaps(const Rect& bb) const;
     };
 }

@@ -19,8 +19,7 @@ namespace se::ui::observers
             auto vert = assetManager->GetAsset<asset::Shader>("/builtin_assets/shaders/ui.sass");
             auto frag = assetManager->GetAsset<asset::Shader>("/builtin_assets/shaders/diffuse_texture.sass");
             image->material = render::Material::CreateMaterial({vert}, {frag});
-            auto texture = assetManager->GetAsset<asset::Texture>("/builtin_assets/textures/default_texture.sass");
-            image->material->SetUniform("Image", asset::shader::ast::AstType::Sampler2D, 1, &texture);
+            image->material->SetUniform("Texture", asset::shader::ast::AstType::Sampler2D, 1, &component->image);
         }
     }
 

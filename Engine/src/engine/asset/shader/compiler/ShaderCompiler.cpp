@@ -32,7 +32,10 @@ namespace se::asset::shader
         return std::get<Shader>(result);
     }
 
-    std::optional<std::string> ShaderCompiler::GeneratePlatformShader(const std::vector<std::shared_ptr<Shader>>& shaderAssets, const ShaderSettings& settings, const render::VertexBuffer& vb)
+    std::optional<std::string> ShaderCompiler::GeneratePlatformShader(
+        const std::vector<std::shared_ptr<Shader>> &shaderAssets, const ShaderSettings &settings,
+        const render::VertexBuffer &vb,
+        std::vector<std::pair<std::string, std::shared_ptr<render::TextureResource>>> &textureResources)
     {
         std::optional<Shader> newShader = std::nullopt;
         std::vector<Shader> additionalStages;
@@ -61,6 +64,14 @@ namespace se::asset::shader
         if (!ResolveSettings(newShader.value(), settings))
         {
             return std::nullopt;
+        }
+
+        for (const auto& [uniformName, uniform] : newShader.value().GetUniformVariables())
+        {
+            if (uniform.type == ast::AstType::Sampler2D)
+            {
+                textureResources.push_back(std::make_pair(uniformName, nullptr));
+            }
         }
 
         return AstToGlsl(newShader.value());

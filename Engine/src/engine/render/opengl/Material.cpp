@@ -67,7 +67,7 @@ namespace se::render::opengl
                     break;
             }
 
-            m_Textures[i]->Bind();
+            m_Textures[i].second->Bind();
         }
     }
 
@@ -75,8 +75,8 @@ namespace se::render::opengl
     {
         SPARK_ASSERT(m_CompiledProgram == GL_INVALID_VALUE);
 
-        std::optional<std::string> vert = asset::shader::ShaderCompiler::GeneratePlatformShader(m_VertShaders, m_ShaderSettings, vb);
-        std::optional<std::string> frag = asset::shader::ShaderCompiler::GeneratePlatformShader(m_FragShaders, m_ShaderSettings, vb);
+        std::optional<std::string> vert = asset::shader::ShaderCompiler::GeneratePlatformShader(m_VertShaders, m_ShaderSettings, vb, m_Textures);
+        std::optional<std::string> frag = asset::shader::ShaderCompiler::GeneratePlatformShader(m_FragShaders, m_ShaderSettings, vb, m_Textures);
 
         if (!vert.has_value() || !frag.has_value())
         {
@@ -87,6 +87,7 @@ namespace se::render::opengl
             debug::Log::Info("Result Vert Shader:\n {}", vert.value());
             debug::Log::Info("Result Frag Shader:\n {}", frag.value());
         }
+
 
         // Create the shaders
         GLuint VertexShaderID = glCreateShader(GL_VERTEX_SHADER);
@@ -215,9 +216,14 @@ namespace se::render::opengl
             SPARK_ASSERT(count == 1, "Setting arrays of texture uniforms not supported.");
             const auto& texture = *reinterpret_cast<const std::shared_ptr<asset::Texture>*>(value);
             const auto& platformResource = texture->GetPlatformResource();
-            if (!std::ranges::contains(m_Textures, platformResource))
+            auto it = std::ranges::find_if(m_Textures, [name](const auto& kvp){ return kvp.first == name; });
+            if (it != m_Textures.end())
             {
-                m_Textures.push_back(platformResource);
+                it->second = platformResource;
+            }
+            else
+            {
+                m_Textures.push_back(std::make_pair(name, platformResource));
             }
             break;
         }
