@@ -1,0 +1,10 @@
+SSL_FRAGMENT
+
+port(FinalFragColor) out vec3 color;
+
+setting vec3 color_setting;
+
+void main()
+{
+    color = color_setting;
+}

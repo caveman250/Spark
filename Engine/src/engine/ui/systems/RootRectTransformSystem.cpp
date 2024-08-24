@@ -18,7 +18,7 @@ namespace se::ui::systems
         for (size_t i = 0; i < entities.size(); ++i)
         {
             auto& trans = transform[i];
-            trans.rect = {{ trans.minX, trans.minY }, { trans.maxX, trans.maxY }};
+            trans.rect = {{ trans.minX, trans.minY }, { trans.maxX - trans.minX, trans.maxY - trans.minY }};
             if (trans.rect != trans.lastRect)
             {
                 trans.needsLayout = true;

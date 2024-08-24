@@ -25,11 +25,12 @@ namespace se::ui::util
         return mesh;
     }
 
-    asset::StaticMesh MeshUtil::CreateTextMesh(const math::Vec2& pos, const std::shared_ptr<asset::Font> &font, int fontSize, const std::string &text)
+    asset::StaticMesh MeshUtil::CreateTextMesh(const Rect& rect, const std::shared_ptr<asset::Font> &font, int fontSize, const std::string &text)
     {
         asset::StaticMesh mesh;
         uint32_t indexOffset = 0;
-        math::Vec2 cursorPos = pos;
+        math::Vec2 cursorPos = rect.topLeft; // TODO alignment
+        cursorPos.y += fontSize;
         for (auto i = 0; i < text.size(); ++i)
         {
             char c = text[i];
@@ -62,6 +63,27 @@ namespace se::ui::util
             mesh.uvs.push_back({ charData.uvTopLeft.x, charData.uvTopLeft.y });
 
             cursorPos.x += charData.advanceWidth;
+
+            if (c == ' ')
+            {
+                int lookAhead = i + 1;
+                float xCopy = cursorPos.x;
+
+                char nextChar = text[lookAhead];
+                while (nextChar != ' ' && lookAhead < text.size() - 1)
+                {
+                    const auto& nextCharData = font->GetCharData(fontSize, nextChar);
+
+                    if (xCopy + nextCharData.advanceWidth >= rect.topLeft.x + rect.size.x)
+                    {
+                        cursorPos.x = rect.topLeft.x;
+                        cursorPos.y += fontSize;
+                        break;
+                    }
+                    xCopy += nextCharData.advanceWidth;
+                    nextChar = text[++lookAhead];
+                }
+            }
         }
         return mesh;
     }

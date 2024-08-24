@@ -13,6 +13,6 @@ namespace se::ui::util
     {
     public:
         static asset::StaticMesh CreateMeshFromRect(const Rect& rect);
-        static asset::StaticMesh CreateTextMesh(const math::Vec2& pos, const std::shared_ptr<asset::Font>& font, int fontSize, const std::string& text);
+        static asset::StaticMesh CreateTextMesh(const ui::Rect& rect, const std::shared_ptr<asset::Font>& font, int fontSize, const std::string& text);
     };
 }
