@@ -112,9 +112,21 @@ namespace se::asset::builder
                 PackChar(charData.rect, placedBoundingBoxes, charData, imageWidth, imageHeight, interval);
             }
 
+            for (size_t i = 0; i < numChars; ++i)
+            {
+                char c = s_FontMapChars[boundingBoxes[i].second];
+                const auto& rect = placedBoundingBoxes[i];
+                auto &charData = charDataMap[c];
+                // calculate Uvs now that the image size is stable
+                charData.uvTopLeft = math::Vec2(static_cast<float>(rect.topLeft.x) / imageWidth,
+                                              static_cast<float>(rect.topLeft.y) / imageHeight);
+                charData.uvBottomRight = math::Vec2((static_cast<float>(rect.topLeft.x) + static_cast<float>(rect.size.x)) / imageWidth,
+                                                    (static_cast<float>(rect.topLeft.y) + static_cast<float>(rect.size.y)) / imageHeight);
+            }
+
             addFontSize(fontSize, charDataMap);
             uint8_t *monochromeBitmap = GenerateMonochromeBitmap(info, imageWidth, imageHeight, scale,
-                                                                 boundingBoxes, placedBoundingBoxes);
+                                                               boundingBoxes, placedBoundingBoxes);
 
             // convert to RGB
             memory::BinaryBlob bmp = CreateRGBBitmap(monochromeBitmap, imageWidth, imageHeight);
@@ -209,7 +221,8 @@ namespace se::asset::builder
         }
     }
 
-    void FontBlueprint::PackChar(ui::Rect rect, std::vector<ui::Rect> &placedRects, CharData& charData, int& imageWidth, int& imageHeight, int& scanlineDelta)
+    void FontBlueprint::PackChar(ui::Rect rect, std::vector<ui::Rect> &placedRects, CharData &charData, int &imageWidth,
+                                 int &imageHeight, int &scanlineDelta)
     {
         rect.topLeft = {0, 0};
 
@@ -234,14 +247,8 @@ namespace se::asset::builder
             if (foundPosition)
             {
                 placedRects.push_back(rect);
-                charData.uvTopLeft = math::Vec2(static_cast<float>(rect.topLeft.x) / imageWidth,
-                                                static_cast<float>(rect.topLeft.y) / imageHeight);
-                charData.uvBottomRight = math::Vec2(
-                    (static_cast<float>(rect.topLeft.x) + static_cast<float>(rect.size.x)) / imageWidth,
-                    (static_cast<float>(rect.topLeft.y) + static_cast<float>(rect.size.y)) / imageHeight);
                 break;
-            }
-            else
+            } else
             {
                 rect.topLeft.x += scanlineDelta;
                 if (rect.topLeft.x >= imageWidth)
@@ -252,7 +259,8 @@ namespace se::asset::builder
                     if (rect.topLeft.y + rect.size.y > imageHeight)
                     {
                         imageWidth = static_cast<int>(bits::RoundUpToPowerOf2(static_cast<uint32_t>(imageWidth) + 1u));
-                        imageHeight = static_cast<int>(bits::RoundUpToPowerOf2(static_cast<uint32_t>(imageHeight) + 1u));
+                        imageHeight = static_cast<int>(
+                            bits::RoundUpToPowerOf2(static_cast<uint32_t>(imageHeight) + 1u));
                         scanlineDelta++;
                         rect.topLeft.x = 0;
                         rect.topLeft.y = 0;
@@ -262,10 +270,11 @@ namespace se::asset::builder
         }
     }
 
-    uint8_t * FontBlueprint::GenerateMonochromeBitmap(stbtt_fontinfo &font, int width, int height, float scale,
-        const std::vector<std::pair<ui::Rect, int>>& boundingBoxes, const std::vector<ui::Rect>& placedBoundingBoxes)
+    uint8_t *FontBlueprint::GenerateMonochromeBitmap(stbtt_fontinfo &font, int width, int height, float scale,
+                                                     const std::vector<std::pair<ui::Rect, int> > &boundingBoxes,
+                                                     const std::vector<ui::Rect> &placedBoundingBoxes)
     {
-        uint8_t* bitmap = static_cast<uint8_t *>(std::malloc(width * height));
+        uint8_t *bitmap = static_cast<uint8_t *>(std::malloc(width * height));
         memset(bitmap, 0, width * height);
         for (int i = 0; i < strlen(s_FontMapChars); ++i)
         {
@@ -282,7 +291,7 @@ namespace se::asset::builder
     memory::BinaryBlob FontBlueprint::CreateRGBBitmap(uint8_t *bitmap, int width, int height)
     {
         auto bmp = util::CreateBitmapData(width, height);
-        uint8_t* bmpData = static_cast<uint8_t *>(bmp.GetData());
+        uint8_t *bmpData = static_cast<uint8_t *>(bmp.GetData());
         for (int x = 0; x < width; ++x)
         {
             for (int y = 0; y < height; ++y)
