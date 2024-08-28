@@ -76,7 +76,7 @@ namespace se::ui::util
 
                     if (xCopy + nextCharData.advanceWidth >= rect.topLeft.x + rect.size.x)
                     {
-                        cursorPos.x = rect.topLeft.x;
+                        cursorPos.x = static_cast<float>(rect.topLeft.x);
                         cursorPos.y += fontSize;
                         break;
                     }

@@ -29,7 +29,7 @@ namespace se::asset::builder
         static int GetAscent(stbtt_fontinfo& font);
         static std::vector<std::pair<ui::Rect, int>> CollectSortedBoundingBoxes(stbtt_fontinfo& font, float scale);
         static void CollectCharMetrics(stbtt_fontinfo& font, char c, float scale, float ascent, CharData& charData);
-        static void PackChar(ui::Rect rect, std::vector<ui::Rect>& placedRects, CharData& charData, int& imageWidth, int& imageHeight, int& scanlineDelta);
+        static void PackChar(ui::Rect rect, std::vector<ui::Rect>& placedRects, int& imageWidth, int& imageHeight, int& scanlineDelta);
         static memory::BinaryBlob GenerateMonochromeBitmap(stbtt_fontinfo &font, int width, int height, float scale,
             const std::vector<std::pair<ui::Rect, int>>& boundingBoxes, const std::vector<ui::Rect>& placedBoundingBoxes);
     };

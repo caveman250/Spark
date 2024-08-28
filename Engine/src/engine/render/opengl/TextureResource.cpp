@@ -88,7 +88,7 @@ namespace se::render::opengl
                 return true;
             default:
                 SPARK_ASSERT(false, "Unsupported GL format");
-            return GL_INVALID_VALUE;
+                return false;
         }
     }
 

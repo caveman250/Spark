@@ -109,7 +109,7 @@ namespace se::asset::builder
                 charData.rect = boundingBoxes[i].first;
 
                 CollectCharMetrics(info, c, scale, static_cast<float>(ascent), charData);
-                PackChar(charData.rect, placedBoundingBoxes, charData, imageWidth, imageHeight, interval);
+                PackChar(charData.rect, placedBoundingBoxes, imageWidth, imageHeight, interval);
             }
 
             for (size_t i = 0; i < numChars; ++i)
@@ -196,12 +196,12 @@ namespace se::asset::builder
             kern = stbtt_GetCodepointKernAdvance(&font, c, s_FontMapChars[j]);
             if (kern != 0)
             {
-                charData.kerning[s_FontMapChars[j]] = kern * scale;
+                charData.kerning[s_FontMapChars[j]] = static_cast<int>(kern * scale);
             }
         }
     }
 
-    void FontBlueprint::PackChar(ui::Rect rect, std::vector<ui::Rect> &placedRects, CharData &charData, int &imageWidth,
+    void FontBlueprint::PackChar(ui::Rect rect, std::vector<ui::Rect> &placedRects, int &imageWidth,
                                  int &imageHeight, int &scanlineDelta)
     {
         rect.topLeft = {0, 0};

@@ -108,12 +108,6 @@ namespace se::ecs
         RunQuery<Cs...>(std::bind(&System::OnShutdown, this, ts...), true);
     }
 
-#if SPARK_PLATFORM_WINDOWS
-#define PLACEHOLDER(i) std::_Ph<i>
-#else
-#define PLACEHOLDER(i) std::_Placeholder<i>
-#endif
-
     template<typename... Cs>
     template<std::size_t Index, typename... Ts>
     std::enable_if_t<Index != sizeof...(Cs) + 1> System<Cs...>::ShutdownBuilder(Ts... ts)
