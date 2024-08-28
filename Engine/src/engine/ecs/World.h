@@ -55,6 +55,8 @@ namespace se::ecs
 {
     class BaseSystem;
     class Relationship;
+    template<typename... Cs>
+    class SignalActionBuilder;
     constexpr uint32_t s_InvalidEntity = 0;
 
     struct EntityRecord
@@ -93,6 +95,9 @@ namespace se::ecs
     class World
     {
         friend class BaseSystem;
+        friend class Signal;
+        template<typename... Cs>
+        friend class SignalActionBuilder;
 
     public:
         World();
@@ -223,6 +228,9 @@ namespace se::ecs
         void ProcessPendingEngineSystems();
         void ProcessPendingEntityDeletions();
 
+        void AddPendingSignal(const Signal& signal);
+        void OnSignalDestroyed(const Signal& signal);
+
         bool m_Running = false;
 
         std::unordered_map<Id, Archetype> m_Archetypes = {};
@@ -244,7 +252,6 @@ namespace se::ecs
         Id m_ObserverCounter = 0;
         std::vector<Id> m_FreeObservers = {};
 
-
         std::vector<std::vector<Id>> m_AppSystemUpdateGroups = {};
         std::vector<std::vector<Id>> m_EngineSystemUpdateGroups = {};
         UpdateMode::Type m_UpdateMode = UpdateMode::SingleThreaded;
@@ -262,6 +269,8 @@ namespace se::ecs
         std::vector<std::pair<Id, PendingSystemInfo>> m_PendingEngineSystemCreations;
         std::vector<Id> m_PendingEngineSystemDeletions;
         memory::Arena m_TempStore; // cleared after all pending creations/deletions
+
+        std::vector<const Signal*> m_PendingSignals;
     };
 
     template<typename T>

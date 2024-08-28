@@ -6,7 +6,6 @@
 
 #include "engine/Application.h"
 #include "engine/input/InputUtil.h"
-#include "engine/ui/button/ButtonSubscription.h"
 
 using namespace se;
 using namespace se::ecs::components;
@@ -70,13 +69,17 @@ namespace se::ui::systems
                 image.material->SetUniform("Texture", asset::shader::ast::AstType::Sampler2D, 1, &button.image);
             }
 
+            if (button.pressed && !button.lastPressed)
+            {
+                button.onPressed.Broadcast();
+            }
+            else if (!button.pressed && button.lastPressed)
+            {
+                button.onReleased.Broadcast();
+            }
+
             button.lastHovered = button.hovered;
             button.lastPressed = button.pressed;
-
-            for (auto& sub : button.subscriptions)
-            {
-                sub->UpdateFromButton(button);
-            }
         }
     }
 }

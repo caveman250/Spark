@@ -23,7 +23,7 @@ namespace se::ui::observers
         }
     }
 
-    void ButtonObserver::OnRemoved(ecs::Id entity, components::ButtonComponent *component)
+    void ButtonObserver::OnRemoved(ecs::Id, components::ButtonComponent*)
     {
         // leave image there for time being. see how annoying it is in practice.
     }

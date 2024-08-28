@@ -105,4 +105,10 @@ do { \
 #define SPARK_ASSERT_MESSAGE_N(msg, ...) std::format(msg, __VA_ARGS__);
 #define SPARK_ASSERT_MESSAGE(...) SPARK_CAT(SPARK_ASSERT_MESSAGE_, SPARK_VARG_COUNT_01N(__VA_ARGS__))(__VA_ARGS__)
 
+#if SPARK_PLATFORM_WINDOWS
+#define PLACEHOLDER(i) std::_Ph<i>
+#else
+#define PLACEHOLDER(i) std::_Placeholder<i>
+#endif
+
 #include "engine/debug/Log.h"

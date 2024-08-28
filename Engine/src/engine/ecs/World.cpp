@@ -1,5 +1,6 @@
 #include "World.h"
 
+#include "Signal.h"
 #include "components/ParentComponent.h"
 #include "components/RootComponent.h"
 #include "engine/reflect/Reflect.h"
@@ -284,6 +285,12 @@ namespace se::ecs
                 system->Update();
             }
         }, true);
+
+        for (const auto* signal : m_PendingSignals)
+        {
+            signal->Execute();
+        }
+        m_PendingSignals.clear();
 
         m_Running = false;
     }
@@ -754,6 +761,17 @@ namespace se::ecs
         }
 
         m_PendingEntityDeletions.clear();
+    }
+
+    void World::AddPendingSignal(const Signal &signal)
+    {
+        m_PendingSignals.push_back(&signal);
+    }
+
+    void World::OnSignalDestroyed(const Signal& signal)
+    {
+        const auto [first, last] = std::ranges::remove(m_PendingSignals, &signal);
+        m_PendingSignals.erase(first, last);
     }
 
     void CollectRelationshipIds(std::vector<std::pair<Id, ComponentMutability::Type>>& compIds, const std::vector<Relationship>& relationships)

@@ -6,7 +6,7 @@
 
 namespace se::ui::observers
 {
-    void RectTransformObserver::OnAdded(ecs::Id entity, components::RectTransformComponent *component)
+    void RectTransformObserver::OnAdded(ecs::Id entity, components::RectTransformComponent*)
     {
         auto world = Application::Get()->GetWorld();
         if (!world->HasRelationshipWildcard<ecs::components::ChildOf>(entity) &&
@@ -16,7 +16,7 @@ namespace se::ui::observers
         }
     }
 
-    void RectTransformObserver::OnRemoved(ecs::Id entity, components::RectTransformComponent *component)
+    void RectTransformObserver::OnRemoved(ecs::Id, components::RectTransformComponent*)
     {
 
     }
