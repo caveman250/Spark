@@ -2,6 +2,7 @@
 
 #include "KeyState.h"
 #include "MouseButton.h"
+#include "engine/math/IntVec2.h"
 #include "engine/reflect/Object.h"
 #include "engine/reflect/Reflect.h"
 

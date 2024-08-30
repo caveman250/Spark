@@ -4,6 +4,7 @@
 #include "ecs/systems/TransformSystem.h"
 #include "ecs/systems/WorldTransformSystem.h"
 #include "input/InputComponent.h"
+#include "input/InputSystem.h"
 #include "platform/PlatformRunLoop.h"
 #include "platform/IWindow.h"
 #include "render/Renderer.h"
@@ -12,11 +13,16 @@
 #include "render/systems/PointLightSystem.h"
 #include "ui/observers/ButtonObserver.h"
 #include "ui/observers/RectTransformObserver.h"
+#include "ui/observers/TitleBarObserver.h"
+#include "ui/observers/WindowObserver.h"
 #include "ui/systems/ImageRenderSystem.h"
 #include "ui/systems/RectTransformSystem.h"
 #include "ui/systems/RootRectTransformSystem.h"
 #include "ui/systems/TextRenderSystem.h"
 #include "ui/systems/ButtonSystem.h"
+#include "ui/systems/TitleBarSystem.h"
+#include "ui/systems/UIKeyboardInputSystem.h"
+#include "ui/systems/UIMouseInputSystem.h"
 
 namespace se
 {
@@ -53,16 +59,22 @@ namespace se
     void Application::CreateInitialSingletonComponents()
     {
         m_World.AddSingletonComponent<input::InputComponent>();
+        m_World.AddSingletonComponent<camera::ActiveCameraComponent>();
     }
 
     void Application::CreateInitialObservers()
     {
         m_World.CreateObserver<ui::observers::ButtonObserver, ui::components::ButtonComponent>();
         m_World.CreateObserver<ui::observers::RectTransformObserver, ui::components::RectTransformComponent>();
+        m_World.CreateObserver<ui::observers::WindowObserver, ui::components::WindowComponent>();
+        m_World.CreateObserver<ui::observers::TitleBarObserver, ui::components::TitleBarComponent>();
     }
 
     void Application::CreateInitialSystems()
     {
+        auto input = m_World.CreateEngineSystem<input::InputSystem>({}, {}, {});
+        m_World.CreateEngineSystem<ui::systems::UIMouseInputSystem>({}, {}, { input });
+        m_World.CreateEngineSystem<ui::systems::UIKeyboardInputSystem>({}, {}, { input });
         m_World.CreateEngineSystem<render::systems::PointLightSystem>({}, {}, {});
         m_World.CreateEngineSystem<render::systems::MeshRenderSystem>({}, {}, {});
         auto rootTransform = m_World.CreateEngineSystem<ecs::systems::RootTransformSystem>({}, {}, {});
@@ -70,8 +82,9 @@ namespace se
         m_World.CreateEngineSystem<ecs::systems::TransformSystem>({}, {}, { worldTransform });
         auto rootRect = m_World.CreateEngineSystem<ui::systems::RootRectTransformSystem>({}, {}, {});
         m_World.CreateEngineSystem<ui::systems::RectTransformSystem>({}, {}, { rootRect });
-        auto button = m_World.CreateEngineSystem<ui::systems::ButtonSystem>({}, {}, {});
-        m_World.CreateEngineSystem<ui::systems::ImageRenderSystem>({}, {}, { button });
+        m_World.CreateEngineSystem<ui::systems::ButtonSystem>({}, {}, {});
+        m_World.CreateEngineSystem<ui::systems::TitleBarSystem>({}, {}, {});
+        m_World.CreateEngineSystem<ui::systems::ImageRenderSystem>({}, {}, { });
         m_World.CreateEngineSystem<ui::systems::TextRenderSystem>({}, {}, {});
     }
 

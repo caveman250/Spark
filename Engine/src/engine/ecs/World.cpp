@@ -91,6 +91,16 @@ namespace se::ecs
             return;
         }
 
+        auto relationShip = CreateChildRelationship(entity);
+        Each<>([this](const std::vector<Id>& children)
+        {
+            for (auto child : children)
+            {
+                DestroyEntity(child);
+            }
+
+        }, { relationShip }, true);
+
         for (const auto comp: m_EntityRecords.at(entity).archetype->type)
         {
             RemoveComponentInternal(entity, comp);
@@ -118,6 +128,25 @@ namespace se::ecs
             }
         }
 
+        // need to check pending comps.
+        for (const auto& pendingComp : m_PendingComponentCreations)
+        {
+            if (pendingComp.entity == entity)
+            {
+                auto id = pendingComp.comp;
+                uint32_t typeRhs = bits::UnpackB64(id);
+                if (typeRhs == 0)
+                {
+                    continue; // not a relationship
+                }
+                uint32_t typeLhs = bits::UnpackA64(id);
+                if (typeLhs == lhs)
+                {
+                    return true;
+                }
+            }
+        }
+
         return false;
     }
 
@@ -126,7 +155,21 @@ namespace se::ecs
         EntityRecord& record = m_EntityRecords.at(entity);
         Archetype* archetype = record.archetype;
         auto compInfo = m_ComponentRecords[component];
-        return compInfo.archetypeRecords.contains(archetype->id);
+        if (compInfo.archetypeRecords.contains(archetype->id))
+        {
+            return true;
+        }
+
+        // need to check pending comps.
+        for (const auto& pendingComp : m_PendingComponentCreations)
+        {
+            if (pendingComp.entity == entity && pendingComp.comp == component)
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     bool World::HasArchetype(const Type& type) const
@@ -286,7 +329,7 @@ namespace se::ecs
             }
         }, true);
 
-        for (const auto* signal : m_PendingSignals)
+        for (auto* signal : m_PendingSignals)
         {
             signal->Execute();
         }
@@ -566,7 +609,7 @@ namespace se::ecs
 
         parentComp->childCount++;
 
-        if (!HasRelationshipWildcard<components::ChildOf>(entity))
+        if (!HasComponent<components::RootComponent>(entity) && !HasRelationshipWildcard<components::ChildOf>(entity))
         {
             AddComponent<components::RootComponent>(entity);
         }
@@ -755,22 +798,22 @@ namespace se::ecs
 
     void World::ProcessPendingEntityDeletions()
     {
-        for (Id entity : m_PendingEntityDeletions)
+        auto safeCopy = m_PendingEntityDeletions;
+        m_PendingEntityDeletions.clear();
+        for (Id entity : safeCopy)
         {
             DestroyEntityInternal(entity);
         }
-
-        m_PendingEntityDeletions.clear();
     }
 
-    void World::AddPendingSignal(const Signal &signal)
+    void World::AddPendingSignal(BaseSignal* signal)
     {
-        m_PendingSignals.push_back(&signal);
+        m_PendingSignals.push_back(signal);
     }
 
-    void World::OnSignalDestroyed(const Signal& signal)
+    void World::OnSignalDestroyed(BaseSignal* signal)
     {
-        const auto [first, last] = std::ranges::remove(m_PendingSignals, &signal);
+        const auto [first, last] = std::ranges::remove(m_PendingSignals, signal);
         m_PendingSignals.erase(first, last);
     }
 

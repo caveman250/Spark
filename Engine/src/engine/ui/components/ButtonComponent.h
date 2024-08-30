@@ -6,11 +6,6 @@
 #include "engine/reflect/Object.h"
 #include "engine/reflect/Reflect.h"
 
-namespace se::ui::button
-{
-    class ButtonSubscription;
-}
-
 namespace se::ui::systems
 {
     class ButtonSystem;
@@ -29,15 +24,13 @@ namespace se::ui::components
         std::shared_ptr<asset::Texture> pressedImage = nullptr;
         std::shared_ptr<asset::Texture> hoveredImage = nullptr;
 
-        ecs::Signal onPressed;
-        ecs::Signal onReleased;
+        ecs::Signal<> onPressed;
+        ecs::Signal<> onReleased;
 
     private:
         bool lastPressed = false;
         bool lastHovered = false;
-        std::vector<std::shared_ptr<button::ButtonSubscription>> subscriptions = {};
 
         friend class systems::ButtonSystem;
-        friend class button::ButtonSubscription;
     };
 }

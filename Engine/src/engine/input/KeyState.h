@@ -5,8 +5,8 @@
 
 namespace se::input
 {
-    DECLARE_SPARK_ENUM_BEGIN(KeyState, uint8_t)
-        Up,
-        Down
+    DECLARE_SPARK_ENUM_BEGIN(KeyState, int)
+        Up = 1,
+        Down = 2
     DECLARE_SPARK_ENUM_END()
 }

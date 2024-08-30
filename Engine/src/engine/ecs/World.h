@@ -57,6 +57,7 @@ namespace se::ecs
     class Relationship;
     template<typename... Cs>
     class SignalActionBuilder;
+    class BaseSignal;
     constexpr uint32_t s_InvalidEntity = 0;
 
     struct EntityRecord
@@ -95,6 +96,7 @@ namespace se::ecs
     class World
     {
         friend class BaseSystem;
+        template <typename... Cs>
         friend class Signal;
         template<typename... Cs>
         friend class SignalActionBuilder;
@@ -170,6 +172,10 @@ namespace se::ecs
 
         template<typename ...T, typename Func>
         void ChildEach(Id entity, BaseSystem* system, Func&& func, const std::vector<Relationship>& relationships);
+
+        template<typename ...T, typename Func>
+        void RecursiveChildEach(Id entity, BaseSystem* system, Func&& func, const std::vector<Relationship>& relationships);
+
         bool ValidateChildQuery(BaseSystem* system, const std::vector<std::pair<Id, ComponentMutability::Type>>& requestedComponents);
         Relationship CreateChildRelationship(Id entity);
         bool HasRelationshipWildcardInternal(Id entity, uint32_t lhs);
@@ -228,8 +234,8 @@ namespace se::ecs
         void ProcessPendingEngineSystems();
         void ProcessPendingEntityDeletions();
 
-        void AddPendingSignal(const Signal& signal);
-        void OnSignalDestroyed(const Signal& signal);
+        void AddPendingSignal(BaseSignal* signal);
+        void OnSignalDestroyed(BaseSignal* signal);
 
         bool m_Running = false;
 
@@ -270,7 +276,7 @@ namespace se::ecs
         std::vector<Id> m_PendingEngineSystemDeletions;
         memory::Arena m_TempStore; // cleared after all pending creations/deletions
 
-        std::vector<const Signal*> m_PendingSignals;
+        std::vector<BaseSignal*> m_PendingSignals;
     };
 
     template<typename T>
@@ -458,6 +464,20 @@ namespace se::ecs
         std::vector<Relationship> relationshipCopy = relationships;
         relationshipCopy.push_back(CreateChildRelationship(entity));
         Each<T...>(func, relationshipCopy, false);
+    }
+
+    template<typename ... T, typename Func>
+    void World::RecursiveChildEach(Id entity, BaseSystem *system, Func &&func, const std::vector<Relationship> &relationships)
+    {
+        auto processChild = [this, system, func, relationships](const std::vector<Id>& children)
+        {
+            for (const auto& id : children)
+            {
+                RecursiveChildEach<T...>(id, system, func, relationships);
+            }
+        };
+        ChildEach<>(entity, system, processChild, relationships);
+        ChildEach<T...>(entity, system, func, relationships);
     }
 
     template<typename T>

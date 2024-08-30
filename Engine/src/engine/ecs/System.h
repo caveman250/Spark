@@ -36,6 +36,12 @@ namespace se::ecs
             Application::Get()->GetWorld()->ChildEach<Ts...>(entity, this, func, m_Relationships);
         }
 
+        template<typename... Ts, typename Func>
+        void RunRecursiveChildQuery(Id entity, Func&& func)
+        {
+            Application::Get()->GetWorld()->RecursiveChildEach<Ts...>(entity, this, func, m_Relationships);
+        }
+
         const std::vector<Relationship>& GetRelationships() const { return m_Relationships; }
         const ChildQuery& GetChildQuery() const { return m_ChildQuery; }
         bool DependsOn(Id other) const;
