@@ -15,46 +15,32 @@ namespace se::ui::systems
     DEFINE_SPARK_SYSTEM(ButtonSystem)
 
     void ButtonSystem::OnUpdate(const std::vector<ecs::Id>& entities,
-        const components::RectTransformComponent* rectTransforms,
         components::ButtonComponent* buttons,
         components::ImageComponent* images,
-        input::InputComponent* inputComp)
+        const components::ReceivesMouseEventsComponent* mouseEventComps)
     {
         for (size_t i = 0; i < entities.size(); ++i)
         {
-            const auto& transform = rectTransforms[i];
             auto& button = buttons[i];
             auto& image = images[i];
+            auto& mouseEventComp = mouseEventComps[i];
 
-            button.hovered = false;
-            bool hovered = transform.rect.Contains(math::IntVec2(inputComp->mouseX, inputComp->mouseY));
-
-            if (hovered)
+            for (const auto& mouseEvent : mouseEventComp.mouseEvents)
             {
-                for (const auto& mouseEvent : inputComp->mouseEvents)
+                if (mouseEvent.button == input::MouseButton::Left)
                 {
-                    if (mouseEvent.button == input::MouseButton::Left)
+                    if (mouseEvent.state == input::KeyState::Down)
                     {
-                        if (mouseEvent.state == input::KeyState::Down)
-                        {
-                            button.pressed = true;
-                            input::InputUtil::ConsumeMouseEvent(mouseEvent, inputComp);
-                            break;
-                        }
-                        else if (mouseEvent.state == input::KeyState::Up)
-                        {
-                            button.pressed = false;
-                            input::InputUtil::ConsumeMouseEvent(mouseEvent, inputComp);
-                            break;
-                        }
+                        button.pressed = true;
+                    }
+                    else if (mouseEvent.state == input::KeyState::Up)
+                    {
+                        button.pressed = false;
                     }
                 }
             }
 
-            if (!button.pressed)
-            {
-                button.hovered = hovered;
-            }
+            button.hovered = !button.pressed && mouseEventComp.hovered;
 
             if (button.hovered && !button.lastHovered)
             {

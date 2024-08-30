@@ -11,6 +11,7 @@ namespace se::input
         Right,
         Middle,
         Btn4,
-        Btn5
+        Btn5,
+        None
     DECLARE_SPARK_ENUM_END()
 }

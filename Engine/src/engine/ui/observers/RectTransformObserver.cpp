@@ -9,8 +9,8 @@ namespace se::ui::observers
     void RectTransformObserver::OnAdded(ecs::Id entity, components::RectTransformComponent*)
     {
         auto world = Application::Get()->GetWorld();
-        if (!world->HasRelationshipWildcard<ecs::components::ChildOf>(entity) &&
-            !world->HasComponent<ecs::components::RootComponent>(entity))
+        if (!world->HasComponent<ecs::components::RootComponent>(entity) &&
+            !world->HasRelationshipWildcard<ecs::components::ChildOf>(entity))
         {
             world->AddComponent<ecs::components::RootComponent>(entity);
         }
