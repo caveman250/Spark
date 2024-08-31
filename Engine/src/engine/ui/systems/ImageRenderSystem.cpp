@@ -35,7 +35,7 @@ namespace se::ui::systems
             {
                 if (!image.vertBuffer || image.lastRect != transform.rect)
                 {
-                    asset::StaticMesh mesh = util::MeshUtil::CreateMeshFromRect(transform.rect);
+                    asset::StaticMesh mesh = util::CreateMeshFromRect(transform.rect);
                     image.vertBuffer = render::VertexBuffer::CreateVertexBuffer(mesh);
                     image.vertBuffer->CreatePlatformResource();
                     image.indexBuffer = render::IndexBuffer::CreateIndexBuffer(mesh);

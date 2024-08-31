@@ -78,6 +78,15 @@ namespace se::ecs
         auto compInfo = m_ComponentRecords[component];
         if (!compInfo.archetypeRecords.contains(archetype->id))
         {
+            // check pending comps
+            for (const auto& pendingComp : m_PendingComponentCreations)
+            {
+                if (pendingComp.entity == entity && pendingComp.comp == component)
+                {
+                    return pendingComp.tempData;
+                }
+            }
+
             SPARK_ASSERT(false);
             return nullptr;
         }

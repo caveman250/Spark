@@ -34,6 +34,7 @@
 #undef min
 #undef max
 #undef LoadImage
+#undef CreateWindow
 #undef DELETE
 #elif SPARK_PLATFORM_LINUX
 #include <SDL2/SDL.h>
