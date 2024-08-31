@@ -46,8 +46,14 @@ namespace se::ui::systems
                 text.material->SetRenderState(rs);
             }
 
+            if (transform.rect.topLeft != transform.lastRect.topLeft)
+            {
+                auto floatVec = math::Vec2(transform.rect.topLeft);
+                text.material->SetUniform("pos", asset::shader::ast::AstType::Vec2, 1, &floatVec);
+            }
+
             if (!text.vertBuffer ||
-                text.lastRect != transform.rect ||
+                text.lastRect.size != transform.rect.size ||
                 text.lastText != text.text ||
                 text.lastFontSize != text.fontSize)
             {
@@ -63,10 +69,11 @@ namespace se::ui::systems
                     text.material->SetUniform("Texture", asset::shader::ast::AstType::Sampler2D, 1, &texture);
                 }
 
-                text.lastRect = transform.rect;
                 text.lastFontSize = text.fontSize;
                 text.lastText = text.text;
             }
+
+            text.lastRect = transform.rect;
 
             text.material->SetUniform("screenSize", asset::shader::ast::AstType::Vec2, 1, &windowsSize);
 
