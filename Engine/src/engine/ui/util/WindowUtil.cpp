@@ -1,4 +1,4 @@
-#include "WindowObserver.h"
+#include "WindowUtil.h"
 
 #include "engine/Application.h"
 #include "engine/asset/AssetManager.h"
@@ -7,13 +7,21 @@
 #include "engine/ui/components/ReceivesMouseEventsComponent.h"
 #include "engine/ui/components/RectTransformComponent.h"
 #include "engine/ui/components/TitleBarComponent.h"
+#include "engine/ui/components/WindowComponent.h"
 
-namespace se::ui::observers
+namespace se::ui::util
 {
-    void WindowObserver::OnAdded(ecs::Id entity, components::WindowComponent *component)
+    ecs::Id CreateWindow(components::RectTransformComponent** transform,
+                         components::WindowComponent** window,
+                         components::TitleBarComponent** titleBar,
+                         ecs::Id& childArea)
     {
         auto world = Application::Get()->GetWorld();
         auto* assetManager = asset::AssetManager::Get();
+
+        ecs::Id entity = world->CreateEntity();
+        *transform = world->AddComponent<components::RectTransformComponent>(entity);
+        *window = world->AddComponent<components::WindowComponent>(entity);
 
         //background
         if (!world->HasComponent<components::ImageComponent>(entity))
@@ -26,27 +34,27 @@ namespace se::ui::observers
             image->material->GetShaderSettings().SetSetting("color_setting", math::Vec3(0.3f, 0.3f, 0.3f));
         }
 
-        if (!world->HasComponent<ui::components::ReceivesMouseEventsComponent>(entity))
+        if (!world->HasComponent<components::ReceivesMouseEventsComponent>(entity))
         {
             auto inputComp = world->AddComponent<components::ReceivesMouseEventsComponent>(entity);
             inputComp->buttonMask = static_cast<input::MouseButton::Type>(0x0);
         }
 
         auto titleBarEntity = world->CreateEntity();
-        auto titleBar = world->AddComponent<components::TitleBarComponent>(titleBarEntity);
-        titleBar->onMove.Subscribe<components::RectTransformComponent>(entity, [](float dX, float dY, components::RectTransformComponent* transform)
+        *titleBar = world->AddComponent<components::TitleBarComponent>(titleBarEntity);
+        (*titleBar)->onMove.Subscribe<components::RectTransformComponent>(entity, [](float dX, float dY, components::RectTransformComponent* transform)
         {
-            transform->minX += dX;
-            transform->maxX += dX;
-            transform->minY += dY;
-            transform->maxY += dY;
+            transform->minX += static_cast<int>(dX);
+            transform->maxX += static_cast<int>(dX);
+            transform->minY += static_cast<int>(dY);
+            transform->maxY += static_cast<int>(dY);
         });
         auto titleBarTransform = world->AddComponent<components::RectTransformComponent>(titleBarEntity);
         titleBarTransform->anchors = { 0.f, 1.f, 0.f, 0.f };
         titleBarTransform->minX = 0;
         titleBarTransform->maxX = 0;
         titleBarTransform->minY = 0;
-        titleBarTransform->maxY = 40.f;
+        titleBarTransform->maxY = 40;
         world->AddChild(entity, titleBarEntity);
 
         auto buttonEntity = world->CreateEntity();
@@ -66,10 +74,16 @@ namespace se::ui::observers
         buttonTransform->maxY = 5;
 
         world->AddChild(titleBarEntity, buttonEntity);
-    }
 
-    void WindowObserver::OnRemoved(ecs::Id, components::WindowComponent*)
-    {
+        childArea = world->CreateEntity();
+        auto childAreaTransform = world->AddComponent<components::RectTransformComponent>(childArea);
+        childAreaTransform->anchors = { 0.f, 1.f, 0.f, 1.f };
+        childAreaTransform->minX = 0;
+        childAreaTransform->maxX = 0;
+        childAreaTransform->minY = 40.f;
+        childAreaTransform->maxY = 0.f;
+        world->AddChild(entity, childArea);
 
+        return entity;
     }
 }

@@ -51,7 +51,7 @@ namespace se::ui::systems
                 text.lastText != text.text ||
                 text.lastFontSize != text.fontSize)
             {
-                asset::StaticMesh mesh = util::MeshUtil::CreateTextMesh(transform.rect, text.font, text.fontSize, text.text);
+                asset::StaticMesh mesh = util::CreateTextMesh(transform.rect, text.font, text.fontSize, text.text);
                 text.vertBuffer = render::VertexBuffer::CreateVertexBuffer(mesh);
                 text.vertBuffer->CreatePlatformResource();
                 text.indexBuffer = render::IndexBuffer::CreateIndexBuffer(mesh);

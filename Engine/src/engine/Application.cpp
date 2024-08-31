@@ -15,7 +15,6 @@
 #include "ui/observers/ButtonObserver.h"
 #include "ui/observers/RectTransformObserver.h"
 #include "ui/observers/TitleBarObserver.h"
-#include "ui/observers/WindowObserver.h"
 #include "ui/systems/ImageRenderSystem.h"
 #include "ui/systems/RectTransformSystem.h"
 #include "ui/systems/RootRectTransformSystem.h"
@@ -70,7 +69,6 @@ namespace se
     {
         m_World.CreateObserver<ui::observers::ButtonObserver, ui::components::ButtonComponent>();
         m_World.CreateObserver<ui::observers::RectTransformObserver, ui::components::RectTransformComponent>();
-        m_World.CreateObserver<ui::observers::WindowObserver, ui::components::WindowComponent>();
         m_World.CreateObserver<ui::observers::TitleBarObserver, ui::components::TitleBarComponent>();
     }
 
