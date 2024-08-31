@@ -33,15 +33,22 @@ namespace se::ui::systems
             auto& image = imageComps[i];
             if (SPARK_VERIFY(image.material))
             {
-                if (!image.vertBuffer || image.lastRect != transform.rect)
+                if (transform.rect.topLeft != image.lastRect.topLeft)
+                {
+                    auto floatVec = math::Vec2(transform.rect.topLeft);
+                    image.material->SetUniform("pos", asset::shader::ast::AstType::Vec2, 1, &floatVec);
+                }
+
+                if (!image.vertBuffer || image.lastRect.size != transform.rect.size)
                 {
                     asset::StaticMesh mesh = util::CreateMeshFromRect(transform.rect);
                     image.vertBuffer = render::VertexBuffer::CreateVertexBuffer(mesh);
                     image.vertBuffer->CreatePlatformResource();
                     image.indexBuffer = render::IndexBuffer::CreateIndexBuffer(mesh);
                     image.indexBuffer->CreatePlatformResource();
-                    image.lastRect = transform.rect;
                 }
+
+                image.lastRect = transform.rect;
 
                 image.material->SetUniform("screenSize", asset::shader::ast::AstType::Vec2, 1, &windowsSize);
 

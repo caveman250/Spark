@@ -7,10 +7,11 @@ port(FinalVertPos) out vec4 outPos;
 port(FragUV) out vec2 outUV;
 
 uniform vec2 screenSize;
+uniform vec2 pos;
 
 void main()
 {
-    vec2 posScreenSpace = vec2(inPos.x, screenSize.y - inPos.y);
+    vec2 posScreenSpace = vec2(pos.x + inPos.x, screenSize.y - pos.y - inPos.y);
     vec2 homogeneousSpace = posScreenSpace - vec2(screenSize.x / 2, screenSize.y / 2);
     homogeneousSpace = homogeneousSpace / vec2(screenSize.x / 2, screenSize.y / 2);
     outPos = vec4(homogeneousSpace, 0.0, 1.0);

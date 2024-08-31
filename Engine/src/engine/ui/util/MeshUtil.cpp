@@ -9,10 +9,10 @@ namespace se::ui::util
         asset::StaticMesh mesh;
         mesh.vertices =
         {
-            { static_cast<float>(rect.topLeft.x), static_cast<float>(rect.topLeft.y) + rect.size.y, 0 },
-            { static_cast<float>(rect.topLeft.x) + rect.size.x, static_cast<float>(rect.topLeft.y) + rect.size.y, 0 },
-            { static_cast<float>(rect.topLeft.x) + rect.size.x, static_cast<float>(rect.topLeft.y), 0 },
-            { static_cast<float>(rect.topLeft.x), static_cast<float>(rect.topLeft.y), 0 },
+            { 0.f,                              static_cast<float>(rect.size.y),     0 },
+            { static_cast<float>(rect.size.x),    static_cast<float>(rect.size.y),     0 },
+            { static_cast<float>(rect.size.x),    0.f,                                 0 },
+            { 0.f,                              0.f,                               0 },
         };
         mesh.indices = {0, 3, 1, 2, 1, 3};
         mesh.uvs =
@@ -29,7 +29,7 @@ namespace se::ui::util
     {
         asset::StaticMesh mesh;
         uint32_t indexOffset = 0;
-        math::Vec2 cursorPos = rect.topLeft; // TODO alignment
+        math::Vec2 cursorPos = { }; // TODO alignment
         cursorPos.y += fontSize;
         for (auto i = 0; i < text.size(); ++i)
         {
@@ -74,9 +74,9 @@ namespace se::ui::util
                 {
                     const auto& nextCharData = font->GetCharData(fontSize, nextChar);
 
-                    if (xCopy + nextCharData.advanceWidth >= rect.topLeft.x + rect.size.x)
+                    if (xCopy + nextCharData.advanceWidth >= rect.size.x)
                     {
-                        cursorPos.x = static_cast<float>(rect.topLeft.x);
+                        cursorPos.x = 0.f;
                         cursorPos.y += fontSize;
                         break;
                     }
