@@ -182,9 +182,9 @@ namespace se::ecs
 
         void RegisterRelationship(Id id);
 
-        void RunOnAllSystems(const std::function<void(Id)>& func, const std::vector<std::vector<Id>>& systems, bool parallel);
-        void RunOnAllAppSystems(const std::function<void(Id)>& func, bool parallel);
-        void RunOnAllEngineSystems(const std::function<void(Id)>& func, bool parallel);
+        void RunOnAllSystems(const std::function<void(Id)>& func, const std::vector<std::vector<Id>>& systems, bool parallel, bool processPending);
+        void RunOnAllAppSystems(const std::function<void(Id)>& func, bool parallel, bool processPending);
+        void RunOnAllEngineSystems(const std::function<void(Id)>& func, bool parallel, bool processPending);
 
         template<typename T>
         T* GetComponent(Id entity);

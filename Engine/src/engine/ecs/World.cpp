@@ -5,6 +5,7 @@
 #include "components/RootComponent.h"
 #include "engine/reflect/Reflect.h"
 #include "engine/ecs/System.h"
+#include "engine/profiling/Profiler.h"
 #include "engine/render/Renderer.h"
 #include "relationships/ChildOf.h"
 
@@ -311,23 +312,26 @@ namespace se::ecs
 
     void World::Update()
     {
+        PROFILE_SCOPE("World::Update")
         m_Running = true;
 
         RunOnAllEngineSystems([this](auto&& systemId)
         {
+            PROFILE_BEGIN_THREAD()
             if (auto* system = m_EngineSystems[systemId].instance)
             {
                 system->Update();
             }
-        }, true);
+        }, true, true);
 
         RunOnAllAppSystems([this](auto&& systemId)
         {
+            PROFILE_BEGIN_THREAD()
             if (auto* system = m_AppSystems[systemId].instance)
             {
                 system->Update();
             }
-        }, true);
+        }, true, true);
 
         for (auto* signal : m_PendingSignals)
         {
@@ -350,7 +354,7 @@ namespace se::ecs
             {
                 system->Render();
             }
-        }, false);
+        }, false, false);
 
         RunOnAllAppSystems([this](auto&& systemId)
         {
@@ -358,7 +362,7 @@ namespace se::ecs
             {
                 system->Render();
             }
-        }, false);
+        }, false, false);
 
         m_Running = false;
     }
@@ -373,7 +377,7 @@ namespace se::ecs
             {
                 system->Shutdown();
             }
-        }, true);
+        }, true, true);
 
         RunOnAllAppSystems([this](auto&& systemId)
         {
@@ -381,7 +385,7 @@ namespace se::ecs
             {
                 system->Shutdown();
             }
-        }, true);
+        }, true, true);
 
         m_Running = false;
     }
@@ -519,21 +523,11 @@ namespace se::ecs
         }
     }
 
-    void World::RunOnAllSystems(const std::function<void(Id)> &func, const std::vector<std::vector<Id>>& systemUpdateGroups, bool parallel)
+    void World::RunOnAllSystems(const std::function<void(Id)> &func, const std::vector<std::vector<Id>>& systemUpdateGroups, bool parallel, bool processPending)
     {
+        PROFILE_SCOPE("World::RunOnAllSystems")
         for (const auto& updateGroup: systemUpdateGroups)
         {
-            ProcessPendingComponents();
-            ProcessPendingSystems();
-            ProcessPendingEntityDeletions();
-
-            if (m_PendingComponentCreations.empty() && m_PendingComponentDeletions.empty() &&
-                m_PendingAppSystemCreations.empty() && m_PendingAppSystemDeletions.empty() &&
-                m_PendingEngineSystemCreations.empty() && m_PendingEngineSystemDeletions.empty())
-            {
-                m_TempStore.Reset();
-            }
-
             m_UpdateMode = parallel && updateGroup.size() > 1 ? UpdateMode::MultiThreaded : UpdateMode::SingleThreaded;
             if (m_UpdateMode == UpdateMode::MultiThreaded)
             {
@@ -550,16 +544,30 @@ namespace se::ecs
                               func);
             }
         }
+
+        if (processPending)
+        {
+            ProcessPendingComponents();
+            ProcessPendingSystems();
+            ProcessPendingEntityDeletions();
+
+            if (m_PendingComponentCreations.empty() && m_PendingComponentDeletions.empty() &&
+                m_PendingAppSystemCreations.empty() && m_PendingAppSystemDeletions.empty() &&
+                m_PendingEngineSystemCreations.empty() && m_PendingEngineSystemDeletions.empty())
+            {
+                m_TempStore.Reset();
+            }
+        }
     }
 
-    void World::RunOnAllAppSystems(const std::function<void(Id)>& func, bool parallel)
+    void World::RunOnAllAppSystems(const std::function<void(Id)>& func, bool parallel, bool processPending)
     {
-        RunOnAllSystems(func, m_AppSystemUpdateGroups, parallel);
+        RunOnAllSystems(func, m_AppSystemUpdateGroups, parallel, processPending);
     }
 
-    void World::RunOnAllEngineSystems(const std::function<void(Id)>& func, bool parallel)
+    void World::RunOnAllEngineSystems(const std::function<void(Id)>& func, bool parallel, bool processPending)
     {
-        RunOnAllSystems(func, m_EngineSystemUpdateGroups, parallel);
+        RunOnAllSystems(func, m_EngineSystemUpdateGroups, parallel, processPending);
     }
 
     void World::DestroyEntity(Id entity)
@@ -632,6 +640,7 @@ namespace se::ecs
 
     void World::ProcessPendingComponents()
     {
+        PROFILE_SCOPE("World::ProcessPendingComponents")
         auto creationsCopy = m_PendingComponentCreations;
         m_PendingComponentCreations.clear();
         for (const auto& pendingComp : creationsCopy)
@@ -658,6 +667,7 @@ namespace se::ecs
 
     void World::ProcessPendingSystems()
     {
+        PROFILE_SCOPE("World::ProcessPendingSystems")
         ProcessPendingEngineSystems();
         ProcessPendingAppSystems();
     }
@@ -798,6 +808,7 @@ namespace se::ecs
 
     void World::ProcessPendingEntityDeletions()
     {
+        PROFILE_SCOPE("World::ProcessPendingEntityDeletions")
         auto safeCopy = m_PendingEntityDeletions;
         m_PendingEntityDeletions.clear();
         for (Id entity : safeCopy)

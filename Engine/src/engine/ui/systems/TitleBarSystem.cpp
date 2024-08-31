@@ -6,6 +6,7 @@
 
 #include "engine/Application.h"
 #include "engine/input/InputUtil.h"
+#include "engine/profiling/Profiler.h"
 
 using namespace se;
 using namespace se::ecs::components;
@@ -15,14 +16,13 @@ namespace se::ui::systems
     DEFINE_SPARK_SYSTEM(TitleBarSystem)
 
     void TitleBarSystem::OnUpdate(const std::vector<ecs::Id>& entities,
-        components::RectTransformComponent* rectTransforms,
         components::TitleBarComponent* titleBars,
         input::InputComponent* inputComp,
         const components::ReceivesMouseEventsComponent* mouseEventComps)
     {
+        PROFILE_SCOPE("TitleBarSystem::OnUpdate")
         for (size_t i = 0; i < entities.size(); ++i)
         {
-            auto& transform = rectTransforms[i];
             auto& titleBar = titleBars[i];
             auto mouseEventComp = mouseEventComps[i];
 
@@ -43,7 +43,7 @@ namespace se::ui::systems
 
             if (titleBar.pressed && (inputComp->mouseDeltaX || inputComp->mouseDeltaY))
             {
-                titleBar.onMove.Broadcast(inputComp->mouseDeltaX, inputComp->mouseDeltaY);
+                titleBar.onMove.Broadcast(static_cast<float>(inputComp->mouseDeltaX), static_cast<float>(inputComp->mouseDeltaY));
             }
 
             titleBar.lastPressed = titleBar.pressed;

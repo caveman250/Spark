@@ -1,6 +1,7 @@
 #include "PlatformRunLoop.h"
 #include "engine/Application.h"
 #include "engine/input/InputComponent.h"
+#include "engine/profiling/Profiler.h"
 #include "engine/render/Renderer.h"
 #include "platform/IWindow.h"
 
@@ -18,6 +19,7 @@ namespace se
 
     void PlatformRunLoop::Update()
     {
+        PROFILE_SCOPE("PlatformRunLoop::Update")
         Application* app = Application::Get();
 
         app->GetPrimaryWindow()->SetCurrent();

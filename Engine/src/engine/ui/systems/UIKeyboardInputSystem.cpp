@@ -3,6 +3,7 @@
 #include "UIKeyboardInputSystem.h"
 
 #include "engine/input/InputUtil.h"
+#include "engine/profiling/Profiler.h"
 
 using namespace se;
 using namespace se::ecs::components;
@@ -17,6 +18,8 @@ namespace se::ui::systems
         components::ReceivesKeyboardEventsComponent* receivesInputComps,
         input::InputComponent* inputComp)
     {
+        PROFILE_SCOPE("UIKeyboardInputSystem::OnUpdate")
+
         for (size_t i = 0; i < entities.size(); ++i)
         {
             auto entity = entities[i];
@@ -39,7 +42,7 @@ namespace se::ui::systems
             {
                 input::InputUtil::ProcessKeyEvents(inputComp, [this, entity, inputComp, &inputReceiver](const input::KeyEvent& keyEvent)
                 {
-                    if (TryConsumeEvent(entity, keyEvent, inputReceiver))
+                    if (TryConsumeEvent(keyEvent, inputReceiver))
                     {
                         return true;
                     }
@@ -56,13 +59,12 @@ namespace se::ui::systems
 
                         for (size_t j = 0; j < children.size(); ++j)
                         {
-                            auto childEntity = children[j];
                             auto& childTransform = childTransforms[j];
                             auto& childInputReceiver = childInputComps[j];
                             bool childHovered = childTransform.rect.Contains(math::IntVec2(inputComp->mouseX, inputComp->mouseY));
                             if (childHovered)
                             {
-                                if (TryConsumeEvent(childEntity, keyEvent, childInputReceiver))
+                                if (TryConsumeEvent(keyEvent, childInputReceiver))
                                 {
                                     consumed = true;
                                     return;
@@ -77,7 +79,7 @@ namespace se::ui::systems
         }
     }
 
-    bool UIKeyboardInputSystem::TryConsumeEvent(ecs::Id entity, const input::KeyEvent& keyEvent, components::ReceivesKeyboardEventsComponent& inputReceiver)
+    bool UIKeyboardInputSystem::TryConsumeEvent(const input::KeyEvent& keyEvent, components::ReceivesKeyboardEventsComponent& inputReceiver)
     {
         if (keyEvent.key & inputReceiver.keyMask)
         {

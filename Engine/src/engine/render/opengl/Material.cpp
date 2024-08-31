@@ -1,6 +1,5 @@
 #include "Material.h"
 
-#include "GL_fwd.h"
 #include "engine/asset/shader/compiler/ShaderCompiler.h"
 #include "engine/asset/shader/ast/Types.h"
 #include "engine/asset/shader/ast/TypeUtil.h"

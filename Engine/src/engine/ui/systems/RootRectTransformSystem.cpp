@@ -5,6 +5,7 @@
 #include "RootRectTransformSystem.h"
 
 #include "engine/Application.h"
+#include "engine/profiling/Profiler.h"
 
 using namespace se;
 using namespace se::ecs::components;
@@ -15,6 +16,8 @@ namespace se::ui::systems
 
     void RootRectTransformSystem::OnUpdate(const std::vector<ecs::Id>& entities, components::RectTransformComponent* transform, const RootComponent*)
     {
+        PROFILE_SCOPE("RootRectTransformSystem::OnUpdate")
+
         for (size_t i = 0; i < entities.size(); ++i)
         {
             auto& trans = transform[i];

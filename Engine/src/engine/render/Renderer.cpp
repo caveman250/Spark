@@ -1,5 +1,7 @@
 #include <engine/render/opengl/GL_fwd.h>
 #include "Renderer.h"
+
+#include "engine/profiling/Profiler.h"
 #include "opengl/OpenGLRenderer.h"
 
 namespace se::render
@@ -40,11 +42,13 @@ namespace se::render
 
     void Renderer::Update()
     {
+        PROFILE_SCOPE("Renderer::Update")
         m_LightSetup.Reset();
     }
 
     void Renderer::Render(IWindow* window)
     {
+        PROFILE_SCOPE("Renderer::Render")
         SortDrawCommands(window);
         ExecuteDrawCommands(window);
     }
@@ -57,6 +61,7 @@ namespace se::render
 
     void Renderer::SortDrawCommands(IWindow *window)
     {
+        PROFILE_SCOPE("Renderer::SortDrawCommands")
         auto& renderCmds = m_RenderCommands[window];
         std::ranges::sort(renderCmds, [](const auto& lhs, const auto& rhs)
         {
@@ -71,6 +76,7 @@ namespace se::render
 
     void Renderer::ExecuteDrawCommands(IWindow* window)
     {
+        PROFILE_SCOPE("Renderer::ExecuteDrawCommands")
         for (const auto& renderCmd : m_RenderCommands[window])
         {
             renderCmd->Execute();

@@ -9,6 +9,7 @@
 #include "platform/IWindow.h"
 #include "render/Renderer.h"
 #include "io/VFS.h"
+#include "profiling/Profiler.h"
 #include "render/systems/MeshRenderSystem.h"
 #include "render/systems/PointLightSystem.h"
 #include "ui/observers/ButtonObserver.h"
@@ -35,6 +36,9 @@ namespace se
 
     void Application::Init()
     {
+        PROFILE_BEGIN_FRAME()
+        PROFILE_BEGIN_THREAD()
+
         m_RunLoop = PlatformRunLoop::CreatePlatformRunloop({});
         render::Renderer::Create();
         m_PrimaryWindow = IWindow::CreatePlatformWindow(1280, 720);
@@ -93,6 +97,8 @@ namespace se
         while (!m_RunLoop->ShouldExit())
         {
             m_RunLoop->Update();
+            PROFILE_BEGIN_FRAME()
+            PROFILE_BEGIN_THREAD()
         }
     }
 
@@ -104,6 +110,7 @@ namespace se
 
     void Application::Update()
     {
+        PROFILE_SCOPE("Application::Update")
         auto now = std::chrono::system_clock::now();
         std::chrono::duration<float> elapsed_seconds = now - m_TimeLastFrame;
         m_DeltaTime = elapsed_seconds.count();
@@ -118,6 +125,7 @@ namespace se
 
     void Application::Render()
     {
+        PROFILE_SCOPE("Application::Render")
         m_World.Render();
     }
 }

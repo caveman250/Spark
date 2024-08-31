@@ -6,6 +6,7 @@
 
 #include "engine/Application.h"
 #include "engine/ecs/components/TransformComponent.h"
+#include "engine/profiling/Profiler.h"
 
 using namespace se;
 using namespace se::ecs::components;
@@ -16,6 +17,8 @@ namespace se::ecs::systems
 
     void WorldTransformSystem::OnUpdate(const std::vector<Id>& entities, TransformComponent* transform, ParentComponent*)
     {
+        PROFILE_SCOPE("WorldTransformSystem::OnUpdate")
+
         for (size_t i = 0; i < entities.size(); ++i)
         {
             const TransformComponent& parent = transform[i];
