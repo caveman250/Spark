@@ -7,6 +7,7 @@
 
 #include "Window.h"
 #include "engine/Application.h"
+#include "engine/profiling/Profiler.h"
 #include "engine/render/Renderer.h"
 #include "platform/IWindow.h"
 
@@ -33,8 +34,10 @@ namespace se::windows
 
     void WindowsRunLoop::Update()
     {
+        PROFILE_SCOPE("WindowsRunLoop::Update")
         for (const auto& window: m_Windows)
         {
+            PROFILE_SCOPE("Process Messages")
             MSG msg;
             while (PeekMessage(&msg, window->GetHWND(), 0, 0, PM_REMOVE))
             {

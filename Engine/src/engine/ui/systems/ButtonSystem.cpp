@@ -6,6 +6,7 @@
 
 #include "engine/Application.h"
 #include "engine/input/InputUtil.h"
+#include "engine/profiling/Profiler.h"
 
 using namespace se;
 using namespace se::ecs::components;
@@ -19,6 +20,8 @@ namespace se::ui::systems
         components::ImageComponent* images,
         const components::ReceivesMouseEventsComponent* mouseEventComps)
     {
+        PROFILE_SCOPE("ButtonSystem::OnUpdate")
+
         for (size_t i = 0; i < entities.size(); ++i)
         {
             auto& button = buttons[i];

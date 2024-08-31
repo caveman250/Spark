@@ -3,6 +3,7 @@
 #include "UIMouseInputSystem.h"
 
 #include "engine/input/InputUtil.h"
+#include "engine/profiling/Profiler.h"
 
 using namespace se;
 using namespace se::ecs::components;
@@ -17,6 +18,8 @@ namespace se::ui::systems
         components::ReceivesMouseEventsComponent* receivesInputComps,
         input::InputComponent* inputComp)
     {
+        PROFILE_SCOPE("UIMouseInputSystem::OnUpdate")
+
         for (size_t i = 0; i < entities.size(); ++i)
         {
             auto entity = entities[i];
@@ -45,7 +48,7 @@ namespace se::ui::systems
             {
                 input::InputUtil::ProcessMouseEvents(inputComp, [this, entity, inputComp, &inputReceiver](const input::MouseEvent& mouseEvent)
                 {
-                    if (TryConsumeEvent(entity, mouseEvent, inputReceiver))
+                    if (TryConsumeEvent(mouseEvent, inputReceiver))
                     {
                         return true;
                     }
@@ -61,12 +64,11 @@ namespace se::ui::systems
 
                         for (size_t j = 0; j < children.size(); ++j)
                         {
-                            auto childEntity = children[j];
                             auto& childInputReceiver = childInputComps[j];
 
                             if (childInputReceiver.hovered)
                             {
-                                if (TryConsumeEvent(childEntity, mouseEvent, childInputReceiver))
+                                if (TryConsumeEvent(mouseEvent, childInputReceiver))
                                 {
                                     consumed = true;
                                     return;
@@ -81,7 +83,7 @@ namespace se::ui::systems
         }
     }
 
-    bool UIMouseInputSystem::TryConsumeEvent(ecs::Id entity, const input::MouseEvent& mouseEvent, components::ReceivesMouseEventsComponent& inputReceiver)
+    bool UIMouseInputSystem::TryConsumeEvent(const input::MouseEvent& mouseEvent, components::ReceivesMouseEventsComponent& inputReceiver)
     {
         if (mouseEvent.button & inputReceiver.buttonMask)
         {

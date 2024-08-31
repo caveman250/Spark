@@ -7,6 +7,7 @@
 #include "engine/Application.h"
 #include "engine/ecs/components/TransformComponent.h"
 #include "engine/ecs/relationships/ChildOf.h"
+#include "engine/profiling/Profiler.h"
 
 using namespace se;
 using namespace se::ecs::components;
@@ -17,6 +18,8 @@ namespace se::ecs::systems
 
     void TransformSystem::OnUpdate(const std::vector<Id>& entities, TransformComponent* transform)
     {
+        PROFILE_SCOPE("TransformSystem::OnUpdate")
+
         for (size_t i = 0; i < entities.size(); ++i)
         {
             auto& trans = transform[i];

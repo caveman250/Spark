@@ -20,6 +20,6 @@ namespace se::ui::systems
         void OnUpdate(const std::vector<ecs::Id> &, const components::RectTransformComponent *, const RootComponent *, components::ReceivesKeyboardEventsComponent *, input::InputComponent *) override;
 
     private:
-        bool TryConsumeEvent(ecs::Id entity, const input::KeyEvent& keyEvent, components::ReceivesKeyboardEventsComponent& inputReceiver);
+        bool TryConsumeEvent(const input::KeyEvent& keyEvent, components::ReceivesKeyboardEventsComponent& inputReceiver);
     };
 }

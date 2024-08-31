@@ -2,6 +2,7 @@
 
 #include "World.h"
 #include "engine/Application.h"
+#include "engine/profiling/Profiler.h"
 
 namespace se
 {
@@ -124,6 +125,7 @@ namespace se::ecs
     template<typename... Cs>
     void System<Cs...>::Shutdown()
     {
+        PROFILE_SCOPE("System<Cs...>::Shutdown")
         ShutdownBuilder<1>(std::placeholders::_1);
     }
 
@@ -144,6 +146,7 @@ namespace se::ecs
     template<typename... Cs>
     void System<Cs...>::Render()
     {
+        PROFILE_SCOPE("System<Cs...>::Render")
         RenderBuilder<1>(std::placeholders::_1);
     }
 
@@ -164,6 +167,7 @@ namespace se::ecs
     template<typename... Cs>
     void System<Cs...>::Init()
     {
+        PROFILE_SCOPE("System<Cs...>::Init")
         InitBuilder<1>(std::placeholders::_1);
     }
 
@@ -209,6 +213,7 @@ namespace se::ecs
     template<typename... Cs>
     void System<Cs...>::Update()
     {
+        PROFILE_SCOPE("System<Cs...>::Update")
         UpdateBuilder<1>(std::placeholders::_1);
     }
 

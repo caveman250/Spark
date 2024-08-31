@@ -5,6 +5,7 @@
 #include "ImageRenderSystem.h"
 
 #include "engine/Application.h"
+#include "engine/profiling/Profiler.h"
 #include "engine/render/Renderer.h"
 #include "engine/render/VertexBuffer.h"
 #include "engine/ui/util/MeshUtil.h"
@@ -19,6 +20,8 @@ namespace se::ui::systems
 
     void ImageRenderSystem::OnRender(const std::vector<ecs::Id>& entities, const components::RectTransformComponent* transformComps, components::ImageComponent* imageComps)
     {
+        PROFILE_SCOPE("ImageRenderSystem::OnRender")
+
         auto app = Application::Get();
         auto renderer = render::Renderer::Get();
         auto window = app->GetPrimaryWindow();

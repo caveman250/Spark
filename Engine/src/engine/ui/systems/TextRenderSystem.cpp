@@ -6,6 +6,7 @@
 
 #include "engine/Application.h"
 #include "engine/asset/AssetManager.h"
+#include "engine/profiling/Profiler.h"
 #include "engine/render/Renderer.h"
 #include "engine/render/VertexBuffer.h"
 #include "engine/ui/util/MeshUtil.h"
@@ -20,6 +21,8 @@ namespace se::ui::systems
 
     void TextRenderSystem::OnRender(const std::vector<ecs::Id>& entities, const components::RectTransformComponent* transformComps, components::TextComponent* textComps)
     {
+        PROFILE_SCOPE("TextRenderSystem::OnRender")
+
         auto app = Application::Get();
         auto renderer = render::Renderer::Get();
         auto window = app->GetPrimaryWindow();

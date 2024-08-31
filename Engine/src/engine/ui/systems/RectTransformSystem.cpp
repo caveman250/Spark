@@ -5,6 +5,7 @@
 #include "RectTransformSystem.h"
 
 #include "engine/Application.h"
+#include "engine/profiling/Profiler.h"
 
 using namespace se;
 using namespace se::ecs::components;
@@ -15,6 +16,7 @@ namespace se::ui::systems
 
     void RectTransformSystem::OnUpdate(const std::vector<ecs::Id>& entities, components::RectTransformComponent* transform, ParentComponent*)
     {
+        PROFILE_SCOPE("RectTransformSystem::OnUpdate")
         auto world = Application::Get()->GetWorld();
         for (size_t i = 0; i < entities.size(); ++i)
         {
