@@ -12,6 +12,7 @@
 #include "profiling/Profiler.h"
 #include "render/systems/MeshRenderSystem.h"
 #include "render/systems/PointLightSystem.h"
+#include "ui/components/TreeNodeComponent.h"
 #include "ui/observers/ButtonObserver.h"
 #include "ui/observers/RectTransformObserver.h"
 #include "ui/observers/TitleBarObserver.h"
@@ -21,8 +22,13 @@
 #include "ui/systems/TextRenderSystem.h"
 #include "ui/systems/ButtonSystem.h"
 #include "ui/systems/TitleBarSystem.h"
+#include "ui/systems/TreeViewSystem.h"
 #include "ui/systems/UIKeyboardInputSystem.h"
 #include "ui/systems/UIMouseInputSystem.h"
+#include "engine/ui/systems/TreeNodeSystem.h"
+#include "engine/ui/observers/TreeNodeObserver.h"
+#include "engine/ui/observers/ImageObserver.h"
+#include "engine/ui/observers/TextObserver.h"
 
 namespace se
 {
@@ -70,6 +76,9 @@ namespace se
         m_World.CreateObserver<ui::observers::ButtonObserver, ui::components::ButtonComponent>();
         m_World.CreateObserver<ui::observers::RectTransformObserver, ui::components::RectTransformComponent>();
         m_World.CreateObserver<ui::observers::TitleBarObserver, ui::components::TitleBarComponent>();
+        m_World.CreateObserver<ui::observers::TreeNodeObserver, ui::components::TreeNodeComponent>();
+        m_World.CreateObserver<ui::observers::ImageObserver, ui::components::ImageComponent>();
+        m_World.CreateObserver<ui::observers::TextObserver, ui::components::TextComponent>();
     }
 
     void Application::CreateInitialSystems()
@@ -83,7 +92,18 @@ namespace se
         auto worldTransform = m_World.CreateEngineSystem<ecs::systems::WorldTransformSystem>({}, {}, { rootTransform });
         m_World.CreateEngineSystem<ecs::systems::TransformSystem>({}, {}, { worldTransform });
         auto rootRect = m_World.CreateEngineSystem<ui::systems::RootRectTransformSystem>({}, {}, {});
-        m_World.CreateEngineSystem<ui::systems::RectTransformSystem>({}, {}, { rootRect });
+
+        auto treeNodes = m_World.CreateEngineSystem<ui::systems::TreeNodeSystem>({}, {}, {});
+        m_World.RegisterComponent<ui::components::TreeNodeComponent>();
+        m_World.RegisterComponent<ui::components::WidgetComponent>();
+        auto treeViewChildQuery =
+        {
+            std::make_pair(ui::components::TreeNodeComponent::GetComponentId(), ecs::ComponentMutability::Immutable),
+            std::make_pair(ui::components::RectTransformComponent::GetComponentId(), ecs::ComponentMutability::Mutable),
+            std::make_pair(ui::components::WidgetComponent::GetComponentId(), ecs::ComponentMutability::Mutable)
+        };
+        auto treeView = m_World.CreateEngineSystem<ui::systems::TreeViewSystem>({}, treeViewChildQuery, { rootRect, treeNodes });
+        m_World.CreateEngineSystem<ui::systems::RectTransformSystem>({}, {}, { rootRect, treeView });
         m_World.CreateEngineSystem<ui::systems::ButtonSystem>({}, {}, {});
         m_World.CreateEngineSystem<ui::systems::TitleBarSystem>({}, {}, {});
         m_World.CreateEngineSystem<ui::systems::ImageRenderSystem>({}, {}, { });

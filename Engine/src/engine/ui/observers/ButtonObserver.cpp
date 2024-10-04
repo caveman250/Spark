@@ -1,9 +1,11 @@
+
 #include "ButtonObserver.h"
 
 #include "engine/Application.h"
 #include "engine/asset/AssetManager.h"
 #include "engine/ui/components/ImageComponent.h"
 #include "engine/ui/components/ReceivesMouseEventsComponent.h"
+#include "engine/ui/components/WidgetComponent.h"
 
 namespace se::ui::observers
 {
@@ -25,6 +27,11 @@ namespace se::ui::observers
         if (!world->HasComponent<ui::components::ReceivesMouseEventsComponent>(entity))
         {
             world->AddComponent<components::ReceivesMouseEventsComponent>(entity);
+        }
+
+        if (!world->HasComponent<ui::components::WidgetComponent>(entity))
+        {
+            world->AddComponent<components::WidgetComponent>(entity);
         }
     }
 

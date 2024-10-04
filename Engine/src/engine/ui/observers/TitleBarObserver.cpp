@@ -1,3 +1,4 @@
+
 #include "TitleBarObserver.h"
 
 #include "engine/Application.h"
@@ -7,10 +8,11 @@
 #include "engine/ui/components/ImageComponent.h"
 #include "engine/ui/components/ReceivesMouseEventsComponent.h"
 #include "engine/ui/components/TitleBarComponent.h"
+#include "engine/ui/components/WidgetComponent.h"
 
 namespace se::ui::observers
 {
-    void TitleBarObserver::OnAdded(ecs::Id entity, components::TitleBarComponent *component)
+    void TitleBarObserver::OnAdded(ecs::Id entity, components::TitleBarComponent*)
     {
         auto world = Application::Get()->GetWorld();
         auto* assetManager = asset::AssetManager::Get();
@@ -24,6 +26,11 @@ namespace se::ui::observers
             auto frag = assetManager->GetAsset<asset::Shader>("/builtin_assets/shaders/flat_color.sass");
             image->material = render::Material::CreateMaterial({vert}, {frag});
             image->material->GetShaderSettings().SetSetting("color_setting", math::Vec3(0.2f, 0.2f, 0.2f));
+        }
+
+        if (!world->HasComponent<ui::components::WidgetComponent>(entity))
+        {
+            world->AddComponent<components::WidgetComponent>(entity);
         }
 
         if (!world->HasComponent<components::ReceivesMouseEventsComponent>(entity))

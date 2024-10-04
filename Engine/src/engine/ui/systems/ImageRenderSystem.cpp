@@ -18,7 +18,7 @@ namespace se::ui::systems
 {
     DEFINE_SPARK_SYSTEM(ImageRenderSystem)
 
-    void ImageRenderSystem::OnRender(const std::vector<ecs::Id>& entities, const components::RectTransformComponent* transformComps, components::ImageComponent* imageComps)
+    void ImageRenderSystem::OnRender(const std::vector<ecs::Id>& entities, const components::RectTransformComponent* transformComps, components::ImageComponent* imageComps, const components::WidgetComponent* widgetComps)
     {
         PROFILE_SCOPE("ImageRenderSystem::OnRender")
 
@@ -29,8 +29,15 @@ namespace se::ui::systems
 
         for (size_t i = 0; i < entities.size(); ++i)
         {
+            const auto& widget = widgetComps[i];
+            if (!widget.renderingEnabled)
+            {
+                continue;
+            }
+
             const auto& transform = transformComps[i];
             auto& image = imageComps[i];
+
             if (SPARK_VERIFY(image.material))
             {
                 if (transform.rect.topLeft != image.lastRect.topLeft)
@@ -52,7 +59,8 @@ namespace se::ui::systems
 
                 image.material->SetUniform("screenSize", asset::shader::ast::AstType::Vec2, 1, &windowsSize);
 
-                renderer->Submit<render::commands::SubmitUI>(window, image.material, image.vertBuffer, image.indexBuffer, transform.layer);
+                renderer->Submit<render::commands::SubmitUI>(window, image.material, image.vertBuffer,
+                                                             image.indexBuffer, transform.layer);
             }
         }
     }
