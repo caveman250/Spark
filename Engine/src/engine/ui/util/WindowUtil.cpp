@@ -80,8 +80,8 @@ namespace se::ui::util
         childAreaTransform->anchors = { 0.f, 1.f, 0.f, 1.f };
         childAreaTransform->minX = 0;
         childAreaTransform->maxX = 0;
-        childAreaTransform->minY = 40.f;
-        childAreaTransform->maxY = 0.f;
+        childAreaTransform->minY = 40;
+        childAreaTransform->maxY = 0;
         world->AddChild(entity, childArea);
 
         return entity;

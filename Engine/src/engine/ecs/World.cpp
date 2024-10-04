@@ -502,7 +502,7 @@ namespace se::ecs
         auto usedComponents = system->GetUsedComponents();
         for (auto comp : requestedComponents)
         {
-            if (!SPARK_VERIFY(usedComponents.contains(comp.first) && usedComponents[comp.first] == comp.second))
+            if (!SPARK_VERIFY(usedComponents.contains(comp.first) && comp.second <= usedComponents[comp.first]))
             {
                 return false;
             }

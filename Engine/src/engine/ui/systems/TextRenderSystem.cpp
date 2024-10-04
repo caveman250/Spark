@@ -19,7 +19,7 @@ namespace se::ui::systems
 {
     DEFINE_SPARK_SYSTEM(TextRenderSystem)
 
-    void TextRenderSystem::OnRender(const std::vector<ecs::Id>& entities, const components::RectTransformComponent* transformComps, components::TextComponent* textComps)
+    void TextRenderSystem::OnRender(const std::vector<ecs::Id>& entities, const components::RectTransformComponent* transformComps, components::TextComponent* textComps, const components::WidgetComponent* widgetComps)
     {
         PROFILE_SCOPE("TextRenderSystem::OnRender")
 
@@ -31,6 +31,12 @@ namespace se::ui::systems
 
         for (size_t i = 0; i < entities.size(); ++i)
         {
+            const auto& widget = widgetComps[i];
+            if (!widget.renderingEnabled)
+            {
+                continue;
+            }
+
             const auto& transform = transformComps[i];
             auto& text = textComps[i];
             if (!text.material)

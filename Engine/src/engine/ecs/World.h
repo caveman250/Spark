@@ -75,8 +75,8 @@ namespace se::ecs
     };
 
     DECLARE_SPARK_ENUM_BEGIN(ComponentMutability, int)
+        Immutable,
         Mutable,
-        Immutable
     DECLARE_SPARK_ENUM_END()
 
     typedef std::vector<std::pair<Id, ComponentMutability::Type>> ChildQuery;
@@ -248,7 +248,6 @@ namespace se::ecs
         std::unordered_map<Id, SystemRecord> m_EngineSystems = {};
         std::unordered_map<Id, ChildQuery> m_AllowedChildQueries = {};
         std::unordered_map<Id, std::unordered_map<Id, std::shared_ptr<BaseObserver>>> m_Observers;
-
 
         uint32_t m_EntityCounter = 1;
         std::vector<uint32_t> m_FreeEntities = {};
