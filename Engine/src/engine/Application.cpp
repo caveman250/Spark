@@ -1,3 +1,4 @@
+#include <engine/ui/systems/WidgetVisibilitySystem.h>
 #include "Application.h"
 
 #include "ecs/systems/RootTransformSystem.h"
@@ -108,6 +109,7 @@ namespace se
         m_World.CreateEngineSystem<ui::systems::TitleBarSystem>({}, {}, {});
         m_World.CreateEngineSystem<ui::systems::ImageRenderSystem>({}, {}, { });
         m_World.CreateEngineSystem<ui::systems::TextRenderSystem>({}, {}, {});
+        m_World.CreateEngineSystem<ui::systems::WidgetVisibilitySystem>({}, {}, {});
     }
 
     void Application::Run() const

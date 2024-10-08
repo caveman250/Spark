@@ -10,6 +10,8 @@ namespace se::ui::components
     {
         DECLARE_SPARK_COMPONENT(WidgetComponent)
 
+        bool parentRenderingEnabled = true;
         bool renderingEnabled = true;
+        bool dirty = false;
     };
 }

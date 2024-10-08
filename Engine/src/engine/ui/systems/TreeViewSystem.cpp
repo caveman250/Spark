@@ -35,7 +35,9 @@ namespace se::ui::systems
             for (size_t j = 0; j < children.size(); ++j)
             {
                 auto& widget = widgets[j];
+                widget.dirty = widget.renderingEnabled == collapsed;
                 widget.renderingEnabled = !collapsed;
+
 
                 auto& childTransform = rectTransforms[j];
                 childTransform.minY = currentY;

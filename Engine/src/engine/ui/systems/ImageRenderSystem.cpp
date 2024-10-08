@@ -30,7 +30,7 @@ namespace se::ui::systems
         for (size_t i = 0; i < entities.size(); ++i)
         {
             const auto& widget = widgetComps[i];
-            if (!widget.renderingEnabled)
+            if (!widget.renderingEnabled || !widget.parentRenderingEnabled)
             {
                 continue;
             }

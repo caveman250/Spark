@@ -14,7 +14,6 @@ namespace se::ui::components
     {
         DECLARE_SPARK_COMPONENT(ImageComponent)
 
-        std::shared_ptr<asset::Texture> texture = {};
         std::shared_ptr<render::Material> material = {};
         std::shared_ptr<render::VertexBuffer> vertBuffer = {};
         std::shared_ptr<render::IndexBuffer> indexBuffer = {};

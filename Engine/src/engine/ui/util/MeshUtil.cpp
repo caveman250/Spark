@@ -25,7 +25,7 @@ namespace se::ui::util
         return mesh;
     }
 
-    asset::StaticMesh CreateTextMesh(const Rect& rect, const std::shared_ptr<asset::Font> &font, int fontSize, const std::string &text)
+    asset::StaticMesh CreateTextMesh(const Rect& rect, const std::shared_ptr<asset::Font> &font, int fontSize, const std::string &text, bool applyKerning, bool wrap)
     {
         asset::StaticMesh mesh;
         uint32_t indexOffset = 0;
@@ -36,7 +36,7 @@ namespace se::ui::util
             char c = text[i];
             const auto& charData = font->GetCharData(fontSize, c);
 
-            if (i < text.size() - 1)
+            if (applyKerning && i < text.size() - 1)
             {
                 char nextChar = text[i + 1];
                 if (charData.kerning.contains(nextChar))
@@ -64,24 +64,27 @@ namespace se::ui::util
 
             cursorPos.x += charData.advanceWidth;
 
-            if (c == ' ')
+            if (wrap)
             {
-                int lookAhead = i + 1;
-                float xCopy = cursorPos.x;
-
-                char nextChar = text[lookAhead];
-                while (nextChar != ' ' && lookAhead < text.size() - 1)
+                if (c == ' ')
                 {
-                    const auto& nextCharData = font->GetCharData(fontSize, nextChar);
+                    int lookAhead = i + 1;
+                    float xCopy = cursorPos.x;
 
-                    if (xCopy + nextCharData.advanceWidth >= rect.size.x)
+                    char nextChar = text[lookAhead];
+                    while (nextChar != ' ' && lookAhead < text.size() - 1)
                     {
-                        cursorPos.x = 0.f;
-                        cursorPos.y += fontSize;
-                        break;
+                        const auto &nextCharData = font->GetCharData(fontSize, nextChar);
+
+                        if (xCopy + nextCharData.advanceWidth >= rect.size.x)
+                        {
+                            cursorPos.x = 0.f;
+                            cursorPos.y += fontSize;
+                            break;
+                        }
+                        xCopy += nextCharData.advanceWidth;
+                        nextChar = text[++lookAhead];
                     }
-                    xCopy += nextCharData.advanceWidth;
-                    nextChar = text[++lookAhead];
                 }
             }
         }
