@@ -45,7 +45,7 @@ namespace se::ui::systems
 
                 if (child.anchors.right > 0)
                 {
-                    child.rect.size.x = static_cast<int>(parentBottomRight.x - child.maxX - ((1.f - child.anchors.right) * parentWidth) - child.rect.topLeft.x);
+                    child.rect.size.x = static_cast<int>(parentBottomRight.x - child.maxX - ((1.f - child.anchors.right) * (float)parentWidth) - child.rect.topLeft.x);
                 }
                 else
                 {
@@ -54,7 +54,7 @@ namespace se::ui::systems
 
                 if (child.anchors.bottom > 0)
                 {
-                    child.rect.size.y = static_cast<int>(parentBottomRight.y - child.maxY - ((1.f - child.anchors.bottom) * parentHeight) - child.rect.topLeft.y);
+                    child.rect.size.y = static_cast<int>(parentBottomRight.y - child.maxY - ((1.f - child.anchors.bottom) * (float)parentHeight) - child.rect.topLeft.y);
                 }
                 else
                 {

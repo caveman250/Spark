@@ -32,7 +32,7 @@ namespace se::ui::systems
         for (size_t i = 0; i < entities.size(); ++i)
         {
             const auto& widget = widgetComps[i];
-            if (!widget.renderingEnabled)
+            if (!widget.renderingEnabled || !widget.parentRenderingEnabled)
             {
                 continue;
             }
@@ -63,7 +63,7 @@ namespace se::ui::systems
                 text.lastText != text.text ||
                 text.lastFontSize != text.fontSize)
             {
-                asset::StaticMesh mesh = util::CreateTextMesh(transform.rect, text.font, text.fontSize, text.text);
+                asset::StaticMesh mesh = util::CreateTextMesh(transform.rect, text.font, text.fontSize, text.text, true, true);
                 text.vertBuffer = render::VertexBuffer::CreateVertexBuffer(mesh);
                 text.vertBuffer->CreatePlatformResource();
                 text.indexBuffer = render::IndexBuffer::CreateIndexBuffer(mesh);
