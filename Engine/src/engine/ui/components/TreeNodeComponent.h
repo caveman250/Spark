@@ -4,6 +4,7 @@
 #include "engine/asset/font/Font.h"
 #include "engine/ecs/Signal.h"
 #include "engine/reflect/Reflect.h"
+#include "engine/string/String.h"
 
 namespace se::ui::components
 {
@@ -13,7 +14,7 @@ namespace se::ui::components
 
         bool collapsed = false;
         ecs::Signal<bool> onCollapsedStateChange = {};
-        std::string text = "";
+        String text = "";
         ecs::Signal<> onSelected = {};
         std::shared_ptr<asset::Font> font = nullptr;
         int fontSize = 16;

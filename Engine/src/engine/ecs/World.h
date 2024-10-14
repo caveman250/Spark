@@ -89,8 +89,8 @@ namespace se::ecs
 
     struct SystemRecord
     {
-        reflect::Class* type;
-        BaseSystem* instance;
+        reflect::Class* type = nullptr;
+        BaseSystem* instance = nullptr;
     };
 
     class World
@@ -265,17 +265,20 @@ namespace se::ecs
         std::mutex m_SystemMutex = {};
         std::mutex m_ObserverMutex = {};
 
-        std::vector<Id> m_PendingEntityDeletions;
-        std::vector<PendingComponent> m_PendingComponentCreations;
-        std::vector<std::pair<Id, Id>> m_PendingComponentDeletions;
+        std::vector<Id> m_PendingEntityDeletions = {};
+        std::vector<PendingComponent> m_PendingComponentCreations = {};
+        std::vector<std::pair<Id, Id>> m_PendingComponentDeletions = {};
 
-        std::vector<std::pair<Id, PendingSystemInfo>> m_PendingAppSystemCreations;
-        std::vector<Id> m_PendingAppSystemDeletions;
-        std::vector<std::pair<Id, PendingSystemInfo>> m_PendingEngineSystemCreations;
-        std::vector<Id> m_PendingEngineSystemDeletions;
-        memory::Arena m_TempStore; // cleared after all pending creations/deletions
+        std::vector<std::pair<Id, PendingSystemInfo>> m_PendingAppSystemCreations = {};
+        std::vector<Id> m_PendingAppSystemDeletions = {};
+        std::vector<std::pair<Id, PendingSystemInfo>> m_PendingEngineSystemCreations = {};
+        std::vector<Id> m_PendingEngineSystemDeletions = {};
+        memory::Arena m_TempStore = {}; // cleared after all pending creations/deletions
+        bool m_ClearingTempObjects = {};
 
-        std::vector<BaseSignal*> m_PendingSignals;
+        std::vector<BaseSignal*> m_PendingSignals = {};
+
+        std::vector<std::function<void()>> m_MainThreadCallbacks = {};
     };
 
     template<typename T>

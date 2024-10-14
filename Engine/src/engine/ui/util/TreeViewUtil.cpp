@@ -37,10 +37,11 @@ namespace se::ui::util
         world->AddChild(parentNode, entity);
 
         *outTreeNode = world->AddComponent<components::TreeNodeComponent>(entity);
-        (*outTreeNode)->onCollapsedStateChange.Subscribe<components::TreeViewComponent>(treeViewEntity, [](bool, components::TreeViewComponent* treeView)
+        std::function<void(bool, components::TreeViewComponent*)> collapsedTreeViewCb = [](bool, components::TreeViewComponent* treeView)
         {
             treeView->dirty = true;
-        });
+        };
+        (*outTreeNode)->onCollapsedStateChange.Subscribe<components::TreeViewComponent>(treeViewEntity, std::move(collapsedTreeViewCb));
 
         world->AddComponent<components::RectTransformComponent>(entity);
         world->AddComponent<components::ReceivesMouseEventsComponent>(entity);
@@ -81,7 +82,7 @@ namespace se::ui::util
         rs.dstBlend = render::BlendMode::OneMinusSrcAlpha;
         image->material->SetRenderState(rs);
 
-        (*outTreeNode)->onCollapsedStateChange.Subscribe<components::ImageComponent>(statusIcon, [](bool collapsed, components::ImageComponent* image)
+        std::function<void(bool, components::ImageComponent*)> collapsedImageCb = [](bool collapsed, components::ImageComponent* image)
         {
             if (collapsed)
             {
@@ -91,7 +92,8 @@ namespace se::ui::util
             {
                 image->material->SetUniform("Texture", asset::shader::ast::AstType::Sampler2D, 1, &expanded_indicator_texture);
             }
-        });
+        };
+        (*outTreeNode)->onCollapsedStateChange.Subscribe<components::ImageComponent>(statusIcon, std::move(collapsedImageCb));
 
         world->AddChild(entity, statusIcon);
 

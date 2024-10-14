@@ -37,7 +37,7 @@ namespace se::linux
         {
             switch (ev.type)
             {
-            case SDL_KEYDOWN:
+                case SDL_KEYDOWN:
                 {
                     input::Key::Type key = KeyMap::SDLKeyToSparkKey(ev.key.keysym.scancode);
                     input::KeyEvent keyEvent;
@@ -47,7 +47,7 @@ namespace se::linux
                     inputComp->keyStates[key] = keyEvent.state;
                     break;
                 }
-            case SDL_KEYUP:
+                case SDL_KEYUP:
                 {
                     input::Key::Type key = KeyMap::SDLKeyToSparkKey(ev.key.keysym.scancode);
                     input::KeyEvent keyEvent;
@@ -57,48 +57,58 @@ namespace se::linux
                     inputComp->keyStates[key] = keyEvent.state;
                     break;
                 }
-            case SDL_MOUSEBUTTONDOWN:
+                case SDL_MOUSEBUTTONDOWN:
                 {
                     inputComp->mouseButtonStates[ev.button.button] = input::KeyState::Down;
+
+                    input::MouseEvent mouseEvent;
+                    mouseEvent.button = static_cast<input::MouseButton::Type>(ev.button.button);
+                    mouseEvent.state = input::KeyState::Down;
+                    inputComp->mouseEvents.push_back(mouseEvent);
                     break;
                 }
-            case SDL_MOUSEBUTTONUP:
+                case SDL_MOUSEBUTTONUP:
                 {
                     inputComp->mouseButtonStates[ev.button.button] = input::KeyState::Up;
+
+                    input::MouseEvent mouseEvent;
+                    mouseEvent.button = static_cast<input::MouseButton::Type>(ev.button.button);
+                    mouseEvent.state = input::KeyState::Up;
+                    inputComp->mouseEvents.push_back(mouseEvent);
                     break;
                 }
-            case SDL_MOUSEMOTION:
+                case SDL_MOUSEMOTION:
                 {
                     inputComp->mouseX = ev.motion.x;
                     inputComp->mouseY = ev.motion.y;
                     break;
                 }
-            case SDL_WINDOWEVENT:
-                if (!m_Windows.contains(ev.window.windowID))
-                {
+                case SDL_WINDOWEVENT:
+                    if (!m_Windows.contains(ev.window.windowID))
+                    {
+                        break;
+                    }
+                    auto* window = m_Windows.at(ev.window.windowID);
+                    switch (ev.window.event)
+                    {
+                        case SDL_WINDOWEVENT_RESIZED:
+                            window->OnResize(ev.window.data1, ev.window.data2);
+                            break;
+                        case SDL_WINDOWEVENT_MOVED:
+                            window->OnMove(ev.window.data1, ev.window.data2);
+                            break;
+                        case SDL_WINDOWEVENT_CLOSE:
+                            window->OnClose();
+                            break;
+                        default:
+                            break; //TODO
+                    }
                     break;
-                }
-                auto* window = m_Windows.at(ev.window.windowID);
-                switch (ev.window.event)
-                {
-                    case SDL_WINDOWEVENT_RESIZED:
-                        window->OnResize(ev.window.data1, ev.window.data2);
-                        break;
-                    case SDL_WINDOWEVENT_MOVED:
-                        window->OnMove(ev.window.data1, ev.window.data2);
-                        break;
-                    case SDL_WINDOWEVENT_CLOSE:
-                        window->OnClose();
-                        break;
-                    default:
-                        break;//TODO
-                }
-                break;
             }
         }
 
         auto safeCopy = m_Windows;
-        for (const auto& [id, window] : safeCopy)
+        for (const auto& [id, window]: safeCopy)
         {
             if (window->ShouldClose())
             {
@@ -114,7 +124,7 @@ namespace se::linux
 
         PlatformRunLoop::Update();
 
-        for (const auto& [id, window] : m_Windows)
+        for (const auto& [id, window]: m_Windows)
         {
             window->SetCurrent();
             render::Renderer::Get()->Render(window);

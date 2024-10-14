@@ -342,6 +342,12 @@ namespace se::ecs
             }
         }, true, true);
 
+        for (const auto& func : m_MainThreadCallbacks)
+        {
+            func();
+        }
+        m_MainThreadCallbacks.clear();
+
         for (auto* signal : m_PendingSignals)
         {
             signal->Execute();
@@ -407,7 +413,15 @@ namespace se::ecs
         std::ranges::for_each(systems, [&sortedSystemRecords](const std::pair<Id, SystemRecord>& kvp){ sortedSystemRecords.push_back(kvp); });
         std::ranges::sort(sortedSystemRecords, [](const std::pair<Id, SystemRecord>& a, const std::pair<Id, SystemRecord>& b)
         {
-            return !a.second.instance->DependsOn(b.first);
+            bool aDependsOnB = a.second.instance->DependsOn(b.first);
+            bool bDependsOnA = b.second.instance->DependsOn(a.first);
+            SPARK_ASSERT((!aDependsOnB && !bDependsOnA) || aDependsOnB != bDependsOnA);
+            if (aDependsOnB || bDependsOnA) {
+                return !aDependsOnB || bDependsOnA;
+            }
+            else {
+                return a.second.instance->GetDependencies().size() < b.second.instance->GetDependencies().size();
+            }
         });
 
         std::unordered_map<Id, std::map<Id, ComponentMutability::Type>> usedComponents;
@@ -425,7 +439,7 @@ namespace se::ecs
             if (systemRecord.instance)
             {
                 bool systemAdded = false;
-                for (int i = 0; i < updateGroups.size(); ++i)
+                for (size_t i = 0; i < updateGroups.size(); ++i)
                 {
                     auto& updateGroup = updateGroups[i];
 
@@ -833,8 +847,11 @@ namespace se::ecs
 
     void World::OnSignalDestroyed(BaseSignal* signal)
     {
-        const auto [first, last] = std::ranges::remove(m_PendingSignals, signal);
-        m_PendingSignals.erase(first, last);
+        if (!m_ClearingTempObjects)
+        {
+            const auto [first, last] = std::ranges::remove(m_PendingSignals, signal);
+            m_PendingSignals.erase(first, last);
+        }
     }
 
     void CollectRelationshipIds(std::vector<std::pair<Id, ComponentMutability::Type>>& compIds, const std::vector<Relationship>& relationships)

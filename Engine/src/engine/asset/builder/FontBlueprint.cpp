@@ -167,7 +167,7 @@ namespace se::asset::builder
 
         std::vector<std::pair<ui::Rect, int> > ret;
         ret.reserve(numChars);
-        for (int i = 0; i < numChars; ++i)
+        for (size_t i = 0; i < numChars; ++i)
         {
             int x1, y1, x2, y2;
             stbtt_GetCodepointBitmapBox(&font, s_FontMapChars[i], scale, scale, &x1, &y1, &x2, &y2);
@@ -190,7 +190,7 @@ namespace se::asset::builder
 
         charData.yOffset = static_cast<int>(roundf(ascent * scale) + charData.rect.topLeft.y);
 
-        for (int j = 0; j < strlen(s_FontMapChars); ++j)
+        for (size_t j = 0; j < strlen(s_FontMapChars); ++j)
         {
             int kern;
             kern = stbtt_GetCodepointKernAdvance(&font, c, s_FontMapChars[j]);
@@ -256,7 +256,7 @@ namespace se::asset::builder
     {
         uint8_t *bitmap = static_cast<uint8_t *>(std::malloc(width * height));
         memset(bitmap, 0, width * height);
-        for (int i = 0; i < strlen(s_FontMapChars); ++i)
+        for (size_t i = 0; i < strlen(s_FontMapChars); ++i)
         {
             const auto &rect = placedBoundingBoxes[i];
             int byteOffset = rect.topLeft.x + (rect.topLeft.y * width);

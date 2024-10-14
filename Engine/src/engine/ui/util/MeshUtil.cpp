@@ -1,6 +1,7 @@
 #include "MeshUtil.h"
 
 #include "engine/asset/font/Font.h"
+#include "engine/string/String.h"
 
 namespace se::ui::util
 {
@@ -25,18 +26,18 @@ namespace se::ui::util
         return mesh;
     }
 
-    asset::StaticMesh CreateTextMesh(const Rect& rect, const std::shared_ptr<asset::Font> &font, int fontSize, const std::string &text, bool applyKerning, bool wrap)
+    asset::StaticMesh CreateTextMesh(const Rect& rect, const std::shared_ptr<asset::Font> &font, int fontSize, const String& text, bool applyKerning, bool wrap)
     {
         asset::StaticMesh mesh;
         uint32_t indexOffset = 0;
         math::Vec2 cursorPos = { }; // TODO alignment
         cursorPos.y += fontSize;
-        for (auto i = 0; i < text.size(); ++i)
+        for (size_t i = 0; i < text.Size(); ++i)
         {
             char c = text[i];
             const auto& charData = font->GetCharData(fontSize, c);
 
-            if (applyKerning && i < text.size() - 1)
+            if (applyKerning && i < text.Size() - 1)
             {
                 char nextChar = text[i + 1];
                 if (charData.kerning.contains(nextChar))
@@ -68,11 +69,11 @@ namespace se::ui::util
             {
                 if (c == ' ')
                 {
-                    int lookAhead = i + 1;
+                    size_t lookAhead = i + 1;
                     float xCopy = cursorPos.x;
 
                     char nextChar = text[lookAhead];
-                    while (nextChar != ' ' && lookAhead < text.size() - 1)
+                    while (nextChar != ' ' && lookAhead < text.Size() - 1)
                     {
                         const auto &nextCharData = font->GetCharData(fontSize, nextChar);
 

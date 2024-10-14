@@ -50,3 +50,6 @@ endif ()
 
 ###### PCH ######
 target_precompile_headers(Spark PUBLIC src/spark.h)
+
+#target_compile_options(Spark PUBLIC -fsanitize=address)
+#target_link_options(Spark PUBLIC -fsanitize=address)
