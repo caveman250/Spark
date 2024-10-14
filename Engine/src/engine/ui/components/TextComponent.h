@@ -7,6 +7,7 @@
 #include "engine/render/VertexBuffer.h"
 #include "engine/render/IndexBuffer.h"
 #include "engine/render/Material.h"
+#include "engine/string/String.h"
 #include "engine/ui/Rect.h"
 
 namespace se::ui::systems
@@ -22,7 +23,7 @@ namespace se::ui::components
 
         std::shared_ptr<asset::Font> font = {};
         int fontSize;
-        std::string text;
+        String text;
 
     private:
         // internal use
@@ -31,7 +32,7 @@ namespace se::ui::components
         std::shared_ptr<render::IndexBuffer> indexBuffer = {};
         Rect lastRect = {};
         int lastFontSize = {};
-        std::string lastText = {};
+        String lastText = {};
 
         friend class systems::TextRenderSystem;
     };

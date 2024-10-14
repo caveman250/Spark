@@ -12,8 +12,6 @@ namespace se::ui::observers
     void TreeNodeObserver::OnAdded(ecs::Id entity, components::TreeNodeComponent*)
     {
         auto world = Application::Get()->GetWorld();
-        auto* assetManager = asset::AssetManager::Get();
-
         if (!world->HasComponent<components::ReceivesMouseEventsComponent>(entity))
         {
             world->AddComponent<components::ReceivesMouseEventsComponent>(entity);

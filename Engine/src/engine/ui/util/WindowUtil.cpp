@@ -42,13 +42,14 @@ namespace se::ui::util
 
         auto titleBarEntity = world->CreateEntity();
         *titleBar = world->AddComponent<components::TitleBarComponent>(titleBarEntity);
-        (*titleBar)->onMove.Subscribe<components::RectTransformComponent>(entity, [](float dX, float dY, components::RectTransformComponent* transform)
+        std::function<void(float, float, components::RectTransformComponent*)> moveCb = [](float dX, float dY, components::RectTransformComponent* transform)
         {
             transform->minX += static_cast<int>(dX);
             transform->maxX += static_cast<int>(dX);
             transform->minY += static_cast<int>(dY);
             transform->maxY += static_cast<int>(dY);
-        });
+        };
+        (*titleBar)->onMove.Subscribe<components::RectTransformComponent>(entity, std::move(moveCb));
         auto titleBarTransform = world->AddComponent<components::RectTransformComponent>(titleBarEntity);
         titleBarTransform->anchors = { 0.f, 1.f, 0.f, 0.f };
         titleBarTransform->minX = 0;
@@ -62,10 +63,11 @@ namespace se::ui::util
         buttonComp->image = assetManager->GetAsset<asset::Texture>("/builtin_assets/textures/default_button.sass");
         buttonComp->pressedImage = assetManager->GetAsset<asset::Texture>("/builtin_assets/textures/default_button_pressed.sass");
         buttonComp->hoveredImage = assetManager->GetAsset<asset::Texture>("/builtin_assets/textures/default_button_hovered.sass");
-        buttonComp->onReleased.Subscribe<components::WindowComponent>(entity, [entity, world](components::WindowComponent*)
+        std::function<void(components::WindowComponent*)> buttonCb = [entity, world](components::WindowComponent*)
         {
             world->DestroyEntity(entity);
-        });
+        };
+        buttonComp->onReleased.Subscribe<components::WindowComponent>(entity, std::move(buttonCb));
         auto buttonTransform = world->AddComponent<components::RectTransformComponent>(buttonEntity);
         buttonTransform->anchors = { 1.f, 1.f, 0.f, 1.f };
         buttonTransform->minX = -35;

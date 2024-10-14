@@ -35,7 +35,7 @@ namespace se::ecs
         void CallWrapperFunc(const std::function<void(Cs...)>& func, std::index_sequence<Is...>);
 
         SignalHandle m_HandleCounter;
-        std::unordered_map<SignalHandle, std::function<void(Cs...)>> m_RegisteredHandles;
+        std::vector<std::pair<SignalHandle, std::function<void(Cs...)>>> m_RegisteredHandles;
         std::vector<std::tuple<Cs...>> m_PendingInvokeArgs;
         size_t m_PendingInvokeIndex = 0;
     };
@@ -55,9 +55,10 @@ namespace se::ecs
     template <typename... Cs>
     void Signal<Cs...>::Unsubscribe(SignalHandle handle)
     {
-        if (m_RegisteredHandles.contains(handle))
+        auto it = std::ranges::find(m_RegisteredHandles, handle);
+        if (it != m_RegisteredHandles.end())
         {
-            m_RegisteredHandles.erase(handle);
+            m_RegisteredHandles.erase(it);
         }
     }
 
@@ -118,7 +119,7 @@ namespace se::ecs
             builder.DoAction(entityId, world, wrappedFunc, cs...);
         };
 
-        m_RegisteredHandles.insert(std::make_pair(id, std::move(wrapperFunc)));
+        m_RegisteredHandles.push_back(std::make_pair(id, std::move(wrapperFunc)));
         return id;
     }
 }
