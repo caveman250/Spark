@@ -387,6 +387,7 @@ namespace se::asset::shader::compiler
         }
         else
         {
+            targetType = render::VertexStreamType::Position;
             SPARK_ASSERT(false);
         }
 

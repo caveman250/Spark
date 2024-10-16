@@ -34,6 +34,7 @@ namespace se::ecs
 #endif
 }
 
+#if !SPARK_DIST
 template <>
 struct std::hash<se::ecs::Id>
 {
@@ -42,3 +43,4 @@ struct std::hash<se::ecs::Id>
         return std::hash<uint64_t>()(rhs.id);
     }
 };
+#endif
