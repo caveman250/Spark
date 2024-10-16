@@ -9,6 +9,7 @@
 #include "MaybeLockGuard.h"
 #include "Observer.h"
 #include "Relationship.h"
+#include "engine/string/String.h"
 
 namespace se::ecs::components
 {
@@ -17,7 +18,6 @@ namespace se::ecs::components
 
 namespace se::ecs
 {
-    typedef uint64_t Id;
     template <typename... Cs>
     class EngineSystem;
     template <typename... Cs>
@@ -58,7 +58,7 @@ namespace se::ecs
     template<typename... Cs>
     class SignalActionBuilder;
     class BaseSignal;
-    constexpr uint32_t s_InvalidEntity = 0;
+    constexpr uint64_t s_InvalidEntity = 0;
 
     struct EntityRecord
     {
@@ -109,7 +109,7 @@ namespace se::ecs
         void Render();
         void Shutdown();
 
-        Id CreateEntity();
+        Id CreateEntity(const String& name);
         void DestroyEntity(Id entity);
 
         template<typename T>
@@ -164,6 +164,10 @@ namespace se::ecs
 
         void DestroyObserver(Id id);
 
+#if !SPARK_DIST
+        const String* GetName(uint64_t id);
+#endif
+
     private:
         bool IsRunning() const { return m_Running; }
 
@@ -180,7 +184,7 @@ namespace se::ecs
         Relationship CreateChildRelationship(Id entity);
         bool HasRelationshipWildcardInternal(Id entity, uint32_t lhs);
 
-        void RegisterRelationship(Id id);
+        void RegisterRelationship(uint64_t id);
 
         void RunOnAllSystems(const std::function<void(Id)>& func, const std::vector<std::vector<Id>>& systems, bool parallel, bool processPending);
         void RunOnAllAppSystems(const std::function<void(Id)>& func, bool parallel, bool processPending);
@@ -251,10 +255,10 @@ namespace se::ecs
 
         uint32_t m_EntityCounter = 1;
         std::vector<uint32_t> m_FreeEntities = {};
-        Id m_SystemCounter = 0;
+        uint64_t m_SystemCounter = 0;
         std::vector<Id> m_FreeSystems = {};
-        Id m_ArchetypeCounter = 0;
-        Id m_ObserverCounter = 0;
+        uint64_t m_ArchetypeCounter = 0;
+        uint64_t m_ObserverCounter = 0;
         std::vector<Id> m_FreeObservers = {};
 
         std::vector<std::vector<Id>> m_AppSystemUpdateGroups = {};
@@ -278,7 +282,9 @@ namespace se::ecs
 
         std::vector<BaseSignal*> m_PendingSignals = {};
 
-        std::vector<std::function<void()>> m_MainThreadCallbacks = {};
+#if !SPARK_DIST
+        std::unordered_map<uint64_t, String> m_NameMap;
+#endif
     };
 
     template<typename T>
@@ -336,16 +342,21 @@ namespace se::ecs
     template<typename T>
     void World::RegisterComponent()
     {
-        if (T::s_ComponentId == 0)
+        if (T::s_ComponentId == static_cast<uint64_t>(0))
         {
+            uint64_t id;
             if (!m_FreeEntities.empty())
             {
-                T::s_ComponentId = bits::Pack64(RecycleEntity(), 0);
+                 id = bits::Pack64(RecycleEntity(), 0);
             }
             else
             {
-                T::s_ComponentId = bits::Pack64(NewEntity(), 0);
+                id = bits::Pack64(NewEntity(), 0);
             }
+
+            reflect::Type* type = reflect::TypeResolver<T>::get();
+            m_NameMap[id] = type->name;
+            T::s_ComponentId = id;
         }
 
         if (!T::IsSingletonComponent() && !m_ComponentRecords.contains(T::GetComponentId()))
@@ -495,6 +506,7 @@ namespace se::ecs
 
         T* tempComp = m_TempStore.Alloc<T>();
         m_PendingComponentCreations.emplace_back(PendingComponent { .entity=entity, .comp=T::GetComponentId(), .tempData=tempComp });
+        SPARK_ASSERT(m_PendingComponentCreations.back().comp.name != nullptr);
         return tempComp;
     }
 

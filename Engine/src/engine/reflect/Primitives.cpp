@@ -73,4 +73,43 @@ return &typeDesc;\
         static Type_ObjectBase typeDesc;
         return &typeDesc;
     }
+
+#if !SPARK_DIST
+    struct Type_Id : Type
+    {
+        Type_Id() : Type{"Id", sizeof(uint64_t), asset::binary::Type::Uint64 }
+        {
+
+        }
+
+        void Serialize(const void* obj, asset::binary::Object& parentObj, const std::string& fieldName) const override
+        {
+            if (!fieldName.empty())
+                parentObj.Set(fieldName, *(uint64_t*)obj);
+            else
+                parentObj.Set("val", *(uint64_t*)obj);
+        }
+
+        void Deserialize(void* obj, asset::binary::Object& parentObj, const std::string& fieldName) const override
+        {
+            if (!fieldName.empty())
+                *(uint64_t*)obj = parentObj.Get<uint64_t>(fieldName);
+            else
+                *(uint64_t*)obj = parentObj.Get<uint64_t>("val");
+        }
+
+        asset::binary::StructLayout GetStructLayout(const void*) const override
+        {
+            asset::binary::StructLayout structLayout = {{ asset::binary::CreateFixedString32("val"), asset::binary::Type::Uint64 }};
+            return structLayout;
+        }
+    };
+
+    template <>
+    Type* getPrimitiveDescriptor<ecs::Id>()
+    {
+        static Type_Id typeDesc;
+        return &typeDesc;
+    }
+#endif
 }

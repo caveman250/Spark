@@ -11,8 +11,6 @@ namespace se
 
 namespace se::ecs
 {
-    typedef uint64_t Id;
-
     class BaseSystem : public reflect::ObjectBase
     {
     public:

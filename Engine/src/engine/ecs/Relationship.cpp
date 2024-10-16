@@ -8,12 +8,12 @@ namespace se::ecs
         DEFINE_MEMBER(m_Id)
     DEFINE_SPARK_CLASS_END()
 
-    Id Relationship::GetId() const
+    uint64_t Relationship::GetId() const
     {
         return m_Id;
     }
 
-    void Relationship::SetId(Id id)
+    void Relationship::SetId(uint64_t id)
     {
         m_Id = id;
     }

@@ -14,11 +14,25 @@ namespace se
         {
             m_Data.push_back(str[i]);
         }
+        if (m_Data.empty() || m_Data.back() != '\0')
+        {
+            m_Data.push_back('\0');
+        }
+#if !SPARK_DIST
+        m_Str = Data();
+#endif
     }
 
     String::String(const String& rhs)
     {
         m_Data = rhs.m_Data;
+        if (m_Data.empty() || m_Data.back() != '\0')
+        {
+            m_Data.push_back('\0');
+        }
+#if !SPARK_DIST
+        m_Str = Data();
+#endif
     }
 
     String::String(const std::string& rhs)
@@ -29,6 +43,13 @@ namespace se
         {
             m_Data.push_back(rhs[i]);
         }
+        if (m_Data.back() != '\0')
+        {
+            m_Data.push_back('\0');
+        }
+#if !SPARK_DIST
+        m_Str = Data();
+#endif
     }
 
     bool String::operator==(const String& rhs) const
@@ -52,6 +73,9 @@ namespace se
     void String::operator=(const String& rhs)
     {
         m_Data = rhs.m_Data;
+#if !SPARK_DIST
+        m_Str = Data();
+#endif
     }
 
     void String::operator=(const char* rhs)

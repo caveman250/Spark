@@ -16,7 +16,7 @@ DEFINE_SPARK_ENUM_END()
 
 namespace se::ecs
 {
-    Id World::CreateEntity()
+    Id World::CreateEntity(const String& name)
     {
         auto guard = MaybeLockGuard(m_UpdateMode, &m_EntityMutex);
         uint32_t entityId;
@@ -36,7 +36,10 @@ namespace se::ecs
             return s_InvalidEntity;
         }
 
-        Id packedId = bits::Pack64(entityId, 0);
+        uint64_t packedId = bits::Pack64(entityId, 0);
+#if !SPARK_DIST
+        m_NameMap[packedId] = name;
+#endif
         m_EntityRecords.insert(std::make_pair(packedId, EntityRecord
                 {
                         .archetype = GetArchetype({}),
@@ -106,12 +109,12 @@ namespace se::ecs
         {
             for (auto child : children)
             {
-                DestroyEntity(child);
+                DestroyEntityInternal(child);
             }
 
         }, { relationShip }, true);
 
-        for (const auto comp: m_EntityRecords.at(entity).archetype->type)
+        for (const auto& comp: m_EntityRecords.at(entity).archetype->type)
         {
             RemoveComponentInternal(entity, comp);
         }
@@ -200,6 +203,7 @@ namespace se::ecs
         archetype.components.reserve(type.size());
         for (const auto& compType: type)
         {
+            SPARK_ASSERT(compType.name != nullptr);
             auto& compInfo = m_ComponentRecords[compType];
             archetype.components.emplace_back(compInfo.type->size);
         }
@@ -216,6 +220,7 @@ namespace se::ecs
 
     size_t World::MoveEntity(Id entity, Archetype* archetype, size_t entityIdx, Archetype* nextArchetype)
     {
+        //need to update all entity records when an archetype is updated ew.
         std::vector<std::pair<Id, uint8_t*>> compData;
         for (size_t i = 0; i < archetype->components.size(); ++i)
         {
@@ -256,6 +261,15 @@ namespace se::ecs
         for (size_t i = 0; i < archetype->components.size(); ++i)
         {
             archetype->components[i].RemoveComponent(entityIdx);
+        }
+
+        for (const auto& otherEntity : archetype->entities)
+        {
+            auto& otherRecord = m_EntityRecords[otherEntity];
+            if (otherRecord.entity_idx > entityIdx)
+            {
+                otherRecord.entity_idx--;
+            }
         }
 
         const auto [first, last] = std::ranges::remove(archetype->entities, entity);
@@ -341,12 +355,6 @@ namespace se::ecs
                 system->Update();
             }
         }, true, true);
-
-        for (const auto& func : m_MainThreadCallbacks)
-        {
-            func();
-        }
-        m_MainThreadCallbacks.clear();
 
         for (auto* signal : m_PendingSignals)
         {
@@ -511,6 +519,18 @@ namespace se::ecs
         }
     }
 
+#if !SPARK_DIST
+    const String* World::GetName(uint64_t id)
+    {
+        if (id == s_InvalidEntity || !m_NameMap.contains(id))
+        {
+            return nullptr;
+        }
+
+        return &m_NameMap.at(id);
+    }
+#endif
+
     bool World::ValidateChildQuery(BaseSystem* system, const std::vector<std::pair<Id, ComponentMutability::Type>>& requestedComponents)
     {
         auto usedComponents = system->GetUsedComponents();
@@ -533,7 +553,7 @@ namespace se::ecs
         return childOf;
     }
 
-    void World::RegisterRelationship(Id id)
+    void World::RegisterRelationship(uint64_t id)
     {
         if (!m_ComponentRecords.contains(id))
         {
@@ -543,6 +563,11 @@ namespace se::ecs
                                                                      .type = reflect::ClassResolver<Relationship>::get(),
                                                                      .archetypeRecords = {}
                                                              }));
+#if !SPARK_DIST
+            Id leftId = bits::Pack64(bits::UnpackA64(id), 0);
+            Id rightId = bits::Pack64(bits::UnpackB64(id), 0);
+            m_NameMap[id] = std::format("{0} => {1}", leftId.name->Data(), rightId.name->Data());
+#endif
         }
     }
 
@@ -610,6 +635,7 @@ namespace se::ecs
         }
 
         m_PendingComponentCreations.emplace_back(PendingComponent { .entity=entity, .comp=relationship.GetId(), .tempData=m_TempStore.Alloc<Relationship>(relationship) });
+        SPARK_ASSERT(m_PendingComponentCreations.back().comp.name != nullptr);
     }
 
     void World::RemoveRelationship(Id entity, const Relationship& relationship)

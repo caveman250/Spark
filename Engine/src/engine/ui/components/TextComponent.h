@@ -22,8 +22,8 @@ namespace se::ui::components
         DECLARE_SPARK_COMPONENT(TextComponent)
 
         std::shared_ptr<asset::Font> font = {};
-        int fontSize;
-        String text;
+        int fontSize = 0;
+        String text = {};
 
     private:
         // internal use

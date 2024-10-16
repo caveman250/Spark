@@ -16,7 +16,7 @@ namespace se::ui::util
     {
         auto world = Application::Get()->GetWorld();
 
-        auto entity = world->CreateEntity();
+        auto entity = world->CreateEntity("Tree View");
         *outTreeView = world->AddComponent<components::TreeViewComponent>(entity);
         *outTransform = world->AddComponent<components::RectTransformComponent>(entity);
         return entity;
@@ -25,6 +25,7 @@ namespace se::ui::util
     ecs::Id InsertTreeNode(ecs::Id treeViewEntity,
        components::TreeViewComponent* treeView,
         ecs::Id parentNode,
+        const String& name,
         components::TreeNodeComponent** outTreeNode,
         components::TextComponent** outText)
     {
@@ -33,7 +34,7 @@ namespace se::ui::util
 
         treeView->dirty = true;
 
-        auto entity = world->CreateEntity();
+        auto entity = world->CreateEntity(name);
         world->AddChild(parentNode, entity);
 
         *outTreeNode = world->AddComponent<components::TreeNodeComponent>(entity);
@@ -47,7 +48,7 @@ namespace se::ui::util
         world->AddComponent<components::ReceivesMouseEventsComponent>(entity);
         world->AddComponent<components::WidgetComponent>(entity);
 
-        auto textEntity = world->CreateEntity();
+        auto textEntity = world->CreateEntity("Text");
         *outText = world->AddComponent<components::TextComponent>(textEntity);
         (*outText)->font = assetManager->GetAsset<asset::Font>("/builtin_assets/fonts/Arial.sass");
         (*outText)->fontSize = 18;
@@ -65,7 +66,7 @@ namespace se::ui::util
         static auto expanded_indicator_texture = assetManager->Get()->GetAsset<asset::Texture>("/builtin_assets/textures/tree_node_indicator_expanded.sass");
         static auto collapsed_indicator_texture = assetManager->Get()->GetAsset<asset::Texture>("/builtin_assets/textures/tree_node_indicator_collapsed.sass");
 
-        auto statusIcon = world->CreateEntity();
+        auto statusIcon = world->CreateEntity("Status Icon");
         auto rect = world->AddComponent<components::RectTransformComponent>(statusIcon);
         rect->anchors = { .left = 0.f, .right = 0.f, .top = 0.75f, .bottom = 0.75f };
         rect->minX = 2;

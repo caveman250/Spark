@@ -99,9 +99,9 @@ namespace se
         m_World.RegisterComponent<ui::components::WidgetComponent>();
         auto treeViewChildQuery =
         {
-            std::make_pair(ui::components::TreeNodeComponent::GetComponentId(), ecs::ComponentMutability::Immutable),
-            std::make_pair(ui::components::RectTransformComponent::GetComponentId(), ecs::ComponentMutability::Mutable),
-            std::make_pair(ui::components::WidgetComponent::GetComponentId(), ecs::ComponentMutability::Mutable)
+            std::make_pair<ecs::Id, ecs::ComponentMutability::Type>(ui::components::TreeNodeComponent::GetComponentId(), ecs::ComponentMutability::Immutable),
+            std::make_pair<ecs::Id, ecs::ComponentMutability::Type>(ui::components::RectTransformComponent::GetComponentId(), ecs::ComponentMutability::Mutable),
+            std::make_pair<ecs::Id, ecs::ComponentMutability::Type>(ui::components::WidgetComponent::GetComponentId(), ecs::ComponentMutability::Mutable)
         };
         auto treeView = m_World.CreateEngineSystem<ui::systems::TreeViewSystem>({}, treeViewChildQuery, { rootRect, treeNodes });
         m_World.CreateEngineSystem<ui::systems::RectTransformSystem>({}, {}, { rootRect, treeView });
