@@ -354,8 +354,10 @@ namespace se::ecs
                 id = bits::Pack64(NewEntity(), 0);
             }
 
+#if !SPARK_DIST
             reflect::Type* type = reflect::TypeResolver<T>::get();
             m_NameMap[id] = type->name;
+#endif
             T::s_ComponentId = id;
         }
 

@@ -3,6 +3,7 @@
 
 namespace se::ecs
 {
+#if !SPARK_DIST
     Id::Id(uint64_t _id)
         : id(_id)
         , name(Application::Get()->GetWorld()->GetName(id))
@@ -28,4 +29,5 @@ namespace se::ecs
         name = Application::Get()->GetWorld()->GetName(id);
         return *this;
     }
+#endif
 }

@@ -61,10 +61,12 @@ namespace se::debug
         LogInternal(fmt, std::make_format_args(args...));
         END_COLOUR
 
+#if !SPARK_DIST
 #if SPARK_PLATFORM_WINDOWS
         __debugbreak();
 #else
         raise(SIGTRAP);
+#endif
 #endif
         exit(-1);
     }
