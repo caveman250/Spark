@@ -22,7 +22,7 @@ namespace se::ecs
 
     void ComponentList::RemoveComponent(size_t index)
     {
-        if SPARK_VERIFY(index < m_Count)
+        if (SPARK_VERIFY(index < m_Count))
         {
             const uint64_t lastIndex = m_Count - 1;
             if (index < lastIndex)

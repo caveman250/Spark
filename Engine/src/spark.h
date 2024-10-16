@@ -113,3 +113,4 @@ do { \
 #endif
 
 #include "engine/debug/Log.h"
+#include "engine/ecs/ecs_fwd.h"

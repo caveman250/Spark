@@ -19,9 +19,12 @@ namespace se
         char operator[](size_t i) const;
 
         const char* Data() const { return m_Data.data(); }
-        size_t Size() const { return m_Data.size(); }
+        size_t Size() const { return m_Data.size() - 1; }
 
     private:
+#if !SPARK_DIST
+        const char* m_Str = nullptr; // convenience for debugging
+#endif
         std::vector<char> m_Data = {};
     };
 }

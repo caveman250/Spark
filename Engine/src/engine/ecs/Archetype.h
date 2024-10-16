@@ -1,10 +1,10 @@
 #pragma once
 
 #include "ComponentList.h"
+#include "ecs_fwd.h"
 
 namespace se::ecs
 {
-    typedef uint64_t Id;
     typedef std::vector<Id> Type;
 
     struct Archetype;

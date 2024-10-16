@@ -1,22 +1,21 @@
 #pragma once
 
+#include "ecs_fwd.h"
 #include "RelationshipComponent.h"
 #include "spark.h"
 #include "engine/reflect/Reflect.h"
 
 namespace se::ecs
 {
-    typedef uint64_t Id;
-
     class Relationship
     {
     public:
         DECLARE_SPARK_POD_CLASS(Relationship)
 
         Relationship() = default;
-        Id GetId() const;
-        void SetId(Id id);
+        uint64_t GetId() const;
+        void SetId(uint64_t id);
     private:
-        Id m_Id;
+        uint64_t m_Id;
     };
 }

@@ -15,6 +15,7 @@ namespace se::ui::util
     ecs::Id InsertTreeNode(ecs::Id treeViewEntity,
         components::TreeViewComponent* treeView,
         ecs::Id parentNode,
+        const String& name,
         components::TreeNodeComponent** outTreeNode,
         components::TextComponent** outText);
 }

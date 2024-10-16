@@ -175,15 +175,14 @@ typeDesc->members = {
 }; };                    \
 
     /// Component ///
-    // atm just enables registration in ECS. may be expanded later
 #define DECLARE_SPARK_COMPONENT(Type) \
 DECLARE_SPARK_CLASS(Type)     \
-static uint64_t s_ComponentId;\
-static uint64_t GetComponentId() { SPARK_ASSERT(s_ComponentId != 0, "GetComponentId called before RegisterComponent"); return s_ComponentId; } \
+static se::ecs::Id s_ComponentId;\
+static se::ecs::Id GetComponentId() { SPARK_ASSERT(s_ComponentId != static_cast<uint64_t>(0), "GetComponentId called before RegisterComponent"); return s_ComponentId; } \
 static constexpr bool IsSingletonComponent() { return false; }
 
 #define DEFINE_SPARK_COMPONENT_BEGIN(type) \
-uint64_t type::s_ComponentId = {};\
+se::ecs::Id type::s_ComponentId = {};\
 DEFINE_SPARK_CLASS_BEGIN(type)         \
 
 
@@ -192,12 +191,12 @@ DEFINE_SPARK_CLASS_END()
 
 #define DECLARE_SPARK_SINGLETON_COMPONENT(Type) \
 DECLARE_SPARK_CLASS(Type)     \
-static uint64_t s_ComponentId;\
-static uint64_t GetComponentId() { return s_ComponentId; } \
+static se::ecs::Id s_ComponentId;\
+static se::ecs::Id GetComponentId() { return s_ComponentId; } \
 static constexpr bool IsSingletonComponent() { return true; }
 
 #define DEFINE_SPARK_SINGLETON_COMPONENT_BEGIN(type) \
-uint64_t type::s_ComponentId = {};\
+se::ecs::Id type::s_ComponentId = {};\
 DEFINE_SPARK_CLASS_BEGIN(type)         \
 
 #define DEFINE_SPARK_SINGLETON_COMPONENT_END() \

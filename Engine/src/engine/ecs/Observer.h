@@ -1,9 +1,8 @@
 #pragma once
+#include "ecs_fwd.h"
 
 namespace se::ecs
 {
-    typedef uint64_t Id;
-
     class BaseObserver
     {
     public:

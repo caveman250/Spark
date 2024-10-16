@@ -4,7 +4,6 @@
 
 namespace se::ecs
 {
-    typedef uint64_t Id;
     typedef uint64_t SignalHandle;
 
     class BaseSignal
