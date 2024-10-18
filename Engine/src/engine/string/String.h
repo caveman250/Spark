@@ -22,9 +22,6 @@ namespace se
         size_t Size() const { return m_Data.size() - 1; }
 
     private:
-#if !SPARK_DIST
-        const char* m_Str = nullptr; // convenience for debugging
-#endif
         std::vector<char> m_Data = {};
     };
 }

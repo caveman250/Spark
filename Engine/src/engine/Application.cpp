@@ -1,4 +1,5 @@
 #include <engine/ui/systems/WidgetVisibilitySystem.h>
+#include <engine/ui/systems/ResetInputSystem.h>
 #include "Application.h"
 
 #include "ecs/systems/RootTransformSystem.h"
@@ -85,8 +86,9 @@ namespace se
     void Application::CreateInitialSystems()
     {
         auto input = m_World.CreateEngineSystem<input::InputSystem>({}, {}, {});
-        m_World.CreateEngineSystem<ui::systems::UIMouseInputSystem>({}, {}, { input });
-        m_World.CreateEngineSystem<ui::systems::UIKeyboardInputSystem>({}, {}, { input });
+        auto resetInput = m_World.CreateEngineSystem<ui::systems::ResetInputSystem>({}, {}, { input });
+        m_World.CreateEngineSystem<ui::systems::UIMouseInputSystem>({}, {}, { resetInput });
+        m_World.CreateEngineSystem<ui::systems::UIKeyboardInputSystem>({}, {}, { resetInput });
         m_World.CreateEngineSystem<render::systems::PointLightSystem>({}, {}, {});
         m_World.CreateEngineSystem<render::systems::MeshRenderSystem>({}, {}, {});
         auto rootTransform = m_World.CreateEngineSystem<ecs::systems::RootTransformSystem>({}, {}, {});

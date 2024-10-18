@@ -35,7 +35,7 @@ namespace se::ecs
     {
         using IthT = std::tuple_element<Index, std::tuple<Cs...>>::type;
 
-        auto comp = world->GetComponent<IthT>(entity);
+        auto comp = static_cast<IthT*>(world->GetComponent(entity, IthT::GetComponentId()));
         CallWrappedFunc<Index + 1>(entity, world, func, ts..., comp);
     }
 

@@ -68,6 +68,8 @@ namespace se::ui::systems
                     LayoutChildren(world, children[i], child, depth + 1);
                 }
             }
+
+            return false;
         });
     }
 }

@@ -29,6 +29,8 @@ namespace se::ui::systems
                         childWidget.parentRenderingEnabled = widget.renderingEnabled && widget.parentRenderingEnabled;
                         childWidget.dirty = true;
                     }
+
+                    return false;
                 });
 
                 widget.dirty = false;

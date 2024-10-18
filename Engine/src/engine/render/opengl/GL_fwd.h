@@ -2,14 +2,13 @@
 
 #define GLEW_STATIC
 #include <GL/glew.h>
+#if SPARK_PLATFORM_WINDOWS
+#include <GL/wglew.h>
+#endif
 #include <GL/gl.h>
 
 #if SPARK_PLATFORM_LINUX
 #include <SDL2/SDL_opengl.h>
-#endif
-
-#if SPARK_PLATFORM_WINDOWS
-#include <GL/wglew.h>
 #endif
 
 #if !SPARK_DIST

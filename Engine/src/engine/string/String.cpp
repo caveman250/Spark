@@ -18,9 +18,6 @@ namespace se
         {
             m_Data.push_back('\0');
         }
-#if !SPARK_DIST
-        m_Str = Data();
-#endif
     }
 
     String::String(const String& rhs)
@@ -30,26 +27,17 @@ namespace se
         {
             m_Data.push_back('\0');
         }
-#if !SPARK_DIST
-        m_Str = Data();
-#endif
     }
 
     String::String(const std::string& rhs)
     {
         auto len = rhs.size();
-        m_Data.reserve(len);
-        for (size_t i = 0; i < len; ++i)
-        {
-            m_Data.push_back(rhs[i]);
-        }
+        m_Data.resize(len);
+        std::memcpy(m_Data.data(), rhs.data(), len);
         if (m_Data.back() != '\0')
         {
             m_Data.push_back('\0');
         }
-#if !SPARK_DIST
-        m_Str = Data();
-#endif
     }
 
     bool String::operator==(const String& rhs) const
@@ -73,9 +61,6 @@ namespace se
     void String::operator=(const String& rhs)
     {
         m_Data = rhs.m_Data;
-#if !SPARK_DIST
-        m_Str = Data();
-#endif
     }
 
     void String::operator=(const char* rhs)

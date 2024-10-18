@@ -1,5 +1,5 @@
 #include "TreeNodeSystem.h"
-
+#include <stacktrace>
 namespace se::ui::systems
 {
     DEFINE_SPARK_SYSTEM(TreeNodeSystem)

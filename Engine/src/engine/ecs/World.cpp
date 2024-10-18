@@ -529,6 +529,42 @@ namespace se::ecs
 
         return &m_NameMap.at(id);
     }
+
+    std::set<Archetype*> World::CollectArchetypes(const std::vector<std::pair<Id, ComponentMutability::Type>>& compIds)
+    {
+        std::set<Archetype*> archetypes = {};
+        for (auto compId: compIds)
+        {
+            if (m_ComponentRecords.contains(compId.first))
+            {
+                auto& compRecord = m_ComponentRecords.at(compId.first);
+                for (const auto& archetypeId : compRecord.archetypeRecords | std::views::keys)
+                {
+                    auto& archetype = m_Archetypes.at(archetypeId);
+                    if (archetypes.contains(&archetype))
+                    {
+                        continue;
+                    }
+
+                    bool containsAll = true;
+                    for (auto comp: compIds)
+                    {
+                        containsAll &= std::ranges::contains(archetype.type, comp.first);
+                    }
+
+                    if (!containsAll)
+                    {
+                        continue;
+                    }
+
+                    archetypes.insert(&archetype);
+                }
+            }
+        }
+
+        return archetypes;
+    }
+
 #endif
 
     bool World::ValidateChildQuery(BaseSystem* system, const std::vector<std::pair<Id, ComponentMutability::Type>>& requestedComponents)
@@ -661,10 +697,10 @@ namespace se::ecs
         }
         else
         {
-            parentComp = GetComponent<components::ParentComponent>(entity);
+            parentComp = static_cast<components::ParentComponent*>(GetComponent(entity, components::ParentComponent::GetComponentId()));
         }
 
-        parentComp->childCount++;
+        parentComp->children.push_back(childEntity);
 
         if (!HasComponent<components::RootComponent>(entity) && !HasRelationshipWildcard<components::ChildOf>(entity))
         {
@@ -681,7 +717,9 @@ namespace se::ecs
     {
         RemoveRelationship(childEntity, CreateChildRelationship(entity));
         auto parentComp = GetComponent<components::ParentComponent>(entity);
-        if (--parentComp->childCount <= 0)
+        auto [first, last] = std::ranges::remove(parentComp->children, childEntity);
+        parentComp->children.erase(first, last);
+        if (parentComp->children.empty())
         {
             RemoveComponent<components::ParentComponent>(entity);
         }

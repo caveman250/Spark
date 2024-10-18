@@ -26,17 +26,6 @@ namespace se::ui::systems
             auto& transform = rectTransforms[i];
             auto& inputReceiver = receivesInputComps[i];
 
-            inputReceiver.keyEvents.clear();
-            RunRecursiveChildQuery<components::ReceivesKeyboardEventsComponent>(entity,
-            [](const std::vector<ecs::Id>& children, components::ReceivesKeyboardEventsComponent* childInputComps)
-            {
-                for (size_t j = 0; j < children.size(); ++j)
-                {
-                    auto& childInputReceiver = childInputComps[j];
-                    childInputReceiver.keyEvents.clear();
-                }
-            });
-
             bool hovered = transform.rect.Contains(math::IntVec2(inputComp->mouseX, inputComp->mouseY));
             if (hovered)
             {
@@ -54,7 +43,7 @@ namespace se::ui::systems
                     {
                         if (consumed)
                         {
-                            return;
+                            return true;
                         }
 
                         for (size_t j = 0; j < children.size(); ++j)
@@ -67,10 +56,12 @@ namespace se::ui::systems
                                 if (TryConsumeEvent(keyEvent, childInputReceiver))
                                 {
                                     consumed = true;
-                                    return;
+                                    return true;
                                 }
                             }
                         }
+
+                        return false;
                     });
 
                     return false;

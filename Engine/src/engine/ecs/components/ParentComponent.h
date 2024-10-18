@@ -10,6 +10,6 @@ namespace se::ecs::components
     {
         DECLARE_SPARK_COMPONENT(ParentComponent)
 
-        int childCount = 0;
+        std::vector<Id> children = {};
     };
 }

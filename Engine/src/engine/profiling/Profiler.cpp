@@ -1,5 +1,7 @@
 #include "Profiler.h"
 
+#include "engine/threads/SpinLockGuard.h"
+
 namespace se::profiling
 {
     Profiler * Profiler::Get()
@@ -36,6 +38,7 @@ namespace se::profiling
 
     void Profiler::CreateThreadRecordIfMissing(const std::thread::id &threadId)
     {
+        threads::SpinLockGuard guard(m_ThreadRecordsLock);
         auto& record = m_FrameRecords.back();
         if (!record.threadRecords.contains(threadId))
         {
@@ -52,6 +55,7 @@ namespace se::profiling
 
     void Profiler::PushProfileMarker(const std::string &name)
     {
+        threads::SpinLockGuard guard(m_ThreadRecordsLock);
         auto threadId = std::this_thread::get_id();
         auto& scopeStack = m_ScopeStack.at(threadId);
         ProfileRecord record;
@@ -72,6 +76,7 @@ namespace se::profiling
     }
     void Profiler::PopProfileMarker()
     {
+        threads::SpinLockGuard guard(m_ThreadRecordsLock);
         auto threadId = std::this_thread::get_id();
         auto& scopeStack = m_ScopeStack.at(threadId);
 
