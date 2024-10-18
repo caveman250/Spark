@@ -20,66 +20,59 @@ namespace se::ui::systems
     {
         PROFILE_SCOPE("UIMouseInputSystem::OnUpdate")
 
+        if (inputComp->mouseDeltaX == 0 &&
+            inputComp->mouseDeltaY == 0 &&
+            inputComp->mouseEvents.empty())
+        {
+            return;
+        }
+
         for (size_t i = 0; i < entities.size(); ++i)
         {
             auto entity = entities[i];
             auto& transform = rectTransforms[i];
             auto& inputReceiver = receivesInputComps[i];
 
-            inputReceiver.mouseEvents.clear();
-            inputReceiver.lastHovered = inputReceiver.hovered;
-            inputReceiver.hovered = transform.rect.Contains(math::IntVec2(inputComp->mouseX, inputComp->mouseY));
-            RunRecursiveChildQuery<components::ReceivesMouseEventsComponent, const components::RectTransformComponent>(entity,
-            [inputComp](const std::vector<ecs::Id>& children,
-                components::ReceivesMouseEventsComponent* childInputComps,
-                const components::RectTransformComponent* childRectTransforms)
+            if (!inputReceiver.hovered)
             {
-                for (size_t j = 0; j < children.size(); ++j)
-                {
-                    const auto& childTransform = childRectTransforms[j];
-                    auto& childInputReceiver = childInputComps[j];
-                    childInputReceiver.mouseEvents.clear();
-                    childInputReceiver.lastHovered = childInputReceiver.hovered;
-                    childInputReceiver.hovered = childTransform.rect.Contains(math::IntVec2(inputComp->mouseX, inputComp->mouseY));
-                }
-            });
+                continue;
+            }
 
-            if (inputReceiver.hovered)
+            input::InputUtil::ProcessMouseEvents(inputComp, [this, entity, inputComp, &inputReceiver](const input::MouseEvent& mouseEvent)
             {
-                input::InputUtil::ProcessMouseEvents(inputComp, [this, entity, inputComp, &inputReceiver](const input::MouseEvent& mouseEvent)
+                if (TryConsumeEvent(mouseEvent, inputReceiver))
                 {
-                    if (TryConsumeEvent(mouseEvent, inputReceiver))
+                    return true;
+                }
+
+                bool consumed = false;
+                RunRecursiveChildQuery<components::ReceivesMouseEventsComponent>(entity,
+                [this, &consumed, inputComp, mouseEvent](const std::vector<ecs::Id>& children,components::ReceivesMouseEventsComponent* childInputComps)
+                {
+                    if (consumed)
                     {
                         return true;
                     }
 
-                    bool consumed = false;
-                    RunRecursiveChildQuery<components::ReceivesMouseEventsComponent>(entity,
-                    [this, &consumed, inputComp, mouseEvent](const std::vector<ecs::Id>& children,components::ReceivesMouseEventsComponent* childInputComps)
+                    for (size_t j = 0; j < children.size(); ++j)
                     {
-                        if (consumed)
-                        {
-                            return;
-                        }
+                        auto& childInputReceiver = childInputComps[j];
 
-                        for (size_t j = 0; j < children.size(); ++j)
+                        if (childInputReceiver.hovered)
                         {
-                            auto& childInputReceiver = childInputComps[j];
-
-                            if (childInputReceiver.hovered)
+                            if (TryConsumeEvent(mouseEvent, childInputReceiver))
                             {
-                                if (TryConsumeEvent(mouseEvent, childInputReceiver))
-                                {
-                                    consumed = true;
-                                    return;
-                                }
+                                consumed = true;
+                                return true;
                             }
                         }
-                    });
+                    }
 
-                    return consumed;
+                    return false;
                 });
-            }
+
+                return consumed;
+            });
         }
     }
 

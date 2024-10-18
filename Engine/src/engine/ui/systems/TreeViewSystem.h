@@ -16,6 +16,6 @@ namespace se::ui::systems
 
         void OnUpdate(const std::vector<ecs::Id>&, components::TreeViewComponent*) override;
     private:
-        int MeasureAndArrange(ecs::Id entity,  bool collapsed, int y);
+        int MeasureAndArrange(ecs::Id entity,  bool collapsed);
     };
 }

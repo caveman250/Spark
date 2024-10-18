@@ -1,7 +1,6 @@
 #pragma once
 
 #include <engine/memory/Arena.h>
-#include "spark.h"
 #include "Archetype.h"
 #include "engine/reflect/TypeResolver.h"
 #include "Action.h"
@@ -9,7 +8,9 @@
 #include "MaybeLockGuard.h"
 #include "Observer.h"
 #include "Relationship.h"
+#include "engine/profiling/Profiler.h"
 #include "engine/string/String.h"
+#include "engine/ecs/components/ParentComponent.h"
 
 namespace se::ecs::components
 {
@@ -161,7 +162,6 @@ namespace se::ecs
 
         template<typename T, typename Y>
         Id CreateObserver();
-
         void DestroyObserver(Id id);
 
 #if !SPARK_DIST
@@ -173,12 +173,16 @@ namespace se::ecs
 
         template<typename ...T, typename Func>
         void Each(Func&& func, const std::vector<Relationship>& relationships, bool force);
+        std::set<Archetype*> CollectArchetypes(const std::vector<std::pair<Id, ComponentMutability::Type>>& compIds);
 
         template<typename ...T, typename Func>
-        void ChildEach(Id entity, BaseSystem* system, Func&& func, const std::vector<Relationship>& relationships);
+        bool ChildEach(Id entity, BaseSystem* system, Func&& func, const std::vector<Relationship>& relationships);
 
         template<typename ...T, typename Func>
-        void RecursiveChildEach(Id entity, BaseSystem* system, Func&& func, const std::vector<Relationship>& relationships);
+        bool RecursiveChildEach(Id entity, BaseSystem* system, Func&& func, const std::vector<Relationship>& relationships);
+
+        template<typename ...T, typename Func>
+        bool RecurseChildren(Id entity, BaseSystem* system, Func&& func, const std::vector<Relationship>& relationships);
 
         bool ValidateChildQuery(BaseSystem* system, const std::vector<std::pair<Id, ComponentMutability::Type>>& requestedComponents);
         Relationship CreateChildRelationship(Id entity);
@@ -335,6 +339,11 @@ namespace se::ecs
     template<typename T>
     T* World::GetComponent(Id entity)
     {
+        if (!SPARK_VERIFY(!IsRunning()))
+        {
+            return nullptr;
+        }
+
         RegisterComponent<T>();
         return static_cast<T*>(GetComponent(entity, T::GetComponentId()));
     }
@@ -404,47 +413,13 @@ namespace se::ecs
     template<typename ...T, typename Func>
     void World::Each(Func&& func, const std::vector<Relationship>& relationships, bool force)
     {
+        PROFILE_SCOPE("World::Each")
         std::vector<std::pair<Id, ComponentMutability::Type>> compIds = {};
         compIds.reserve(sizeof...(T) + relationships.size());
         (CollectComponentId<T>(compIds), ...);
-        std::unordered_map<Id, std::unordered_map<Id, size_t>> argIndexs;
         CollectRelationshipIds(compIds, relationships);
 
-        std::set<Archetype*> archetypes;
-        for (auto compId: compIds)
-        {
-            if (m_ComponentRecords.contains(compId.first))
-            {
-                auto& compRecord = m_ComponentRecords[compId.first];
-                for (const auto& archetypeId : compRecord.archetypeRecords | std::views::keys)
-                {
-                    auto& archetype = m_Archetypes.at(archetypeId);
-
-                    if (!argIndexs.contains(archetypeId))
-                    {
-                        auto& compKeys = argIndexs[archetypeId];
-                        for (auto comp: compIds)
-                        {
-                            compKeys.insert(std::make_pair(comp.first, std::ranges::find(archetype.type, comp.first) -
-                                                                 archetype.type.begin()));
-                        }
-                    }
-
-                    bool containsAll = true;
-                    for (auto comp: compIds)
-                    {
-                        containsAll &= std::ranges::contains(archetype.type, comp.first);
-                    }
-
-                    if (!containsAll)
-                    {
-                        continue;
-                    }
-
-                    archetypes.insert(&archetype);
-                }
-            }
-        }
+        std::set<Archetype*> archetypes = CollectArchetypes(compIds);
 
         for (auto* archetype: archetypes)
         {
@@ -462,37 +437,72 @@ namespace se::ecs
     }
 
     template <typename ... T, typename Func>
-    void World::ChildEach(Id entity, BaseSystem* system, Func&& func, const std::vector<Relationship>& relationships)
+    bool World::ChildEach(Id entity, BaseSystem* system, Func&& func, const std::vector<Relationship>& relationships)
     {
-#if !SPARK_DIST
+        PROFILE_SCOPE("World::ChildEach");
+
         std::vector<std::pair<Id, ComponentMutability::Type>> compIds = {};
         compIds.reserve(sizeof...(T) + relationships.size());
         (CollectComponentId<T>(compIds), ...);
         CollectRelationshipIds(compIds, relationships);
 
+#if !SPARK_DIST
         if (!ValidateChildQuery(system, compIds))
         {
-            return;
+            return false;
         }
 #endif
 
-        std::vector<Relationship> relationshipCopy = relationships;
-        relationshipCopy.push_back(CreateChildRelationship(entity));
-        Each<T...>(func, relationshipCopy, false);
+        compIds.push_back(std::make_pair(CreateChildRelationship(entity).GetId(), ComponentMutability::Immutable));
+        std::set<Archetype*> archetypes = CollectArchetypes(compIds);
+        for (auto* archetype: archetypes)
+        {
+            if (!archetype->entities.empty())
+            {
+                if (Action<T...>::DoBoolAction(archetype->entities, m_SingletonComponents, archetype, func))
+                {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
     template<typename ... T, typename Func>
-    void World::RecursiveChildEach(Id entity, BaseSystem *system, Func &&func, const std::vector<Relationship> &relationships)
+    bool World::RecursiveChildEach(Id entity, BaseSystem *system, Func &&func, const std::vector<Relationship> &relationships)
     {
-        auto processChild = [this, system, func, relationships](const std::vector<Id>& children)
+        PROFILE_SCOPE("World::RecursiveChildEach");
+
+        if (RecurseChildren<T...>(entity, system, func, relationships))
         {
-            for (const auto& id : children)
+            return true;
+        }
+
+        return false;
+    }
+
+    template<typename... T, typename Func>
+    bool World::RecurseChildren(Id entity, BaseSystem *system, Func &&func, const std::vector<Relationship> &relationships)
+    {
+        if (HasComponent<components::ParentComponent>(entity))
+        {
+            const auto* parentComp = static_cast<components::ParentComponent*>(GetComponent(entity, components::ParentComponent::GetComponentId()));
+            for (const auto& child : parentComp->children)
             {
-                RecursiveChildEach<T...>(id, system, func, relationships);
+                if (RecurseChildren<T...>(child, system, func, relationships))
+                {
+                    return true;
+                }
             }
-        };
-        ChildEach<>(entity, system, processChild, relationships);
-        ChildEach<T...>(entity, system, func, relationships);
+
+            if (ChildEach<T...>(entity, system, func, relationships))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     template<typename T>

@@ -17,17 +17,16 @@ namespace se::ui::systems
             auto& treeView = treeViews[i];
             if (treeView.dirty)
             {
-                MeasureAndArrange(entities[i], false, 0);
+                MeasureAndArrange(entities[i], false);
                 treeView.dirty = false;
             }
         }
     }
 
-    int TreeViewSystem::MeasureAndArrange(ecs::Id entity, bool collapsed, int y)
+    int TreeViewSystem::MeasureAndArrange(ecs::Id entity, bool collapsed)
     {
-        int maxY = y;
         int currentY = 18;
-        auto func = [this, collapsed, &currentY, &maxY](const std::vector<ecs::Id>& children,
+        auto func = [this, collapsed, &currentY](const std::vector<ecs::Id>& children,
                     const components::TreeNodeComponent* treeNodes,
                     components::RectTransformComponent* rectTransforms,
                     components::WidgetComponent* widgets)
@@ -38,7 +37,6 @@ namespace se::ui::systems
                 widget.dirty = widget.renderingEnabled == collapsed;
                 widget.renderingEnabled = !collapsed;
 
-
                 auto& childTransform = rectTransforms[j];
                 childTransform.minY = currentY;
                 childTransform.minX = 6;
@@ -47,13 +45,14 @@ namespace se::ui::systems
                 childTransform.needsLayout = true;
 
                 const auto& treeNode = treeNodes[j];
-                currentY += MeasureAndArrange(children[j], collapsed || treeNode.collapsed, currentY);
-                maxY = currentY;
+                currentY += MeasureAndArrange(children[j], collapsed || treeNode.collapsed);
             }
+
+            return false;
         };
 
         RunChildQuery<const components::TreeNodeComponent, components::RectTransformComponent, components::WidgetComponent>(entity, func);
 
-        return collapsed ? 18 : maxY;
+        return collapsed ? 18 : currentY;
     }
 }

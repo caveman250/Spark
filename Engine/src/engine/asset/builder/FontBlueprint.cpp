@@ -171,7 +171,7 @@ namespace se::asset::builder
         {
             int x1, y1, x2, y2;
             stbtt_GetCodepointBitmapBox(&font, s_FontMapChars[i], scale, scale, &x1, &y1, &x2, &y2);
-            ret.push_back(std::make_pair(ui::Rect{math::IntVec2(x1, y1), math::IntVec2(x2 - x1, y2 - y1)}, i));
+            ret.push_back(std::make_pair(ui::Rect{math::IntVec2(x1, y1), math::IntVec2(x2 - x1, y2 - y1)}, static_cast<int>(i)));
         }
 
         std::ranges::sort(ret, [](const std::pair<ui::Rect, int> &a, const std::pair<ui::Rect, int> &b)

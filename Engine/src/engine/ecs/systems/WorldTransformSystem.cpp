@@ -29,6 +29,8 @@ namespace se::ecs::systems
                     TransformComponent& transform = childTransform[i];
                     transform.worldTransform = parent.worldTransform * transform.transform;
                 }
+
+                return false;
             });
         }
     }
