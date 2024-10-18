@@ -104,15 +104,14 @@ namespace se::ecs
             return;
         }
 
-        auto relationShip = CreateChildRelationship(entity);
-        Each<>([this](const std::vector<Id>& children)
+        if (HasComponent<components::ParentComponent>(entity))
         {
-            for (auto child : children)
+            auto *parentComp = static_cast<components::ParentComponent*>(GetComponent(entity, components::ParentComponent::GetComponentId()));
+            for (const auto &child: parentComp->children)
             {
                 DestroyEntityInternal(child);
             }
-
-        }, { relationShip }, true);
+        }
 
         for (const auto& comp: m_EntityRecords.at(entity).archetype->type)
         {
