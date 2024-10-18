@@ -13,7 +13,6 @@ namespace se::ui::systems
     DEFINE_SPARK_SYSTEM(UIMouseInputSystem)
 
     void UIMouseInputSystem::OnUpdate(const std::vector<ecs::Id>& entities,
-        const components::RectTransformComponent* rectTransforms,
         const RootComponent*,
         components::ReceivesMouseEventsComponent* receivesInputComps,
         input::InputComponent* inputComp)
@@ -30,7 +29,6 @@ namespace se::ui::systems
         for (size_t i = 0; i < entities.size(); ++i)
         {
             auto entity = entities[i];
-            auto& transform = rectTransforms[i];
             auto& inputReceiver = receivesInputComps[i];
 
             if (!inputReceiver.hovered)

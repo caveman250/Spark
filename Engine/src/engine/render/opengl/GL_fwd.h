@@ -7,6 +7,7 @@
 #endif
 #include <GL/gl.h>
 
+
 #if SPARK_PLATFORM_LINUX
 #include <SDL2/SDL_opengl.h>
 #endif

@@ -5,7 +5,7 @@ else()
 endif()
 
 if (WIN32)
-# TODO
+    add_compile_options(/wd4100)
 elseif (UNIX)
     if(CMAKE_BUILD_TYPE MATCHES Release)
         add_compile_options(-Wno-unused-parameter)

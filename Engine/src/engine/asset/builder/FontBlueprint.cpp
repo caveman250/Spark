@@ -3,11 +3,8 @@
 #include "engine/bits/PowerOfTwo.h"
 #include "engine/io/VFS.h"
 #include "engine/reflect/Util.h"
-#define STB_TRUETYPE_IMPLEMENTATION
 #include "stb_truetype.h"
 #include "stb_image.h"
-#define STBI_MSC_SECURE_CRT
-#define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "TextureBlueprint.h"
 #include "engine/asset/font/Font.h"
 #include "engine/asset/texture/Texture.h"
