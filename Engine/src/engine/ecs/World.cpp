@@ -529,6 +529,7 @@ namespace se::ecs
 
         return &m_NameMap.at(id);
     }
+#endif
 
     std::set<Archetype*> World::CollectArchetypes(const std::vector<std::pair<Id, ComponentMutability::Type>>& compIds)
     {
@@ -564,8 +565,6 @@ namespace se::ecs
 
         return archetypes;
     }
-
-#endif
 
     bool World::ValidateChildQuery(BaseSystem* system, const std::vector<std::pair<Id, ComponentMutability::Type>>& requestedComponents)
     {
