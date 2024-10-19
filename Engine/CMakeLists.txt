@@ -23,19 +23,15 @@ include(${ROOT_DIR}/CMake/ThirdParty.cmake)
 ###### Compile Opts (After Third party to avoid spam) ######
 include(${ROOT_DIR}/CMake/BuildOptions.cmake)
 
+###### Generate Unity Files #######
+execute_process(COMMAND python UnityBatcher.py ../Engine/unity.conf ${PLATFORM}
+                WORKING_DIRECTORY ${ROOT_DIR}/Spark/Build/)
+
 ###### Source ######
-file(GLOB PLATFORM_SHARED_CODE src/platform/*.cpp src/platform/*.h)
-if (${PLATFORM} MATCHES Windows)
-    file(GLOB_RECURSE PLATFORM_CODE src/platform/windows/*.cpp src/platform/windows/*.h)
-elseif (${PLATFORM} MATCHES Linux)
-    file(GLOB_RECURSE PLATFORM_CODE src/platform/linux/*.cpp src/platform/linux/*.h)
-endif()
-file(GLOB_RECURSE ENGINE_CODE src/engine/*.cpp src/engine/*.h)
+file(GLOB SOURCE ${ENGINE_DIR}/unity_generated/*.cpp)
 
 ###### Output ######
-add_library(Spark ${PLATFORM_SHARED_CODE} ${PLATFORM_CODE} ${ENGINE_CODE}
-        src/engine/ecs/ecs_fwd.h
-        src/engine/ecs/ecs_fwd.cpp)
+add_library(Spark ${SOURCE})
 
 ###### Linker ######
 target_link_libraries(Spark crn OpenFBX)

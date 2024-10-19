@@ -1,13 +1,12 @@
 #include "TextureBlueprint.h"
 #include "engine/io/VFS.h"
 #include "engine/asset/meta/MetaData.h"
-#define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h"
 #include "crnlib.h"
 #include "engine/asset/texture/Mipmap.h"
 #include "engine/asset/texture/Texture.h"
 #include "engine/io/OutputFileStream.h"
 #include "engine/reflect/Util.h"
+#include "stb_image.h"
 
 namespace se::asset::builder
 {

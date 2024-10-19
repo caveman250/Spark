@@ -11,15 +11,15 @@ namespace se::render::opengl
     public:
         Material(const std::vector<std::shared_ptr<asset::Shader>>& vertShaders,
                  const std::vector<std::shared_ptr<asset::Shader>>& fragShaders);
-        void Bind(const VertexBuffer&) override;
-        void CreatePlatformResources(const VertexBuffer& vb) override;
+        void Bind(const render::VertexBuffer&) override;
+        void CreatePlatformResources(const render::VertexBuffer& vb) override;
         void DestroyPlatformResources() override;
 
         GLuint GetProgramID() { return m_CompiledProgram; }
     private:
         void SetUniformInternal(const std::string& name, asset::shader::ast::AstType::Type type, int count, const void* value) override;
 
-        std::vector<std::pair<std::string, std::shared_ptr<TextureResource>>> m_Textures;
+        std::vector<std::pair<std::string, std::shared_ptr<render::TextureResource>>> m_Textures;
         GLuint m_CompiledProgram = GL_INVALID_VALUE;
     };
 }

@@ -22,7 +22,7 @@ namespace se::render::opengl
     {
     }
 
-    void Material::Bind(const VertexBuffer& vb)
+    void Material::Bind(const render::VertexBuffer& vb)
     {
         render::Material::Bind(vb);
         glUseProgram(m_CompiledProgram);
@@ -70,7 +70,7 @@ namespace se::render::opengl
         }
     }
 
-    void Material::CreatePlatformResources(const VertexBuffer& vb)
+    void Material::CreatePlatformResources(const render::VertexBuffer& vb)
     {
         SPARK_ASSERT(m_CompiledProgram == GL_INVALID_VALUE);
 
