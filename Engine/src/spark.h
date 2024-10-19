@@ -114,4 +114,3 @@ do { \
 
 #include "engine/debug/Log.h"
 #include "engine/ecs/ecs_fwd.h"
-#include "engine/ecs/World.h"

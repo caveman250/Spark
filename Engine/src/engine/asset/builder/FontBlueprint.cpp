@@ -5,7 +5,6 @@
 #include "engine/reflect/Util.h"
 #include "stb_truetype.h"
 #include "stb_image.h"
-#include "TextureBlueprint.h"
 #include "engine/asset/font/Font.h"
 #include "engine/asset/texture/Texture.h"
 #include "engine/ui/Rect.h"
