@@ -143,7 +143,7 @@ namespace se::asset::builder
         if (!stbtt_InitFont(&font, static_cast<const unsigned char *>(*fontData), 0))
         {
             debug::Log::Error("Failed to load font {}", path);
-            std::free(fontData);
+            std::free(*fontData);
             return false;
         }
 
