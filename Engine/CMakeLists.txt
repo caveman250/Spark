@@ -31,7 +31,9 @@ execute_process(COMMAND python UnityBatcher.py ../Engine/unity.conf ${PLATFORM}
 file(GLOB SOURCE ${ENGINE_DIR}/unity_generated/*.cpp)
 
 ###### Output ######
-add_library(Spark ${SOURCE})
+add_library(Spark ${SOURCE}
+        src/engine/ui/systems/ScrollBoxSystem.cpp
+        src/engine/ui/systems/ScrollBoxSystem.h)
 
 ###### Linker ######
 target_link_libraries(Spark crn OpenFBX)
