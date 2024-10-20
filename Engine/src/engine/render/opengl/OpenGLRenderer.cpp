@@ -111,6 +111,42 @@ namespace se::render::opengl
         GL_CHECK_ERROR()
     }
 
+    void OpenGLRenderer::ApplyStencil(StencilFunc::Type func, uint32_t writeMask, uint32_t readMask)
+    {
+        if (!writeMask && func == StencilFunc::None)
+        {
+            glDisable(GL_STENCIL_TEST);
+            return;
+        }
+
+        glEnable(GL_STENCIL_TEST);
+        glStencilMask(writeMask);
+        if (func != StencilFunc::None)
+        {
+            switch (func)
+            {
+                case StencilFunc::Less:
+                    glStencilFunc(GL_LESS, 1, readMask);
+                    break;
+                case StencilFunc::LessEqual:
+                    glStencilFunc(GL_LEQUAL, 1, readMask);
+                    break;
+                case StencilFunc::Equal:
+                    glStencilFunc(GL_EQUAL, 1, readMask);
+                    break;
+                case StencilFunc::Greater:
+                    glStencilFunc(GL_GREATER, 1, readMask);
+                    break;
+                case StencilFunc::GreaterEqual:
+                    glStencilFunc(GL_GEQUAL, 1, readMask);
+                    break;
+                case StencilFunc::None:
+                    glStencilFunc(GL_NEVER, 0, 0);
+                    break;
+            }
+        }
+    }
+
     bool OpenGLRenderer::IsGLEWInitialised() const
     {
         return m_GlewInit;

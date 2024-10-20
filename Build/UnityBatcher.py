@@ -81,9 +81,11 @@ def create_unity_files(conf_path, platform):
             else:
                 new_name += ".cpp"
 
-            old_file_handle = open(output_dir + new_name)
-            old_contents = old_file_handle.read()
-            old_file_handle.close()
+            old_contents = ""
+            if (os.path.exists(output_dir + new_name)):
+                old_file_handle = open(output_dir + new_name)
+                old_contents = old_file_handle.read()
+                old_file_handle.close()
 
             if old_contents != new_file:
                 print(f"stale file {new_name}")

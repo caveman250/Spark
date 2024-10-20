@@ -32,6 +32,15 @@ namespace se::render
         None
     DECLARE_SPARK_ENUM_END()
 
+    DECLARE_SPARK_ENUM_BEGIN(StencilFunc, int)
+        Less,
+        LessEqual,
+        Equal,
+        Greater,
+        GreaterEqual,
+        None
+    DECLARE_SPARK_ENUM_END()
+
     GLuint BlendModeToGLBlendMode(BlendMode::Type blendMode);
 
     struct RenderState
@@ -39,6 +48,9 @@ namespace se::render
         DepthCompare::Type depthComp = DepthCompare::None;
         BlendMode::Type srcBlend = BlendMode::One;
         BlendMode::Type dstBlend = BlendMode::Zero;
+        uint32_t stencilWriteMask = 0x00;
+        StencilFunc::Type stencilFunc = StencilFunc::None;
+        uint32_t stencilReadMask = 0x00;
         bool lit = false;
     };
 
