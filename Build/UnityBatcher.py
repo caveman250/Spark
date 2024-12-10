@@ -33,7 +33,7 @@ def create_unity_files(conf_path, platform):
             if "platform/windows" in root:
                 continue
         elif platform == "Windows":
-            if "platform/linux" in root:
+            if "platform/linux" in root or "platform\\linux" in root:
                 continue
 
         for file in files:
@@ -47,10 +47,14 @@ def create_unity_files(conf_path, platform):
 
             if excluded:
                 new_name = excluded_name.replace("/", "_")
+                new_name = new_name.replace("//", "_")
+                new_name = new_name.replace("\\", "_")
 
-                old_file_handle = open(output_dir + new_name)
-                old_contents = old_file_handle.read()
-                old_file_handle.close()
+                old_contents = ""
+                if (os.path.exists(output_dir + new_name)):
+                    old_file_handle = open(output_dir + new_name)
+                    old_contents = old_file_handle.read()
+                    old_file_handle.close()
 
                 if old_contents != f"#include \"{excluded_name}\"":
                     print(f"stale file {new_name}")
@@ -74,6 +78,7 @@ def create_unity_files(conf_path, platform):
             new_name = root.replace(root_dir, "src/")
             new_name = new_name.replace("//", "_")
             new_name = new_name.replace("/", "_")
+            new_name = new_name.replace("\\", "_")
             if new_name.endswith("_"):
                 new_name = new_name[0:len(new_name)-1]
             if file_counter > 0:

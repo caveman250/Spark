@@ -104,18 +104,24 @@ namespace se::ecs
             return;
         }
 
-        if (HasComponent<components::ParentComponent>(entity))
+        auto& record = m_EntityRecords.at(entity);
+
+        for (const auto &child: record.children)
         {
-            auto *parentComp = static_cast<components::ParentComponent*>(GetComponent(entity, components::ParentComponent::GetComponentId()));
-            for (const auto &child: parentComp->children)
-            {
-                DestroyEntityInternal(child);
-            }
+            DestroyEntityInternal(child);
         }
 
-        for (const auto& comp: m_EntityRecords.at(entity).archetype->type)
+        for (const auto& comp: record.archetype->type)
         {
             RemoveComponentInternal(entity, comp);
+        }
+
+        Id parentId = record.parent;
+        if (parentId != s_InvalidEntity)
+        {
+            auto& childrenRecord =  m_EntityRecords[parentId].children;
+            auto [first, last] = std::ranges::remove(childrenRecord, entity);
+            childrenRecord.erase(first, last);
         }
 
         m_EntityRecords.erase(entity);
@@ -682,7 +688,7 @@ namespace se::ecs
             return;
         }
 
-        m_PendingComponentCreations.emplace_back(PendingComponent { .entity=entity, .comp=relationship.GetId(), .tempData=new Relationship(relationship) });
+        m_PendingComponentDeletions.emplace_back(std::pair<Id, Id>{ entity, relationship.GetId() });
     }
 
     void World::AddChild(Id entity, Id childEntity)
@@ -698,7 +704,8 @@ namespace se::ecs
             parentComp = static_cast<components::ParentComponent*>(GetComponent(entity, components::ParentComponent::GetComponentId()));
         }
 
-        parentComp->children.push_back(childEntity);
+        m_EntityRecords[entity].children.push_back(childEntity);
+        m_EntityRecords[childEntity].parent = entity;
 
         if (!HasComponent<components::RootComponent>(entity) && !HasRelationshipWildcard<components::ChildOf>(entity))
         {
@@ -714,13 +721,17 @@ namespace se::ecs
     void World::RemoveChild(Id entity, Id childEntity)
     {
         RemoveRelationship(childEntity, CreateChildRelationship(entity));
-        auto parentComp = GetComponent<components::ParentComponent>(entity);
-        auto [first, last] = std::ranges::remove(parentComp->children, childEntity);
-        parentComp->children.erase(first, last);
-        if (parentComp->children.empty())
+
+        auto& childrenRecord =  m_EntityRecords[entity].children;
+        auto [first, last] = std::ranges::remove(childrenRecord, childEntity);
+        childrenRecord.erase(first, last);
+
+        if (childrenRecord.empty())
         {
             RemoveComponent<components::ParentComponent>(entity);
         }
+
+        m_EntityRecords[childEntity].parent = s_InvalidEntity;
     }
 
     void World::ProcessPendingComponents()
