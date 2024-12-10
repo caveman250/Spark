@@ -12,9 +12,9 @@ using namespace se::ecs::components;
 
 namespace se::ui::systems
 {
-class ScrollBoxSystem : public ecs::EngineSystem<components::ScrollBoxComponent, const components::RectTransformComponent, singleton_components::UIRenderComponent>
+class ScrollBoxRenderSystem : public ecs::EngineSystem<components::ScrollBoxComponent, const components::RectTransformComponent, singleton_components::UIRenderComponent>
     {
-        DECLARE_SPARK_SYSTEM(ScrollBoxSystem)
+        DECLARE_SPARK_SYSTEM(ScrollBoxRenderSystem)
     public:
         void OnRender(const std::vector<ecs::Id>& entities,
                       components::ScrollBoxComponent*,

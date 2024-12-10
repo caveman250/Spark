@@ -13,7 +13,8 @@ namespace se::input
         DECLARE_SPARK_CLASS(MouseEvent)
 
         MouseButton::Type button = {};
-        KeyState::Type state = {};
+        KeyState::Type state = KeyState::Down;
+        int scrollDelta = 0.f;
 
         bool operator==(const MouseEvent& rhs) const
         {

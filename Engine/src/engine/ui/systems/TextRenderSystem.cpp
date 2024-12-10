@@ -57,7 +57,7 @@ namespace se::ui::systems
                 text.material->SetRenderState(rs);
             }
 
-            if (transform.rect.topLeft != transform.lastRect.topLeft)
+            if (transform.rect.topLeft != text.lastRect.topLeft)
             {
                 auto floatVec = math::Vec2(transform.rect.topLeft);
                 text.material->SetUniform("pos", asset::shader::ast::AstType::Vec2, 1, &floatVec);

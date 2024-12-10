@@ -22,6 +22,7 @@ namespace se::input
         int mouseY = 0;
         int mouseDeltaX = 0;
         int mouseDeltaY = 0;
+        int mouseScrollDelta = 0;
         std::vector<KeyState::Type> mouseButtonStates;
         std::vector<MouseEvent> mouseEvents;
     };

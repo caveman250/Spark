@@ -14,5 +14,6 @@ namespace se::ui::components
         bool lastHovered = false;
         int buttonMask = 0xFFFFFFFF;
         int stateMask = input::KeyState::Up | input::KeyState::Down;
+        bool receivesScrollEvents = false;
     };
 }

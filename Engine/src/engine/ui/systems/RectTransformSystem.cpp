@@ -62,6 +62,7 @@ namespace se::ui::systems
                 }
 
                 child.layer = depth;
+                child.lastRect = child.rect;
 
                 if (world->HasComponent<ParentComponent>(children[i]))
                 {

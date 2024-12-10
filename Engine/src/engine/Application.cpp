@@ -1,6 +1,7 @@
+#include <engine/ui/systems/ScrollBoxUpdateSystem.h>
 #include "Application.h"
 #include "engine/ui/systems/UIRenderSystem.h"
-#include "engine/ui/systems/ScrollBoxSystem.h"
+#include "engine/ui/systems/ScrollBoxRenderSystem.h"
 #include "engine/ui/observers/ScrollBoxObserver.h"
 #include "engine/ui/systems/WidgetVisibilitySystem.h"
 #include "engine/ui/systems/ResetInputSystem.h"
@@ -114,11 +115,12 @@ namespace se
         m_World.CreateEngineSystem<ui::systems::RectTransformSystem>({}, {}, { rootRect, treeView });
         m_World.CreateEngineSystem<ui::systems::ButtonSystem>({}, {}, {});
         m_World.CreateEngineSystem<ui::systems::TitleBarSystem>({}, {}, {});
+        m_World.CreateEngineSystem<ui::systems::ScrollBoxUpdateSystem>({}, {}, {});
         auto imageRender = m_World.CreateEngineSystem<ui::systems::ImageRenderSystem>({}, {}, { });
         auto textRender = m_World.CreateEngineSystem<ui::systems::TextRenderSystem>({}, {}, {});
-        auto scrollBoxRender = m_World.CreateEngineSystem<ui::systems::ScrollBoxSystem>({}, {}, {});
+        auto scrollBoxRender = m_World.CreateEngineSystem<ui::systems::ScrollBoxRenderSystem>({}, {}, {});
         m_World.CreateEngineSystem<ui::systems::WidgetVisibilitySystem>({}, {}, {});
-        m_World.CreateEngineSystem<ui::systems::UIRenderSystem>({}, {}, { imageRender, textRender });
+        m_World.CreateEngineSystem<ui::systems::UIRenderSystem>({}, {}, { imageRender, textRender, scrollBoxRender });
     }
 
     void Application::Run() const
