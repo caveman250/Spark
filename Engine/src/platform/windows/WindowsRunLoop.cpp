@@ -2,7 +2,7 @@
 #include "WindowsRunLoop.h"
 
 #include <algorithm>
-#include <platform/PlatformRunLoop.h>
+#include "platform/PlatformRunLoop.h"
 
 
 #include "Window.h"

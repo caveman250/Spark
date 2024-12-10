@@ -1,4 +1,4 @@
-#include <engine/render/opengl/GL_fwd.h>
+#include "engine/render/opengl/GL_fwd.h"
 #include "Renderer.h"
 
 #include "engine/profiling/Profiler.h"
@@ -81,5 +81,10 @@ namespace se::render
         {
             renderCmd->Execute();
         }
+    }
+
+    void Renderer::Submit(IWindow *window, commands::RenderCommand *renderCommand)
+    {
+        m_RenderCommands[window].push_back(renderCommand);
     }
 }

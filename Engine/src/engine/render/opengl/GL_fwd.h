@@ -1,15 +1,15 @@
 #pragma once
 
 #define GLEW_STATIC
-#include <GL/glew.h>
+#include "GL/glew.h"
 #if SPARK_PLATFORM_WINDOWS
-#include <GL/wglew.h>
+#include "GL/wglew.h"
 #endif
-#include <GL/gl.h>
+#include "GL/gl.h"
 
 
 #if SPARK_PLATFORM_LINUX
-#include <SDL2/SDL_opengl.h>
+#include "SDL2/SDL_opengl.h"
 #endif
 
 #if !SPARK_DIST

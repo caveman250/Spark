@@ -1,5 +1,7 @@
-#include <engine/ui/systems/WidgetVisibilitySystem.h>
-#include <engine/ui/systems/ResetInputSystem.h>
+#include <engine/ui/systems/UIRenderSystem.h>
+#include "engine/ui/systems/WidgetVisibilitySystem.h"
+#include "engine/ui/systems/ResetInputSystem.h"
+#include "engine/ui/singleton_components/UIRenderComponent.h"
 #include "Application.h"
 
 #include "ecs/systems/RootTransformSystem.h"
@@ -71,6 +73,7 @@ namespace se
     {
         m_World.AddSingletonComponent<input::InputComponent>();
         m_World.AddSingletonComponent<camera::ActiveCameraComponent>();
+        m_World.AddSingletonComponent<ui::singleton_components::UIRenderComponent>();
     }
 
     void Application::CreateInitialObservers()
@@ -109,9 +112,10 @@ namespace se
         m_World.CreateEngineSystem<ui::systems::RectTransformSystem>({}, {}, { rootRect, treeView });
         m_World.CreateEngineSystem<ui::systems::ButtonSystem>({}, {}, {});
         m_World.CreateEngineSystem<ui::systems::TitleBarSystem>({}, {}, {});
-        m_World.CreateEngineSystem<ui::systems::ImageRenderSystem>({}, {}, { });
-        m_World.CreateEngineSystem<ui::systems::TextRenderSystem>({}, {}, {});
+        auto imageRender = m_World.CreateEngineSystem<ui::systems::ImageRenderSystem>({}, {}, { });
+        auto textRender = m_World.CreateEngineSystem<ui::systems::TextRenderSystem>({}, {}, {});
         m_World.CreateEngineSystem<ui::systems::WidgetVisibilitySystem>({}, {}, {});
+        m_World.CreateEngineSystem<ui::systems::UIRenderSystem>({}, {}, { imageRender, textRender });
     }
 
     void Application::Run() const

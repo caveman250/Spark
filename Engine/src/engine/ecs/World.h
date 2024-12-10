@@ -1,6 +1,6 @@
 #pragma once
 
-#include <engine/memory/Arena.h>
+#include "engine/memory/Arena.h"
 #include "Archetype.h"
 #include "engine/reflect/TypeResolver.h"
 #include "Action.h"
@@ -122,6 +122,8 @@ namespace se::ecs
         void RemoveRelationship(Id entity, const Relationship& relationship);
         void AddChild(Id entity, Id childEntity);
         void RemoveChild(Id entity, Id childEntity);
+        const std::vector<Id>& GetChildren(Id entity) const;
+        Id GetParent(Id entity) const;
 
         template<typename T>
         void RemoveComponent(Id entity);

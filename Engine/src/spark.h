@@ -26,10 +26,10 @@
 #include "json.hpp"
 
 #if SPARK_PLATFORM_WINDOWS
-#include <windows.h>
-#include <windowsx.h>
-#include <crtdbg.h>
-#include <dwmapi.h>
+#include "windows.h"
+#include "windowsx.h"
+#include "crtdbg.h"
+#include "dwmapi.h"
 
 #undef min
 #undef max
@@ -37,7 +37,7 @@
 #undef CreateWindow
 #undef DELETE
 #elif SPARK_PLATFORM_LINUX
-#include <SDL2/SDL.h>
+#include "SDL2/SDL.h"
 #undef linux
 #endif
 

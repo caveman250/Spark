@@ -927,6 +927,16 @@ namespace se::ecs
         }
     }
 
+    const std::vector<Id>& World::GetChildren(Id entity) const
+    {
+        return m_EntityRecords.at(entity).children;
+    }
+
+    Id World::GetParent(Id entity) const
+    {
+        return m_EntityRecords.at(entity).parent;
+    }
+
     void CollectRelationshipIds(std::vector<std::pair<Id, ComponentMutability::Type>>& compIds, const std::vector<Relationship>& relationships)
     {
         std::ranges::for_each(relationships, [&compIds](const Relationship& relationship)
