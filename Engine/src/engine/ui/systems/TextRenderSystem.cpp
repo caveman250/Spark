@@ -1,7 +1,7 @@
 #include "spark.h"
 
-#include <engine/math/Mat4.h>
-#include <engine/ecs/components/MeshComponent.h>
+#include "engine/math/Mat4.h"
+#include "engine/ecs/components/MeshComponent.h"
 #include "TextRenderSystem.h"
 
 #include "engine/Application.h"
@@ -19,7 +19,11 @@ namespace se::ui::systems
 {
     DEFINE_SPARK_SYSTEM(TextRenderSystem)
 
-    void TextRenderSystem::OnRender(const std::vector<ecs::Id>& entities, const components::RectTransformComponent* transformComps, components::TextComponent* textComps, const components::WidgetComponent* widgetComps)
+    void TextRenderSystem::OnRender(const std::vector<ecs::Id>& entities,
+                                    const components::RectTransformComponent* transformComps,
+                                    components::TextComponent* textComps,
+                                    const components::WidgetComponent* widgetComps,
+                                    ui::singleton_components::UIRenderComponent* renderComp)
     {
         PROFILE_SCOPE("TextRenderSystem::OnRender")
 
@@ -31,6 +35,7 @@ namespace se::ui::systems
 
         for (size_t i = 0; i < entities.size(); ++i)
         {
+            const auto& entity = entities[i];
             const auto& widget = widgetComps[i];
             if (!widget.renderingEnabled || !widget.parentRenderingEnabled)
             {
@@ -83,7 +88,8 @@ namespace se::ui::systems
 
             text.material->SetUniform("screenSize", asset::shader::ast::AstType::Vec2, 1, &windowsSize);
 
-            renderer->Submit<render::commands::SubmitUI>(window, text.material, text.vertBuffer, text.indexBuffer, transform.layer);
+            auto command = renderer->AllocRenderCommand<render::commands::SubmitUI>(text.material, text.vertBuffer, text.indexBuffer, transform.layer);
+            renderComp->entityRenderCommands[entity].push_back(command);
         }
     }
 }

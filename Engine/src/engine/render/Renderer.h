@@ -27,7 +27,11 @@ namespace se::render
         virtual void Init() = 0;
 
         template <ARenderCommand T, typename... Args>
+        T* AllocRenderCommand(Args&&... args);
+
+        template <ARenderCommand T, typename... Args>
         void Submit(IWindow* window, Args&&... args);
+        void Submit(IWindow* window, commands::RenderCommand* renderCommand);
         void ApplyRenderState(const RenderState& rs);
 
         const LightSetup& GetLightSetup() const { return m_LightSetup; }
@@ -52,8 +56,14 @@ namespace se::render
     };
 
     template<ARenderCommand T, typename... Args>
+    T* Renderer::AllocRenderCommand(Args &&... args)
+    {
+        return m_RenderCommandsArena.Alloc<T>(std::forward<Args>(args)...);
+    }
+
+    template<ARenderCommand T, typename... Args>
     void Renderer::Submit(IWindow* window, Args&&... args)
     {
-        m_RenderCommands[window].push_back(m_RenderCommandsArena.Alloc<T>(std::forward<Args>(args)...));
+        Submit(window, AllocRenderCommand<T>(std::forward<Args>(args)...));
     }
 }

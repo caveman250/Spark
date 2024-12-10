@@ -1,6 +1,6 @@
 #pragma once
 
-#include <engine/ui/components/ScrollBoxComponent.h>
+#include "engine/ui/components/ScrollBoxComponent.h"
 
 #include "engine/ecs/System.h"
 #include "engine/ui/components/RectTransformComponent.h"

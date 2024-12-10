@@ -1,7 +1,8 @@
 #include "spark.h"
 
-#include <engine/math/Mat4.h>
-#include <engine/ecs/components/MeshComponent.h>
+#include "engine/math/Mat4.h"
+#include "engine/ecs/components/MeshComponent.h"
+#include "engine/ui/singleton_components/UIRenderComponent.h"
 #include "ImageRenderSystem.h"
 
 #include "engine/Application.h"
@@ -18,7 +19,11 @@ namespace se::ui::systems
 {
     DEFINE_SPARK_SYSTEM(ImageRenderSystem)
 
-    void ImageRenderSystem::OnRender(const std::vector<ecs::Id>& entities, const components::RectTransformComponent* transformComps, components::ImageComponent* imageComps, const components::WidgetComponent* widgetComps)
+    void ImageRenderSystem::OnRender(const std::vector<ecs::Id>& entities,
+                                     const components::RectTransformComponent* transformComps,
+                                     components::ImageComponent* imageComps,
+                                     const components::WidgetComponent* widgetComps,
+                                     ui::singleton_components::UIRenderComponent* renderComp)
     {
         PROFILE_SCOPE("ImageRenderSystem::OnRender")
 
@@ -35,6 +40,7 @@ namespace se::ui::systems
                 continue;
             }
 
+            const auto& entity = entities[i];
             const auto& transform = transformComps[i];
             auto& image = imageComps[i];
 
@@ -59,8 +65,9 @@ namespace se::ui::systems
 
                 image.material->SetUniform("screenSize", asset::shader::ast::AstType::Vec2, 1, &windowsSize);
 
-                renderer->Submit<render::commands::SubmitUI>(window, image.material, image.vertBuffer,
+                auto command = renderer->AllocRenderCommand<render::commands::SubmitUI>(image.material, image.vertBuffer,
                                                              image.indexBuffer, transform.layer);
+                renderComp->entityRenderCommands[entity].push_back(command);
             }
         }
     }
