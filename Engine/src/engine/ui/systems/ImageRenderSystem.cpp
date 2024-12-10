@@ -66,7 +66,7 @@ namespace se::ui::systems
                 image.material->SetUniform("screenSize", asset::shader::ast::AstType::Vec2, 1, &windowsSize);
 
                 auto command = renderer->AllocRenderCommand<render::commands::SubmitUI>(image.material, image.vertBuffer,
-                                                             image.indexBuffer, transform.layer);
+                                                             image.indexBuffer);
                 renderComp->entityRenderCommands[entity].push_back(command);
             }
         }

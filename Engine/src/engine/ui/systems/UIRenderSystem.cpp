@@ -7,6 +7,16 @@ namespace se::ui::systems
 
     void RenderEntity(const ecs::Id& id, singleton_components::UIRenderComponent* renderComp, render::Renderer* renderer, IWindow* window, ecs::World* world)
     {
+        if (renderComp->entityPreRenderCommands.contains(id))
+        {
+            for (auto *renderCommand: renderComp->entityPreRenderCommands.at(id))
+            {
+                renderer->Submit(Application::Get()->GetPrimaryWindow(), renderCommand);
+            }
+
+            renderComp->entityPreRenderCommands.at(id).clear();
+        }
+
         if (renderComp->entityRenderCommands.contains(id))
         {
             for (auto *renderCommand: renderComp->entityRenderCommands.at(id))
@@ -20,6 +30,16 @@ namespace se::ui::systems
         for (const auto& child : world->GetChildren(id))
         {
             RenderEntity(child, renderComp, renderer, window, world);
+        }
+
+        if (renderComp->entityPostRenderCommands.contains(id))
+        {
+            for (auto *renderCommand: renderComp->entityPostRenderCommands.at(id))
+            {
+                renderer->Submit(Application::Get()->GetPrimaryWindow(), renderCommand);
+            }
+
+            renderComp->entityPostRenderCommands.at(id).clear();
         }
     }
 

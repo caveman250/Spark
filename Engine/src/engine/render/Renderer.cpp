@@ -63,7 +63,7 @@ namespace se::render
     {
         PROFILE_SCOPE("Renderer::SortDrawCommands")
         auto& renderCmds = m_RenderCommands[window];
-        std::ranges::sort(renderCmds, [](const auto& lhs, const auto& rhs)
+        std::ranges::stable_sort(renderCmds, [](const auto& lhs, const auto& rhs)
         {
             if (lhs->GetRenderStage() != rhs->GetRenderStage())
             {

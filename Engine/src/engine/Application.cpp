@@ -1,9 +1,10 @@
-#include <engine/ui/systems/UIRenderSystem.h>
+#include "Application.h"
+#include "engine/ui/systems/UIRenderSystem.h"
+#include "engine/ui/systems/ScrollBoxSystem.h"
+#include "engine/ui/observers/ScrollBoxObserver.h"
 #include "engine/ui/systems/WidgetVisibilitySystem.h"
 #include "engine/ui/systems/ResetInputSystem.h"
 #include "engine/ui/singleton_components/UIRenderComponent.h"
-#include "Application.h"
-
 #include "ecs/systems/RootTransformSystem.h"
 #include "ecs/systems/TransformSystem.h"
 #include "ecs/systems/WorldTransformSystem.h"
@@ -84,6 +85,7 @@ namespace se
         m_World.CreateObserver<ui::observers::TreeNodeObserver, ui::components::TreeNodeComponent>();
         m_World.CreateObserver<ui::observers::ImageObserver, ui::components::ImageComponent>();
         m_World.CreateObserver<ui::observers::TextObserver, ui::components::TextComponent>();
+        m_World.CreateObserver<ui::observers::ScrollBoxObserver, ui::components::ScrollBoxComponent>();
     }
 
     void Application::CreateInitialSystems()
@@ -114,6 +116,7 @@ namespace se
         m_World.CreateEngineSystem<ui::systems::TitleBarSystem>({}, {}, {});
         auto imageRender = m_World.CreateEngineSystem<ui::systems::ImageRenderSystem>({}, {}, { });
         auto textRender = m_World.CreateEngineSystem<ui::systems::TextRenderSystem>({}, {}, {});
+        auto scrollBoxRender = m_World.CreateEngineSystem<ui::systems::ScrollBoxSystem>({}, {}, {});
         m_World.CreateEngineSystem<ui::systems::WidgetVisibilitySystem>({}, {}, {});
         m_World.CreateEngineSystem<ui::systems::UIRenderSystem>({}, {}, { imageRender, textRender });
     }

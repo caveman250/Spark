@@ -17,6 +17,8 @@ namespace se::ui::singleton_components
     {
         DECLARE_SPARK_SINGLETON_COMPONENT(UIRenderComponent)
 
+        std::unordered_map<ecs::Id, std::vector<render::commands::RenderCommand*>> entityPreRenderCommands;
         std::unordered_map<ecs::Id, std::vector<render::commands::RenderCommand*>> entityRenderCommands;
+        std::unordered_map<ecs::Id, std::vector<render::commands::RenderCommand*>> entityPostRenderCommands;
     };
 }
