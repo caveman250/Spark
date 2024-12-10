@@ -1,4 +1,4 @@
-#include "ScrollBoxSystem.h"
+#include "ScrollBoxRenderSystem.h"
 
 #include "engine/math/Mat4.h"
 #include "engine/Application.h"
@@ -12,14 +12,14 @@ using namespace se::ecs::components;
 
 namespace se::ui::systems
 {
-    DEFINE_SPARK_SYSTEM(ScrollBoxSystem)
+    DEFINE_SPARK_SYSTEM(ScrollBoxRenderSystem)
 
-    void ScrollBoxSystem::OnRender(const std::vector<ecs::Id>& entities,
-                                   components::ScrollBoxComponent* scrollBoxes,
-                                   const components::RectTransformComponent* rectTransforms,
-                                   singleton_components::UIRenderComponent* renderComp)
+    void ScrollBoxRenderSystem::OnRender(const std::vector<ecs::Id>& entities,
+                                         components::ScrollBoxComponent* scrollBoxes,
+                                         const components::RectTransformComponent* rectTransforms,
+                                         singleton_components::UIRenderComponent* renderComp)
     {
-        PROFILE_SCOPE("ScrollBoxSystem::OnRender")
+        PROFILE_SCOPE("ScrollBoxRenderSystem::OnRender")
 
         auto renderer = render::Renderer::Get();
 

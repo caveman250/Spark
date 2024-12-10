@@ -76,12 +76,15 @@ namespace se::ui::systems
 
     bool UIMouseInputSystem::TryConsumeEvent(const input::MouseEvent& mouseEvent, components::ReceivesMouseEventsComponent& inputReceiver)
     {
-        if (mouseEvent.button & inputReceiver.buttonMask)
+        if (mouseEvent.button == input::MouseButton::None || mouseEvent.button & inputReceiver.buttonMask)
         {
             if (mouseEvent.state & inputReceiver.stateMask)
             {
-                inputReceiver.mouseEvents.push_back(mouseEvent);
-                return true;
+                if (mouseEvent.scrollDelta == 0 || inputReceiver.receivesScrollEvents)
+                {
+                    inputReceiver.mouseEvents.push_back(mouseEvent);
+                    return true;
+                }
             }
         }
 

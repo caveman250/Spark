@@ -83,6 +83,10 @@ namespace se::linux
                     inputComp->mouseY = ev.motion.y;
                     break;
                 }
+                case SDL_MOUSEWHEEL:
+                {
+                    todo error
+                }
                 case SDL_WINDOWEVENT:
                     if (!m_Windows.contains(ev.window.windowID))
                     {

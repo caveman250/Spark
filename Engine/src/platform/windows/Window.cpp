@@ -111,6 +111,7 @@ namespace se::windows
             }
             case WM_MOUSEMOVE:
             {
+                //SetFocus(hWnd);
                 auto app = Application::Get();
                 auto inputComp = app->GetWorld()->GetSingletonComponent<input::InputComponent>();
                 inputComp->mouseX = GET_X_LPARAM(lParam);
@@ -214,6 +215,18 @@ namespace se::windows
                 mouseEvent.state = input::KeyState::Up;
                 inputComp->mouseEvents.push_back(mouseEvent);
                 break;
+            }
+            case WM_MOUSEWHEEL:
+            {
+                auto app = Application::Get();
+                auto inputComp = app->GetWorld()->GetSingletonComponent<input::InputComponent>();
+                inputComp->mouseScrollDelta = GET_WHEEL_DELTA_WPARAM(wParam);
+
+                input::MouseEvent mouseEvent;
+                mouseEvent.button = input::MouseButton::None;
+                mouseEvent.scrollDelta = inputComp->mouseScrollDelta / 120;
+                inputComp->mouseEvents.push_back(mouseEvent);
+                return 0;
             }
         }
         return DefWindowProcW(hWnd, message, wParam, lParam);
