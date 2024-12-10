@@ -1,6 +1,7 @@
 #pragma once
-#include "IndexBuffer.h"
 #include "spark.h"
+#include "IndexBuffer.h"
+#include "engine/ui/Rect.h"
 
 namespace se::render
 {
@@ -59,15 +60,32 @@ namespace se::render::commands
     class SubmitUI : public RenderCommand
     {
     public:
-        SubmitUI(const std::shared_ptr<Material>& material, const std::shared_ptr<VertexBuffer>& vertBuffer, const std::shared_ptr<IndexBuffer>& indexBuffer, uint32_t layer);
+        SubmitUI(const std::shared_ptr<Material>& material, const std::shared_ptr<VertexBuffer>& vertBuffer, const std::shared_ptr<IndexBuffer>& indexBuffer);
         void Execute() override;
         RenderStage::Type GetRenderStage() const override { return RenderStage::UI; }
-        uint32_t GetSortKey() const override { return m_Layer; }
 
     private:
         std::shared_ptr<Material> m_Material = {};
         std::shared_ptr<VertexBuffer> m_VertBuffer = {};
         std::shared_ptr<IndexBuffer> m_IndexBuffer = {};
-        uint32_t m_Layer = {};
+
+    };
+
+    class PushScissor : public RenderCommand
+    {
+    public:
+        PushScissor(const ui::Rect& rect);
+        void Execute() override;
+        RenderStage::Type GetRenderStage() const override { return RenderStage::UI; }
+    private:
+        ui::Rect m_Rect;
+    };
+
+    class PopScissor : public RenderCommand
+    {
+    public:
+        PopScissor();
+        void Execute() override;
+        RenderStage::Type GetRenderStage() const override { return RenderStage::UI; }
     };
 }

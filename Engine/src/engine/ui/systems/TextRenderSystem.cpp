@@ -88,7 +88,7 @@ namespace se::ui::systems
 
             text.material->SetUniform("screenSize", asset::shader::ast::AstType::Vec2, 1, &windowsSize);
 
-            auto command = renderer->AllocRenderCommand<render::commands::SubmitUI>(text.material, text.vertBuffer, text.indexBuffer, transform.layer);
+            auto command = renderer->AllocRenderCommand<render::commands::SubmitUI>(text.material, text.vertBuffer, text.indexBuffer);
             renderComp->entityRenderCommands[entity].push_back(command);
         }
     }

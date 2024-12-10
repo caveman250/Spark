@@ -1,5 +1,6 @@
-#include "engine/render/RenderCommand.h"
 #include "spark.h"
+#include "engine/render/RenderCommand.h"
+#include "engine/Application.h"
 #include "GL_fwd.h"
 #include "engine/render/Material.h"
 #include "engine/render/VertexBuffer.h"
@@ -40,11 +41,10 @@ namespace se::render::commands
     }
 
     SubmitUI::SubmitUI(const std::shared_ptr<Material> &material, const std::shared_ptr<VertexBuffer> &vertBuffer,
-        const std::shared_ptr<IndexBuffer> &indexBuffer, uint32_t layer)
+        const std::shared_ptr<IndexBuffer> &indexBuffer)
         : m_Material(material)
         , m_VertBuffer(vertBuffer)
         , m_IndexBuffer(indexBuffer)
-        , m_Layer(layer)
     {
 
     }
@@ -75,5 +75,32 @@ namespace se::render::commands
         , m_IndexBuffer(indexBuffer)
     {
 
+    }
+
+    PushScissor::PushScissor(const ui::Rect& rect)
+            : m_Rect(rect)
+    {
+
+    }
+
+    void PushScissor::Execute()
+    {
+        auto primaryWindow = Application::Get()->GetPrimaryWindow(); // TODO
+        glEnable(GL_SCISSOR_TEST);
+        glScissor(m_Rect.topLeft.x,
+                  primaryWindow->GetHeight() - (m_Rect.topLeft.y + m_Rect.size.y),
+                  m_Rect.size.x,
+                  m_Rect.size.y);
+
+    }
+
+    PopScissor::PopScissor()
+    {
+
+    }
+
+    void PopScissor::Execute()
+    {
+        glDisable(GL_SCISSOR_TEST); // TODO keep track of stack
     }
 }
