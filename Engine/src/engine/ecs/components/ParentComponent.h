@@ -9,7 +9,5 @@ namespace se::ecs::components
     struct ParentComponent : reflect::ObjectBase
     {
         DECLARE_SPARK_COMPONENT(ParentComponent)
-
-        std::vector<Id> children = {};
     };
 }

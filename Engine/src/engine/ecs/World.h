@@ -65,6 +65,8 @@ namespace se::ecs
     {
         Archetype* archetype;
         size_t entity_idx; // index/row of entity in component data
+        Id parent = s_InvalidEntity;
+        std::vector<Id> children;
     };
 
     typedef size_t ArchetypeComponentKey; // index of the Component for the given archetype
@@ -487,8 +489,7 @@ namespace se::ecs
     {
         if (HasComponent<components::ParentComponent>(entity))
         {
-            const auto* parentComp = static_cast<components::ParentComponent*>(GetComponent(entity, components::ParentComponent::GetComponentId()));
-            for (const auto& child : parentComp->children)
+            for (const auto& child : m_EntityRecords[entity].children)
             {
                 if (RecurseChildren<T...>(child, system, func, relationships))
                 {
