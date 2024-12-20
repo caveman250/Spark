@@ -22,6 +22,7 @@ namespace se::ui::systems
             for (auto *renderCommand: renderComp->entityRenderCommands.at(id))
             {
                 renderer->Submit(Application::Get()->GetPrimaryWindow(), renderCommand);
+                //SPARK_ASSERT(renderCommand->GetRenderStage() == render::commands::RenderStage::UI);
             }
 
             renderComp->entityRenderCommands.at(id).clear();
@@ -43,7 +44,7 @@ namespace se::ui::systems
         }
     }
 
-    void UIRenderSystem::OnUpdate(const std::vector<ecs::Id> & entities,
+    void UIRenderSystem::OnRender(const std::vector<ecs::Id> & entities,
                                   const RootComponent *,
                                   const components::WidgetComponent *,
                                   singleton_components::UIRenderComponent* renderComp)

@@ -15,7 +15,7 @@ namespace se::ui::systems
     DEFINE_SPARK_SYSTEM(ScrollBoxRenderSystem)
 
     void ScrollBoxRenderSystem::OnRender(const std::vector<ecs::Id>& entities,
-                                         components::ScrollBoxComponent* scrollBoxes,
+                                         components::ScrollBoxComponent*,
                                          const components::RectTransformComponent* rectTransforms,
                                          singleton_components::UIRenderComponent* renderComp)
     {

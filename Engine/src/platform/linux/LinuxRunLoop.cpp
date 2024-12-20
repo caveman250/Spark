@@ -85,7 +85,13 @@ namespace se::linux
                 }
                 case SDL_MOUSEWHEEL:
                 {
-                    todo error
+                    inputComp->mouseScrollDelta = ev.wheel.y;
+
+                    input::MouseEvent mouseEvent;
+                    mouseEvent.button = input::MouseButton::None;
+                    mouseEvent.scrollDelta = inputComp->mouseScrollDelta;
+                    inputComp->mouseEvents.push_back(mouseEvent);
+                    break;
                 }
                 case SDL_WINDOWEVENT:
                     if (!m_Windows.contains(ev.window.windowID))

@@ -10,11 +10,6 @@ namespace se::input
     {
         PROFILE_SCOPE("InputSystem::OnUpdate")
 
-        if (inputComp->mouseScrollDelta != 0)
-        {
-            int lol =1;
-        }
-
         inputComp->mouseDeltaX = inputComp->mouseX - inputComp->lastMouseX;
         inputComp->mouseDeltaY = inputComp->mouseY - inputComp->lastMouseY;
 
