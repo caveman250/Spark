@@ -15,7 +15,7 @@ namespace se::ui::systems
         DECLARE_SPARK_SYSTEM(UIRenderSystem)
 
     public:
-        void OnUpdate(const std::vector<ecs::Id> &,
+        void OnRender(const std::vector<ecs::Id> &,
                       const ecs::components::RootComponent *,
                       const components::WidgetComponent *,
                       singleton_components::UIRenderComponent *) override;

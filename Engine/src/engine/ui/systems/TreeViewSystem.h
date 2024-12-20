@@ -10,11 +10,11 @@ namespace se::ui::components {
 
 namespace se::ui::systems
 {
-    class TreeViewSystem : public ecs::EngineSystem<components::TreeViewComponent>
+    class TreeViewSystem : public ecs::EngineSystem<components::TreeViewComponent, components::RectTransformComponent>
     {
         DECLARE_SPARK_SYSTEM(TreeViewSystem)
 
-        void OnUpdate(const std::vector<ecs::Id>&, components::TreeViewComponent*) override;
+        void OnUpdate(const std::vector<ecs::Id>&, components::TreeViewComponent*, components::RectTransformComponent*) override;
     private:
         int MeasureAndArrange(ecs::Id entity,  bool collapsed);
     };

@@ -106,7 +106,8 @@ namespace se::ecs
 
         auto& record = m_EntityRecords.at(entity);
 
-        for (const auto &child: record.children)
+        auto safeCopy = record.children;
+        for (const auto &child: safeCopy)
         {
             DestroyEntityInternal(child);
         }
@@ -433,7 +434,7 @@ namespace se::ecs
                 return !aDependsOnB || bDependsOnA;
             }
             else {
-                return a.second.instance->GetDependencies().size() < b.second.instance->GetDependencies().size();
+                return a.first < b.first;
             }
         });
 
@@ -459,7 +460,8 @@ namespace se::ecs
                     bool blockedOnDependency = false;
                     for (Id dependency : systemRecord.instance->GetDependencies())
                     {
-                        if (SPARK_VERIFY(updateGroupLookup.contains(dependency)) && updateGroupLookup[dependency] >= i)
+                        if (SPARK_VERIFY(updateGroupLookup.contains(dependency)) && updateGroupLookup[dependency] >= i,
+                            "Either being processed before a dependency. Or the dependency has already been allocated a slot after this group.")
                         {
                             blockedOnDependency = true;
                             break;
@@ -694,14 +696,9 @@ namespace se::ecs
     void World::AddChild(Id entity, Id childEntity)
     {
         AddRelationship(childEntity, CreateChildRelationship(entity));
-        components::ParentComponent* parentComp;
         if (!HasComponent<components::ParentComponent>(entity))
         {
-            parentComp = AddComponent<components::ParentComponent>(entity);
-        }
-        else
-        {
-            parentComp = static_cast<components::ParentComponent*>(GetComponent(entity, components::ParentComponent::GetComponentId()));
+            AddComponent<components::ParentComponent>(entity);
         }
 
         m_EntityRecords[entity].children.push_back(childEntity);

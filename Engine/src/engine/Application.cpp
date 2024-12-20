@@ -93,7 +93,7 @@ namespace se
     {
         auto input = m_World.CreateEngineSystem<input::InputSystem>({}, {}, {});
         auto resetInput = m_World.CreateEngineSystem<ui::systems::ResetInputSystem>({}, {}, { input });
-        m_World.CreateEngineSystem<ui::systems::UIMouseInputSystem>({}, {}, { resetInput });
+        auto mouseInput = m_World.CreateEngineSystem<ui::systems::UIMouseInputSystem>({}, {}, { resetInput });
         m_World.CreateEngineSystem<ui::systems::UIKeyboardInputSystem>({}, {}, { resetInput });
         m_World.CreateEngineSystem<render::systems::PointLightSystem>({}, {}, {});
         m_World.CreateEngineSystem<render::systems::MeshRenderSystem>({}, {}, {});
@@ -102,7 +102,7 @@ namespace se
         m_World.CreateEngineSystem<ecs::systems::TransformSystem>({}, {}, { worldTransform });
         auto rootRect = m_World.CreateEngineSystem<ui::systems::RootRectTransformSystem>({}, {}, {});
 
-        auto treeNodes = m_World.CreateEngineSystem<ui::systems::TreeNodeSystem>({}, {}, {});
+        auto treeNodes = m_World.CreateEngineSystem<ui::systems::TreeNodeSystem>({}, {}, { mouseInput });
         m_World.RegisterComponent<ui::components::TreeNodeComponent>();
         m_World.RegisterComponent<ui::components::WidgetComponent>();
         auto treeViewChildQuery =
@@ -113,9 +113,9 @@ namespace se
         };
         auto treeView = m_World.CreateEngineSystem<ui::systems::TreeViewSystem>({}, treeViewChildQuery, { rootRect, treeNodes });
         m_World.CreateEngineSystem<ui::systems::RectTransformSystem>({}, {}, { rootRect, treeView });
-        m_World.CreateEngineSystem<ui::systems::ButtonSystem>({}, {}, {});
-        m_World.CreateEngineSystem<ui::systems::TitleBarSystem>({}, {}, {});
-        m_World.CreateEngineSystem<ui::systems::ScrollBoxUpdateSystem>({}, {}, {});
+        m_World.CreateEngineSystem<ui::systems::ButtonSystem>({}, {}, { mouseInput });
+        m_World.CreateEngineSystem<ui::systems::TitleBarSystem>({}, {}, { mouseInput });
+        m_World.CreateEngineSystem<ui::systems::ScrollBoxUpdateSystem>({}, {}, { mouseInput });
         auto imageRender = m_World.CreateEngineSystem<ui::systems::ImageRenderSystem>({}, {}, { });
         auto textRender = m_World.CreateEngineSystem<ui::systems::TextRenderSystem>({}, {}, {});
         auto scrollBoxRender = m_World.CreateEngineSystem<ui::systems::ScrollBoxRenderSystem>({}, {}, {});

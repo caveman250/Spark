@@ -10,14 +10,18 @@ namespace se::ui::systems
     constexpr int s_Padding = 2;
 
     void TreeViewSystem::OnUpdate(const std::vector<ecs::Id>& entities,
-                                  components::TreeViewComponent* treeViews)
+                                  components::TreeViewComponent* treeViews,
+                                  components::RectTransformComponent* rectTransforms)
     {
         for (size_t i = 0; i < entities.size(); ++i)
         {
             auto& treeView = treeViews[i];
+            auto& rectTransform = rectTransforms[i];
             if (treeView.dirty)
             {
-                MeasureAndArrange(entities[i], false);
+                float maxY = MeasureAndArrange(entities[i], false);
+                rectTransform.maxY = maxY;
+                rectTransform.needsLayout = true;
                 treeView.dirty = false;
             }
         }

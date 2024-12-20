@@ -66,7 +66,7 @@ namespace se::ecs
         Archetype* archetype;
         size_t entity_idx; // index/row of entity in component data
         Id parent = s_InvalidEntity;
-        std::vector<Id> children;
+        std::vector<Id> children = {};
     };
 
     typedef size_t ArchetypeComponentKey; // index of the Component for the given archetype

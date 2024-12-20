@@ -1,6 +1,9 @@
 #include "engine/render/opengl/GL_fwd.h"
 #include "Renderer.h"
 
+#include <engine/Application.h>
+#include <engine/ui/singleton_components/UIRenderComponent.h>
+
 #include "engine/profiling/Profiler.h"
 #include "opengl/OpenGLRenderer.h"
 
