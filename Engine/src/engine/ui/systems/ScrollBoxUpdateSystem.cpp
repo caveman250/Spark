@@ -15,7 +15,7 @@ namespace se::ui::systems
     DEFINE_SPARK_SYSTEM(ScrollBoxUpdateSystem)
 
     void ScrollBoxUpdateSystem::OnUpdate(const std::vector<ecs::Id>& entities,
-                                         components::ScrollBoxComponent* scrollBoxes,
+                                         components::ScrollBoxComponent*,
                                          components::RectTransformComponent* rectTransforms,
                                          const components::ReceivesMouseEventsComponent* mouseComps)
     {
