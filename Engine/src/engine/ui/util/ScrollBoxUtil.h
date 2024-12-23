@@ -7,5 +7,5 @@ namespace se::ui::components
 
 namespace se::ui::util
 {
-    ecs::Id CreateScrollBox(components::ScrollBoxComponent** outScrollBox, components::RectTransformComponent** outTransform);
+    ecs::Id CreateScrollBox(components::ScrollBoxComponent** outScrollBox, components::RectTransformComponent** outTransform, bool editorOnly);
 }

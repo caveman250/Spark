@@ -14,5 +14,8 @@ namespace se::ui::util
     ecs::Id CreateWindow(components::RectTransformComponent** transform,
                          components::WindowComponent** window,
                          components::TitleBarComponent** titleBar,
-                         ecs::Id& childArea);
+                         ecs::Id& childArea,
+                         const String& title,
+                         std::function<void()> onClose,
+                         bool editorOnly);
 }

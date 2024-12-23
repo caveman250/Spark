@@ -18,4 +18,5 @@ namespace se::bits
     {
         return static_cast<int32_t>(static_cast<uint64_t>(x) & 0xffffffff);
     }
+
 }

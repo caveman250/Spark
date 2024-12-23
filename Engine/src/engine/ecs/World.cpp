@@ -1,5 +1,7 @@
 #include "World.h"
 
+#include <engine/container_util/MapUtil.h>
+
 #include "Signal.h"
 #include "components/ParentComponent.h"
 #include "components/RootComponent.h"
@@ -8,6 +10,7 @@
 #include "engine/profiling/Profiler.h"
 #include "engine/render/Renderer.h"
 #include "relationships/ChildOf.h"
+#include "engine/bits/FlagUtil.h"
 
 DEFINE_SPARK_ENUM_BEGIN(se::ecs::ComponentMutability)
     DEFINE_ENUM_VALUE(ComponentMutability, Mutable)
@@ -16,7 +19,7 @@ DEFINE_SPARK_ENUM_END()
 
 namespace se::ecs
 {
-    Id World::CreateEntity(const String& name)
+    Id World::CreateEntity(const String& name, bool editorOnly)
     {
         auto guard = MaybeLockGuard(m_UpdateMode, &m_EntityMutex);
         uint32_t entityId;
@@ -36,10 +39,20 @@ namespace se::ecs
             return s_InvalidEntity;
         }
 
-        uint64_t packedId = bits::Pack64(entityId, 0);
-#if !SPARK_DIST
-        m_NameMap[packedId] = name;
+        int32_t flags = 0;
+        if (editorOnly)
+        {
+            bits::SetFlag<IdFlags>(flags, IdFlags::Editor);
+        }
+#if SPARK_EDITOR
+        else
+        {
+            m_EntitiesChangedThisFrame = true;
+        }
 #endif
+
+        uint64_t packedId = bits::Pack64(entityId, 0);
+        m_IdMetaMap[packedId] = { name, flags };
         m_EntityRecords.insert(std::make_pair(packedId, EntityRecord
                 {
                         .archetype = GetArchetype({}),
@@ -103,6 +116,14 @@ namespace se::ecs
         {
             return;
         }
+
+#if SPARK_EDITOR
+        auto entityFlags = m_IdMetaMap[entity].flags;
+        if (!bits::GetFlag<ecs::IdFlags>(entityFlags, ecs::IdFlags::Editor))
+        {
+            m_EntitiesChangedThisFrame = true;
+        }
+#endif
 
         auto& record = m_EntityRecords.at(entity);
 
@@ -318,6 +339,20 @@ namespace se::ecs
         return add ? edges.add : edges.remove;
     }
 
+    void World::ProcessAllPending()
+    {
+        ProcessPendingComponents();
+        ProcessPendingSystems();
+        ProcessPendingEntityDeletions();
+
+        if (m_PendingComponentCreations.empty() && m_PendingComponentDeletions.empty() &&
+            m_PendingAppSystemCreations.empty() && m_PendingAppSystemDeletions.empty() &&
+            m_PendingEngineSystemCreations.empty() && m_PendingEngineSystemDeletions.empty())
+        {
+            m_TempStore.Reset();
+        }
+    }
+
     Archetype* World::GetArchetype(const Type& type)
     {
         if (!HasArchetype(type))
@@ -369,6 +404,15 @@ namespace se::ecs
         m_PendingSignals.clear();
 
         m_Running = false;
+
+#if SPARK_EDITOR
+        if (m_EntitiesChangedThisFrame)
+        {
+            Application::Get()->GetEditorRuntime()->OnEntitiesChanged();
+            ProcessAllPending();
+            m_EntitiesChangedThisFrame = false;
+        }
+#endif
     }
 
     void World::Render()
@@ -526,17 +570,25 @@ namespace se::ecs
         }
     }
 
-#if !SPARK_DIST
     const String* World::GetName(uint64_t id)
     {
-        if (id == s_InvalidEntity || !m_NameMap.contains(id))
+        if (id == s_InvalidEntity || !m_IdMetaMap.contains(id))
         {
             return nullptr;
         }
 
-        return &m_NameMap.at(id);
+        return &m_IdMetaMap.at(id).name;
     }
-#endif
+
+    int32_t* World::GetFlags(uint64_t id)
+    {
+        if (id == s_InvalidEntity || !m_IdMetaMap.contains(id))
+        {
+            return nullptr;
+        }
+
+        return &m_IdMetaMap.at(id).flags;
+    }
 
     std::set<Archetype*> World::CollectArchetypes(const std::vector<std::pair<Id, ComponentMutability::Type>>& compIds)
     {
@@ -605,11 +657,12 @@ namespace se::ecs
                                                                      .type = reflect::ClassResolver<Relationship>::get(),
                                                                      .archetypeRecords = {}
                                                              }));
-#if !SPARK_DIST
             Id leftId = bits::Pack64(bits::UnpackA64(id), 0);
             Id rightId = bits::Pack64(bits::UnpackB64(id), 0);
-            m_NameMap[id] = std::format("{0} => {1}", leftId.name->Data(), rightId.name->Data());
-#endif
+            m_IdMetaMap[id] = {
+                std::format("{0} => {1}", leftId.name->Data(), rightId.name->Data()),
+                0
+            };
         }
     }
 
@@ -637,16 +690,7 @@ namespace se::ecs
 
         if (processPending)
         {
-            ProcessPendingComponents();
-            ProcessPendingSystems();
-            ProcessPendingEntityDeletions();
-
-            if (m_PendingComponentCreations.empty() && m_PendingComponentDeletions.empty() &&
-                m_PendingAppSystemCreations.empty() && m_PendingAppSystemDeletions.empty() &&
-                m_PendingEngineSystemCreations.empty() && m_PendingEngineSystemDeletions.empty())
-            {
-                m_TempStore.Reset();
-            }
+            ProcessAllPending();
         }
     }
 
@@ -664,6 +708,25 @@ namespace se::ecs
     {
         auto guard = MaybeLockGuard(m_UpdateMode, &m_EntityMutex);
         m_PendingEntityDeletions.push_back(entity);
+    }
+
+    std::vector<Id> World::GetEntities() const
+    {
+        return util::ToKeyArray<Id>(m_EntityRecords);
+    }
+
+    std::vector<Id> World::GetRootEntities()
+    {
+        std::vector<Id> ret;
+        static std::vector<Relationship> nullRelationships = {};
+        Each<components::RootComponent>(
+            [&ret](const std::vector<Id>& entities, components::RootComponent*)
+            {
+                ret.reserve(ret.size() + entities.size());
+                ret.insert(ret.end(), entities.begin(), entities.end());
+            }, nullRelationships, false);
+
+        return ret;
     }
 
     void World::AddRelationship(Id entity, const Relationship& relationship)
@@ -685,7 +748,7 @@ namespace se::ecs
         auto guard = MaybeLockGuard(m_UpdateMode, &m_ComponentMutex);
         RegisterRelationship(relationship.GetId());
 
-        if (!SPARK_VERIFY(!HasComponent(entity, relationship.GetId())))
+        if (!SPARK_VERIFY(HasComponent(entity, relationship.GetId())))
         {
             return;
         }
@@ -723,7 +786,7 @@ namespace se::ecs
         auto [first, last] = std::ranges::remove(childrenRecord, childEntity);
         childrenRecord.erase(first, last);
 
-        if (childrenRecord.empty())
+        if (HasComponent<components::ParentComponent>(entity) && childrenRecord.empty())
         {
             RemoveComponent<components::ParentComponent>(entity);
         }

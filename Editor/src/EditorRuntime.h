@@ -1,5 +1,6 @@
 #pragma once
 #include "startup/StartupManager.h"
+#include "ui/OutlineWindow.h"
 
 namespace se::editor
 {
@@ -10,7 +11,11 @@ namespace se::editor
         void Update();
         void Shutdown();
 
+        void OnEntitiesChanged() const;
+
     private:
         startup::StartupManager m_StartupManager;
+
+        ui::OutlineWindow m_OutlineWindow;
     };
 }
