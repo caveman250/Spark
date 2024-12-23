@@ -19,6 +19,7 @@ namespace se::ui::util
         auto entity = world->CreateEntity("Tree View");
         *outTreeView = world->AddComponent<components::TreeViewComponent>(entity);
         *outTransform = world->AddComponent<components::RectTransformComponent>(entity);
+        world->AddComponent<components::WidgetComponent>(entity);
         return entity;
     }
 

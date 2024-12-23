@@ -15,7 +15,7 @@ namespace se::ui::systems
     DEFINE_SPARK_SYSTEM(ScrollBoxUpdateSystem)
 
     void ScrollBoxUpdateSystem::OnUpdate(const std::vector<ecs::Id>& entities,
-                                         components::ScrollBoxComponent*,
+                                         components::ScrollBoxComponent* scrollBoxes,
                                          components::RectTransformComponent* rectTransforms,
                                          const components::ReceivesMouseEventsComponent* mouseComps)
     {
@@ -24,56 +24,91 @@ namespace se::ui::systems
         for (size_t i = 0; i < entities.size(); ++i)
         {
             const auto& entity = entities[i];
-            auto& rect = rectTransforms[i];
+            auto& scrollBox = scrollBoxes[i];
+            auto& rectTransform = rectTransforms[i];
             const auto& mouseComp = mouseComps[i];
 
             if (mouseComp.hovered)
             {
-                for (const auto& mouseEVent : mouseComp.mouseEvents)
+                for (const auto& mouseEvent: mouseComp.mouseEvents)
                 {
-                    if (mouseEVent.scrollDelta != 0)
+                    if (mouseEvent.scrollDelta != 0)
                     {
-                        std::vector<components::RectTransformComponent*> childRects;
+                        std::vector<std::pair<components::RectTransformComponent*, components::WidgetComponent*>>
+                                childComponents;
                         int minChildY = INT_MAX;
                         int maxChildY = 0;
-                        RunChildQuery<components::RectTransformComponent>(entity, [&childRects, &maxChildY, &minChildY](const std::vector<ecs::Id>& children, components::RectTransformComponent* childTransforms)
-                        {
-                            for (size_t i = 0; i < children.size(); ++i)
+                        RunChildQuery<components::RectTransformComponent,
+                            components::WidgetComponent>(
+                            entity,
+                            [&childComponents, &maxChildY, &minChildY](const std::vector<ecs::Id>& children,
+                                                                       components::RectTransformComponent*
+                                                                       childTransforms,
+                                                                       components::WidgetComponent* widgets)
                             {
-                                auto& childTransform = childTransforms[i];
-                                minChildY = std::min(childTransform.rect.topLeft.y, minChildY);
-                                maxChildY = std::max(childTransform.rect.topLeft.y + childTransform.rect.size.y, maxChildY);
-                                childRects.emplace_back(&childTransform);
-                            }
+                                for (size_t i = 0; i < children.size(); ++i)
+                                {
+                                    auto& childTransform = childTransforms[i];
+                                    minChildY = std::min(childTransform.rect.topLeft.y, minChildY);
+                                    maxChildY = std::max(childTransform.rect.topLeft.y + childTransform.rect.size.y,
+                                                         maxChildY);
+                                    childComponents.emplace_back(std::make_pair(&childTransform, &widgets[i]));
+                                }
 
-                            return true;
-                        });
+                                return true;
+                            });
 
-                        int scrollBoxMaxY = rect.rect.topLeft.y + rect.rect.size.y;
+                        int scrollBoxMaxY = rectTransform.rect.topLeft.y + rectTransform.rect.size.y;
 
-                        int availableScrollSpaceTop = rect.rect.topLeft.y - minChildY;
+                        int availableScrollSpaceTop = rectTransform.rect.topLeft.y - minChildY;
                         int availableScrollSpaceBottom = maxChildY - scrollBoxMaxY;
 
-                        if (mouseEVent.scrollDelta > 0 && availableScrollSpaceBottom > 0)
+                        if (mouseEvent.scrollDelta > 0 && availableScrollSpaceBottom > 0)
                         {
-                            int delta = std::min(10, availableScrollSpaceBottom);
-                            for (auto& childRect : childRects)
+                            int delta = mouseEvent.scrollDelta * std::min(10, availableScrollSpaceBottom);
+                            for (auto& child: childComponents)
                             {
-                                childRect->minY -= mouseEVent.scrollDelta * delta;
-                                childRect->maxY -= mouseEVent.scrollDelta * delta;
+                                child.first->minY -= delta;
+                                child.first->maxY -= delta;
+
+                                Rect rect = util::CalculateScreenSpaceRect(*child.first, rectTransform);
+                                bool outOfBounds = (rect.topLeft.y + rect.size.y < rectTransform.rect.topLeft.y) ||
+                                                   (rect.topLeft.y > rectTransform.rect.topLeft.y + rectTransform.rect.
+                                                    size.y);
+                                child.second->updateEnabled = !outOfBounds;
+                                child.second->renderingEnabled = !outOfBounds;
                             }
-                        }
-                        else if (mouseEVent.scrollDelta < 0 && availableScrollSpaceTop > 0)
+                            availableScrollSpaceBottom -= delta;
+                            availableScrollSpaceTop += delta;
+                            scrollBox.scrollAmount = 1.f - static_cast<float>(availableScrollSpaceBottom) /
+                                                     (static_cast<float>(availableScrollSpaceBottom) + static_cast<
+                                                          float>(availableScrollSpaceTop));
+                            scrollBox.onScrolled.Broadcast(&rectTransform, scrollBox.scrollAmount);
+                        } else if (mouseEvent.scrollDelta < 0 && availableScrollSpaceTop > 0)
                         {
-                            int delta = std::min(10, availableScrollSpaceTop);
-                            for (auto& childRect : childRects)
+                            int delta = mouseEvent.scrollDelta * std::min(10, availableScrollSpaceTop);
+                            for (auto& child: childComponents)
                             {
-                                childRect->minY -= mouseEVent.scrollDelta * delta;
-                                childRect->maxY -= mouseEVent.scrollDelta * delta;
+                                child.first->minY -= delta;
+                                child.first->maxY -= delta;
+
+                                Rect rect = util::CalculateScreenSpaceRect(*child.first, rectTransform);
+                                bool outOfBounds = (rect.topLeft.y + rect.size.y < rectTransform.rect.topLeft.y) ||
+                                                   (rect.topLeft.y > rectTransform.rect.topLeft.y + rectTransform.rect.
+                                                    size.y);
+                                child.second->updateEnabled = !outOfBounds;
+                                child.second->renderingEnabled = !outOfBounds;
                             }
+
+                            availableScrollSpaceTop += delta;
+                            availableScrollSpaceBottom -= delta;
+                            scrollBox.scrollAmount = 1.f - static_cast<float>(availableScrollSpaceBottom) /
+                                                     (static_cast<float>(availableScrollSpaceBottom) + static_cast<
+                                                          float>(availableScrollSpaceTop));
+                            scrollBox.onScrolled.Broadcast(&rectTransform, scrollBox.scrollAmount);
                         }
 
-                       rect.needsLayout = true;
+                        rectTransform.needsLayout = true;
                     }
                 }
             }

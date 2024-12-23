@@ -1,14 +1,18 @@
 #pragma once
 
+#include <engine/ecs/Signal.h>
+
 #include "spark.h"
 #include "engine/reflect/Reflect.h"
 
 namespace se::ui::components
 {
-    class ScrollBoxComponent : public reflect::ObjectBase
+    struct RectTransformComponent;
+    struct ScrollBoxComponent : reflect::ObjectBase
     {
         DECLARE_SPARK_COMPONENT(ScrollBoxComponent)
 
-        float scroll_amount = 0.f;
+        ecs::Signal<const RectTransformComponent*, float> onScrolled = {};
+        float scrollAmount = 0.f;
     };
 }
