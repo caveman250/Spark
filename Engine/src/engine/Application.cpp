@@ -115,7 +115,11 @@ namespace se
         m_World.CreateEngineSystem<ui::systems::RectTransformSystem>({}, {}, { rootRect, treeView });
         m_World.CreateEngineSystem<ui::systems::ButtonSystem>({}, {}, { mouseInput });
         m_World.CreateEngineSystem<ui::systems::TitleBarSystem>({}, {}, { mouseInput });
-        m_World.CreateEngineSystem<ui::systems::ScrollBoxUpdateSystem>({}, {}, { mouseInput });
+        auto scrollBoxChildQuery =
+        {
+            std::make_pair<ecs::Id, ecs::ComponentMutability::Type>(ui::components::WidgetComponent::GetComponentId(), ecs::ComponentMutability::Mutable),
+        };
+        m_World.CreateEngineSystem<ui::systems::ScrollBoxUpdateSystem>({}, scrollBoxChildQuery, { mouseInput });
         auto imageRender = m_World.CreateEngineSystem<ui::systems::ImageRenderSystem>({}, {}, { });
         auto textRender = m_World.CreateEngineSystem<ui::systems::TextRenderSystem>({}, {}, {});
         auto scrollBoxRender = m_World.CreateEngineSystem<ui::systems::ScrollBoxRenderSystem>({}, {}, {});

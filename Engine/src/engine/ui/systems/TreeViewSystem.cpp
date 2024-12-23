@@ -19,7 +19,7 @@ namespace se::ui::systems
             auto& rectTransform = rectTransforms[i];
             if (treeView.dirty)
             {
-                float maxY = MeasureAndArrange(entities[i], false);
+                float maxY = MeasureAndArrange(entities[i], false, 0);
                 rectTransform.maxY = maxY;
                 rectTransform.needsLayout = true;
                 treeView.dirty = false;
@@ -27,9 +27,9 @@ namespace se::ui::systems
         }
     }
 
-    int TreeViewSystem::MeasureAndArrange(ecs::Id entity, bool collapsed)
+    int TreeViewSystem::MeasureAndArrange(ecs::Id entity, bool collapsed, float startY)
     {
-        int currentY = 18;
+        int currentY = startY;
         auto func = [this, collapsed, &currentY](const std::vector<ecs::Id>& children,
                     const components::TreeNodeComponent* treeNodes,
                     components::RectTransformComponent* rectTransforms,
@@ -49,7 +49,7 @@ namespace se::ui::systems
                 childTransform.needsLayout = true;
 
                 const auto& treeNode = treeNodes[j];
-                currentY += MeasureAndArrange(children[j], collapsed || treeNode.collapsed);
+                currentY += MeasureAndArrange(children[j], collapsed || treeNode.collapsed, 18);
             }
 
             return false;

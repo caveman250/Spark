@@ -4,6 +4,8 @@
 #include "engine/ecs/components/MeshComponent.h"
 #include "RectTransformSystem.h"
 
+#include <engine/ui/util/RectTransformUtil.h>
+
 #include "engine/Application.h"
 #include "engine/profiling/Profiler.h"
 
@@ -36,30 +38,7 @@ namespace se::ui::systems
             for (size_t i = 0; i < children.size(); ++i)
             {
                 components::RectTransformComponent& child = childTransform[i];
-                math::IntVec2 parentBottomRight = parentRect.rect.topLeft + parentRect.rect.size;
-                int parentWidth = parentBottomRight.x - parentRect.rect.topLeft.x;
-                int parentHeight = parentBottomRight.y - parentRect.rect.topLeft.y;
-
-                child.rect.topLeft = { static_cast<int>(parentRect.rect.topLeft.x + child.minX + child.anchors.left * parentWidth),
-                                          static_cast<int>(parentRect.rect.topLeft.y + child.minY + child.anchors.top * parentHeight) };
-
-                if (child.anchors.right > 0)
-                {
-                    child.rect.size.x = static_cast<int>(parentBottomRight.x - child.maxX - ((1.f - child.anchors.right) * (float)parentWidth) - child.rect.topLeft.x);
-                }
-                else
-                {
-                    child.rect.size.x = parentRect.rect.topLeft.x + child.maxX - child.rect.topLeft.x;
-                }
-
-                if (child.anchors.bottom > 0)
-                {
-                    child.rect.size.y = static_cast<int>(parentBottomRight.y - child.maxY - ((1.f - child.anchors.bottom) * (float)parentHeight) - child.rect.topLeft.y);
-                }
-                else
-                {
-                    child.rect.size.y = parentRect.rect.topLeft.y + child.maxY - child.rect.topLeft.y;
-                }
+                child.rect = util::CalculateScreenSpaceRect(child, parentRect);
 
                 child.layer = depth;
                 child.lastRect = child.rect;

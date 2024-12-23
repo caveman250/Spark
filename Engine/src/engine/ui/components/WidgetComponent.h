@@ -12,6 +12,7 @@ namespace se::ui::components
 
         bool parentRenderingEnabled = true;
         bool renderingEnabled = true;
+        bool updateEnabled = true;
         bool dirty = false;
     };
 }
