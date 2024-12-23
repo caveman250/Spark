@@ -3,9 +3,12 @@
 
 namespace se::ecs
 {
-#if SPARK_DIST
-    typedef uint64_t Id;
-#else
+    enum class IdFlags : uint32_t
+    {
+        None = 0,
+        Editor = 1,
+    };
+
     struct Id
     {
         Id() = default;
@@ -30,11 +33,10 @@ namespace se::ecs
 
         uint64_t id = 0;
         const String* name = nullptr;
+        int32_t* flags = nullptr;
     };
-#endif
 }
 
-#if !SPARK_DIST
 template <>
 struct std::hash<se::ecs::Id>
 {
@@ -43,4 +45,3 @@ struct std::hash<se::ecs::Id>
         return std::hash<uint64_t>()(rhs.id);
     }
 };
-#endif

@@ -4,17 +4,17 @@
 
 namespace se::ui::util
 {
-    ecs::Id CreateScrollBox(ScrollBoxComponent** outScrollBox, RectTransformComponent** outTransform)
+    ecs::Id CreateScrollBox(ScrollBoxComponent** outScrollBox, RectTransformComponent** outTransform, bool editorOnly)
     {
         auto world = Application::Get()->GetWorld();
         auto assetManager = asset::AssetManager::Get();
 
-        auto scrollBoxEntity = world->CreateEntity("ScrollBox");
+        auto scrollBoxEntity = world->CreateEntity("ScrollBox", editorOnly);
         *outScrollBox = world->AddComponent<ui::components::ScrollBoxComponent>(scrollBoxEntity);
         *outTransform = world->AddComponent<ui::components::RectTransformComponent>(scrollBoxEntity);
         (*outTransform)->anchors = { 0.f, 1.f, 0.f, 1.f };
 
-        auto scrollBarEntity = world->CreateEntity("Scroll Bar");
+        auto scrollBarEntity = world->CreateEntity("Scroll Bar", editorOnly);
         auto scrollBarImage = world->AddComponent<ui::components::ImageComponent>(scrollBarEntity);
         auto vert = assetManager->GetAsset<asset::Shader>("/builtin_assets/shaders/ui.sass");
         auto frag = assetManager->GetAsset<asset::Shader>("/builtin_assets/shaders/flat_color.sass");

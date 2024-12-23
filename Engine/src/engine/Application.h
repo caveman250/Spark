@@ -30,6 +30,10 @@ namespace se
         IWindow* GetPrimaryWindow() const { return m_PrimaryWindow; }
         ecs::World* GetWorld() { return &m_World; }
 
+#if SPARK_EDITOR
+        const editor::EditorRuntime* GetEditorRuntime() const { return &m_EditorRuntime; }
+#endif
+
     protected:
         ecs::World m_World;
 

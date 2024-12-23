@@ -112,8 +112,13 @@ namespace se::ecs
         void Render();
         void Shutdown();
 
-        Id CreateEntity(const String& name);
+        Id CreateEntity(const String& name, bool editorOnly = false);
         void DestroyEntity(Id entity);
+        std::vector<Id> GetEntities() const;
+        std::vector<Id> GetRootEntities();
+
+        template<typename T>
+        T* GetComponent(Id entity);
 
         template<typename T>
         T* AddComponent(Id entity);
@@ -168,9 +173,8 @@ namespace se::ecs
         Id CreateObserver();
         void DestroyObserver(Id id);
 
-#if !SPARK_DIST
         const String* GetName(uint64_t id);
-#endif
+        int32_t* GetFlags(uint64_t id);
 
     private:
         bool IsRunning() const { return m_Running; }
@@ -197,9 +201,6 @@ namespace se::ecs
         void RunOnAllSystems(const std::function<void(Id)>& func, const std::vector<std::vector<Id>>& systems, bool parallel, bool processPending);
         void RunOnAllAppSystems(const std::function<void(Id)>& func, bool parallel, bool processPending);
         void RunOnAllEngineSystems(const std::function<void(Id)>& func, bool parallel, bool processPending);
-
-        template<typename T>
-        T* GetComponent(Id entity);
 
         struct PendingComponent
         {
@@ -233,6 +234,7 @@ namespace se::ecs
         void CreateArchetype(const Type& type);
         Archetype* GetNextArchetype(Archetype* archetype, Id component, bool add);
 
+        void ProcessAllPending();
         void ProcessPendingComponents();
         void ProcessPendingSystems();
         static void ProcessPendingSystems(std::vector<std::pair<Id, PendingSystemInfo>>& pendingCreations,
@@ -262,6 +264,9 @@ namespace se::ecs
         std::unordered_map<Id, std::unordered_map<Id, std::shared_ptr<BaseObserver>>> m_Observers;
 
         uint32_t m_EntityCounter = 1;
+#if SPARK_EDITOR
+        bool m_EntitiesChangedThisFrame = false;
+#endif
         std::vector<uint32_t> m_FreeEntities = {};
         uint64_t m_SystemCounter = 0;
         std::vector<Id> m_FreeSystems = {};
@@ -285,14 +290,17 @@ namespace se::ecs
         std::vector<Id> m_PendingAppSystemDeletions = {};
         std::vector<std::pair<Id, PendingSystemInfo>> m_PendingEngineSystemCreations = {};
         std::vector<Id> m_PendingEngineSystemDeletions = {};
-        memory::Arena m_TempStore = {}; // cleared after all pending creations/deletions
+        memory::Arena m_TempStore = memory::Arena(2000000); // cleared after all pending creations/deletions
         bool m_ClearingTempObjects = {};
 
         std::vector<BaseSignal*> m_PendingSignals = {};
 
-#if !SPARK_DIST
-        std::unordered_map<uint64_t, String> m_NameMap;
-#endif
+        struct IdMetaData
+        {
+            String name;
+            int32_t flags;
+        };
+        std::unordered_map<uint64_t, IdMetaData> m_IdMetaMap;
     };
 
     template<typename T>
@@ -369,7 +377,7 @@ namespace se::ecs
 
 #if !SPARK_DIST
             reflect::Type* type = reflect::TypeResolver<T>::get();
-            m_NameMap[id] = type->name;
+            m_IdMetaMap[id].name = type->name;
 #endif
             T::s_ComponentId = id;
         }

@@ -12,11 +12,11 @@
 
 namespace se::ui::util
 {
-    ecs::Id CreateTreeView(components::TreeViewComponent** outTreeView, components::RectTransformComponent** outTransform)
+    ecs::Id CreateTreeView(components::TreeViewComponent** outTreeView, components::RectTransformComponent** outTransform, bool editorOnly)
     {
         auto world = Application::Get()->GetWorld();
 
-        auto entity = world->CreateEntity("Tree View");
+        auto entity = world->CreateEntity("Tree View", editorOnly);
         *outTreeView = world->AddComponent<components::TreeViewComponent>(entity);
         *outTransform = world->AddComponent<components::RectTransformComponent>(entity);
         world->AddComponent<components::WidgetComponent>(entity);
@@ -28,14 +28,15 @@ namespace se::ui::util
         ecs::Id parentNode,
         const String& name,
         components::TreeNodeComponent** outTreeNode,
-        components::TextComponent** outText)
+        components::TextComponent** outText,
+        bool editorOnly)
     {
         auto world = Application::Get()->GetWorld();
         auto assetManager = asset::AssetManager::Get();
 
         treeView->dirty = true;
 
-        auto entity = world->CreateEntity(name);
+        auto entity = world->CreateEntity(name, editorOnly);
         world->AddChild(parentNode, entity);
 
         *outTreeNode = world->AddComponent<components::TreeNodeComponent>(entity);

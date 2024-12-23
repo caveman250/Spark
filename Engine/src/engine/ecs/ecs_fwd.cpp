@@ -7,12 +7,14 @@ namespace se::ecs
     Id::Id(uint64_t _id)
         : id(_id)
         , name(Application::Get()->GetWorld()->GetName(id))
+        , flags(Application::Get()->GetWorld()->GetFlags(id))
     {
     }
 
     Id::Id(const Id& _id)
         : id(_id.id)
         , name(_id.name)
+        , flags(_id.flags)
     {
 
     }
@@ -20,6 +22,7 @@ namespace se::ecs
     Id::Id(Id&& _id)
         : id(_id.id)
         , name(_id.name)
+        , flags(_id.flags)
     {
     }
 

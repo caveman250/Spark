@@ -14,12 +14,15 @@ namespace se::ui::util
     ecs::Id CreateWindow(components::RectTransformComponent** transform,
                          components::WindowComponent** window,
                          components::TitleBarComponent** titleBar,
-                         ecs::Id& childArea)
+                         ecs::Id& childArea,
+                         const String& title,
+                         std::function<void()> onClose,
+                         bool editorOnly)
     {
         auto world = Application::Get()->GetWorld();
         auto* assetManager = asset::AssetManager::Get();
 
-        ecs::Id entity = world->CreateEntity("Window");
+        ecs::Id entity = world->CreateEntity("Window", editorOnly);
         *transform = world->AddComponent<components::RectTransformComponent>(entity);
         *window = world->AddComponent<components::WindowComponent>(entity);
 
@@ -40,7 +43,11 @@ namespace se::ui::util
             inputComp->buttonMask = static_cast<input::MouseButton::Type>(0x0);
         }
 
-        auto titleBarEntity = world->CreateEntity("TitleBar");
+        auto titleBarEntity = world->CreateEntity("TitleBar", editorOnly);
+        auto titleBarText = world->AddComponent<components::TextComponent>(titleBarEntity);
+        titleBarText->font = assetManager->GetAsset<asset::Font>("/builtin_assets/fonts/Arial.sass");
+        titleBarText->fontSize = 30;
+        titleBarText->text = title;
         *titleBar = world->AddComponent<components::TitleBarComponent>(titleBarEntity);
         std::function<void(float, float, components::RectTransformComponent*)> moveCb = [](float dX, float dY, components::RectTransformComponent* transform)
         {
@@ -58,13 +65,14 @@ namespace se::ui::util
         titleBarTransform->maxY = 40;
         world->AddChild(entity, titleBarEntity);
 
-        auto buttonEntity = world->CreateEntity("Close Button");
+        auto buttonEntity = world->CreateEntity("Close Button", editorOnly);
         auto buttonComp = world->AddComponent<components::ButtonComponent>(buttonEntity);
         buttonComp->image = assetManager->GetAsset<asset::Texture>("/builtin_assets/textures/default_button.sass");
         buttonComp->pressedImage = assetManager->GetAsset<asset::Texture>("/builtin_assets/textures/default_button_pressed.sass");
         buttonComp->hoveredImage = assetManager->GetAsset<asset::Texture>("/builtin_assets/textures/default_button_hovered.sass");
-        std::function<void(components::WindowComponent*)> buttonCb = [entity, world](components::WindowComponent*)
+        std::function<void(components::WindowComponent*)> buttonCb = [entity, world, onClose](components::WindowComponent*)
         {
+            onClose();
             world->DestroyEntity(entity);
         };
         buttonComp->onReleased.Subscribe<components::WindowComponent>(entity, std::move(buttonCb));
@@ -77,7 +85,7 @@ namespace se::ui::util
 
         world->AddChild(titleBarEntity, buttonEntity);
 
-        childArea = world->CreateEntity("Content");
+        childArea = world->CreateEntity("Content", editorOnly);
         auto childAreaTransform = world->AddComponent<components::RectTransformComponent>(childArea);
         childAreaTransform->anchors = { 0.f, 1.f, 0.f, 1.f };
         childAreaTransform->minX = 0;
