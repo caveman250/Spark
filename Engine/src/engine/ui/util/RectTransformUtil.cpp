@@ -9,27 +9,41 @@ namespace se::ui::util
         int parentHeight = parentBottomRight.y - parentTransform.rect.topLeft.y;
 
         Rect ret = {};
-        ret.topLeft = { static_cast<int>(parentTransform.rect.topLeft.x + transform.minX + transform.anchors.left * parentWidth),
-                                  static_cast<int>(parentTransform.rect.topLeft.y + transform.minY + transform.anchors.top * parentHeight) };
-
-        if (transform.anchors.right > 0)
+        if (transform.anchors.left > 0.5f)
         {
-            ret.size.x = static_cast<int>(parentBottomRight.x - transform.maxX - ((1.f - transform.anchors.right) * (float)parentWidth) - ret.topLeft.x);
+            ret.topLeft.x = (parentTransform.rect.topLeft.x + transform.anchors.left * parentWidth) - transform.minX;
         }
         else
         {
-            ret.size.x = parentTransform.rect.topLeft.x + transform.maxX - ret.topLeft.x;
+            ret.topLeft.x = (parentTransform.rect.topLeft.x + transform.anchors.left * parentWidth) + transform.minX;
         }
 
-        if (transform.anchors.bottom > 0)
+        if (transform.anchors.top > 0.5f)
         {
-            ret.size.y = static_cast<int>(parentBottomRight.y - transform.maxY - ((1.f - transform.anchors.bottom) * (float)parentHeight) - ret.topLeft.y);
+            ret.topLeft.y = (parentTransform.rect.topLeft.y + transform.anchors.top * parentHeight) - transform.minY;
         }
         else
         {
-            ret.size.y = parentTransform.rect.topLeft.y + transform.maxY - ret.topLeft.y;
+            ret.topLeft.y = (parentTransform.rect.topLeft.y + transform.anchors.top * parentHeight) + transform.minY;
         }
 
+        if (transform.anchors.right > 0.5f)
+        {
+            ret.size.x = (parentTransform.rect.topLeft.x + transform.anchors.right * parentWidth) - transform.maxX - ret.topLeft.x;
+        }
+        else
+        {
+            ret.size.x = (parentTransform.rect.topLeft.x + transform.anchors.right * parentWidth) + transform.maxX - ret.topLeft.x;
+        }
+
+        if (transform.anchors.bottom > 0.5f)
+        {
+            ret.size.y = (parentTransform.rect.topLeft.y + transform.anchors.bottom * parentHeight) - transform.maxY - ret.topLeft.y;
+        }
+        else
+        {
+            ret.size.y = (parentTransform.rect.topLeft.y + transform.anchors.bottom * parentHeight) + transform.maxY - ret.topLeft.y;
+        }
         return ret;
     }
 }
