@@ -78,7 +78,7 @@ namespace se::ui::util
         buttonComp->onReleased.Subscribe<components::WindowComponent>(entity, std::move(buttonCb));
         auto buttonTransform = world->AddComponent<components::RectTransformComponent>(buttonEntity);
         buttonTransform->anchors = { 1.f, 1.f, 0.f, 1.f };
-        buttonTransform->minX = -35;
+        buttonTransform->minX = 35;
         buttonTransform->maxX = 5;
         buttonTransform->minY = 5;
         buttonTransform->maxY = 5;

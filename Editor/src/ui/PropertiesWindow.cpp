@@ -53,7 +53,7 @@ namespace se::editor::ui
             true);
         windowTransform->anchors = { 0.f, 0.f, 0.f, 0.f };
         windowTransform->minX = 800;
-        windowTransform->maxX = 1400;
+        windowTransform->maxX = 1200;
         windowTransform->minY = 200;
         windowTransform->maxY = 720;
 
@@ -90,13 +90,13 @@ namespace se::editor::ui
                     text->text = compRecord.type->name;
                     auto textRect = world->AddComponent<se::ui::components::RectTransformComponent>(textEntity);
                     textRect->anchors = { .left = 0.f, .right = 1.f, .top = 0.f, .bottom = 0.f };
-                    textRect->minX = 0;
-                    textRect->maxX = 0;
+                    textRect->minX = 2;
+                    textRect->maxX = 2;
                     textRect->minY = yOffset;
-                    textRect->maxY = 21 + yOffset;
+                    textRect->maxY = 21 + 2 + yOffset;
                     world->AddComponent<se::ui::components::WidgetComponent>(textEntity);
                     world->AddChild(m_ScrollBoxContent, textEntity);
-                    yOffset+= 21;
+                    yOffset+= 21 + 2;
                 }
 
                 for (const auto& member : compRecord.type->members)

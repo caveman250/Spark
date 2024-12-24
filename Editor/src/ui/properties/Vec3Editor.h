@@ -16,6 +16,8 @@ namespace se::editor::ui::properties
 
     private:
         math::Vec3* m_Value;
-        ecs::Id m_Label;
+        FloatEditor m_XEditor;
+        FloatEditor m_YEditor;
+        FloatEditor m_ZEditor;
     };
 }
