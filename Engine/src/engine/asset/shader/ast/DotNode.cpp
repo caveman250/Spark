@@ -3,7 +3,7 @@
 namespace se::asset::shader::ast
 {
     DEFINE_SPARK_CLASS_BEGIN(DotNode)
-        DEFINE_MEMBER(m_Children)
+        DEFINE_SERIALIZED_MEMBER(m_Children)
     DEFINE_SPARK_CLASS_END()
 
     std::string DotNode::GetDebugString() const

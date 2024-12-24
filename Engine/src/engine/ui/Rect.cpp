@@ -3,8 +3,8 @@
 namespace se::ui
 {
     DEFINE_SPARK_POD_CLASS_BEGIN(Rect)
-        DEFINE_MEMBER(topLeft)
-        DEFINE_MEMBER(size)
+        DEFINE_SERIALIZED_MEMBER(topLeft)
+        DEFINE_SERIALIZED_MEMBER(size)
     DEFINE_SPARK_CLASS_END()
 
     bool Rect::Contains(const math::IntVec2 &point) const

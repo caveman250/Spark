@@ -5,9 +5,9 @@
 namespace se::math
 {
     DEFINE_SPARK_POD_CLASS_BEGIN(Vec3)
-        DEFINE_MEMBER(x)
-        DEFINE_MEMBER(y)
-        DEFINE_MEMBER(z)
+        DEFINE_SERIALIZED_MEMBER(x)
+        DEFINE_SERIALIZED_MEMBER(y)
+        DEFINE_SERIALIZED_MEMBER(z)
     DEFINE_SPARK_CLASS_END()
 
     float& Vec3::operator[](size_t i)

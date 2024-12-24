@@ -8,11 +8,11 @@
 namespace se::asset::shader::ast
 {
     DEFINE_SPARK_CLASS_BEGIN(VariableReferenceNode)
-        DEFINE_MEMBER(m_Children)
-        DEFINE_MEMBER(m_Type)
-        DEFINE_MEMBER(m_Name)
-        DEFINE_MEMBER(m_Index)
-        DEFINE_MEMBER(m_IndexVar)
+        DEFINE_SERIALIZED_MEMBER(m_Children)
+        DEFINE_SERIALIZED_MEMBER(m_Type)
+        DEFINE_SERIALIZED_MEMBER(m_Name)
+        DEFINE_SERIALIZED_MEMBER(m_Index)
+        DEFINE_SERIALIZED_MEMBER(m_IndexVar)
     DEFINE_SPARK_CLASS_END()
 
     VariableReferenceNode::VariableReferenceNode(const std::string& name, const Shader& shaderStageAst, int index, const std::string& indexVar)

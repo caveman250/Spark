@@ -5,10 +5,10 @@
 namespace se::asset::shader::ast
 {
     DEFINE_SPARK_CLASS_BEGIN(OutputPortNode)
-        DEFINE_MEMBER(m_Children)
-        DEFINE_MEMBER(m_PortName)
-        DEFINE_MEMBER(m_Var)
-        DEFINE_MEMBER(m_Name)
+        DEFINE_SERIALIZED_MEMBER(m_Children)
+        DEFINE_SERIALIZED_MEMBER(m_PortName)
+        DEFINE_SERIALIZED_MEMBER(m_Var)
+        DEFINE_SERIALIZED_MEMBER(m_Name)
     DEFINE_SPARK_CLASS_END()
 
     OutputPortNode::OutputPortNode(const std::string &portName, const Variable& var, const std::string &name)

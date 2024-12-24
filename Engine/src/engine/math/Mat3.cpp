@@ -3,7 +3,7 @@
 namespace se::math
 {
     DEFINE_SPARK_POD_CLASS_BEGIN(Mat3)
-        DEFINE_MEMBER(m_Value)
+        DEFINE_SERIALIZED_MEMBER(m_Value)
     DEFINE_SPARK_CLASS_END()
 
     Mat3::Mat3()

@@ -6,8 +6,8 @@
 namespace se::math
 {
     DEFINE_SPARK_POD_CLASS_BEGIN(Vec2)
-        DEFINE_MEMBER(x)
-        DEFINE_MEMBER(y)
+        DEFINE_SERIALIZED_MEMBER(x)
+        DEFINE_SERIALIZED_MEMBER(y)
     DEFINE_SPARK_CLASS_END()
 
     Vec2::Vec2(const IntVec2 &v)

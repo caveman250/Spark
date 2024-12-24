@@ -2,6 +2,8 @@
 #include "spark.h"
 #include "MeshComponent.h"
 #include "engine/asset/mesh/Model.h"
+#include "engine/render/IndexBuffer.h"
+#include "engine/render/Material.h"
 
 namespace se::ecs::components
 {

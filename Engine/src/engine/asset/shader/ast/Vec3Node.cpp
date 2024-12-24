@@ -3,7 +3,7 @@
 namespace se::asset::shader::ast
 {
     DEFINE_SPARK_CLASS_BEGIN(Vec3Node)
-        DEFINE_MEMBER(m_Children)
+        DEFINE_SERIALIZED_MEMBER(m_Children)
     DEFINE_SPARK_CLASS_END()
 
     std::string Vec3Node::GetDebugString() const

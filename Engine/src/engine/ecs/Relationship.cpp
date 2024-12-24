@@ -5,7 +5,7 @@
 namespace se::ecs
 {
     DEFINE_SPARK_POD_CLASS_BEGIN(Relationship)
-        DEFINE_MEMBER(m_Id)
+        DEFINE_SERIALIZED_MEMBER(m_Id)
     DEFINE_SPARK_CLASS_END()
 
     uint64_t Relationship::GetId() const

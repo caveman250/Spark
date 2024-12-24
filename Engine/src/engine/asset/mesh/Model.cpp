@@ -6,7 +6,7 @@
 namespace se::asset
 {
     DEFINE_SPARK_CLASS_BEGIN(Model)
-        DEFINE_MEMBER(m_Meshes)
+        DEFINE_SERIALIZED_MEMBER(m_Meshes)
     DEFINE_SPARK_CLASS_END()
 
     std::shared_ptr<Model> Model::FromFBX(ofbx::IScene* fbxScene)

@@ -5,7 +5,7 @@
 namespace se::reflect
 {
     BinaryBlob::BinaryBlob(void(* init)(BinaryBlob*))
-        : Type(nullptr, 0, asset::binary::Type::Blob)
+        : Type("BinaryBlob", 0, asset::binary::Type::Blob)
     {
         init(this);
     }
