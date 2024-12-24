@@ -12,6 +12,10 @@
 #include "engine/string/String.h"
 #include "engine/ecs/components/ParentComponent.h"
 
+#if SPARK_EDITOR
+#include "ui/PropertiesWindow.h"
+#endif
+
 namespace se::ecs::components
 {
     struct ChildOf;
@@ -98,6 +102,9 @@ namespace se::ecs
 
     class World
     {
+#if SPARK_EDITOR
+        friend class editor::ui::PropertiesWindow;
+#endif
         friend class BaseSystem;
         template <typename... Cs>
         friend class Signal;
