@@ -20,9 +20,9 @@ namespace se::editor::ui
         auto app = Application::Get();
         auto world = app->GetWorld();
 
-        ::se::ui::components::RectTransformComponent* windowTransform;
-        ::se::ui::components::WindowComponent* windowComp;
-        ::se::ui::components::TitleBarComponent* titleBarComp;
+        se::ui::components::RectTransformComponent* windowTransform;
+        se::ui::components::WindowComponent* windowComp;
+        se::ui::components::TitleBarComponent* titleBarComp;
         ecs::Id childArea;
         m_Window = ::se::ui::util::CreateWindow(&windowTransform,
             &windowComp,
@@ -32,13 +32,13 @@ namespace se::editor::ui
             [this](){ DestroyUI(); },
             true);
         windowTransform->anchors = { 0.f, 0.f, 0.f, 0.f };
-        windowTransform->minX = 800;
-        windowTransform->maxX = 1200;
+        windowTransform->minX = 20;
+        windowTransform->maxX = 420;
         windowTransform->minY = 200;
         windowTransform->maxY = 720;
 
-        ::se::ui::components::ScrollBoxComponent* scrollBox = nullptr;
-        ::se::ui::components::RectTransformComponent* scrollBoxTransform = nullptr;
+        se::ui::components::ScrollBoxComponent* scrollBox = nullptr;
+        se::ui::components::RectTransformComponent* scrollBoxTransform = nullptr;
         auto scrollBoxEntity = ::se::ui::util::CreateScrollBox(&scrollBox, &scrollBoxTransform, true);
         world->AddChild(childArea, scrollBoxEntity);
 
@@ -80,16 +80,21 @@ namespace se::editor::ui
             }
 
             AddEntityUI(world, entity, m_TreeViewEntity);
+
+            if (m_Editor->GetSelectedEntity() == ecs::s_InvalidEntity)
+            {
+                m_Editor->SelectEntity(entity);
+            }
         }
     }
 
     void OutlineWindow::AddEntityUI(ecs::World* world, ecs::Id entity, ecs::Id parent) const
     {
-        ::se::ui::components::TreeNodeComponent* treeNodeComp = nullptr;
-        ::se::ui::components::TextComponent* textComp = nullptr;
+        se::ui::components::TreeNodeComponent* treeNodeComp = nullptr;
+        se::ui::components::TextComponent* textComp = nullptr;
 
         auto treeView = world->GetComponent<se::ui::components::TreeViewComponent>(m_TreeViewEntity);
-        auto treeNode = ::se::ui::util::InsertTreeNode(m_TreeViewEntity, treeView, parent, *entity.name, &treeNodeComp, &textComp, true);
+        auto treeNode = se::ui::util::InsertTreeNode(m_TreeViewEntity, treeView, parent, *entity.name, &treeNodeComp, &textComp, true);
         textComp->text = *entity.name;
 
         for (const auto& child : world->GetChildren(entity))
