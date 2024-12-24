@@ -37,7 +37,7 @@ namespace se::asset::shader::ast
     }
 
     DEFINE_SPARK_CLASS_TEMPLATED_BEGIN(ConstantNode, TEMPLATE_TYPES(T), TEMPLATE_PARAMETERS(typename T))
-        DEFINE_MEMBER_TEMPLATED(ConstantNode, m_Children, TEMPLATE_TYPES(T))
-        DEFINE_MEMBER_TEMPLATED(ConstantNode, m_Constant, TEMPLATE_TYPES(T))
+        DEFINE_SERIALIZED_MEMBER_TEMPLATED(ConstantNode, m_Children, TEMPLATE_TYPES(T))
+        DEFINE_SERIALIZED_MEMBER_TEMPLATED(ConstantNode, m_Constant, TEMPLATE_TYPES(T))
     DEFINE_SPARK_CLASS_END()
 }

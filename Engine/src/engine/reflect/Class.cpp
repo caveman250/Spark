@@ -7,11 +7,11 @@
 
 namespace se::reflect
 {
-    Class::Class() : Type{nullptr, 0, asset::binary::Type::Object }
+    Class::Class() : Type{"", 0, asset::binary::Type::Object }
     {
     }
 
-    Class::Class(void(* init)(Class*)): Type{nullptr, 0, asset::binary::Type::Object }
+    Class::Class(void(* init)(Class*)): Type{"", 0, asset::binary::Type::Object }
     {
         init(this);
     }
@@ -61,7 +61,10 @@ namespace se::reflect
         for (size_t i = 0; i < members.size(); ++i)
         {
             const Member& member = members[i];
-            member.type->Serialize(member.get(obj), binaryObj.value(), member.name);
+            if (member.serialized)
+            {
+                member.type->Serialize(member.get(obj), binaryObj.value(), member.name);
+            }
         }
 
         if (!fieldName.empty())

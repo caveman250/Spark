@@ -8,10 +8,10 @@
 namespace se::asset::shader::ast
 {
     DEFINE_SPARK_CLASS_BEGIN(InputAttributeNode)
-        DEFINE_MEMBER(m_Children)
-        DEFINE_MEMBER(m_Var)
-        DEFINE_MEMBER(m_Name)
-        DEFINE_MEMBER(m_Location)
+        DEFINE_SERIALIZED_MEMBER(m_Children)
+        DEFINE_SERIALIZED_MEMBER(m_Var)
+        DEFINE_SERIALIZED_MEMBER(m_Name)
+        DEFINE_SERIALIZED_MEMBER(m_Location)
     DEFINE_SPARK_CLASS_END()
 
     InputAttributeNode::InputAttributeNode(uint8_t location, const Variable& var, const std::string& name)

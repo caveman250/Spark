@@ -3,9 +3,9 @@
 namespace se::asset::texture
 {
     DEFINE_SPARK_CLASS_BEGIN(Mipmap)
-        DEFINE_MEMBER(m_Data)
-        DEFINE_MEMBER(m_SizeX)
-        DEFINE_MEMBER(m_SizeY)
+        DEFINE_SERIALIZED_MEMBER(m_Data)
+        DEFINE_SERIALIZED_MEMBER(m_SizeX)
+        DEFINE_SERIALIZED_MEMBER(m_SizeY)
     DEFINE_SPARK_CLASS_END()
 
     Mipmap::Mipmap() {};

@@ -10,6 +10,7 @@ namespace se::reflect
             const char* name;
             Type* type;
             std::function<void*(const void*)> get;
+            bool serialized;
         };
 
         std::vector<Member> members;

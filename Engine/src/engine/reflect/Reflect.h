@@ -114,6 +114,20 @@ typeDesc->inplace_copy_constructor = nullptr; \
 typeDesc->destructor = nullptr;      \
 typeDesc->members = {
 
+
+template <typename T>
+std::enable_if_t<std::is_default_constructible_v<T>, void> CreateDefaultConstructorMethods(se::reflect::Class* typeDesc)
+{
+    typeDesc->heap_constructor = [typeDesc]{ return typeDesc->has_default_constructor ? new T() : nullptr; };        \
+    typeDesc->inplace_constructor = [typeDesc](void* mem){ return typeDesc->has_default_constructor ? new(mem) T() : nullptr; }; \
+}
+
+template <typename T>
+std::enable_if_t<!std::is_default_constructible_v<T>, void> CreateDefaultConstructorMethods(se::reflect::Class* typeDesc)
+{
+ // ...
+}
+
 #define DEFINE_SPARK_CLASS_BEGIN(type) \
 DEFINE_SPARK_TYPE(type)                                   \
 se::reflect::Class type::Reflection{type::initReflection}; \
@@ -122,8 +136,8 @@ using VarType = type; \
 se::reflect::TypeLookup::GetTypeMap()[#type] = typeDesc;\
 typeDesc->name = #type; \
 typeDesc->size = sizeof(VarType);                           \
-typeDesc->heap_constructor = []{ return new VarType(); };        \
-typeDesc->inplace_constructor = [](void* mem){ return new(mem) VarType(); }; \
+typeDesc->has_default_constructor = std::is_default_constructible<type>::value; \
+CreateDefaultConstructorMethods<type>(typeDesc);\
 typeDesc->heap_copy_constructor = [](void* other){ return new VarType(*reinterpret_cast<VarType*>(other)); }; \
 typeDesc->inplace_copy_constructor = [](void* mem, void* other){ return new(mem) VarType(*reinterpret_cast<VarType*>(other)); }; \
 typeDesc->destructor = [](void* data){ reinterpret_cast<VarType*>(data)->~VarType(); };        \
@@ -165,11 +179,18 @@ typeDesc->inplace_copy_constructor = [](void* mem, void* other){ return new(mem)
 typeDesc->destructor = [](void* data){ reinterpret_cast<type<templateTypes>*>(data)->~type(); };        \
 typeDesc->members = {
 
+#define DEFINE_SERIALIZED_MEMBER(name) \
+{#name, se::reflect::TypeResolver<decltype(VarType::name)>::get(), [](const void* obj){ return (void*)&((VarType*)obj)->name; }, true},
+
+#define DEFINE_SERIALIZED_MEMBER_TEMPLATED(type, name, templateTypes) \
+{#name, se::reflect::TypeResolver<decltype(name)>::get(), [](const void* obj){ return (void*)&((type<templateTypes>*)obj)->name; }, true},
+
 #define DEFINE_MEMBER(name) \
-{#name, se::reflect::TypeResolver<decltype(VarType::name)>::get(), [](const void* obj){ return (void*)&((VarType*)obj)->name; }},
+{#name, se::reflect::TypeResolver<decltype(VarType::name)>::get(), [](const void* obj){ return (void*)&((VarType*)obj)->name; }, false},
 
 #define DEFINE_MEMBER_TEMPLATED(type, name, templateTypes) \
-{#name, se::reflect::TypeResolver<decltype(name)>::get(), [](const void* obj){ return (void*)&((type<templateTypes>*)obj)->name; }},
+{#name, se::reflect::TypeResolver<decltype(name)>::get(), [](const void* obj){ return (void*)&((type<templateTypes>*)obj)->name; }, false},
+
 
 #define DEFINE_SPARK_CLASS_END() \
 }; };                    \

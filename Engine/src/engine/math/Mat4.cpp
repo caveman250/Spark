@@ -6,7 +6,7 @@
 namespace se::math
 {
     DEFINE_SPARK_POD_CLASS_BEGIN(Mat4)
-        DEFINE_MEMBER(m_Value)
+        DEFINE_SERIALIZED_MEMBER(m_Value)
     DEFINE_SPARK_CLASS_END()
 
     Mat4::Mat4()

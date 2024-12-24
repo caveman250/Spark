@@ -4,9 +4,9 @@
 namespace se::asset::shader::ast
 {
     DEFINE_SPARK_CLASS_BEGIN(InputNode)
-        DEFINE_MEMBER(m_Children)
-        DEFINE_MEMBER(m_Var)
-        DEFINE_MEMBER(m_Name)
+        DEFINE_SERIALIZED_MEMBER(m_Children)
+        DEFINE_SERIALIZED_MEMBER(m_Var)
+        DEFINE_SERIALIZED_MEMBER(m_Name)
     DEFINE_SPARK_CLASS_END()
 
     InputNode::InputNode(const Variable& var, const std::string& name)

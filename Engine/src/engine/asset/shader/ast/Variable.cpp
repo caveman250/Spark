@@ -3,8 +3,8 @@
 namespace se::asset::shader::ast
 {
 DEFINE_SPARK_CLASS_BEGIN(Variable)
-    DEFINE_MEMBER(type)
-    DEFINE_MEMBER(arraySizeVariable)
-    DEFINE_MEMBER(arraySizeConstant)
+    DEFINE_SERIALIZED_MEMBER(type)
+    DEFINE_SERIALIZED_MEMBER(arraySizeVariable)
+    DEFINE_SERIALIZED_MEMBER(arraySizeConstant)
 DEFINE_SPARK_CLASS_END()
 }
