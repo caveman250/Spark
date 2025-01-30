@@ -14,7 +14,7 @@ namespace se::input
 
         MouseButton::Type button = {};
         KeyState::Type state = KeyState::Down;
-        int scrollDelta = 0.f;
+        int scrollDelta = 0;
 
         bool operator==(const MouseEvent& rhs) const
         {

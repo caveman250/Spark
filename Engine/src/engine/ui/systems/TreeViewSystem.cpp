@@ -19,7 +19,7 @@ namespace se::ui::systems
             auto& rectTransform = rectTransforms[i];
             if (treeView.dirty)
             {
-                float maxY = MeasureAndArrange(entities[i], false, 0);
+                int maxY = MeasureAndArrange(entities[i], false, 0);
                 rectTransform.maxY = maxY;
                 rectTransform.needsLayout = true;
                 treeView.dirty = false;

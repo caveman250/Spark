@@ -465,7 +465,7 @@ namespace se::ecs
             {
                 system->Update();
             }
-        }, true);
+        }, true, true);
 
         RunOnAllAppSystems([this](auto&& systemId)
         {
@@ -474,7 +474,7 @@ namespace se::ecs
             {
                 system->Update();
             }
-        }, true);
+        }, true, true);
 
         m_Running = false;
 
@@ -483,6 +483,15 @@ namespace se::ecs
             signal->Execute();
         }
         m_PendingSignals.clear();
+
+#if SPARK_EDITOR
+        if (m_EntitiesChangedThisFrame)
+        {
+            Application::Get()->GetEditorRuntime()->OnEntitiesChanged();
+            ProcessAllPending();
+            m_EntitiesChangedThisFrame = false;
+        }
+#endif
     }
 
     void World::Render()
@@ -497,7 +506,7 @@ namespace se::ecs
             {
                 system->Render();
             }
-        }, false);
+        }, false, false);
 
         RunOnAllAppSystems([this](auto&& systemId)
         {
@@ -505,22 +514,9 @@ namespace se::ecs
             {
                 system->Render();
             }
-        }, false);
+        }, false, false);
 
         m_Running = false;
-    }
-
-    void World::EndFrame()
-    {
-        ProcessAllPending();
-#if SPARK_EDITOR
-        if (m_EntitiesChangedThisFrame)
-        {
-            Application::Get()->GetEditorRuntime()->OnEntitiesChanged();
-            ProcessAllPending();
-            m_EntitiesChangedThisFrame = false;
-        }
-#endif
     }
 
     void World::Shutdown()
@@ -533,7 +529,7 @@ namespace se::ecs
             {
                 system->Shutdown();
             }
-        }, true);
+        }, true, true);
 
         RunOnAllAppSystems([this](auto&& systemId)
         {
@@ -541,7 +537,7 @@ namespace se::ecs
             {
                 system->Shutdown();
             }
-        }, true);
+        }, true, true);
 
         m_Running = false;
 
@@ -763,7 +759,7 @@ namespace se::ecs
     }
 
     void World::RunOnAllSystems(const std::function<void(Id)>& func,
-                                const std::vector<std::vector<Id>>& systemUpdateGroups, bool parallel)
+                                const std::vector<std::vector<Id>>& systemUpdateGroups, bool parallel, bool processPending)
     {
         PROFILE_SCOPE("World::RunOnAllSystems")
         for (const auto& updateGroup: systemUpdateGroups)
@@ -784,16 +780,21 @@ namespace se::ecs
                               func);
             }
         }
+
+        if (processPending)
+        {
+            ProcessAllPending();
+        }
     }
 
-    void World::RunOnAllAppSystems(const std::function<void(Id)>& func, bool parallel)
+    void World::RunOnAllAppSystems(const std::function<void(Id)>& func, bool parallel, bool processPending)
     {
-        RunOnAllSystems(func, m_AppSystemUpdateGroups, parallel);
+        RunOnAllSystems(func, m_AppSystemUpdateGroups, parallel, processPending);
     }
 
-    void World::RunOnAllEngineSystems(const std::function<void(Id)>& func, bool parallel)
+    void World::RunOnAllEngineSystems(const std::function<void(Id)>& func, bool parallel, bool processPending)
     {
-        RunOnAllSystems(func, m_EngineSystemUpdateGroups, parallel);
+        RunOnAllSystems(func, m_EngineSystemUpdateGroups, parallel, processPending);
     }
 
     void World::DestroyEntity(Id entity)

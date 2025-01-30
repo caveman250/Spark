@@ -117,7 +117,6 @@ namespace se::ecs
         void Init();
         void Update();
         void Render();
-        void EndFrame();
         void Shutdown();
 
         Id CreateEntity(const String& name, bool editorOnly = false);
@@ -208,9 +207,9 @@ namespace se::ecs
 
         void RegisterRelationship(uint64_t id);
 
-        void RunOnAllSystems(const std::function<void(Id)>& func, const std::vector<std::vector<Id>>& systems, bool parallel);
-        void RunOnAllAppSystems(const std::function<void(Id)>& func, bool parallel);
-        void RunOnAllEngineSystems(const std::function<void(Id)>& func, bool parallel);
+        void RunOnAllSystems(const std::function<void(Id)>& func, const std::vector<std::vector<Id>>& systems, bool parallel, bool processPending);
+        void RunOnAllAppSystems(const std::function<void(Id)>& func, bool parallel, bool processPending);
+        void RunOnAllEngineSystems(const std::function<void(Id)>& func, bool parallel, bool processPending);
 
         struct PendingComponent
         {
