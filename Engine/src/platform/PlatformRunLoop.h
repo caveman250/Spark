@@ -13,6 +13,7 @@ namespace se
 
         virtual ~PlatformRunLoop() {}
         virtual void Update();
+        virtual void PostRender();
         virtual bool ShouldExit() = 0;
         virtual void RegisterWindow(IWindow* window) = 0;
         virtual void UnregisterWindow(IWindow* window) = 0;
