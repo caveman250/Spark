@@ -1,6 +1,9 @@
 #include "ScrollBoxUtil.h"
 
 #include <engine/ui/components/ScrollBoxComponent.h>
+#include <engine/asset/AssetManager.h>
+#include <engine/ui/components/ImageComponent.h>
+#include <engine/asset/shader/Shader.h>
 
 namespace se::ui::util
 {
@@ -22,20 +25,20 @@ namespace se::ui::util
         scrollBarImage->material->GetShaderSettings().SetSetting("color_setting", math::Vec3(0.8f, 0.8f, 0.8f));
         auto scrollBarRect = world->AddComponent<ui::components::RectTransformComponent>(scrollBarEntity);
         scrollBarRect->anchors = { 1.f, 1.f, 0.f, 0.f };
-        scrollBarRect->minX = -10.f;
-        scrollBarRect->maxX = 5.f;
-        scrollBarRect->minY = 5.f;
-        scrollBarRect->maxY = 25.f;
+        scrollBarRect->minX = -10;
+        scrollBarRect->maxX = 5;
+        scrollBarRect->minY = 5;
+        scrollBarRect->maxY = 25;
         std::function<void(const ui::components::RectTransformComponent*, float, ui::components::RectTransformComponent*)> scrollCb =
             [](const ui::components::RectTransformComponent* scrollRect, float scrollAmount, ui::components::RectTransformComponent* rect)
         {
             float availableSize = scrollRect->rect.size.y - 25.f - 5.f * 2.f;
 
-            rect->minY = 5.f + availableSize * scrollAmount;
-            rect->maxY = rect->minY + 25.f;
+            rect->minY = static_cast<int>(5 + availableSize * scrollAmount);
+            rect->maxY = static_cast<int>(rect->minY + 25);
             rect->needsLayout = true;
 
-            rect->rect.topLeft.y = scrollRect->rect.topLeft.y + 5.f + availableSize * scrollAmount;
+            rect->rect.topLeft.y = static_cast<int>(scrollRect->rect.topLeft.y + 5 + availableSize * scrollAmount);
         };
         (*outScrollBox)->onScrolled.Subscribe<ui::components::RectTransformComponent>(scrollBarEntity, std::move(scrollCb));
 

@@ -3,6 +3,11 @@
 #include "PropertyEditor.h"
 #include "engine/math/math.h"
 
+namespace se::asset
+{
+    class Texture;
+}
+
 namespace se::editor::ui::properties
 {
     class BoolEditor : public PropertyEditor

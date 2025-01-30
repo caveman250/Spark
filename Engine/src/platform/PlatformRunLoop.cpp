@@ -31,11 +31,4 @@ namespace se
         inputComp->keyEvents.clear();
         inputComp->mouseEvents.clear();
     }
-
-    void PlatformRunLoop::PostRender()
-    {
-        Application* app = Application::Get();
-        ecs::World* world = app->GetWorld();
-        world->EndFrame();
-    }
 }
