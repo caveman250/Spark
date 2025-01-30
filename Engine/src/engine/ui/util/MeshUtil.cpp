@@ -91,4 +91,63 @@ namespace se::ui::util
         }
         return mesh;
     }
+
+    math::Vec2 MeasureText(const Rect& bounds, const std::shared_ptr<asset::Font>& font, int fontSize, const String& text,
+        bool applyKerning, bool wrap)
+    {
+        math::Vec2 max = {};
+
+        math::Vec2 cursorPos = { }; // TODO alignment
+        cursorPos.y += fontSize;
+        for (size_t i = 0; i < text.Size(); ++i)
+        {
+            char c = text[i];
+            const auto& charData = font->GetCharData(fontSize, c);
+
+            if (applyKerning && i < text.Size() - 1)
+            {
+                char nextChar = text[i + 1];
+                if (charData.kerning.contains(nextChar))
+                {
+                    cursorPos.x += charData.kerning.at(nextChar);
+                }
+            }
+
+            cursorPos.x += charData.leftSideBearing;
+
+            math::Vec2 TL = charData.rect.topLeft + cursorPos;
+            math::Vec2 BR = TL + charData.rect.size;
+            if (math::MagnitudeSquared(BR) > math::MagnitudeSquared(max))
+            {
+                max = BR;
+            }
+
+            cursorPos.x += charData.advanceWidth;
+
+            if (wrap)
+            {
+                if (c == ' ')
+                {
+                    size_t lookAhead = i + 1;
+                    float xCopy = cursorPos.x;
+
+                    char nextChar = text[lookAhead];
+                    while (nextChar != ' ' && lookAhead < text.Size() - 1)
+                    {
+                        const auto &nextCharData = font->GetCharData(fontSize, nextChar);
+
+                        if (xCopy + nextCharData.advanceWidth >= bounds.size.x)
+                        {
+                            cursorPos.x = 0.f;
+                            cursorPos.y += fontSize;
+                            break;
+                        }
+                        xCopy += nextCharData.advanceWidth;
+                        nextChar = text[++lookAhead];
+                    }
+                }
+            }
+        }
+        return max;
+    }
 }

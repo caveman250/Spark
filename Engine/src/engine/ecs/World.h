@@ -117,6 +117,7 @@ namespace se::ecs
         void Init();
         void Update();
         void Render();
+        void EndFrame();
         void Shutdown();
 
         Id CreateEntity(const String& name, bool editorOnly = false);
@@ -148,6 +149,8 @@ namespace se::ecs
 
         template <typename T>
         T* GetSingletonComponent();
+
+        std::vector<reflect::ObjectBase*> GetSingletonComponents();
 
         template <AppSystemConcept T>
         Id CreateAppSystem(const std::vector<Relationship>& relationships, const ChildQuery& additionalChildQuery, const std::unordered_set<Id>& dependsOn);
@@ -205,9 +208,9 @@ namespace se::ecs
 
         void RegisterRelationship(uint64_t id);
 
-        void RunOnAllSystems(const std::function<void(Id)>& func, const std::vector<std::vector<Id>>& systems, bool parallel, bool processPending);
-        void RunOnAllAppSystems(const std::function<void(Id)>& func, bool parallel, bool processPending);
-        void RunOnAllEngineSystems(const std::function<void(Id)>& func, bool parallel, bool processPending);
+        void RunOnAllSystems(const std::function<void(Id)>& func, const std::vector<std::vector<Id>>& systems, bool parallel);
+        void RunOnAllAppSystems(const std::function<void(Id)>& func, bool parallel);
+        void RunOnAllEngineSystems(const std::function<void(Id)>& func, bool parallel);
 
         struct PendingComponent
         {
@@ -236,10 +239,10 @@ namespace se::ecs
         void DestroyEntityInternal(Id entity);
         size_t MoveEntity(Id entity, Archetype* archetype, size_t entityIdx, Archetype* nextArchetype);
 
-        Archetype* GetArchetype(const Type& type);
+        Archetype* GetArchetype(const Type& type, bool createIfMissing);
         bool HasArchetype(const Type& type) const;
         void CreateArchetype(const Type& type);
-        Archetype* GetNextArchetype(Archetype* archetype, Id component, bool add);
+        Archetype* GetNextArchetype(Archetype* archetype, Id component, bool add, bool createIfMissing);
 
         void ProcessAllPending();
         void ProcessPendingComponents();
@@ -264,7 +267,7 @@ namespace se::ecs
         std::unordered_map<Type, Id> m_ArchetypeTypeLookup = {};
         std::unordered_map<Id, EntityRecord> m_EntityRecords = {};
         std::unordered_map<Id, ComponentRecord> m_ComponentRecords = {};
-        std::unordered_map<Id, void*> m_SingletonComponents = {};
+        std::unordered_map<Id, reflect::ObjectBase*> m_SingletonComponents = {};
         std::unordered_map<Id, SystemRecord> m_AppSystems = {};
         std::unordered_map<Id, SystemRecord> m_EngineSystems = {};
         std::unordered_map<Id, ChildQuery> m_AllowedChildQueries = {};
@@ -506,7 +509,7 @@ namespace se::ecs
     {
         if (HasComponent<components::ParentComponent>(entity))
         {
-            for (const auto& child : m_EntityRecords[entity].children)
+            for (const auto& child : m_EntityRecords.at(entity).children)
             {
                 if (RecurseChildren<T...>(child, system, func, relationships))
                 {

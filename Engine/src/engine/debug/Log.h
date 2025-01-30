@@ -1,4 +1,5 @@
 #pragma once
+#include "signal.h"
 
 namespace se::debug
 {

@@ -33,7 +33,7 @@ namespace se::ecs
 
                 uint8_t* dest = GetComponent(index);
 
-                std::memcpy(dest, fragStart, fragSize);
+                std::memmove(dest, fragStart, fragSize);
             }
             m_Count--;
         }

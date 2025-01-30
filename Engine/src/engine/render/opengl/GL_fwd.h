@@ -15,9 +15,11 @@
 #if !SPARK_DIST
 #define GL_CHECK_ERROR()\
 {\
-    GLenum error = glGetError();\
-    if (error != GL_NONE)\
+    bool hasError = false;\
+    GLenum error;\
+    while ((error = glGetError()) != GL_NO_ERROR)\
     {\
+        hasError = true;\
         switch(error)\
         {\
         case GL_INVALID_ENUM: debug::Log::Error("GL_INVALID_ENUM"); break;\
@@ -31,6 +33,7 @@
         default: debug::Log::Error("Unknown GL Error"); break;\
         }\
     }\
+    SPARK_ASSERT(!hasError);\
 }
 #else
 #define GL_CHECK_ERROR()

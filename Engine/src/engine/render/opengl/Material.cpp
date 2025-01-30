@@ -26,6 +26,7 @@ namespace se::render::opengl
     {
         render::Material::Bind(vb);
         glUseProgram(m_CompiledProgram);
+        GL_CHECK_ERROR()
 
         for (size_t i = 0; i < m_Textures.size(); ++i)
         {
@@ -33,36 +34,47 @@ namespace se::render::opengl
             {
                 case 0:
                     glActiveTexture(GL_TEXTURE0);
+                GL_CHECK_ERROR()
                     break;
                 case 1:
                     glActiveTexture(GL_TEXTURE1);
+                GL_CHECK_ERROR()
                     break;
                 case 2:
                     glActiveTexture(GL_TEXTURE2);
+                GL_CHECK_ERROR()
                     break;
                 case 3:
                     glActiveTexture(GL_TEXTURE3);
+                GL_CHECK_ERROR()
                     break;
                 case 4:
                     glActiveTexture(GL_TEXTURE4);
+                GL_CHECK_ERROR()
                     break;
                 case 5:
                     glActiveTexture(GL_TEXTURE5);
+                GL_CHECK_ERROR()
                     break;
                 case 6:
                     glActiveTexture(GL_TEXTURE6);
+                GL_CHECK_ERROR()
                     break;
                 case 7:
                     glActiveTexture(GL_TEXTURE7);
+                GL_CHECK_ERROR()
                     break;
                 case 8:
                     glActiveTexture(GL_TEXTURE8);
+                GL_CHECK_ERROR()
                     break;
                 case 9:
                     glActiveTexture(GL_TEXTURE9);
+                GL_CHECK_ERROR()
                     break;
                 case 10:
                     glActiveTexture(GL_TEXTURE10);
+                GL_CHECK_ERROR()
                     break;
             }
 
@@ -96,12 +108,14 @@ namespace se::render::opengl
 
         char const *VertexSourcePointer = vert.value().c_str();
         glShaderSource(VertexShaderID, 1, &VertexSourcePointer, NULL);
+        GL_CHECK_ERROR()
         glCompileShader(VertexShaderID);
         GL_CHECK_ERROR()
 
         GLint Result = GL_FALSE;
         int InfoLogLength;
         glGetShaderiv(VertexShaderID, GL_COMPILE_STATUS, &Result);
+        GL_CHECK_ERROR()
         glGetShaderiv(VertexShaderID, GL_INFO_LOG_LENGTH, &InfoLogLength);
         GL_CHECK_ERROR()
         if (InfoLogLength > 0)
@@ -115,10 +129,12 @@ namespace se::render::opengl
         // Compile Fragment Shader
         char const *FragmentSourcePointer = frag.value().c_str();
         glShaderSource(FragmentShaderID, 1, &FragmentSourcePointer, NULL);
+        GL_CHECK_ERROR()
         glCompileShader(FragmentShaderID);
         GL_CHECK_ERROR()
 
         glGetShaderiv(FragmentShaderID, GL_COMPILE_STATUS, &Result);
+        GL_CHECK_ERROR()
         glGetShaderiv(FragmentShaderID, GL_INFO_LOG_LENGTH, &InfoLogLength);
         GL_CHECK_ERROR()
         if (InfoLogLength > 0)
@@ -131,6 +147,7 @@ namespace se::render::opengl
 
         m_CompiledProgram = glCreateProgram();
         glAttachShader(m_CompiledProgram, VertexShaderID);
+        GL_CHECK_ERROR()
         glAttachShader(m_CompiledProgram, FragmentShaderID);
         GL_CHECK_ERROR()
         glLinkProgram(m_CompiledProgram);
@@ -150,10 +167,12 @@ namespace se::render::opengl
         }
 
         glDetachShader(m_CompiledProgram, VertexShaderID);
+        GL_CHECK_ERROR()
         glDetachShader(m_CompiledProgram, FragmentShaderID);
         GL_CHECK_ERROR()
 
         glDeleteShader(VertexShaderID);
+        GL_CHECK_ERROR()
         glDeleteShader(FragmentShaderID);
         GL_CHECK_ERROR()
 
@@ -180,6 +199,7 @@ namespace se::render::opengl
 
 
         glUseProgram(m_CompiledProgram);
+        GL_CHECK_ERROR()
         GLuint uniformLoc = {};
         if (type != asset::shader::ast::AstType::Sampler2D)
         {
@@ -191,24 +211,31 @@ namespace se::render::opengl
         {
         case asset::shader::ast::AstType::Int:
             glUniform1iv(uniformLoc, count, static_cast<const int*>(value));
+            GL_CHECK_ERROR()
             break;
         case asset::shader::ast::AstType::Float:
             glUniform1fv(uniformLoc, count, static_cast<const float*>(value));
+            GL_CHECK_ERROR()
             break;
         case asset::shader::ast::AstType::Vec2:
             glUniform2fv(uniformLoc, count, static_cast<const float*>(value));
+            GL_CHECK_ERROR()
             break;
         case asset::shader::ast::AstType::Vec3:
             glUniform3fv(uniformLoc, count, static_cast<const float*>(value));
+            GL_CHECK_ERROR()
             break;
         case asset::shader::ast::AstType::Vec4:
             glUniform4fv(uniformLoc, count, static_cast<const float*>(value));
+            GL_CHECK_ERROR()
             break;
         case asset::shader::ast::AstType::Mat3:
             glUniformMatrix3fv(uniformLoc, count, false, static_cast<const float*>(value));
+            GL_CHECK_ERROR()
             break;
         case asset::shader::ast::AstType::Mat4:
             glUniformMatrix4fv(uniformLoc, count, false, static_cast<const float*>(value));
+            GL_CHECK_ERROR()
             break;
         case asset::shader::ast::AstType::Sampler2D:
         {
@@ -231,7 +258,5 @@ namespace se::render::opengl
             debug::Log::Error("Material::SetUniform - Unhandled unfiorm type {}", asset::shader::ast::TypeUtil::GetTypeGlsl(type));
             break;
         }
-
-        GL_CHECK_ERROR()
     }
 }

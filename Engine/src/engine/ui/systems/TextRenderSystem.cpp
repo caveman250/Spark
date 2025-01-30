@@ -80,6 +80,7 @@ namespace se::ui::systems
                     text.material->SetUniform("Texture", asset::shader::ast::AstType::Sampler2D, 1, &texture);
                 }
 
+                text.lastRect = transform.rect;
                 text.lastFontSize = text.fontSize;
                 text.lastText = text.text;
             }

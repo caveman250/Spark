@@ -67,9 +67,9 @@ namespace se::ui::util
 
         auto buttonEntity = world->CreateEntity("Close Button", editorOnly);
         auto buttonComp = world->AddComponent<components::ButtonComponent>(buttonEntity);
-        buttonComp->image = assetManager->GetAsset<asset::Texture>("/builtin_assets/textures/default_button.sass");
-        buttonComp->pressedImage = assetManager->GetAsset<asset::Texture>("/builtin_assets/textures/default_button_pressed.sass");
-        buttonComp->hoveredImage = assetManager->GetAsset<asset::Texture>("/builtin_assets/textures/default_button_hovered.sass");
+        buttonComp->image = assetManager->GetAsset<asset::Texture>("/builtin_assets/textures/close_button_idle.sass");
+        buttonComp->pressedImage = assetManager->GetAsset<asset::Texture>("/builtin_assets/textures/close_button_pressed.sass");
+        buttonComp->hoveredImage = assetManager->GetAsset<asset::Texture>("/builtin_assets/textures/close_button_hovered.sass");
         std::function<void(components::WindowComponent*)> buttonCb = [entity, world, onClose](components::WindowComponent*)
         {
             onClose();

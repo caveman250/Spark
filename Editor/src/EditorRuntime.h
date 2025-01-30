@@ -15,6 +15,8 @@ namespace se::editor
 
         ecs::Id GetSelectedEntity() const;
         void SelectEntity(const ecs::Id& id);
+        reflect::ObjectBase* GetSelectedSingletonComponent() const;
+        void SelectSingletonComponent(reflect::ObjectBase* comp);
         void OnEntitiesChanged() const;
 
     private:
@@ -24,5 +26,6 @@ namespace se::editor
         ui::PropertiesWindow* m_PropertiesWindow = nullptr;
 
         ecs::Id m_SelectedEntity = ecs::s_InvalidEntity;
+        reflect::ObjectBase* m_SelectedSingletonComp = nullptr;
     };
 }

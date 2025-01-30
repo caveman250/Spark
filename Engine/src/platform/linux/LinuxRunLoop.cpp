@@ -30,7 +30,8 @@ namespace se::linux
 
     void LinuxRunLoop::Update()
     {
-        auto inputComp = Application::Get()->GetWorld()->GetSingletonComponent<input::InputComponent>();
+        auto app = Application::Get();
+        auto inputComp = app->GetWorld()->GetSingletonComponent<input::InputComponent>();
 
         SDL_Event ev;
         while (SDL_PollEvent(&ev))
@@ -142,6 +143,8 @@ namespace se::linux
         }
 
         render::Renderer::Get()->EndFrame();
+
+        PostRender();
     }
 
     bool LinuxRunLoop::ShouldExit()

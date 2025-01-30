@@ -41,9 +41,7 @@
 #undef linux
 #endif
 
-#if SPARK_RELEASE
-#define SPARK_ASSERT(expr, ...) do {} while (0)
-#elif SPARK_DEBUG
+#if !SPARK_DIST
 #if SPARK_PLATFORM_WINDOWS
 #define SPARK_ASSERT(expr, ...) \
 do { \
@@ -72,7 +70,7 @@ do { \
     {\
         std::string userMsg = SPARK_ASSERT_MESSAGE(__VA_ARGS__)\
         std::string assertMsg = std::format("{0}\n\nMessage: {1}\n", #expr, userMsg); \
-        printf("%s", std::format("\033[0;41mAssertion failed: {0}at {1}:{2}\033[0m\n\n", assertMsg,  __FILE__, __LINE__).c_str()); \
+        printf("%s", std::format("\033[;41mAssertion failed: {0}at {1}:{2}\033[0m\n\n", assertMsg,  __FILE__, __LINE__).c_str()); \
         fflush(stdout);\
         raise(SIGTRAP);\
     }\

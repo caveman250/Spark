@@ -19,8 +19,7 @@ namespace se::ui::systems
                 {
                     if (mouseEvent.state == input::KeyState::Up)
                     {
-                        treeNode.collapsed = !treeNode.collapsed;
-                        treeNode.onCollapsedStateChange.Broadcast(treeNode.collapsed);
+                        treeNode.onSelected.Broadcast();
                     }
                 }
             }

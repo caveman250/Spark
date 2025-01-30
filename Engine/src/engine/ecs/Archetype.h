@@ -10,8 +10,8 @@ namespace se::ecs
     struct Archetype;
     struct ArchetypeEdge
     {
-        Archetype* add;
-        Archetype* remove;
+        Archetype* add = nullptr;
+        Archetype* remove = nullptr;
     };
 
     struct Archetype
