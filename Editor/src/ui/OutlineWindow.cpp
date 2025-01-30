@@ -4,6 +4,7 @@
 #include <engine/ui/components/ScrollBoxComponent.h>
 #include <engine/ui/components/TextComponent.h>
 #include <engine/ui/components/TitleBarComponent.h>
+#include <engine/ui/components/TreeNodeComponent.h>
 #include <engine/ui/components/TreeViewComponent.h>
 #include <engine/ui/components/WindowComponent.h>
 #include <engine/ui/util/ScrollBoxUtil.h>
@@ -68,8 +69,10 @@ namespace se::editor::ui
         auto world = Application::Get()->GetWorld();
         for (const auto& child : world->GetChildren(m_TreeViewEntity))
         {
-            world->RemoveChild(m_TreeViewEntity, child);
+            world->DestroyEntity(child);
         }
+
+        auto treeView = world->GetComponent<se::ui::components::TreeViewComponent>(m_TreeViewEntity);
 
         for (const auto& entity : world->GetRootEntities())
         {
@@ -79,27 +82,55 @@ namespace se::editor::ui
                 continue;
             }
 
-            AddEntityUI(world, entity, m_TreeViewEntity);
+            AddEntityUI(world, entity, m_TreeViewEntity, treeView);
 
             if (m_Editor->GetSelectedEntity() == ecs::s_InvalidEntity)
             {
                 m_Editor->SelectEntity(entity);
             }
         }
+
+        ecs::Id singletonComponentsNode = {};
+        {
+            se::ui::components::TreeNodeComponent* treeNodeComp = nullptr;
+            se::ui::components::TextComponent* textComp = nullptr;
+            se::String name = "Singleton Components";
+            singletonComponentsNode = se::ui::util::InsertTreeNode(m_TreeViewEntity, treeView, m_TreeViewEntity, name, &treeNodeComp, &textComp, true);
+            textComp->text = name;
+        }
+
+        for (const auto& singletonComponent : world->GetSingletonComponents())
+        {
+            se::ui::components::TreeNodeComponent* treeNodeComp = nullptr;
+            se::ui::components::TextComponent* textComp = nullptr;
+            se::ui::util::InsertTreeNode(m_TreeViewEntity, treeView, singletonComponentsNode, singletonComponent->GetTypeName(), &treeNodeComp, &textComp, true);
+            textComp->text = singletonComponent->GetTypeName();
+
+            std::function<void()> selectedCb = [singletonComponent, this]()
+            {
+                m_Editor->SelectSingletonComponent(singletonComponent);
+            };
+            treeNodeComp->onSelected.Subscribe(ecs::s_InvalidEntity, std::move(selectedCb));
+        }
     }
 
-    void OutlineWindow::AddEntityUI(ecs::World* world, ecs::Id entity, ecs::Id parent) const
+    void OutlineWindow::AddEntityUI(ecs::World* world, ecs::Id entity, ecs::Id parent, se::ui::components::TreeViewComponent* treeView) const
     {
         se::ui::components::TreeNodeComponent* treeNodeComp = nullptr;
         se::ui::components::TextComponent* textComp = nullptr;
 
-        auto treeView = world->GetComponent<se::ui::components::TreeViewComponent>(m_TreeViewEntity);
         auto treeNode = se::ui::util::InsertTreeNode(m_TreeViewEntity, treeView, parent, *entity.name, &treeNodeComp, &textComp, true);
         textComp->text = *entity.name;
 
+        std::function<void()> selectedCb = [entity, this]()
+        {
+            m_Editor->SelectEntity(entity);
+        };
+        treeNodeComp->onSelected.Subscribe(ecs::s_InvalidEntity, std::move(selectedCb));
+
         for (const auto& child : world->GetChildren(entity))
         {
-            AddEntityUI(world, child, treeNode);
+            AddEntityUI(world, child, treeNode, treeView);
         }
     }
 }

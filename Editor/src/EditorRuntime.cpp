@@ -30,6 +30,19 @@ namespace se::editor
     void EditorRuntime::SelectEntity(const ecs::Id& id)
     {
         m_SelectedEntity = id;
+        m_SelectedSingletonComp = nullptr;
+        m_PropertiesWindow->RebuildProperties();
+    }
+
+    reflect::ObjectBase* EditorRuntime::GetSelectedSingletonComponent() const
+    {
+        return m_SelectedSingletonComp;
+    }
+
+    void EditorRuntime::SelectSingletonComponent(reflect::ObjectBase* comp)
+    {
+        m_SelectedEntity = ecs::s_InvalidEntity;
+        m_SelectedSingletonComp = comp;
         m_PropertiesWindow->RebuildProperties();
     }
 

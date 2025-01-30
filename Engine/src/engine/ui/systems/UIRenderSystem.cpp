@@ -22,7 +22,6 @@ namespace se::ui::systems
             for (auto *renderCommand: renderComp->entityRenderCommands.at(id))
             {
                 renderer->Submit(Application::Get()->GetPrimaryWindow(), renderCommand);
-                //SPARK_ASSERT(renderCommand->GetRenderStage() == render::commands::RenderStage::UI);
             }
 
             renderComp->entityRenderCommands.at(id).clear();

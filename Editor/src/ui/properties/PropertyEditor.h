@@ -29,8 +29,8 @@ namespace se::editor::ui::properties
     class PropertyEditor : public reflect::ObjectBase
     {
     public:
-        virtual void ConstructUI() = 0;
-        virtual void DestroyUI() = 0;
+        virtual void ConstructUI(const String& name, bool constructTitle);
+        virtual void DestroyUI();
         virtual void SetValue(void* value) = 0;
         virtual void SetName(const String& name) { m_Name = name; }
         virtual void Update() = 0;
@@ -42,4 +42,6 @@ namespace se::editor::ui::properties
         RectTransformComponent* m_RectTransform = nullptr;
         String m_Name = {};
     };
+
+    PropertyEditor* CreatePropertyEditor(const reflect::Class::Member& member, const void* instance);
 }

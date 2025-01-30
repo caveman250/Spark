@@ -25,6 +25,7 @@ namespace se::render::commands
         }
 
         glClear(mask);
+        GL_CHECK_ERROR()
     }
 
     void SubmitGeo::Execute()
@@ -37,7 +38,6 @@ namespace se::render::commands
         GL_CHECK_ERROR()
 
         m_VertBuffer->Unbind();
-        GL_CHECK_ERROR()
     }
 
     SubmitUI::SubmitUI(const std::shared_ptr<Material> &material, const std::shared_ptr<VertexBuffer> &vertBuffer,
@@ -59,7 +59,6 @@ namespace se::render::commands
         GL_CHECK_ERROR()
 
         m_VertBuffer->Unbind();
-        GL_CHECK_ERROR()
     }
 
     Clear::Clear(bool clearColour, bool clearDepth)
@@ -87,10 +86,12 @@ namespace se::render::commands
     {
         auto primaryWindow = Application::Get()->GetPrimaryWindow(); // TODO
         glEnable(GL_SCISSOR_TEST);
+        GL_CHECK_ERROR()
         glScissor(m_Rect.topLeft.x,
                   primaryWindow->GetHeight() - (m_Rect.topLeft.y + m_Rect.size.y),
                   m_Rect.size.x,
                   m_Rect.size.y);
+        GL_CHECK_ERROR()
 
     }
 
@@ -102,5 +103,6 @@ namespace se::render::commands
     void PopScissor::Execute()
     {
         glDisable(GL_SCISSOR_TEST); // TODO keep track of stack
+        GL_CHECK_ERROR()
     }
 }

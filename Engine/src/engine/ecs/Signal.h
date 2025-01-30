@@ -14,6 +14,7 @@ namespace se::ecs
         friend class World;
     };
 
+    //TODO this is over complicated. ECS is no longer considered running while signals are firing.
     template <typename... Cs>
     class Signal : public BaseSignal
     {

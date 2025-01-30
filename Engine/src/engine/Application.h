@@ -31,7 +31,7 @@ namespace se
         ecs::World* GetWorld() { return &m_World; }
 
 #if SPARK_EDITOR
-        const editor::EditorRuntime* GetEditorRuntime() const { return &m_EditorRuntime; }
+        editor::EditorRuntime* GetEditorRuntime() { return &m_EditorRuntime; }
 #endif
 
     protected:

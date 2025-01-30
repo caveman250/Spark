@@ -52,6 +52,7 @@ namespace se::render::opengl
     {
         Renderer::Render(window);
         glFlush();
+        GL_CHECK_ERROR()
     }
 
     void OpenGLRenderer::ApplyDepthCompare(DepthCompare::Type comp)
@@ -59,31 +60,36 @@ namespace se::render::opengl
         if (comp == DepthCompare::None)
         {
             glDisable(GL_DEPTH_TEST);
+            GL_CHECK_ERROR()
             return;
         }
         else
         {
             glEnable(GL_DEPTH_TEST);
+            GL_CHECK_ERROR()
         }
-
-        GL_CHECK_ERROR()
 
         switch (comp)
         {
         case DepthCompare::Less:
             glDepthFunc(GL_LESS);
+            GL_CHECK_ERROR()
             break;
         case DepthCompare::LessEqual:
             glDepthFunc(GL_LEQUAL);
+            GL_CHECK_ERROR()
             break;
         case DepthCompare::Equal:
             glDepthFunc(GL_EQUAL);
+            GL_CHECK_ERROR()
             break;
         case DepthCompare::Greater:
             glDepthFunc(GL_GREATER);
+            GL_CHECK_ERROR()
             break;
         case DepthCompare::GreaterEqual:
             glDepthFunc(GL_GEQUAL);
+            GL_CHECK_ERROR()
             break;
         default:
             SPARK_ASSERT(false);
@@ -98,16 +104,16 @@ namespace se::render::opengl
         if (src == BlendMode::None || dst == BlendMode::None)
         {
             glDisable(GL_BLEND);
+            GL_CHECK_ERROR()
             return;
         }
         else
         {
             glEnable(GL_BLEND);
+            GL_CHECK_ERROR()
         }
 
-        GL_CHECK_ERROR()
         glBlendFunc(BlendModeToGLBlendMode(src), BlendModeToGLBlendMode(dst));
-
         GL_CHECK_ERROR()
     }
 
@@ -116,32 +122,41 @@ namespace se::render::opengl
         if (!writeMask && func == StencilFunc::None)
         {
             glDisable(GL_STENCIL_TEST);
+            GL_CHECK_ERROR()
             return;
         }
 
         glEnable(GL_STENCIL_TEST);
+        GL_CHECK_ERROR()
         glStencilMask(writeMask);
+        GL_CHECK_ERROR()
         if (func != StencilFunc::None)
         {
             switch (func)
             {
                 case StencilFunc::Less:
                     glStencilFunc(GL_LESS, 1, readMask);
+                GL_CHECK_ERROR()
                     break;
                 case StencilFunc::LessEqual:
                     glStencilFunc(GL_LEQUAL, 1, readMask);
+                GL_CHECK_ERROR()
                     break;
                 case StencilFunc::Equal:
                     glStencilFunc(GL_EQUAL, 1, readMask);
+                GL_CHECK_ERROR()
                     break;
                 case StencilFunc::Greater:
                     glStencilFunc(GL_GREATER, 1, readMask);
+                GL_CHECK_ERROR()
                     break;
                 case StencilFunc::GreaterEqual:
                     glStencilFunc(GL_GEQUAL, 1, readMask);
+                GL_CHECK_ERROR()
                     break;
                 case StencilFunc::None:
                     glStencilFunc(GL_NEVER, 0, 0);
+                GL_CHECK_ERROR()
                     break;
             }
         }

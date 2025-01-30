@@ -19,7 +19,9 @@ namespace se::render::opengl
     {
         render::TextureResource::CreatePlatformResources();
         glGenTextures(1, &m_ID);
+        GL_CHECK_ERROR()
         glBindTexture(GL_TEXTURE_2D, m_ID);
+        GL_CHECK_ERROR()
 
         int level = 0;
         for (const auto& mip : m_Texture.GetMips())
@@ -35,6 +37,7 @@ namespace se::render::opengl
                                        TextureFormatToGLFormat(m_Texture.GetFormat()),
                                        GL_UNSIGNED_BYTE,
                                        mip.m_Data.GetData());
+                GL_CHECK_ERROR()
             }
             else
             {
@@ -46,17 +49,22 @@ namespace se::render::opengl
                        0,
                        static_cast<int>(mip.m_Data.GetSize()),
                        mip.m_Data.GetData());
+                GL_CHECK_ERROR()
             }
 
             level++;
-            GL_CHECK_ERROR()
         }
 
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        GL_CHECK_ERROR()
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        GL_CHECK_ERROR()
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        GL_CHECK_ERROR()
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+        GL_CHECK_ERROR()
         glGenerateMipmap(GL_TEXTURE_2D);
+        GL_CHECK_ERROR()
     }
 
     GLuint TextureResource::TextureFormatToGLInternalFormat(asset::texture::Format::Type format)
