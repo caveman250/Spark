@@ -91,7 +91,7 @@ namespace se::editor::ui
             if (selectedEntity)
             {
                 const auto& selectedEntityRecord = world->m_EntityRecords.at(m_Editor->GetSelectedEntity());
-                float yOffset = 0;
+                int yOffset = 0;
                 {
                     auto textEntity = world->CreateEntity("Text", true);
                     auto text = world->AddComponent<se::ui::components::TextComponent>(textEntity);
@@ -150,6 +150,11 @@ namespace se::editor::ui
                     {
                         for (const auto& member : compRecord.type->members)
                         {
+                            if (!member.serialized)
+                            {
+                                continue;
+                            }
+
                             void* instance = world->GetComponent(m_Editor->GetSelectedEntity(), component);
 
                             if (auto* propEditor = properties::CreatePropertyEditor(member, instance))
@@ -186,7 +191,7 @@ namespace se::editor::ui
             else if (selectedSingletonComp)
             {
                 auto reflectClass = static_cast<reflect::Class*>(selectedSingletonComp->GetReflectType());
-                float yOffset = 0;
+                int yOffset = 0;
 
                 auto textEntity = world->CreateEntity("Text", true);
                 auto text = world->AddComponent<se::ui::components::TextComponent>(textEntity);
@@ -205,6 +210,11 @@ namespace se::editor::ui
 
                 for (const auto& member : reflectClass->members)
                     {
+                        if (!member.serialized)
+                        {
+                            continue;
+                        }
+
                         if (auto* propEditor = properties::CreatePropertyEditor(member, selectedSingletonComp))
                         {
                             world->AddChild(m_ScrollBoxContent, propEditor->GetWidgetId());
@@ -217,19 +227,19 @@ namespace se::editor::ui
                         }
                         else
                         {
-                            auto textEntity = world->CreateEntity("Text", true);
-                            auto text = world->AddComponent<se::ui::components::TextComponent>(textEntity);
-                            text->font = ariel;
-                            text->fontSize = 18;
-                            text->text = std::format("Missing Property Editor of type {}.", member.type->GetTypeName(nullptr));
-                            auto textRect = world->AddComponent<se::ui::components::RectTransformComponent>(textEntity);
-                            textRect->anchors = { .left = 0.f, .right = 1.f, .top = 0.f, .bottom = 0.f };
-                            textRect->minX = 12;
-                            textRect->maxX = 0;
-                            textRect->minY = yOffset;
-                            textRect->maxY = 18 + yOffset;
-                            world->AddComponent<se::ui::components::WidgetComponent>(textEntity);
-                            world->AddChild(m_ScrollBoxContent, textEntity);
+                            auto propTextEntity = world->CreateEntity("Text", true);
+                            auto propText = world->AddComponent<se::ui::components::TextComponent>(propTextEntity);
+                            propText->font = ariel;
+                            propText->fontSize = 18;
+                            propText->text = std::format("Missing Property Editor of type {}.", member.type->GetTypeName(nullptr));
+                            auto propTextRect = world->AddComponent<se::ui::components::RectTransformComponent>(propTextEntity);
+                            propTextRect->anchors = { .left = 0.f, .right = 1.f, .top = 0.f, .bottom = 0.f };
+                            propTextRect->minX = 12;
+                            propTextRect->maxX = 0;
+                            propTextRect->minY = yOffset;
+                            propTextRect->maxY = 18 + yOffset;
+                            world->AddComponent<se::ui::components::WidgetComponent>(propTextEntity);
+                            world->AddChild(m_ScrollBoxContent, propTextEntity);
                             yOffset += 18;
                         }
                     }
