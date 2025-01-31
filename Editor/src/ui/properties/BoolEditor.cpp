@@ -53,7 +53,7 @@ namespace se::editor::ui::properties
         innerImage->material->SetRenderState(rs);
         auto innerTransform = world->AddComponent<RectTransformComponent>(m_Tickbox);
         innerTransform->anchors = { .left = 0.f, .right = 1.f, .top = 0.f, .bottom = 1.f };
-        innerTransform->minY = innerTransform->maxY = 2.f;
+        innerTransform->minY = innerTransform->maxY = 2;
         world->AddChild(bg, m_Tickbox);
     }
 

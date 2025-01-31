@@ -50,7 +50,7 @@ namespace se::editor::ui::properties
         innerImage->material->GetShaderSettings().SetSetting("color_setting", math::Vec3(0.2f, 0.2f, 0.2f));
         auto innerTransform = world->AddComponent<RectTransformComponent>(innerImageEntity);
         innerTransform->anchors = { .left = 0.f, .right = 1.f, .top = 0.f, .bottom = 1.f };
-        innerTransform->minX = innerTransform->maxX = innerTransform->minY = innerTransform->maxY = 2.f;
+        innerTransform->minX = innerTransform->maxX = innerTransform->minY = innerTransform->maxY = 2;
         world->AddChild(bg, innerImageEntity);
 
         m_Label = world->CreateEntity("Label", true);
