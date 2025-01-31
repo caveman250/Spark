@@ -27,7 +27,7 @@ namespace se::ui::systems
         }
     }
 
-    int TreeViewSystem::MeasureAndArrange(ecs::Id entity, bool collapsed, float startY)
+    int TreeViewSystem::MeasureAndArrange(ecs::Id entity, bool collapsed, int startY)
     {
         int currentY = startY;
         auto func = [this, collapsed, &currentY](const std::vector<ecs::Id>& children,

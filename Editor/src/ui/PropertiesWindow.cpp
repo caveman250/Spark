@@ -10,7 +10,6 @@
 #include <engine/ui/util/RectTransformUtil.h>
 #include <engine/ui/util/ScrollBoxUtil.h>
 #include <engine/ui/util/WindowUtil.h>
-#include "engine/ecs/World.h"
 #include "engine/reflect/Reflect.h"
 
 #include "engine/Application.h"
