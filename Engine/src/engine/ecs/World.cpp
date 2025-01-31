@@ -325,26 +325,18 @@ namespace se::ecs
 
         if (archetype->entities.empty() && !archetype->type.empty())
         {
-            for (const auto& compId: archetype->type)
-            {
-                if (Archetype* otherArchetype = GetNextArchetype(archetype, compId, false, false))
-                {
-                    otherArchetype->edges.erase(compId);
-                }
-            }
-
             for (auto& otherArchetype: m_Archetypes | std::views::values)
             {
-                if (std::ranges::contains_subrange(otherArchetype.type, archetype->type))
+                for (auto& edge : otherArchetype.edges | std::views::values)
                 {
-                    for (const auto& compId: otherArchetype.type)
+                    if (edge.add == archetype)
                     {
-                        Archetype* otherOtherArchetype = GetNextArchetype(&otherArchetype, compId, false, false);
-                        if (otherOtherArchetype == archetype)
-                        {
-                            otherArchetype.edges.erase(compId);
-                            break;
-                        }
+                        edge.add = nullptr;
+                    }
+
+                    if (edge.remove == archetype)
+                    {
+                        edge.remove = nullptr;
                     }
                 }
             }
