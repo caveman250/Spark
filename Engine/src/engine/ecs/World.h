@@ -152,11 +152,11 @@ namespace se::ecs
         std::vector<reflect::ObjectBase*> GetSingletonComponents();
 
         template <AppSystemConcept T>
-        Id CreateAppSystem(const std::vector<Relationship>& relationships, const ChildQuery& additionalChildQuery, const std::unordered_set<Id>& dependsOn);
+        Id CreateAppSystem(const String& name, const std::vector<Relationship>& relationships, const ChildQuery& additionalChildQuery, const std::unordered_set<Id>& dependsOn);
         void DestroyAppSystem(Id id);
 
         template <EngineSystemConcept T>
-        Id CreateEngineSystem(const std::vector<Relationship>& relationships, const ChildQuery& additionalChildQuery, const std::unordered_set<Id>& dependsOn);
+        Id CreateEngineSystem(const String& name, const std::vector<Relationship>& relationships, const ChildQuery& additionalChildQuery, const std::unordered_set<Id>& dependsOn);
         void DestroyEngineSystem(Id id);
 
         template <typename T>
@@ -221,8 +221,8 @@ namespace se::ecs
         void AddComponentInternal(const PendingComponent& pendingComp);
         void RemoveComponentInternal(Id entity, Id comp);
 
-        Id NewSystem();
-        Id RecycleSystem();
+        uint64_t NewSystem();
+        uint64_t RecycleSystem();
 
         static void CreateSystemInternal(std::unordered_map<Id, SystemRecord>& systemMap, std::unordered_map<Id, ChildQuery>& allowedChildQueries, Id system, const PendingSystemInfo& pendingSystem);
         static void DestroySystemInternal(std::unordered_map<Id, SystemRecord>& systemMap, std::unordered_map<Id, ChildQuery>& allowedChildQueries, std::vector<Id>& freeSystems, Id system);
@@ -555,10 +555,10 @@ namespace se::ecs
     }
 
     template<EngineSystemConcept T>
-    Id World::CreateEngineSystem(const std::vector<Relationship>& relationships, const ChildQuery& additionalChildQuery, const std::unordered_set<Id>& dependsOn)
+    Id World::CreateEngineSystem(const String& name, const std::vector<Relationship>& relationships, const ChildQuery& additionalChildQuery, const std::unordered_set<Id>& dependsOn)
     {
         auto guard = MaybeLockGuard(m_UpdateMode, &m_SystemMutex);
-        Id system;
+        uint64_t system;
         if (!m_FreeSystems.empty())
         {
             system = RecycleSystem();
@@ -567,6 +567,7 @@ namespace se::ecs
         {
             system = NewSystem();
         }
+        m_IdMetaMap[system] = {name, 0};
         m_PendingEngineSystemCreations.push_back({system, { relationships, additionalChildQuery, dependsOn }});
         if (SPARK_VERIFY(!m_EngineSystems.contains(system)))
         {
@@ -577,7 +578,7 @@ namespace se::ecs
     }
 
     template <AppSystemConcept T>
-    Id World::CreateAppSystem(const std::vector<Relationship>& relationships, const ChildQuery& additionalChildQuery, const std::unordered_set<Id>& dependsOn)
+    Id World::CreateAppSystem(const String& name, const std::vector<Relationship>& relationships, const ChildQuery& additionalChildQuery, const std::unordered_set<Id>& dependsOn)
     {
         auto guard = MaybeLockGuard(m_UpdateMode, &m_SystemMutex);
         Id system;
@@ -589,6 +590,7 @@ namespace se::ecs
         {
             system = NewSystem();
         }
+        m_IdMetaMap[system] = {name, 0};
         m_PendingAppSystemCreations.push_back({system, { relationships, additionalChildQuery, dependsOn }});
         if (SPARK_VERIFY(!m_AppSystems.contains(system)))
         {

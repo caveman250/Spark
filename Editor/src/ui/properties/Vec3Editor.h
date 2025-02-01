@@ -1,5 +1,6 @@
 #pragma once
 
+#include "FloatEditor.h"
 #include "PropertyEditor.h"
 #include "engine/math/math.h"
 

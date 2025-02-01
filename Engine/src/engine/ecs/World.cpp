@@ -584,8 +584,8 @@ namespace se::ecs
                     bool blockedOnDependency = false;
                     for (Id dependency: systemRecord.instance->GetDependencies())
                     {
-                        if (SPARK_VERIFY(updateGroupLookup.contains(dependency) && updateGroupLookup[dependency] >= i,
-                            "Either being processed before a dependency. Or the dependency has already been allocated a slot after this group."))
+                        if (SPARK_VERIFY(updateGroupLookup.contains(dependency), "Dependency has not been assigned an update group!")
+                            && updateGroupLookup[dependency] >= i)
                         {
                             blockedOnDependency = true;
                             break;
@@ -1048,12 +1048,12 @@ namespace se::ecs
         SPARK_ASSERT(record.archetype);
     }
 
-    Id World::NewSystem()
+    uint64_t World::NewSystem()
     {
         return m_SystemCounter++;
     }
 
-    Id World::RecycleSystem()
+    uint64_t World::RecycleSystem()
     {
         const auto id = m_FreeSystems.back();
         m_FreeSystems.pop_back();
