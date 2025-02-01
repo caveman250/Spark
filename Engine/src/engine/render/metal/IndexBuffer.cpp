@@ -23,12 +23,22 @@ namespace se::render::metal
 
     void IndexBuffer::CreatePlatformResource()
     {
-        // TODO
+        auto device = Renderer::Get<MetalRenderer>()->GetDevice();
+        size_t dataSize = m_Indices.size() * sizeof(uint32_t);
+
+        m_Buffer = device->newBuffer(dataSize, MTL::ResourceStorageModeManaged);
+        memcpy(m_Buffer->contents(), m_Indices.data(), dataSize);
+        m_Buffer->didModifyRange(NS::Range::Make(0, m_Buffer->length()));
     }
 
     void IndexBuffer::Bind()
     {
-        // TODO
+        // not relevant
+    }
+
+    void IndexBuffer::Cleanup()
+    {
+        m_Buffer->release();
     }
 }
 
