@@ -10,6 +10,7 @@ set(ENGINE_DIR .)
 include(${ROOT_DIR}/CMake/Preprocessor.cmake)
 include(${ROOT_DIR}/CMake/IncludeDirs.cmake)
 include(${ROOT_DIR}/CMake/LinkDirs.cmake)
+include(${ROOT_DIR}/CMake/ExternalTools.cmake)
 
 ###### Editor Includes ######
 if (${USE_EDITOR})
@@ -24,7 +25,7 @@ include(${ROOT_DIR}/CMake/ThirdParty.cmake)
 include(${ROOT_DIR}/CMake/BuildOptions.cmake)
 
 ###### Generate Unity Files #######
-execute_process(COMMAND python UnityBatcher.py ../Engine/unity.conf ${PLATFORM}
+execute_process(COMMAND ${PYTHON_EXE} UnityBatcher.py ../Engine/unity.conf ${PLATFORM}
                 WORKING_DIRECTORY ${ROOT_DIR}/Spark/Build/)
 
 ###### Source ######
@@ -44,6 +45,8 @@ if (${PLATFORM} MATCHES Windows)
     include(${ROOT_DIR}/CMake/WindowsLinker.cmake)
 elseif (${PLATFORM} MATCHES Linux)
     include(${ROOT_DIR}/CMake/LinuxLinker.cmake)
+elseif (${PLATFORM} MATCHES Mac)
+    include(${ROOT_DIR}/CMake/MacLinker.cmake)
 endif ()
 
 ###### PCH ######
