@@ -1,5 +1,9 @@
 #pragma once
 
+#include "engine/render/render_fwd.h"
+
+#if OPENGL_RENDERER
+
 #include "spark.h"
 #include "GL_fwd.h"
 #include "engine/render/IndexBuffer.h"
@@ -20,3 +24,5 @@ namespace se::render::opengl
         GLuint m_Resource = GL_INVALID_VALUE;
     };
 }
+
+#endif

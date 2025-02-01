@@ -22,6 +22,7 @@
 #include <chrono>
 #include <execution>
 #include <cfloat>
+#include <mutex>
 
 #include "json.hpp"
 
@@ -75,6 +76,18 @@ do { \
         raise(SIGTRAP);\
     }\
 } while (0)
+#elif SPARK_PLATFORM_MAC
+#define SPARK_ASSERT(expr, ...)\
+do { \
+if (!(expr))\
+{\
+std::string userMsg = SPARK_ASSERT_MESSAGE(__VA_ARGS__)\
+std::string assertMsg = std::format("{0}\n\nMessage: {1}\n", #expr, userMsg); \
+printf("%s", std::format("\033[;41mAssertion failed: {0}at {1}:{2}\033[0m\n\n", assertMsg,  __FILE__, __LINE__).c_str()); \
+fflush(stdout);\
+__builtin_trap();\
+}\
+} while (0)
 #endif
 #else
 #define SPARK_ASSERT(...) do {} while(0)
@@ -106,6 +119,8 @@ do { \
 
 #if SPARK_PLATFORM_WINDOWS
 #define PLACEHOLDER(i) std::_Ph<i>
+#elif SPARK_PLATFORM_MAC
+#define PLACEHOLDER(i) std::placeholders::__ph<i>
 #else
 #define PLACEHOLDER(i) std::_Placeholder<i>
 #endif

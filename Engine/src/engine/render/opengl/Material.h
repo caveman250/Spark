@@ -1,4 +1,7 @@
 #pragma once
+#include "engine/render/render_fwd.h"
+
+#if OPENGL_RENDERER
 
 #include "engine/asset/texture/Texture.h"
 #include "engine/render/Material.h"
@@ -23,3 +26,4 @@ namespace se::render::opengl
         GLuint m_CompiledProgram = GL_INVALID_VALUE;
     };
 }
+#endif

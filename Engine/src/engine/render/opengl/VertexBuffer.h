@@ -1,4 +1,7 @@
 #pragma once
+#include "engine/render/render_fwd.h"
+
+#if OPENGL_RENDERER
 
 #include "engine/render/VertexBuffer.h"
 #include "GL_fwd.h"
@@ -21,3 +24,4 @@ namespace se::render::opengl
         GLuint m_VertexArrayID = GL_INVALID_VALUE;
     };
 }
+#endif

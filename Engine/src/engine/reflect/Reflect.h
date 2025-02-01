@@ -123,7 +123,7 @@ std::enable_if_t<std::is_default_constructible_v<T>, void> CreateDefaultConstruc
 }
 
 template <typename T>
-std::enable_if_t<!std::is_default_constructible_v<T>, void> CreateDefaultConstructorMethods(se::reflect::Class* typeDesc)
+std::enable_if_t<!std::is_default_constructible_v<T>, void> CreateDefaultConstructorMethods(se::reflect::Class*)
 {
  // ...
 }

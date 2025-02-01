@@ -84,7 +84,8 @@ namespace se::asset::builder
         };
 
         int ascent = GetAscent(info);
-        std::for_each(std::execution::par_unseq, s_FontSizes.begin(), s_FontSizes.end(),
+        //TODO PARALLEL LOOPS
+        std::for_each(s_FontSizes.begin(), s_FontSizes.end(),
         [&info, addReturnItem, addFontSize, ascent](const auto &fontSize)
         {
             float scale = stbtt_ScaleForPixelHeight(&info, static_cast<float>(fontSize));

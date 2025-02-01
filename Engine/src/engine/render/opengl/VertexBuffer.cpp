@@ -1,5 +1,5 @@
 #include "VertexBuffer.h"
-
+#if OPENGL_RENDERER
 #include "engine/math/Vec3.h"
 
 namespace se::render
@@ -95,3 +95,4 @@ namespace se::render::opengl
         }
     }
 }
+#endif

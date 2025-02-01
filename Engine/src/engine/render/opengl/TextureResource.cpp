@@ -1,6 +1,5 @@
-
 #include "engine/render/TextureResource.h"
-
+#if OPENGL_RENDERER
 #include "TextureResource.h"
 #include "engine/asset/texture/Mipmap.h"
 #include "engine/asset/texture/Format.h"
@@ -114,3 +113,4 @@ namespace se::render::opengl
         }
     }
 }
+#endif

@@ -1,5 +1,9 @@
 #pragma once
 
+#include "engine/render/render_fwd.h"
+
+#if OPENGL_RENDERER
+
 #include "engine/render/TextureResource.h"
 #include "GL_fwd.h"
 
@@ -22,3 +26,5 @@ namespace se::render::opengl
         GLuint m_ID;
     };
 }
+
+#endif

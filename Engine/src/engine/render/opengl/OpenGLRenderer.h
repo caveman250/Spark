@@ -1,8 +1,13 @@
 #pragma once
+#include "engine/render/render_fwd.h"
+
+#if OPENGL_RENDERER
 #include "engine/render/Renderer.h"
 
 namespace se::render::opengl
 {
+    GLuint BlendModeToGLBlendMode(BlendMode::Type blendMode);
+
     class OpenGLRenderer : public Renderer
     {
     public:
@@ -20,3 +25,4 @@ namespace se::render::opengl
         bool m_GlewInit = false;
     };
 }
+#endif

@@ -1,5 +1,7 @@
 #include "Material.h"
 
+#if OPENGL_RENDERER
+
 #include "engine/asset/shader/compiler/ShaderCompiler.h"
 #include "engine/asset/shader/ast/Types.h"
 #include "engine/asset/shader/ast/TypeUtil.h"
@@ -260,3 +262,5 @@ namespace se::render::opengl
         }
     }
 }
+
+#endif

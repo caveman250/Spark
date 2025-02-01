@@ -1,5 +1,7 @@
 #include "IndexBuffer.h"
 
+#if OPENGL_RENDERER
+
 namespace se::render
 {
     std::shared_ptr<IndexBuffer> IndexBuffer::CreateIndexBuffer(const asset::StaticMesh& mesh)
@@ -46,3 +48,5 @@ namespace se::render::opengl
         }
     }
 }
+
+#endif
