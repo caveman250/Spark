@@ -1,0 +1,5 @@
+if (${PLATFORM} MATCHES Mac)
+    set(PYTHON_EXE python3)
+else()
+    set(PYTHON_EXE python)
+endif()
