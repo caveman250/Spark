@@ -13,7 +13,11 @@ namespace se::render
 
     Renderer * Renderer::Create()
     {
+#if SPARK_PLATFORM_WINDOWS || SPARK_PLATFORM_LINUX
         s_Renderer = new opengl::OpenGLRenderer();
+#elif SPARK_PLATFORM_MAC
+        SPARK_ASSERT(false);
+#endif
         s_Renderer->Init();
         return s_Renderer;
     }

@@ -1,5 +1,9 @@
 #pragma once
 
+#include "engine/render/render_fwd.h"
+
+#if OPENGL_RENDERER
+
 #define GLEW_STATIC
 #include "GL/glew.h"
 #if SPARK_PLATFORM_WINDOWS
@@ -37,4 +41,6 @@
 }
 #else
 #define GL_CHECK_ERROR()
+#endif
+
 #endif

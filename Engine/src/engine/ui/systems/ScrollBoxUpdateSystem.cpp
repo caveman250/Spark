@@ -1,5 +1,7 @@
 #include "ScrollBoxUpdateSystem.h"
 
+#include <engine/ui/util/RectTransformUtil.h>
+
 #include "engine/math/Mat4.h"
 #include "engine/Application.h"
 #include "engine/profiling/Profiler.h"

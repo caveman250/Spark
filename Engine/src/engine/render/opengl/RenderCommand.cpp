@@ -1,4 +1,5 @@
 #include "spark.h"
+#if OPENGL_RENDERER
 #include "engine/render/RenderCommand.h"
 #include "engine/Application.h"
 #include "GL_fwd.h"
@@ -106,3 +107,5 @@ namespace se::render::commands
         GL_CHECK_ERROR()
     }
 }
+
+#endif

@@ -212,14 +212,22 @@ namespace se::io
     }
 #endif
 
+    template <typename TP>
+    std::time_t to_time_t(TP tp)
+    {
+        using namespace std::chrono;
+        auto sctp = time_point_cast<system_clock::duration>(tp - TP::clock::now()
+                  + system_clock::now());
+        return system_clock::to_time_t(sctp);
+    }
+
     std::time_t VFS::GetLastModified(const std::string path)
     {
         auto result = ResolveFSPath(path, false);
         if (result.has_value())
         {
             std::chrono::time_point<std::chrono::file_clock> timePoint = std::filesystem::last_write_time(result.value());
-            const auto systemTime = std::chrono::clock_cast<std::chrono::system_clock>(timePoint);
-            return std::chrono::system_clock::to_time_t(systemTime);
+            return to_time_t(timePoint);
         }
 
         return 0;

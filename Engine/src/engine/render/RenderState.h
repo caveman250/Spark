@@ -41,8 +41,6 @@ namespace se::render
         None
     DECLARE_SPARK_ENUM_END()
 
-    GLuint BlendModeToGLBlendMode(BlendMode::Type blendMode);
-
     struct RenderState
     {
         DepthCompare::Type depthComp = DepthCompare::None;
