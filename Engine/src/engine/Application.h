@@ -23,10 +23,8 @@ namespace se
         virtual void CreateInitialSingletonComponents();
         virtual void CreateInitialObservers();
         virtual void CreateInitialSystems();
-        void Run() const;
         virtual void Shutdown();
 
-        PlatformRunLoop* GetRunLoop() const { return m_RunLoop; }
         IWindow* GetPrimaryWindow() const { return m_PrimaryWindow; }
         ecs::World* GetWorld() { return &m_World; }
 
@@ -41,8 +39,6 @@ namespace se
         virtual void Render();
 
     private:
-
-        PlatformRunLoop* m_RunLoop = nullptr;
         IWindow* m_PrimaryWindow = nullptr;
 
         std::chrono::time_point<std::chrono::system_clock> m_TimeLastFrame = {};

@@ -28,6 +28,17 @@ namespace se::linux
         });
     }
 
+    void LinuxRunLoop::Run()
+    {
+        Init();
+        while (!ShouldExit())
+        {
+            Update();
+            PROFILE_BEGIN_FRAME()
+            PROFILE_BEGIN_THREAD()
+        }
+    }
+
     void LinuxRunLoop::Update()
     {
         auto app = Application::Get();

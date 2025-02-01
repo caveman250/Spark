@@ -17,6 +17,18 @@ namespace se
         return s_Instance;
     }
 
+    void PlatformRunLoop::Init()
+    {
+        auto app = Application::Get();
+        app->Init();
+    }
+
+    void PlatformRunLoop::Shutdown()
+    {
+        auto app = Application::Get();
+        app->Shutdown();
+    }
+
     void PlatformRunLoop::Update()
     {
         PROFILE_SCOPE("PlatformRunLoop::Update")

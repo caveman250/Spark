@@ -9,6 +9,7 @@ namespace se::windows
     {
     public:
         WindowsRunLoop(std::vector<IWindow*> windows);
+        void Run() override;
         void Update() override;
         bool ShouldExit() override;
         void RegisterWindow(IWindow *window) override;

@@ -1,4 +1,5 @@
 #pragma once
+#include "MTL_fwd.h"
 #include "engine/render/render_fwd.h"
 
 #if METAL_RENDERER
@@ -10,13 +11,19 @@ namespace se::render::metal
     {
     public:
         MetalRenderer();
+        ~MetalRenderer();
         void Init() override;
         void Render(IWindow* window) override;
+
+        MTL::Device* GetDevice() const { return m_Device; }
 
     private:
         void ApplyDepthCompare(DepthCompare::Type comp) override;
         void ApplyBlendMode(BlendMode::Type src, BlendMode::Type dest) override;
         void ApplyStencil(StencilFunc::Type src, uint32_t writeMask, uint32_t readMask) override;
+
+        MTL::Device* m_Device;
+        MTL::CommandQueue* m_CommandQueue;
     };
 }
 #endif

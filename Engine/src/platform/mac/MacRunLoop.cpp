@@ -29,19 +29,29 @@ namespace se::mac
         });
     }
 
+    void MacRunLoop::Run()
+    {
+        m_AutoReleasePool = NS::AutoreleasePool::alloc()->init();
+        AppDelegate del;
+
+        NS::Application* pSharedApplication = NS::Application::sharedApplication();
+        pSharedApplication->setDelegate( &del );
+        pSharedApplication->run();
+    }
+
     void MacRunLoop::Update()
     {
         PROFILE_SCOPE("MacRunLoop::Update")
 
-        // auto safeCopy = m_Windows;
-        // for (const auto& window: safeCopy)
-        // {
-        //     if (window->ShouldClose())
-        //     {
-        //         window->Cleanup();
-        //         delete window;
-        //     }
-        // }
+        auto safeCopy = m_Windows;
+        for (const auto& window: safeCopy)
+        {
+            if (window->ShouldClose())
+            {
+                window->Cleanup();
+                delete window;
+            }
+        }
 
         if (ShouldExit())
         {
@@ -50,14 +60,20 @@ namespace se::mac
 
         PlatformRunLoop::Update();
 
-        // for (const auto& window: m_Windows)
-        // {
-        //     window->SetCurrent();
-        //     render::Renderer::Get()->Render(window);
-        //     SwapBuffers(window->GetHDC());
-        // }
+        render::Renderer* renderer = render::Renderer::Get();
+        for (const auto& window: m_Windows)
+        {
+            window->SetCurrent();
+            renderer->Render(window);
+        }
 
-        render::Renderer::Get()->EndFrame();
+        renderer->EndFrame();
+    }
+
+    void MacRunLoop::Shutdown()
+    {
+        PlatformRunLoop::Shutdown();
+        m_AutoReleasePool->release();
     }
 
     bool MacRunLoop::ShouldExit()
@@ -67,19 +83,17 @@ namespace se::mac
 
     void MacRunLoop::RegisterWindow(IWindow* window)
     {
-        // TODO
-        // Window* platformWindow = dynamic_cast<Window*>(window);
-        // SPARK_ASSERT(platformWindow);
-        // m_Windows.push_back(platformWindow);
+        Window* platformWindow = dynamic_cast<Window*>(window);
+        SPARK_ASSERT(platformWindow);
+        m_Windows.push_back(platformWindow);
     }
 
     void MacRunLoop::UnregisterWindow(IWindow* window)
     {
-        // TODO
-        // std::erase(m_Windows, window);
-        // if (m_Windows.empty() || window == Application::Get()->GetPrimaryWindow())
-        // {
-        //     m_ShouldExit = true;
-        // }
+        std::erase(m_Windows, window);
+        if (m_Windows.empty() || window == Application::Get()->GetPrimaryWindow())
+        {
+            m_ShouldExit = true;
+        }
     }
 }

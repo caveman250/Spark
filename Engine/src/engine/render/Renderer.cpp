@@ -10,7 +10,7 @@
 
 namespace se::render
 {
-    static Renderer* s_Renderer = nullptr;
+    Renderer* Renderer::s_Renderer = nullptr;
 
     Renderer * Renderer::Create()
     {
@@ -26,11 +26,6 @@ namespace se::render
     void Renderer::Shutdown()
     {
         delete s_Renderer;
-    }
-
-    Renderer * Renderer::Get()
-    {
-        return s_Renderer;
     }
 
     void Renderer::ApplyRenderState(const RenderState& rs)

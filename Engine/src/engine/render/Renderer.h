@@ -21,7 +21,8 @@ namespace se::render
     public:
         static Renderer* Create();
         static void Shutdown();
-        static Renderer* Get();
+        template <typename T>
+        static T* Get();
 
         virtual ~Renderer() {}
         virtual void Init() = 0;
@@ -53,6 +54,8 @@ namespace se::render
         RenderState m_CachedRenderState;
         memory::Arena m_RenderCommandsArena;
         LightSetup m_LightSetup;
+
+        static Renderer* s_Renderer;
     };
 
     template<ARenderCommand T, typename... Args>
@@ -65,5 +68,11 @@ namespace se::render
     void Renderer::Submit(IWindow* window, Args&&... args)
     {
         Submit(window, AllocRenderCommand<T>(std::forward<Args>(args)...));
+    }
+
+    template <typename T = Renderer>
+    T* Renderer::Get()
+    {
+        return static_cast<T*>(s_Renderer);
     }
 }
