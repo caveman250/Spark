@@ -16,14 +16,16 @@ namespace se::render::metal
         void Render(IWindow* window) override;
 
         MTL::Device* GetDevice() const { return m_Device; }
+        MTL::RenderCommandEncoder* GetCurrentCommandEncoder() const { return m_CurrentCommandEncoder; }
 
     private:
         void ApplyDepthCompare(DepthCompare::Type comp) override;
         void ApplyBlendMode(BlendMode::Type src, BlendMode::Type dest) override;
         void ApplyStencil(StencilFunc::Type src, uint32_t writeMask, uint32_t readMask) override;
 
-        MTL::Device* m_Device;
-        MTL::CommandQueue* m_CommandQueue;
+        MTL::Device* m_Device = nullptr;
+        MTL::CommandQueue* m_CommandQueue = nullptr;
+        MTL::RenderCommandEncoder* m_CurrentCommandEncoder = nullptr;
     };
 }
 #endif

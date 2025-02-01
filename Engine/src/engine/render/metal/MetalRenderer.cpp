@@ -37,13 +37,15 @@ namespace se::render::metal
         NS::AutoreleasePool* pPool = NS::AutoreleasePool::alloc()->init();
         MTL::CommandBuffer* pCmd = m_CommandQueue->commandBuffer();
 
-        Renderer::Render(window);
-
         auto macWindow = static_cast<mac::Window*>(window);
         auto view = macWindow->GetView();
-        MTL::RenderPassDescriptor* pRpd = view->currentRenderPassDescriptor();
-        MTL::RenderCommandEncoder* pEnc = pCmd->renderCommandEncoder(pRpd);
-        pEnc->endEncoding();
+        MTL::RenderPassDescriptor* renderPassDescriptor = view->currentRenderPassDescriptor();
+        m_CurrentCommandEncoder = pCmd->renderCommandEncoder(renderPassDescriptor);
+
+        Renderer::Render(window);
+
+        m_CurrentCommandEncoder->endEncoding();
+        m_CurrentCommandEncoder = nullptr;
         pCmd->presentDrawable(view->currentDrawable());
         pCmd->commit();
 
