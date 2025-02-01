@@ -30,10 +30,13 @@ def create_unity_files(conf_path, platform):
         file_counter = 0
 
         if platform == "Linux":
-            if "platform/windows" in root:
+            if "platform/windows" in root or "platform/mac" in root:
                 continue
         elif platform == "Windows":
-            if "platform/linux" in root or "platform\\linux" in root:
+            if "platform/linux" in root or "platform\\linux" in root or "platform/mac" in root or "platform\\mac" in root:
+                continue
+        elif platform == "Mac":
+            if "platform/linux" in root or "platform/windows" in root:
                 continue
 
         for file in files:
@@ -100,10 +103,11 @@ def create_unity_files(conf_path, platform):
             file_counter += 1
 
 def main():
-    print("-- Generating unity files")
-
     conf_file = sys.argv[1]
     platform = sys.argv[2]
+    print("-- Generating unity files")
+    print(f"-- Platform {platform}")
+
     create_unity_files(conf_file, platform)
 
 if __name__ == '__main__':
