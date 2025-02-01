@@ -2,7 +2,7 @@
 #include "engine/render/render_fwd.h"
 
 #if METAL_RENDERER
-
+#include "engine/render/metal/MTL_fwd.h"
 #include "engine/render/VertexBuffer.h"
 
 namespace se::render::metal
@@ -18,6 +18,8 @@ namespace se::render::metal
         void Unbind() override;
     private:
         void Cleanup();
+
+        std::vector<MTL::Buffer*> m_Buffers;
     };
 }
 #endif

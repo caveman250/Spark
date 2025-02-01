@@ -1,6 +1,7 @@
 #include "VertexBuffer.h"
+
+#include "MetalRenderer.h"
 #if METAL_RENDERER
-#include "engine/math/Vec3.h"
 
 namespace se::render
 {
@@ -13,7 +14,7 @@ namespace se::render
 namespace se::render::metal
 {
     VertexBuffer::VertexBuffer(const asset::StaticMesh& mesh)
-    : render::VertexBuffer(mesh)
+        : render::VertexBuffer(mesh)
     {
     }
 
@@ -24,22 +25,38 @@ namespace se::render::metal
 
     void VertexBuffer::CreatePlatformResource()
     {
-        // TODO
+        auto device = Renderer::Get<MetalRenderer>()->GetDevice();
+
+        for (const auto& [usage, stream]: m_VertexStreams)
+        {
+            size_t dataSize = stream.data.size() * sizeof(float);
+            auto& buffer = m_Buffers.emplace_back(device->newBuffer(dataSize, MTL::ResourceStorageModeManaged));
+            memcpy(buffer->contents(), stream.data.data(), dataSize);
+            buffer->didModifyRange(NS::Range::Make(0, buffer->length()));
+        }
     }
 
     void VertexBuffer::Bind()
     {
-        // TODO
+        auto commandEncoder = Renderer::Get<MetalRenderer>()->GetCurrentCommandEncoder();
+        for (size_t i = 0; i < m_VertexStreams.size(); ++i)
+        {
+            commandEncoder->setVertexBuffer( m_Buffers[i], 0, i );
+        }
     }
 
     void VertexBuffer::Unbind()
     {
-        // TODO
+        // nothing to do?
     }
 
     void VertexBuffer::Cleanup()
     {
-        // TODO
+        for (auto buffer : m_Buffers)
+        {
+            buffer->release();
+        }
+        m_Buffers.clear();
     }
 }
 #endif

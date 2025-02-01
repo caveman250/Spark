@@ -8,18 +8,17 @@ namespace se
     {
     public:
         ViewDelegate();
-        virtual ~ViewDelegate() override;
-        virtual void drawInMTKView( MTK::View* pView ) override;
+        ~ViewDelegate() override;
+        void drawInMTKView( MTK::View* pView ) override;
     };
 
     class AppDelegate : public NS::ApplicationDelegate
     {
     public:
-        ~AppDelegate();
-
-        virtual void applicationWillFinishLaunching( NS::Notification* pNotification ) override;
-        virtual void applicationDidFinishLaunching( NS::Notification* pNotification ) override;
-        virtual bool applicationShouldTerminateAfterLastWindowClosed( NS::Application* pSender ) override;
+        ~AppDelegate() override;
+        void applicationWillFinishLaunching( NS::Notification* pNotification ) override;
+        void applicationDidFinishLaunching( NS::Notification* pNotification ) override;
+        bool applicationShouldTerminateAfterLastWindowClosed( NS::Application* pSender ) override;
 
     private:
         ViewDelegate* m_ViewDelegate = nullptr;
