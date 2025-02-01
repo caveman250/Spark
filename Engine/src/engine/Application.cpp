@@ -50,7 +50,6 @@ namespace se
         PROFILE_BEGIN_FRAME()
         PROFILE_BEGIN_THREAD()
 
-        m_RunLoop = PlatformRunLoop::CreatePlatformRunloop({});
         render::Renderer::Create();
         m_PrimaryWindow = IWindow::CreatePlatformWindow(1280, 720);
         m_PrimaryWindow->SetCurrent();
@@ -127,20 +126,9 @@ namespace se
         m_World.CreateEngineSystem<ui::systems::UIRenderSystem>("UIRenderSystem", {}, {}, { imageRender, textRender, scrollBoxRender });
     }
 
-    void Application::Run() const
-    {
-        while (!m_RunLoop->ShouldExit())
-        {
-            m_RunLoop->Update();
-            PROFILE_BEGIN_FRAME()
-            PROFILE_BEGIN_THREAD()
-        }
-    }
-
     void Application::Shutdown()
     {
-        delete m_RunLoop;
-        m_RunLoop = nullptr;
+
     }
 
     void Application::Update()

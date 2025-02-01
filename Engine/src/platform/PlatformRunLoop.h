@@ -12,6 +12,9 @@ namespace se
         static PlatformRunLoop* Get();
 
         virtual ~PlatformRunLoop() {}
+        virtual void Init();
+        virtual void Run() = 0;
+        virtual void Shutdown();
         virtual void Update();
         virtual bool ShouldExit() = 0;
         virtual void RegisterWindow(IWindow* window) = 0;

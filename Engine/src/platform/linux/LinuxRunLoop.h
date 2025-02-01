@@ -13,6 +13,7 @@ namespace se::linux
     public:
         LinuxRunLoop(std::vector<IWindow*> windows);
         void Update() override;
+        void Run() override;
         bool ShouldExit() override;
         void RegisterWindow(IWindow *window) override;
         void UnregisterWindow(IWindow *window) override;

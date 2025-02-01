@@ -32,6 +32,17 @@ namespace se::windows
         });
     }
 
+    void WindowsRunLoop::Run()
+    {
+        Init();
+        while (!ShouldExit())
+        {
+            Update();
+            PROFILE_BEGIN_FRAME()
+            PROFILE_BEGIN_THREAD()
+        }
+    }
+
     void WindowsRunLoop::Update()
     {
         PROFILE_SCOPE("WindowsRunLoop::Update")
