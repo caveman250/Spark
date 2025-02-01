@@ -57,7 +57,7 @@ namespace se::mac
         //     SwapBuffers(window->GetHDC());
         // }
 
-        //render::Renderer::Get()->EndFrame();
+        render::Renderer::Get()->EndFrame();
     }
 
     bool MacRunLoop::ShouldExit()
