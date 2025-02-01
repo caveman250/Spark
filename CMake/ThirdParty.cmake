@@ -1,9 +1,11 @@
-add_subdirectory(third_party/Crunch2-1.3.1)
+add_subdirectory(third_party/Crunch2)
 add_subdirectory(third_party/OpenFBX-365f52c)
 if (${PLATFORM} MATCHES Windows)
     include(${ROOT_DIR}/CMake/WindowsThirdParty.cmake)
 elseif (${PLATFORM} MATCHES Linux)
     include(${ROOT_DIR}/CMake/LinuxThirdParty.cmake)
+elseif (${PLATFORM} MATCHES Mac)
+    include(${ROOT_DIR}/CMake/MacThirdParty.cmake)
 endif ()
 
 #make third party libraries shut up
