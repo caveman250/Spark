@@ -5,6 +5,7 @@
 #include <engine/ui/singleton_components/UIRenderComponent.h>
 
 #include "engine/profiling/Profiler.h"
+#include "metal/MetalRenderer.h"
 #include "opengl/OpenGLRenderer.h"
 
 namespace se::render
@@ -16,7 +17,7 @@ namespace se::render
 #if SPARK_PLATFORM_WINDOWS || SPARK_PLATFORM_LINUX
         s_Renderer = new opengl::OpenGLRenderer();
 #elif SPARK_PLATFORM_MAC
-        SPARK_ASSERT(false);
+        s_Renderer = new metal::MetalRenderer();
 #endif
         s_Renderer->Init();
         return s_Renderer;
