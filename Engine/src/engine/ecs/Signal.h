@@ -99,7 +99,7 @@ namespace se::ecs
     {
         SignalHandle id = m_HandleCounter++;
 
-        auto wrapperFunc = [this, entityId, wrappedFunc = std::move(func)](Cs... cs)
+        auto wrapperFunc = [entityId, wrappedFunc = std::move(func)](Cs... cs)
         {
             auto* world = Application::Get()->GetWorld();
 

@@ -1,5 +1,7 @@
 #include "WindowUtil.h"
 
+#include <engine/ui/components/TextComponent.h>
+
 #include "engine/Application.h"
 #include "engine/asset/AssetManager.h"
 #include "engine/ui/components/ButtonComponent.h"

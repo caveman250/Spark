@@ -57,7 +57,8 @@ struct std::formatter<se::math::Vec3>
         return ctx.begin();
     }
 
-    auto format(const se::math::Vec3& obj, std::format_context& ctx) const
+    template <class FormatContext>
+    auto format(const se::math::Vec3& obj, FormatContext& ctx) const
     {
         return std::format_to(ctx.out(), "vec3({}, {}, {})", obj.x, obj.y, obj.z);
     }

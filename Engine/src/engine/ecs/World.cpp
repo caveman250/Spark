@@ -584,8 +584,8 @@ namespace se::ecs
                     bool blockedOnDependency = false;
                     for (Id dependency: systemRecord.instance->GetDependencies())
                     {
-                        if (SPARK_VERIFY(updateGroupLookup.contains(dependency)) && updateGroupLookup[dependency] >= i,
-                            "Either being processed before a dependency. Or the dependency has already been allocated a slot after this group.")
+                        if (SPARK_VERIFY(updateGroupLookup.contains(dependency) && updateGroupLookup[dependency] >= i,
+                            "Either being processed before a dependency. Or the dependency has already been allocated a slot after this group."))
                         {
                             blockedOnDependency = true;
                             break;
@@ -759,14 +759,16 @@ namespace se::ecs
             m_UpdateMode = parallel && updateGroup.size() > 1 ? UpdateMode::MultiThreaded : UpdateMode::SingleThreaded;
             if (m_UpdateMode == UpdateMode::MultiThreaded)
             {
-                std::for_each(std::execution::par_unseq,
+                //TODO PARALLEL LOOPS
+                std::for_each(
                               updateGroup.begin(),
                               updateGroup.end(),
                               func);
             }
             else
             {
-                std::for_each(std::execution::unseq,
+                //TODO PARALLEL LOOPS
+                std::for_each(
                               updateGroup.begin(),
                               updateGroup.end(),
                               func);

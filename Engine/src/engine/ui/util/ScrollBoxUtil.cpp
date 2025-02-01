@@ -4,10 +4,11 @@
 #include <engine/asset/AssetManager.h>
 #include <engine/ui/components/ImageComponent.h>
 #include <engine/asset/shader/Shader.h>
+#include <engine/ui/components/RectTransformComponent.h>
 
 namespace se::ui::util
 {
-    ecs::Id CreateScrollBox(ScrollBoxComponent** outScrollBox, RectTransformComponent** outTransform, bool editorOnly)
+    ecs::Id CreateScrollBox(components::ScrollBoxComponent** outScrollBox, components::RectTransformComponent** outTransform, bool editorOnly)
     {
         auto world = Application::Get()->GetWorld();
         auto assetManager = asset::AssetManager::Get();
