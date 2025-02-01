@@ -1,3 +1,4 @@
+#include "IndexBuffer.h"
 #include "spark.h"
 #include "engine/render/render_fwd.h"
 #if METAL_RENDERER
@@ -15,14 +16,39 @@ DEFINE_SPARK_ENUM_END()
 
 namespace se::render::commands
 {
+    Clear::Clear(bool clearColour, bool clearDepth)
+    : m_ClearColour(clearColour)
+    , m_ClearDepth(clearDepth)
+    {
+        // TODO looks like this could be made into common code?
+    }
+
     void Clear::Execute()
     {
-        // TODO
+        // nothing to do here
+    }
+
+    SubmitGeo::SubmitGeo(const std::shared_ptr<Material>& material, const std::shared_ptr<VertexBuffer>& vertBuffer, const std::shared_ptr<IndexBuffer>& indexBuffer)
+    : m_Material(material)
+    , m_VertBuffer(vertBuffer)
+    , m_IndexBuffer(indexBuffer)
+    {
+        // TODO looks like this could be made into common code?
     }
 
     void SubmitGeo::Execute()
     {
-        // TODO
+        m_Material->Bind(*m_VertBuffer);
+        m_VertBuffer->Bind();
+
+        auto commandEncoder = Renderer::Get<metal::MetalRenderer>()->GetCurrentCommandEncoder();
+        auto* mtlBuffer = static_cast<metal::IndexBuffer*>(m_IndexBuffer.get());
+        commandEncoder->drawIndexedPrimitives(MTL::PrimitiveType::PrimitiveTypeTriangle,
+            m_IndexBuffer->GetIndices().size(),
+            MTL::IndexTypeUInt32,
+            mtlBuffer->GetMTLBuffer(),
+            0,
+            0);
     }
 
     SubmitUI::SubmitUI(const std::shared_ptr<Material> &material, const std::shared_ptr<VertexBuffer> &vertBuffer,
@@ -37,21 +63,6 @@ namespace se::render::commands
     void SubmitUI::Execute()
     {
         // TODO
-    }
-
-    Clear::Clear(bool clearColour, bool clearDepth)
-        : m_ClearColour(clearColour)
-        , m_ClearDepth(clearDepth)
-    {
-        // TODO looks like this could be made into common code?
-    }
-
-    SubmitGeo::SubmitGeo(const std::shared_ptr<Material>& material, const std::shared_ptr<VertexBuffer>& vertBuffer, const std::shared_ptr<IndexBuffer>& indexBuffer)
-        : m_Material(material)
-        , m_VertBuffer(vertBuffer)
-        , m_IndexBuffer(indexBuffer)
-    {
-        // TODO looks like this could be made into common code?
     }
 
     PushScissor::PushScissor(const ui::Rect& rect)

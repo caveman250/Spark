@@ -17,6 +17,12 @@ namespace se::render::metal
 
         void CreatePlatformResource() override;
         void Bind() override;
+
+        MTL::Buffer* GetMTLBuffer() const { return m_Buffer; }
+    private:
+        void Cleanup();
+
+        MTL::Buffer* m_Buffer;
     };
 }
 
