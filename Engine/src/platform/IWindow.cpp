@@ -9,7 +9,9 @@ namespace se
         m_SizeX = x;
         m_SizeY = y;
 
+#if OPENGL_RENDERER
         glViewport(0, 0, x, y); //TODO this should be abstracted away
+#endif
     }
 
     void IWindow::OnMove(int x, int y)

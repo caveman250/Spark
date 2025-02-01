@@ -2,6 +2,7 @@
 
 namespace se::ui::components
 {
+    struct RectTransformComponent;
     struct ScrollBoxComponent;
 }
 

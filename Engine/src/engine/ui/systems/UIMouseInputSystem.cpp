@@ -36,7 +36,7 @@ namespace se::ui::systems
                 continue;
             }
 
-            input::InputUtil::ProcessMouseEvents(inputComp, [this, entity, inputComp, &inputReceiver](const input::MouseEvent& mouseEvent)
+            input::InputUtil::ProcessMouseEvents(inputComp, [this, entity, &inputReceiver](const input::MouseEvent& mouseEvent)
             {
                 if (TryConsumeEvent(mouseEvent, inputReceiver))
                 {
@@ -45,7 +45,7 @@ namespace se::ui::systems
 
                 bool consumed = false;
                 RunRecursiveChildQuery<components::ReceivesMouseEventsComponent>(entity,
-                [this, &consumed, inputComp, mouseEvent](const std::vector<ecs::Id>& children,components::ReceivesMouseEventsComponent* childInputComps)
+                [this, &consumed, mouseEvent](const std::vector<ecs::Id>& children,components::ReceivesMouseEventsComponent* childInputComps)
                 {
                     if (consumed)
                     {
