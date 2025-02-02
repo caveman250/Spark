@@ -356,6 +356,16 @@ namespace se::asset
         return true;
     }
 
+    bool Shader::HasUniform(const std::string& name) const
+    {
+        if (m_Inputs.contains(name))
+        {
+            return true;
+        }
+
+        return false;
+    }
+
     bool Shader::AddSetting(const std::string& name, const shader::ast::Variable& var, std::string& outError)
     {
         if (m_GlobalVariables.contains(name))

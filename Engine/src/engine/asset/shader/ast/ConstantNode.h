@@ -12,7 +12,8 @@ namespace se::asset::shader::ast
         ConstantNode() {}
         ConstantNode(T t);
         std::string GetDebugString() const override;
-        void ToGlsl(string::ArenaString& outShader) const override;
+        void ToGlsl(const ShaderCompileContext& context, string::ArenaString& outShader) const override;
+        void ToMtl(const ShaderCompileContext& context, string::ArenaString& outShader) const override;
     private:
         T m_Constant = {};
     };
@@ -30,14 +31,21 @@ namespace se::asset::shader::ast
     }
 
     template <typename T>
-    void ConstantNode<T>::ToGlsl(string::ArenaString& outShader) const
+    void ConstantNode<T>::ToGlsl(const ShaderCompileContext& context, string::ArenaString& outShader) const
+    {
+        auto alloc = outShader.get_allocator();
+        outShader += string::ArenaFormat("{}", alloc, m_Constant);
+    }
+
+    template<typename T>
+    void ConstantNode<T>::ToMtl(const ShaderCompileContext& context, string::ArenaString& outShader) const
     {
         auto alloc = outShader.get_allocator();
         outShader += string::ArenaFormat("{}", alloc, m_Constant);
     }
 
     DEFINE_SPARK_CLASS_TEMPLATED_BEGIN(ConstantNode, TEMPLATE_TYPES(T), TEMPLATE_PARAMETERS(typename T))
-        DEFINE_SERIALIZED_MEMBER_TEMPLATED(ConstantNode, m_Children, TEMPLATE_TYPES(T))
+            DEFINE_SERIALIZED_MEMBER_TEMPLATED(ConstantNode, m_Children, TEMPLATE_TYPES(T))
         DEFINE_SERIALIZED_MEMBER_TEMPLATED(ConstantNode, m_Constant, TEMPLATE_TYPES(T))
     DEFINE_SPARK_CLASS_END()
 }

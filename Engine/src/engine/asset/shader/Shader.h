@@ -86,6 +86,7 @@ namespace se::asset
         const std::shared_ptr<shader::ast::OutputNode>& FindOutput(const std::string& name) const;
         bool RecordVariableForScope(const std::string& name, const shader::ast::Variable& var, std::string& outError);
         bool AddUniform(const std::string& name, const shader::ast::Variable& var, std::string& outError);
+        bool HasUniform(const std::string& name) const;
         bool AddSetting(const std::string& name, const shader::ast::Variable& var, std::string& outError);
 
         void InsertNode(size_t at, const std::shared_ptr<shader::ast::ASTNode>& node);
@@ -93,7 +94,7 @@ namespace se::asset
         bool HasSetting(const std::string& name, const shader::ast::Variable& type);
 
         void SetType(ShaderType::Type type) { m_Type = type; }
-        ShaderType::Type GetType() { return m_Type; }
+        ShaderType::Type GetType() const { return m_Type; }
 
     private:
         ShaderType::Type m_Type = {};

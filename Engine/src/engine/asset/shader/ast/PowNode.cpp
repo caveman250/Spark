@@ -10,14 +10,30 @@ namespace se::asset::shader::ast
         return "PowNode";
     }
 
-    void PowNode::ToGlsl(string::ArenaString& outShader) const
+    void PowNode::ToGlsl(const ShaderCompileContext& context, string::ArenaString& outShader) const
     {
         auto alloc = outShader.get_allocator();
         outShader.append("pow(");
         for (size_t i = 0; i < m_Children.size(); ++i)
         {
             const auto& child = m_Children[i];
-            child->ToGlsl(outShader);
+            child->ToGlsl(context, outShader);
+            if (i < m_Children.size() - 1 && outShader.back() != '-')
+            {
+                outShader.append(",");
+            }
+        }
+        outShader.append(")");
+    }
+
+    void PowNode::ToMtl(const ShaderCompileContext& context, string::ArenaString& outShader) const
+    {
+        auto alloc = outShader.get_allocator();
+        outShader.append("pow(");
+        for (size_t i = 0; i < m_Children.size(); ++i)
+        {
+            const auto& child = m_Children[i];
+            child->ToMtl(context, outShader);
             if (i < m_Children.size() - 1 && outShader.back() != '-')
             {
                 outShader.append(",");

@@ -1,5 +1,8 @@
 #include "ShaderCombiner.h"
 
+#include <engine/asset/shader/ast/ShaderCompileContext.h>
+#include <engine/render/Renderer.h>
+
 #include "spark.h"
 #include "engine/render/VertexBuffer.h"
 #include "engine/asset/shader/ast/EndOfExpressionNode.h"
@@ -261,8 +264,9 @@ namespace se::asset::shader::compiler
         }
     }
 
-    void ShaderCombiner::ResolveCombinedShaderPorts(Shader& shader)
+    void ShaderCombiner::ResolveCombinedShaderPorts(Shader& shader, const ast::ShaderCompileContext& context)
     {
+        auto renderType = render::Renderer::Get()->GetRenderAPIType();
         for (auto& [name, port] : shader.GetInputPorts())
         {
             if (shader.GetType() == ShaderType::Vertex)
@@ -287,13 +291,24 @@ namespace se::asset::shader::compiler
             {
                 for (const auto& node : shader.GetNodes())
                 {
-                    ForEachChild(node, [port](const std::shared_ptr<ast::ASTNode>& child)
+                    ForEachChild(node, [port, renderType, context](const std::shared_ptr<ast::ASTNode>& child)
                     {
                         if (const auto& varRefNode = std::dynamic_pointer_cast<ast::VariableReferenceNode>(child))
                         {
                             if (varRefNode->GetName() == port->GetName())
                             {
-                                varRefNode->SetName("gl_Position");
+                                if (renderType == render::RenderAPI::OpenGL)
+                                {
+                                    varRefNode->SetName("gl_Position");
+                                }
+                                else if (renderType == render::RenderAPI::Metal)
+                                {
+                                    varRefNode->SetName(context.vertexPositionOutputName.Data());
+                                }
+                                else
+                                {
+                                    SPARK_ASSERT(false, "Unhandled render api type in shader generation.");
+                                }
                             }
                         }
                     });

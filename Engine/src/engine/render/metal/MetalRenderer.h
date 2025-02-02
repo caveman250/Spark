@@ -11,12 +11,14 @@ namespace se::render::metal
     {
     public:
         MetalRenderer();
-        ~MetalRenderer();
+        ~MetalRenderer() override;
+        RenderAPI::Type GetRenderAPIType() const override { return RenderAPI::Metal; }
         void Init() override;
         void Render(IWindow* window) override;
 
         MTL::Device* GetDevice() const { return m_Device; }
         MTL::RenderCommandEncoder* GetCurrentCommandEncoder() const { return m_CurrentCommandEncoder; }
+
 
     private:
         void ApplyDepthCompare(DepthCompare::Type comp) override;

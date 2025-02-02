@@ -146,7 +146,7 @@ namespace se::asset::shader::compiler
             case ast::AstType::Sampler2D:
                 outError = {
                     nextToken.line, nextToken.pos,
-                    std::format("Unexpected type {}", ast::TypeUtil::GetTypeGlsl(argType))
+                    std::format("Unexpected type {}", ast::TypeUtil::TypeToGlsl(argType))
                 };
                 return false;
                 break;
@@ -215,7 +215,7 @@ namespace se::asset::shader::compiler
             case ast::AstType::Sampler2D:
                 outError = {
                     nextToken.line, nextToken.pos,
-                    std::format("Unexpected type {}", ast::TypeUtil::GetTypeGlsl(argType))
+                    std::format("Unexpected type {}", ast::TypeUtil::TypeToGlsl(argType))
                 };
                 return false;
             }
@@ -280,7 +280,7 @@ namespace se::asset::shader::compiler
             case ast::AstType::Invalid:
                 outError = {
                     nextToken.line, nextToken.pos,
-                    std::format("Unexpected type {}", ast::TypeUtil::GetTypeGlsl(argType))
+                    std::format("Unexpected type {}", ast::TypeUtil::TypeToGlsl(argType))
                 };
                 return false;
             }
@@ -308,7 +308,7 @@ namespace se::asset::shader::compiler
     {
         returnType = ast::AstType::Invalid;
 
-        bool isPossibleVariableDec = ast::TypeUtil::StringToType(token.value) != ast::AstType::Invalid;
+        bool isPossibleVariableDec = ast::TypeUtil::GlslToType(token.value) != ast::AstType::Invalid;
         if (isPossibleVariableDec)
         {
             auto peek = m_Lexer.PeekToken();
@@ -490,7 +490,7 @@ namespace se::asset::shader::compiler
         {
             return false;
         }
-        ast::AstType::Type type = ast::TypeUtil::StringToType(typeToken.value);
+        ast::AstType::Type type = ast::TypeUtil::GlslToType(typeToken.value);
         returnType = type;
 
         auto var = ast::Variable(type, 0);
@@ -555,7 +555,7 @@ namespace se::asset::shader::compiler
         {
             return false;
         }
-        ast::AstType::Type type = ast::TypeUtil::StringToType(typeToken.value);
+        ast::AstType::Type type = ast::TypeUtil::GlslToType(typeToken.value);
         returnType = type;
 
         Token nameToken;
@@ -618,7 +618,7 @@ namespace se::asset::shader::compiler
         {
             return false;
         }
-        ast::AstType::Type type = ast::TypeUtil::StringToType(typeToken.value);
+        ast::AstType::Type type = ast::TypeUtil::GlslToType(typeToken.value);
         returnType = type;
 
         Token nameToken;
@@ -767,7 +767,7 @@ namespace se::asset::shader::compiler
             return false;
         }
 
-        ast::AstType::Type declarationType = ast::TypeUtil::StringToType(token.value);
+        ast::AstType::Type declarationType = ast::TypeUtil::GlslToType(token.value);
         m_Shader.AddNode<ast::VariableDeclarationNode>(nameToken.value, ast::Variable(declarationType, 0));
         m_Shader.AddNode<ast::EndOfExpressionNode>();
 
@@ -786,7 +786,7 @@ namespace se::asset::shader::compiler
 
         if (declarationType != expressionType)
         {
-            outError = {token.line, token.pos, std::format("Cannot assign value of type {} to {}", token.value, ast::TypeUtil::GetTypeGlsl(expressionType))};
+            outError = {token.line, token.pos, std::format("Cannot assign value of type {} to {}", token.value, ast::TypeUtil::TypeToGlsl(expressionType))};
             return false;
         }
 
@@ -1124,7 +1124,7 @@ namespace se::asset::shader::compiler
             return false;
         }
 
-        auto itType = ast::TypeUtil::StringToType(itToken.value);
+        auto itType = ast::TypeUtil::GlslToType(itToken.value);
         if (itType == ast::AstType::Invalid)
         {
             outError = { itToken.line, itToken.pos, std::format("Unexpected token {}", itToken.value) };
@@ -1202,7 +1202,7 @@ namespace se::asset::shader::compiler
         {
             outError = {
                 textureVariableToken.line, textureVariableToken.pos,
-                std::format("Unexpected type: {} Expected: sampler2D", ast::TypeUtil::GetTypeGlsl(varType))
+                std::format("Unexpected type: {} Expected: sampler2D", ast::TypeUtil::TypeToGlsl(varType))
             };
             return false;
         }
@@ -1230,7 +1230,7 @@ namespace se::asset::shader::compiler
         {
             outError = {
                 textureVariableToken.line, textureVariableToken.pos,
-                std::format("Unexpected type: {} Expected: vec2", ast::TypeUtil::GetTypeGlsl(varType))
+                std::format("Unexpected type: {} Expected: vec2", ast::TypeUtil::TypeToGlsl(varType))
             };
             return false;
         }
@@ -1292,7 +1292,7 @@ namespace se::asset::shader::compiler
             case ast::AstType::Sampler2D:
                 outError = {
                     token.line, token.pos,
-                    std::format("Unexpected type {}", ast::TypeUtil::GetTypeGlsl(argType))
+                    std::format("Unexpected type {}", ast::TypeUtil::TypeToGlsl(argType))
                 };
                 return false;
             }
@@ -1360,7 +1360,7 @@ namespace se::asset::shader::compiler
             default:
                 outError = {
                     token.line, token.pos,
-                    std::format("Unexpected type {}", ast::TypeUtil::GetTypeGlsl(argType))
+                    std::format("Unexpected type {}", ast::TypeUtil::TypeToGlsl(argType))
                 };
                 return false;
             }
@@ -1442,7 +1442,7 @@ namespace se::asset::shader::compiler
             case ast::AstType::Sampler2D:
                 outError = {
                     token.line, token.pos,
-                    std::format("Unexpected type {}", ast::TypeUtil::GetTypeGlsl(argType))
+                    std::format("Unexpected type {}", ast::TypeUtil::TypeToGlsl(argType))
                 };
                 return false;
             }
@@ -1524,7 +1524,7 @@ namespace se::asset::shader::compiler
             case ast::AstType::Sampler2D:
                 outError = {
                     token.line, token.pos,
-                    std::format("Unexpected type {}", ast::TypeUtil::GetTypeGlsl(argType))
+                    std::format("Unexpected type {}", ast::TypeUtil::TypeToGlsl(argType))
                 };
                 return false;
                 break;
@@ -1593,7 +1593,7 @@ namespace se::asset::shader::compiler
             default:
                 outError = {
                     token.line, token.pos,
-                    std::format("Unexpected type {}", ast::TypeUtil::GetTypeGlsl(argType))
+                    std::format("Unexpected type {}", ast::TypeUtil::TypeToGlsl(argType))
                 };
                 return false;
             }
@@ -1662,7 +1662,7 @@ namespace se::asset::shader::compiler
             default:
                 outError = {
                 token.line, token.pos,
-                std::format("Unexpected type {}", ast::TypeUtil::GetTypeGlsl(argType))
+                std::format("Unexpected type {}", ast::TypeUtil::TypeToGlsl(argType))
             };
                 return false;
             }

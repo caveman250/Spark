@@ -13,7 +13,8 @@ namespace se::asset::shader::ast
         VariableDeclarationNode() = default;
         VariableDeclarationNode(const std::string& name, const Variable& var);
         std::string GetDebugString() const override;
-        void ToGlsl(string::ArenaString& outShader) const override;
+        void ToGlsl(const ShaderCompileContext& context, string::ArenaString& outShader) const override;
+        void ToMtl(const ShaderCompileContext& context, string::ArenaString& outShader) const override;
 
         void CollectUsedNames(std::map<std::string, std::string> &nameMap) const override;
         void ApplyNameRemapping(const std::map<std::string, std::string> &newNames) override;

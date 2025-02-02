@@ -25,3 +25,18 @@ namespace se
         std::vector<char> m_Data = {};
     };
 }
+
+template <>
+struct std::formatter<se::String>
+{
+    constexpr auto parse(std::format_parse_context& ctx)
+    {
+        return ctx.begin();
+    }
+
+    template <class FormatContext>
+    auto format(const se::String& obj, FormatContext& ctx) const
+    {
+        return std::format_to(ctx.out(), "{}", obj.Data());
+    }
+};

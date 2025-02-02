@@ -9,6 +9,7 @@ namespace se::asset::shader::ast
         DECLARE_SPARK_CLASS(MainNode)
 
         std::string GetDebugString() const override;
-        void ToGlsl(string::ArenaString& outShader) const override;
+        void ToGlsl(const ShaderCompileContext& context, string::ArenaString& outShader) const override;
+        void ToMtl(const ShaderCompileContext& context, string::ArenaString& outShader) const override;
     };
 }

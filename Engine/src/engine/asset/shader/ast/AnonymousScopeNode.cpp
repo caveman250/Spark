@@ -11,12 +11,22 @@ namespace se::asset::shader::ast
         return "AnonymousScopeNode";
     }
 
-    void AnonymousScopeNode::ToGlsl(string::ArenaString &outShader) const
+    void AnonymousScopeNode::ToGlsl(const ShaderCompileContext& context, string::ArenaString &outShader) const
     {
         outShader.append("{\n");
         for (const auto& child : m_Children)
         {
-            child->ToGlsl(outShader);
+            child->ToGlsl(context, outShader);
+        }
+        outShader.append("}\n");
+    }
+
+    void AnonymousScopeNode::ToMtl(const ShaderCompileContext& context, string::ArenaString& outShader) const
+    {
+        outShader.append("{\n");
+        for (const auto& child : m_Children)
+        {
+            child->ToMtl(context, outShader);
         }
         outShader.append("}\n");
     }

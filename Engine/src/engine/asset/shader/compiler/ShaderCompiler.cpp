@@ -1,6 +1,8 @@
 #include "ShaderCompiler.h"
 
 #include <optional>
+#include <engine/asset/shader/ast/ShaderCompileContext.h>
+#include <engine/render/Renderer.h>
 
 #include "engine/asset/shader/ast/ASTNode.h"
 #include "engine/asset/shader/ast/InputAttributeNode.h"
@@ -59,7 +61,9 @@ namespace se::asset::shader
             newShader = combiner.Combine(newShader.value(), additionalStage);
         }
 
-        combiner.ResolveCombinedShaderPorts(newShader.value());
+        ast::ShaderCompileContext context = { *newShader, ast::NameGenerator::GetName() };
+
+        combiner.ResolveCombinedShaderPorts(newShader.value(), context);
 
         if (!ResolveSettings(newShader.value(), settings))
         {
@@ -74,7 +78,20 @@ namespace se::asset::shader
             }
         }
 
-        return AstToGlsl(newShader.value());
+        auto renderApiType = render::Renderer::Get<render::Renderer>()->GetRenderAPIType();
+        if (renderApiType == render::RenderAPI::OpenGL)
+        {
+            return AstToGlsl(newShader.value(), context);
+        }
+        else if (renderApiType == render::RenderAPI::Metal)
+        {
+            return AstToMtl(newShader.value(), context);
+        }
+        else
+        {
+            SPARK_ASSERT(false, "ShaderCompiler::GeneratePlatformShader - Unhandled RenderAPI");
+            return "";
+        }
     }
 
     bool ShaderCompiler::ResolveSettings(Shader& shader, const ShaderSettings& settings)
@@ -131,7 +148,7 @@ namespace se::asset::shader
         return true;
     }
 
-    std::string ShaderCompiler::AstToGlsl(Shader &ast)
+    std::string ShaderCompiler::AstToGlsl(Shader &ast, const ast::ShaderCompileContext& context)
     {
 #if 0
         for (const auto *node: ast.GetNodes())
@@ -149,12 +166,12 @@ namespace se::asset::shader
 
         for (const auto &[name, node]: ast.GetInputs())
         {
-            node->ToGlsl(shader);
+            node->ToGlsl(context, shader);
         }
 
         for (const auto &[name, node]: ast.GetOutputs())
         {
-            node->ToGlsl(shader);
+            node->ToGlsl(context, shader);
         }
 
         for (const auto& [name, var] : ast.GetUniformVariables())
@@ -169,13 +186,77 @@ namespace se::asset::shader
                 arrayText = std::format("[{}]", var.arraySizeConstant);
             }
 
-            auto uniformText = std::format("uniform {0} {1}{2};\n", ast::TypeUtil::GetTypeGlsl(var.type), name, arrayText);
+            auto uniformText = std::format("uniform {0} {1}{2};\n", ast::TypeUtil::TypeToGlsl(var.type), name, arrayText);
             shader.append(uniformText);
         }
 
         for (const auto& node: ast.GetNodes())
         {
-            node->ToGlsl(shader);
+            node->ToGlsl(context, shader);
+        }
+
+        return shader.c_str();
+    }
+
+    std::string ShaderCompiler::AstToMtl(Shader& ast, const ast::ShaderCompileContext& context)
+    {
+#if 0
+        for (const auto *node: ast.GetNodes())
+        {
+            node->DebugPrint(0);
+        }
+#endif
+
+        memory::Arena arena;
+        memory::ArenaAllocator<char> alloc(arena);
+        string::ArenaString shader(alloc);
+
+        shader.append("#include <metal_stdlib>\nusing namespace metal;\n");
+
+        shader.append(string::ArenaFormat("struct v2f\n{{\nfloat4 {0} [[position]];\n", alloc, context.vertexPositionOutputName));
+        if (ast.GetType() == ShaderType::Vertex)
+        {
+            for (const auto& [name, node] : ast.GetOutputs())
+            {
+                node->ToMtl(context, shader);
+            }
+        }
+        else
+        {
+            for (const auto& [name, node] : ast.GetInputs())
+            {
+                node->ToMtl(context, shader);
+            }
+        }
+
+        shader.append("};\nstruct UniformData\n{\n");
+
+        for (const auto& [name, var] : ast.GetUniformVariables())
+        {
+            if (var.type == ast::AstType::Sampler2D)
+            {
+                // Metal defines these as fragment shader main args.
+                continue;
+            }
+            std::string arrayText = "";
+            if (!var.arraySizeVariable.empty())
+            {
+                arrayText = std::format("[{}]", var.arraySizeVariable);
+            }
+            else if (var.arraySizeConstant != 0)
+            {
+                arrayText = std::format("[{}]", var.arraySizeConstant);
+            }
+
+            auto uniformText = std::format("{0} {1}{2};\n", ast::TypeUtil::TypeToMtl(var.type), name, arrayText);
+            shader.append(uniformText);
+        }
+
+        shader.append("};\n");
+
+        for (const auto& node: ast.GetNodes())
+        {
+            node->ToMtl(context, shader);
         }
 
         return shader.c_str();

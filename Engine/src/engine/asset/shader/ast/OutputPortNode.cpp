@@ -20,13 +20,17 @@ namespace se::asset::shader::ast
 
     std::string OutputPortNode::GetDebugString() const
     {
-        return std::format("OutputPortNode - {}, {}, {}", m_PortName, TypeUtil::GetTypeGlsl(m_Var.type), m_Name);
+        return std::format("OutputPortNode - {}, {}, {}", m_PortName, TypeUtil::TypeToGlsl(m_Var.type), m_Name);
     }
 
-    void OutputPortNode::ToGlsl(string::ArenaString &outShader) const
+    void OutputPortNode::ToGlsl(const ShaderCompileContext& context, string::ArenaString &outShader) const
     {
-        auto alloc = outShader.get_allocator();
-        outShader.append(string::ArenaFormat("port({0}) out {1} {2};\n", alloc, m_PortName, TypeUtil::GetTypeGlsl(m_Var.type), m_Name));
+        SPARK_ASSERT(false, "OutputPortNode should not be in final glsl output!");
+    }
+
+    void OutputPortNode::ToMtl(const ShaderCompileContext& context, string::ArenaString& outShader) const
+    {
+        SPARK_ASSERT(false, "OutputPortNode should not be in final mtl output!");
     }
 
     void OutputPortNode::CollectUsedNames(std::map<std::string, std::string> &nameMap) const
