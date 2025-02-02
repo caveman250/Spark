@@ -16,6 +16,11 @@ namespace se::render
     template<typename T>
     concept ARenderCommand = std::is_base_of<commands::RenderCommand, T>::value;
 
+    DECLARE_SPARK_ENUM_BEGIN(RenderAPI, int)
+        OpenGL,
+        Metal
+    DECLARE_SPARK_ENUM_END()
+
     class Renderer
     {
     public:
@@ -23,6 +28,7 @@ namespace se::render
         static void Shutdown();
         template <typename T>
         static T* Get();
+        virtual RenderAPI::Type GetRenderAPIType() const = 0;
 
         virtual ~Renderer() {}
         virtual void Init() = 0;

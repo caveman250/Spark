@@ -17,13 +17,24 @@ namespace se::asset::shader::ast
         return std::format("PropertyAccessNode - {}", m_PropertyName);
     }
 
-    void PropertyAccessNode::ToGlsl(string::ArenaString& outShader) const
+    void PropertyAccessNode::ToGlsl(const ShaderCompileContext& context, string::ArenaString& outShader) const
     {
         auto alloc = outShader.get_allocator();
         SPARK_ASSERT(m_Children.size() <= 1);
         if (!m_Children.empty())
         {
-            m_Children[0]->ToGlsl(outShader);
+            m_Children[0]->ToGlsl(context, outShader);
+        }
+        outShader.append(string::ArenaFormat(".{}", alloc, m_PropertyName));
+    }
+
+    void PropertyAccessNode::ToMtl(const ShaderCompileContext& context, string::ArenaString& outShader) const
+    {
+        auto alloc = outShader.get_allocator();
+        SPARK_ASSERT(m_Children.size() <= 1);
+        if (!m_Children.empty())
+        {
+            m_Children[0]->ToMtl(context, outShader);
         }
         outShader.append(string::ArenaFormat(".{}", alloc, m_PropertyName));
     }

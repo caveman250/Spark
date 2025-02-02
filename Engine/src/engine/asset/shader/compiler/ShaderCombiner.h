@@ -16,6 +16,7 @@ namespace se::asset
 
     namespace shader::ast
     {
+        struct ShaderCompileContext;
         class ASTNode;
     }
 }
@@ -27,7 +28,7 @@ namespace se::asset::shader::compiler
     public:
         explicit ShaderCombiner(const render::VertexBuffer& vb);
         Shader Combine(const Shader& left, const Shader& right);
-        void ResolveCombinedShaderPorts(Shader& shader);
+        void ResolveCombinedShaderPorts(Shader& shader, const ast::ShaderCompileContext& context);
 
     private:
         void ForEachChild(const std::shared_ptr<ast::ASTNode>& node, std::function<void(const std::shared_ptr<ast::ASTNode>& node)> func);

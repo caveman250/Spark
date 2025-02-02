@@ -1,5 +1,7 @@
 #include "TextureSampleNode.h"
 
+#include "NameGenerator.h"
+
 namespace se::asset::shader::ast
 {
     DEFINE_SPARK_CLASS_BEGIN(TextureSampleNode)
@@ -20,10 +22,18 @@ namespace se::asset::shader::ast
         return "TextureSampleNode";
     }
 
-    void TextureSampleNode::ToGlsl(string::ArenaString &outShader) const
+    void TextureSampleNode::ToGlsl(const ShaderCompileContext& context, string::ArenaString &outShader) const
     {
         auto alloc = outShader.get_allocator();
         outShader += string::ArenaFormat("texture({}, {})", alloc, m_SamplerName, m_UVVariableName);
+    }
+
+    void TextureSampleNode::ToMtl(const ShaderCompileContext& context, string::ArenaString& outShader) const
+    {
+        auto alloc = outShader.get_allocator();
+        auto samplerName = NameGenerator::GetName();
+        outShader += string::ArenaFormat("constexpr sampler {}( address::repeat, filter::linear );", alloc, samplerName);
+        outShader += string::ArenaFormat("{}.sample({}, in.{});", alloc, m_SamplerName, samplerName, m_UVVariableName);
     }
 
     void TextureSampleNode::ApplyNameRemapping(const std::map<std::string, std::string> &newNames)

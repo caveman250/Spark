@@ -11,14 +11,30 @@ namespace se::asset::shader::ast
         return "Vec2Node";
     }
 
-    void Vec2Node::ToGlsl(string::ArenaString& outShader) const
+    void Vec2Node::ToGlsl(const ShaderCompileContext& context, string::ArenaString& outShader) const
     {
         auto alloc = outShader.get_allocator();
         outShader.append("vec2(");
         for (size_t i = 0; i < m_Children.size(); ++i)
         {
             const auto& child = m_Children[i];
-            child->ToGlsl(outShader);
+            child->ToGlsl(context, outShader);
+            if (i < m_Children.size() - 1 && outShader.back() != '-')
+            {
+                outShader.append(",");
+            }
+        }
+        outShader.append(")");
+    }
+
+    void Vec2Node::ToMtl(const ShaderCompileContext& context, string::ArenaString& outShader) const
+    {
+        auto alloc = outShader.get_allocator();
+        outShader.append("float2(");
+        for (size_t i = 0; i < m_Children.size(); ++i)
+        {
+            const auto& child = m_Children[i];
+            child->ToMtl(context, outShader);
             if (i < m_Children.size() - 1 && outShader.back() != '-')
             {
                 outShader.append(",");

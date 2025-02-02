@@ -19,10 +19,10 @@ namespace se::asset::shader::ast
 
     std::string OutputNode::GetDebugString() const
     {
-        return std::format("OutputNode - {}, {}", TypeUtil::GetTypeGlsl(m_Var.type), m_Name);
+        return std::format("OutputNode - {}, {}", TypeUtil::TypeToGlsl(m_Var.type), m_Name);
     }
 
-    void OutputNode::ToGlsl(string::ArenaString& outShader) const
+    void OutputNode::ToGlsl(const ShaderCompileContext& context, string::ArenaString& outShader) const
     {
         auto alloc = outShader.get_allocator();
         std::string arrayTag = "";
@@ -34,7 +34,22 @@ namespace se::asset::shader::ast
         {
             arrayTag = std::format("[{}]", m_Var.arraySizeConstant);
         }
-        outShader += string::ArenaFormat("out {} {}{};\n", alloc, TypeUtil::GetTypeGlsl(m_Var.type), m_Name, arrayTag);
+        outShader += string::ArenaFormat("out {} {}{};\n", alloc, TypeUtil::TypeToGlsl(m_Var.type), m_Name, arrayTag);
+    }
+
+    void OutputNode::ToMtl(const ShaderCompileContext& context, string::ArenaString& outShader) const
+    {
+        auto alloc = outShader.get_allocator();
+        std::string arrayTag = "";
+        if (!m_Var.arraySizeVariable.empty())
+        {
+            arrayTag = std::format("[{}]", m_Var.arraySizeVariable);
+        }
+        else if (m_Var.arraySizeConstant != 0)
+        {
+            arrayTag = std::format("[{}]", m_Var.arraySizeConstant);
+        }
+        outShader += string::ArenaFormat("{} {}{};\n", alloc, TypeUtil::TypeToMtl(m_Var.type), m_Name, arrayTag);
     }
 
     const Variable& OutputNode::GetVar() const

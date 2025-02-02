@@ -2,7 +2,7 @@
 
 namespace se::asset::shader::ast
 {
-    std::string TypeUtil::GetTypeGlsl(AstType::Type type)
+    std::string TypeUtil::TypeToGlsl(AstType::Type type)
     {
         switch (type)
         {
@@ -30,7 +30,7 @@ namespace se::asset::shader::ast
         }
     }
 
-    AstType::Type TypeUtil::StringToType(const std::string& type)
+    AstType::Type TypeUtil::GlslToType(const std::string& type)
     {
         if (type == "int")
             return AstType::Int;
@@ -49,6 +49,58 @@ namespace se::asset::shader::ast
         else if (type == "void")
             return AstType::Void;
         else if (type == "sampler2D")
+            return AstType::Sampler2D;
+
+        return AstType::Invalid;
+    }
+
+    std::string TypeUtil::TypeToMtl(AstType::Type type)
+    {
+        switch (type)
+        {
+            case AstType::Int:
+                return "int";
+            case AstType::Float:
+                return "float";
+            case AstType::Vec2:
+                return "float2";
+            case AstType::Vec3:
+                return "float3";
+            case AstType::Vec4:
+                return "float4";
+            case AstType::Mat3:
+                return "float3x3";
+            case AstType::Mat4:
+                return "float4x4";
+            case AstType::Void:
+                return "void";
+            case AstType::Sampler2D:
+                return "texture2d";
+            default:
+                SPARK_ASSERT(false);
+                return "";
+        }
+    }
+
+    AstType::Type TypeUtil::MtlToType(const std::string& type)
+    {
+        if (type == "int")
+            return AstType::Int;
+        else if (type == "float")
+            return AstType::Float;
+        else if (type == "float2")
+            return AstType::Vec2;
+        else if (type == "float3")
+            return AstType::Vec3;
+        else if (type == "float4")
+            return AstType::Vec4;
+        else if (type == "float3x3")
+            return AstType::Mat3;
+        else if (type == "float4x4")
+            return AstType::Mat4;
+        else if (type == "void")
+            return AstType::Void;
+        else if (type == "texture2D")
             return AstType::Sampler2D;
 
         return AstType::Invalid;

@@ -78,19 +78,37 @@ namespace se::asset::shader::ast
         return "ForLoopNode";
     }
 
-    void ForLoopNode::ToGlsl(string::ArenaString& outShader) const
+    void ForLoopNode::ToGlsl(const ShaderCompileContext& context, string::ArenaString& outShader) const
     {
         auto alloc = outShader.get_allocator();
-        std::ranges::for_each(m_Declaration, [&outShader](const auto& item) { item->ToGlsl(outShader); });
+        std::ranges::for_each(m_Declaration, [&context, &outShader](const auto& item) { item->ToGlsl(context, outShader); });
         outShader += ";\nfor(;";
-        std::ranges::for_each(m_Condition, [&outShader](const auto& item) { item->ToGlsl(outShader); });
+        std::ranges::for_each(m_Condition, [&context, &outShader](const auto& item) { item->ToGlsl(context, outShader); });
         outShader += ";";
-        std::ranges::for_each(m_Expression, [&outShader](const auto& item) { item->ToGlsl(outShader); });
+        std::ranges::for_each(m_Expression, [&context, &outShader](const auto& item) { item->ToGlsl(context, outShader); });
         outShader += ")\n{\n";
 
         for (const auto& child : m_Children)
         {
-            child->ToGlsl(outShader);
+            child->ToGlsl(context, outShader);
+        }
+
+        outShader += "}\n";
+    }
+
+    void ForLoopNode::ToMtl(const ShaderCompileContext& context, string::ArenaString& outShader) const
+    {
+        auto alloc = outShader.get_allocator();
+        std::ranges::for_each(m_Declaration, [&context, &outShader](const auto& item) { item->ToMtl(context, outShader); });
+        outShader += ";\nfor(;";
+        std::ranges::for_each(m_Condition, [&context, &outShader](const auto& item) { item->ToMtl(context, outShader); });
+        outShader += ";";
+        std::ranges::for_each(m_Expression, [&context, &outShader](const auto& item) { item->ToMtl(context, outShader); });
+        outShader += ")\n{\n";
+
+        for (const auto& child : m_Children)
+        {
+            child->ToMtl(context, outShader);
         }
 
         outShader += "}\n";

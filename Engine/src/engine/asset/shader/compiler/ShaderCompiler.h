@@ -28,6 +28,7 @@ namespace se::asset::shader
                                                                     std::vector<std::pair<std::string, std::shared_ptr<render::TextureResource>>>& textureResources);
 
         static bool ResolveSettings(Shader& shader, const ShaderSettings& settings);
-        static std::string AstToGlsl(Shader& ast);
+        static std::string AstToGlsl(Shader& ast, const ast::ShaderCompileContext& context);
+        static std::string AstToMtl(Shader& ast, const ast::ShaderCompileContext& context);
     };
 }

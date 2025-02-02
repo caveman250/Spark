@@ -20,7 +20,8 @@ namespace se::asset::shader::ast
 
         const std::shared_ptr<ASTNode>& AddChild(ASTNode* node) override;
         std::string GetDebugString() const override;
-        void ToGlsl(string::ArenaString& outShader) const override;
+        void ToGlsl(const ShaderCompileContext& context, string::ArenaString& outShader) const override;
+        void ToMtl(const ShaderCompileContext& context, string::ArenaString& outShader) const override;
 
         std::vector<std::shared_ptr<ASTNode>> m_Declaration;
         std::vector<std::shared_ptr<ASTNode>> m_Condition;

@@ -11,7 +11,12 @@ namespace se::asset::shader::ast
         return "EndOfExpressionNode";
     }
 
-    void EndOfExpressionNode::ToGlsl(string::ArenaString& outShader) const
+    void EndOfExpressionNode::ToGlsl(const ShaderCompileContext& context, string::ArenaString& outShader) const
+    {
+        outShader += ";\n";
+    }
+
+    void EndOfExpressionNode::ToMtl(const ShaderCompileContext& context, string::ArenaString& outShader) const
     {
         outShader += ";\n";
     }

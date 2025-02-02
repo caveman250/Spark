@@ -33,7 +33,28 @@ namespace se::render::metal
 
     void Material::CreatePlatformResources(const render::VertexBuffer& vb)
     {
-        // TODO
+        std::vector<std::pair<std::string, std::shared_ptr<render::TextureResource>>> empty = {}; // TODO
+        std::optional<std::string> vert = asset::shader::ShaderCompiler::GeneratePlatformShader(m_VertShaders, m_ShaderSettings, vb, empty);
+        std::optional<std::string> frag = asset::shader::ShaderCompiler::GeneratePlatformShader(m_FragShaders, m_ShaderSettings, vb, empty);
+
+        if (!vert.has_value() || !frag.has_value())
+        {
+            return;
+        }
+
+        debug::Log::Info("Result Vert Shader:\n {}", vert.value());
+        //debug::Log::Info("Result Frag Shader:\n {}", frag.value());
+
+        auto device = Renderer::Get<metal::MetalRenderer>()->GetDevice();
+
+        NS::Error* pError = nullptr;
+        MTL::Library* pLibrary = device->newLibrary( NS::String::string(vert->c_str(), NS::UTF8StringEncoding), nullptr, &pError );
+        if ( !pLibrary )
+        {
+            debug::Log::Error( "{}", pError->localizedDescription()->utf8String() );
+            assert( false );
+        }
+
         render::Material::CreatePlatformResources(vb);
     }
 
