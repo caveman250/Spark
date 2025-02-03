@@ -41,13 +41,20 @@ namespace se::asset::shader::ast
         std::string arrayTag = "";
         if (!m_Var.arraySizeVariable.empty())
         {
-            arrayTag = std::format("[{}]", m_Var.arraySizeVariable);
+            SPARK_ASSERT(false, "variables sized array not spported in shader outputs in mtl.");
         }
-        else if (m_Var.arraySizeConstant != 0)
+
+        if (m_Var.arraySizeConstant > 0)
         {
-            arrayTag = std::format("[{}]", m_Var.arraySizeConstant);
+            for (size_t i = 0; i < m_Var.arraySizeConstant; ++i)
+            {
+                outShader += string::ArenaFormat("{} {}{};\n", alloc, TypeUtil::TypeToMtl(m_Var.type), m_Name, i);
+            }
         }
-        outShader += string::ArenaFormat("{} {}{};\n", alloc, TypeUtil::TypeToMtl(m_Var.type), m_Name, arrayTag);
+        else
+        {
+            outShader += string::ArenaFormat("{} {};\n", alloc, TypeUtil::TypeToMtl(m_Var.type), m_Name);
+        }
     }
 
     const Variable& InputNode::GetVar() const
