@@ -42,17 +42,23 @@ namespace se::render::metal
             return;
         }
 
-        debug::Log::Info("Result Vert Shader:\n {}", vert.value());
-        //debug::Log::Info("Result Frag Shader:\n {}", frag.value());
+        debug::Log::Info("Result Frag Shader:\n {}", frag.value());
 
         auto device = Renderer::Get<metal::MetalRenderer>()->GetDevice();
 
-        NS::Error* pError = nullptr;
-        MTL::Library* pLibrary = device->newLibrary( NS::String::string(vert->c_str(), NS::UTF8StringEncoding), nullptr, &pError );
-        if ( !pLibrary )
+        NS::Error* error = nullptr;
+        MTL::Library* vertLibrary = device->newLibrary( NS::String::string(vert->c_str(), NS::UTF8StringEncoding), nullptr, &error );
+        if (!vertLibrary)
         {
-            debug::Log::Error( "{}", pError->localizedDescription()->utf8String() );
-            assert( false );
+            debug::Log::Error("Failed to compile shader!\nShader Text:\n{}\nError(s):\n{}", vert->c_str(), error->localizedDescription()->utf8String());
+            SPARK_ASSERT(false);
+        }
+
+        MTL::Library* fragLibrary = device->newLibrary( NS::String::string(frag->c_str(), NS::UTF8StringEncoding), nullptr, &error );
+        if (!fragLibrary)
+        {
+            debug::Log::Error("Failed to compile shader!\nShader Text:\n{}\nError(s):\n{}", frag->c_str(), error->localizedDescription()->utf8String());
+            SPARK_ASSERT(false);
         }
 
         render::Material::CreatePlatformResources(vb);

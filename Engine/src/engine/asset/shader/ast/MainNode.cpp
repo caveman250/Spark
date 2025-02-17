@@ -27,6 +27,8 @@ namespace se::asset::shader::ast
 
     void MainNode::ToMtl(ShaderCompileContext& context, string::ArenaString& outShader) const
     {
+        auto alloc = outShader.get_allocator();
+
         if (context.shader.GetType() == ShaderType::Vertex)
         {
             outShader.append("v2f vertex vertexMain(uint vertexId [[vertex_id]]");
@@ -37,14 +39,27 @@ namespace se::asset::shader::ast
             }
             if (! context.shader.GetUniformVariables().empty())
             {
-                auto alloc = outShader.get_allocator();
                 outShader += string::ArenaFormat(",\ndevice const UniformData& inUniforms [[buffer({})]]", alloc, context.shader.GetInputs().size());
             }
             outShader.append(")\n{\n v2f out;\n");
         }
         else
         {
-            outShader.append("half4 fragment fragmentMain(v2f in [[stage_in]])\n{\n");
+            outShader.append("half4 fragment fragmentMain(v2f in [[stage_in]]");
+            int index = 0;
+            for (const auto& [name, uniform] : context.shader.GetUniformVariables())
+            {
+                if (uniform.type == AstType::Sampler2D)
+                {
+                    outShader += string::ArenaFormat(",\ntexture2d<float, access::sample> {} [[texture({})]]", alloc, name, index++);
+                }
+            }
+            outShader.append(")\n{\n");
+        }
+
+        for (const auto& node: context.shader.GetNodes())
+        {
+            node->ToMtlPreDeclarations(context, outShader);
         }
 
         for (const auto& child : m_Children)

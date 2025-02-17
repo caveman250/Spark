@@ -41,6 +41,22 @@ namespace se::asset::shader::ast
         }
     }
 
+    void ASTNode::ToGlslPreDeclarations(ShaderCompileContext& context, string::ArenaString& outShader)
+    {
+        for (const auto& child : m_Children)
+        {
+            child->ToGlslPreDeclarations(context, outShader);
+        }
+    }
+
+    void ASTNode::ToMtlPreDeclarations(ShaderCompileContext& context, string::ArenaString& outShader)
+    {
+        for (const auto& child : m_Children)
+        {
+            child->ToMtlPreDeclarations(context, outShader);
+        }
+    }
+
     void ASTNode::CollectUsedNames(std::map<std::string, std::string> &nameMap) const
     {
         for (const auto& child : m_Children)

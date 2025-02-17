@@ -244,30 +244,35 @@ namespace se::asset::shader
             }
         }
 
-        shader.append("};\nstruct UniformData\n{\n");
-
-        for (const auto& [name, var] : ast.GetUniformVariables())
-        {
-            if (var.type == ast::AstType::Sampler2D)
-            {
-                // Metal defines these as fragment shader main args.
-                continue;
-            }
-            std::string arrayText = "";
-            if (!var.arraySizeVariable.empty())
-            {
-                arrayText = std::format("[{}]", var.arraySizeVariable);
-            }
-            else if (var.arraySizeConstant != 0)
-            {
-                arrayText = std::format("[{}]", var.arraySizeConstant);
-            }
-
-            auto uniformText = std::format("{0} {1}{2};\n", ast::TypeUtil::TypeToMtl(var.type), name, arrayText);
-            shader.append(uniformText);
-        }
-
         shader.append("};\n");
+
+        if (ast.GetType() == ShaderType::Vertex)
+        {
+            shader.append("struct UniformData\n{\n");
+
+            for (const auto& [name, var] : ast.GetUniformVariables())
+            {
+                if (var.type == ast::AstType::Sampler2D)
+                {
+                    // Metal defines these as fragment shader main args.
+                    continue;
+                }
+                std::string arrayText = "";
+                if (!var.arraySizeVariable.empty())
+                {
+                    arrayText = std::format("[{}]", var.arraySizeVariable);
+                }
+                else if (var.arraySizeConstant != 0)
+                {
+                    arrayText = std::format("[{}]", var.arraySizeConstant);
+                }
+
+                auto uniformText = std::format("{0} {1}{2};\n", ast::TypeUtil::TypeToMtl(var.type), name, arrayText);
+                shader.append(uniformText);
+            }
+
+            shader.append("};\n");
+        }
 
         for (const auto& node: ast.GetNodes())
         {
