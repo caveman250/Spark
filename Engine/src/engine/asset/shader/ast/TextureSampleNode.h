@@ -13,10 +13,14 @@ namespace se::asset::shader::ast
         TextureSampleNode(const std::string& samplerName, const std::string& uvVarName);
         std::string GetDebugString() const override;
         void ToGlsl(ShaderCompileContext& context, string::ArenaString& outShader) const override;
+        void ToMtlPreDeclarations(ShaderCompileContext& context, string::ArenaString& outShader) override;
         void ToMtl(ShaderCompileContext& context, string::ArenaString& outShader) const override;
         void ApplyNameRemapping(const std::map<std::string, std::string> &newNames) override;
     private:
         std::string m_SamplerName = {};
         std::string m_UVVariableName = {};
+
+        // only used during shader generation
+        String m_TempSamplerName = {};
     };
 }
