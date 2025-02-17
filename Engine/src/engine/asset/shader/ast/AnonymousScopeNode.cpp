@@ -4,14 +4,14 @@ namespace se::asset::shader::ast
 {
     DEFINE_SPARK_CLASS_BEGIN(AnonymousScopeNode)
         DEFINE_SERIALIZED_MEMBER(m_Children)
-    DEFINE_SPARK_CLASS_END()
+    DEFINE_SPARK_CLASS_END(AnonymousScopeNode)
 
     std::string AnonymousScopeNode::GetDebugString() const
     {
         return "AnonymousScopeNode";
     }
 
-    void AnonymousScopeNode::ToGlsl(const ShaderCompileContext& context, string::ArenaString &outShader) const
+    void AnonymousScopeNode::ToGlsl(ShaderCompileContext& context, string::ArenaString &outShader) const
     {
         outShader.append("{\n");
         for (const auto& child : m_Children)
@@ -21,7 +21,7 @@ namespace se::asset::shader::ast
         outShader.append("}\n");
     }
 
-    void AnonymousScopeNode::ToMtl(const ShaderCompileContext& context, string::ArenaString& outShader) const
+    void AnonymousScopeNode::ToMtl(ShaderCompileContext& context, string::ArenaString& outShader) const
     {
         outShader.append("{\n");
         for (const auto& child : m_Children)

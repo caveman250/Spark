@@ -61,7 +61,7 @@ namespace se::asset::shader
             newShader = combiner.Combine(newShader.value(), additionalStage);
         }
 
-        ast::ShaderCompileContext context = { *newShader, ast::NameGenerator::GetName() };
+        ast::ShaderCompileContext context = { *newShader, ast::NameGenerator::GetName() , {} };
 
         combiner.ResolveCombinedShaderPorts(newShader.value(), context);
 
@@ -104,10 +104,25 @@ namespace se::asset::shader
             }
 
             auto replacementText = settings.GetSettingText(name);
-            std::map<std::string, std::string> renameMap = { { name, replacementText } };
             for (const auto& node : shader.GetNodes())
             {
-                node->ApplyNameRemapping(renameMap);
+                auto value = settings.GetSettingValue(name);
+                std::visit([&shader, node, name](auto&& arg)
+                {
+                    using T = std::decay_t<decltype(arg)>;
+                    if constexpr (std::is_same_v<T, int>)
+                        ReplaceSettingReferenceWithConstant(shader, node.get(), name, arg);
+                    else if constexpr (std::is_same_v<T, float>)
+                        ReplaceSettingReferenceWithConstant(shader, node.get(), name, arg);
+                    else if constexpr (std::is_same_v<T, math::Vec2>)
+                        ReplaceSettingReferenceWithConstant(shader, node.get(), name, arg);
+                    else if constexpr (std::is_same_v<T, math::Vec3>)
+                        ReplaceSettingReferenceWithConstant(shader, node.get(), name, arg);
+                    else if constexpr (std::is_same_v<T, math::Vec4>)
+                        ReplaceSettingReferenceWithConstant(shader, node.get(), name, arg);
+                    else
+                        static_assert(false, "Unhandled Shader Setting Value type!");
+                }, value);
             }
 
             for (auto& [uniformName, var] : shader.m_Uniforms)
@@ -148,7 +163,7 @@ namespace se::asset::shader
         return true;
     }
 
-    std::string ShaderCompiler::AstToGlsl(Shader &ast, const ast::ShaderCompileContext& context)
+    std::string ShaderCompiler::AstToGlsl(Shader &ast, ast::ShaderCompileContext& context)
     {
 #if 0
         for (const auto *node: ast.GetNodes())
@@ -198,7 +213,7 @@ namespace se::asset::shader
         return shader.c_str();
     }
 
-    std::string ShaderCompiler::AstToMtl(Shader& ast, const ast::ShaderCompileContext& context)
+    std::string ShaderCompiler::AstToMtl(Shader& ast, ast::ShaderCompileContext& context)
     {
 #if 0
         for (const auto *node: ast.GetNodes())

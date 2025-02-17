@@ -16,7 +16,6 @@ namespace se::reflect
         std::vector<Member> members;
 
         Class();
-        Class(void (*init)(Class*));
 
         Type* GetMemberType(const std::string& fieldName);
         const char* GetMemberName(int i);

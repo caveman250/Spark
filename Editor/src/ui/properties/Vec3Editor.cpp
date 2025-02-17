@@ -8,7 +8,7 @@ namespace se::editor::ui::properties
     DEFINE_PROPERTY_EDITOR(math::Vec3, Vec3Editor);
 
     DEFINE_SPARK_CLASS_BEGIN(Vec3Editor)
-    DEFINE_SPARK_CLASS_END()
+    DEFINE_SPARK_CLASS_END(Vec3Editor)
 
     void Vec3Editor::SetValue(void* value)
     {

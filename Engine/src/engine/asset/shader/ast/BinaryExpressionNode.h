@@ -14,8 +14,10 @@ namespace se::asset::shader::ast
         BinaryExpressionNode() {}
         explicit BinaryExpressionNode(OperatorType::Type opType);
         std::string GetDebugString() const override;
-        void ToGlsl(const ShaderCompileContext& context, string::ArenaString& outShader) const override;
-        void ToMtl(const ShaderCompileContext& context, string::ArenaString& outShader) const override;
+        void ToGlsl(ShaderCompileContext& context, string::ArenaString& outShader) const override;
+        void ToMtl(ShaderCompileContext& context, string::ArenaString& outShader) const override;
+
+        OperatorType::Type GetOperatorType() const { return m_OpType; }
 
     private:
         OperatorType::Type m_OpType;

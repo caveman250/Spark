@@ -25,7 +25,7 @@ namespace se::asset
         DEFINE_SERIALIZED_MEMBER(m_Uniforms)
         DEFINE_SERIALIZED_MEMBER(m_GlobalVariables)
         DEFINE_SERIALIZED_MEMBER(m_Settings)
-    DEFINE_SPARK_CLASS_END()
+    DEFINE_SPARK_CLASS_END(Shader)
 
     void Shader::AddInputPort(const std::shared_ptr<shader::ast::InputPortNode>& node)
     {

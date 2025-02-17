@@ -9,7 +9,7 @@ namespace se::math
         DEFINE_SERIALIZED_MEMBER(y)
         DEFINE_SERIALIZED_MEMBER(z)
         DEFINE_SERIALIZED_MEMBER(w)
-    DEFINE_SPARK_CLASS_END()
+    DEFINE_SPARK_CLASS_END(Vec4)
 
     float& Vec4::operator[](size_t i)
     {

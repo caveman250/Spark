@@ -8,5 +8,6 @@ namespace se::asset::shader::ast
     {
         const Shader& shader;
         String vertexPositionOutputName = {}; // only used for Metal
+        std::map<std::string, std::string> tempRenames;
     };
 }

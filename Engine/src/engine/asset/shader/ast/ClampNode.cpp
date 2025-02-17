@@ -4,14 +4,14 @@ namespace se::asset::shader::ast
 {
     DEFINE_SPARK_CLASS_BEGIN(ClampNode)
         DEFINE_SERIALIZED_MEMBER(m_Children)
-    DEFINE_SPARK_CLASS_END()
+    DEFINE_SPARK_CLASS_END(ClampNode)
 
     std::string ClampNode::GetDebugString() const
     {
         return "ClampNode";
     }
 
-    void ClampNode::ToGlsl(const ShaderCompileContext& context, string::ArenaString& outShader) const
+    void ClampNode::ToGlsl(ShaderCompileContext& context, string::ArenaString& outShader) const
     {
         auto alloc = outShader.get_allocator();
         outShader.append("clamp(");
@@ -27,7 +27,7 @@ namespace se::asset::shader::ast
         outShader.append(")");
     }
 
-    void ClampNode::ToMtl(const ShaderCompileContext& context, string::ArenaString& outShader) const
+    void ClampNode::ToMtl(ShaderCompileContext& context, string::ArenaString& outShader) const
     {
         auto alloc = outShader.get_allocator();
         outShader.append("clamp(");

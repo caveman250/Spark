@@ -3,5 +3,5 @@
 namespace se::ecs::components
 {
     DEFINE_SPARK_COMPONENT_BEGIN(ChildOf)
-    DEFINE_SPARK_COMPONENT_END()
+    DEFINE_SPARK_COMPONENT_END(ChildOf)
 }

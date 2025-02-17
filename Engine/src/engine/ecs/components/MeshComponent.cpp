@@ -8,7 +8,7 @@
 namespace se::ecs::components
 {
     DEFINE_SPARK_COMPONENT_BEGIN(MeshComponent)
-    DEFINE_SPARK_COMPONENT_END()
+    DEFINE_SPARK_COMPONENT_END(MeshComponent)
 
     MeshComponent::MeshComponent()
         : ObjectBase()

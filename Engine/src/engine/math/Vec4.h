@@ -52,7 +52,8 @@ template <> struct std::formatter<se::math::Vec4>
         return ctx.begin();
     }
 
-    auto format(const se::math::Vec4& obj, std::format_context& ctx) const
+    template <typename FormatContext>
+    auto format(const se::math::Vec4& obj, FormatContext& ctx) const
     {
         return std::format_to(ctx.out(), "vec4({}, {}, {}, {})", obj.x, obj.y, obj.z, obj.w);
     }

@@ -14,8 +14,8 @@ namespace se::asset::shader::ast
         OutputPortNode(const std::string& portName, const Variable& type, const std::string& name);
 
         std::string GetDebugString() const override;
-        void ToGlsl(const ShaderCompileContext& context, string::ArenaString& outShader) const override;
-        void ToMtl(const ShaderCompileContext& context, string::ArenaString& outShader) const override;
+        void ToGlsl(ShaderCompileContext& context, string::ArenaString& outShader) const override;
+        void ToMtl(ShaderCompileContext& context, string::ArenaString& outShader) const override;
 
         void CollectUsedNames(std::map<std::string, std::string> &nameMap) const override;
         void ApplyNameRemapping(const std::map<std::string, std::string> &newNames) override;

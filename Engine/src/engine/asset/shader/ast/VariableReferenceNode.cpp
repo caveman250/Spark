@@ -14,7 +14,7 @@ namespace se::asset::shader::ast
         DEFINE_SERIALIZED_MEMBER(m_Name)
         DEFINE_SERIALIZED_MEMBER(m_Index)
         DEFINE_SERIALIZED_MEMBER(m_IndexVar)
-    DEFINE_SPARK_CLASS_END()
+    DEFINE_SPARK_CLASS_END(VariableReferenceNode)
 
     VariableReferenceNode::VariableReferenceNode(const std::string& name, const Shader& shaderStageAst, int index, const std::string& indexVar)
     {
@@ -38,7 +38,7 @@ namespace se::asset::shader::ast
         return std::format("VariableReferenceNode - {}", m_Name);
     }
 
-    void VariableReferenceNode::ToGlsl(const ShaderCompileContext& context, string::ArenaString& outShader) const
+    void VariableReferenceNode::ToGlsl(ShaderCompileContext&, string::ArenaString& outShader) const
     {
         outShader += m_Name;
         if (m_Index >= 0)
@@ -53,53 +53,92 @@ namespace se::asset::shader::ast
         }
     }
 
-    void VariableReferenceNode::ToMtl(const ShaderCompileContext& context, string::ArenaString& outShader) const
+    bool VariableReferenceNode::IsVertexInput(ShaderCompileContext& context) const
+    {
+        if (context.shader.GetType() == ShaderType::Vertex)
+        {
+            if (context.shader.FindInput(m_Name))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    bool VariableReferenceNode::IsVertexOutput(ShaderCompileContext& context) const
+    {
+        if (context.shader.GetType() == ShaderType::Vertex)
+        {
+            if (context.shader.FindOutput(m_Name) || context.vertexPositionOutputName == m_Name)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    bool VariableReferenceNode::IsFragmentInput(ShaderCompileContext& context) const
+    {
+        if (context.shader.GetType() == ShaderType::Fragment)
+        {
+            if (context.shader.FindInput(m_Name))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    void VariableReferenceNode::ToMtl(ShaderCompileContext& context, string::ArenaString& outShader) const
     {
         if (context.shader.GetUniformVariables().contains(m_Name))
         {
             outShader.append("inUniforms.");
+        }
+        else if (IsVertexOutput(context))
+        {
+            outShader.append("out.");
+        }
+        else if (IsFragmentInput(context))
+        {
+            outShader.append("in.");
         }
 
         if (m_Index >= 0)
         {
             auto alloc = outShader.get_allocator();
             outShader += m_Name;
-            outShader += string::ArenaFormat("[{}]", alloc, m_Index);
+            outShader += string::ArenaFormat("{}", alloc, m_Index);
         }
         else if (!m_IndexVar.empty())
         {
+            std::string varName = m_IndexVar;
+            if (context.tempRenames.contains(varName))
+            {
+                varName = context.tempRenames.at(m_IndexVar);
+            }
+
             auto alloc = outShader.get_allocator();
             outShader += m_Name;
-            outShader += string::ArenaFormat("[{}]", alloc, m_IndexVar);
-        }
-        else if (context.shader.GetType() == ShaderType::Vertex)
-        {
-            if (context.shader.FindInput(m_Name))
+            if (context.shader.FindInput(m_Name) || context.shader.FindOutput(m_Name))
             {
-                auto alloc = outShader.get_allocator();
-                outShader += m_Name;
-                outShader += string::ArenaFormat("[vertexId]", alloc, m_Index);
-            }
-            else if (context.shader.FindOutput(m_Name) || context.vertexPositionOutputName == m_Name)
-            {
-                outShader += "out.";
-                outShader += m_Name;
+                outShader += string::ArenaFormat("{}", alloc, varName);
             }
             else
             {
-                outShader += m_Name;
+                outShader += string::ArenaFormat("[{}]", alloc, varName);
             }
         }
-        else if (context.shader.GetType() == ShaderType::Fragment)
+        else
         {
-            if (context.shader.FindInput(m_Name))
+            outShader += m_Name;
+
+            if (IsVertexInput(context))
             {
-                outShader += "in.";
-                outShader += m_Name;
-            }
-            else
-            {
-                outShader += m_Name;
+                outShader += "[vertexId]";
             }
         }
     }

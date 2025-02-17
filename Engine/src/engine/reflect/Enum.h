@@ -13,7 +13,7 @@ namespace se::reflect
     {
         std::vector<EnumValue> values;
 
-        Enum(void (*init)(Enum*));
+        Enum();
         Enum(const char*, size_t, const std::initializer_list<EnumValue>& init);
 
         const std::string& ToString(int value) const;

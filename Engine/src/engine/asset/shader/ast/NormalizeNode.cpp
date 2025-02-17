@@ -4,14 +4,14 @@ namespace se::asset::shader::ast
 {
     DEFINE_SPARK_CLASS_BEGIN(NormalizeNode)
         DEFINE_SERIALIZED_MEMBER(m_Children)
-    DEFINE_SPARK_CLASS_END()
+    DEFINE_SPARK_CLASS_END(NormalizeNode)
 
     std::string NormalizeNode::GetDebugString() const
     {
         return "NormalizeNode";
     }
 
-    void NormalizeNode::ToGlsl(const ShaderCompileContext& context, string::ArenaString& outShader) const
+    void NormalizeNode::ToGlsl(ShaderCompileContext& context, string::ArenaString& outShader) const
     {
         auto alloc = outShader.get_allocator();
         outShader.append("normalize(");
@@ -27,7 +27,7 @@ namespace se::asset::shader::ast
         outShader.append(")");
     }
 
-    void NormalizeNode::ToMtl(const ShaderCompileContext& context, string::ArenaString& outShader) const
+    void NormalizeNode::ToMtl(ShaderCompileContext& context, string::ArenaString& outShader) const
     {
         auto alloc = outShader.get_allocator();
         outShader.append("normalize(");

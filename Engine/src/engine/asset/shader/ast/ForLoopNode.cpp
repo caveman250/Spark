@@ -1,6 +1,10 @@
 #include "ForLoopNode.h"
 
+#include "BinaryExpressionNode.h"
+#include "ConstantNode.h"
 #include "VariableDeclarationNode.h"
+#include "VariableReferenceNode.h"
+#include "engine/math/math.h"
 
 namespace se::asset::shader::ast
 {
@@ -9,7 +13,7 @@ namespace se::asset::shader::ast
         DEFINE_SERIALIZED_MEMBER(m_Declaration)
         DEFINE_SERIALIZED_MEMBER(m_Condition)
         DEFINE_SERIALIZED_MEMBER(m_Expression)
-    DEFINE_SPARK_CLASS_END()
+    DEFINE_SPARK_CLASS_END(ForLoopNode)
 
     ForLoopNode::ForLoopNode(const ForLoopNode& rhs)
         : ASTNode(rhs)
@@ -53,6 +57,14 @@ namespace se::asset::shader::ast
         ASTNode::ApplyNameRemapping(newNames);
     }
 
+    void ForLoopNode::ForEachChild(const std::function<void(ASTNode*)>& func)
+    {
+        std::ranges::for_each(m_Declaration, [func](const auto& item) { func(item.get()); });
+        std::ranges::for_each(m_Condition, [func](const auto& item) { func(item.get()); });
+        std::ranges::for_each(m_Expression, [func](const auto& item) { func(item.get()); });
+        ASTNode::ForEachChild(func);
+    }
+
     const std::shared_ptr<ASTNode>& ForLoopNode::AddChild(ASTNode* node)
     {
         if (!m_DeclarationEnded)
@@ -78,7 +90,7 @@ namespace se::asset::shader::ast
         return "ForLoopNode";
     }
 
-    void ForLoopNode::ToGlsl(const ShaderCompileContext& context, string::ArenaString& outShader) const
+    void ForLoopNode::ToGlsl(ShaderCompileContext& context, string::ArenaString& outShader) const
     {
         auto alloc = outShader.get_allocator();
         std::ranges::for_each(m_Declaration, [&context, &outShader](const auto& item) { item->ToGlsl(context, outShader); });
@@ -96,21 +108,130 @@ namespace se::asset::shader::ast
         outShader += "}\n";
     }
 
-    void ForLoopNode::ToMtl(const ShaderCompileContext& context, string::ArenaString& outShader) const
-    {
-        auto alloc = outShader.get_allocator();
-        std::ranges::for_each(m_Declaration, [&context, &outShader](const auto& item) { item->ToMtl(context, outShader); });
-        outShader += ";\nfor(;";
-        std::ranges::for_each(m_Condition, [&context, &outShader](const auto& item) { item->ToMtl(context, outShader); });
-        outShader += ";";
-        std::ranges::for_each(m_Expression, [&context, &outShader](const auto& item) { item->ToMtl(context, outShader); });
-        outShader += ")\n{\n";
 
-        for (const auto& child : m_Children)
+    ShaderValue EvaluateForLoopInitialIteratorValue(const std::vector<std::shared_ptr<ASTNode>>& expression)
+    {
+        String variableName = nullptr;
+        for (const auto& node : expression)
         {
-            child->ToMtl(context, outShader);
+            if (variableName.Size() == 0)
+            {
+                if (VariableDeclarationNode* decNode = dynamic_cast<VariableDeclarationNode*>(node.get()))
+                {
+                    variableName = decNode->GetName();
+                }
+            }
+
+            if (BinaryExpressionNode* binaryExpression = dynamic_cast<BinaryExpressionNode*>(node.get()))
+            {
+                SPARK_ASSERT(variableName.Size() > 0);
+                // we expect the lhs to be variableName
+                VariableReferenceNode* refNode = dynamic_cast<VariableReferenceNode*>(binaryExpression->m_Children[0].get());
+                SPARK_ASSERT(refNode);
+                SPARK_ASSERT(strcmp(refNode->GetName().c_str(), variableName.Data()) == 0);
+
+                // TODO support for more complex expressions (also parser should catch this)
+                ConstantNodeBase* constantNode = dynamic_cast<ConstantNodeBase*>(binaryExpression->m_Children[1].get());
+                SPARK_ASSERT(constantNode);
+
+                return constantNode->GetValue();
+            }
         }
 
-        outShader += "}\n";
+        SPARK_ASSERT(false);
+        return -1;
+    }
+
+    // VERY BASIC
+    struct ForLoopExpression
+    {
+        OperatorType::Type opType;
+        String lhs;
+        ShaderValue rhs;
+    };
+
+    ForLoopExpression EvaluateForLoopCondition(const std::vector<std::shared_ptr<ASTNode>>& expression)
+    {
+        String variableName = nullptr;
+        SPARK_ASSERT(expression.size() == 1); // TODO why is this an array?
+        SPARK_ASSERT(expression[0]->GetReflectType() == reflect::TypeResolver<BinaryExpressionNode>::get());
+        auto* binaryExpression = static_cast<BinaryExpressionNode*>(expression[0].get());
+        VariableReferenceNode* refNode = dynamic_cast<VariableReferenceNode*>(binaryExpression->m_Children[0].get());
+        if (!SPARK_VERIFY(refNode))
+        {
+            return { .lhs = "", .opType = OperatorType::Add, .rhs = -1 };
+        }
+
+        variableName = refNode->GetName();
+        int amount = 1;
+
+        if (binaryExpression->m_Children.size() > 1)
+        {
+            ConstantNode<int>* constantNode = dynamic_cast<ConstantNode<int>*>(binaryExpression->m_Children[1].get());
+            if (!SPARK_VERIFY(constantNode))
+            {
+                return { .lhs = "", .opType = OperatorType::Add, .rhs = -1 };
+            }
+
+            auto constantVal = constantNode->GetValue();
+            SPARK_ASSERT(std::holds_alternative<int>(constantVal));
+            amount = std::get<int>(constantVal);
+        }
+
+        return { .lhs = variableName, .opType = binaryExpression->GetOperatorType(), .rhs = amount };
+    }
+
+    void ForLoopNode::ToMtl(ShaderCompileContext& context, string::ArenaString& outShader) const
+    {
+        // TODO Much stricter parsing
+
+        // metal does not support arrays being interpolated from vertex shaders to fragment shaders.
+        // this is a common occurance in glsl, and a pattern I would like to keep.
+        // to make this compatible with metal shaders, we replace arrays with multiple variables eg:
+        // float3 var[2] becomes float3 var0, float3 var1;
+        // to account for this, we also need to unroll our for loops at compile time
+
+        ShaderValue initialIteratorValue = EvaluateForLoopInitialIteratorValue(m_Declaration);
+        ForLoopExpression condition = EvaluateForLoopCondition(m_Condition);
+        ForLoopExpression iteratorExpression = EvaluateForLoopCondition(m_Expression);
+
+        SPARK_ASSERT(std::holds_alternative<int>(initialIteratorValue));
+        int initialVal = std::get<int>(initialIteratorValue);
+
+        SPARK_ASSERT(std::holds_alternative<int>(condition.rhs));
+        int comp = std::get<int>(condition.rhs);
+
+        SPARK_ASSERT(std::holds_alternative<int>(iteratorExpression.rhs));
+        SPARK_ASSERT(iteratorExpression.opType == OperatorType::AddEquals || iteratorExpression.opType == OperatorType::SubtractEquals);
+        int sign = iteratorExpression.opType == OperatorType::AddEquals ? 1 : -1;
+        int loopIt = std::get<int>(iteratorExpression.rhs) * sign;
+
+        for (int i = initialVal; i < comp; i += loopIt)
+        {
+            context.tempRenames = std::map<std::string, std::string>{ { condition.lhs.Data(), std::to_string(i) } };
+            outShader += "{\n";
+            for (const auto& child : m_Children)
+            {
+                child->ToMtl(context, outShader);
+            }
+            outShader += "}\n";
+        }
+
+        context.tempRenames.clear();
+
+        // auto alloc = outShader.get_allocator();
+        // std::ranges::for_each(m_Declaration, [&context, &outShader](const auto& item) { item->ToMtl(context, outShader); });
+        // outShader += ";\nfor(;";
+        // std::ranges::for_each(m_Condition, [&context, &outShader](const auto& item) { item->ToMtl(context, outShader); });
+        // outShader += ";";
+        // std::ranges::for_each(m_Expression, [&context, &outShader](const auto& item) { item->ToMtl(context, outShader); });
+        // outShader += ")\n{\n";
+        //
+        // for (const auto& child : m_Children)
+        // {
+        //     child->ToMtl(context, outShader);
+        // }
+
+        //outShader += "}\n";
     }
 }

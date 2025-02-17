@@ -11,7 +11,7 @@ namespace se::input
         DEFINE_SERIALIZED_MEMBER(mouseY)
         DEFINE_SERIALIZED_MEMBER(mouseButtonStates)
         DEFINE_SERIALIZED_MEMBER(mouseEvents)
-    DEFINE_SPARK_COMPONENT_END()
+    DEFINE_SPARK_COMPONENT_END(InputComponent)
 
     InputComponent::InputComponent()
     {

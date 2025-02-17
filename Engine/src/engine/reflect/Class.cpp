@@ -11,11 +11,6 @@ namespace se::reflect
     {
     }
 
-    Class::Class(void(* init)(Class*)): Type{"", 0, asset::binary::Type::Object }
-    {
-        init(this);
-    }
-
     Type* Class::GetMemberType(const std::string& fieldName)
     {
         auto it = std::ranges::find_if(members, [fieldName](const Member& member){ return member.name == fieldName; });

@@ -8,7 +8,7 @@ namespace se::asset::shader::ast
         DEFINE_SERIALIZED_MEMBER(m_PortName)
         DEFINE_SERIALIZED_MEMBER(m_Var)
         DEFINE_SERIALIZED_MEMBER(m_Name)
-    DEFINE_SPARK_CLASS_END()
+    DEFINE_SPARK_CLASS_END(InputPortNode)
 
     InputPortNode::InputPortNode(const std::string &portName, const Variable& var, const std::string &name)
         : m_PortName(portName)
@@ -22,12 +22,12 @@ namespace se::asset::shader::ast
         return std::format("InputPortNode - {}, {}, {}", m_PortName, TypeUtil::TypeToGlsl(m_Var.type), m_Name);
     }
 
-    void InputPortNode::ToGlsl(const ShaderCompileContext& context, string::ArenaString &outShader) const
+    void InputPortNode::ToGlsl(ShaderCompileContext&, string::ArenaString&) const
     {
         SPARK_ASSERT(false, "InputPortNode should not be in final glsl output!");
     }
 
-    void InputPortNode::ToMtl(const ShaderCompileContext& context, string::ArenaString& outShader) const
+    void InputPortNode::ToMtl(ShaderCompileContext&, string::ArenaString&) const
     {
         SPARK_ASSERT(false, "InputPortNode should not be in final mtl output!");
     }

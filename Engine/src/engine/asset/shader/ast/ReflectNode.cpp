@@ -4,14 +4,14 @@ namespace se::asset::shader::ast
 {
     DEFINE_SPARK_CLASS_BEGIN(ReflectNode)
         DEFINE_SERIALIZED_MEMBER(m_Children)
-    DEFINE_SPARK_CLASS_END()
+    DEFINE_SPARK_CLASS_END(ReflectNode)
 
     std::string ReflectNode::GetDebugString() const
     {
         return "ReflectNode";
     }
 
-    void ReflectNode::ToGlsl(const ShaderCompileContext& context, string::ArenaString& outShader) const
+    void ReflectNode::ToGlsl(ShaderCompileContext& context, string::ArenaString& outShader) const
     {
         auto alloc = outShader.get_allocator();
         outShader.append("reflect(");
@@ -27,7 +27,7 @@ namespace se::asset::shader::ast
         outShader.append(")");
     }
 
-    void ReflectNode::ToMtl(const ShaderCompileContext& context, string::ArenaString& outShader) const
+    void ReflectNode::ToMtl(ShaderCompileContext& context, string::ArenaString& outShader) const
     {
         auto alloc = outShader.get_allocator();
         outShader.append("reflect(");

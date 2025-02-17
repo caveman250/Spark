@@ -4,12 +4,6 @@
 
 namespace se::reflect
 {
-    BinaryBlob::BinaryBlob(void(* init)(BinaryBlob*))
-        : Type("BinaryBlob", 0, asset::binary::Type::Blob)
-    {
-        init(this);
-    }
-
     asset::binary::StructLayout BinaryBlob::GetStructLayout(const void*) const
     {
         asset::binary::StructLayout structLayout = {{ asset::binary::CreateFixedString32("val"), asset::binary::Type::Blob }};
@@ -58,16 +52,23 @@ namespace se::reflect
 namespace se::memory
 {
     DEFINE_SPARK_TYPE(BinaryBlob)
-    se::reflect::BinaryBlob BinaryBlob::Reflection{BinaryBlob::initReflection};
-    void BinaryBlob::initReflection(reflect::BinaryBlob* typeDesc)
+
+    reflect::Type* BinaryBlob::GetReflection()
     {
-        typeDesc->name ="BinaryBlob";
-        typeDesc->size = sizeof(BinaryBlob);
-        typeDesc->heap_constructor = []{ return new BinaryBlob(); };
-        typeDesc->inplace_constructor = [](void* mem){ return new(mem) BinaryBlob(); };
-        typeDesc->heap_copy_constructor = [](void* other){ return new BinaryBlob(*static_cast<BinaryBlob*>(other)); };
-        typeDesc->inplace_copy_constructor = [](void* mem, void* other){ return new(mem) BinaryBlob(*static_cast<BinaryBlob*>(other)); };
-        typeDesc->destructor = [](void* data){ static_cast<BinaryBlob*>(data)->~BinaryBlob(); };
+        static reflect::BinaryBlob* s_Instance = nullptr;
+        if (!s_Instance)
+        {
+            s_Instance = new reflect::BinaryBlob();
+            s_Instance->name ="BinaryBlob";
+            s_Instance->size = sizeof(BinaryBlob);
+            s_Instance->heap_constructor = []{ return new BinaryBlob(); };
+            s_Instance->inplace_constructor = [](void* mem){ return new(mem) BinaryBlob(); };
+            s_Instance->heap_copy_constructor = [](void* other){ return new BinaryBlob(*static_cast<BinaryBlob*>(other)); };
+            s_Instance->inplace_copy_constructor = [](void* mem, void* other){ return new(mem) BinaryBlob(*static_cast<BinaryBlob*>(other)); };
+            s_Instance->destructor = [](void* data){ static_cast<BinaryBlob*>(data)->~BinaryBlob(); };
+        }
+
+        return s_Instance;
     }
 
     reflect::Type* BinaryBlob::GetReflectType() const

@@ -8,12 +8,16 @@ namespace se
 
     String::String(const char* str)
     {
-        auto len = strlen(str);
-        m_Data.reserve(len);
-        for (size_t i = 0; i < len; ++i)
+        if (str != nullptr)
         {
-            m_Data.push_back(str[i]);
+            auto len = strlen(str);
+            m_Data.reserve(len);
+            for (size_t i = 0; i < len; ++i)
+            {
+                m_Data.push_back(str[i]);
+            }
         }
+
         if (m_Data.empty() || m_Data.back() != '\0')
         {
             m_Data.push_back('\0');

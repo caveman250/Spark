@@ -8,7 +8,7 @@ namespace se::asset::shader::ast
         DEFINE_SERIALIZED_MEMBER(m_Children)
         DEFINE_SERIALIZED_MEMBER(m_Var)
         DEFINE_SERIALIZED_MEMBER(m_Name)
-    DEFINE_SPARK_CLASS_END()
+    DEFINE_SPARK_CLASS_END(VariableDeclarationNode)
 
     VariableDeclarationNode::VariableDeclarationNode(const std::string &name, const Variable& var)
         : m_Var(var)
@@ -21,7 +21,7 @@ namespace se::asset::shader::ast
         return std::format("VariableDeclarationNode - {}, {}", TypeUtil::TypeToGlsl(m_Var.type), m_Name);
     }
 
-    void VariableDeclarationNode::ToGlsl(const ShaderCompileContext& context, string::ArenaString &outShader) const
+    void VariableDeclarationNode::ToGlsl(ShaderCompileContext&, string::ArenaString &outShader) const
     {
         auto alloc = outShader.get_allocator();
         std::string arrayTag = "";
@@ -36,7 +36,7 @@ namespace se::asset::shader::ast
         outShader.append(string::ArenaFormat("{0} {1}{2}", alloc, TypeUtil::TypeToGlsl(m_Var.type), m_Name, arrayTag));
     }
 
-    void VariableDeclarationNode::ToMtl(const ShaderCompileContext& context, string::ArenaString& outShader) const
+    void VariableDeclarationNode::ToMtl(ShaderCompileContext&, string::ArenaString& outShader) const
     {
         auto alloc = outShader.get_allocator();
         std::string arrayTag = "";

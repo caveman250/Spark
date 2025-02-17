@@ -13,17 +13,17 @@ namespace se::asset
         DEFINE_SERIALIZED_MEMBER(rect)
         DEFINE_SERIALIZED_MEMBER(uvTopLeft)
         DEFINE_SERIALIZED_MEMBER(uvBottomRight)
-    DEFINE_SPARK_CLASS_END()
+    DEFINE_SPARK_CLASS_END(CharData)
 
     DEFINE_SPARK_POD_CLASS_BEGIN(FontAssetData)
         DEFINE_SERIALIZED_MEMBER(path)
         DEFINE_SERIALIZED_MEMBER(charData)
-    DEFINE_SPARK_CLASS_END()
+    DEFINE_SPARK_CLASS_END(FontAssetData)
 
     DEFINE_SPARK_CLASS_BEGIN(Font)
         DEFINE_SERIALIZED_MEMBER(m_Name)
         DEFINE_SERIALIZED_MEMBER(m_AssetData)
-    DEFINE_SPARK_CLASS_END()
+    DEFINE_SPARK_CLASS_END(Font)
 
     std::shared_ptr<Texture> Font::GetTextureAsset(int fontSize)
     {
