@@ -25,10 +25,11 @@ namespace se::asset::shader
     {
     public:
         static std::optional<Shader> CompileShader(const std::string& filePath);
+        static std::vector<std::pair<String, ast::Variable>> GatherUsedUniforms(const std::vector<std::shared_ptr<Shader>>& shaderAssets);
         static std::optional<std::string> GeneratePlatformShader(const std::vector<std::shared_ptr<Shader>>& shaderAssets,
                                                                     const ShaderSettings& settings,
                                                                     const render::VertexBuffer& vb,
-                                                                    std::vector<std::pair<std::string, std::shared_ptr<render::TextureResource>>>& textureResources);
+                                                                    ast::ShaderCompileContext& context);
 
         static bool ResolveSettings(Shader& shader, const ShaderSettings& settings);
         template <typename T>

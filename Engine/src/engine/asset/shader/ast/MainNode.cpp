@@ -29,17 +29,17 @@ namespace se::asset::shader::ast
     {
         auto alloc = outShader.get_allocator();
 
-        if (context.shader.GetType() == ShaderType::Vertex)
+        if (context.currentShader->GetType() == ShaderType::Vertex)
         {
             outShader.append("v2f vertex vertexMain(uint vertexId [[vertex_id]]");
-            for (const auto& input : context.shader.GetInputs())
+            for (const auto& input : context.currentShader->GetInputs())
             {
                 outShader.append(",\n");
                 input.second->ToMtl(context, outShader);
             }
-            if (! context.shader.GetUniformVariables().empty())
+            if (! context.currentShader->GetUniformVariables().empty())
             {
-                outShader += string::ArenaFormat(",\ndevice const UniformData& inUniforms [[buffer({})]]", alloc, context.shader.GetInputs().size());
+                outShader += string::ArenaFormat(",\ndevice const UniformData& inUniforms [[buffer({})]]", alloc, context.vertShader->GetInputs().size());
             }
             outShader.append(")\n{\n v2f out;\n");
         }
@@ -47,17 +47,21 @@ namespace se::asset::shader::ast
         {
             outShader.append("half4 fragment fragmentMain(v2f in [[stage_in]]");
             int index = 0;
-            for (const auto& [name, uniform] : context.shader.GetUniformVariables())
+            for (const auto& [name, uniform] : context.currentShader->GetUniformVariables())
             {
                 if (uniform.type == AstType::Sampler2D)
                 {
                     outShader += string::ArenaFormat(",\ntexture2d<float, access::sample> {} [[texture({})]]", alloc, name, index++);
                 }
             }
+            if (!context.currentShader->GetUniformVariables().empty())
+            {
+                outShader += string::ArenaFormat(",\nconstant UniformData& inUniforms [[buffer({})]]", alloc, context.vertShader->GetInputs().size());
+            }
             outShader.append(")\n{\n");
         }
 
-        for (const auto& node: context.shader.GetNodes())
+        for (const auto& node: context.currentShader->GetNodes())
         {
             node->ToMtlPreDeclarations(context, outShader);
         }
@@ -67,7 +71,7 @@ namespace se::asset::shader::ast
             child->ToMtl(context, outShader);
         }
 
-        if (context.shader.GetType() == ShaderType::Vertex)
+        if (context.currentShader->GetType() == ShaderType::Vertex)
         {
             outShader.append("return out;\n");
         }

@@ -55,9 +55,9 @@ namespace se::asset::shader::ast
 
     bool VariableReferenceNode::IsVertexInput(ShaderCompileContext& context) const
     {
-        if (context.shader.GetType() == ShaderType::Vertex)
+        if (context.currentShader->GetType() == ShaderType::Vertex)
         {
-            if (context.shader.FindInput(m_Name))
+            if (context.currentShader->FindInput(m_Name))
             {
                 return true;
             }
@@ -68,9 +68,9 @@ namespace se::asset::shader::ast
 
     bool VariableReferenceNode::IsVertexOutput(ShaderCompileContext& context) const
     {
-        if (context.shader.GetType() == ShaderType::Vertex)
+        if (context.currentShader->GetType() == ShaderType::Vertex)
         {
-            if (context.shader.FindOutput(m_Name) || context.vertexPositionOutputName == m_Name)
+            if (context.currentShader->FindOutput(m_Name) || context.vertexPositionOutputName == m_Name)
             {
                 return true;
             }
@@ -81,9 +81,9 @@ namespace se::asset::shader::ast
 
     bool VariableReferenceNode::IsFragmentInput(ShaderCompileContext& context) const
     {
-        if (context.shader.GetType() == ShaderType::Fragment)
+        if (context.currentShader->GetType() == ShaderType::Fragment)
         {
-            if (context.shader.FindInput(m_Name))
+            if (context.currentShader->FindInput(m_Name))
             {
                 return true;
             }
@@ -94,7 +94,7 @@ namespace se::asset::shader::ast
 
     void VariableReferenceNode::ToMtl(ShaderCompileContext& context, string::ArenaString& outShader) const
     {
-        if (context.shader.GetUniformVariables().contains(m_Name))
+        if (context.currentShader->GetUniformVariables().contains(m_Name))
         {
             outShader.append("inUniforms.");
         }
@@ -123,7 +123,7 @@ namespace se::asset::shader::ast
 
             auto alloc = outShader.get_allocator();
             outShader += m_Name;
-            if (context.shader.FindInput(m_Name) || context.shader.FindOutput(m_Name))
+            if (context.currentShader->FindInput(m_Name) || context.currentShader->FindOutput(m_Name))
             {
                 outShader += string::ArenaFormat("{}", alloc, varName);
             }

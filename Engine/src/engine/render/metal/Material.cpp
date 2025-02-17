@@ -1,5 +1,8 @@
 #include "Material.h"
 
+#include <engine/asset/shader/ast/NameGenerator.h>
+#include <engine/asset/shader/ast/ShaderCompileContext.h>
+
 #if METAL_RENDERER
 
 #include "engine/asset/shader/compiler/ShaderCompiler.h"
@@ -33,9 +36,12 @@ namespace se::render::metal
 
     void Material::CreatePlatformResources(const render::VertexBuffer& vb)
     {
-        std::vector<std::pair<std::string, std::shared_ptr<render::TextureResource>>> empty = {}; // TODO
-        std::optional<std::string> vert = asset::shader::ShaderCompiler::GeneratePlatformShader(m_VertShaders, m_ShaderSettings, vb, empty);
-        std::optional<std::string> frag = asset::shader::ShaderCompiler::GeneratePlatformShader(m_FragShaders, m_ShaderSettings, vb, empty);
+        asset::shader::ast::ShaderCompileContext context = { nullptr, nullptr, nullptr, asset::shader::ast::NameGenerator::GetName() , {}, {} };
+
+        auto fragUniforms = asset::shader::ShaderCompiler::GatherUsedUniforms(m_FragShaders);
+        context.fragmentShaderUniforms = fragUniforms;
+        std::optional<std::string> vert = asset::shader::ShaderCompiler::GeneratePlatformShader(m_VertShaders, m_ShaderSettings, vb, context);
+        std::optional<std::string> frag = asset::shader::ShaderCompiler::GeneratePlatformShader(m_FragShaders, m_ShaderSettings, vb, context);
 
         if (!vert.has_value() || !frag.has_value())
         {
