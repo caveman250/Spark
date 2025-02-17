@@ -3,7 +3,7 @@
 namespace se::asset::shader::ast
 {
     DEFINE_ABSTRACT_SPARK_CLASS_BEGIN(ASTNode)
-    DEFINE_SPARK_CLASS_END()
+    DEFINE_SPARK_CLASS_END(ASTNode)
 
     ASTNode::ASTNode(const ASTNode& rhs)
     {
@@ -14,12 +14,14 @@ namespace se::asset::shader::ast
             if (SPARK_VERIFY(objBase))
             {
                 m_Children.push_back(std::shared_ptr<ASTNode>((ASTNode*)objBase->GetReflectType()->heap_copy_constructor(child.get())));
+                m_Children.back()->m_Parent = this;
             }
         }
     }
 
     const std::shared_ptr<ASTNode>& ASTNode::AddChild(ASTNode* node)
     {
+        node->m_Parent = this;
         return m_Children.emplace_back(std::shared_ptr<ASTNode>(node));
     }
 
@@ -52,6 +54,14 @@ namespace se::asset::shader::ast
         for (const auto& child : m_Children)
         {
             child->ApplyNameRemapping(newNames);
+    }
+        }
+
+    void ASTNode::ForEachChild(const std::function<void(ASTNode*)>& func)
+    {
+        for (const auto& child : m_Children)
+        {
+            func(child.get());
         }
     }
 }

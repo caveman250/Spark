@@ -7,8 +7,7 @@ namespace se::reflect
 {
     struct BinaryBlob : Type
     {
-        BinaryBlob(void (*init)(BinaryBlob*));
-
+        BinaryBlob() : Type("BinaryBlob", 0, asset::binary::Type::Blob) {}
         asset::binary::StructLayout GetStructLayout(const void* obj) const override;
         void Serialize(const void* obj, asset::binary::Object& parentObj, const std::string& fieldName) const override;
         void Deserialize(void* obj, asset::binary::Object& parentObj, const std::string& fieldName) const override;
@@ -21,8 +20,7 @@ namespace se::memory
     {
     public:
         static constexpr bool s_IsPOD = false;
-        static reflect::BinaryBlob Reflection;
-        static void initReflection(reflect::BinaryBlob*);
+        static reflect::Type* GetReflection();
         DECLARE_SPARK_TYPE(BinaryBlob)
 
         reflect::Type* GetReflectType() const override;

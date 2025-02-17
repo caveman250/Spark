@@ -58,7 +58,8 @@ template <> struct std::formatter<se::math::Vec2>
         return ctx.begin();
     }
 
-    static auto format(const se::math::Vec2& obj, std::format_context& ctx)
+    template <class FormatContext>
+    static auto format(const se::math::Vec2& obj, FormatContext& ctx)
     {
         return std::format_to(ctx.out(), "vec2({}, {})", obj.x, obj.y);
     }

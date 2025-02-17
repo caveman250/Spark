@@ -13,7 +13,7 @@ namespace se::editor::ui::properties
     DEFINE_PROPERTY_EDITOR(float, FloatEditor);
 
     DEFINE_SPARK_CLASS_BEGIN(FloatEditor)
-    DEFINE_SPARK_CLASS_END()
+    DEFINE_SPARK_CLASS_END(FloatEditor)
 
     void FloatEditor::SetValue(void* value)
     {

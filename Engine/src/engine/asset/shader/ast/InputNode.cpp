@@ -7,7 +7,7 @@ namespace se::asset::shader::ast
         DEFINE_SERIALIZED_MEMBER(m_Children)
         DEFINE_SERIALIZED_MEMBER(m_Var)
         DEFINE_SERIALIZED_MEMBER(m_Name)
-    DEFINE_SPARK_CLASS_END()
+    DEFINE_SPARK_CLASS_END(InputNode)
 
     InputNode::InputNode(const Variable& var, const std::string& name)
         : m_Var(var)
@@ -20,7 +20,7 @@ namespace se::asset::shader::ast
         return std::format("InputNode - {}, {}", TypeUtil::TypeToGlsl(m_Var.type), m_Name);
     }
 
-    void InputNode::ToGlsl(const ShaderCompileContext& context, string::ArenaString& outShader) const
+    void InputNode::ToGlsl(ShaderCompileContext&, string::ArenaString& outShader) const
     {
         auto alloc = outShader.get_allocator();
         std::string arrayTag = "";
@@ -35,7 +35,7 @@ namespace se::asset::shader::ast
         outShader += string::ArenaFormat("in {} {}{};\n", alloc, TypeUtil::TypeToGlsl(m_Var.type), m_Name, arrayTag);
     }
 
-    void InputNode::ToMtl(const ShaderCompileContext& context, string::ArenaString& outShader) const
+    void InputNode::ToMtl(ShaderCompileContext&, string::ArenaString& outShader) const
     {
         auto alloc = outShader.get_allocator();
         std::string arrayTag = "";
@@ -46,7 +46,7 @@ namespace se::asset::shader::ast
 
         if (m_Var.arraySizeConstant > 0)
         {
-            for (size_t i = 0; i < m_Var.arraySizeConstant; ++i)
+            for (int i = 0; i < m_Var.arraySizeConstant; ++i)
             {
                 outShader += string::ArenaFormat("{} {}{};\n", alloc, TypeUtil::TypeToMtl(m_Var.type), m_Name, i);
             }

@@ -16,4 +16,14 @@ namespace se
 
         return "";
     }
+
+    ShaderSettingValue ShaderSettings::GetSettingValue(const std::string& setting) const
+    {
+        if (SPARK_VERIFY(m_Settings.contains(setting)))
+        {
+            return m_Settings.at(setting)->GetValue();
+        }
+
+        return 0;
+    }
 }

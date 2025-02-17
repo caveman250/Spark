@@ -4,14 +4,14 @@ namespace se::asset::shader::ast
 {
     DEFINE_SPARK_CLASS_BEGIN(DotNode)
         DEFINE_SERIALIZED_MEMBER(m_Children)
-    DEFINE_SPARK_CLASS_END()
+    DEFINE_SPARK_CLASS_END(DotNode)
 
     std::string DotNode::GetDebugString() const
     {
         return "DotNode";
     }
 
-    void DotNode::ToGlsl(const ShaderCompileContext& context, string::ArenaString& outShader) const
+    void DotNode::ToGlsl(ShaderCompileContext& context, string::ArenaString& outShader) const
     {
         auto alloc = outShader.get_allocator();
         outShader.append("dot(");
@@ -27,7 +27,7 @@ namespace se::asset::shader::ast
         outShader.append(")");
     }
 
-    void DotNode::ToMtl(const ShaderCompileContext& context, string::ArenaString& outShader) const
+    void DotNode::ToMtl(ShaderCompileContext& context, string::ArenaString& outShader) const
     {
         auto alloc = outShader.get_allocator();
         outShader.append("dot(");

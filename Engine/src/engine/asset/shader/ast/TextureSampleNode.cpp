@@ -8,7 +8,7 @@ namespace se::asset::shader::ast
         DEFINE_SERIALIZED_MEMBER(m_Children)
         DEFINE_SERIALIZED_MEMBER(m_SamplerName)
         DEFINE_SERIALIZED_MEMBER(m_UVVariableName)
-    DEFINE_SPARK_CLASS_END()
+    DEFINE_SPARK_CLASS_END(TextureSampleNode)
 
     TextureSampleNode::TextureSampleNode(const std::string &samplerName, const std::string &uvVarName)
         : m_SamplerName(samplerName)
@@ -22,13 +22,13 @@ namespace se::asset::shader::ast
         return "TextureSampleNode";
     }
 
-    void TextureSampleNode::ToGlsl(const ShaderCompileContext& context, string::ArenaString &outShader) const
+    void TextureSampleNode::ToGlsl(ShaderCompileContext&, string::ArenaString &outShader) const
     {
         auto alloc = outShader.get_allocator();
         outShader += string::ArenaFormat("texture({}, {})", alloc, m_SamplerName, m_UVVariableName);
     }
 
-    void TextureSampleNode::ToMtl(const ShaderCompileContext& context, string::ArenaString& outShader) const
+    void TextureSampleNode::ToMtl(ShaderCompileContext&, string::ArenaString& outShader) const
     {
         auto alloc = outShader.get_allocator();
         auto samplerName = NameGenerator::GetName();

@@ -7,5 +7,5 @@ namespace se::ui
         DEFINE_SERIALIZED_MEMBER(right)
         DEFINE_SERIALIZED_MEMBER(top)
         DEFINE_SERIALIZED_MEMBER(bottom)
-    DEFINE_SPARK_CLASS_END()
+    DEFINE_SPARK_CLASS_END(Anchors)
 }

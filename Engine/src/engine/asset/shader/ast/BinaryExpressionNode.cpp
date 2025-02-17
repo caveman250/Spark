@@ -5,7 +5,7 @@ namespace se::asset::shader::ast
     DEFINE_SPARK_CLASS_BEGIN(BinaryExpressionNode)
         DEFINE_SERIALIZED_MEMBER(m_Children)
         DEFINE_SERIALIZED_MEMBER(m_OpType)
-    DEFINE_SPARK_CLASS_END()
+    DEFINE_SPARK_CLASS_END(BinaryExpressionNode)
 
     BinaryExpressionNode::BinaryExpressionNode(OperatorType::Type opType)
         : m_OpType(opType)
@@ -18,7 +18,7 @@ namespace se::asset::shader::ast
         return std::format("BinaryExpressionNode - {}, children {}", OperatorUtil::OperatorTypeToGlsl(m_OpType), m_Children.size());
     }
 
-    void BinaryExpressionNode::ToGlsl(const ShaderCompileContext& context, string::ArenaString& outShader) const
+    void BinaryExpressionNode::ToGlsl(ShaderCompileContext& context, string::ArenaString& outShader) const
     {
         SPARK_ASSERT(m_Children.size() == 2 || (m_Children.size() == 1 && m_OpType == OperatorType::Subtract), "Expected 1 or 2 children. Got {}", m_Children.size());
 
@@ -37,7 +37,7 @@ namespace se::asset::shader::ast
         }
     }
 
-    void BinaryExpressionNode::ToMtl(const ShaderCompileContext& context, string::ArenaString& outShader) const
+    void BinaryExpressionNode::ToMtl(ShaderCompileContext& context, string::ArenaString& outShader) const
     {
         SPARK_ASSERT(m_Children.size() == 2 || (m_Children.size() == 1 && m_OpType == OperatorType::Subtract), "Expected 1 or 2 children. Got {}", m_Children.size());
 

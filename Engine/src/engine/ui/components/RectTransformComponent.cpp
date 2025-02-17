@@ -10,5 +10,5 @@ namespace se::ui::components
         DEFINE_SERIALIZED_MEMBER(maxX)
         DEFINE_SERIALIZED_MEMBER(maxY)
         DEFINE_SERIALIZED_MEMBER(rect)
-    DEFINE_SPARK_COMPONENT_END()
+    DEFINE_SPARK_COMPONENT_END(RectTransformComponent)
 }

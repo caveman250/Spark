@@ -4,14 +4,14 @@ namespace se::asset::shader::ast
 {
     DEFINE_SPARK_CLASS_BEGIN(LengthNode)
         DEFINE_SERIALIZED_MEMBER(m_Children)
-    DEFINE_SPARK_CLASS_END()
+    DEFINE_SPARK_CLASS_END(LengthNode)
 
     std::string LengthNode::GetDebugString() const
     {
         return "LengthNode";
     }
 
-    void LengthNode::ToGlsl(const ShaderCompileContext& context, string::ArenaString& outShader) const
+    void LengthNode::ToGlsl(ShaderCompileContext& context, string::ArenaString& outShader) const
     {
         auto alloc = outShader.get_allocator();
         outShader.append("length(");
@@ -27,7 +27,7 @@ namespace se::asset::shader::ast
         outShader.append(")");
     }
 
-    void LengthNode::ToMtl(const ShaderCompileContext& context, string::ArenaString& outShader) const
+    void LengthNode::ToMtl(ShaderCompileContext& context, string::ArenaString& outShader) const
     {
         auto alloc = outShader.get_allocator();
         outShader.append("length(");

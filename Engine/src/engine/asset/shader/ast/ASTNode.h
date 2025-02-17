@@ -19,11 +19,13 @@ namespace se::asset::shader::ast
         virtual const std::shared_ptr<ASTNode>& AddChild(ASTNode* node);
         void DebugPrint(int indent) const;
         virtual std::string GetDebugString() const = 0;
-        virtual void ToGlsl(const ShaderCompileContext& context, string::ArenaString& outShader) const = 0;
-        virtual void ToMtl(const ShaderCompileContext& context, string::ArenaString& outShader) const = 0;
+        virtual void ToGlsl(ShaderCompileContext& context, string::ArenaString& outShader) const = 0;
+        virtual void ToMtl(ShaderCompileContext& context, string::ArenaString& outShader) const = 0;
         virtual void CollectUsedNames(std::map<std::string, std::string>& nameMap) const;
         virtual void ApplyNameRemapping(const std::map<std::string, std::string>& newNames);
+        virtual void ForEachChild(const std::function<void(ASTNode*)>& func);
 
         std::vector<std::shared_ptr<ASTNode>> m_Children;
+        ast::ASTNode* m_Parent = nullptr;
     };
 }

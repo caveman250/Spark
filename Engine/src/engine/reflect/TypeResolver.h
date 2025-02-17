@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Class.h"
 #include "Type.h"
 #include "spark.h"
 
@@ -14,7 +15,7 @@ namespace se::reflect
     struct DefaultResolver
     {
         template<typename T>
-        static char func(decltype(&T::Reflection));
+        static char func(decltype(&T::GetReflection));
 
         template<typename T>
         static int func(...);
@@ -31,7 +32,7 @@ namespace se::reflect
         template<typename T, typename std::enable_if<IsReflected<T>::value, int>::type = 0>
         static Type* get()
         {
-            return &T::Reflection;
+            return T::GetReflection();
         }
 
         template<typename T, typename std::enable_if<!IsReflected<T>::value, int>::type = 0>
@@ -62,7 +63,6 @@ namespace se::reflect
 #else
             return static_cast<Class*>(DefaultResolver::get<T>());
 #endif
-
         }
     };
 

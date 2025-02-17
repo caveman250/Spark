@@ -8,14 +8,14 @@ namespace se::asset::shader::ast
 {
     DEFINE_SPARK_CLASS_BEGIN(MainNode)
         DEFINE_SERIALIZED_MEMBER(m_Children)
-    DEFINE_SPARK_CLASS_END()
+    DEFINE_SPARK_CLASS_END(MainNode)
 
     std::string MainNode::GetDebugString() const
     {
         return "MainNode";
     }
 
-    void MainNode::ToGlsl(const ShaderCompileContext& context, string::ArenaString& outShader) const
+    void MainNode::ToGlsl(ShaderCompileContext& context, string::ArenaString& outShader) const
     {
         outShader.append("void main()\n{\n");
         for (const auto& child : m_Children)
@@ -25,7 +25,7 @@ namespace se::asset::shader::ast
         outShader.append("}\n");
     }
 
-    void MainNode::ToMtl(const ShaderCompileContext& context, string::ArenaString& outShader) const
+    void MainNode::ToMtl(ShaderCompileContext& context, string::ArenaString& outShader) const
     {
         if (context.shader.GetType() == ShaderType::Vertex)
         {

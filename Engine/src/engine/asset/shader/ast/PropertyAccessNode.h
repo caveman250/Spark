@@ -11,8 +11,8 @@ namespace se::asset::shader::ast
         PropertyAccessNode() {}
         PropertyAccessNode(const std::string& propName);
         std::string GetDebugString() const override;
-        void ToGlsl(const ShaderCompileContext& context, string::ArenaString& outShader) const override;
-        void ToMtl(const ShaderCompileContext& context, string::ArenaString& outShader) const override;
+        void ToGlsl(ShaderCompileContext& context, string::ArenaString& outShader) const override;
+        void ToMtl(ShaderCompileContext& context, string::ArenaString& outShader) const override;
     private:
         std::string m_PropertyName = {};
     };

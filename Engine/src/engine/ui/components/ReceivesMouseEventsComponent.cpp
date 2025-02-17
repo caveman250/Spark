@@ -6,5 +6,5 @@ namespace se::ui::components
         DEFINE_SERIALIZED_MEMBER(mouseEvents)
         DEFINE_SERIALIZED_MEMBER(buttonMask)
         DEFINE_SERIALIZED_MEMBER(stateMask)
-    DEFINE_SPARK_COMPONENT_END()
+    DEFINE_SPARK_COMPONENT_END(ReceivesMouseEventsComponent)
 }

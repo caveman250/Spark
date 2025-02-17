@@ -4,14 +4,14 @@ namespace se::asset::shader::ast
 {
     DEFINE_SPARK_CLASS_BEGIN(Vec4Node)
         DEFINE_SERIALIZED_MEMBER(m_Children)
-    DEFINE_SPARK_CLASS_END()
+    DEFINE_SPARK_CLASS_END(Vec4Node)
 
     std::string Vec4Node::GetDebugString() const
     {
         return "Vec4Node";
     }
 
-    void Vec4Node::ToGlsl(const ShaderCompileContext& context, string::ArenaString& outShader) const
+    void Vec4Node::ToGlsl(ShaderCompileContext& context, string::ArenaString& outShader) const
     {
         auto alloc = outShader.get_allocator();
         outShader.append("vec4(");
@@ -27,7 +27,7 @@ namespace se::asset::shader::ast
         outShader.append(")");
     }
 
-    void Vec4Node::ToMtl(const ShaderCompileContext& context, string::ArenaString& outShader) const
+    void Vec4Node::ToMtl(ShaderCompileContext& context, string::ArenaString& outShader) const
     {
         auto alloc = outShader.get_allocator();
         outShader.append("float4(");

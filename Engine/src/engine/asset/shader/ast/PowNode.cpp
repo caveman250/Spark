@@ -4,13 +4,13 @@ namespace se::asset::shader::ast
 {
     DEFINE_SPARK_CLASS_BEGIN(PowNode)
         DEFINE_SERIALIZED_MEMBER(m_Children)
-    DEFINE_SPARK_CLASS_END()
+    DEFINE_SPARK_CLASS_END(PowNode)
     std::string PowNode::GetDebugString() const
     {
         return "PowNode";
     }
 
-    void PowNode::ToGlsl(const ShaderCompileContext& context, string::ArenaString& outShader) const
+    void PowNode::ToGlsl(ShaderCompileContext& context, string::ArenaString& outShader) const
     {
         auto alloc = outShader.get_allocator();
         outShader.append("pow(");
@@ -26,7 +26,7 @@ namespace se::asset::shader::ast
         outShader.append(")");
     }
 
-    void PowNode::ToMtl(const ShaderCompileContext& context, string::ArenaString& outShader) const
+    void PowNode::ToMtl(ShaderCompileContext& context, string::ArenaString& outShader) const
     {
         auto alloc = outShader.get_allocator();
         outShader.append("pow(");

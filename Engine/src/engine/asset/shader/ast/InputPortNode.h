@@ -14,8 +14,8 @@ namespace se::asset::shader::ast
         InputPortNode(const std::string& portName, const Variable& var, const std::string& name);
 
         std::string GetDebugString() const override;
-        void ToGlsl(const ShaderCompileContext& context, string::ArenaString& outShader) const override;
-        void ToMtl(const ShaderCompileContext& context, string::ArenaString& outShader) const override;
+        void ToGlsl(ShaderCompileContext& context, string::ArenaString& outShader) const override;
+        void ToMtl(ShaderCompileContext& context, string::ArenaString& outShader) const override;
 
         Variable GetVar() const { return m_Var; }
         const std::string& GetPortName() { return m_PortName; }

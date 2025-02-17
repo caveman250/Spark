@@ -5,7 +5,7 @@ namespace se::asset::shader::ast
     DEFINE_SPARK_CLASS_BEGIN(PropertyAccessNode)
         DEFINE_SERIALIZED_MEMBER(m_Children)
         DEFINE_SERIALIZED_MEMBER(m_PropertyName)
-    DEFINE_SPARK_CLASS_END()
+    DEFINE_SPARK_CLASS_END(PropertyAccessNode)
 
     PropertyAccessNode::PropertyAccessNode(const std::string& propName)
         : m_PropertyName(propName)
@@ -17,7 +17,7 @@ namespace se::asset::shader::ast
         return std::format("PropertyAccessNode - {}", m_PropertyName);
     }
 
-    void PropertyAccessNode::ToGlsl(const ShaderCompileContext& context, string::ArenaString& outShader) const
+    void PropertyAccessNode::ToGlsl(ShaderCompileContext& context, string::ArenaString& outShader) const
     {
         auto alloc = outShader.get_allocator();
         SPARK_ASSERT(m_Children.size() <= 1);
@@ -28,7 +28,7 @@ namespace se::asset::shader::ast
         outShader.append(string::ArenaFormat(".{}", alloc, m_PropertyName));
     }
 
-    void PropertyAccessNode::ToMtl(const ShaderCompileContext& context, string::ArenaString& outShader) const
+    void PropertyAccessNode::ToMtl(ShaderCompileContext& context, string::ArenaString& outShader) const
     {
         auto alloc = outShader.get_allocator();
         SPARK_ASSERT(m_Children.size() <= 1);

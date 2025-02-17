@@ -6,19 +6,19 @@ namespace se::asset::shader::ast
 {
     DEFINE_SPARK_CLASS_BEGIN(VertexPositionOutputNode)
         DEFINE_SERIALIZED_MEMBER(m_Children)
-    DEFINE_SPARK_CLASS_END()
+    DEFINE_SPARK_CLASS_END(VertexPositionOutputNode)
 
     std::string VertexPositionOutputNode::GetDebugString() const
     {
         return "VertexPositionOutputNode";
     }
 
-    void VertexPositionOutputNode::ToGlsl(const ShaderCompileContext& context, string::ArenaString& outShader) const
+    void VertexPositionOutputNode::ToGlsl(ShaderCompileContext&, string::ArenaString& outShader) const
     {
         outShader += "gl_Position";
     }
 
-    void VertexPositionOutputNode::ToMtl(const ShaderCompileContext& context, string::ArenaString& outShader) const
+    void VertexPositionOutputNode::ToMtl(ShaderCompileContext& context, string::ArenaString& outShader) const
     {
         outShader.append("out.");
         outShader.append(context.vertexPositionOutputName.Data());

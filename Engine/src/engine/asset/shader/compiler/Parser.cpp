@@ -429,10 +429,13 @@ namespace se::asset::shader::compiler
         return true;
     }
 
-    bool Parser::ProcessStringLiteral(const Token& token, ParseError&)
+    bool Parser::ProcessStringLiteral(const Token& token, ParseError& outError)
     {
-        m_Shader.AddNode<ast::ConstantNode<std::string>>(token.value);
-        return true;
+        outError.error = "String literals not supported.";
+        outError.line = token.line;
+        outError.pos = token.pos;
+
+        return false;
     }
 
     bool Parser::ProcessSyntax(const Token& token, ParseError& outError)
