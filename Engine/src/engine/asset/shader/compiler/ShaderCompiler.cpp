@@ -34,10 +34,25 @@ namespace se::asset::shader
         return std::get<Shader>(result);
     }
 
+    std::vector<std::pair<String, ast::Variable>> ShaderCompiler::GatherUsedUniforms(const std::vector<std::shared_ptr<Shader>>& shaderAssets)
+    {
+        std::vector<std::pair<String, ast::Variable>> ret;
+
+        for (const auto& shader : shaderAssets)
+        {
+            const auto& uniforms = shader->GetUniformVariables();
+            for (const auto& uniform : uniforms)
+            {
+                ret.push_back(uniform);
+            }
+        }
+
+        return ret;
+    }
+
     std::optional<std::string> ShaderCompiler::GeneratePlatformShader(
         const std::vector<std::shared_ptr<Shader>> &shaderAssets, const ShaderSettings &settings,
-        const render::VertexBuffer &vb,
-        std::vector<std::pair<std::string, std::shared_ptr<render::TextureResource>>> &textureResources)
+        const render::VertexBuffer &vb, ast::ShaderCompileContext& context)
     {
         std::optional<Shader> newShader = std::nullopt;
         std::vector<Shader> additionalStages;
@@ -61,21 +76,21 @@ namespace se::asset::shader
             newShader = combiner.Combine(newShader.value(), additionalStage);
         }
 
-        ast::ShaderCompileContext context = { *newShader, ast::NameGenerator::GetName() , {} };
+        context.currentShader = &newShader.value();
+        if (context.currentShader->GetType() == ShaderType::Vertex)
+        {
+            context.vertShader = context.currentShader;
+        }
+        else if (context.currentShader->GetType() == ShaderType::Fragment)
+        {
+            context.fragShader = context.currentShader;
+        }
 
         combiner.ResolveCombinedShaderPorts(newShader.value(), context);
 
         if (!ResolveSettings(newShader.value(), settings))
         {
             return std::nullopt;
-        }
-
-        for (const auto& [uniformName, uniform] : newShader.value().GetUniformVariables())
-        {
-            if (uniform.type == ast::AstType::Sampler2D)
-            {
-                textureResources.push_back(std::make_pair(uniformName, nullptr));
-            }
         }
 
         auto renderApiType = render::Renderer::Get<render::Renderer>()->GetRenderAPIType();
@@ -246,33 +261,30 @@ namespace se::asset::shader
 
         shader.append("};\n");
 
-        if (ast.GetType() == ShaderType::Vertex)
+        shader.append("struct UniformData\n{\n");
+
+        for (const auto& [name, var] : ast.GetUniformVariables())
         {
-            shader.append("struct UniformData\n{\n");
-
-            for (const auto& [name, var] : ast.GetUniformVariables())
+            if (var.type == ast::AstType::Sampler2D)
             {
-                if (var.type == ast::AstType::Sampler2D)
-                {
-                    // Metal defines these as fragment shader main args.
-                    continue;
-                }
-                std::string arrayText = "";
-                if (!var.arraySizeVariable.empty())
-                {
-                    arrayText = std::format("[{}]", var.arraySizeVariable);
-                }
-                else if (var.arraySizeConstant != 0)
-                {
-                    arrayText = std::format("[{}]", var.arraySizeConstant);
-                }
-
-                auto uniformText = std::format("{0} {1}{2};\n", ast::TypeUtil::TypeToMtl(var.type), name, arrayText);
-                shader.append(uniformText);
+                // Metal defines these as fragment shader main args.
+                continue;
+            }
+            std::string arrayText = "";
+            if (!var.arraySizeVariable.empty())
+            {
+                arrayText = std::format("[{}]", var.arraySizeVariable);
+            }
+            else if (var.arraySizeConstant != 0)
+            {
+                arrayText = std::format("[{}]", var.arraySizeConstant);
             }
 
-            shader.append("};\n");
+            auto uniformText = std::format("{0} {1}{2};\n", ast::TypeUtil::TypeToMtl(var.type), name, arrayText);
+            shader.append(uniformText);
         }
+
+        shader.append("};\n");
 
         for (const auto& node: ast.GetNodes())
         {
