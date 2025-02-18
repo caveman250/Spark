@@ -1,7 +1,9 @@
 #include "MainNode.h"
 
 #include "InputNode.h"
+#include "OutputNode.h"
 #include "ShaderCompileContext.h"
+#include "TypeUtil.h"
 #include "engine/asset/shader/Shader.h"
 
 namespace se::asset::shader::ast
@@ -45,7 +47,7 @@ namespace se::asset::shader::ast
         }
         else
         {
-            outShader.append("half4 fragment fragmentMain(v2f in [[stage_in]]");
+            outShader.append("FragmentOutput fragment fragmentMain(v2f in [[stage_in]]");
             int index = 0;
             for (const auto& [name, uniform] : context.currentShader->GetUniformVariables())
             {
@@ -58,7 +60,7 @@ namespace se::asset::shader::ast
             {
                 outShader += string::ArenaFormat(",\nconstant UniformData& inUniforms [[buffer({})]]", alloc, context.vertShader->GetInputs().size());
             }
-            outShader.append(")\n{\n");
+            outShader.append(")\n{\nFragmentOutput out;\n");
         }
 
         for (const auto& node: context.currentShader->GetNodes())
@@ -71,10 +73,7 @@ namespace se::asset::shader::ast
             child->ToMtl(context, outShader);
         }
 
-        if (context.currentShader->GetType() == ShaderType::Vertex)
-        {
-            outShader.append("return out;\n");
-        }
+        outShader.append("return out;\n");
 
         outShader.append("}\n");
     }
