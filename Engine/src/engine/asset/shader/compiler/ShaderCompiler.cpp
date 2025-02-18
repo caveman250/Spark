@@ -251,15 +251,25 @@ namespace se::asset::shader
                 node->ToMtl(context, shader);
             }
         }
-        else
+        else if (ast.GetType() == ShaderType::Fragment)
         {
             for (const auto& [name, node] : ast.GetInputs())
             {
                 node->ToMtl(context, shader);
             }
         }
-
         shader.append("};\n");
+
+        if (ast.GetType() == ShaderType::Fragment)
+        {
+            shader.append("struct FragmentOutput\n{\n");
+            int i = 0;
+            for (const auto& [name, node] : ast.GetOutputs())
+            {
+                shader += string::ArenaFormat("{} {} [[color({})]];\n", alloc, ast::TypeUtil::TypeToMtl(node->GetVar().type), name, i++);
+            }
+            shader.append("};\n");
+        }
 
         shader.append("struct UniformData\n{\n");
 

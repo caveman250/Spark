@@ -34,7 +34,6 @@ namespace se::asset::shader::compiler
         void ForEachChild(const std::shared_ptr<ast::ASTNode>& node, std::function<void(const std::shared_ptr<ast::ASTNode>& node)> func);
 
         uint8_t GetInputLoc(const std::string& inputName);
-        uint8_t GetOutputLoc(const std::string& outputName);
         const render::VertexBuffer& m_VertexBuffer;
         std::vector<std::string> m_ConsumedOutputs = {};
     };

@@ -38,6 +38,7 @@ namespace se::asset::shader::ast
         bool IsVertexInput(ShaderCompileContext& context) const;
         bool IsVertexOutput(ShaderCompileContext& context) const;
         bool IsFragmentInput(ShaderCompileContext& context) const;
+        bool IsFragmentOutput(const ShaderCompileContext& context) const;
         AstType::Type m_Type = {};
         std::string m_Name = {};
         int m_Index = -1;

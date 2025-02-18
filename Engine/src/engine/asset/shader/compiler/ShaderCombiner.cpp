@@ -408,15 +408,4 @@ namespace se::asset::shader::compiler
 
         return static_cast<uint8_t>(std::distance(std::begin(m_VertexBuffer.GetVertexStreams()), m_VertexBuffer.GetVertexStreams().find(targetType)));
     }
-
-    uint8_t ShaderCombiner::GetOutputLoc(const std::string& outputName)
-    {
-        auto it = std::ranges::find(m_ConsumedOutputs, outputName);
-        if (it == m_ConsumedOutputs.end())
-        {
-            m_ConsumedOutputs.push_back(outputName);
-            return static_cast<uint8_t>(m_ConsumedOutputs.size() - 1);
-        }
-        return static_cast<uint8_t>(it - m_ConsumedOutputs.begin());
-    }
 }

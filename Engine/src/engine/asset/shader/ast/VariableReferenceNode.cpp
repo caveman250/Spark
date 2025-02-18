@@ -92,13 +92,26 @@ namespace se::asset::shader::ast
         return false;
     }
 
+    bool VariableReferenceNode::IsFragmentOutput(const ShaderCompileContext& context) const
+    {
+        if (context.currentShader->GetType() == ShaderType::Fragment)
+        {
+            if (context.currentShader->FindOutput(m_Name))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     void VariableReferenceNode::ToMtl(ShaderCompileContext& context, string::ArenaString& outShader) const
     {
         if (context.currentShader->GetUniformVariables().contains(m_Name))
         {
             outShader.append("inUniforms.");
         }
-        else if (IsVertexOutput(context))
+        else if (IsVertexOutput(context) || IsFragmentOutput(context))
         {
             outShader.append("out.");
         }
