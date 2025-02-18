@@ -54,6 +54,20 @@ namespace se::asset::shader::ast
         outShader += string::ArenaFormat("{}", alloc, m_Constant);
     }
 
+    template<>
+    inline void ConstantNode<float>::ToMtl(ShaderCompileContext&, string::ArenaString& outShader) const
+    {
+        auto alloc = outShader.get_allocator();
+        if (m_Constant - (int)m_Constant == 0)
+        {
+            outShader += string::ArenaFormat("{}.0f", alloc, m_Constant);
+        }
+        else
+        {
+            outShader += string::ArenaFormat("{}f", alloc, m_Constant);
+        }
+    }
+
     template<typename T>
     ShaderValue ConstantNode<T>::GetValue()
     {
