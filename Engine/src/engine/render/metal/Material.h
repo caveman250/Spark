@@ -18,6 +18,8 @@ namespace se::render::metal
         void DestroyPlatformResources() override;
     private:
         void SetUniformInternal(const std::string& name, asset::shader::ast::AstType::Type type, int count, const void* value) override;
+
+        MTL::RenderPipelineState* m_RenderPipelineState = nullptr;
     };
 }
 #endif

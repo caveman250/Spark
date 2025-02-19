@@ -1,16 +1,15 @@
 SSL_FRAGMENT
 
-port(FinalFragColor) in vec3 inColor;
-
 setting int numLights;
 
+port(FinalFragColor) in vec4 inColor;
 port(VertexCameraNormal) in vec3 normCameraSpace;
 port(FragUV) in vec2 UV;
 port(VertexWorldPos) in vec3 posCameraSpace;
 port(CameraEyeDir) in vec3 eyeDirCameraSpace;
 port(CameraLightDir) in vec3[numLights] lightDirCameraSpace;
 
-port(FinalFragColor) out vec3 color;
+port(FinalFragColor) out vec4 color;
 
 uniform mat4 model;
 uniform mat4 view;
@@ -23,10 +22,10 @@ void main()
 
     float LightPower = 50.0f;
 
-    vec3 MaterialDiffuseColor = inColor;
-    vec3 ambientStr = vec3(0.1, 0.1, 0.1);
-    vec3 MaterialAmbientColor = ambientStr * MaterialDiffuseColor;
-    vec3 MaterialSpecularColor = vec3(0.3, 0.3, 0.3);
+    vec4 MaterialDiffuseColor = inColor;
+    vec4 ambientStr = vec4(0.1, 0.1, 0.1, 1.0);
+    vec4 MaterialAmbientColor = ambientStr * MaterialDiffuseColor;
+    vec4 MaterialSpecularColor = vec4(0.3, 0.3, 0.3, 1.0);
 
     color = MaterialAmbientColor;
 
@@ -41,7 +40,7 @@ void main()
         float cosAlpha = clamp(dot(E, R), 0.0, 1.0);
 
         float distSq = distance * distance;
-        color += MaterialDiffuseColor * lightColor[i] * LightPower * cosTheta / distSq +
-                 MaterialSpecularColor * lightColor[i] * LightPower * pow(cosAlpha, 5) / distSq;
+        color += MaterialDiffuseColor * vec4(lightColor[i], 1.0) * LightPower * cosTheta / distSq +
+                 MaterialSpecularColor * vec4(lightColor[i], 1.0) * LightPower * pow(cosAlpha, 5) / distSq;
     }
 }
