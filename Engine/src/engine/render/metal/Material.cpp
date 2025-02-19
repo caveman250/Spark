@@ -36,12 +36,16 @@ namespace se::render::metal
 
     void Material::CreatePlatformResources(const render::VertexBuffer& vb)
     {
-        asset::shader::ast::ShaderCompileContext context = { nullptr, nullptr, nullptr, asset::shader::ast::NameGenerator::GetName() , {}, {} };
+        asset::shader::ast::ShaderCompileContext context = {
+            nullptr, nullptr, nullptr, asset::shader::ast::NameGenerator::GetName(), {}, {}
+        };
 
         auto fragUniforms = asset::shader::ShaderCompiler::GatherUsedUniforms(m_FragShaders);
         context.fragmentShaderUniforms = fragUniforms;
-        std::optional<std::string> vert = asset::shader::ShaderCompiler::GeneratePlatformShader(m_VertShaders, m_ShaderSettings, vb, context);
-        std::optional<std::string> frag = asset::shader::ShaderCompiler::GeneratePlatformShader(m_FragShaders, m_ShaderSettings, vb, context);
+        std::optional<std::string> vert = asset::shader::ShaderCompiler::GeneratePlatformShader(
+            m_VertShaders, m_ShaderSettings, vb, context);
+        std::optional<std::string> frag = asset::shader::ShaderCompiler::GeneratePlatformShader(
+            m_FragShaders, m_ShaderSettings, vb, context);
 
         if (!vert.has_value() || !frag.has_value())
         {
@@ -53,19 +57,46 @@ namespace se::render::metal
         auto device = Renderer::Get<metal::MetalRenderer>()->GetDevice();
 
         NS::Error* error = nullptr;
-        MTL::Library* vertLibrary = device->newLibrary( NS::String::string(vert->c_str(), NS::UTF8StringEncoding), nullptr, &error );
+        MTL::Library* vertLibrary = device->newLibrary(NS::String::string(vert->c_str(), NS::UTF8StringEncoding),
+                                                       nullptr, &error);
         if (!vertLibrary)
         {
-            debug::Log::Error("Failed to compile shader!\nShader Text:\n{}\nError(s):\n{}", vert->c_str(), error->localizedDescription()->utf8String());
+            debug::Log::Error("Failed to compile shader!\nShader Text:\n{}\nError(s):\n{}", vert->c_str(),
+                              error->localizedDescription()->utf8String());
             SPARK_ASSERT(false);
         }
 
-        MTL::Library* fragLibrary = device->newLibrary( NS::String::string(frag->c_str(), NS::UTF8StringEncoding), nullptr, &error );
+        MTL::Library* fragLibrary = device->newLibrary(NS::String::string(frag->c_str(), NS::UTF8StringEncoding),
+                                                       nullptr, &error);
         if (!fragLibrary)
         {
-            debug::Log::Error("Failed to compile shader!\nShader Text:\n{}\nError(s):\n{}", frag->c_str(), error->localizedDescription()->utf8String());
+            debug::Log::Error("Failed to compile shader!\nShader Text:\n{}\nError(s):\n{}", frag->c_str(),
+                              error->localizedDescription()->utf8String());
             SPARK_ASSERT(false);
         }
+
+        MTL::Function* vertexFn = vertLibrary->newFunction(NS::String::string("vertexMain", NS::UTF8StringEncoding));
+        MTL::Function* fragFn = fragLibrary->newFunction(NS::String::string("fragmentMain", NS::UTF8StringEncoding));
+
+        MTL::RenderPipelineDescriptor* desc = MTL::RenderPipelineDescriptor::alloc()->init();
+        desc->setVertexFunction(vertexFn);
+        desc->setFragmentFunction(fragFn);
+        desc->colorAttachments()->object(0)->setPixelFormat(MTL::PixelFormat::PixelFormatBGRA8Unorm_sRGB);
+        desc->setDepthAttachmentPixelFormat(MTL::PixelFormat::PixelFormatDepth16Unorm);
+
+        NS::Error* nsError = nullptr;
+        m_RenderPipelineState = Renderer::Get<MetalRenderer>()->GetDevice()->newRenderPipelineState(desc, &nsError);
+        if (!m_RenderPipelineState)
+        {
+            debug::Log::Error(nsError->localizedDescription()->utf8String());
+            SPARK_ASSERT(false);
+        }
+
+        vertexFn->release();
+        fragFn->release();
+        desc->release();
+        vertLibrary->release();
+        fragLibrary->release();
 
         render::Material::CreatePlatformResources(vb);
     }
@@ -76,7 +107,8 @@ namespace se::render::metal
         render::Material::DestroyPlatformResources();
     }
 
-    void Material::SetUniformInternal(const std::string& name, asset::shader::ast::AstType::Type type, int count, const void* value)
+    void Material::SetUniformInternal(const std::string& name, asset::shader::ast::AstType::Type type, int count,
+                                      const void* value)
     {
         // TODO
     }

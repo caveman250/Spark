@@ -58,7 +58,7 @@ namespace se::asset::shader::ast
     inline void ConstantNode<float>::ToMtl(ShaderCompileContext&, string::ArenaString& outShader) const
     {
         auto alloc = outShader.get_allocator();
-        if (m_Constant - (int)m_Constant == 0)
+        if (m_Constant - static_cast<int>(m_Constant) == 0.f)
         {
             outShader += string::ArenaFormat("{}.0f", alloc, m_Constant);
         }
@@ -68,6 +68,27 @@ namespace se::asset::shader::ast
         }
     }
 
+    template<>
+    inline void ConstantNode<math::Vec2>::ToMtl(ShaderCompileContext&, string::ArenaString& outShader) const
+    {
+        auto alloc = outShader.get_allocator();
+        outShader += string::ArenaFormat("float2({}, {})", alloc, m_Constant.x, m_Constant.y);
+    }
+
+    template<>
+    inline void ConstantNode<math::Vec3>::ToMtl(ShaderCompileContext&, string::ArenaString& outShader) const
+    {
+        auto alloc = outShader.get_allocator();
+        outShader += string::ArenaFormat("float3({}, {}, {})", alloc, m_Constant.x, m_Constant.y, m_Constant.z);
+    }
+
+    template<>
+    inline void ConstantNode<math::Vec4>::ToMtl(ShaderCompileContext&, string::ArenaString& outShader) const
+    {
+        auto alloc = outShader.get_allocator();
+        outShader += string::ArenaFormat("float4({}, {}, {}, {})", alloc, m_Constant.x, m_Constant.y, m_Constant.z, m_Constant.w);
+    }
+
     template<typename T>
     ShaderValue ConstantNode<T>::GetValue()
     {
@@ -75,7 +96,7 @@ namespace se::asset::shader::ast
     }
 
     DEFINE_SPARK_CLASS_TEMPLATED_BEGIN(ConstantNode, TEMPLATE_TYPES(T), TEMPLATE_PARAMETERS(typename T))
-            DEFINE_SERIALIZED_MEMBER_TEMPLATED(ConstantNode, m_Children, TEMPLATE_TYPES(T))
+        DEFINE_SERIALIZED_MEMBER_TEMPLATED(ConstantNode, m_Children, TEMPLATE_TYPES(T))
         DEFINE_SERIALIZED_MEMBER_TEMPLATED(ConstantNode, m_Constant, TEMPLATE_TYPES(T))
     DEFINE_SPARK_CLASS_TEMPLATED_END(ConstantNode)
 }
