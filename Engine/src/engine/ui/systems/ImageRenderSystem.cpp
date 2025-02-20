@@ -28,7 +28,7 @@ namespace se::ui::systems
         PROFILE_SCOPE("ImageRenderSystem::OnRender")
 
         auto app = Application::Get();
-        auto renderer = render::Renderer::Get();
+        auto renderer = render::Renderer::Get<render::Renderer>();
         auto window = app->GetPrimaryWindow();
         auto windowsSize = math::Vec2(static_cast<float>(window->GetWidth()), static_cast<float>(window->GetHeight()));
 

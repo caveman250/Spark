@@ -51,7 +51,7 @@ namespace se::ui::systems
         auto* app = Application::Get();
         auto* world = app->GetWorld();
         auto* primaryWindow = app->GetPrimaryWindow();
-        auto* renderer = render::Renderer::Get();
+        auto* renderer = render::Renderer::Get<render::Renderer>();
         for (const auto& entity : entities)
         {
             RenderEntity(entity, renderComp, renderer, primaryWindow, world);

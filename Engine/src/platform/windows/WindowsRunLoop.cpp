@@ -77,11 +77,11 @@ namespace se::windows
         for (const auto& window: m_Windows)
         {
             window->SetCurrent();
-            render::Renderer::Get()->Render(window);
+            render::Renderer::Get<render::Renderer>()->Render(window);
             SwapBuffers(window->GetHDC());
         }
 
-        render::Renderer::Get()->EndFrame();
+        render::Renderer::Get<render::Renderer>()->EndFrame();
     }
 
     bool WindowsRunLoop::ShouldExit()

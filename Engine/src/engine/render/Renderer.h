@@ -76,7 +76,7 @@ namespace se::render
         Submit(window, AllocRenderCommand<T>(std::forward<Args>(args)...));
     }
 
-    template <typename T = Renderer>
+    template <typename T>
     T* Renderer::Get()
     {
         return static_cast<T*>(s_Renderer);

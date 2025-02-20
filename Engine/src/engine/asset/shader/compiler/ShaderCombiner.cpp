@@ -266,7 +266,7 @@ namespace se::asset::shader::compiler
 
     void ShaderCombiner::ResolveCombinedShaderPorts(Shader& shader, const ast::ShaderCompileContext& context)
     {
-        auto renderType = render::Renderer::Get()->GetRenderAPIType();
+        auto renderType = render::Renderer::Get<render::Renderer>()->GetRenderAPIType();
         for (auto& [name, port] : shader.GetInputPorts())
         {
             if (shader.GetType() == ShaderType::Vertex)
