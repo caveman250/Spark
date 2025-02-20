@@ -3,4 +3,5 @@
 DEFINE_SPARK_ENUM_BEGIN(se::asset::texture::Format)
     DEFINE_ENUM_VALUE(se::asset::texture::Format, R8)
     DEFINE_ENUM_VALUE(se::asset::texture::Format, DXT5)
+    DEFINE_ENUM_VALUE(se::asset::texture::Format, BC7)
 DEFINE_SPARK_ENUM_END()

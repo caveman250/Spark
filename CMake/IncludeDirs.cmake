@@ -1,5 +1,6 @@
 include_directories(${ENGINE_DIR}/src)
 include_directories(${ENGINE_DIR}/third_party/Crunch2/inc)
+include_directories(${ENGINE_DIR}/third_party/bc7enc_rdo)
 include_directories(${ENGINE_DIR}/third_party/glew-2.1.0/include)
 include_directories(${ENGINE_DIR}/third_party/stb-ae721c5)
 include_directories(${ENGINE_DIR}/third_party/nlohmann_json-3.13.3)

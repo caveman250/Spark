@@ -12,13 +12,6 @@ namespace se::asset::builder
         int y;
         int numComponents;
     };
-    struct CompressedImageData
-    {
-        void* data;
-        uint32_t outputQualityLevel;
-        float outputBitrate;
-        uint32_t outputFileSize;
-    };
 
     class TextureBlueprint : public Blueprint
     {
@@ -29,8 +22,7 @@ namespace se::asset::builder
 
         static RawImageData LoadImage(const std::string& path);
         static RawImageData LoadImageFromBytes(void* bytes, size_t size);
-        static CompressedImageData Compress(const RawImageData& imageData);
+        static memory::BinaryBlob Compress(const RawImageData& imageData);
         static void FreeImage(const RawImageData& imageData);
-        static void FreeCompressedImage(const CompressedImageData& imageData);
     };
 }
