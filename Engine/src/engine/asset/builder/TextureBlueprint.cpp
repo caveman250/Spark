@@ -7,11 +7,16 @@
 #include "engine/reflect/Util.h"
 #include "stb_image.h"
 
+#if !SPARK_PLATFORM_WINDOWS
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wgnu-anonymous-struct"
 #pragma clang diagnostic ignored "-Wnested-anon-types"
+#endif
 #include "rdo_bc_encoder.h"
+
+#if !SPARK_PLATFORM_WINDOWS
 #pragma clang diagnostic pop
+#endif
 
 namespace se::asset::builder
 {

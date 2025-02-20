@@ -8,7 +8,7 @@ namespace se::render::systems
 
     void PointLightSystem::OnUpdate(const std::vector<ecs::Id>& entities, const components::PointLightComponent* pointLights, const ecs::components::TransformComponent* transforms)
     {
-        auto* renderer = Renderer::Get();
+        auto* renderer = render::Renderer::Get<render::Renderer>();
         for (size_t i = 0; i < entities.size(); ++i)
         {
             renderer->AddPointLight( PointLight{ transforms[i].pos, pointLights[i].color });

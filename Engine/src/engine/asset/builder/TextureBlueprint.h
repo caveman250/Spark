@@ -1,5 +1,6 @@
 #pragma once
 
+#include <engine/memory/BinaryBlob.h>
 #include "Blueprint.h"
 
 namespace se::asset::builder

@@ -1,3 +1,4 @@
+#include <engine/asset/shader/ast/ShaderCompileContext.h>
 #include "Material.h"
 
 #if OPENGL_RENDERER
@@ -80,7 +81,7 @@ namespace se::render::opengl
                     break;
             }
 
-            m_Textures[i].second->Bind();
+            m_Textures[i].second->Bind(i);
         }
     }
 
@@ -88,8 +89,10 @@ namespace se::render::opengl
     {
         SPARK_ASSERT(m_CompiledProgram == GL_INVALID_VALUE);
 
-        std::optional<std::string> vert = asset::shader::ShaderCompiler::GeneratePlatformShader(m_VertShaders, m_ShaderSettings, vb, m_Textures);
-        std::optional<std::string> frag = asset::shader::ShaderCompiler::GeneratePlatformShader(m_FragShaders, m_ShaderSettings, vb, m_Textures);
+        asset::shader::ast::ShaderCompileContext context;
+
+        std::optional<std::string> vert = asset::shader::ShaderCompiler::GeneratePlatformShader(m_VertShaders, m_ShaderSettings, vb, context);
+        std::optional<std::string> frag = asset::shader::ShaderCompiler::GeneratePlatformShader(m_FragShaders, m_ShaderSettings, vb, context);
 
         if (!vert.has_value() || !frag.has_value())
         {
@@ -257,7 +260,7 @@ namespace se::render::opengl
         }
         case asset::shader::ast::AstType::Void:
         case asset::shader::ast::AstType::Invalid:
-            debug::Log::Error("Material::SetUniform - Unhandled unfiorm type {}", asset::shader::ast::TypeUtil::GetTypeGlsl(type));
+            debug::Log::Error("Material::SetUniform - Unhandled unfiorm type {}", asset::shader::ast::TypeUtil::TypeToGlsl(type));
             break;
         }
     }

@@ -74,6 +74,8 @@ namespace se::render::opengl
                 return GL_R8;
             case asset::texture::Format::DXT5:
                 return GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
+            case asset::texture::Format::BC7:
+                return GL_COMPRESSED_RGBA_BPTC_UNORM;
             default:
                 SPARK_ASSERT(false, "Unsupported GL format");
                 return GL_INVALID_VALUE;
@@ -91,6 +93,7 @@ namespace se::render::opengl
         {
             case asset::texture::Format::R8:
                 return false;
+            case asset::texture::Format::BC7:
             case asset::texture::Format::DXT5:
                 return true;
             default:
@@ -106,6 +109,8 @@ namespace se::render::opengl
             case asset::texture::Format::R8:
                 return GL_RED;
             case asset::texture::Format::DXT5:
+                return GL_RGBA;
+            case asset::texture::Format::BC7:
                 return GL_RGBA;
             default:
                 SPARK_ASSERT(false, "Unsupported GL format");

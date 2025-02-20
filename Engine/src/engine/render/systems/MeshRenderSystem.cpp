@@ -38,7 +38,7 @@ namespace se::render::systems
     void MeshRenderSystem::OnRender(const std::vector<ecs::Id>& entities, TransformComponent*, const MeshComponent* mesh, camera::ActiveCameraComponent*)
     {
         auto app = Application::Get();
-        auto renderer = render::Renderer::Get();
+        auto renderer = render::Renderer::Get<render::Renderer>();
         auto window = app->GetPrimaryWindow();
 
         for (size_t i = 0; i < entities.size(); ++i)

@@ -35,7 +35,7 @@ namespace se
         Application* app = Application::Get();
 
         app->GetPrimaryWindow()->SetCurrent();
-        render::Renderer::Get()->Update();
+        render::Renderer::Get<render::Renderer>()->Update();
         app->Update();
         app->Render();
 

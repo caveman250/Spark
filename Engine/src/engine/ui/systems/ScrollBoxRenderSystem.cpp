@@ -21,7 +21,7 @@ namespace se::ui::systems
     {
         PROFILE_SCOPE("ScrollBoxRenderSystem::OnRender")
 
-        auto renderer = render::Renderer::Get();
+        auto renderer = render::Renderer::Get<render::Renderer>();
 
         for (size_t i = 0; i < entities.size(); ++i)
         {

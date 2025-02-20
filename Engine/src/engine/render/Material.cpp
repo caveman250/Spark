@@ -6,7 +6,7 @@ namespace se::render
 {
     void Material::Bind(const VertexBuffer& vb)
     {
-        auto renderer = Renderer::Get();
+        auto renderer = Renderer::Get<Renderer>();
         renderer->ApplyRenderState(m_RenderState);
         if (m_RenderState.lit)
         {
@@ -32,7 +32,7 @@ namespace se::render
 
         if (m_RenderState.lit)
         {
-            const auto& lightSetup = Renderer::Get()->GetLightSetup();
+            const auto& lightSetup = renderer->GetLightSetup();
             // TODO improve shader parser so i can just pass an array of structs
             std::vector<math::Vec3> pos;
             pos.resize(lightSetup.pointLights.size());

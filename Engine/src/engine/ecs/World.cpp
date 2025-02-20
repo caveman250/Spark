@@ -490,7 +490,7 @@ namespace se::ecs
     {
         m_Running = true;
 
-        render::Renderer::Get()->Submit<render::commands::Clear>(Application::Get()->GetPrimaryWindow(), true, true);
+        render::Renderer::Get<render::Renderer>()->Submit<render::commands::Clear>(Application::Get()->GetPrimaryWindow(), true, true);
 
         RunOnAllEngineSystems([this](auto&& systemId)
         {

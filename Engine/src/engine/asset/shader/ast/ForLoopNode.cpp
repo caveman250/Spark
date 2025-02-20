@@ -5,6 +5,7 @@
 #include "VariableDeclarationNode.h"
 #include "VariableReferenceNode.h"
 #include "engine/math/math.h"
+#include "ShaderCompileContext.h"
 
 namespace se::asset::shader::ast
 {
@@ -159,7 +160,7 @@ namespace se::asset::shader::ast
         VariableReferenceNode* refNode = dynamic_cast<VariableReferenceNode*>(binaryExpression->m_Children[0].get());
         if (!SPARK_VERIFY(refNode))
         {
-            return { .lhs = "", .opType = OperatorType::Add, .rhs = -1 };
+            return { .opType = OperatorType::Add,  .lhs = "", .rhs = -1 };
         }
 
         variableName = refNode->GetName();
@@ -170,7 +171,7 @@ namespace se::asset::shader::ast
             ConstantNode<int>* constantNode = dynamic_cast<ConstantNode<int>*>(binaryExpression->m_Children[1].get());
             if (!SPARK_VERIFY(constantNode))
             {
-                return { .lhs = "", .opType = OperatorType::Add, .rhs = -1 };
+                return { .opType = OperatorType::Add, .lhs = "", .rhs = -1 };
             }
 
             auto constantVal = constantNode->GetValue();
@@ -178,7 +179,7 @@ namespace se::asset::shader::ast
             amount = std::get<int>(constantVal);
         }
 
-        return { .lhs = variableName, .opType = binaryExpression->GetOperatorType(), .rhs = amount };
+        return { .opType = binaryExpression->GetOperatorType(), .lhs = variableName, .rhs = amount };
     }
 
     void ForLoopNode::ToMtl(ShaderCompileContext& context, string::ArenaString& outShader) const

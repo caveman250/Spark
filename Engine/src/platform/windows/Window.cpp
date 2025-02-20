@@ -22,7 +22,7 @@ namespace se
     IWindow* IWindow::CreatePlatformWindow(int resX, int resY)
     {
         auto* window = new windows::Window(resX, resY);
-        if (auto runLoop = Application::Get()->GetRunLoop())
+        if (auto runLoop = PlatformRunLoop::Get())
         {
             runLoop->RegisterWindow(window);
         }
@@ -282,9 +282,8 @@ namespace se::windows
 
     void Window::CreateContext()
     {
-        // this will need to die if we ever support non GL/Vulkan renderers
-        auto renderer = se::render::Renderer::Get();
-        auto openGLRenderer = dynamic_cast<se::render::opengl::OpenGLRenderer*>(renderer);
+        // this will need to die if we ever support non GL/Vulkan renderers on Windows
+        auto openGLRenderer = se::render::Renderer::Get<se::render::opengl::OpenGLRenderer>();
         SPARK_ASSERT(openGLRenderer);
 
         m_Hdc = GetDC(m_Hwnd);

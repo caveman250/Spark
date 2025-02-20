@@ -23,7 +23,7 @@ namespace se::reflect
     std::string TemplatedClass<T>::GetTypeName(const void* obj) const
     {
         auto otherType = TypeResolver<T>::get();
-        auto name = otherType->GetTypeName(nullptr);
-        return Class::GetTypeName(obj) + "<" + name + ">";
+        auto otherName = otherType->GetTypeName(nullptr);
+        return Class::GetTypeName(obj) + "<" + otherName + ">";
     }
 }
