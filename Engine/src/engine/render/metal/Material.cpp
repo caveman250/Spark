@@ -31,7 +31,10 @@ namespace se::render::metal
     {
         render::Material::Bind(vb);
 
-        // TODO
+        for (size_t i = 0; i < m_Textures.size(); ++i)
+        {
+            m_Textures[i].second->Bind(i);
+        }
     }
 
     void Material::CreatePlatformResources(const render::VertexBuffer& vb)
@@ -103,14 +106,42 @@ namespace se::render::metal
 
     void Material::DestroyPlatformResources()
     {
-        // TODO
+        m_RenderPipelineState->release();
+        m_RenderPipelineState = nullptr;
         render::Material::DestroyPlatformResources();
     }
 
     void Material::SetUniformInternal(const std::string& name, asset::shader::ast::AstType::Type type, int count,
                                       const void* value)
     {
-        // TODO
+        if (!m_PlatformResourcesCreated)
+        {
+            return;
+        }
+
+        switch (type)
+        {
+        case asset::shader::ast::AstType::Sampler2D:
+        {
+            SPARK_ASSERT(count == 1, "Setting arrays of texture uniforms not supported.");
+            const auto& texture = *reinterpret_cast<const std::shared_ptr<asset::Texture>*>(value);
+            const auto& platformResource = texture->GetPlatformResource();
+            auto it = std::ranges::find_if(m_Textures, [name](const auto& kvp){ return kvp.first == name; });
+            if (it != m_Textures.end())
+            {
+                it->second = platformResource;
+            }
+            else
+            {
+                m_Textures.push_back(std::make_pair(name, platformResource));
+            }
+            break;
+        }
+        case asset::shader::ast::AstType::Invalid:
+        default:
+            debug::Log::Error("Material::SetUniform - Unhandled uniform type {}", asset::shader::ast::TypeUtil::TypeToMtl(type));
+            break;
+        }
     }
 }
 

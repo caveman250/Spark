@@ -15,7 +15,7 @@ namespace se::render
         {
             m_HasCreatedPlatformResources = true;
         }
-        virtual void Bind() = 0;
+        virtual void Bind(size_t i) = 0;
 
         bool HasCreatedPlatformResources() const { return m_HasCreatedPlatformResources; }
     protected:
