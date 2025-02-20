@@ -31,6 +31,9 @@ namespace se::render::metal
     {
         render::Material::Bind(vb);
 
+        auto renderer = Renderer::Get<MetalRenderer>();
+        renderer->GetCurrentCommandEncoder()->setRenderPipelineState(m_RenderPipelineState);
+
         for (size_t i = 0; i < m_Textures.size(); ++i)
         {
             m_Textures[i].second->Bind(i);
@@ -85,7 +88,7 @@ namespace se::render::metal
         desc->setVertexFunction(vertexFn);
         desc->setFragmentFunction(fragFn);
         desc->colorAttachments()->object(0)->setPixelFormat(MTL::PixelFormat::PixelFormatBGRA8Unorm_sRGB);
-        desc->setDepthAttachmentPixelFormat(MTL::PixelFormat::PixelFormatDepth16Unorm);
+        desc->setDepthAttachmentPixelFormat(MTL::PixelFormatInvalid);
 
         NS::Error* nsError = nullptr;
         m_RenderPipelineState = Renderer::Get<MetalRenderer>()->GetDevice()->newRenderPipelineState(desc, &nsError);

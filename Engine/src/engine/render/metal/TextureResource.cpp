@@ -40,8 +40,12 @@ namespace se::render::metal
         switch (format) {
             case asset::texture::Format::R8:
                 return MTL::PixelFormatR8Unorm;
+            case asset::texture::Format::BC7:
+                return MTL::PixelFormatBC7_RGBAUnorm;
             case asset::texture::Format::DXT5:
                 SPARK_ASSERT(false, "DXT5 not supported in Metal");
+                return MTL::PixelFormatInvalid;
+            default:
                 return MTL::PixelFormatInvalid;
         }
     }

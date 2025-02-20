@@ -35,7 +35,7 @@ file(GLOB SOURCE ${ENGINE_DIR}/unity_generated/*.cpp)
 add_library(Spark ${SOURCE})
 
 ###### Linker ######
-target_link_libraries(Spark crn OpenFBX)
+target_link_libraries(Spark OpenFBX bc7enc)
 if (WIN32)
     target_link_libraries(Spark Dwmapi)
 endif()

@@ -48,7 +48,7 @@ namespace se::render::commands
             MTL::IndexTypeUInt32,
             mtlBuffer->GetMTLBuffer(),
             0,
-            0);
+            1);
     }
 
     SubmitUI::SubmitUI(const std::shared_ptr<Material> &material, const std::shared_ptr<VertexBuffer> &vertBuffer,
