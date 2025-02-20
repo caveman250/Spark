@@ -3,7 +3,7 @@
 #include "engine/render/render_fwd.h"
 
 #if METAL_RENDERER
-
+#include "engine/render/metal/MTL_fwd.h"
 #include "engine/render/TextureResource.h"
 
 namespace se::render::metal
@@ -13,7 +13,12 @@ namespace se::render::metal
     public:
         TextureResource(const asset::Texture& texture) : render::TextureResource(texture) {}
         void CreatePlatformResources() override;
-        void Bind() override;
+        void Bind(size_t i) override;
+
+    private:
+        static MTL::PixelFormat TextureFormatToMetalFormat(asset::texture::Format::Type format);
+
+        MTL::Texture* m_MetalResource;
     };
 }
 

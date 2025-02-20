@@ -80,7 +80,7 @@ namespace se::render::opengl
         }
     }
 
-    void TextureResource::Bind()
+    void TextureResource::Bind(size_t)
     {
         glBindTexture(GL_TEXTURE_2D, m_ID);
     }

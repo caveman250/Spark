@@ -14,7 +14,7 @@ namespace se::render::opengl
     public:
         TextureResource(const asset::Texture& texture) : render::TextureResource(texture) {}
         void CreatePlatformResources() override;
-        void Bind() override;
+        void Bind(size_t i) override;
 
     private:
 
