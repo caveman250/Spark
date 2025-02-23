@@ -37,7 +37,7 @@ namespace se::render
     {
         if (rs != m_CachedRenderState)
         {
-            ApplyDepthCompare(rs.depthComp);
+            ApplyDepthStencil(rs.depthComp, rs.stencilFunc, rs.stencilWriteMask, rs.stencilReadMask);
             ApplyBlendMode(rs.srcBlend, rs.dstBlend);
             m_CachedRenderState = rs;
         }

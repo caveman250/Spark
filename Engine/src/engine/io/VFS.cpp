@@ -22,11 +22,16 @@ namespace se::io
 
     std::string VFS::ReadText(const std::string& path)
     {
-        const auto fsPath = ResolveFSPath(path, false);
+        auto fsPath = ResolveFSPath(path, false);
         if (!fsPath.has_value())
         {
-            debug::Log::Error("Cannot open file {0}!", path);
-            return "";
+            if (!path.starts_with(".") && !path.starts_with("/") && path[1] != ':')
+            {
+                debug::Log::Error("Cannot open file {0}!", path);
+                return "";
+            }
+
+            fsPath = path;
         }
 
         std::string fileContents;
@@ -48,15 +53,21 @@ namespace se::io
 
     char* VFS::ReadBinary(const std::string& path, size_t& outSize)
     {
-        const auto fsPath = ResolveFSPath(path, false);
+        auto fsPath = ResolveFSPath(path, false);
         if (!fsPath.has_value())
         {
-            debug::Log::Error("Cannot open file {0}!", path);
-            return nullptr;
+            if (!path.starts_with(".") && !path.starts_with("/") && path[1] != ':')
+            {
+                debug::Log::Error("Cannot open file {0}!", path);
+                return nullptr;
+            }
+
+            fsPath = path;
         }
 
         std::ifstream myfile;
         myfile.open(fsPath.value(), std::ios::binary | std::ios::ate);
+        SPARK_ASSERT(myfile.is_open());
         std::streamsize size = myfile.tellg();
         myfile.seekg(0, std::ios::beg);
         char* data = static_cast<char*>(std::malloc(size));
@@ -69,11 +80,16 @@ namespace se::io
 
     void VFS::WriteBinary(const std::string& path, char* data, size_t size)
     {
-        const auto fsPath = ResolveFSPath(path, true);
+        auto fsPath = ResolveFSPath(path, true);
         if (!fsPath.has_value())
         {
-            debug::Log::Error("Cannot open file {0}!", path);
-            return;
+            if (!path.starts_with(".") && !path.starts_with("/") && path[1] != ':')
+            {
+                debug::Log::Error("Cannot open file {0}!", path);
+                return;
+            }
+
+            fsPath = path;
         }
 
         std::ofstream myfile;
@@ -139,11 +155,16 @@ namespace se::io
 
     void VFS::WriteText(const std::string& path, const std::string& text)
     {
-        const auto fsPath = ResolveFSPath(path, true);
+        auto fsPath = ResolveFSPath(path, true);
         if (!fsPath.has_value())
         {
-            debug::Log::Error("Cannot open file {0}!", path);
-            return;
+            if (!path.starts_with(".") && !path.starts_with("/") && path[1] != ':')
+            {
+                debug::Log::Error("Cannot open file {0}!", path);
+                return;
+            }
+
+            fsPath = path;
         }
 
         std::ofstream myfile;

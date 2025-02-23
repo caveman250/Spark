@@ -32,12 +32,42 @@ namespace se::render::metal
         render::Material::Bind(vb);
 
         auto renderer = Renderer::Get<MetalRenderer>();
-        renderer->GetCurrentCommandEncoder()->setRenderPipelineState(m_RenderPipelineState);
+        auto commandEncoder = renderer->GetCurrentCommandEncoder();
+
+        commandEncoder->setRenderPipelineState(m_RenderPipelineState);
 
         for (size_t i = 0; i < m_Textures.size(); ++i)
         {
             m_Textures[i].second->Bind(i);
         }
+
+        if (m_VertexUniformsSize > 0 && !m_VertexUniformBufferGpu)
+        {
+            auto device = renderer->GetDevice();
+            m_VertexUniformBufferGpu = device->newBuffer(m_VertexUniformsSize, MTL::ResourceStorageModeManaged);
+        }
+        
+        if (m_VertexUniformsStale)
+        {
+            memcpy(m_VertexUniformBufferGpu->contents(), m_VertexUniformBufferCpu, m_VertexUniformsSize);
+            m_VertexUniformBufferGpu->didModifyRange(NS::Range::Make(0, m_VertexUniformBufferGpu->length()));
+        }
+        commandEncoder->setVertexBuffer(m_VertexUniformBufferGpu, 0, vb.GetVertexStreams().size());
+
+        if (m_FragmentUniformsSize > 0 && !m_FragmentUniformBufferGpu)
+        {
+            auto device = renderer->GetDevice();
+            m_FragmentUniformBufferGpu = device->newBuffer(m_FragmentUniformsSize, MTL::ResourceStorageModeManaged);
+        }
+        
+        if (m_FragmentUniformsStale)
+        {
+            memcpy(m_FragmentUniformBufferGpu->contents(), m_FragmentUniformBufferCpu, m_FragmentUniformsSize);
+            m_FragmentUniformBufferGpu->didModifyRange(NS::Range::Make(0, m_FragmentUniformBufferGpu->length()));
+        }
+        commandEncoder->setFragmentBuffer(m_FragmentUniformBufferGpu, 0, 0);
+
+        commandEncoder->setDepthStencilState(m_DepthStencilState);
     }
 
     void Material::CreatePlatformResources(const render::VertexBuffer& vb)
@@ -87,22 +117,65 @@ namespace se::render::metal
         MTL::RenderPipelineDescriptor* desc = MTL::RenderPipelineDescriptor::alloc()->init();
         desc->setVertexFunction(vertexFn);
         desc->setFragmentFunction(fragFn);
-        desc->colorAttachments()->object(0)->setPixelFormat(MTL::PixelFormat::PixelFormatBGRA8Unorm_sRGB);
-        desc->setDepthAttachmentPixelFormat(MTL::PixelFormatInvalid);
+        MTL::RenderPipelineColorAttachmentDescriptor* colorAttachment = desc->colorAttachments()->object(0);
+        colorAttachment->setPixelFormat(MTL::PixelFormat::PixelFormatBGRA8Unorm);
+        desc->setDepthAttachmentPixelFormat(MTL::PixelFormatDepth16Unorm);
+
+        colorAttachment->setBlendingEnabled(m_RenderState.dstBlend != BlendMode::None);
+        colorAttachment->setSourceRGBBlendFactor(MetalRenderer::BlendModeToMtl(m_RenderState.srcBlend));
+        colorAttachment->setDestinationRGBBlendFactor(MetalRenderer::BlendModeToMtl(m_RenderState.dstBlend));
 
         NS::Error* nsError = nullptr;
-        m_RenderPipelineState = Renderer::Get<MetalRenderer>()->GetDevice()->newRenderPipelineState(desc, &nsError);
+        m_RenderPipelineState = device->newRenderPipelineState(desc, &nsError);
         if (!m_RenderPipelineState)
         {
             debug::Log::Error(nsError->localizedDescription()->utf8String());
             SPARK_ASSERT(false);
         }
 
+        MTL::DepthStencilDescriptor* depthStencilDesc = MTL::DepthStencilDescriptor::alloc()->init();
+        depthStencilDesc->setDepthCompareFunction(MetalRenderer::DepthCompareToMtl(m_RenderState.depthComp));
+        depthStencilDesc->setDepthWriteEnabled(m_RenderState.depthComp != DepthCompare::None);
+        m_DepthStencilState = device->newDepthStencilState(depthStencilDesc);
+
         vertexFn->release();
         fragFn->release();
         desc->release();
         vertLibrary->release();
         fragLibrary->release();
+        depthStencilDesc->release();
+
+        for (const auto& [name, uniform] : context.vertShader->GetUniformVariables())
+        {
+            if (!m_VertexUniformOffsets.contains(name))
+            {
+                m_VertexUniformOffsets[name] = m_VertexUniformsSize;
+                auto varSize = asset::shader::ast::TypeUtil::GetTypePaddedSize(uniform.type);
+                if (uniform.arraySizeConstant > 0)
+                {
+                    varSize *= uniform.arraySizeConstant;
+                }
+
+                m_VertexUniformsSize += varSize;
+            }
+        }
+        m_VertexUniformBufferCpu = static_cast<uint8_t*>(malloc(m_VertexUniformsSize));
+
+        for (const auto& [name, uniform] : context.fragShader->GetUniformVariables())
+        {
+            if (!m_FragmentUniformOffsets.contains(name))
+            {
+                m_FragmentUniformOffsets[name] = m_FragmentUniformsSize;
+                auto varSize = asset::shader::ast::TypeUtil::GetTypePaddedSize(uniform.type);
+                if (uniform.arraySizeConstant > 0)
+                {
+                    varSize *= uniform.arraySizeConstant;
+                }
+
+                m_FragmentUniformsSize += varSize;
+            }
+        }
+        m_FragmentUniformBufferCpu = static_cast<uint8_t*>(malloc(m_FragmentUniformsSize));
 
         render::Material::CreatePlatformResources(vb);
     }
@@ -111,6 +184,12 @@ namespace se::render::metal
     {
         m_RenderPipelineState->release();
         m_RenderPipelineState = nullptr;
+        delete m_VertexUniformBufferCpu;
+        m_VertexUniformBufferCpu = nullptr;
+        delete m_FragmentUniformBufferCpu;
+        m_FragmentUniformBufferCpu = nullptr;
+        m_VertexUniformBufferGpu->release();
+        m_FragmentUniformBufferGpu->release();
         render::Material::DestroyPlatformResources();
     }
 
@@ -141,9 +220,50 @@ namespace se::render::metal
             break;
         }
         case asset::shader::ast::AstType::Invalid:
-        default:
+        {
             debug::Log::Error("Material::SetUniform - Unhandled uniform type {}", asset::shader::ast::TypeUtil::TypeToMtl(type));
             break;
+        }
+        default:
+        {
+            if (m_VertexUniformOffsets.contains(name))
+            {
+                for (int i = 0; i < count; ++i)
+                {
+                    size_t typeSize = asset::shader::ast::TypeUtil::GetTypeSize(type);
+                    size_t paddedSize = asset::shader::ast::TypeUtil::GetTypePaddedSize(type);
+                    size_t padding = paddedSize - typeSize;
+                    size_t offset = m_VertexUniformOffsets[name] + paddedSize * i;
+                    memcpy(m_VertexUniformBufferCpu + offset, (uint8_t*)value + typeSize * i, asset::shader::ast::TypeUtil::GetTypeSize(type));
+                    if (padding > 0)
+                    {
+                        memset(m_VertexUniformBufferCpu + offset + typeSize, 0, padding);
+                    }
+                }
+                
+                m_VertexUniformsStale = true;
+            }
+            if (m_FragmentUniformOffsets.contains(name))
+            {
+                for (int i = 0; i < count; ++i)
+                {
+                    
+                    size_t typeSize = asset::shader::ast::TypeUtil::GetTypeSize(type);
+                    size_t paddedSize = asset::shader::ast::TypeUtil::GetTypePaddedSize(type);
+                    size_t padding = paddedSize - typeSize;
+                    size_t offset = m_FragmentUniformOffsets[name] + paddedSize * i;
+                    memcpy(m_FragmentUniformBufferCpu + offset, (uint8_t*)value + typeSize * i, asset::shader::ast::TypeUtil::GetTypeSize(type));
+                    if (padding > 0)
+                    {
+                        memset(m_FragmentUniformBufferCpu + offset + typeSize, 0, padding);
+                    }
+                }
+                
+                m_FragmentUniformsStale = true;
+            }
+
+            break;
+        }
         }
     }
 }

@@ -19,15 +19,17 @@ namespace se::render::metal
         MTL::Device* GetDevice() const { return m_Device; }
         MTL::RenderCommandEncoder* GetCurrentCommandEncoder() const { return m_CurrentCommandEncoder; }
 
+        static MTL::CompareFunction DepthCompareToMtl(DepthCompare::Type depthCompare);
+        static MTL::BlendFactor BlendModeToMtl(BlendMode::Type blendMode);
 
     private:
-        void ApplyDepthCompare(DepthCompare::Type comp) override;
+        void ApplyDepthStencil(DepthCompare::Type comp, StencilFunc::Type src, uint32_t writeMask, uint32_t readMask) override;
         void ApplyBlendMode(BlendMode::Type src, BlendMode::Type dest) override;
-        void ApplyStencil(StencilFunc::Type src, uint32_t writeMask, uint32_t readMask) override;
 
         MTL::Device* m_Device = nullptr;
         MTL::CommandQueue* m_CommandQueue = nullptr;
         MTL::RenderCommandEncoder* m_CurrentCommandEncoder = nullptr;
+        MTL::RenderPassDescriptor* m_CurrentRenderPassDescriptor = nullptr;
     };
 }
 #endif

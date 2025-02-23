@@ -23,15 +23,49 @@ namespace se::render::metal
         Cleanup();
     }
 
+    size_t VertexBuffer::GetStreamStride(VertexStreamType streamType)
+    {
+        switch (streamType)
+        {
+            case VertexStreamType::UV:
+                return 2;
+            case VertexStreamType::Position:
+            case VertexStreamType::Colour:
+            case VertexStreamType::Normal:
+            case VertexStreamType::Tangent:
+            case VertexStreamType::Bitangent:
+                return 4;
+            default:
+                SPARK_ASSERT(false, "VertexBuffer::GetStreamStride - Unhandled VertexStreamType");
+                return 0;
+        }
+    }
+
     void VertexBuffer::CreatePlatformResource()
     {
         auto device = Renderer::Get<MetalRenderer>()->GetDevice();
 
         for (const auto& [usage, stream]: m_VertexStreams)
         {
-            size_t dataSize = stream.data.size() * sizeof(float);
-            auto& buffer = m_Buffers.emplace_back(device->newBuffer(dataSize, MTL::ResourceStorageModeManaged));
-            memcpy(buffer->contents(), stream.data.data(), dataSize);
+            auto stride = stream.stride;
+            auto streamStride = GetStreamStride(usage);
+            auto numElements = stream.data.size();
+            
+            size_t bufferSize = numElements * sizeof(float) * streamStride;
+            auto& buffer = m_Buffers.emplace_back(device->newBuffer(bufferSize, MTL::ResourceStorageModeManaged));
+            
+            for (int i = 0; i < numElements; ++i)
+            {
+                float* dest = static_cast<float*>(buffer->contents()) + i * streamStride;
+                float* source = const_cast<float*>(stream.data.data()) + i * stride;
+                memcpy(dest, source, stride * sizeof(float));
+                if (stride < streamStride)
+                {
+                    float* paddingDest = dest + stride;
+                    memset(paddingDest, 0, (streamStride - stride) * sizeof(float));
+                }
+            }
+            
             buffer->didModifyRange(NS::Range::Make(0, buffer->length()));
         }
     }

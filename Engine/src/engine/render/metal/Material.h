@@ -16,11 +16,26 @@ namespace se::render::metal
         void Bind(const render::VertexBuffer&) override;
         void CreatePlatformResources(const render::VertexBuffer& vb) override;
         void DestroyPlatformResources() override;
+
     private:
         void SetUniformInternal(const std::string& name, asset::shader::ast::AstType::Type type, int count, const void* value) override;
 
         MTL::RenderPipelineState* m_RenderPipelineState = nullptr;
         std::vector<std::pair<std::string, std::shared_ptr<render::TextureResource>>> m_Textures;
+
+        bool m_VertexUniformsStale = false;
+        size_t m_VertexUniformsSize = 0;
+        std::unordered_map<std::string, size_t> m_VertexUniformOffsets;
+        uint8_t* m_VertexUniformBufferCpu = nullptr;
+        MTL::Buffer* m_VertexUniformBufferGpu = nullptr;
+
+        bool m_FragmentUniformsStale = false;
+        size_t m_FragmentUniformsSize = 0;
+        std::unordered_map<std::string, size_t> m_FragmentUniformOffsets;
+        uint8_t* m_FragmentUniformBufferCpu = nullptr;
+        MTL::Buffer* m_FragmentUniformBufferGpu = nullptr;
+
+        MTL::DepthStencilState* m_DepthStencilState = nullptr;
     };
 }
 #endif

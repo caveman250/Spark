@@ -18,6 +18,7 @@ namespace se::render::metal
         void Unbind() override;
     private:
         void Cleanup();
+        size_t GetStreamStride(VertexStreamType streamType);
 
         std::vector<MTL::Buffer*> m_Buffers;
     };

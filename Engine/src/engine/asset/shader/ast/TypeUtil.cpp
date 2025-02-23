@@ -1,5 +1,7 @@
 #include "TypeUtil.h"
 
+#include "engine/math/math.h"
+
 namespace se::asset::shader::ast
 {
     std::string TypeUtil::TypeToGlsl(AstType::Type type)
@@ -122,5 +124,61 @@ namespace se::asset::shader::ast
         };
 
         return s_TypeStrings;
+    }
+
+    size_t TypeUtil::GetTypeSize(AstType::Type type)
+    {
+        switch (type)
+        {
+            case AstType::Int:
+                return sizeof(int32_t);
+            case AstType::Float:
+                return sizeof(float);
+            case AstType::Vec2:
+                return sizeof(math::Vec2);
+            case AstType::Vec3:
+                return sizeof(math::Vec3);
+            case AstType::Vec4:
+                return sizeof(math::Vec4);
+            case AstType::Mat3:
+                return sizeof(math::Mat3);
+            case AstType::Mat4:
+                return sizeof(math::Mat4);
+            case AstType::Void:
+                return 0;
+            case AstType::Sampler2D:
+                return 0;
+            default:
+                SPARK_ASSERT(false);
+                return 0;
+        }
+    }
+
+    size_t TypeUtil::GetTypePaddedSize(AstType::Type type)
+    {
+        switch (type)
+        {
+            case AstType::Int:
+                return sizeof(int32_t);
+            case AstType::Float:
+                return sizeof(float);
+            case AstType::Vec2:
+                return sizeof(math::Vec2);
+            case AstType::Vec3:
+                return sizeof(math::Vec4);
+            case AstType::Vec4:
+                return sizeof(math::Vec4);
+            case AstType::Mat3:
+                return sizeof(math::Mat3);
+            case AstType::Mat4:
+                return sizeof(math::Mat4);
+            case AstType::Void:
+                return 0;
+            case AstType::Sampler2D:
+                return 0;
+            default:
+                SPARK_ASSERT(false);
+                return 0;
+        }
     }
 }

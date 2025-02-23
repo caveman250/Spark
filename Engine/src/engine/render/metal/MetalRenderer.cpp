@@ -2,6 +2,8 @@
 
 
 #include <platform/mac/Window.h>
+
+#include "Material.h"
 #if METAL_RENDERER
 
 #include "engine/render/RenderCommand.h"
@@ -17,7 +19,6 @@ namespace se::render::metal
 {
     MetalRenderer::MetalRenderer()
     {
-
     }
 
     MetalRenderer::~MetalRenderer()
@@ -39,8 +40,11 @@ namespace se::render::metal
 
         auto macWindow = static_cast<mac::Window*>(window);
         auto view = macWindow->GetView();
-        MTL::RenderPassDescriptor* renderPassDescriptor = view->currentRenderPassDescriptor();
-        m_CurrentCommandEncoder = pCmd->renderCommandEncoder(renderPassDescriptor);
+        m_CurrentRenderPassDescriptor = view->currentRenderPassDescriptor();
+        m_CurrentCommandEncoder = pCmd->renderCommandEncoder(m_CurrentRenderPassDescriptor);
+        
+        m_CurrentCommandEncoder->setCullMode(MTL::CullModeBack);
+        m_CurrentCommandEncoder->setFrontFacingWinding(MTL::Winding::WindingCounterClockwise);
 
         Renderer::Render(window);
 
@@ -50,21 +54,72 @@ namespace se::render::metal
         pCmd->commit();
 
         pPool->release();
+
+        m_CachedRenderState = {};
     }
 
-    void MetalRenderer::ApplyDepthCompare(DepthCompare::Type comp)
+    void MetalRenderer::ApplyDepthStencil(DepthCompare::Type comp, StencilFunc::Type src, uint32_t writeMask,
+        uint32_t readMask)
     {
-        // TODO
+        // nothing to do here. TODO Maybe refactor into material on OpenGL side as well?
     }
 
     void MetalRenderer::ApplyBlendMode(BlendMode::Type src, BlendMode::Type dst)
     {
-        // TODO
+        
     }
 
-    void MetalRenderer::ApplyStencil(StencilFunc::Type func, uint32_t writeMask, uint32_t readMask)
+    MTL::CompareFunction MetalRenderer::DepthCompareToMtl(DepthCompare::Type depthCompare)
     {
-        // TODO
+        switch (depthCompare)
+        {
+            case DepthCompare::Less:
+                return MTL::CompareFunctionLess;
+            case DepthCompare::LessEqual:
+                return MTL::CompareFunctionLessEqual;
+            case DepthCompare::Equal:
+                return MTL::CompareFunctionEqual;
+            case DepthCompare::Greater:
+                return MTL::CompareFunctionGreater;
+            case DepthCompare::GreaterEqual:
+                return MTL::CompareFunctionGreaterEqual;
+            case DepthCompare::None:
+                return MTL::CompareFunctionAlways;
+            default:
+                SPARK_ASSERT(false, "MetalRenderer::DepthCompareToMtl - Unhandled DepthCompare");
+                return MTL::CompareFunctionAlways;
+        }
+    }
+
+    MTL::BlendFactor MetalRenderer::BlendModeToMtl(BlendMode::Type blendMode)
+    {
+        switch (blendMode) {
+            case BlendMode::Zero:
+                return MTL::BlendFactorZero;
+            case BlendMode::One:
+                return MTL::BlendFactorOne;
+            case BlendMode::SrcColor:
+                return MTL::BlendFactorSourceColor;
+            case BlendMode::OneMinusSrcColor:
+                return MTL::BlendFactorOneMinusSourceColor;
+            case BlendMode::DstColor:
+                return MTL::BlendFactorDestinationColor;
+            case BlendMode::OneMinusDstColor:
+                return MTL::BlendFactorOneMinusDestinationColor;
+            case BlendMode::SrcAlpha:
+                return MTL::BlendFactorSourceAlpha;
+            case BlendMode::OneMinusSrcAlpha:
+                return MTL::BlendFactorOneMinusSourceAlpha;
+            case BlendMode::DstAlpha:
+                return MTL::BlendFactorDestinationAlpha;
+            case BlendMode::OneMinusDstAlpha:
+                return MTL::BlendFactorOneMinusDestinationAlpha;
+            case BlendMode::None:
+                return MTL::BlendFactorZero;
+            default:
+                SPARK_ASSERT(false, "MetalRenderer::BlendModeToMtl - Unhandled BlendMode");
+                return MTL::BlendFactorZero;
+        }
     }
 }
 #endif

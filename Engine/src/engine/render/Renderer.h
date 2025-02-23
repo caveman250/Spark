@@ -52,9 +52,8 @@ namespace se::render
         void SortDrawCommands(IWindow* window);
         void ExecuteDrawCommands(IWindow* window);
 
-        virtual void ApplyDepthCompare(DepthCompare::Type comp) = 0;
+        virtual void ApplyDepthStencil(DepthCompare::Type comp, StencilFunc::Type src, uint32_t writeMask, uint32_t readMask) = 0;
         virtual void ApplyBlendMode(BlendMode::Type src, BlendMode::Type dest) = 0;
-        virtual void ApplyStencil(StencilFunc::Type src, uint32_t writeMask, uint32_t readMask) = 0;
 
         std::unordered_map<IWindow*, std::vector<commands::RenderCommand*>> m_RenderCommands;
         RenderState m_CachedRenderState;

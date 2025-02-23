@@ -2,6 +2,8 @@
 
 #include "math.h"
 #include "Vec3.h"
+#include "engine/render/Renderer.h"
+#include "engine/render/systems/MeshRenderSystem.h"
 
 namespace se::math
 {
@@ -250,6 +252,17 @@ namespace se::math
         ret[2][2] = - (zFar + zNear) / (zFar - zNear);
         ret[2][3] = - 1.f;
         ret[3][2] = - (2.f * zFar * zNear) / (zFar - zNear);
+
+        auto renderer = render::Renderer::Get<render::Renderer>();
+        if (renderer->GetRenderAPIType() == render::RenderAPI::Metal)
+        {
+            Mat4 adjust = { 1.f, 0.f, 0.f,  0.f,
+                                  0.f, 1.f, 0.f,  0.f,
+                                  0.f, 0.f, 0.5f, 0.f,
+                                  0.f, 0.f, 0.f,  1.f };
+            ret = adjust * ret;
+        }
+
         return ret;
     }
 

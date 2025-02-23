@@ -1,5 +1,6 @@
 #include "Window.h"
 
+#include "engine/render/metal/MTL_fwd.h"
 #include "engine/Application.h"
 #include "platform/PlatformRunLoop.h"
 #include <engine/render/Renderer.h>
@@ -24,7 +25,7 @@ namespace se::mac
     Window::Window(int resX, int resY)
         : IWindow(resX, resY)
     {
-        CGRect frame = (CGRect){{ 0.0, 0.0 }, {static_cast<double>(resX), static_cast<double>(resY) }};
+        CGRect frame = (CGRect){{0.0, 0.0}, {static_cast<double>(resX), static_cast<double>(resY)}};
 
         m_NSWindow = NS::Window::alloc()->init(
             frame,
@@ -35,8 +36,11 @@ namespace se::mac
         auto renderer = render::Renderer::Get<render::metal::MetalRenderer>();
 
         m_View = MTK::View::alloc()->init(frame, renderer->GetDevice());
-        m_View->setColorPixelFormat(MTL::PixelFormat::PixelFormatBGRA8Unorm_sRGB);
+        m_View->setColorPixelFormat(MTL::PixelFormat::PixelFormatBGRA8Unorm);
         m_View->setClearColor(MTL::ClearColor::Make(0.0, 0.0, 0.0, 1.0));
+        m_View->setDepthStencilPixelFormat(MTL::PixelFormat::PixelFormatDepth16Unorm); // TODO
+        m_View->setClearDepth(1.0f);
+        m_View->setDrawableSize(CGSize { static_cast<double>(resX), static_cast<double>(resY) }); // TODO content scale.
 
         m_NSWindow->setContentView(m_View);
         m_NSWindow->setTitle(NS::String::string("Spark", NS::StringEncoding::UTF8StringEncoding));
@@ -51,7 +55,7 @@ namespace se::mac
 
     void Window::SetCurrent()
     {
-       // TODO
+        // TODO
     }
 
     void Window::Cleanup()

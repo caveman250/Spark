@@ -31,14 +31,6 @@ namespace se::render::opengl
                 return GL_DST_ALPHA;
             case BlendMode::OneMinusDstAlpha:
                 return GL_ONE_MINUS_DST_ALPHA;
-            case BlendMode::ConstantColor:
-                return GL_CONSTANT_COLOR;
-            case BlendMode::OneMinusConstantColor:
-                return GL_ONE_MINUS_CONSTANT_COLOR;
-            case BlendMode::ConstantAlpha:
-                return GL_CONSTANT_ALPHA;
-            case BlendMode::OneMinusConstantAlpha:
-                return GL_ONE_MINUS_CONSTANT_ALPHA;
             default:
                 SPARK_ASSERT(false);
             return GL_ZERO;
@@ -94,13 +86,12 @@ namespace se::render::opengl
         GL_CHECK_ERROR()
     }
 
-    void OpenGLRenderer::ApplyDepthCompare(DepthCompare::Type comp)
+    void OpenGLRenderer::ApplyDepthStencil(DepthCompare::Type comp, StencilFunc::Type src, uint32_t writeMask, uint32_t readMask)
     {
         if (comp == DepthCompare::None)
         {
             glDisable(GL_DEPTH_TEST);
             GL_CHECK_ERROR()
-            return;
         }
         else
         {
@@ -108,34 +99,79 @@ namespace se::render::opengl
             GL_CHECK_ERROR()
         }
 
-        switch (comp)
+        if (comp != DepthCompare::None)
         {
-        case DepthCompare::Less:
-            glDepthFunc(GL_LESS);
+            switch (comp)
+            {
+                case DepthCompare::Less:
+                    glDepthFunc(GL_LESS);
+                    GL_CHECK_ERROR()
+                    break;
+                case DepthCompare::LessEqual:
+                    glDepthFunc(GL_LEQUAL);
+                    GL_CHECK_ERROR()
+                    break;
+                case DepthCompare::Equal:
+                    glDepthFunc(GL_EQUAL);
+                    GL_CHECK_ERROR()
+                    break;
+                case DepthCompare::Greater:
+                    glDepthFunc(GL_GREATER);
+                    GL_CHECK_ERROR()
+                    break;
+                case DepthCompare::GreaterEqual:
+                    glDepthFunc(GL_GEQUAL);
+                    GL_CHECK_ERROR()
+                    break;
+                default:
+                    SPARK_ASSERT(false);
+                    break;
+            }
+
             GL_CHECK_ERROR()
-            break;
-        case DepthCompare::LessEqual:
-            glDepthFunc(GL_LEQUAL);
-            GL_CHECK_ERROR()
-            break;
-        case DepthCompare::Equal:
-            glDepthFunc(GL_EQUAL);
-            GL_CHECK_ERROR()
-            break;
-        case DepthCompare::Greater:
-            glDepthFunc(GL_GREATER);
-            GL_CHECK_ERROR()
-            break;
-        case DepthCompare::GreaterEqual:
-            glDepthFunc(GL_GEQUAL);
-            GL_CHECK_ERROR()
-            break;
-        default:
-            SPARK_ASSERT(false);
-            break;
         }
 
+        if (!writeMask && func == StencilFunc::None)
+        {
+            glDisable(GL_STENCIL_TEST);
+            GL_CHECK_ERROR()
+            return;
+        }
+
+        glEnable(GL_STENCIL_TEST);
         GL_CHECK_ERROR()
+        glStencilMask(writeMask);
+        GL_CHECK_ERROR()
+        if (func != StencilFunc::None)
+        {
+            switch (func)
+            {
+                case StencilFunc::Less:
+                    glStencilFunc(GL_LESS, 1, readMask);
+                    GL_CHECK_ERROR()
+                    break;
+                case StencilFunc::LessEqual:
+                    glStencilFunc(GL_LEQUAL, 1, readMask);
+                    GL_CHECK_ERROR()
+                    break;
+                case StencilFunc::Equal:
+                    glStencilFunc(GL_EQUAL, 1, readMask);
+                    GL_CHECK_ERROR()
+                    break;
+                case StencilFunc::Greater:
+                    glStencilFunc(GL_GREATER, 1, readMask);
+                    GL_CHECK_ERROR()
+                    break;
+                case StencilFunc::GreaterEqual:
+                    glStencilFunc(GL_GEQUAL, 1, readMask);
+                    GL_CHECK_ERROR()
+                    break;
+                case StencilFunc::None:
+                    glStencilFunc(GL_NEVER, 0, 0);
+                    GL_CHECK_ERROR()
+                    break;
+            }
+        }
     }
 
     void OpenGLRenderer::ApplyBlendMode(BlendMode::Type src, BlendMode::Type dst)
@@ -154,51 +190,6 @@ namespace se::render::opengl
 
         glBlendFunc(BlendModeToGLBlendMode(src), BlendModeToGLBlendMode(dst));
         GL_CHECK_ERROR()
-    }
-
-    void OpenGLRenderer::ApplyStencil(StencilFunc::Type func, uint32_t writeMask, uint32_t readMask)
-    {
-        if (!writeMask && func == StencilFunc::None)
-        {
-            glDisable(GL_STENCIL_TEST);
-            GL_CHECK_ERROR()
-            return;
-        }
-
-        glEnable(GL_STENCIL_TEST);
-        GL_CHECK_ERROR()
-        glStencilMask(writeMask);
-        GL_CHECK_ERROR()
-        if (func != StencilFunc::None)
-        {
-            switch (func)
-            {
-                case StencilFunc::Less:
-                    glStencilFunc(GL_LESS, 1, readMask);
-                GL_CHECK_ERROR()
-                    break;
-                case StencilFunc::LessEqual:
-                    glStencilFunc(GL_LEQUAL, 1, readMask);
-                GL_CHECK_ERROR()
-                    break;
-                case StencilFunc::Equal:
-                    glStencilFunc(GL_EQUAL, 1, readMask);
-                GL_CHECK_ERROR()
-                    break;
-                case StencilFunc::Greater:
-                    glStencilFunc(GL_GREATER, 1, readMask);
-                GL_CHECK_ERROR()
-                    break;
-                case StencilFunc::GreaterEqual:
-                    glStencilFunc(GL_GEQUAL, 1, readMask);
-                GL_CHECK_ERROR()
-                    break;
-                case StencilFunc::None:
-                    glStencilFunc(GL_NEVER, 0, 0);
-                GL_CHECK_ERROR()
-                    break;
-            }
-        }
     }
 
     bool OpenGLRenderer::IsGLEWInitialised() const

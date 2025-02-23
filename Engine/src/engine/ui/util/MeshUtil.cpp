@@ -15,7 +15,7 @@ namespace se::ui::util
             { static_cast<float>(rect.size.x),    0.f,                                 0 },
             { 0.f,                              0.f,                               0 },
         };
-        mesh.indices = {0, 3, 1, 2, 1, 3};
+        mesh.indices = {1, 3, 0, 3, 1, 2};
         mesh.uvs =
         {
             { 0, 1 },
@@ -55,7 +55,7 @@ namespace se::ui::util
             mesh.vertices.push_back({ BR.x, TL.y, 0 });
             mesh.vertices.push_back({ TL.x, TL.y, 0 });
 
-            mesh.indices.insert(mesh.indices.end(), { indexOffset, indexOffset + 3, indexOffset + 1, indexOffset + 2, indexOffset + 1, indexOffset + 3} );
+            mesh.indices.insert(mesh.indices.end(), { indexOffset + 1, indexOffset + 3, indexOffset, indexOffset + 3, indexOffset + 1, indexOffset + 2} );
             indexOffset += 4;
 
             mesh.uvs.push_back({ charData.uvTopLeft.x, charData.uvBottomRight.y });
