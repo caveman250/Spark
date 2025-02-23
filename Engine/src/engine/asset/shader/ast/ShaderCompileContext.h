@@ -6,8 +6,8 @@ namespace se::asset::shader::ast
 {
     struct ShaderCompileContext
     {
-        Shader* vertShader = nullptr;
-        Shader* fragShader = nullptr;
+        std::shared_ptr<Shader> vertShader = nullptr;
+        std::shared_ptr<Shader> fragShader = nullptr;
         Shader* currentShader = nullptr;
         String vertexPositionOutputName = {}; // only used for Metal
         std::map<std::string, std::string> tempRenames ={}; // only used for Metal

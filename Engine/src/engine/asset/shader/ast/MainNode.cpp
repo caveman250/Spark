@@ -58,7 +58,7 @@ namespace se::asset::shader::ast
             }
             if (!context.currentShader->GetUniformVariables().empty())
             {
-                outShader += string::ArenaFormat(",\nconstant UniformData& inUniforms [[buffer({})]]", alloc, context.vertShader->GetInputs().size());
+                outShader += ",\nconstant UniformData& inUniforms [[buffer(0)]]";
             }
             outShader.append(")\n{\nFragmentOutput out;\n");
         }

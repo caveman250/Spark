@@ -24,6 +24,24 @@ namespace se::render::metal
         textureDesc->setUsage(MTL::ResourceUsageSample | MTL::ResourceUsageRead);
 
         m_MetalResource = Renderer::Get<MetalRenderer>()->GetDevice()->newTexture(textureDesc);
+        
+        size_t bytesPerRow = 0;
+        if (IsCompressedFormat(m_Texture.GetFormat()))
+        {
+            size_t blockSize = GetCompressedFormatBlockSize(m_Texture.GetFormat());
+            size_t bytesPerBlock = GetCompressedFormatBlockSizeBytes(m_Texture.GetFormat());
+            int blocksPerRow = (m_Texture.GetWidth() + (blockSize - 1)) / blockSize;
+            bytesPerRow = blocksPerRow * bytesPerBlock;
+        }
+        else
+        {
+            bytesPerRow = m_Texture.GetWidth() * GetNumTextureChannels(m_Texture.GetFormat());
+        }
+        m_MetalResource->replaceRegion(MTL::Region(0, 0, 0, m_Texture.GetWidth(), m_Texture.GetHeight(), 1),
+                                       0,
+                                       m_Texture.GetMips()[0].m_Data.GetData(),
+                                       bytesPerRow);
+            
 
         textureDesc->release();
         render::TextureResource::CreatePlatformResources();
@@ -37,7 +55,8 @@ namespace se::render::metal
 
     MTL::PixelFormat TextureResource::TextureFormatToMetalFormat(asset::texture::Format::Type format)
     {
-        switch (format) {
+        switch (format)
+        {
             case asset::texture::Format::R8:
                 return MTL::PixelFormatR8Unorm;
             case asset::texture::Format::BC7:

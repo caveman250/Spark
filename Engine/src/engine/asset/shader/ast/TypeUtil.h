@@ -11,5 +11,7 @@ namespace se::asset::shader::ast
         static std::string TypeToMtl(AstType::Type type);
         static AstType::Type MtlToType(const std::string& type);
         static const std::vector<std::string>& GetTypeStrings();
+        static size_t GetTypeSize(AstType::Type type);
+        static size_t GetTypePaddedSize(AstType::Type type);
     };
 }

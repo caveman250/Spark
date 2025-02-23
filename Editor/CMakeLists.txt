@@ -21,3 +21,8 @@ file(GLOB SOURCE ./unity_generated/*.cpp)
 add_library(Editor ${SOURCE})
 
 setup_spark_target(Editor OFF)
+
+###### Add non Unity files for visualisation in VS and Xcode ######
+file(GLOB_RECURSE NON_UNITY_SOURCE src/*.cpp src/*.h)
+source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${NON_UNITY_SOURCE})
+add_custom_target("Editor_Source_Files" SOURCES ${NON_UNITY_SOURCE})

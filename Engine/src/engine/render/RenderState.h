@@ -25,10 +25,6 @@ namespace se::render
         OneMinusSrcAlpha,
         DstAlpha,
         OneMinusDstAlpha,
-        ConstantColor,
-        OneMinusConstantColor,
-        ConstantAlpha,
-        OneMinusConstantAlpha,
         None
     DECLARE_SPARK_ENUM_END()
 

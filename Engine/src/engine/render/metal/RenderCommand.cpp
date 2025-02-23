@@ -62,7 +62,17 @@ namespace se::render::commands
 
     void SubmitUI::Execute()
     {
-        // TODO
+        m_Material->Bind(*m_VertBuffer);
+        m_VertBuffer->Bind();
+
+        auto commandEncoder = Renderer::Get<metal::MetalRenderer>()->GetCurrentCommandEncoder();
+        auto* mtlBuffer = static_cast<metal::IndexBuffer*>(m_IndexBuffer.get());
+        commandEncoder->drawIndexedPrimitives(MTL::PrimitiveType::PrimitiveTypeTriangle,
+            m_IndexBuffer->GetIndices().size(),
+            MTL::IndexTypeUInt32,
+            mtlBuffer->GetMTLBuffer(),
+            0,
+            1);
     }
 
     PushScissor::PushScissor(const ui::Rect& rect)
@@ -73,7 +83,14 @@ namespace se::render::commands
 
     void PushScissor::Execute()
     {
-        // TODO
+        auto primaryWindow = Application::Get()->GetPrimaryWindow(); // TODO
+        auto commandEncoder = Renderer::Get<metal::MetalRenderer>()->GetCurrentCommandEncoder();
+        MTL::ScissorRect scissor;
+        scissor.x = m_Rect.topLeft.x;
+        scissor.y = m_Rect.topLeft.y;
+        scissor.width = m_Rect.size.x;
+        scissor.height = m_Rect.size.y;
+        commandEncoder->setScissorRect(scissor);
     }
 
     PopScissor::PopScissor()
@@ -83,7 +100,14 @@ namespace se::render::commands
 
     void PopScissor::Execute()
     {
-        // TODO
+        auto primaryWindow = Application::Get()->GetPrimaryWindow(); // TODO
+        auto commandEncoder = Renderer::Get<metal::MetalRenderer>()->GetCurrentCommandEncoder();
+        MTL::ScissorRect scissor;
+        scissor.x = 0;
+        scissor.y = 0;
+        scissor.width = primaryWindow->GetWidth();
+        scissor.height = primaryWindow->GetHeight();
+        commandEncoder->setScissorRect(scissor);
     }
 }
 

@@ -77,20 +77,20 @@ namespace se::asset::shader
         }
 
         context.currentShader = &newShader.value();
-        if (context.currentShader->GetType() == ShaderType::Vertex)
-        {
-            context.vertShader = context.currentShader;
-        }
-        else if (context.currentShader->GetType() == ShaderType::Fragment)
-        {
-            context.fragShader = context.currentShader;
-        }
-
         combiner.ResolveCombinedShaderPorts(newShader.value(), context);
 
         if (!ResolveSettings(newShader.value(), settings))
         {
             return std::nullopt;
+        }
+        
+        if (context.currentShader->GetType() == ShaderType::Vertex)
+        {
+            context.vertShader = std::make_shared<Shader>(*context.currentShader);
+        }
+        else if (context.currentShader->GetType() == ShaderType::Fragment)
+        {
+            context.fragShader = std::make_shared<Shader>(*context.currentShader);
         }
 
         auto renderApiType = render::Renderer::Get<render::Renderer>()->GetRenderAPIType();

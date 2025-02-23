@@ -9,4 +9,9 @@ namespace se::asset::texture
         DXT5,
         BC7
     DECLARE_SPARK_ENUM_END()
+
+    bool IsCompressedFormat(Format::Type format);
+    size_t GetCompressedFormatBlockSize(Format::Type format);
+    size_t GetCompressedFormatBlockSizeBytes(Format::Type format);
+    size_t GetNumTextureChannels(Format::Type format);
 }
