@@ -51,8 +51,12 @@ namespace se::render::metal
         {
             memcpy(m_VertexUniformBufferGpu->contents(), m_VertexUniformBufferCpu, m_VertexUniformsSize);
             m_VertexUniformBufferGpu->didModifyRange(NS::Range::Make(0, m_VertexUniformBufferGpu->length()));
+            m_VertexUniformsStale = false;
         }
-        commandEncoder->setVertexBuffer(m_VertexUniformBufferGpu, 0, vb.GetVertexStreams().size());
+        if (m_VertexUniformBufferGpu)
+        {
+            commandEncoder->setVertexBuffer(m_VertexUniformBufferGpu, 0, vb.GetVertexStreams().size());
+        }
 
         if (m_FragmentUniformsSize > 0 && !m_FragmentUniformBufferGpu)
         {
@@ -64,10 +68,12 @@ namespace se::render::metal
         {
             memcpy(m_FragmentUniformBufferGpu->contents(), m_FragmentUniformBufferCpu, m_FragmentUniformsSize);
             m_FragmentUniformBufferGpu->didModifyRange(NS::Range::Make(0, m_FragmentUniformBufferGpu->length()));
+            m_FragmentUniformsStale = false;
         }
-        commandEncoder->setFragmentBuffer(m_FragmentUniformBufferGpu, 0, 0);
-
-        commandEncoder->setDepthStencilState(m_DepthStencilState);
+        if (m_FragmentUniformBufferGpu)
+        {
+            commandEncoder->setFragmentBuffer(m_FragmentUniformBufferGpu, 0, 0);
+        }
     }
 
     void Material::CreatePlatformResources(const render::VertexBuffer& vb)
@@ -133,17 +139,11 @@ namespace se::render::metal
             SPARK_ASSERT(false);
         }
 
-        MTL::DepthStencilDescriptor* depthStencilDesc = MTL::DepthStencilDescriptor::alloc()->init();
-        depthStencilDesc->setDepthCompareFunction(MetalRenderer::DepthCompareToMtl(m_RenderState.depthComp));
-        depthStencilDesc->setDepthWriteEnabled(m_RenderState.depthComp != DepthCompare::None);
-        m_DepthStencilState = device->newDepthStencilState(depthStencilDesc);
-
         vertexFn->release();
         fragFn->release();
         desc->release();
         vertLibrary->release();
         fragLibrary->release();
-        depthStencilDesc->release();
 
         for (const auto& [name, uniform] : context.vertShader->GetUniformVariables())
         {
@@ -265,6 +265,28 @@ namespace se::render::metal
             break;
         }
         }
+    }
+
+    void Material::ApplyDepthStencil(DepthCompare::Type comp, StencilFunc::Type src, uint32_t writeMask, uint32_t readMask)
+    {
+        if (!m_DepthStencilState)
+        {
+            auto device = Renderer::Get<metal::MetalRenderer>()->GetDevice();
+
+            MTL::DepthStencilDescriptor* depthStencilDesc = MTL::DepthStencilDescriptor::alloc()->init();
+            depthStencilDesc->setDepthCompareFunction(MetalRenderer::DepthCompareToMtl(m_RenderState.depthComp));
+            depthStencilDesc->setDepthWriteEnabled(m_RenderState.depthComp != DepthCompare::None);
+            m_DepthStencilState = device->newDepthStencilState(depthStencilDesc);
+            depthStencilDesc->release();
+        }
+
+        auto commandEncoder = Renderer::Get<MetalRenderer>()->GetCurrentCommandEncoder();
+        commandEncoder->setDepthStencilState(m_DepthStencilState);
+    }
+
+    void Material::ApplyBlendMode(BlendMode::Type src, BlendMode::Type dest)
+    {
+        // nothing to do here. Has to be done as part of the pipeline state creation.
     }
 }
 

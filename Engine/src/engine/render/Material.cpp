@@ -6,14 +6,20 @@ namespace se::render
 {
     void Material::Bind(const VertexBuffer& vb)
     {
-        auto renderer = Renderer::Get<Renderer>();
-        renderer->ApplyRenderState(m_RenderState);
+        auto renderer = Renderer::Get();
+        if (renderer->ShouldApplyRenderState(m_RenderState))
+        {
+            ApplyDepthStencil(m_RenderState.depthComp, m_RenderState.stencilFunc, m_RenderState.stencilWriteMask, m_RenderState.stencilReadMask);
+            ApplyBlendMode(m_RenderState.srcBlend, m_RenderState.dstBlend);
+            renderer->SetLastRenderState(m_RenderState);
+        }
+
         if (m_RenderState.lit)
         {
             const auto& lightSetup = renderer->GetLightSetup();
             if (m_CachedLightSetup != lightSetup || !m_PlatformResourcesCreated)
             {
-                m_ShaderSettings.SetSetting("numLights", (int)lightSetup.pointLights.size());
+                m_ShaderSettings.SetSetting("numLights", static_cast<int>(lightSetup.pointLights.size()));
                 DestroyPlatformResources();
                 m_CachedLightSetup = lightSetup;
             }
@@ -32,7 +38,7 @@ namespace se::render
 
         if (m_RenderState.lit)
         {
-            const auto& lightSetup = renderer->GetLightSetup();
+            const auto& lightSetup = Renderer::Get()->GetLightSetup();
             // TODO improve shader parser so i can just pass an array of structs
             std::vector<math::Vec3> pos;
             pos.resize(lightSetup.pointLights.size());
