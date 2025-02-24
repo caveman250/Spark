@@ -33,8 +33,11 @@ namespace se::render
         void SetUniform(const std::string& name, asset::shader::ast::AstType::Type type, int count, const T* value);
     protected:
         virtual void SetUniformInternal(const std::string& name, asset::shader::ast::AstType::Type type, int count, const void* value) = 0;
+        virtual void ApplyDepthStencil(DepthCompare::Type comp, StencilFunc::Type src, uint32_t writeMask, uint32_t readMask) = 0;
+        virtual void ApplyBlendMode(BlendMode::Type src, BlendMode::Type dest) = 0;
         Material(const std::vector<std::shared_ptr<asset::Shader>>& vertShaders,
                 const std::vector<std::shared_ptr<asset::Shader>>& fragShaders);
+
         std::vector<std::shared_ptr<asset::Shader>> m_VertShaders;
         std::vector<std::shared_ptr<asset::Shader>> m_FragShaders;
         UniformStorage m_UniformStorage;

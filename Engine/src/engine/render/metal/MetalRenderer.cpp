@@ -58,17 +58,6 @@ namespace se::render::metal
         m_CachedRenderState = {};
     }
 
-    void MetalRenderer::ApplyDepthStencil(DepthCompare::Type comp, StencilFunc::Type src, uint32_t writeMask,
-        uint32_t readMask)
-    {
-        // nothing to do here. TODO Maybe refactor into material on OpenGL side as well?
-    }
-
-    void MetalRenderer::ApplyBlendMode(BlendMode::Type src, BlendMode::Type dst)
-    {
-        
-    }
-
     MTL::CompareFunction MetalRenderer::DepthCompareToMtl(DepthCompare::Type depthCompare)
     {
         switch (depthCompare)

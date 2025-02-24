@@ -23,8 +23,6 @@ namespace se::render::metal
         static MTL::BlendFactor BlendModeToMtl(BlendMode::Type blendMode);
 
     private:
-        void ApplyDepthStencil(DepthCompare::Type comp, StencilFunc::Type src, uint32_t writeMask, uint32_t readMask) override;
-        void ApplyBlendMode(BlendMode::Type src, BlendMode::Type dest) override;
 
         MTL::Device* m_Device = nullptr;
         MTL::CommandQueue* m_CommandQueue = nullptr;

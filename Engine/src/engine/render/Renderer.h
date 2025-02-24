@@ -39,7 +39,8 @@ namespace se::render
         template <ARenderCommand T, typename... Args>
         void Submit(IWindow* window, Args&&... args);
         void Submit(IWindow* window, commands::RenderCommand* renderCommand);
-        void ApplyRenderState(const RenderState& rs);
+        bool ShouldApplyRenderState(const RenderState& rs) const;
+        void SetLastRenderState(const RenderState& rs);
 
         const LightSetup& GetLightSetup() const { return m_LightSetup; }
         void AddPointLight(const PointLight& light);
@@ -51,9 +52,6 @@ namespace se::render
     protected:
         void SortDrawCommands(IWindow* window);
         void ExecuteDrawCommands(IWindow* window);
-
-        virtual void ApplyDepthStencil(DepthCompare::Type comp, StencilFunc::Type src, uint32_t writeMask, uint32_t readMask) = 0;
-        virtual void ApplyBlendMode(BlendMode::Type src, BlendMode::Type dest) = 0;
 
         std::unordered_map<IWindow*, std::vector<commands::RenderCommand*>> m_RenderCommands;
         RenderState m_CachedRenderState;

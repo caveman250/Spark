@@ -49,7 +49,7 @@ namespace se::render
         value.clear();
         const T* typedVal = static_cast<const T*>(val);
         value.reserve(count);
-        for (int i = 0; i < count; ++i)
+        for (int i = 0; i < count; ++i) 
         {
             value.push_back(typedVal[i]);
             valueCount = count;
@@ -61,7 +61,12 @@ namespace se::render
     {
         if (m_Storage.contains(name))
         {
-            m_Storage.at(name)->SetValue(value, count);
+            auto& oldVal = *static_cast<const T*>(m_Storage.at(name)->GetValue());
+            if (oldVal != *value)
+            {
+                m_Storage.at(name)->SetValue(value, count);
+                m_Stale = true;
+            }
         }
         else
         {
@@ -69,8 +74,7 @@ namespace se::render
             uniformVal->SetValue(value, count);
             uniformVal->type = type;
             m_Storage.insert(std::make_pair(name, uniformVal));
+            m_Stale = true;
         }
-
-        m_Stale = true;
     }
 }

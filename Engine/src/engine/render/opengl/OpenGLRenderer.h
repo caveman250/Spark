@@ -19,9 +19,6 @@ namespace se::render::opengl
         bool IsGLEWInitialised() const;
 
     private:
-        void ApplyDepthStencil(DepthCompare::Type comp, StencilFunc::Type src, uint32_t writeMask, uint32_t readMask) override;
-        void ApplyBlendMode(BlendMode::Type src, BlendMode::Type dest) override;
-
         bool m_GlewInit = false;
     };
 }

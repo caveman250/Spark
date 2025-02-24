@@ -33,14 +33,14 @@ namespace se::render
         delete s_Renderer;
     }
 
-    void Renderer::ApplyRenderState(const RenderState& rs)
+    bool Renderer::ShouldApplyRenderState(const RenderState& rs) const
     {
-        if (rs != m_CachedRenderState)
-        {
-            ApplyDepthStencil(rs.depthComp, rs.stencilFunc, rs.stencilWriteMask, rs.stencilReadMask);
-            ApplyBlendMode(rs.srcBlend, rs.dstBlend);
-            m_CachedRenderState = rs;
-        }
+        return rs != m_CachedRenderState;
+    }
+
+    void Renderer::SetLastRenderState(const RenderState& rs)
+    {
+        m_CachedRenderState = rs;
     }
 
     void Renderer::AddPointLight(const PointLight& light)
