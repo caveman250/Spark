@@ -23,7 +23,6 @@ namespace se::render::metal
         static MTL::BlendFactor BlendModeToMtl(BlendMode::Type blendMode);
 
     private:
-
         MTL::Device* m_Device = nullptr;
         MTL::CommandQueue* m_CommandQueue = nullptr;
         MTL::RenderCommandEncoder* m_CurrentCommandEncoder = nullptr;

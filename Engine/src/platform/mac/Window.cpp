@@ -1,10 +1,9 @@
 #include "Window.h"
 
+#include "engine/render/Renderer.h"
+#include "engine/render/metal/MetalRenderer.h"
 #include "engine/render/metal/MTL_fwd.h"
-#include "engine/Application.h"
 #include "platform/PlatformRunLoop.h"
-#include <engine/render/Renderer.h>
-#include <engine/render/metal/MetalRenderer.h>
 
 namespace se
 {

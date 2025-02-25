@@ -6,7 +6,7 @@ namespace se::render
 {
     void Material::Bind(const VertexBuffer& vb)
     {
-        auto renderer = Renderer::Get();
+        auto renderer = Renderer::Get<Renderer>();
         if (renderer->ShouldApplyRenderState(m_RenderState))
         {
             ApplyDepthStencil(m_RenderState.depthComp, m_RenderState.stencilFunc, m_RenderState.stencilWriteMask, m_RenderState.stencilReadMask);
@@ -38,7 +38,7 @@ namespace se::render
 
         if (m_RenderState.lit)
         {
-            const auto& lightSetup = Renderer::Get()->GetLightSetup();
+            const auto& lightSetup = Renderer::Get<Renderer>()->GetLightSetup();
             // TODO improve shader parser so i can just pass an array of structs
             std::vector<math::Vec3> pos;
             pos.resize(lightSetup.pointLights.size());

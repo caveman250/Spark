@@ -30,6 +30,9 @@ namespace se::asset::texture
                 return 4;
             case Format::BC7:
                 return 4;
+            default:
+                SPARK_ASSERT(false, "GetCompressedFormatBlockSize - Unhandled Format");
+                break;
         }
 
         return 0;
