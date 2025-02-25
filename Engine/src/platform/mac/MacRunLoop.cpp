@@ -60,7 +60,7 @@ namespace se::mac
 
         PlatformRunLoop::Update();
 
-        render::Renderer* renderer = render::Renderer::Get();
+        render::Renderer* renderer = render::Renderer::Get<render::Renderer>();
         for (const auto& window: m_Windows)
         {
             window->SetCurrent();

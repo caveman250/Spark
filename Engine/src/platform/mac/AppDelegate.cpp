@@ -1,5 +1,7 @@
 #include "AppDelegate.h"
 
+#include "engine/Application.h"
+
 namespace se
 {
     AppDelegate::~AppDelegate()
