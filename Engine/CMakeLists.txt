@@ -7,32 +7,13 @@ set(ROOT_DIR ..)
 set(ENGINE_DIR .)
 
 ###### Generic Includes ######
-include(${ROOT_DIR}/CMake/Preprocessor.cmake)
-include(${ROOT_DIR}/CMake/IncludeDirs.cmake)
-include(${ROOT_DIR}/CMake/LinkDirs.cmake)
-include(${ROOT_DIR}/CMake/ExternalTools.cmake)
-
-###### Editor Includes ######
-if (${USE_EDITOR})
-    include(${ROOT_DIR}/CMake/PreprocessorEditor.cmake)
-    include(${ROOT_DIR}/CMake/IncludeDirsEditor.cmake)
-endif()
+include(${ROOT_DIR}/CMake/include/Spark.cmake)
 
 ###### Third Party ######
 include(${ROOT_DIR}/CMake/ThirdParty.cmake)
 
-###### Compile Opts (After Third party to avoid spam) ######
-include(${ROOT_DIR}/CMake/BuildOptions.cmake)
-
 ###### Generate Unity Files #######
-execute_process(COMMAND ${PYTHON_EXE} UnityBatcher.py ../Engine/unity.conf ${PLATFORM}
-                WORKING_DIRECTORY ${ROOT_DIR}/Spark/Build/)
-
-###### Source ######
-file(GLOB SOURCE ${ENGINE_DIR}/unity_generated/*.cpp)
-
-###### Output ######
-add_library(Spark ${SOURCE})
+setup_source_files(Spark ../Engine/unity.conf true)
 
 ###### Linker ######
 target_link_libraries(Spark OpenFBX bc7enc)
@@ -42,11 +23,11 @@ endif()
 
 ###### Platform Linker ######
 if (${PLATFORM} MATCHES Windows)
-    include(${ROOT_DIR}/CMake/WindowsLinker.cmake)
+    include(${ROOT_DIR}/CMake/windows/WindowsLinker.cmake)
 elseif (${PLATFORM} MATCHES Linux)
-    include(${ROOT_DIR}/CMake/LinuxLinker.cmake)
+    include(${ROOT_DIR}/CMake/linux/LinuxLinker.cmake)
 elseif (${PLATFORM} MATCHES Mac)
-    include(${ROOT_DIR}/CMake/MacLinker.cmake)
+    include(${ROOT_DIR}/CMake/mac/MacLinker.cmake)
 endif ()
 
 ###### PCH ######

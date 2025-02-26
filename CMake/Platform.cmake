@@ -1,0 +1,7 @@
+if (${PLATFORM} MATCHES Windows)
+    include(${ROOT_DIR}/CMake/windows/WindowsPlatform.cmake)
+elseif (${PLATFORM} MATCHES Linux)
+    include(${ROOT_DIR}/CMake/linux/LinuxPlatform.cmake)
+elseif (${PLATFORM} MATCHES Mac)
+    include(${ROOT_DIR}/CMake/mac/MacPlatform.cmake)
+endif()
