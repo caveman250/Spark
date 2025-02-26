@@ -1,1 +1,7 @@
-link_directories(${ENGINE_DIR}/third_party/glew-2.1.0/lib/Release/x64)
+if (${PLATFORM} MATCHES Windows)
+    include(${ROOT_DIR}/CMake/windows/WindowsLinkDirs.cmake)
+elseif (${PLATFORM} MATCHES Linux)
+    include(${ROOT_DIR}/CMake/linux/LinuxLinkDirs.cmake)
+elseif (${PLATFORM} MATCHES Mac)
+    include(${ROOT_DIR}/CMake/mac/MacLinkDirs.cmake)
+endif()

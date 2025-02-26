@@ -1,4 +1,4 @@
-if (${PLATFORM} MATCHES Mac)
+if (${PLATFORM} MATCHES mac)
     set(PYTHON_EXE python3)
 else()
     set(PYTHON_EXE python)
