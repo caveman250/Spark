@@ -5,12 +5,4 @@ set(CMAKE_CXX_STANDARD 23)
 set(ROOT_DIR path/to/root/of/Spark/checkout)
 include(${ROOT_DIR}/CMake/Spark.cmake)
 
-###### Includes ######
-include_directories(src)
-
-###### Source Code ######
-file(GLOB_RECURSE SRC src/*.cpp src/*.h)
-
-###### Output ######
-add_executable(TargetName ${SRC})
-setup_spark_target(TargetName ${USE_EDITOR})
+setup_spark_target(ProjectName false ${USE_EDITOR} path/to/optional/unity.conf)
