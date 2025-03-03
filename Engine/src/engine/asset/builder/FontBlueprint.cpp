@@ -9,6 +9,7 @@
 #include "engine/asset/texture/Texture.h"
 #include "engine/ui/Rect.h"
 #include "engine/asset/builder/util/Bitmap.h"
+#include "engine/threads/ParallelForEach.h"
 
 namespace se::asset::builder
 {
@@ -22,7 +23,7 @@ namespace se::asset::builder
             "zxcvbnm,./`"
             "ZXCVBNM<>?~/ ";
 
-    static std::vector s_FontSizes =
+    static std::vector<unsigned> s_FontSizes =
     {
         10,
         11,
@@ -84,9 +85,7 @@ namespace se::asset::builder
         };
 
         int ascent = GetAscent(info);
-        //TODO PARALLEL LOOPS
-        std::for_each(s_FontSizes.begin(), s_FontSizes.end(),
-        [&info, addReturnItem, addFontSize, ascent](const auto &fontSize)
+        std::function<void(const unsigned&)> func = [&info, addReturnItem, addFontSize, ascent](const unsigned& fontSize)
         {
             float scale = stbtt_ScaleForPixelHeight(&info, static_cast<float>(fontSize));
 
@@ -116,18 +115,19 @@ namespace se::asset::builder
                 auto &charData = charDataMap[c];
                 // calculate Uvs now that the image size is stable
                 charData.uvTopLeft = math::Vec2(static_cast<float>(rect.topLeft.x) / imageWidth,
-                                              static_cast<float>(rect.topLeft.y) / imageHeight);
+                                                static_cast<float>(rect.topLeft.y) / imageHeight);
                 charData.uvBottomRight = math::Vec2((static_cast<float>(rect.topLeft.x) + static_cast<float>(rect.size.x)) / imageWidth,
                                                     (static_cast<float>(rect.topLeft.y) + static_cast<float>(rect.size.y)) / imageHeight);
             }
 
             addFontSize(fontSize, charDataMap);
             memory::BinaryBlob monochromeBitmap = GenerateMonochromeBitmap(info, imageWidth, imageHeight, scale,
-                                                               boundingBoxes, placedBoundingBoxes);
+                                                                           boundingBoxes, placedBoundingBoxes);
 
             auto texture = Texture::FromRawData(imageWidth, imageHeight, monochromeBitmap, texture::Format::R8);
             addReturnItem(reflect::SerialiseType<Texture>(texture.get()), std::format("_{}", fontSize));
-        });
+        };
+        threads::ParallelForEach(s_FontSizes, func);
 
         std::free(fontData);
 

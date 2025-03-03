@@ -207,9 +207,9 @@ namespace se::ecs
 
         void RegisterRelationship(uint64_t id);
 
-        void RunOnAllSystems(const std::function<void(Id)>& func, const std::vector<std::vector<Id>>& systems, bool parallel, bool processPending);
-        void RunOnAllAppSystems(const std::function<void(Id)>& func, bool parallel, bool processPending);
-        void RunOnAllEngineSystems(const std::function<void(Id)>& func, bool parallel, bool processPending);
+        void RunOnAllSystems(const std::function<void(const Id&)>& func, const std::vector<std::vector<Id>>& systems, bool parallel, bool processPending);
+        void RunOnAllAppSystems(const std::function<void(const Id&)>& func, bool parallel, bool processPending);
+        void RunOnAllEngineSystems(const std::function<void(const Id&)>& func, bool parallel, bool processPending);
 
         struct PendingComponent
         {
