@@ -4,6 +4,7 @@
 #import <AppKit/AppKit.h>
 #import "engine/render/metal/MetalRenderer.h"
 #import "platform/PlatformRunLoop.h"
+#import "NativeWindow.h"
 
 namespace se
 {
@@ -34,7 +35,8 @@ namespace se::mac
 
         NSBackingStoreType backing = NSBackingStoreBuffered;
 
-        m_Window = [[NSWindow alloc] initWithContentRect:frame styleMask:styleMask backing:backing defer:NO];
+        m_Window = [[NativeWindow alloc] initWithContentRect:frame styleMask:styleMask backing:backing defer:NO];
+        [(NativeWindow*)m_Window initKeyReceiver];
         [m_Window center];
 
         auto renderer = se::render::Renderer::Get<se::render::metal::MetalRenderer>();
