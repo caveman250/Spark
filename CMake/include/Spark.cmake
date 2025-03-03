@@ -17,19 +17,21 @@ function(setup_source_files target unity_conf_dir is_library)
     if("${unity_conf_dir}" STREQUAL "")
         message("${target} unity build: false")
         file(GLOB_RECURSE SOURCE src/*.cpp src/*.h)
+        file(GLOB_RECURSE OBJC_SOURCE src/*.mm)
     else()
         get_filename_component(ABSOLUTE_PATH ${ROOT_DIR}/Build/ ABSOLUTE)
         execute_process(COMMAND ${PYTHON_EXE} UnityBatcher.py ${unity_conf_dir} ${PLATFORM} WORKING_DIRECTORY ${ABSOLUTE_PATH})
 
         file(GLOB SOURCE ./unity_generated/*.cpp)
+        file(GLOB OBJC_SOURCE ./unity_generated/*.mm)
 
         ###### Add non Unity files for visualisation in VS and Xcode ######
-        file(GLOB_RECURSE NON_UNITY_SOURCE src/*.cpp src/*.h)
+        file(GLOB_RECURSE NON_UNITY_SOURCE src/*.cpp src/*.h src/*.mm)
         source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${NON_UNITY_SOURCE})
         add_custom_target("${target}_Source_Files" SOURCES ${NON_UNITY_SOURCE})
     endif()
 
-    file(GLOB_RECURSE OBJC_SOURCE src/*.mm)
+
 
     if (${is_library})
         message("Adding library: ${target}")

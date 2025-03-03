@@ -98,8 +98,6 @@ namespace se::render::metal
             return;
         }
 
-        debug::Log::Info("Result Frag Shader:\n {}", frag.value());
-
         auto device = Renderer::Get<metal::MetalRenderer>()->GetDevice();
 
         NSError* error = nullptr;

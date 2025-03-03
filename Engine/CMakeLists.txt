@@ -16,9 +16,8 @@ message("Configuring Engine source files")
 get_filename_component(ABSOLUTE_PATH ${ROOT_DIR}/Build ABSOLUTE)
 execute_process(COMMAND ${PYTHON_EXE} UnityBatcher.py ${ROOT_DIR}/Engine/unity.conf ${PLATFORM} WORKING_DIRECTORY ${ABSOLUTE_PATH} RESULT_VARIABLE rv)
 file(GLOB SOURCE ./unity_generated/*.cpp)
-
 if (${PLATFORM} MATCHES Mac)
-    file(GLOB_RECURSE OBJC_SOURCE src/*.mm)
+    file(GLOB_RECURSE OBJC_SOURCE ./unity_generated/*.mm)
 endif()
 
 ###### Add non Unity files for visualisation in VS and Xcode ######
