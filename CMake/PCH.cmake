@@ -1,1 +1,1 @@
-target_precompile_headers(${target} PUBLIC ${ENGINE_DIR}/src/spark.h)
+target_precompile_headers(${target} PUBLIC $<$<COMPILE_LANGUAGE:CXX>:spark.h>)

@@ -42,10 +42,6 @@ namespace se::editor::startup
                         else
                         {
                             builtAsset.db->Save(outputPathBase);
-
-                            // io::OutputFileStream fs(outputPathBase + ".json", false);
-                            // fs << builtAsset.db->ToJson().dump();
-                            // fs.Close();
                         }
                     }
                 }

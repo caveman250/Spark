@@ -16,7 +16,6 @@ namespace se::mac
         void RegisterWindow(IWindow *window) override;
         void UnregisterWindow(IWindow *window) override;
     private:
-        NS::AutoreleasePool* m_AutoReleasePool;
         std::vector<Window*> m_Windows;
         bool m_ShouldExit = false;
     };

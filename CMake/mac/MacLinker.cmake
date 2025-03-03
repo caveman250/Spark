@@ -1,1 +1,5 @@
-target_link_libraries(Spark METAL_CPP)
+target_link_libraries(Spark "-framework Metal")
+target_link_libraries(Spark "-framework MetalKit")
+target_link_libraries(Spark "-framework AppKit")
+target_link_libraries(Spark "-framework Foundation")
+target_link_libraries(Spark "-framework QuartzCore")
