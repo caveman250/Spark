@@ -7,13 +7,6 @@
 #include "spark.h"
 #include "engine/render/IndexBuffer.h"
 
-#if __OBJC__
-@protocol MTLBuffer;
-typedef id<MTLBuffer> MTLBufferPtr;
-#else
-typedef void* MTLBufferPtr;
-#endif
-
 namespace se::render::metal
 {
     class IndexBuffer : public render::IndexBuffer

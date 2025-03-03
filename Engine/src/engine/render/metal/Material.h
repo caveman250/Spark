@@ -3,19 +3,6 @@
 
 #if METAL_RENDERER
 
-#ifdef __OBJC__
-@protocol MTLRenderPipelineState;
-typedef id<MTLRenderPipelineState> RenderPipelineStatePtr;
-@protocol MTLBuffer;
-typedef id<MTLBuffer> MTLBufferPtr;
-@protocol MTLDepthStencilState;
-typedef id<MTLDepthStencilState> MTLDepthStencilStatePtr;
-#else
-typedef void* RenderPipelineStatePtr;
-typedef void* MTLBufferPtr;
-typedef void* MTLDepthStencilStatePtr;
-#endif
-
 #include "engine/asset/texture/Texture.h"
 #include "engine/render/Material.h"
 

@@ -6,13 +6,6 @@
 #include "engine/render/metal/MTL_fwd.h"
 #include "engine/render/VertexBuffer.h"
 
-#if __OBJC__
-@protocol MTLBuffer;
-typedef id<MTLBuffer> MTLBufferPtr;
-#else
-typedef void* MTLBufferPtr;
-#endif
-
 namespace se::render::metal
 {
     class VertexBuffer : public render::VertexBuffer

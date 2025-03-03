@@ -6,12 +6,7 @@
 #include "engine/render/metal/MTL_fwd.h"
 #include "engine/render/TextureResource.h"
 
-#if __OBJC__
-@protocol MTLTexture;
-typedef id<MTLTexture> MTLTexturePtr;
-#else
-typedef void* MTLBufferPtr;
-#endif
+
 
 namespace se::render::metal
 {
