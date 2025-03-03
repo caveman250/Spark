@@ -5,15 +5,12 @@
 
 #undef mac
 
-namespace NS
-{
-    class Window;
-}
-
-namespace MTK
-{
-    class View;
-}
+#ifdef __OBJC__
+@class NSWindow;
+typedef NSWindow* NativeWindowPtr;
+#else
+typedef void* NativeWindowPtr;
+#endif
 
 namespace se::mac
 {
@@ -26,11 +23,9 @@ namespace se::mac
         void SetCurrent() override;
         void Cleanup() override;
 
-        MTK::View* GetView() const { return m_View; };
-        NS::Window* GetNSWindow() const { return m_NSWindow; };
+        NativeWindowPtr GetNativeWindow() const { return m_Window; }
 
     private:
-        MTK::View* m_View;
-        NS::Window* m_NSWindow;
+        NativeWindowPtr m_Window;
     };
 }

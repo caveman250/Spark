@@ -1,12 +1,12 @@
 import os
 import sys
 
-
 def parse_conf_file(path):
     excluded_files = []
     root = ""
     file = open(path)
     for line in file:
+        print(line)
         if line.startswith("Root"):
             root = line[len("Root "):len(line)-1]
         elif line.startswith("ExcludeFile"):
@@ -52,6 +52,7 @@ def create_unity_files(conf_path, platform):
                 new_name = excluded_name.replace("/", "_")
                 new_name = new_name.replace("//", "_")
                 new_name = new_name.replace("\\", "_")
+                new_name = "src_" + new_name
 
                 old_contents = ""
                 if (os.path.exists(output_dir + new_name)):

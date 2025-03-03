@@ -1,9 +1,17 @@
 #pragma once
 #include "engine/render/render_fwd.h"
+#include <map>
 
 #if METAL_RENDERER
 #include "engine/render/metal/MTL_fwd.h"
 #include "engine/render/VertexBuffer.h"
+
+#if __OBJC__
+@protocol MTLBuffer;
+typedef id<MTLBuffer> MTLBufferPtr;
+#else
+typedef void* MTLBufferPtr;
+#endif
 
 namespace se::render::metal
 {
@@ -18,9 +26,10 @@ namespace se::render::metal
         void Unbind() override;
     private:
         void Cleanup();
-        size_t GetStreamStride(VertexStreamType streamType);
 
-        std::vector<MTL::Buffer*> m_Buffers;
+        static size_t GetStreamStride(se::render::VertexStreamType streamType);
+
+        std::vector<MTLBufferPtr> m_Buffers;
     };
 }
 #endif

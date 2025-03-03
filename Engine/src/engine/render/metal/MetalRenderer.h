@@ -5,6 +5,23 @@
 #if METAL_RENDERER
 #include "engine/render/Renderer.h"
 
+#ifdef __OBJC__
+@protocol MTLDevice;
+typedef id<MTLDevice> MTLDevicePtr;
+@protocol MTLRenderCommandEncoder;
+typedef id<MTLRenderCommandEncoder> MTLRenderCommandEncoderPtr;
+@protocol MTLCommandQueue;
+typedef id<MTLCommandQueue> MTLCommandQueuePtr;
+@class MTLRenderPassDescriptor;
+typedef MTLRenderPassDescriptor* MTLRenderPassDescriptorPtr;
+#else
+typedef void NativeRenderer;
+typedef void* MTLDevicePtr;
+typedef void* MTLRenderCommandEncoderPtr;
+typedef void* MTLCommandQueuePtr;
+typedef void* MTLRenderPassDescriptorPtr;
+#endif
+
 namespace se::render::metal
 {
     class MetalRenderer : public Renderer
@@ -16,17 +33,14 @@ namespace se::render::metal
         void Init() override;
         void Render(IWindow* window) override;
 
-        MTL::Device* GetDevice() const { return m_Device; }
-        MTL::RenderCommandEncoder* GetCurrentCommandEncoder() const { return m_CurrentCommandEncoder; }
-
-        static MTL::CompareFunction DepthCompareToMtl(DepthCompare::Type depthCompare);
-        static MTL::BlendFactor BlendModeToMtl(BlendMode::Type blendMode);
+        MTLDevicePtr GetDevice() const { return device; }
+        MTLRenderCommandEncoderPtr GetCurrentCommandEncoder() const { return currentCommandEncoder; }
 
     private:
-        MTL::Device* m_Device = nullptr;
-        MTL::CommandQueue* m_CommandQueue = nullptr;
-        MTL::RenderCommandEncoder* m_CurrentCommandEncoder = nullptr;
-        MTL::RenderPassDescriptor* m_CurrentRenderPassDescriptor = nullptr;
+        MTLDevicePtr device;
+        MTLCommandQueuePtr commandQueue;
+        MTLRenderCommandEncoderPtr currentCommandEncoder;
+        MTLRenderPassDescriptorPtr currentRenderPassDescriptor;
     };
 }
 #endif

@@ -18,19 +18,25 @@ function(setup_source_files target unity_conf_dir is_library)
         message("${target} unity build: false")
         file(GLOB_RECURSE SOURCE src/*.cpp src/*.h)
     else()
-        message("${target} unity build: true")
-        execute_process(COMMAND ${PYTHON_EXE} UnityBatcher.py ${unity_conf_path} ${PLATFORM}
-                WORKING_DIRECTORY ${ROOT_DIR}/Spark/Build/)
+        get_filename_component(ABSOLUTE_PATH ${ROOT_DIR}/Build/ ABSOLUTE)
+        execute_process(COMMAND ${PYTHON_EXE} UnityBatcher.py ${unity_conf_dir} ${PLATFORM} WORKING_DIRECTORY ${ABSOLUTE_PATH})
 
         file(GLOB SOURCE ./unity_generated/*.cpp)
+
+        ###### Add non Unity files for visualisation in VS and Xcode ######
+        file(GLOB_RECURSE NON_UNITY_SOURCE src/*.cpp src/*.h)
+        source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${NON_UNITY_SOURCE})
+        add_custom_target("${target}_Source_Files" SOURCES ${NON_UNITY_SOURCE})
     endif()
+
+    file(GLOB_RECURSE OBJC_SOURCE src/*.mm)
 
     if (${is_library})
         message("Adding library: ${target}")
-        add_library(${target} ${SOURCE})
+        add_library(${target} ${SOURCE} ${OBJC_SOURCE})
     else()
         message("Adding executable: ${target}")
-        add_executable(${target} ${SOURCE})
+        add_executable(${target} ${SOURCE} ${OBJC_SOURCE})
     endif()
 endfunction()
 
@@ -49,9 +55,4 @@ function(setup_spark_target target is_library use_editor unity_conf_dir)
         find_package(TBB REQUIRED COMPONENTS tbb)
         target_link_libraries(TestProject tbb)
     endif()
-
-    ###### Add non Unity files for visualisation in VS and Xcode ######
-    file(GLOB_RECURSE NON_UNITY_SOURCE src/*.cpp src/*.h)
-    source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${NON_UNITY_SOURCE})
-    add_custom_target("${target}_Source_Files" SOURCES ${NON_UNITY_SOURCE})
 endfunction()

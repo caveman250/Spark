@@ -1,5 +1,4 @@
 cmake_minimum_required(VERSION 3.28)
-project(Spark)
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_POLICY_DEFAULT_CMP0072 NEW)
 
@@ -13,7 +12,22 @@ include(${ROOT_DIR}/CMake/include/Spark.cmake)
 include(${ROOT_DIR}/CMake/ThirdParty.cmake)
 
 ###### Generate Unity Files #######
-setup_source_files(Spark ../Engine/unity.conf true)
+message("Configuring Engine source files")
+get_filename_component(ABSOLUTE_PATH ${ROOT_DIR}/Build ABSOLUTE)
+execute_process(COMMAND ${PYTHON_EXE} UnityBatcher.py ${ROOT_DIR}/Engine/unity.conf ${PLATFORM} WORKING_DIRECTORY ${ABSOLUTE_PATH} RESULT_VARIABLE rv)
+file(GLOB SOURCE ./unity_generated/*.cpp)
+
+if (${PLATFORM} MATCHES Mac)
+    file(GLOB_RECURSE OBJC_SOURCE src/*.mm)
+endif()
+
+###### Add non Unity files for visualisation in VS and Xcode ######
+file(GLOB_RECURSE NON_UNITY_SOURCE src/*.cpp src/*.h src/*.mm)
+source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${NON_UNITY_SOURCE})
+add_custom_target("${target}_Source_Files" SOURCES ${NON_UNITY_SOURCE})
+
+message("Adding library: Spark")
+add_library(Spark ${SOURCE} ${OBJC_SOURCE})
 
 ###### Linker ######
 target_link_libraries(Spark OpenFBX bc7enc)
@@ -31,12 +45,12 @@ elseif (${PLATFORM} MATCHES Mac)
 endif ()
 
 ###### PCH ######
-target_precompile_headers(Spark PUBLIC src/spark.h)
+target_precompile_headers(Spark PUBLIC $<$<COMPILE_LANGUAGE:CXX>:spark.h>)
 
 #target_compile_options(Spark PUBLIC -fsanitize=address)
 #target_link_options(Spark PUBLIC -fsanitize=address)
 
 ###### Add non Unity files for visualisation in VS and Xcode ######
-file(GLOB_RECURSE NON_UNITY_SOURCE src/*.cpp src/*.h)
+file(GLOB_RECURSE NON_UNITY_SOURCE src/*.cpp src/*.h src/*.mm)
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${NON_UNITY_SOURCE})
 add_custom_target("Spark_Source_Files" SOURCES ${NON_UNITY_SOURCE})

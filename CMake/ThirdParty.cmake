@@ -1,4 +1,5 @@
-#add_subdirectory(third_party/Crunch2)
+set(CMAKE_WARN_DEPRECATED OFF CACHE BOOL "" FORCE)
+
 add_subdirectory(third_party/bc7enc_rdo)
 add_subdirectory(third_party/OpenFBX-365f52c)
 

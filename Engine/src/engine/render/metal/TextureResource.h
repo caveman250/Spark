@@ -6,6 +6,13 @@
 #include "engine/render/metal/MTL_fwd.h"
 #include "engine/render/TextureResource.h"
 
+#if __OBJC__
+@protocol MTLTexture;
+typedef id<MTLTexture> MTLTexturePtr;
+#else
+typedef void* MTLBufferPtr;
+#endif
+
 namespace se::render::metal
 {
     class TextureResource : public render::TextureResource
@@ -16,9 +23,8 @@ namespace se::render::metal
         void Bind(size_t i) override;
 
     private:
-        static MTL::PixelFormat TextureFormatToMetalFormat(asset::texture::Format::Type format);
 
-        MTL::Texture* m_MetalResource;
+        MTLTexturePtr m_MetalResource;
     };
 }
 
