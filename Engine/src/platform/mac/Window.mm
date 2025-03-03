@@ -37,6 +37,7 @@ namespace se::mac
 
         m_Window = [[NativeWindow alloc] initWithContentRect:frame styleMask:styleMask backing:backing defer:NO];
         [(NativeWindow*)m_Window initKeyReceiver];
+        [m_Window setAcceptsMouseMovedEvents:YES];
         [m_Window center];
 
         auto renderer = se::render::Renderer::Get<se::render::metal::MetalRenderer>();
@@ -48,6 +49,7 @@ namespace se::mac
         [metalView setDepthStencilPixelFormat:MTLPixelFormatDepth16Unorm];
         [metalView setClearDepth:1.f];
         [metalView setDrawableSize:CGSize { static_cast<double>(resX), static_cast<double>(resY) } ];
+        //[metalView addTrackingRect:frame owner:metalView userData:NULL assumeInside:NO];
 
         [m_Window setContentView:metalView];
         [m_Window setTitle:[[NSString alloc] initWithUTF8String:"Spark"]];
