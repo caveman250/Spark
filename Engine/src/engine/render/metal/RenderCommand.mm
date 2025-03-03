@@ -89,11 +89,12 @@ namespace se::render::commands
     void PushScissor::Execute()
     {
         auto commandEncoder = Renderer::Get<metal::MetalRenderer>()->GetCurrentCommandEncoder();
+        auto window = Application::Get()->GetPrimaryWindow();
         MTLScissorRect scissor;
-        scissor.x = m_Rect.topLeft.x;
-        scissor.y = m_Rect.topLeft.y;
-        scissor.width = m_Rect.size.x;
-        scissor.height = m_Rect.size.y;
+        scissor.x = std::max(0, m_Rect.topLeft.x);
+        scissor.y = std::max(0, m_Rect.topLeft.y);
+        scissor.width = std::min(m_Rect.size.x, window->GetWidth() - static_cast<int>(scissor.x));
+        scissor.height = std::min(m_Rect.size.y, window->GetHeight() - static_cast<int>(scissor.y));
         [commandEncoder setScissorRect:scissor];
     }
 
