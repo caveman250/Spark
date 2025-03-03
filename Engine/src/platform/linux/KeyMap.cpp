@@ -122,7 +122,7 @@ namespace se::linux
         case  SDL_SCANCODE_RSHIFT: return input::Key::RightShift;
         case  SDL_SCANCODE_RALT: return input::Key::RightAlt;
         default:
-            SPARK_ASSERT(false, "KeyMap::SDLKeyToSparkKey - Unknown SDL key: {}.", static_cast<int>(sdlKey));
+            SPARK_ASSERT(false, "KeyMap.h::SDLKeyToSparkKey - Unknown SDL key: {}.", static_cast<int>(sdlKey));
             return input::Key::Unknown;
         }
     }
