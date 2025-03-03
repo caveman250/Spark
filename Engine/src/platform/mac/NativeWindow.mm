@@ -1,7 +1,7 @@
 #import "NativeWindow.h"
-#import "spark.h"
 #import "engine/input/Key.h"
 #import "KeyMap.h"
+#import "engine/input/InputComponent.h"
 
 static std::map<uint32_t, bool> s_ModifierKeyStates = {}; // TODO
 
@@ -11,13 +11,24 @@ static std::map<uint32_t, bool> s_ModifierKeyStates = {}; // TODO
 {
     [NSEvent addLocalMonitorForEventsMatchingMask:NSEventMaskFlagsChanged|NSEventMaskKeyDown handler:^NSEvent * (NSEvent * theEvent)
     {
+        auto app = se::Application::Get();
+        auto inputComp = app->GetWorld()->GetSingletonComponent<se::input::InputComponent>();
+
         auto keyCode = [theEvent keyCode];
         if (keyCode == 0x38 || keyCode == 0x3C ||
             keyCode == 0x3B || keyCode == 0x3E ||
             keyCode == 0x3A || keyCode == 0x3D)
         {
             s_ModifierKeyStates[keyCode] = !s_ModifierKeyStates[keyCode];
-            se::debug::Log::Info("{} {}", se::input::Key::ToString(se::mac::KeyMap::MacKeyToSparkKey(keyCode)), s_ModifierKeyStates[keyCode] ? "Down" : "Up");
+
+            se::input::Key::Type key = se::mac::KeyMap::MacKeyToSparkKey(keyCode);
+
+            se::input::KeyEvent keyEvent;
+            keyEvent.key = key;
+            keyEvent.state = s_ModifierKeyStates[keyCode] ? se::input::KeyState::Down : se::input::KeyState::Up;
+
+            inputComp->keyEvents.push_back(keyEvent);
+            inputComp->keyStates[key] = keyEvent.state;
         }
 
         return theEvent;
@@ -26,37 +37,119 @@ static std::map<uint32_t, bool> s_ModifierKeyStates = {}; // TODO
 
 - (void)keyDown:(NSEvent*) event
 {
-    se::debug::Log::Info("{} Down", se::input::Key::ToString(se::mac::KeyMap::MacKeyToSparkKey([event keyCode])));
+    uint32_t scanCode = [event keyCode];
+    se::input::Key::Type key = se::mac::KeyMap::MacKeyToSparkKey(scanCode);
+    auto inputComp = se::Application::Get()->GetWorld()->GetSingletonComponent<se::input::InputComponent>();
+
+    se::input::KeyEvent keyEvent;
+    keyEvent.key = key;
+    keyEvent.state = se::input::KeyState::Down;
+
+    inputComp->keyEvents.push_back(keyEvent);
+    inputComp->keyStates[key] = keyEvent.state;
 }
 
 - (void)keyUp:(NSEvent*) event
 {
-    se::debug::Log::Info("{} Up", se::input::Key::ToString(se::mac::KeyMap::MacKeyToSparkKey([event keyCode])));
+    uint32_t scanCode = [event keyCode];
+    se::input::Key::Type key = se::mac::KeyMap::MacKeyToSparkKey(scanCode);
+    auto inputComp = se::Application::Get()->GetWorld()->GetSingletonComponent<se::input::InputComponent>();
+
+    se::input::KeyEvent keyEvent;
+    keyEvent.key = key;
+    keyEvent.state = se::input::KeyState::Up;
+
+    inputComp->keyEvents.push_back(keyEvent);
+    inputComp->keyStates[key] = keyEvent.state;
 }
 
 - (void)mouseDown:(NSEvent*) event
 {
-    se::debug::Log::Info("Left Mouse Down");
+    auto app = se::Application::Get();
+    auto inputComp = app->GetWorld()->GetSingletonComponent<se::input::InputComponent>();
+    inputComp->mouseButtonStates[se::input::MouseButton::Left] = se::input::KeyState::Down;
+
+    se::input::MouseEvent mouseEvent;
+    mouseEvent.button = se::input::MouseButton::Left;
+    mouseEvent.state = se::input::KeyState::Down;
+    inputComp->mouseEvents.push_back(mouseEvent);
 }
 
 - (void)rightMouseDown:(NSEvent*) event
 {
-    se::debug::Log::Info("Right Mouse Down");
+    auto app = se::Application::Get();
+    auto inputComp = app->GetWorld()->GetSingletonComponent<se::input::InputComponent>();
+    inputComp->mouseButtonStates[se::input::MouseButton::Left] = se::input::KeyState::Up;
+
+    se::input::MouseEvent mouseEvent;
+    mouseEvent.button = se::input::MouseButton::Left;
+    mouseEvent.state = se::input::KeyState::Up;
+    inputComp->mouseEvents.push_back(mouseEvent);
 }
 
 - (void)mouseUp:(NSEvent*) event
 {
-    se::debug::Log::Info("Left Mouse Up");
+    auto app = se::Application::Get();
+    auto inputComp = app->GetWorld()->GetSingletonComponent<se::input::InputComponent>();
+    inputComp->mouseButtonStates[se::input::MouseButton::Left] = se::input::KeyState::Up;
+
+    se::input::MouseEvent mouseEvent;
+    mouseEvent.button = se::input::MouseButton::Left;
+    mouseEvent.state = se::input::KeyState::Up;
+    inputComp->mouseEvents.push_back(mouseEvent);
 }
 
 - (void)rightMouseUp:(NSEvent*) event
 {
-   se::debug::Log::Info("Right Mouse Up");
+    auto app = se::Application::Get();
+    auto inputComp = app->GetWorld()->GetSingletonComponent<se::input::InputComponent>();
+    inputComp->mouseButtonStates[se::input::MouseButton::Right] = se::input::KeyState::Up;
+
+    se::input::MouseEvent mouseEvent;
+    mouseEvent.button = se::input::MouseButton::Right;
+    mouseEvent.state = se::input::KeyState::Up;
+    inputComp->mouseEvents.push_back(mouseEvent);
 }
 
 - (void)scrollWheel:(NSEvent*)event
 {
-    se::debug::Log::Info("Mouse Scroll delta X: {}, delta Y: {}", [event scrollingDeltaX], [event scrollingDeltaY]);
+    auto app = se::Application::Get();
+    auto inputComp = app->GetWorld()->GetSingletonComponent<se::input::InputComponent>();
+    inputComp->mouseScrollDelta = [event scrollingDeltaY];
+
+    se::input::MouseEvent mouseEvent;
+    mouseEvent.button = se::input::MouseButton::None;
+    mouseEvent.scrollDelta = inputComp->mouseScrollDelta;
+    inputComp->mouseEvents.push_back(mouseEvent);
+}
+
+- (void)mouseMoved:(NSEvent*)event
+{
+    auto app = se::Application::Get();
+    auto inputComp = app->GetWorld()->GetSingletonComponent<se::input::InputComponent>();
+    NSPoint locationInView = [[self contentView] convertPoint:[event locationInWindow] fromView:nil];
+    inputComp->mouseX = locationInView.x;
+    inputComp->mouseY = [[self contentView] frame].size.height - locationInView.y;
+}
+
+- (void)mouseDragged:(NSEvent*)event
+{
+    auto app = se::Application::Get();
+    auto inputComp = app->GetWorld()->GetSingletonComponent<se::input::InputComponent>();
+
+    if (inputComp->mouseButtonStates[se::input::MouseButton::Left] != se::input::KeyState::Down)
+    {
+        inputComp->mouseButtonStates[se::input::MouseButton::Left] = se::input::KeyState::Down;
+
+        se::input::MouseEvent mouseEvent;
+        mouseEvent.button = se::input::MouseButton::Left;
+        mouseEvent.state = se::input::KeyState::Down;
+        inputComp->mouseEvents.push_back(mouseEvent);
+    }
+
+    NSPoint locationInView = [[self contentView] convertPoint:[event locationInWindow] fromView:nil];
+    inputComp->mouseX = locationInView.x;
+    inputComp->mouseY = [[self contentView] frame].size.height - locationInView.y;
 }
 
 @end
