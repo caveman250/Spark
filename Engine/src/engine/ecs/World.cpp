@@ -11,6 +11,7 @@
 #include "engine/render/Renderer.h"
 #include "relationships/ChildOf.h"
 #include "engine/bits/FlagUtil.h"
+#include "engine/threads/ParallelForEach.h"
 
 DEFINE_SPARK_ENUM_BEGIN(se::ecs::ComponentMutability)
                                                          DEFINE_ENUM_VALUE(ComponentMutability, Mutable)
@@ -450,7 +451,7 @@ namespace se::ecs
         ProcessAllPending();
         m_Running = true;
 
-        RunOnAllEngineSystems([this](auto&& systemId)
+        RunOnAllEngineSystems([this](const Id& systemId)
         {
             PROFILE_BEGIN_THREAD()
             if (auto* system = m_EngineSystems[systemId].instance)
@@ -750,7 +751,7 @@ namespace se::ecs
         }
     }
 
-    void World::RunOnAllSystems(const std::function<void(Id)>& func,
+    void World::RunOnAllSystems(const std::function<void(const Id&)>& func,
                                 const std::vector<std::vector<Id>>& systemUpdateGroups, bool parallel, bool processPending)
     {
         PROFILE_SCOPE("World::RunOnAllSystems")
@@ -759,17 +760,11 @@ namespace se::ecs
             m_UpdateMode = parallel && updateGroup.size() > 1 ? UpdateMode::MultiThreaded : UpdateMode::SingleThreaded;
             if (m_UpdateMode == UpdateMode::MultiThreaded)
             {
-                //TODO PARALLEL LOOPS
-                std::for_each(
-                              updateGroup.begin(),
-                              updateGroup.end(),
-                              func);
+                threads::ParallelForEach(updateGroup, func);
             }
             else
             {
-                //TODO PARALLEL LOOPS
-                std::for_each(
-                              updateGroup.begin(),
+                std::for_each(updateGroup.begin(),
                               updateGroup.end(),
                               func);
             }
@@ -781,12 +776,12 @@ namespace se::ecs
         }
     }
 
-    void World::RunOnAllAppSystems(const std::function<void(Id)>& func, bool parallel, bool processPending)
+    void World::RunOnAllAppSystems(const std::function<void(const Id&)>& func, bool parallel, bool processPending)
     {
         RunOnAllSystems(func, m_AppSystemUpdateGroups, parallel, processPending);
     }
 
-    void World::RunOnAllEngineSystems(const std::function<void(Id)>& func, bool parallel, bool processPending)
+    void World::RunOnAllEngineSystems(const std::function<void(const Id&)>& func, bool parallel, bool processPending)
     {
         RunOnAllSystems(func, m_EngineSystemUpdateGroups, parallel, processPending);
     }
