@@ -1,26 +1,9 @@
 #pragma once
-#include "MTL_fwd.h"
 #include "engine/render/render_fwd.h"
+#include "MTL_fwd.h"
 
 #if METAL_RENDERER
 #include "engine/render/Renderer.h"
-
-#ifdef __OBJC__
-@protocol MTLDevice;
-typedef id<MTLDevice> MTLDevicePtr;
-@protocol MTLRenderCommandEncoder;
-typedef id<MTLRenderCommandEncoder> MTLRenderCommandEncoderPtr;
-@protocol MTLCommandQueue;
-typedef id<MTLCommandQueue> MTLCommandQueuePtr;
-@class MTLRenderPassDescriptor;
-typedef MTLRenderPassDescriptor* MTLRenderPassDescriptorPtr;
-#else
-typedef void NativeRenderer;
-typedef void* MTLDevicePtr;
-typedef void* MTLRenderCommandEncoderPtr;
-typedef void* MTLCommandQueuePtr;
-typedef void* MTLRenderPassDescriptorPtr;
-#endif
 
 namespace se::render::metal
 {

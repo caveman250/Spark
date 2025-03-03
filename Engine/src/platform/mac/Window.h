@@ -2,15 +2,9 @@
 
 #include "spark.h"
 #include "platform/IWindow.h"
+#include "engine/render/metal/MTL_fwd.h"
 
 #undef mac
-
-#ifdef __OBJC__
-@class NSWindow;
-typedef NSWindow* NativeWindowPtr;
-#else
-typedef void* NativeWindowPtr;
-#endif
 
 namespace se::mac
 {
@@ -23,9 +17,9 @@ namespace se::mac
         void SetCurrent() override;
         void Cleanup() override;
 
-        NativeWindowPtr GetNativeWindow() const { return m_Window; }
+        NSWindowPtr GetNativeWindow() const { return m_Window; }
 
     private:
-        NativeWindowPtr m_Window;
+        NSWindowPtr m_Window;
     };
 }
