@@ -677,7 +677,7 @@ namespace se::ecs
     std::set<Archetype*> World::CollectArchetypes(const std::vector<std::pair<Id, ComponentMutability::Type>>& compIds)
     {
         std::set<Archetype*> archetypes = {};
-        for (auto compId: compIds)
+        for (const auto& compId: compIds)
         {
             if (m_ComponentRecords.contains(compId.first))
             {
