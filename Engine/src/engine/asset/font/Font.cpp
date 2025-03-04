@@ -35,17 +35,18 @@ namespace se::asset
         return nullptr;
     }
 
-    CharData Font::GetCharData(int fontSize, char c) const
+    const CharData& Font::GetCharData(int fontSize, char c) const
     {
+        static CharData nullCharData;
         if (!SPARK_VERIFY(m_AssetData.contains(fontSize)))
         {
-            return {};
+            return nullCharData;
         }
 
-        auto fontAsset = m_AssetData.at(fontSize);
+        auto& fontAsset = m_AssetData.at(fontSize);
         if (!SPARK_VERIFY(fontAsset.charData.contains(c)))
         {
-            return {};
+            return nullCharData;
         }
 
         return fontAsset.charData.at(c);

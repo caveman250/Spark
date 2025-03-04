@@ -45,7 +45,7 @@ namespace se::asset
 
         Font() = default;
         std::shared_ptr<Texture> GetTextureAsset(int fontSize);
-        CharData GetCharData(int fontSize, char c) const;
+        const CharData& GetCharData(int fontSize, char c) const;
 
     private:
         std::string m_Name;
