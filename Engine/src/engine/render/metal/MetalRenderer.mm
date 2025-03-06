@@ -3,6 +3,7 @@
 #import <Metal/Metal.h>
 #import <MetalKit/MetalKit.h>
 #include "platform/mac/Window.h"
+#import "engine/Application.h"
 
 
 #if METAL_RENDERER
@@ -25,11 +26,11 @@ namespace se::render::metal
         commandQueue = [device newCommandQueue];
     }
 
-    void MetalRenderer::Render(IWindow* window)
+    void MetalRenderer::Render()
     {
         auto commandBuffer = [commandQueue commandBuffer];
 
-        auto macWindow = static_cast<se::mac::Window*>(window);
+        auto macWindow = static_cast<se::mac::Window*>(Application::Get()->GetPrimaryWindow());
         auto nativeWindow = macWindow->GetNativeWindow();
         auto view = [nativeWindow contentView];
         currentRenderPassDescriptor = [view currentRenderPassDescriptor];
@@ -39,7 +40,7 @@ namespace se::render::metal
         [currentCommandEncoder setCullMode:MTLCullModeBack];
         [currentCommandEncoder setFrontFacingWinding:MTLWindingCounterClockwise];
 
-        Renderer::Render(window);
+        Renderer::Render();
 
         [currentCommandEncoder endEncoding];
         currentCommandEncoder = nullptr;

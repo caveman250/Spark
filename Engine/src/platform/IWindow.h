@@ -9,7 +9,6 @@ namespace se
 
         IWindow(int resX, int resY) : m_PosX(0) , m_PosY(0), m_SizeX(resX), m_SizeY(resY) {}
         virtual ~IWindow() = default;
-        virtual void SetCurrent() = 0;
         virtual void Cleanup() = 0;
 
         int GetWidth() { return m_SizeX; }

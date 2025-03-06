@@ -11,7 +11,7 @@ namespace se::ui::systems
         {
             for (auto *renderCommand: renderComp->entityPreRenderCommands.at(id))
             {
-                renderer->Submit(Application::Get()->GetPrimaryWindow(), renderCommand);
+                renderer->Submit(renderCommand);
             }
 
             renderComp->entityPreRenderCommands.at(id).clear();
@@ -21,7 +21,7 @@ namespace se::ui::systems
         {
             for (auto *renderCommand: renderComp->entityRenderCommands.at(id))
             {
-                renderer->Submit(Application::Get()->GetPrimaryWindow(), renderCommand);
+                renderer->Submit(renderCommand);
             }
 
             renderComp->entityRenderCommands.at(id).clear();
@@ -36,7 +36,7 @@ namespace se::ui::systems
         {
             for (auto *renderCommand: renderComp->entityPostRenderCommands.at(id))
             {
-                renderer->Submit(Application::Get()->GetPrimaryWindow(), renderCommand);
+                renderer->Submit(renderCommand);
             }
 
             renderComp->entityPostRenderCommands.at(id).clear();

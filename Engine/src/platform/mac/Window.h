@@ -14,7 +14,6 @@ namespace se::mac
         Window(int resX, int resY);
         ~Window() override;
 
-        void SetCurrent() override;
         void Cleanup() override;
 
         NSWindowPtr GetNativeWindow() const { return m_Window; }

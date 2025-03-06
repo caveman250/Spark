@@ -52,7 +52,6 @@ namespace se
 
         render::Renderer::Create();
         m_PrimaryWindow = IWindow::CreatePlatformWindow(1280, 720);
-        m_PrimaryWindow->SetCurrent();
         m_TimeLastFrame = std::chrono::system_clock::now();
 
         io::VFS::Get().Mount(std::format("{}/{}", ENGINE_DIR, "builtin_assets"), "/builtin_source_assets");

@@ -49,11 +49,11 @@ namespace se::render
         m_LightSetup.Reset();
     }
 
-    void Renderer::Render(IWindow* window)
+    void Renderer::Render()
     {
         PROFILE_SCOPE("Renderer::Render")
-        SortDrawCommands(window);
-        ExecuteDrawCommands(window);
+        SortDrawCommands();
+        ExecuteDrawCommands();
     }
 
     void Renderer::EndFrame()
@@ -62,10 +62,10 @@ namespace se::render
         m_RenderCommandsArena.Reset();
     }
 
-    void Renderer::SortDrawCommands(IWindow *window)
+    void Renderer::SortDrawCommands()
     {
         PROFILE_SCOPE("Renderer::SortDrawCommands")
-        auto& renderCmds = m_RenderCommands[window];
+        auto& renderCmds = m_RenderCommands;
         std::ranges::stable_sort(renderCmds, [](const auto& lhs, const auto& rhs)
         {
             if (lhs->GetRenderStage() != rhs->GetRenderStage())
@@ -77,17 +77,17 @@ namespace se::render
         });
     }
 
-    void Renderer::ExecuteDrawCommands(IWindow* window)
+    void Renderer::ExecuteDrawCommands()
     {
         PROFILE_SCOPE("Renderer::ExecuteDrawCommands")
-        for (const auto& renderCmd : m_RenderCommands[window])
+        for (const auto& renderCmd : m_RenderCommands)
         {
             renderCmd->Execute();
         }
     }
 
-    void Renderer::Submit(IWindow *window, commands::RenderCommand *renderCommand)
+    void Renderer::Submit(commands::RenderCommand *renderCommand)
     {
-        m_RenderCommands[window].push_back(renderCommand);
+        m_RenderCommands.push_back(renderCommand);
     }
 }

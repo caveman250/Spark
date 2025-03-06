@@ -9,7 +9,6 @@ namespace se::windows
         Window(int resX, int resY);
         ~Window();
 
-        void SetCurrent() override;
         void Cleanup() override;
 
         HWND GetHWND() { return m_Hwnd; }

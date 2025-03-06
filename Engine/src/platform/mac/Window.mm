@@ -10,13 +10,7 @@ namespace se
 {
     IWindow* IWindow::CreatePlatformWindow(int resX, int resY)
     {
-        auto* window = new mac::Window(resX, resY);
-        if (auto runLoop = PlatformRunLoop::Get())
-        {
-            runLoop->RegisterWindow(window);
-        }
-
-        return window;
+        return new mac::Window(resX, resY);;
     }
 }
 
@@ -60,11 +54,6 @@ namespace se::mac
     Window::~Window()
     {
         Cleanup();
-    }
-
-    void Window::SetCurrent()
-    {
-        // TODO
     }
 
     void Window::Cleanup()
