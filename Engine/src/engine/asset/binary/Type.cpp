@@ -27,6 +27,8 @@ namespace se::asset::binary
                 return "Uint64";
             case Type::Float:
                 return "Float";
+            case Type::Double:
+                return "Double";
             case Type::Vec2:
                 return "Vec2";
             case Type::Vec3:
@@ -73,6 +75,8 @@ namespace se::asset::binary
                 return sizeof(uint64_t);
             case Type::Float:
                 return sizeof(float);
+            case Type::Double:
+                return sizeof(double);
             case Type::Vec2:
                 return sizeof(math::Vec2);
             case Type::Vec3:

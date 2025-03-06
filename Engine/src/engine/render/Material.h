@@ -29,10 +29,12 @@ namespace se::render
         void SetRenderState(const RenderState& state);
         ShaderSettings& GetShaderSettings();
 
-        template <typename T>
-        void SetUniform(const std::string& name, asset::shader::ast::AstType::Type type, int count, const T* value);
+        const RenderState& GetRenderState() const { return m_RenderState; }
+
+        const std::map<std::string, asset::shader::ast::Variable>& GetVertUniforms() const { return m_VertUniforms; }
+        const std::map<std::string, asset::shader::ast::Variable>& GetFragUniforms() const { return m_FragUniforms; }
+
     protected:
-        virtual void SetUniformInternal(const std::string& name, asset::shader::ast::AstType::Type type, int count, const void* value) = 0;
         virtual void ApplyDepthStencil(DepthCompare::Type comp, StencilFunc::Type src, uint32_t writeMask, uint32_t readMask) = 0;
         virtual void ApplyBlendMode(BlendMode::Type src, BlendMode::Type dest) = 0;
         Material(const std::vector<std::shared_ptr<asset::Shader>>& vertShaders,
@@ -40,18 +42,12 @@ namespace se::render
 
         std::vector<std::shared_ptr<asset::Shader>> m_VertShaders;
         std::vector<std::shared_ptr<asset::Shader>> m_FragShaders;
-        UniformStorage m_UniformStorage;
         RenderState m_RenderState;
         ShaderSettings m_ShaderSettings; // ignored after platform resources have been created.
         LightSetup m_CachedLightSetup;
         bool m_PlatformResourcesCreated = false;
 
-        friend class UniformStorage;
+        std::map<std::string, asset::shader::ast::Variable> m_VertUniforms;
+        std::map<std::string, asset::shader::ast::Variable> m_FragUniforms;
     };
-
-    template <typename T>
-    void Material::SetUniform(const std::string& name, asset::shader::ast::AstType::Type type, int count, const T* value)
-    {
-        m_UniformStorage.SetValue(name, type, count, value);
-    }
 }

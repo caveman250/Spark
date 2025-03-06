@@ -7,12 +7,22 @@ namespace se::render
     void Material::Bind(const VertexBuffer& vb)
     {
         auto renderer = Renderer::Get<Renderer>();
-        if (renderer->ShouldApplyRenderState(m_RenderState))
+        auto rs = renderer->GetCachedRenderState();
+        if (rs.depthComp != m_RenderState.depthComp ||
+            rs.stencilFunc != m_RenderState.stencilFunc ||
+            rs.stencilReadMask != m_RenderState.stencilReadMask ||
+            rs.stencilWriteMask != m_RenderState.stencilWriteMask)
         {
             ApplyDepthStencil(m_RenderState.depthComp, m_RenderState.stencilFunc, m_RenderState.stencilWriteMask, m_RenderState.stencilReadMask);
-            ApplyBlendMode(m_RenderState.srcBlend, m_RenderState.dstBlend);
-            renderer->SetLastRenderState(m_RenderState);
         }
+
+        if (rs.srcBlend != m_RenderState.srcBlend ||
+            rs.dstBlend != m_RenderState.dstBlend)
+        {
+            ApplyBlendMode(m_RenderState.srcBlend, m_RenderState.dstBlend);
+        }
+
+        renderer->SetLastRenderState(m_RenderState);
 
         if (m_RenderState.lit)
         {
@@ -29,27 +39,6 @@ namespace se::render
         {
             CreatePlatformResources(vb);
             m_PlatformResourcesCreated = true;
-        }
-
-        if (m_UniformStorage.IsStale())
-        {
-            m_UniformStorage.Apply(this);
-        }
-
-        if (m_RenderState.lit)
-        {
-            const auto& lightSetup = Renderer::Get<Renderer>()->GetLightSetup();
-            // TODO improve shader parser so i can just pass an array of structs
-            std::vector<math::Vec3> pos;
-            pos.resize(lightSetup.pointLights.size());
-            std::transform(lightSetup.pointLights.begin(), lightSetup.pointLights.end(), pos.begin(), [](const PointLight& light){ return light.pos; });
-
-            std::vector<math::Vec3> color;
-            color.resize(lightSetup.pointLights.size());
-            std::transform(lightSetup.pointLights.begin(), lightSetup.pointLights.end(), color.begin(), [](const PointLight& light){ return light.color; });
-
-            SetUniform("lightPos", asset::shader::ast::AstType::Vec3, static_cast<int>(pos.size()), &pos[0]);
-            SetUniform("lightColor", asset::shader::ast::AstType::Vec3, static_cast<int>(color.size()), &color[0]);
         }
     }
 

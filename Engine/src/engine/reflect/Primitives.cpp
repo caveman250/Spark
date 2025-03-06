@@ -37,8 +37,11 @@ return &typeDesc;\
     DEFINE_PRIMITIVE(char, asset::binary::Type::Int8)
     DEFINE_PRIMITIVE(uint8_t, asset::binary::Type::Uint8)
     DEFINE_PRIMITIVE(int, asset::binary::Type::Int32)
+    DEFINE_PRIMITIVE(int64_t, asset::binary::Type::Int64)
     DEFINE_PRIMITIVE(uint32_t, asset::binary::Type::Uint32)
     DEFINE_PRIMITIVE(uint64_t, asset::binary::Type::Uint64)
+    DEFINE_PRIMITIVE(size_t, asset::binary::Type::Uint64)
+    DEFINE_PRIMITIVE(double, asset::binary::Type::Double)
     DEFINE_PRIMITIVE(float, asset::binary::Type::Float)
     using namespace std;
     DEFINE_PRIMITIVE(string, asset::binary::Type::String)
@@ -74,7 +77,6 @@ return &typeDesc;\
         return &typeDesc;
     }
 
-#if !SPARK_DIST
     struct Type_Id : Type
     {
         Type_Id() : Type{"Id", sizeof(uint64_t), asset::binary::Type::Uint64 }
@@ -111,5 +113,4 @@ return &typeDesc;\
         static Type_Id typeDesc;
         return &typeDesc;
     }
-#endif
 }

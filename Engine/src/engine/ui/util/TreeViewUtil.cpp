@@ -96,23 +96,30 @@ namespace se::ui::util
 
         auto vert = assetManager->GetAsset<asset::Shader>("/builtin_assets/shaders/ui.sass");
         auto frag = assetManager->GetAsset<asset::Shader>("/builtin_assets/shaders/alpha_texture.sass");
-        image->material = render::Material::CreateMaterial({vert}, {frag});
-        image->material->SetUniform("Texture", asset::shader::ast::AstType::Sampler2D, 1, &expanded_indicator_texture);
-        auto rs = render::RenderState();
-        rs.srcBlend = render::BlendMode::SrcAlpha;
-        rs.dstBlend = render::BlendMode::OneMinusSrcAlpha;
-        image->material->SetRenderState(rs);
+        static std::shared_ptr<render::Material> material = nullptr; // TODO
+        if (!material)
+        {
+            material = render::Material::CreateMaterial({vert}, {frag}); // TODO
+            auto rs = render::RenderState();
+            rs.srcBlend = render::BlendMode::SrcAlpha;
+            rs.dstBlend = render::BlendMode::OneMinusSrcAlpha;
+            material->SetRenderState(rs);
+        }
+
+        image->materialInstance = render::MaterialInstance::CreateMaterialInstance(material);
+        image->materialInstance->SetUniform("Texture", asset::shader::ast::AstType::Sampler2D, 1, &expanded_indicator_texture);
+
         world->AddComponent<components::ReceivesMouseEventsComponent>(statusIcon);
 
         std::function<void(bool, components::ImageComponent*)> collapsedImageCb = [](bool collapsed, components::ImageComponent* image)
         {
             if (collapsed)
             {
-                image->material->SetUniform("Texture", asset::shader::ast::AstType::Sampler2D, 1, &collapsed_indicator_texture);
+                image->materialInstance->SetUniform("Texture", asset::shader::ast::AstType::Sampler2D, 1, &collapsed_indicator_texture);
             }
             else
             {
-                image->material->SetUniform("Texture", asset::shader::ast::AstType::Sampler2D, 1, &expanded_indicator_texture);
+                image->materialInstance->SetUniform("Texture", asset::shader::ast::AstType::Sampler2D, 1, &expanded_indicator_texture);
             }
         };
         (*outTreeNode)->onCollapsedStateChange.Subscribe<components::ImageComponent>(statusIcon, std::move(collapsedImageCb));

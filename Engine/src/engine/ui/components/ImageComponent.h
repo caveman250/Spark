@@ -14,7 +14,7 @@ namespace se::ui::components
     {
         DECLARE_SPARK_COMPONENT(ImageComponent)
 
-        std::shared_ptr<render::Material> material = {};
+        std::shared_ptr<render::MaterialInstance> materialInstance = {};
         std::shared_ptr<render::VertexBuffer> vertBuffer = {};
         std::shared_ptr<render::IndexBuffer> indexBuffer = {};
         Rect lastRect = {};

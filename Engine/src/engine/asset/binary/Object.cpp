@@ -47,10 +47,13 @@ namespace se::asset::binary
             SPARK_ASSERT(typeId == typeid(int64_t));
             break;
         case Type::Uint64:
-            SPARK_ASSERT(typeId == typeid(uint64_t));
+            SPARK_ASSERT(typeId == typeid(uint64_t) || typeId == typeid(size_t));
             break;
         case Type::Float:
             SPARK_ASSERT(typeId == typeid(float));
+            break;
+        case Type::Double:
+            SPARK_ASSERT(typeId == typeid(double));
             break;
         case Type::Vec2:
             SPARK_ASSERT(typeId == typeid(math::Vec2));
@@ -178,6 +181,9 @@ namespace se::asset::binary
                 break;
             case Type::Float:
                 obj[fieldName] = Get<float>(fieldName);
+                break;
+            case Type::Double:
+                obj[fieldName] = Get<double>(fieldName);
                 break;
             case Type::Vec2:
                 {

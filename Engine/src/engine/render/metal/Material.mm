@@ -6,13 +6,9 @@
 #if METAL_RENDERER
 
 #include "engine/asset/shader/compiler/ShaderCompiler.h"
-#include "engine/asset/shader/ast/Types.h"
 #include "engine/asset/shader/ast/TypeUtil.h"
 #include "TextureResource.h"
-#import "engine/render/metal/Material.h"
-#import "engine/render/metal/MetalRenderer.h"
 #import <Metal/Metal.h>
-#import "engine/render/VertexBuffer.h"
 #import "engine/render/metal/MetalTypeUtil.h"
 
 namespace se::render
@@ -37,51 +33,21 @@ namespace se::render::metal
         render::Material::Bind(vb);
 
         auto renderer = Renderer::Get<MetalRenderer>();
+        auto boundMat = renderer->GetBoundMaterial();
+        if (boundMat == this)
+        {
+            return;
+        }
+
+        renderer->SetBoundMaterial(this);
+
         auto commandEncoder = (id<MTLRenderCommandEncoder>)renderer->GetCurrentCommandEncoder();
-        auto device = (id<MTLDevice>)renderer->GetDevice();
-
         [commandEncoder setRenderPipelineState:m_RenderPipelineState];
-
-        for (size_t i = 0; i < m_Textures.size(); ++i)
-        {
-            m_Textures[i].second->Bind(i);
-        }
-
-        if (m_VertexUniformsSize > 0 && !m_VertexUniformBufferGpu)
-        {
-            m_VertexUniformBufferGpu = [device newBufferWithLength:m_VertexUniformsSize options:MTLResourceStorageModeManaged];
-        }
-
-        if (m_VertexUniformsStale)
-        {
-            memcpy([m_VertexUniformBufferGpu contents], m_VertexUniformBufferCpu, m_VertexUniformsSize);
-            [m_VertexUniformBufferGpu didModifyRange:NSMakeRange(0, [m_VertexUniformBufferGpu length]) ];
-            m_VertexUniformsStale = false;
-        }
-        if (m_VertexUniformBufferGpu)
-        {
-            [commandEncoder setVertexBuffer:m_VertexUniformBufferGpu offset:0 atIndex:vb.GetVertexStreams().size()];
-        }
-
-        if (m_FragmentUniformsSize > 0 && !m_FragmentUniformBufferGpu)
-        {
-            m_FragmentUniformBufferGpu = [device newBufferWithLength:m_FragmentUniformsSize options:MTLResourceStorageModeManaged];
-        }
-
-        if (m_FragmentUniformsStale)
-        {
-            memcpy([m_FragmentUniformBufferGpu contents], m_FragmentUniformBufferCpu, m_FragmentUniformsSize);
-            [m_FragmentUniformBufferGpu didModifyRange:NSMakeRange(0, [m_FragmentUniformBufferGpu length]) ];
-            m_FragmentUniformsStale = false;
-        }
-        if (m_FragmentUniformBufferGpu)
-        {
-            [commandEncoder setFragmentBuffer:m_FragmentUniformBufferGpu offset:0 atIndex:0];
-        }
     }
 
     void Material::CreatePlatformResources(const render::VertexBuffer& vb)
     {
+        PROFILE_SCOPE("Material::CreatePlatformResources")
         asset::shader::ast::ShaderCompileContext context = {
             nullptr, nullptr, nullptr, asset::shader::ast::NameGenerator::GetName(), {}, {}
         };
@@ -97,6 +63,11 @@ namespace se::render::metal
         {
             return;
         }
+
+        m_VertUniforms = context.vertShader->GetUniformVariables();
+        m_FragUniforms = context.fragShader->GetUniformVariables();
+
+        SPARK_ASSERT(!m_VertUniforms.empty());
 
         auto device = Renderer::Get<metal::MetalRenderer>()->GetDevice();
 
@@ -147,38 +118,6 @@ namespace se::render::metal
         [vertLibrary release];
         [fragLibrary release];
 
-        for (const auto& [name, uniform] : context.vertShader->GetUniformVariables())
-        {
-            if (!m_VertexUniformOffsets.contains(name))
-            {
-                m_VertexUniformOffsets[name] = m_VertexUniformsSize;
-                auto varSize = asset::shader::ast::TypeUtil::GetTypePaddedSize(uniform.type);
-                if (uniform.arraySizeConstant > 0)
-                {
-                    varSize *= uniform.arraySizeConstant;
-                }
-
-                m_VertexUniformsSize += varSize;
-            }
-        }
-        m_VertexUniformBufferCpu = static_cast<uint8_t*>(malloc(m_VertexUniformsSize));
-
-        for (const auto& [name, uniform] : context.fragShader->GetUniformVariables())
-        {
-            if (!m_FragmentUniformOffsets.contains(name))
-            {
-                m_FragmentUniformOffsets[name] = m_FragmentUniformsSize;
-                auto varSize = asset::shader::ast::TypeUtil::GetTypePaddedSize(uniform.type);
-                if (uniform.arraySizeConstant > 0)
-                {
-                    varSize *= uniform.arraySizeConstant;
-                }
-
-                m_FragmentUniformsSize += varSize;
-            }
-        }
-        m_FragmentUniformBufferCpu = static_cast<uint8_t*>(malloc(m_FragmentUniformsSize));
-
         render::Material::CreatePlatformResources(vb);
     }
 
@@ -186,87 +125,7 @@ namespace se::render::metal
     {
         [m_RenderPipelineState release];
         m_RenderPipelineState = nullptr;
-        delete m_VertexUniformBufferCpu;
-        m_VertexUniformBufferCpu = nullptr;
-        delete m_FragmentUniformBufferCpu;
-        m_FragmentUniformBufferCpu = nullptr;
-        [m_VertexUniformBufferGpu release];
-        [m_FragmentUniformBufferGpu release];
         render::Material::DestroyPlatformResources();
-    }
-
-    void Material::SetUniformInternal(const std::string& name, asset::shader::ast::AstType::Type type, int count,
-                                      const void* value)
-    {
-        if (!m_PlatformResourcesCreated)
-        {
-            return;
-        }
-
-        switch (type)
-        {
-        case asset::shader::ast::AstType::Sampler2D:
-        {
-            SPARK_ASSERT(count == 1, "Setting arrays of texture uniforms not supported.");
-            const auto& texture = *reinterpret_cast<const std::shared_ptr<asset::Texture>*>(value);
-            const auto& platformResource = texture->GetPlatformResource();
-            auto it = std::ranges::find_if(m_Textures, [name](const auto& kvp){ return kvp.first == name; });
-            if (it != m_Textures.end())
-            {
-                it->second = platformResource;
-            }
-            else
-            {
-                m_Textures.push_back(std::make_pair(name, platformResource));
-            }
-            break;
-        }
-        case asset::shader::ast::AstType::Invalid:
-        {
-            debug::Log::Error("Material::SetUniform - Unhandled uniform type {}", asset::shader::ast::TypeUtil::TypeToMtl(type));
-            break;
-        }
-        default:
-        {
-            if (m_VertexUniformOffsets.contains(name))
-            {
-                for (int i = 0; i < count; ++i)
-                {
-                    size_t typeSize = asset::shader::ast::TypeUtil::GetTypeSize(type);
-                    size_t paddedSize = asset::shader::ast::TypeUtil::GetTypePaddedSize(type);
-                    size_t padding = paddedSize - typeSize;
-                    size_t offset = m_VertexUniformOffsets[name] + paddedSize * i;
-                    memcpy(m_VertexUniformBufferCpu + offset, (uint8_t*)value + typeSize * i, asset::shader::ast::TypeUtil::GetTypeSize(type));
-                    if (padding > 0)
-                    {
-                        memset(m_VertexUniformBufferCpu + offset + typeSize, 0, padding);
-                    }
-                }
-
-                m_VertexUniformsStale = true;
-            }
-            if (m_FragmentUniformOffsets.contains(name))
-            {
-                for (int i = 0; i < count; ++i)
-                {
-
-                    size_t typeSize = asset::shader::ast::TypeUtil::GetTypeSize(type);
-                    size_t paddedSize = asset::shader::ast::TypeUtil::GetTypePaddedSize(type);
-                    size_t padding = paddedSize - typeSize;
-                    size_t offset = m_FragmentUniformOffsets[name] + paddedSize * i;
-                    memcpy(m_FragmentUniformBufferCpu + offset, (uint8_t*)value + typeSize * i, asset::shader::ast::TypeUtil::GetTypeSize(type));
-                    if (padding > 0)
-                    {
-                        memset(m_FragmentUniformBufferCpu + offset + typeSize, 0, padding);
-                    }
-                }
-
-                m_FragmentUniformsStale = true;
-            }
-
-            break;
-        }
-        }
     }
 
     void Material::ApplyDepthStencil(DepthCompare::Type, StencilFunc::Type, uint32_t, uint32_t)

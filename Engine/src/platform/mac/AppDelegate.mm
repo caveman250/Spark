@@ -7,6 +7,8 @@
 
 - (void) drawInMTKView:(MTKView *)view
 {
+    PROFILE_BEGIN_FRAME()
+    PROFILE_BEGIN_THREAD()
     se::PlatformRunLoop::Get()->Update();
 }
 

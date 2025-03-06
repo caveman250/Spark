@@ -1,6 +1,5 @@
 #include "UniformStorage.h"
-
-#include "Material.h"
+#include "MaterialInstance.h"
 
 namespace se
 {
@@ -10,9 +9,10 @@ namespace se
         {
             delete value;
         }
+        m_Storage.clear();
     }
 
-    void render::UniformStorage::Apply(Material* material)
+    void render::UniformStorage::Apply(MaterialInstance* material)
     {
         for (const auto& [name, value] : m_Storage)
         {

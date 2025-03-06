@@ -18,25 +18,10 @@ namespace se::render::metal
         void DestroyPlatformResources() override;
 
     private:
-        void SetUniformInternal(const std::string& name, asset::shader::ast::AstType::Type type, int count, const void* value) override;
         void ApplyDepthStencil(DepthCompare::Type comp, StencilFunc::Type src, uint32_t writeMask, uint32_t readMask) override;
         void ApplyBlendMode(BlendMode::Type src, BlendMode::Type dest) override;
 
         RenderPipelineStatePtr m_RenderPipelineState = nullptr;
-        std::vector<std::pair<std::string, std::shared_ptr<render::TextureResource>>> m_Textures;
-
-        bool m_VertexUniformsStale = false;
-        size_t m_VertexUniformsSize = 0;
-        std::unordered_map<std::string, size_t> m_VertexUniformOffsets;
-        uint8_t* m_VertexUniformBufferCpu = nullptr;
-        MTLBufferPtr m_VertexUniformBufferGpu = nullptr;
-
-        bool m_FragmentUniformsStale = false;
-        size_t m_FragmentUniformsSize = 0;
-        std::unordered_map<std::string, size_t> m_FragmentUniformOffsets;
-        uint8_t* m_FragmentUniformBufferCpu = nullptr;
-        MTLBufferPtr m_FragmentUniformBufferGpu = nullptr;
-
         MTLDepthStencilStatePtr m_DepthStencilState = nullptr;
     };
 }
