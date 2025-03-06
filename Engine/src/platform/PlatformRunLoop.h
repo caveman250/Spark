@@ -8,7 +8,7 @@ namespace se
     class PlatformRunLoop
     {
     public:
-        static PlatformRunLoop* CreatePlatformRunloop(std::vector<IWindow*> windows);
+        static PlatformRunLoop* CreatePlatformRunloop();
         static PlatformRunLoop* Get();
 
         virtual ~PlatformRunLoop() {}
@@ -17,10 +17,9 @@ namespace se
         virtual void Shutdown();
         virtual void Update();
         virtual bool ShouldExit() = 0;
-        virtual void RegisterWindow(IWindow* window) = 0;
-        virtual void UnregisterWindow(IWindow* window) = 0;
 
     protected:
         static PlatformRunLoop* s_Instance;
+        IWindow* m_Window;
     };
 }

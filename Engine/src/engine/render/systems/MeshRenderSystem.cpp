@@ -37,16 +37,14 @@ namespace se::render::systems
 
     void MeshRenderSystem::OnRender(const std::vector<ecs::Id>& entities, TransformComponent*, const MeshComponent* mesh, camera::ActiveCameraComponent*)
     {
-        auto app = Application::Get();
         auto renderer = render::Renderer::Get<render::Renderer>();
-        auto window = app->GetPrimaryWindow();
 
         for (size_t i = 0; i < entities.size(); ++i)
         {
             const auto& meshComp = mesh[i];
             if (meshComp.materialInstance && meshComp.vertBuffer && meshComp.indexBuffer)
             {
-                renderer->Submit<render::commands::SubmitGeo>(window, meshComp.materialInstance, meshComp.vertBuffer, meshComp.indexBuffer);
+                renderer->Submit<render::commands::SubmitGeo>(meshComp.materialInstance, meshComp.vertBuffer, meshComp.indexBuffer);
             }
         }
     }

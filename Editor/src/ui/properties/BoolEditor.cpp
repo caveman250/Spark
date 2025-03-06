@@ -46,7 +46,7 @@ namespace se::editor::ui::properties
         static std::shared_ptr<render::Material> material = nullptr;
         if (!material)
         {
-            material = render::Material::CreateMaterial({vert}, {frag}); // TODO
+            material = render::Material::CreateMaterial({vert}, {frag});
             render::RenderState rs;
             rs.srcBlend = render::BlendMode::SrcAlpha;
             rs.dstBlend = render::BlendMode::OneMinusSrcAlpha;

@@ -8,14 +8,11 @@ namespace se::windows
     class WindowsRunLoop : public PlatformRunLoop
     {
     public:
-        WindowsRunLoop(std::vector<IWindow*> windows);
+        WindowsRunLoop();
         void Run() override;
         void Update() override;
         bool ShouldExit() override;
-        void RegisterWindow(IWindow *window) override;
-        void UnregisterWindow(IWindow *window) override;
     private:
-        std::vector<Window*> m_Windows;
         bool m_ShouldExit = false;
     };
 }

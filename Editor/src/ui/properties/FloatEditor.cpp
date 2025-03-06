@@ -44,7 +44,7 @@ namespace se::editor::ui::properties
         static std::shared_ptr<render::Material> material = nullptr;
         if (!material)
         {
-            material = render::Material::CreateMaterial({vert}, {frag}); // TODO
+            material = render::Material::CreateMaterial({vert}, {frag});
             material->GetShaderSettings().SetSetting("color_setting", math::Vec3(0.6f, 0.6f, 0.6f));
         }
         image->materialInstance = render::MaterialInstance::CreateMaterialInstance(material);

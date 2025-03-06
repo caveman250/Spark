@@ -21,13 +21,7 @@ namespace se
 {
     IWindow* IWindow::CreatePlatformWindow(int resX, int resY)
     {
-        auto* window = new windows::Window(resX, resY);
-        if (auto runLoop = PlatformRunLoop::Get())
-        {
-            runLoop->RegisterWindow(window);
-        }
-
-        return window;
+        return new windows::Window(resX, resY);;
     }
 }
 
@@ -54,7 +48,8 @@ namespace se::windows
         s_WindowInstances[GetHWND()] = this;
         CreateContext();
 
-        SetCurrent();
+        wglMakeCurrent(m_Hdc, m_Gglrc);
+
         ShowWindow(m_Hwnd, SW_NORMAL);
         UpdateWindow(m_Hwnd);
     }
@@ -62,11 +57,6 @@ namespace se::windows
     Window::~Window()
     {
         PlatformRunLoop::Get()->UnregisterWindow(this);
-    }
-
-    void Window::SetCurrent()
-    {
-        wglMakeCurrent(m_Hdc, m_Gglrc);
     }
 
     static LRESULT CALLBACK wndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)

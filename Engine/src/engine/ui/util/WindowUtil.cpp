@@ -35,7 +35,7 @@ namespace se::ui::util
 
             auto vert = assetManager->GetAsset<asset::Shader>("/builtin_assets/shaders/ui.sass");
             auto frag = assetManager->GetAsset<asset::Shader>("/builtin_assets/shaders/flat_color.sass");
-            static std::shared_ptr<render::Material> material = nullptr; // TODO
+            static std::shared_ptr<render::Material> material = nullptr;
             if (!material)
             {
                 material = render::Material::CreateMaterial({vert}, {frag});

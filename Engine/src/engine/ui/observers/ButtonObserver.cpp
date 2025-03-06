@@ -20,7 +20,7 @@ namespace se::ui::observers
 
             auto vert = assetManager->GetAsset<asset::Shader>("/builtin_assets/shaders/ui.sass");
             auto frag = assetManager->GetAsset<asset::Shader>("/builtin_assets/shaders/diffuse_texture.sass");
-            static auto material = render::Material::CreateMaterial({vert}, {frag}); // TODO
+            static auto material = render::Material::CreateMaterial({vert}, {frag});
 
             image->materialInstance = render::MaterialInstance::CreateMaterialInstance(material);
             image->materialInstance->SetUniform("Texture", asset::shader::ast::AstType::Sampler2D, 1, &component->image);

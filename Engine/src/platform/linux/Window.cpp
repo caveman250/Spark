@@ -8,13 +8,7 @@ namespace se
 {
     IWindow* IWindow::CreatePlatformWindow(int resX, int resY)
     {
-        auto* window = new linux::Window(resX, resY);
-        if (auto runLoop = Application::Get()->GetRunLoop())
-        {
-            runLoop->RegisterWindow(window);
-        }
-
-        return window;
+        return new linux::Window(resX, resY);;
     }
 }
 

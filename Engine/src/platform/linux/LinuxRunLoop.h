@@ -11,14 +11,11 @@ namespace se::linux
     class LinuxRunLoop : public PlatformRunLoop
     {
     public:
-        LinuxRunLoop(std::vector<IWindow*> windows);
+        LinuxRunLoop();
         void Update() override;
         void Run() override;
         bool ShouldExit() override;
-        void RegisterWindow(IWindow *window) override;
-        void UnregisterWindow(IWindow *window) override;
     private:
-        std::unordered_map<uint32_t, Window*> m_Windows;
         bool m_ShouldExit = false;
     };
 }

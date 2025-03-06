@@ -6,11 +6,6 @@
 #include "RenderState.h"
 #include "spark.h"
 
-namespace se
-{
-    class IWindow;
-}
-
 namespace se::render
 {
     template<typename T>
@@ -39,8 +34,8 @@ namespace se::render
         T* AllocRenderCommand(Args&&... args);
 
         template <ARenderCommand T, typename... Args>
-        void Submit(IWindow* window, Args&&... args);
-        void Submit(IWindow* window, commands::RenderCommand* renderCommand);
+        void Submit(Args&&... args);
+        void Submit(commands::RenderCommand* renderCommand);
         const RenderState& GetCachedRenderState() const { return m_CachedRenderState; }
         const Material* GetBoundMaterial() const { return m_BoundMaterial; }
         void SetBoundMaterial(Material* material) { m_BoundMaterial = material; }
@@ -51,13 +46,13 @@ namespace se::render
 
         void Update();
 
-        virtual void Render(IWindow* window);
+        virtual void Render();
         virtual void EndFrame();
     protected:
-        void SortDrawCommands(IWindow* window);
-        void ExecuteDrawCommands(IWindow* window);
+        void SortDrawCommands();
+        void ExecuteDrawCommands();
 
-        std::unordered_map<IWindow*, std::vector<commands::RenderCommand*>> m_RenderCommands;
+        std::vector<commands::RenderCommand*> m_RenderCommands;
 
         memory::Arena m_RenderCommandsArena;
 
@@ -75,9 +70,9 @@ namespace se::render
     }
 
     template<ARenderCommand T, typename... Args>
-    void Renderer::Submit(IWindow* window, Args&&... args)
+    void Renderer::Submit(Args&&... args)
     {
-        Submit(window, AllocRenderCommand<T>(std::forward<Args>(args)...));
+        Submit(AllocRenderCommand<T>(std::forward<Args>(args)...));
     }
 
     template <typename T>

@@ -11,21 +11,17 @@ namespace se
 {
     PlatformRunLoop* PlatformRunLoop::s_Instance = nullptr;
 
-    PlatformRunLoop* PlatformRunLoop::CreatePlatformRunloop(std::vector<IWindow*> windows)
+    PlatformRunLoop* PlatformRunLoop::CreatePlatformRunloop()
     {
-        s_Instance = new linux::LinuxRunLoop(windows);
+        s_Instance = new linux::LinuxRunLoop();
         return s_Instance;
     }
 }
 
 namespace se::linux
 {
-    LinuxRunLoop::LinuxRunLoop(std::vector<IWindow*> windows)
+    LinuxRunLoop::LinuxRunLoop()
     {
-        std::ranges::for_each(windows, [this](IWindow* window)
-        {
-            RegisterWindow(window);
-        });
     }
 
     void LinuxRunLoop::Run()
@@ -123,20 +119,16 @@ namespace se::linux
                             window->OnClose();
                             break;
                         default:
-                            break; //TODO
+                            break;
                     }
                     break;
             }
         }
 
-        auto safeCopy = m_Windows;
-        for (const auto& [id, window]: safeCopy)
+        if (m_Window->ShouldClose())
         {
-            if (window->ShouldClose())
-            {
-                window->Cleanup();
-                delete window;
-            }
+            m_Window->Cleanup();
+            delete m_Window;
         }
 
         if (ShouldExit())
@@ -146,12 +138,8 @@ namespace se::linux
 
         PlatformRunLoop::Update();
 
-        for (const auto& [id, window]: m_Windows)
-        {
-            window->SetCurrent();
-            render::Renderer::Get()->Render(window);
-            SDL_GL_SwapWindow(window->GetSDLWindow());
-        }
+        render::Renderer::Get()->Render();
+        SDL_GL_SwapWindow(m_Window->GetSDLWindow());
 
         render::Renderer::Get()->EndFrame();
 
@@ -161,27 +149,5 @@ namespace se::linux
     bool LinuxRunLoop::ShouldExit()
     {
         return m_ShouldExit;
-    }
-
-    void LinuxRunLoop::RegisterWindow(IWindow* window)
-    {
-        Window* platformWindow = dynamic_cast<Window*>(window);
-        SPARK_ASSERT(platformWindow);
-        SPARK_ASSERT(platformWindow->GetSDLWindow());
-        uint32_t id = SDL_GetWindowID(platformWindow->GetSDLWindow());
-        m_Windows[id] = platformWindow;
-    }
-
-    void LinuxRunLoop::UnregisterWindow(IWindow* window)
-    {
-        Window* platformWindow = dynamic_cast<Window*>(window);
-        SPARK_ASSERT(platformWindow);
-        SPARK_ASSERT(platformWindow->GetSDLWindow());
-        uint32_t id = SDL_GetWindowID(platformWindow->GetSDLWindow());
-        m_Windows.erase(id);
-        if (m_Windows.empty() || window == Application::Get()->GetPrimaryWindow())
-        {
-            m_ShouldExit = true;
-        }
     }
 }

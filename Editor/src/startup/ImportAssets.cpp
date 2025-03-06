@@ -21,8 +21,6 @@ namespace se::editor::startup
             {
                 auto meta = asset::meta::MetaData::GetMetaDataForAsset(path);
 
-                // todo meta options go here
-
                 std::string outputPathBase = path;
                 outputPathBase.replace(0, dir.length(), outputDir);
                 auto extensionIt = outputPathBase.find_last_of(".");

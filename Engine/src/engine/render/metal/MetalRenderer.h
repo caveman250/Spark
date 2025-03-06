@@ -14,7 +14,7 @@ namespace se::render::metal
         ~MetalRenderer() override;
         RenderAPI::Type GetRenderAPIType() const override { return RenderAPI::Metal; }
         void Init() override;
-        void Render(IWindow* window) override;
+        void Render() override;
 
         MTLDevicePtr GetDevice() const { return device; }
         MTLRenderCommandEncoderPtr GetCurrentCommandEncoder() const { return currentCommandEncoder; }

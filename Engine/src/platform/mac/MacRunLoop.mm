@@ -13,23 +13,15 @@ namespace se
 {
     PlatformRunLoop* PlatformRunLoop::s_Instance = nullptr;
 
-    PlatformRunLoop* PlatformRunLoop::CreatePlatformRunloop(std::vector<IWindow*> windows)
+    PlatformRunLoop* PlatformRunLoop::CreatePlatformRunloop()
     {
-        s_Instance = new mac::MacRunLoop(windows);
+        s_Instance = new mac::MacRunLoop();
         return s_Instance;
     }
 }
 
 namespace se::mac
 {
-    MacRunLoop::MacRunLoop(std::vector<IWindow*> windows)
-    {
-        std::ranges::for_each(windows, [this](IWindow* window)
-        {
-            RegisterWindow(window);
-        });
-    }
-
     void MacRunLoop::Run()
     {
         @autoreleasepool {
@@ -46,14 +38,10 @@ namespace se::mac
     {
         PROFILE_SCOPE("MacRunLoop::Update")
 
-        auto safeCopy = m_Windows;
-        for (const auto& window: safeCopy)
+        if (m_Window->ShouldClose())
         {
-            if (window->ShouldClose())
-            {
-                window->Cleanup();
-                delete window;
-            }
+            m_Window->Cleanup();
+            delete m_Window;
         }
 
         if (ShouldExit())
@@ -64,11 +52,7 @@ namespace se::mac
         PlatformRunLoop::Update();
 
         render::Renderer* renderer = render::Renderer::Get<render::Renderer>();
-        for (const auto& window: m_Windows)
-        {
-            window->SetCurrent();
-            renderer->Render(window);
-        }
+        renderer->Render();
 
         renderer->EndFrame();
     }
@@ -81,21 +65,5 @@ namespace se::mac
     bool MacRunLoop::ShouldExit()
     {
         return m_ShouldExit;
-    }
-
-    void MacRunLoop::RegisterWindow(IWindow* window)
-    {
-        Window* platformWindow = dynamic_cast<Window*>(window);
-        SPARK_ASSERT(platformWindow);
-        m_Windows.push_back(platformWindow);
-    }
-
-    void MacRunLoop::UnregisterWindow(IWindow* window)
-    {
-        std::erase(m_Windows, window);
-        if (m_Windows.empty() || window == Application::Get()->GetPrimaryWindow())
-        {
-            m_ShouldExit = true;
-        }
     }
 }

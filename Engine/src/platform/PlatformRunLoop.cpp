@@ -17,10 +17,12 @@ namespace se
         return s_Instance;
     }
 
+
     void PlatformRunLoop::Init()
     {
         auto app = Application::Get();
         app->Init();
+        m_Window = Application::Get()->GetPrimaryWindow();
     }
 
     void PlatformRunLoop::Shutdown()
@@ -34,7 +36,6 @@ namespace se
         PROFILE_SCOPE("PlatformRunLoop::Update")
         Application* app = Application::Get();
 
-        app->GetPrimaryWindow()->SetCurrent();
         render::Renderer::Get<render::Renderer>()->Update();
         app->Update();
         app->Render();
