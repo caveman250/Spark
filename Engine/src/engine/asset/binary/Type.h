@@ -14,6 +14,7 @@ namespace se::asset::binary
         Int64,
         Uint64,
         Float,
+        Double,
         Vec2,
         Vec3,
         Vec4,

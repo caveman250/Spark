@@ -20,8 +20,10 @@ namespace se::ui::observers
 
             auto vert = assetManager->GetAsset<asset::Shader>("/builtin_assets/shaders/ui.sass");
             auto frag = assetManager->GetAsset<asset::Shader>("/builtin_assets/shaders/diffuse_texture.sass");
-            image->material = render::Material::CreateMaterial({vert}, {frag});
-            image->material->SetUniform("Texture", asset::shader::ast::AstType::Sampler2D, 1, &component->image);
+            static auto material = render::Material::CreateMaterial({vert}, {frag}); // TODO
+
+            image->materialInstance = render::MaterialInstance::CreateMaterialInstance(material);
+            image->materialInstance->SetUniform("Texture", asset::shader::ast::AstType::Sampler2D, 1, &component->image);
         }
 
         if (!world->HasComponent<ui::components::ReceivesMouseEventsComponent>(entity))

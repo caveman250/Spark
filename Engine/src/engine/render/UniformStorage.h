@@ -5,7 +5,7 @@
 
 namespace se::render
 {
-    class Material;
+    class MaterialInstance;
 }
 
 namespace se::render
@@ -36,7 +36,7 @@ namespace se::render
 
         template <typename T>
         void SetValue(const std::string& name, asset::shader::ast::AstType::Type type, int count, const T* value);
-        void Apply(Material* material);
+        void Apply(MaterialInstance* material);
         bool IsStale() const { return m_Stale; }
     private:
         std::map<std::string, UniformValueBase*> m_Storage;

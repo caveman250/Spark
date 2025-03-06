@@ -7,7 +7,7 @@
 namespace se::reflect
 {
     template<typename T>
-    std::shared_ptr<asset::binary::Database> SerialiseType(void* obj)
+    std::shared_ptr<asset::binary::Database> SerialiseType(const void* obj)
     {
         const Type* reflect = TypeResolver<T>::get();
         auto db = asset::binary::Database::Create(false);

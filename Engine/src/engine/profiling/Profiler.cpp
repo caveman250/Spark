@@ -1,9 +1,32 @@
 #include "Profiler.h"
-
 #include "engine/threads/SpinLockGuard.h"
+#include "engine/reflect/Util.h"
+#include "engine/io/VFS.h"
 
 namespace se::profiling
 {
+    DEFINE_SPARK_CLASS_BEGIN(ProfileRecord)
+        DEFINE_SERIALIZED_MEMBER(name)
+        DEFINE_SERIALIZED_MEMBER(duration)
+        DEFINE_SERIALIZED_MEMBER(startTime)
+        DEFINE_SERIALIZED_MEMBER(endTime)
+        DEFINE_SERIALIZED_MEMBER(children)
+    DEFINE_SPARK_CLASS_END(ProfileRecord)
+
+    DEFINE_SPARK_CLASS_BEGIN(ThreadRecord)
+        DEFINE_SERIALIZED_MEMBER(duration)
+        DEFINE_SERIALIZED_MEMBER(startTime)
+        DEFINE_SERIALIZED_MEMBER(endTime)
+        DEFINE_SERIALIZED_MEMBER(profileRecords)
+    DEFINE_SPARK_CLASS_END(ThreadRecord)
+
+    DEFINE_SPARK_CLASS_BEGIN(FrameRecord)
+        DEFINE_SERIALIZED_MEMBER(duration)
+        DEFINE_SERIALIZED_MEMBER(startTime)
+        DEFINE_SERIALIZED_MEMBER(endTime)
+        DEFINE_SERIALIZED_MEMBER(threadRecords)
+    DEFINE_SPARK_CLASS_END(FrameRecord)
+
     Profiler * Profiler::Get()
     {
         static Profiler* s_Profiler = new Profiler();
@@ -40,11 +63,13 @@ namespace se::profiling
     {
         threads::SpinLockGuard guard(m_ThreadRecordsLock);
         auto& record = m_FrameRecords.back();
-        if (!record.threadRecords.contains(threadId))
+        size_t threadHash = std::hash<std::thread::id>{}(threadId);
+        if (!record.threadRecords.contains(threadHash))
         {
-            record.threadRecords.insert(std::make_pair(threadId, ThreadRecord()));
-            record.threadRecords.at(threadId).startTime = std::chrono::high_resolution_clock::now().time_since_epoch().count() - m_StartTime;
-            record.threadRecords.at(threadId).profileRecords.reserve(1024);
+            ThreadRecord threadRecord;
+            threadRecord.startTime = std::chrono::high_resolution_clock::now().time_since_epoch().count() - m_StartTime;
+            threadRecord.profileRecords.reserve(1024);
+            record.threadRecords.insert(std::make_pair(threadHash, threadRecord));
         }
 
         if (!m_ScopeStack.contains(threadId))
@@ -63,7 +88,7 @@ namespace se::profiling
         record.startTime = std::chrono::high_resolution_clock::now().time_since_epoch().count() - m_StartTime;
         if (scopeStack.empty())
         {
-            auto& threadRecord = m_FrameRecords.back().threadRecords.at(std::this_thread::get_id());
+            auto& threadRecord = m_FrameRecords.back().threadRecords.at(std::hash<std::thread::id>{}(std::this_thread::get_id()));
             threadRecord.profileRecords.push_back(record);
             scopeStack.push_back(&threadRecord.profileRecords.back());
         }

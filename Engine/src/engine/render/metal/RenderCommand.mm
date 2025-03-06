@@ -7,7 +7,7 @@
 
 #include "engine/render/RenderCommand.h"
 #include "engine/Application.h"
-#include "engine/render/Material.h"
+#include "engine/render/MaterialInstance.h"
 #include "engine/render/VertexBuffer.h"
 #import "engine/render/metal/MetalRenderer.h"
 #import <Metal/Metal.h>
@@ -33,8 +33,8 @@ namespace se::render::commands
         // nothing to do here
     }
 
-    SubmitGeo::SubmitGeo(const std::shared_ptr<Material>& material, const std::shared_ptr<VertexBuffer>& vertBuffer, const std::shared_ptr<IndexBuffer>& indexBuffer)
-            : m_Material(material)
+    SubmitGeo::SubmitGeo(const std::shared_ptr<MaterialInstance>& materialInstance, const std::shared_ptr<VertexBuffer>& vertBuffer, const std::shared_ptr<IndexBuffer>& indexBuffer)
+            : m_MaterialInstance(materialInstance)
             , m_VertBuffer(vertBuffer)
             , m_IndexBuffer(indexBuffer)
     {
@@ -43,7 +43,7 @@ namespace se::render::commands
 
     void SubmitGeo::Execute()
     {
-        m_Material->Bind(*m_VertBuffer);
+        m_MaterialInstance->Bind(*m_VertBuffer);
         m_VertBuffer->Bind();
 
         id<MTLRenderCommandEncoder> commandEncoder = static_cast<id<MTLRenderCommandEncoder>>(Renderer::Get<metal::MetalRenderer>()->GetCurrentCommandEncoder());
@@ -56,9 +56,9 @@ namespace se::render::commands
                                    instanceCount:1];
     }
 
-    SubmitUI::SubmitUI(const std::shared_ptr<Material> &material, const std::shared_ptr<VertexBuffer> &vertBuffer,
+    SubmitUI::SubmitUI(const std::shared_ptr<MaterialInstance>& materialInstance, const std::shared_ptr<VertexBuffer> &vertBuffer,
                        const std::shared_ptr<IndexBuffer> &indexBuffer)
-            : m_Material(material)
+            : m_MaterialInstance(materialInstance)
             , m_VertBuffer(vertBuffer)
             , m_IndexBuffer(indexBuffer)
     {
@@ -67,7 +67,7 @@ namespace se::render::commands
 
     void SubmitUI::Execute()
     {
-        m_Material->Bind(*m_VertBuffer);
+        m_MaterialInstance->Bind(*m_VertBuffer);
         m_VertBuffer->Bind();
 
         id<MTLRenderCommandEncoder> commandEncoder = static_cast<id<MTLRenderCommandEncoder>>(Renderer::Get<metal::MetalRenderer>()->GetCurrentCommandEncoder());

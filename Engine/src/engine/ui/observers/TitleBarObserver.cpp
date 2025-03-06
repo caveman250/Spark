@@ -9,6 +9,7 @@
 #include "engine/ui/components/ReceivesMouseEventsComponent.h"
 #include "engine/ui/components/TitleBarComponent.h"
 #include "engine/ui/components/WidgetComponent.h"
+#include "engine/render/MaterialInstance.h"
 
 namespace se::ui::observers
 {
@@ -24,8 +25,13 @@ namespace se::ui::observers
 
             auto vert = assetManager->GetAsset<asset::Shader>("/builtin_assets/shaders/ui.sass");
             auto frag = assetManager->GetAsset<asset::Shader>("/builtin_assets/shaders/flat_color.sass");
-            image->material = render::Material::CreateMaterial({vert}, {frag});
-            image->material->GetShaderSettings().SetSetting("color_setting", math::Vec3(0.2f, 0.2f, 0.2f));
+            static std::shared_ptr<render::Material> material = nullptr;
+            if (!material)
+            {
+                material = render::Material::CreateMaterial({vert}, {frag}); // TODO
+                material->GetShaderSettings().SetSetting("color_setting", math::Vec3(0.2f, 0.2f, 0.2f));
+            }
+            image->materialInstance = se::render::MaterialInstance::CreateMaterialInstance(material);
         }
 
         if (!world->HasComponent<ui::components::WidgetComponent>(entity))

@@ -35,8 +35,14 @@ namespace se::ui::util
 
             auto vert = assetManager->GetAsset<asset::Shader>("/builtin_assets/shaders/ui.sass");
             auto frag = assetManager->GetAsset<asset::Shader>("/builtin_assets/shaders/flat_color.sass");
-            image->material = render::Material::CreateMaterial({vert}, {frag});
-            image->material->GetShaderSettings().SetSetting("color_setting", math::Vec3(0.3f, 0.3f, 0.3f));
+            static std::shared_ptr<render::Material> material = nullptr; // TODO
+            if (!material)
+            {
+                material = render::Material::CreateMaterial({vert}, {frag});
+                material->GetShaderSettings().SetSetting("color_setting", math::Vec3(0.3f, 0.3f, 0.3f));
+            }
+
+            image->materialInstance = render::MaterialInstance::CreateMaterialInstance(material);
         }
 
         if (!world->HasComponent<components::ReceivesMouseEventsComponent>(entity))

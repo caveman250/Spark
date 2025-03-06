@@ -47,15 +47,15 @@ namespace se::ui::systems
 
             if (button.hovered && !button.lastHovered)
             {
-                image.material->SetUniform("Texture", asset::shader::ast::AstType::Sampler2D, 1, &button.hoveredImage);
+                image.materialInstance->SetUniform("Texture", asset::shader::ast::AstType::Sampler2D, 1, &button.hoveredImage);
             }
             else if (button.pressed && !button.lastPressed)
             {
-                image.material->SetUniform("Texture", asset::shader::ast::AstType::Sampler2D, 1, &button.pressedImage);
+                image.materialInstance->SetUniform("Texture", asset::shader::ast::AstType::Sampler2D, 1, &button.pressedImage);
             }
             else if (!button.pressed && !button.hovered && (button.lastPressed || button.lastHovered))
             {
-                image.material->SetUniform("Texture", asset::shader::ast::AstType::Sampler2D, 1, &button.image);
+                image.materialInstance->SetUniform("Texture", asset::shader::ast::AstType::Sampler2D, 1, &button.image);
             }
 
             if (button.pressed && !button.lastPressed)

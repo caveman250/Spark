@@ -1,10 +1,14 @@
 #pragma once
 #include "engine/threads/SpinLock.h"
+#include "spark.h"
+#include "engine/reflect/Reflect.h"
 
 namespace se::profiling
 {
-    struct ProfileRecord
+    struct ProfileRecord : reflect::ObjectBase
     {
+        DECLARE_SPARK_CLASS(ProfileRecord)
+
         ProfileRecord()
         {
             children.reserve(1024);
@@ -17,23 +21,27 @@ namespace se::profiling
         std::vector<ProfileRecord> children;
     };
 
-    struct ThreadRecord
+    struct ThreadRecord : reflect::ObjectBase
     {
+        DECLARE_SPARK_CLASS(ThreadRecord)
+
         double duration = {};
         int64_t startTime = {};
         int64_t endTime = {};
         std::vector<ProfileRecord> profileRecords = {};
     };
 
-    struct FrameRecord
+    struct FrameRecord : reflect::ObjectBase
     {
+        DECLARE_SPARK_CLASS(FrameRecord)
+
         double duration = {};
         int64_t startTime = {};
         int64_t endTime = {};
-        std::unordered_map<std::thread::id, ThreadRecord> threadRecords = {};
+        std::unordered_map<size_t, ThreadRecord> threadRecords = {};
     };
 
-    class Profiler 
+    class Profiler
     {
     public:
         static Profiler* Get();
@@ -63,7 +71,7 @@ namespace se::profiling
     };
 }
 
-#define ENABLE_PROFILING 0
+#define ENABLE_PROFILING 1
 #if ENABLE_PROFILING
 #define PROFILE_SCOPE(name) auto SPARK_CAT(profileScope, __COUNTER__) = se::profiling::ProfileScope(name);
 #define PROFILE_BEGIN_FRAME() se::profiling::Profiler::Get()->BeginFrame();

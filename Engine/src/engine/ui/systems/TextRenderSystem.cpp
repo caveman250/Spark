@@ -10,6 +10,7 @@
 #include "engine/render/Renderer.h"
 #include "engine/render/VertexBuffer.h"
 #include "engine/ui/util/MeshUtil.h"
+#include "engine/render/Material.h"
 #include "platform/IWindow.h"
 
 using namespace se;
@@ -44,23 +45,29 @@ namespace se::ui::systems
 
             const auto& transform = transformComps[i];
             auto& text = textComps[i];
-            if (!text.material)
+            if (!text.materialInstance)
             {
                 auto vert = assetManager->GetAsset<asset::Shader>("/builtin_assets/shaders/ui.sass");
                 auto frag = assetManager->GetAsset<asset::Shader>("/builtin_assets/shaders/text.sass");
 
-                text.material = render::Material::CreateMaterial({vert}, {frag});
+                static std::shared_ptr<render::Material> textMaterial = nullptr;
+                if (!textMaterial)
+                {
+                    textMaterial = render::Material::CreateMaterial({vert}, {frag}); // TODO
 
-                render::RenderState rs;
-                rs.srcBlend = render::BlendMode::SrcAlpha;
-                rs.dstBlend = render::BlendMode::OneMinusSrcAlpha;
-                text.material->SetRenderState(rs);
+                    render::RenderState rs;
+                    rs.srcBlend = render::BlendMode::SrcAlpha;
+                    rs.dstBlend = render::BlendMode::OneMinusSrcAlpha;
+                    textMaterial->SetRenderState(rs);
+                }
+
+                text.materialInstance = render::MaterialInstance::CreateMaterialInstance(textMaterial);
             }
 
             if (transform.rect.topLeft != text.lastRect.topLeft)
             {
                 auto floatVec = math::Vec2(transform.rect.topLeft);
-                text.material->SetUniform("pos", asset::shader::ast::AstType::Vec2, 1, &floatVec);
+                text.materialInstance->SetUniform("pos", asset::shader::ast::AstType::Vec2, 1, &floatVec);
             }
 
             if (!text.vertBuffer ||
@@ -77,7 +84,7 @@ namespace se::ui::systems
                 if (text.lastFontSize != text.fontSize)
                 {
                     auto texture = text.font->GetTextureAsset(text.fontSize);
-                    text.material->SetUniform("Texture", asset::shader::ast::AstType::Sampler2D, 1, &texture);
+                    text.materialInstance->SetUniform("Texture", asset::shader::ast::AstType::Sampler2D, 1, &texture);
                 }
 
                 text.lastRect = transform.rect;
@@ -87,9 +94,9 @@ namespace se::ui::systems
 
             text.lastRect = transform.rect;
 
-            text.material->SetUniform("screenSize", asset::shader::ast::AstType::Vec2, 1, &windowsSize);
+            text.materialInstance->SetUniform("screenSize", asset::shader::ast::AstType::Vec2, 1, &windowsSize);
 
-            auto command = renderer->AllocRenderCommand<render::commands::SubmitUI>(text.material, text.vertBuffer, text.indexBuffer);
+            auto command = renderer->AllocRenderCommand<render::commands::SubmitUI>(text.materialInstance, text.vertBuffer, text.indexBuffer);
 
             SPARK_ASSERT(command->GetRenderStage() == render::commands::RenderStage::UI);
             renderComp->entityRenderCommands[entity].push_back(command);

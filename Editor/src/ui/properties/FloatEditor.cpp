@@ -6,6 +6,7 @@
 #include <engine/ui/components/RectTransformComponent.h>
 #include <engine/ui/components/TextComponent.h>
 #include <engine/ui/components/WidgetComponent.h>
+#include "engine/render/MaterialInstance.h"
 #include "engine/ui/util/MeshUtil.h"
 
 namespace se::editor::ui::properties
@@ -40,14 +41,24 @@ namespace se::editor::ui::properties
         auto image = world->AddComponent<ImageComponent>(bg);
         auto vert = assetManager->GetAsset<asset::Shader>("/builtin_assets/shaders/ui.sass");
         auto frag = assetManager->GetAsset<asset::Shader>("/builtin_assets/shaders/flat_color.sass");
-        image->material = render::Material::CreateMaterial({vert}, {frag});
-        image->material->GetShaderSettings().SetSetting("color_setting", math::Vec3(0.6f, 0.6f, 0.6f));
+        static std::shared_ptr<render::Material> material = nullptr;
+        if (!material)
+        {
+            material = render::Material::CreateMaterial({vert}, {frag}); // TODO
+            material->GetShaderSettings().SetSetting("color_setting", math::Vec3(0.6f, 0.6f, 0.6f));
+        }
+        image->materialInstance = render::MaterialInstance::CreateMaterialInstance(material);
         world->AddChild(m_WidgetId, bg);
 
         auto innerImageEntity = world->CreateEntity("Border", true);
         auto innerImage = world->AddComponent<ImageComponent>(innerImageEntity);
-        innerImage->material = render::Material::CreateMaterial({vert}, {frag});
-        innerImage->material->GetShaderSettings().SetSetting("color_setting", math::Vec3(0.2f, 0.2f, 0.2f));
+        static std::shared_ptr<render::Material> innerMaterial = nullptr;
+        if (!innerMaterial)
+        {
+            innerMaterial = render::Material::CreateMaterial({vert}, {frag});
+            innerMaterial->GetShaderSettings().SetSetting("color_setting", math::Vec3(0.2f, 0.2f, 0.2f));
+        }
+        innerImage->materialInstance = render::MaterialInstance::CreateMaterialInstance(innerMaterial);
         auto innerTransform = world->AddComponent<RectTransformComponent>(innerImageEntity);
         innerTransform->anchors = { .left = 0.f, .right = 1.f, .top = 0.f, .bottom = 1.f };
         innerTransform->minX = innerTransform->maxX = innerTransform->minY = innerTransform->maxY = 2;

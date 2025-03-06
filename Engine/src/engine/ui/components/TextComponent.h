@@ -6,7 +6,7 @@
 #include "engine/reflect/Reflect.h"
 #include "engine/render/VertexBuffer.h"
 #include "engine/render/IndexBuffer.h"
-#include "engine/render/Material.h"
+#include "engine/render/MaterialInstance.h"
 #include "engine/string/String.h"
 #include "engine/ui/Rect.h"
 
@@ -27,7 +27,7 @@ namespace se::ui::components
 
     private:
         // internal use
-        std::shared_ptr<render::Material> material = {};
+        std::shared_ptr<render::MaterialInstance> materialInstance = {};
         std::shared_ptr<render::VertexBuffer> vertBuffer = {};
         std::shared_ptr<render::IndexBuffer> indexBuffer = {};
         Rect lastRect = {};

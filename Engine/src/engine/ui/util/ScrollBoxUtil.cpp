@@ -5,6 +5,7 @@
 #include <engine/ui/components/ImageComponent.h>
 #include <engine/asset/shader/Shader.h>
 #include <engine/ui/components/RectTransformComponent.h>
+#include "engine/render/MaterialInstance.h"
 
 namespace se::ui::util
 {
@@ -22,8 +23,13 @@ namespace se::ui::util
         auto scrollBarImage = world->AddComponent<ui::components::ImageComponent>(scrollBarEntity);
         auto vert = assetManager->GetAsset<asset::Shader>("/builtin_assets/shaders/ui.sass");
         auto frag = assetManager->GetAsset<asset::Shader>("/builtin_assets/shaders/flat_color.sass");
-        scrollBarImage->material = render::Material::CreateMaterial({vert}, {frag});
-        scrollBarImage->material->GetShaderSettings().SetSetting("color_setting", math::Vec3(0.8f, 0.8f, 0.8f));
+        static std::shared_ptr<render::Material> material = nullptr;
+        if (!material)
+        {
+            material = render::Material::CreateMaterial({vert}, {frag}); // TODO
+            material->GetShaderSettings().SetSetting("color_setting", math::Vec3(0.8f, 0.8f, 0.8f));
+        }
+        scrollBarImage->materialInstance = render::MaterialInstance::CreateMaterialInstance(material);
         auto scrollBarRect = world->AddComponent<ui::components::RectTransformComponent>(scrollBarEntity);
         scrollBarRect->anchors = { 1.f, 1.f, 0.f, 0.f };
         scrollBarRect->minX = -10;

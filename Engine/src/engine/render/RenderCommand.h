@@ -5,7 +5,7 @@
 
 namespace se::render
 {
-    class Material;
+    class MaterialInstance;
     class VertexBuffer;
 }
 
@@ -47,12 +47,12 @@ namespace se::render::commands
     class SubmitGeo : public RenderCommand
     {
     public:
-        SubmitGeo(const std::shared_ptr<Material>& material, const std::shared_ptr<VertexBuffer>& vertBuffer, const std::shared_ptr<IndexBuffer>& indexBuffer);
+        SubmitGeo(const std::shared_ptr<MaterialInstance>& materialInstance, const std::shared_ptr<VertexBuffer>& vertBuffer, const std::shared_ptr<IndexBuffer>& indexBuffer);
         void Execute() override;
         RenderStage::Type GetRenderStage() const override { return RenderStage::Scene; }
 
     private:
-        std::shared_ptr<Material> m_Material = {};
+        std::shared_ptr<MaterialInstance> m_MaterialInstance = {};
         std::shared_ptr<VertexBuffer> m_VertBuffer = {};
         std::shared_ptr<IndexBuffer> m_IndexBuffer = {};
     };
@@ -60,12 +60,12 @@ namespace se::render::commands
     class SubmitUI : public RenderCommand
     {
     public:
-        SubmitUI(const std::shared_ptr<Material>& material, const std::shared_ptr<VertexBuffer>& vertBuffer, const std::shared_ptr<IndexBuffer>& indexBuffer);
+        SubmitUI(const std::shared_ptr<MaterialInstance>& materialInstance, const std::shared_ptr<VertexBuffer>& vertBuffer, const std::shared_ptr<IndexBuffer>& indexBuffer);
         void Execute() override;
         RenderStage::Type GetRenderStage() const override { return RenderStage::UI; }
 
     private:
-        std::shared_ptr<Material> m_Material = {};
+        std::shared_ptr<MaterialInstance> m_MaterialInstance = {};
         std::shared_ptr<VertexBuffer> m_VertBuffer = {};
         std::shared_ptr<IndexBuffer> m_IndexBuffer = {};
 

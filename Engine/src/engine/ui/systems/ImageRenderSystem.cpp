@@ -44,12 +44,12 @@ namespace se::ui::systems
             const auto& transform = transformComps[i];
             auto& image = imageComps[i];
 
-            if (SPARK_VERIFY(image.material))
+            if (SPARK_VERIFY(image.materialInstance))
             {
                 if (transform.rect.topLeft != image.lastRect.topLeft)
                 {
                     auto floatVec = math::Vec2(transform.rect.topLeft);
-                    image.material->SetUniform("pos", asset::shader::ast::AstType::Vec2, 1, &floatVec);
+                    image.materialInstance->SetUniform("pos", asset::shader::ast::AstType::Vec2, 1, &floatVec);
                 }
 
                 if (!image.vertBuffer || image.lastRect.size != transform.rect.size)
@@ -63,9 +63,9 @@ namespace se::ui::systems
 
                 image.lastRect = transform.rect;
 
-                image.material->SetUniform("screenSize", asset::shader::ast::AstType::Vec2, 1, &windowsSize);
+                image.materialInstance->SetUniform("screenSize", asset::shader::ast::AstType::Vec2, 1, &windowsSize);
 
-                auto command = renderer->AllocRenderCommand<render::commands::SubmitUI>(image.material, image.vertBuffer,
+                auto command = renderer->AllocRenderCommand<render::commands::SubmitUI>(image.materialInstance, image.vertBuffer,
                                                              image.indexBuffer);
                 renderComp->entityRenderCommands[entity].push_back(command);
             }

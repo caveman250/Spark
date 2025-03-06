@@ -16,6 +16,8 @@ namespace se::render
     template<typename T>
     concept ARenderCommand = std::is_base_of<commands::RenderCommand, T>::value;
 
+    class Material;
+
     DECLARE_SPARK_ENUM_BEGIN(RenderAPI, int)
         OpenGL,
         Metal
@@ -39,7 +41,9 @@ namespace se::render
         template <ARenderCommand T, typename... Args>
         void Submit(IWindow* window, Args&&... args);
         void Submit(IWindow* window, commands::RenderCommand* renderCommand);
-        bool ShouldApplyRenderState(const RenderState& rs) const;
+        const RenderState& GetCachedRenderState() const { return m_CachedRenderState; }
+        const Material* GetBoundMaterial() const { return m_BoundMaterial; }
+        void SetBoundMaterial(Material* material) { m_BoundMaterial = material; }
         void SetLastRenderState(const RenderState& rs);
 
         const LightSetup& GetLightSetup() const { return m_LightSetup; }
@@ -54,8 +58,11 @@ namespace se::render
         void ExecuteDrawCommands(IWindow* window);
 
         std::unordered_map<IWindow*, std::vector<commands::RenderCommand*>> m_RenderCommands;
-        RenderState m_CachedRenderState;
+
         memory::Arena m_RenderCommandsArena;
+
+        RenderState m_CachedRenderState;
+        Material* m_BoundMaterial;
         LightSetup m_LightSetup;
 
         static Renderer* s_Renderer;

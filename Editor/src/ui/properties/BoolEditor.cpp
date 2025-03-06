@@ -43,14 +43,21 @@ namespace se::editor::ui::properties
 
         m_Tickbox = world->CreateEntity("Border", true);
         auto innerImage = world->AddComponent<ImageComponent>(m_Tickbox);
-        innerImage->material = render::Material::CreateMaterial({vert}, {frag});
+        static std::shared_ptr<render::Material> material = nullptr;
+        if (!material)
+        {
+            material = render::Material::CreateMaterial({vert}, {frag}); // TODO
+            render::RenderState rs;
+            rs.srcBlend = render::BlendMode::SrcAlpha;
+            rs.dstBlend = render::BlendMode::OneMinusSrcAlpha;
+            material->SetRenderState(rs);
+        }
+
+        innerImage->materialInstance = render::MaterialInstance::CreateMaterialInstance(material);
         m_CheckedTexture = assetManager->GetAsset<asset::Texture>("/builtin_assets/textures/checkbox_checked.sass");
         m_UncheckedTexture = assetManager->GetAsset<asset::Texture>("/builtin_assets/textures/checkbox_unchecked.sass");
-        innerImage->material->SetUniform("Texture", asset::shader::ast::AstType::Sampler2D, 1, &m_UncheckedTexture);
-        render::RenderState rs;
-        rs.srcBlend = render::BlendMode::SrcAlpha;
-        rs.dstBlend = render::BlendMode::OneMinusSrcAlpha;
-        innerImage->material->SetRenderState(rs);
+        innerImage->materialInstance->SetUniform("Texture", asset::shader::ast::AstType::Sampler2D, 1, &m_UncheckedTexture);
+
         auto innerTransform = world->AddComponent<RectTransformComponent>(m_Tickbox);
         innerTransform->anchors = { .left = 0.f, .right = 1.f, .top = 0.f, .bottom = 1.f };
         innerTransform->minY = innerTransform->maxY = 2;
@@ -62,7 +69,7 @@ namespace se::editor::ui::properties
         if (m_Value && m_LastValue != *m_Value)
         {
             auto tick = Application::Get()->GetWorld()->GetComponent<ImageComponent>(m_Tickbox);
-            tick->material->SetUniform("Texture", asset::shader::ast::AstType::Sampler2D, 1,
+            tick->materialInstance->SetUniform("Texture", asset::shader::ast::AstType::Sampler2D, 1,
                 *m_Value == true ? &m_CheckedTexture : &m_UncheckedTexture);
             m_LastValue = *m_Value;
         }

@@ -33,11 +33,6 @@ namespace se::render
         delete s_Renderer;
     }
 
-    bool Renderer::ShouldApplyRenderState(const RenderState& rs) const
-    {
-        return rs != m_CachedRenderState;
-    }
-
     void Renderer::SetLastRenderState(const RenderState& rs)
     {
         m_CachedRenderState = rs;

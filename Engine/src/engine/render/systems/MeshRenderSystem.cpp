@@ -1,7 +1,7 @@
 #include "spark.h"
 
 #include "engine/math/Mat4.h"
-#include "engine/render/Material.h"
+#include "engine/render/MaterialInstance.h"
 #include "engine/asset/shader/ast/Types.h"
 #include "engine/ecs/components/MeshComponent.h"
 #include "engine/render/Renderer.h"
@@ -26,7 +26,7 @@ namespace se::render::systems
         camera->proj = math::Perspective(math::Radians(45.f), (float)app->GetPrimaryWindow()->GetWidth() / (float)app->GetPrimaryWindow()->GetHeight(),.1f, 100.f);
         for (size_t i = 0; i < entities.size(); ++i)
         {
-            if (const auto& material =  mesh[i].material)
+            if (const auto& material =  mesh[i].materialInstance)
             {
                 material->SetUniform("model", asset::shader::ast::AstType::Mat4, 1, &transform[i].worldTransform);
                 material->SetUniform("view", asset::shader::ast::AstType::Mat4, 1, &camera->view);
@@ -44,9 +44,9 @@ namespace se::render::systems
         for (size_t i = 0; i < entities.size(); ++i)
         {
             const auto& meshComp = mesh[i];
-            if (meshComp.material && meshComp.vertBuffer && meshComp.indexBuffer)
+            if (meshComp.materialInstance && meshComp.vertBuffer && meshComp.indexBuffer)
             {
-                renderer->Submit<render::commands::SubmitGeo>(window, meshComp.material, meshComp.vertBuffer, meshComp.indexBuffer);
+                renderer->Submit<render::commands::SubmitGeo>(window, meshComp.materialInstance, meshComp.vertBuffer, meshComp.indexBuffer);
             }
         }
     }
