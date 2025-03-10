@@ -24,13 +24,12 @@ namespace se::asset::shader::ast
         void ToGlsl(ShaderCompileContext& context, string::ArenaString& outShader) const override;
         void ToMtl(ShaderCompileContext& context, string::ArenaString& outShader) const override;
 
-        std::vector<std::shared_ptr<ASTNode>> m_Declaration;
-        std::vector<std::shared_ptr<ASTNode>> m_Condition;
-        std::vector<std::shared_ptr<ASTNode>> m_Expression;
+        std::vector<std::shared_ptr<ASTNode>> m_Declaration = {};
+        std::shared_ptr<ASTNode> m_Condition = nullptr;
+        std::shared_ptr<ASTNode> m_Expression = nullptr;
 
         //Used be parser. Not serialised.
         bool m_DeclarationEnded = false;
-        bool m_ConditionEnded = false;
         bool m_ExpressionEnded = false;
     };
 }

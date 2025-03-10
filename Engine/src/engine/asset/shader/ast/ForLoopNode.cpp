@@ -29,40 +29,32 @@ namespace se::asset::shader::ast
             }
         }
 
-        m_Condition.reserve(rhs.m_Condition.size());
-        for (const auto& child : rhs.m_Condition)
+        if (rhs.m_Condition)
         {
-            auto* objBase = static_cast<ObjectBase*>(child.get());
-            if (SPARK_VERIFY(objBase))
-            {
-                m_Condition.push_back(std::shared_ptr<ASTNode>((ASTNode*)objBase->GetReflectType()->heap_copy_constructor(child.get())));
-            }
+            auto* objBase = static_cast<ObjectBase *>(rhs.m_Condition.get());
+            m_Condition = std::shared_ptr<ASTNode>((ASTNode *) objBase->GetReflectType()->heap_copy_constructor(rhs.m_Condition.get()));
         }
 
-        m_Expression.reserve(rhs.m_Expression.size());
-        for (const auto& child : rhs.m_Expression)
+        if (rhs.m_Expression)
         {
-            auto* objBase = static_cast<ObjectBase*>(child.get());
-            if (SPARK_VERIFY(objBase))
-            {
-                m_Expression.push_back(std::shared_ptr<ASTNode>((ASTNode*)objBase->GetReflectType()->heap_copy_constructor(child.get())));
-            }
+            auto* objBase = static_cast<ObjectBase *>(rhs.m_Expression.get());
+            m_Expression = std::shared_ptr<ASTNode>((ASTNode *) objBase->GetReflectType()->heap_copy_constructor(rhs.m_Expression.get()));
         }
     }
 
     void ForLoopNode::ApplyNameRemapping(const std::map<std::string, std::string>& newNames)
     {
         std::ranges::for_each(m_Declaration, [newNames](const auto& item) { item->ApplyNameRemapping(newNames); });
-        std::ranges::for_each(m_Condition, [newNames](const auto& item) { item->ApplyNameRemapping(newNames); });
-        std::ranges::for_each(m_Expression, [newNames](const auto& item) { item->ApplyNameRemapping(newNames); });
+        m_Condition->ApplyNameRemapping(newNames);
+        m_Expression->ApplyNameRemapping(newNames);
         ASTNode::ApplyNameRemapping(newNames);
     }
 
     void ForLoopNode::ForEachChild(const std::function<void(ASTNode*)>& func)
     {
         std::ranges::for_each(m_Declaration, [func](const auto& item) { func(item.get()); });
-        std::ranges::for_each(m_Condition, [func](const auto& item) { func(item.get()); });
-        std::ranges::for_each(m_Expression, [func](const auto& item) { func(item.get()); });
+        func(m_Condition.get());
+        func(m_Expression.get());
         ASTNode::ForEachChild(func);
     }
 
@@ -72,16 +64,17 @@ namespace se::asset::shader::ast
         {
             return m_Declaration.emplace_back(std::shared_ptr<ASTNode>(node));
         }
-        else if (!m_ConditionEnded)
+        else if (!m_Condition)
         {
-            return m_Condition.emplace_back(std::shared_ptr<ASTNode>(node));
+            return m_Condition = std::shared_ptr<ASTNode>(node);
         }
-        else if (!m_ExpressionEnded)
+        else if (!m_Expression)
         {
-            return m_Expression.emplace_back(std::shared_ptr<ASTNode>(node));
+            return m_Expression = std::shared_ptr<ASTNode>(node);
         }
         else
         {
+            SPARK_ASSERT(m_ExpressionEnded);
             return ASTNode::AddChild(node);
         }
     }
@@ -96,9 +89,9 @@ namespace se::asset::shader::ast
         auto alloc = outShader.get_allocator();
         std::ranges::for_each(m_Declaration, [&context, &outShader](const auto& item) { item->ToGlsl(context, outShader); });
         outShader += ";\nfor(;";
-        std::ranges::for_each(m_Condition, [&context, &outShader](const auto& item) { item->ToGlsl(context, outShader); });
+        m_Condition->ToGlsl(context, outShader);
         outShader += ";";
-        std::ranges::for_each(m_Expression, [&context, &outShader](const auto& item) { item->ToGlsl(context, outShader); });
+        m_Expression->ToGlsl(context, outShader);
         outShader += ")\n{\n";
 
         for (const auto& child : m_Children)
@@ -151,12 +144,11 @@ namespace se::asset::shader::ast
         ShaderValue rhs;
     };
 
-    ForLoopExpression EvaluateForLoopCondition(const std::vector<std::shared_ptr<ASTNode>>& expression)
+    ForLoopExpression EvaluateForLoopCondition(const std::shared_ptr<ASTNode>& expression)
     {
         String variableName = nullptr;
-        SPARK_ASSERT(expression.size() == 1); // TODO why is this an array?
-        SPARK_ASSERT(expression[0]->GetReflectType() == reflect::TypeResolver<BinaryExpressionNode>::get());
-        auto* binaryExpression = static_cast<BinaryExpressionNode*>(expression[0].get());
+        SPARK_ASSERT(expression->GetReflectType() == reflect::TypeResolver<BinaryExpressionNode>::get());
+        auto* binaryExpression = static_cast<BinaryExpressionNode*>(expression.get());
         VariableReferenceNode* refNode = dynamic_cast<VariableReferenceNode*>(binaryExpression->m_Children[0].get());
         if (!SPARK_VERIFY(refNode))
         {
@@ -219,20 +211,5 @@ namespace se::asset::shader::ast
         }
 
         context.tempRenames.clear();
-
-        // auto alloc = outShader.get_allocator();
-        // std::ranges::for_each(m_Declaration, [&context, &outShader](const auto& item) { item->ToMtl(context, outShader); });
-        // outShader += ";\nfor(;";
-        // std::ranges::for_each(m_Condition, [&context, &outShader](const auto& item) { item->ToMtl(context, outShader); });
-        // outShader += ";";
-        // std::ranges::for_each(m_Expression, [&context, &outShader](const auto& item) { item->ToMtl(context, outShader); });
-        // outShader += ")\n{\n";
-        //
-        // for (const auto& child : m_Children)
-        // {
-        //     child->ToMtl(context, outShader);
-        // }
-
-        //outShader += "}\n";
     }
 }

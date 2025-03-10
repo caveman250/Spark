@@ -36,10 +36,18 @@ namespace se::editor::startup
                             extensionIt = outputPath.find_last_of(".");
                             outputPath.insert(extensionIt, builtAsset.fileNameSuffix);
                             builtAsset.db->Save(outputPath);
+
+                            std::string jsonPth = outputPath;
+                            jsonPth = jsonPth.replace(jsonPth.length() - 5, 5, ".json");
+                            io::VFS::Get().WriteText(jsonPth, builtAsset.db->ToJson().dump());
                         }
                         else
                         {
                             builtAsset.db->Save(outputPathBase);
+
+                            std::string jsonPth = outputPathBase;
+                            jsonPth = jsonPth.replace(jsonPth.length() - 5, 5, ".json");
+                            io::VFS::Get().WriteText(jsonPth, builtAsset.db->ToJson().dump());
                         }
                     }
                 }

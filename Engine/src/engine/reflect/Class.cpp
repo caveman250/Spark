@@ -74,7 +74,17 @@ namespace se::reflect
         asset::binary::Object thisObj = fieldName.empty() ? parentObj : parentObj.Get<asset::binary::Object>(fieldName);
         for (size_t i = 0; i < members.size(); ++i)
         {
-            members[i].type->Deserialize(members[i].get(obj), thisObj, members[i].name);
+            auto& member = members[i];
+            if (member.serialized)
+            {
+                if (member.type->RequiresExplicitInstantiationWithinClass())
+                {
+                    auto binaryObj = thisObj.Get<asset::binary::Object>(member.name);
+                    std::string typeName = binaryObj.GetStruct().GetName();
+                    member.type->Instantiate(typeName, member.get(obj));
+                }
+                members[i].type->Deserialize(members[i].get(obj), thisObj, members[i].name);
+            }
         }
     }
 }

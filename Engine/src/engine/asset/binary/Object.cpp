@@ -85,6 +85,55 @@ namespace se::asset::binary
         }
     }
 
+    std::string Object::GetNativeTypeString(const std::string& field) const
+    {
+        auto binaryType = m_Struct.GetFieldType(m_Struct.GetFieldIndex(field));
+        switch (binaryType)
+        {
+            case Type::Object:
+            {
+                auto obj = Get<Object>(field);
+                return obj.GetStruct().GetName();
+            }
+            case Type::Bool:
+                return "bool";
+            case Type::Int8:
+                return "int8_t";
+            case Type::Uint8:
+                return "uint8_t";
+            case Type::Int16:
+                return "int16_t";
+            case Type::Uint16:
+                return "uint16_t";
+            case Type::Int32:
+                return "int32_t";
+            case Type::Uint32:
+                return "uint32_t";
+            case Type::Int64:
+                return "int64_t";
+            case Type::Uint64:
+                return "uint64_t";
+            case Type::Float:
+                return "float";
+            case Type::Double:
+                return "double";
+            case Type::Vec2:
+                return "Vec2";
+            case Type::Vec3:
+                return "Vec3";
+            case Type::Vec4:
+                return "Vec4";
+            case Type::String:
+                return "string";
+            case Type::Blob:
+            case Type::Array:
+            case Type::PolymorphicArray:
+            case Type::Invalid:
+                SPARK_ASSERT("Object::GetNativeTypeString - Invalid Type for deserialisation.");
+                return "";
+        }
+    }
+
     void Object::Set(uint32_t fieldIndex, const char* data, size_t size)
     {
         std::memcpy(GetData() + m_Struct.GetFieldOffset(fieldIndex), data, size);
