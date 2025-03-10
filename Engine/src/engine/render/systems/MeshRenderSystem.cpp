@@ -19,11 +19,8 @@ namespace se::render::systems
     DEFINE_SPARK_SYSTEM(MeshRenderSystem)
 
     void MeshRenderSystem::OnUpdate(const std::vector<ecs::Id>& entities, TransformComponent* transform,
-                              const MeshComponent* mesh, camera::ActiveCameraComponent* camera)
+                              const MeshComponent* mesh, const camera::ActiveCameraComponent* camera)
     {
-        auto app = Application::Get();
-        // TODO why is this here.
-        camera->proj = math::Perspective(math::Radians(45.f), (float)app->GetPrimaryWindow()->GetWidth() / (float)app->GetPrimaryWindow()->GetHeight(),.1f, 100.f);
         for (size_t i = 0; i < entities.size(); ++i)
         {
             if (const auto& material =  mesh[i].materialInstance)
@@ -35,7 +32,7 @@ namespace se::render::systems
         }
     }
 
-    void MeshRenderSystem::OnRender(const std::vector<ecs::Id>& entities, TransformComponent*, const MeshComponent* mesh, camera::ActiveCameraComponent*)
+    void MeshRenderSystem::OnRender(const std::vector<ecs::Id>& entities, TransformComponent*, const MeshComponent* mesh, const camera::ActiveCameraComponent*)
     {
         auto renderer = render::Renderer::Get<render::Renderer>();
 
