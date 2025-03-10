@@ -42,11 +42,12 @@ namespace se::ui::util
         world->AddChild(parentNode, entity);
 
         *outTreeNode = world->AddComponent<components::TreeNodeComponent>(entity);
-        std::function<void(bool, components::TreeViewComponent*)> collapsedTreeViewCb = [](bool, components::TreeViewComponent* treeView)
+        std::function<void(bool)> collapsedTreeViewCb = [treeViewEntity](bool)
         {
+            auto treeView = Application::Get()->GetWorld()->GetComponent<components::TreeViewComponent>(treeViewEntity);
             treeView->dirty = true;
         };
-        (*outTreeNode)->onCollapsedStateChange.Subscribe<components::TreeViewComponent>(treeViewEntity, std::move(collapsedTreeViewCb));
+        (*outTreeNode)->onCollapsedStateChange.Subscribe(std::move(collapsedTreeViewCb));
 
         world->AddComponent<components::RectTransformComponent>(entity);
         world->AddComponent<components::WidgetComponent>(entity);
@@ -80,8 +81,10 @@ namespace se::ui::util
         button->image = expanded_indicator_texture;
         button->hoveredImage = expanded_indicator_texture;
         button->pressedImage = expanded_indicator_texture;
-        std::function<void(components::ButtonComponent*)> statusIconCallback = [world, entity, treeViewEntity](components::ButtonComponent* buttonComp)
+        std::function<void()> statusIconCallback = [world, entity, treeViewEntity, statusIcon]()
         {
+            auto buttonComp = Application::Get()->GetWorld()->GetComponent<components::ButtonComponent>(statusIcon);
+
             auto treeView = world->GetComponent<components::TreeViewComponent>(treeViewEntity);
             auto treeNode = world->GetComponent<components::TreeNodeComponent>(entity);
             treeNode->collapsed = !treeNode->collapsed;
@@ -91,7 +94,7 @@ namespace se::ui::util
             buttonComp->pressedImage = texture;
             treeView->dirty = true;
         };
-        button->onPressed.Subscribe<components::ButtonComponent>(statusIcon, std::move(statusIconCallback));
+        button->onPressed.Subscribe(std::move(statusIconCallback));
 
         auto vert = assetManager->GetAsset<asset::Shader>("/builtin_assets/shaders/ui.sass");
         auto frag = assetManager->GetAsset<asset::Shader>("/builtin_assets/shaders/alpha_texture.sass");
@@ -110,8 +113,9 @@ namespace se::ui::util
 
         world->AddComponent<components::ReceivesMouseEventsComponent>(statusIcon);
 
-        std::function<void(bool, components::ImageComponent*)> collapsedImageCb = [](bool collapsed, components::ImageComponent* image)
+        std::function<void(bool)> collapsedImageCb = [statusIcon](bool collapsed)
         {
+            auto image = Application::Get()->GetWorld()->GetComponent<components::ImageComponent>(statusIcon);
             if (collapsed)
             {
                 image->materialInstance->SetUniform("Texture", asset::shader::ast::AstType::Sampler2D, 1, &collapsed_indicator_texture);
@@ -121,7 +125,7 @@ namespace se::ui::util
                 image->materialInstance->SetUniform("Texture", asset::shader::ast::AstType::Sampler2D, 1, &expanded_indicator_texture);
             }
         };
-        (*outTreeNode)->onCollapsedStateChange.Subscribe<components::ImageComponent>(statusIcon, std::move(collapsedImageCb));
+        (*outTreeNode)->onCollapsedStateChange.Subscribe(std::move(collapsedImageCb));
 
         world->AddChild(entity, statusIcon);
 

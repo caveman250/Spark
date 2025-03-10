@@ -64,7 +64,7 @@ namespace se::render::commands
 
     void PopScissor::Execute()
     {
-        auto primaryWindow = Application::Get()->GetPrimaryWindow(); // TODO
+        auto primaryWindow = Application::Get()->GetPrimaryWindow();
         auto commandEncoder = Renderer::Get<metal::MetalRenderer>()->GetCurrentCommandEncoder();
         MTLScissorRect scissor;
         scissor.x = 0;
