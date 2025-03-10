@@ -36,9 +36,10 @@ namespace se::ui::util
         scrollBarRect->maxX = 5;
         scrollBarRect->minY = 5;
         scrollBarRect->maxY = 25;
-        std::function<void(const ui::components::RectTransformComponent*, float, ui::components::RectTransformComponent*)> scrollCb =
-            [](const ui::components::RectTransformComponent* scrollRect, float scrollAmount, ui::components::RectTransformComponent* rect)
+        std::function<void(const ui::components::RectTransformComponent*, float)> scrollCb =
+            [scrollBarEntity](const ui::components::RectTransformComponent* scrollRect, float scrollAmount)
         {
+            auto rect = Application::Get()->GetWorld()->GetComponent<ui::components::RectTransformComponent>(scrollBarEntity);
             float availableSize = scrollRect->rect.size.y - 25.f - 5.f * 2.f;
 
             rect->minY = static_cast<int>(5 + availableSize * scrollAmount);
@@ -47,7 +48,7 @@ namespace se::ui::util
 
             rect->rect.topLeft.y = static_cast<int>(scrollRect->rect.topLeft.y + 5 + availableSize * scrollAmount);
         };
-        (*outScrollBox)->onScrolled.Subscribe<ui::components::RectTransformComponent>(scrollBarEntity, std::move(scrollCb));
+        (*outScrollBox)->onScrolled.Subscribe(std::move(scrollCb));
 
         world->AddChild(scrollBoxEntity, scrollBarEntity);
 

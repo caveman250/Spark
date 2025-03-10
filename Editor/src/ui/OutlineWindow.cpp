@@ -110,7 +110,7 @@ namespace se::editor::ui
             {
                 m_Editor->SelectSingletonComponent(singletonComponent);
             };
-            treeNodeComp->onSelected.Subscribe(ecs::s_InvalidEntity, std::move(selectedCb));
+            treeNodeComp->onSelected.Subscribe(std::move(selectedCb));
         }
     }
 
@@ -126,7 +126,7 @@ namespace se::editor::ui
         {
             m_Editor->SelectEntity(entity);
         };
-        treeNodeComp->onSelected.Subscribe(ecs::s_InvalidEntity, std::move(selectedCb));
+        treeNodeComp->onSelected.Subscribe(std::move(selectedCb));
 
         for (const auto& child : world->GetChildren(entity))
         {

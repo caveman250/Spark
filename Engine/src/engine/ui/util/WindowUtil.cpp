@@ -57,14 +57,15 @@ namespace se::ui::util
         titleBarText->fontSize = 30;
         titleBarText->text = title;
         *titleBar = world->AddComponent<components::TitleBarComponent>(titleBarEntity);
-        std::function<void(float, float, components::RectTransformComponent*)> moveCb = [](float dX, float dY, components::RectTransformComponent* transform)
+        std::function<void(float, float)> moveCb = [entity](float dX, float dY)
         {
+            auto transform = Application::Get()->GetWorld()->GetComponent<ui::components::RectTransformComponent>(entity);
             transform->minX += static_cast<int>(dX);
             transform->maxX += static_cast<int>(dX);
             transform->minY += static_cast<int>(dY);
             transform->maxY += static_cast<int>(dY);
         };
-        (*titleBar)->onMove.Subscribe<components::RectTransformComponent>(entity, std::move(moveCb));
+        (*titleBar)->onMove.Subscribe(std::move(moveCb));
         auto titleBarTransform = world->AddComponent<components::RectTransformComponent>(titleBarEntity);
         titleBarTransform->anchors = { 0.f, 1.f, 0.f, 0.f };
         titleBarTransform->minX = 0;
@@ -78,12 +79,12 @@ namespace se::ui::util
         buttonComp->image = assetManager->GetAsset<asset::Texture>("/builtin_assets/textures/close_button_idle.sass");
         buttonComp->pressedImage = assetManager->GetAsset<asset::Texture>("/builtin_assets/textures/close_button_pressed.sass");
         buttonComp->hoveredImage = assetManager->GetAsset<asset::Texture>("/builtin_assets/textures/close_button_hovered.sass");
-        std::function<void(components::WindowComponent*)> buttonCb = [entity, world, onClose](components::WindowComponent*)
+        std::function<void()> buttonCb = [entity, world, onClose]()
         {
             onClose();
             world->DestroyEntity(entity);
         };
-        buttonComp->onReleased.Subscribe<components::WindowComponent>(entity, std::move(buttonCb));
+        buttonComp->onReleased.Subscribe(std::move(buttonCb));
         auto buttonTransform = world->AddComponent<components::RectTransformComponent>(buttonEntity);
         buttonTransform->anchors = { 1.f, 1.f, 0.f, 1.f };
         buttonTransform->minX = 35;

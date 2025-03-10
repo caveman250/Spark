@@ -14,15 +14,13 @@ namespace se::ecs
         friend class World;
     };
 
-    //TODO this is over complicated. ECS is no longer considered running while signals are firing.
     template <typename... Cs>
     class Signal : public BaseSignal
     {
     public:
         ~Signal();
 
-        template<typename... Ts>
-        SignalHandle Subscribe(Id entityId, std::function<void(Cs..., Ts*...)>&& func);
+        SignalHandle Subscribe(std::function<void(Cs...)>&& func);
 
         void Unsubscribe(SignalHandle handle);
 
@@ -32,7 +30,7 @@ namespace se::ecs
         void Execute() override;
 
         template <size_t... Is>
-        void CallWrapperFunc(const std::function<void(Cs...)>& func, std::index_sequence<Is...>);
+        void CallFunc(const std::function<void(Cs...)>& func, std::index_sequence<Is...>);
 
         SignalHandle m_HandleCounter;
         std::vector<std::pair<SignalHandle, std::function<void(Cs...)>>> m_RegisteredHandles;
@@ -74,7 +72,7 @@ namespace se::ecs
     {
         for (const auto& [id, func] : m_RegisteredHandles)
         {
-            CallWrapperFunc(func, std::make_index_sequence<sizeof...(Cs)>());
+            CallFunc(func, std::make_index_sequence<sizeof...(Cs)>());
         }
 
         m_PendingInvokeIndex++;
@@ -88,38 +86,17 @@ namespace se::ecs
 
     template<typename ... Cs>
     template<size_t... Is>
-    void Signal<Cs...>::CallWrapperFunc(const std::function<void(Cs...)>& func, std::index_sequence<Is...>)
+    void Signal<Cs...>::CallFunc(const std::function<void(Cs...)>& func, std::index_sequence<Is...>)
     {
         func(std::get<Is>(m_PendingInvokeArgs[m_PendingInvokeIndex])...);
     }
 
     template <typename... Cs>
-    template <typename ... Ts>
-    SignalHandle Signal<Cs...>::Subscribe(Id entityId, std::function<void(Cs..., Ts*...)> &&func)
+    SignalHandle Signal<Cs...>::Subscribe(std::function<void(Cs...)> &&func)
     {
         SignalHandle id = m_HandleCounter++;
 
-        auto wrapperFunc = [entityId, wrappedFunc = std::move(func)](Cs... cs)
-        {
-            auto* world = Application::Get()->GetWorld();
-
-            std::vector<Id> comps;
-            comps.reserve(sizeof...(Ts));
-            (CollectComponentId<Ts>(comps), ...);
-
-            for (const auto& comp : comps)
-            {
-                if (!world->HasComponent(entityId, comp))
-                {
-                    return;
-                }
-            }
-
-            SignalActionBuilder<Ts...> builder;
-            builder.DoAction(entityId, world, wrappedFunc, cs...);
-        };
-
-        m_RegisteredHandles.push_back(std::make_pair(id, std::move(wrapperFunc)));
+        m_RegisteredHandles.push_back(std::make_pair(id, std::move(func)));
         return id;
     }
 }

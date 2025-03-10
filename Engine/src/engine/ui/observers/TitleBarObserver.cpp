@@ -28,7 +28,7 @@ namespace se::ui::observers
             static std::shared_ptr<render::Material> material = nullptr;
             if (!material)
             {
-                material = render::Material::CreateMaterial({vert}, {frag}); // TODO
+                material = render::Material::CreateMaterial({vert}, {frag});
                 material->GetShaderSettings().SetSetting("color_setting", math::Vec3(0.2f, 0.2f, 0.2f));
             }
             image->materialInstance = se::render::MaterialInstance::CreateMaterialInstance(material);
