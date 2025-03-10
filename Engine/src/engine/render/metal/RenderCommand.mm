@@ -13,32 +13,11 @@
 #import <Metal/Metal.h>
 #import "platform/mac/Window.h"
 
-// TODO move this somewhere common
-DEFINE_SPARK_ENUM_BEGIN(se::render::commands::RenderStage)
-                        DEFINE_ENUM_VALUE(RenderStage, Scene)
-                        DEFINE_ENUM_VALUE(RenderStage, UI)
-DEFINE_SPARK_ENUM_END()
-
 namespace se::render::commands
 {
-    Clear::Clear(bool clearColour, bool clearDepth)
-            : m_ClearColour(clearColour)
-            , m_ClearDepth(clearDepth)
-    {
-        // TODO looks like this could be made into common code?
-    }
-
     void Clear::Execute()
     {
         // nothing to do here
-    }
-
-    SubmitGeo::SubmitGeo(const std::shared_ptr<MaterialInstance>& materialInstance, const std::shared_ptr<VertexBuffer>& vertBuffer, const std::shared_ptr<IndexBuffer>& indexBuffer)
-            : m_MaterialInstance(materialInstance)
-            , m_VertBuffer(vertBuffer)
-            , m_IndexBuffer(indexBuffer)
-    {
-        // TODO looks like this could be made into common code?
     }
 
     void SubmitGeo::Execute()
@@ -56,15 +35,6 @@ namespace se::render::commands
                                    instanceCount:1];
     }
 
-    SubmitUI::SubmitUI(const std::shared_ptr<MaterialInstance>& materialInstance, const std::shared_ptr<VertexBuffer> &vertBuffer,
-                       const std::shared_ptr<IndexBuffer> &indexBuffer)
-            : m_MaterialInstance(materialInstance)
-            , m_VertBuffer(vertBuffer)
-            , m_IndexBuffer(indexBuffer)
-    {
-        // TODO looks like this could be made into common code?
-    }
-
     void SubmitUI::Execute()
     {
         m_MaterialInstance->Bind(*m_VertBuffer);
@@ -80,12 +50,6 @@ namespace se::render::commands
                                 instanceCount:1];
     }
 
-    PushScissor::PushScissor(const ui::Rect& rect)
-            : m_Rect(rect)
-    {
-        // TODO looks like this could be made into common code?
-    }
-
     void PushScissor::Execute()
     {
         auto commandEncoder = Renderer::Get<metal::MetalRenderer>()->GetCurrentCommandEncoder();
@@ -96,11 +60,6 @@ namespace se::render::commands
         scissor.width = std::min(m_Rect.size.x, window->GetWidth() - static_cast<int>(scissor.x));
         scissor.height = std::min(m_Rect.size.y, window->GetHeight() - static_cast<int>(scissor.y));
         [commandEncoder setScissorRect:scissor];
-    }
-
-    PopScissor::PopScissor()
-    {
-        // TODO looks like this could be made into common code?
     }
 
     void PopScissor::Execute()

@@ -27,6 +27,8 @@ namespace se::reflect
         virtual size_t GetTypeSize() const { return size; }
         virtual asset::binary::Type GetBinaryType() const { return binaryType; }
         virtual bool IsPolymorphic() const { return false; }
+        virtual bool RequiresExplicitInstantiationWithinClass() const { return false; }
+        virtual void* Instantiate(const std::string&, void*) const { return nullptr; }
 
         virtual void Serialize(const void* obj, asset::binary::Object& parentObj, const std::string& fieldName) const = 0;
         virtual void Deserialize(void* obj, asset::binary::Object& parentObj, const std::string& fieldName) const = 0;

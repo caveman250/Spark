@@ -24,6 +24,8 @@ namespace se::asset::binary
         template<typename T>
         const T Get(const std::string& field) const;
 
+        std::string GetNativeTypeString(const std::string& field) const;
+
         template<typename T>
         void Set(const std::string& field, const T& val);
 

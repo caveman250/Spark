@@ -730,7 +730,6 @@ namespace se::asset::shader::compiler
                 }
                 else
                 {
-                    //TODO
                     outError = {nameToken.line, nameToken.pos, "Function declarations not supported yet."};
                     return false;
                 }
@@ -743,7 +742,6 @@ namespace se::asset::shader::compiler
                     return false;
                 }
 
-                //TODO
                 outError = {nameToken.line, nameToken.pos, "Function declarations not supported yet."};
                 return false;
             }
@@ -1042,7 +1040,8 @@ namespace se::asset::shader::compiler
                 {
                     return false;
                 }
-                outType = ast::AstType::Invalid; //TODO
+                // strings not supported.
+                outType = ast::AstType::Invalid;
             }
             else if (nextToken.type == TokenType::Builtin)
             {
@@ -1156,8 +1155,6 @@ namespace se::asset::shader::compiler
         {
             return false;
         }
-
-        forLoop->m_ConditionEnded = true;
 
         ast::AstType::Type expression2Type;
         if (!ProcessExpression(expression2Type, outError))
@@ -1712,7 +1709,6 @@ namespace se::asset::shader::compiler
             return false;
         }
 
-        //TODO make this a function
         if (propertyNameToken.value == "x" ||
             propertyNameToken.value == "y" ||
             propertyNameToken.value == "z" ||

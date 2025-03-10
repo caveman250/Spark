@@ -7,11 +7,25 @@
 
 namespace se::reflect
 {
+    Type* TypeFromString(const std::string& type);
+
+    struct Type_StdSharedPtrBase : Type
+    {
+        Type_StdSharedPtrBase(const std::string& name, size_t size, asset::binary::Type binaryType)
+            : Type(name, size, binaryType)
+        {}
+
+        bool RequiresExplicitInstantiationWithinClass() const override
+        {
+            return true;
+        }
+    };
+
     template<typename T>
-    struct Type_StdSharedPtr : Type
+    struct Type_StdSharedPtr : Type_StdSharedPtrBase
     {
         Type_StdSharedPtr(T*)
-            : Type{"std::shared_ptr<>", sizeof(std::shared_ptr<T>), asset::binary::Type::Bool /* GetBinaryType will reirect to contained type */ }
+            : Type_StdSharedPtrBase{"std::shared_ptr<>", sizeof(std::shared_ptr<T>), asset::binary::Type::Bool /* GetBinaryType will reirect to contained type */ }
         {
         }
 
@@ -23,6 +37,12 @@ namespace se::reflect
         void Deserialize(void* obj, asset::binary::Object& parentObj, const std::string& fieldName) const override;
         asset::binary::StructLayout GetStructLayout(const void*) const override;
         bool IsPolymorphic() const override { return true; }
+        void* Instantiate(const std::string& type, void* obj) const override
+        {
+            const Type* reflect = reflect::TypeFromString(type);
+            *(std::shared_ptr<T>*)obj = std::shared_ptr<T>(static_cast<T*>(reflect->heap_constructor()));
+            return obj;
+        }
     };
 
     template <typename T>
@@ -44,7 +64,6 @@ namespace se::reflect
         return std::string("std::shared_ptr<") + TypeResolver<T>::get()->GetTypeName(nullptr) + ">";
     }
 
-    Type* TypeFromString(const std::string& type);
     template <typename T>
     Type* Type_StdSharedPtr<T>::GetSerialisedType(asset::binary::Object& parentObj, const std::string& fieldName)
     {
@@ -120,7 +139,7 @@ namespace se::reflect
     template <typename T> concept NotSharedPtr = !is_shared_ptr<T>::value;
 
     template<SharedPtr T>
-    T Instantiate(const std::string& type)
+    T InstantiateContainerObj(const std::string& type)
     {
         const Type* reflect = reflect::TypeFromString(type);
         T obj = std::shared_ptr<typename T::element_type>(static_cast<typename T::element_type*>(reflect->heap_constructor()));
@@ -128,7 +147,7 @@ namespace se::reflect
     }
 
     template<NotSharedPtr T>
-    T Instantiate(const std::string&)
+    T InstantiateContainerObj(const std::string&)
     {
         T obj = {};
         return obj;
@@ -168,7 +187,7 @@ namespace se::reflect
 
             emplace_back = [](const void* vecPtr, const std::string& type) -> void* {
                 auto& vec = *(std::vector<T>*)vecPtr;
-                return &vec.emplace_back(Instantiate<T>(type));
+                return &vec.emplace_back(InstantiateContainerObj<T>(type));
             };
         }
 
@@ -328,9 +347,7 @@ namespace se::reflect
 
         asset::binary::StructLayout structLayout = {
             {asset::binary::CreateFixedString32("key"), keyType->GetBinaryType() },
-            {asset::binary::CreateFixedString32("value"), itemType->GetBinaryType() },
-            {asset::binary::CreateFixedString32("key_type"), asset::binary::Type::String },
-            {asset::binary::CreateFixedString32("value_type"), asset::binary::Type::String }
+            {asset::binary::CreateFixedString32("value"), itemType->GetBinaryType() }
         };
         std::map<T, Y>* map = (std::map<T, Y>*)obj;
         auto array = db->CreateArray(db->GetOrCreateStruct(
@@ -341,10 +358,6 @@ namespace se::reflect
         for (const auto& [key, value] : *map)
         {
             asset::binary::Object arrayObj = array.Get(index);
-
-            arrayObj.Set("key_type", keyType->GetTypeName(&key));
-            arrayObj.Set("value_type", itemType->GetTypeName(&value));
-
             keyType->Serialize(&key, arrayObj, "key");
             itemType->Serialize(&value, arrayObj, "value");
             index++;
@@ -373,9 +386,9 @@ namespace se::reflect
         for (size_t i = 0; i < array.GetCount(); ++i)
         {
             asset::binary::Object arrayObj = array.Get(i);
-            T key = Instantiate<T>(arrayObj.GetString("key_type"));
+            T key = InstantiateContainerObj<T>(arrayObj.GetNativeTypeString("key"));
             keyType->Deserialize(&key, arrayObj, "key");
-            Y item = Instantiate<Y>(arrayObj.GetString("value_type"));
+            Y item = InstantiateContainerObj<Y>(arrayObj.GetNativeTypeString("value"));
             itemType->Deserialize(&item, arrayObj, "value");
             map->insert(std::make_pair(key, item));
         }
@@ -444,9 +457,7 @@ namespace se::reflect
 
         asset::binary::StructLayout structLayout = {
             {asset::binary::CreateFixedString32("key"), keyType->GetBinaryType() },
-            {asset::binary::CreateFixedString32("value"), itemType->GetBinaryType() },
-            {asset::binary::CreateFixedString32("key_type"), asset::binary::Type::String },
-            {asset::binary::CreateFixedString32("value_type"), asset::binary::Type::String }
+            {asset::binary::CreateFixedString32("value"), itemType->GetBinaryType() }
         };
         std::unordered_map<T, Y>* map = (std::unordered_map<T, Y>*)obj;
         auto array = db->CreateArray(db->GetOrCreateStruct(
@@ -457,10 +468,6 @@ namespace se::reflect
         for (const auto& [key, value] : *map)
         {
             asset::binary::Object arrayObj = array.Get(index);
-
-            arrayObj.Set("key_type", keyType->GetTypeName(&key));
-            arrayObj.Set("value_type", itemType->GetTypeName(&value));
-
             keyType->Serialize(&key, arrayObj, "key");
             itemType->Serialize(&value, arrayObj, "value");
             index++;
@@ -489,9 +496,9 @@ namespace se::reflect
         for (size_t i = 0; i < array.GetCount(); ++i)
         {
             asset::binary::Object arrayObj = array.Get(i);
-            T key = Instantiate<T>(arrayObj.GetString("key_type"));
+            T key = InstantiateContainerObj<T>(arrayObj.GetNativeTypeString("key"));
             keyType->Deserialize(&key, arrayObj, "key");
-            Y item = Instantiate<Y>(arrayObj.GetString("value_type"));
+            Y item = InstantiateContainerObj<Y>(arrayObj.GetNativeTypeString("value"));
             itemType->Deserialize(&item, arrayObj, "value");
             map->insert(std::make_pair(key, item));
         }

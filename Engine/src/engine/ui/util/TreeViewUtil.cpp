@@ -65,7 +65,6 @@ namespace se::ui::util
         world->AddComponent<components::WidgetComponent>(textEntity);
         world->AddChild(entity, textEntity);
 
-        // TODO make this better.
         static auto expanded_indicator_texture = assetManager->Get()->GetAsset<asset::Texture>("/builtin_assets/textures/tree_node_indicator_expanded.sass");
         static auto collapsed_indicator_texture = assetManager->Get()->GetAsset<asset::Texture>("/builtin_assets/textures/tree_node_indicator_collapsed.sass");
 
@@ -96,10 +95,10 @@ namespace se::ui::util
 
         auto vert = assetManager->GetAsset<asset::Shader>("/builtin_assets/shaders/ui.sass");
         auto frag = assetManager->GetAsset<asset::Shader>("/builtin_assets/shaders/alpha_texture.sass");
-        static std::shared_ptr<render::Material> material = nullptr; // TODO
+        static std::shared_ptr<render::Material> material = nullptr;
         if (!material)
         {
-            material = render::Material::CreateMaterial({vert}, {frag}); // TODO
+            material = render::Material::CreateMaterial({vert}, {frag});
             auto rs = render::RenderState();
             rs.srcBlend = render::BlendMode::SrcAlpha;
             rs.dstBlend = render::BlendMode::OneMinusSrcAlpha;

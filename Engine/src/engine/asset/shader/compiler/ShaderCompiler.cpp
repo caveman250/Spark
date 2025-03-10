@@ -191,7 +191,7 @@ namespace se::asset::shader
         memory::ArenaAllocator<char> alloc(arena);
         string::ArenaString shader(alloc);
 
-        shader.append("#version 330 core\n"); //TODO this is old right?
+        shader.append("#version 410\n");
 
 
         for (const auto &[name, node]: ast.GetInputs())

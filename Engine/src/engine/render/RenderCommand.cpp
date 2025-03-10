@@ -1,0 +1,39 @@
+#include "RenderCommand.h"
+
+DEFINE_SPARK_ENUM_BEGIN(se::render::commands::RenderStage)
+    DEFINE_ENUM_VALUE(RenderStage, Scene)
+    DEFINE_ENUM_VALUE(RenderStage, UI)
+DEFINE_SPARK_ENUM_END()
+
+namespace se::render::commands
+{
+    Clear::Clear(bool clearColour, bool clearDepth)
+            : m_ClearColour(clearColour)
+            , m_ClearDepth(clearDepth)
+    {
+    }
+
+    SubmitGeo::SubmitGeo(const std::shared_ptr<MaterialInstance>& materialInstance, const std::shared_ptr<VertexBuffer>& vertBuffer, const std::shared_ptr<IndexBuffer>& indexBuffer)
+            : m_MaterialInstance(materialInstance)
+            , m_VertBuffer(vertBuffer)
+            , m_IndexBuffer(indexBuffer)
+    {
+    }
+
+    SubmitUI::SubmitUI(const std::shared_ptr<MaterialInstance>& materialInstance, const std::shared_ptr<VertexBuffer> &vertBuffer,
+                       const std::shared_ptr<IndexBuffer> &indexBuffer)
+            : m_MaterialInstance(materialInstance)
+            , m_VertBuffer(vertBuffer)
+            , m_IndexBuffer(indexBuffer)
+    {
+    }
+
+    PushScissor::PushScissor(const ui::Rect& rect)
+            : m_Rect(rect)
+    {
+    }
+
+    PopScissor::PopScissor()
+    {
+    }
+}

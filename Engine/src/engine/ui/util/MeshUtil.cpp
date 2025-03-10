@@ -30,7 +30,7 @@ namespace se::ui::util
     {
         asset::StaticMesh mesh;
         uint32_t indexOffset = 0;
-        math::Vec2 cursorPos = { }; // TODO alignment
+        math::Vec2 cursorPos = { };
         cursorPos.y += fontSize;
         for (size_t i = 0; i < text.Size(); ++i)
         {
@@ -97,7 +97,7 @@ namespace se::ui::util
     {
         math::Vec2 max = {};
 
-        math::Vec2 cursorPos = { }; // TODO alignment
+        math::Vec2 cursorPos = { };
         cursorPos.y += fontSize;
         for (size_t i = 0; i < text.Size(); ++i)
         {

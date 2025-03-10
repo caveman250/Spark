@@ -53,7 +53,7 @@ namespace se::ui::systems
                 static std::shared_ptr<render::Material> textMaterial = nullptr;
                 if (!textMaterial)
                 {
-                    textMaterial = render::Material::CreateMaterial({vert}, {frag}); // TODO
+                    textMaterial = render::Material::CreateMaterial({vert}, {frag});
 
                     render::RenderState rs;
                     rs.srcBlend = render::BlendMode::SrcAlpha;

@@ -6,11 +6,6 @@
 #include "engine/render/Material.h"
 #include "engine/render/VertexBuffer.h"
 
-DEFINE_SPARK_ENUM_BEGIN(se::render::commands::RenderStage)
-    DEFINE_ENUM_VALUE(RenderStage, Scene)
-    DEFINE_ENUM_VALUE(RenderStage, UI)
-DEFINE_SPARK_ENUM_END()
-
 namespace se::render::commands
 {
     void Clear::Execute()
@@ -41,15 +36,6 @@ namespace se::render::commands
         m_VertBuffer->Unbind();
     }
 
-    SubmitUI::SubmitUI(const std::shared_ptr<Material> &material, const std::shared_ptr<VertexBuffer> &vertBuffer,
-        const std::shared_ptr<IndexBuffer> &indexBuffer)
-        : m_Material(material)
-        , m_VertBuffer(vertBuffer)
-        , m_IndexBuffer(indexBuffer)
-    {
-
-    }
-
     void SubmitUI::Execute()
     {
         m_Material->Bind(*m_VertBuffer);
@@ -62,27 +48,6 @@ namespace se::render::commands
         m_VertBuffer->Unbind();
     }
 
-    Clear::Clear(bool clearColour, bool clearDepth)
-        : m_ClearColour(clearColour)
-        , m_ClearDepth(clearDepth)
-    {
-
-    }
-
-    SubmitGeo::SubmitGeo(const std::shared_ptr<Material>& material, const std::shared_ptr<VertexBuffer>& vertBuffer, const std::shared_ptr<IndexBuffer>& indexBuffer)
-        : m_Material(material)
-        , m_VertBuffer(vertBuffer)
-        , m_IndexBuffer(indexBuffer)
-    {
-
-    }
-
-    PushScissor::PushScissor(const ui::Rect& rect)
-            : m_Rect(rect)
-    {
-
-    }
-
     void PushScissor::Execute()
     {
         auto primaryWindow = Application::Get()->GetPrimaryWindow(); // TODO
@@ -93,11 +58,6 @@ namespace se::render::commands
                   m_Rect.size.x,
                   m_Rect.size.y);
         GL_CHECK_ERROR()
-
-    }
-
-    PopScissor::PopScissor()
-    {
 
     }
 
