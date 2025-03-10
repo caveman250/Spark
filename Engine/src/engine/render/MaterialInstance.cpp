@@ -11,7 +11,6 @@ namespace se::render
         if (m_Material->GetRenderState().lit)
         {
             const auto& lightSetup = Renderer::Get<Renderer>()->GetLightSetup();
-            // TODO improve shader parser so i can just pass an array of structs
             std::vector<math::Vec3> pos;
             pos.resize(lightSetup.pointLights.size());
             std::transform(lightSetup.pointLights.begin(), lightSetup.pointLights.end(), pos.begin(), [](const PointLight& light){ return light.pos; });
