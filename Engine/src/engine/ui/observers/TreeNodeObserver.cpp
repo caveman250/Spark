@@ -17,14 +17,6 @@ namespace se::ui::observers
             world->AddComponent<components::ReceivesMouseEventsComponent>(entity);
         }
 
-        // TODO add child if missing
-//        if (!world->HasComponent<components::TextComponent>(entity))
-//        {
-//            auto text = world->AddComponent<components::TextComponent>(entity);
-//            text->font = assetManager->GetAsset<asset::Font>("/builtin_assets/fonts/Arial.sass");
-//            text->fontSize = 18;
-//        }
-
         if (!world->HasComponent<ui::components::WidgetComponent>(entity))
         {
             world->AddComponent<components::WidgetComponent>(entity);
