@@ -1,4 +1,4 @@
-#include "ScrollBoxUpdateSystem.h"
+#include "ScrollViewUpdateSystem.h"
 
 #include <engine/ui/util/RectTransformUtil.h>
 
@@ -14,14 +14,14 @@ using namespace se::ecs::components;
 
 namespace se::ui::systems
 {
-    DEFINE_SPARK_SYSTEM(ScrollBoxUpdateSystem)
+    DEFINE_SPARK_SYSTEM(ScrollViewUpdateSystem)
 
-    void ScrollBoxUpdateSystem::OnUpdate(const std::vector<ecs::Id>& entities,
-                                         components::ScrollBoxComponent* scrollBoxes,
+    void ScrollViewUpdateSystem::OnUpdate(const std::vector<ecs::Id>& entities,
+                                         components::ScrollViewComponent* scrollBoxes,
                                          components::RectTransformComponent* rectTransforms,
                                          const components::ReceivesMouseEventsComponent* mouseComps)
     {
-        PROFILE_SCOPE("ScrollBoxUpdateSystem::OnUpdate")
+        PROFILE_SCOPE("ScrollViewUpdateSystem::OnUpdate")
 
         for (size_t i = 0; i < entities.size(); ++i)
         {
@@ -57,17 +57,19 @@ namespace se::ui::systems
                                     childComponents.emplace_back(std::make_pair(&childTransform, &widgets[i]));
                                 }
 
-                                return true;
+                                return false;
                             });
 
+                        int scrollBoxHeight = rectTransform.rect.size.y;
                         int scrollBoxMaxY = rectTransform.rect.topLeft.y + rectTransform.rect.size.y;
+                        int scrollContentHeight = maxChildY - minChildY;
 
                         int availableScrollSpaceTop = rectTransform.rect.topLeft.y - minChildY;
                         int availableScrollSpaceBottom = maxChildY - scrollBoxMaxY;
 
                         if (mouseEvent.scrollDelta > 0 && availableScrollSpaceBottom > 0)
                         {
-                            int delta = mouseEvent.scrollDelta * std::min(10, availableScrollSpaceBottom);
+                            int delta = std::min(mouseEvent.scrollDelta, availableScrollSpaceBottom);
                             for (auto& child: childComponents)
                             {
                                 child.first->minY -= delta;
@@ -79,34 +81,53 @@ namespace se::ui::systems
                                                     size.y);
                                 child.second->updateEnabled = !outOfBounds;
                                 child.second->renderingEnabled = !outOfBounds;
+                                child.first->needsLayout = true;
                             }
-                            availableScrollSpaceBottom -= delta;
                             availableScrollSpaceTop += delta;
-                            scrollBox.scrollAmount = 1.f - static_cast<float>(availableScrollSpaceBottom) /
-                                                     (static_cast<float>(availableScrollSpaceBottom) + static_cast<
-                                                          float>(availableScrollSpaceTop));
+                            availableScrollSpaceBottom -= delta;
+                            availableScrollSpaceTop = std::max(0, availableScrollSpaceTop);
+                            debug::Log::Error("Scroll Top: {}", availableScrollSpaceTop);
+                            scrollBox.scrollAmount = static_cast<float>(availableScrollSpaceTop) /
+                                                     static_cast<float>(availableScrollSpaceTop + availableScrollSpaceBottom);
                             scrollBox.onScrolled.Broadcast(&rectTransform, scrollBox.scrollAmount);
-                        } else if (mouseEvent.scrollDelta < 0 && availableScrollSpaceTop > 0)
+                        }
+                        else if (mouseEvent.scrollDelta < 0 && availableScrollSpaceTop > 0)
                         {
-                            int delta = mouseEvent.scrollDelta * std::min(10, availableScrollSpaceTop);
+                            int delta = std::min(-mouseEvent.scrollDelta, availableScrollSpaceTop);
                             for (auto& child: childComponents)
                             {
-                                child.first->minY -= delta;
-                                child.first->maxY -= delta;
+                                Rect rectlol = util::CalculateScreenSpaceRect(*child.first, rectTransform);
+                                bool wastheone = false;
+                                if (rectlol.topLeft.y == minChildY)
+                                {
+                                    wastheone = true;
+                                }
+
+                                child.first->minY += delta;
+                                child.first->maxY += delta;
 
                                 Rect rect = util::CalculateScreenSpaceRect(*child.first, rectTransform);
+                                if (wastheone)
+                                {
+                                    if (rect.topLeft.y > rectTransform.rect.topLeft.y)
+                                    {
+                                        int lol =1;
+                                    }
+                                }
                                 bool outOfBounds = (rect.topLeft.y + rect.size.y < rectTransform.rect.topLeft.y) ||
                                                    (rect.topLeft.y > rectTransform.rect.topLeft.y + rectTransform.rect.
                                                     size.y);
                                 child.second->updateEnabled = !outOfBounds;
                                 child.second->renderingEnabled = !outOfBounds;
+                                child.first->needsLayout = true;
                             }
 
-                            availableScrollSpaceTop += delta;
-                            availableScrollSpaceBottom -= delta;
-                            scrollBox.scrollAmount = 1.f - static_cast<float>(availableScrollSpaceBottom) /
-                                                     (static_cast<float>(availableScrollSpaceBottom) + static_cast<
-                                                          float>(availableScrollSpaceTop));
+                            availableScrollSpaceTop -= delta;
+                            availableScrollSpaceBottom += delta;
+                            availableScrollSpaceTop = std::max(0, availableScrollSpaceTop);
+                            debug::Log::Error("Scroll Top: {}", availableScrollSpaceTop);
+                            scrollBox.scrollAmount = static_cast<float>(availableScrollSpaceTop) /
+                                                                   static_cast<float>(availableScrollSpaceTop + availableScrollSpaceBottom);
                             scrollBox.onScrolled.Broadcast(&rectTransform, scrollBox.scrollAmount);
                         }
 
