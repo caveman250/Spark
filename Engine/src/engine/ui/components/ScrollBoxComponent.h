@@ -11,8 +11,5 @@ namespace se::ui::components
     struct ScrollBoxComponent : reflect::ObjectBase
     {
         DECLARE_SPARK_COMPONENT(ScrollBoxComponent)
-
-        ecs::Signal<const RectTransformComponent*, float> onScrolled = {};
-        float scrollAmount = 0.f;
     };
 }

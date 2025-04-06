@@ -29,7 +29,7 @@ namespace se::editor::ui::properties
         m_RectTransform = world->AddComponent<RectTransformComponent>(m_WidgetId);
         m_RectTransform->anchors = { .left = 0.f, .right = 1.f, .top = 0.f, .bottom = 0.f };
         m_RectTransform->minX = 5;
-        m_RectTransform->maxX = 5;
+        m_RectTransform->maxX = 15;
         world->AddComponent<WidgetComponent>(m_WidgetId);
 
         if (constructTitle)

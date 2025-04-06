@@ -119,7 +119,7 @@ static std::map<uint32_t, bool> s_ModifierKeyStates = {}; // TODO
 
     se::input::MouseEvent mouseEvent;
     mouseEvent.button = se::input::MouseButton::None;
-    mouseEvent.scrollDelta = inputComp->mouseScrollDelta;
+    mouseEvent.scrollDelta = -inputComp->mouseScrollDelta;
     inputComp->mouseEvents.push_back(mouseEvent);
 }
 

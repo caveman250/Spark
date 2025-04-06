@@ -14,11 +14,10 @@ namespace se::ui::observers
             world->AddComponent<components::WidgetComponent>(entity);
         }
 
-        if (!world->HasComponent<ui::components::ReceivesMouseEventsComponent>(entity))
-        {
-            auto mouseEventComp = world->AddComponent<components::ReceivesMouseEventsComponent>(entity);
-            mouseEventComp->receivesScrollEvents = true;
-        }
+//        if (!world->HasComponent<ui::components::ReceivesMouseEventsComponent>(entity))
+//        {
+//            world->AddComponent<components::ReceivesMouseEventsComponent>(entity);
+//        }
     }
 
     void ScrollBoxObserver::OnRemoved(ecs::Id, components::ScrollBoxComponent*)
