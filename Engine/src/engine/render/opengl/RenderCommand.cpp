@@ -26,7 +26,7 @@ namespace se::render::commands
 
     void SubmitGeo::Execute()
     {
-        m_Material->Bind(*m_VertBuffer);
+        m_MaterialInstance->Bind(*m_VertBuffer);
         m_VertBuffer->Bind();
         m_IndexBuffer->Bind();
 
@@ -38,7 +38,7 @@ namespace se::render::commands
 
     void SubmitUI::Execute()
     {
-        m_Material->Bind(*m_VertBuffer);
+        m_MaterialInstance->Bind(*m_VertBuffer);
         m_VertBuffer->Bind();
         m_IndexBuffer->Bind();
 

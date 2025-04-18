@@ -17,7 +17,7 @@ namespace se::input
         static void ProcessKeyEvents(InputComponent* input, const std::function<bool(const KeyEvent&)>& func);
 
     private:
-        static void ConsumeKeyEvent(const KeyEvent& keyEvent, InputComponent* input);
-        static void ConsumeMouseEvent(const MouseEvent& mouseEvent, InputComponent* input);
+        static void ConsumeKeyEvent(InputComponent* input, int index);
+        static void ConsumeMouseEvent(InputComponent* input, int index);
     };
 }

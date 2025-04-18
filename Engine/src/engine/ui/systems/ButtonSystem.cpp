@@ -7,6 +7,7 @@
 #include "engine/Application.h"
 #include "engine/input/InputUtil.h"
 #include "engine/profiling/Profiler.h"
+#include "engine/render/MaterialInstance.h"
 
 using namespace se;
 using namespace se::ecs::components;

@@ -41,7 +41,7 @@
 #undef DELETE
 #elif SPARK_PLATFORM_LINUX
 #include "SDL2/SDL.h"
-#undef linux
+#undef linuxt
 #endif
 
 #if !SPARK_DIST
