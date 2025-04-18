@@ -914,15 +914,14 @@ namespace se::ecs
                                       std::vector<Id>& pendingDeletions,
                                       std::unordered_map<Id, SystemRecord>& systemRecords,
                                       std::vector<std::vector<Id>>& systsemUpdateGroups,
-                                      std::vector<Id>& freeSystems,
-                                      std::unordered_map<Id, std::vector<ChildQuery>>& allowedChildQueries)
+                                      std::vector<Id>& freeSystems)
     {
         bool shouldRebuildUpdateGroups = !pendingCreations.empty() || !pendingDeletions.empty(); {
             auto safeCopy = pendingCreations;
             pendingCreations.clear();
             for (const auto& [systemId, relationships]: safeCopy)
             {
-                CreateSystemInternal(systemRecords, allowedChildQueries, systemId, relationships);
+                CreateSystemInternal(systemRecords, systemId, relationships);
                 systemRecords.at(systemId).instance->Init();
             }
         } {
@@ -931,7 +930,7 @@ namespace se::ecs
             for (Id system: safeCopy)
             {
                 systemRecords.at(system).instance->Shutdown();
-                DestroySystemInternal(systemRecords, allowedChildQueries, freeSystems, system);
+                DestroySystemInternal(systemRecords, freeSystems, system);
             }
         }
 
@@ -944,17 +943,17 @@ namespace se::ecs
     void World::ProcessPendingAppSystems()
     {
         ProcessPendingSystems(m_PendingAppSystemCreations, m_PendingAppSystemDeletions, m_AppSystems,
-                              m_AppSystemUpdateGroups, m_FreeSystems, m_AllowedChildQueries);
+                              m_AppSystemUpdateGroups, m_FreeSystems);
     }
 
     void World::ProcessPendingEngineSystems()
     {
         ProcessPendingSystems(m_PendingEngineSystemCreations, m_PendingEngineSystemDeletions, m_EngineSystems,
-                              m_EngineSystemUpdateGroups, m_FreeSystems, m_AllowedChildQueries);
+                              m_EngineSystemUpdateGroups, m_FreeSystems);
     }
 
     void World::CreateSystemInternal(std::unordered_map<Id, SystemRecord>& systemMap,
-                                     std::unordered_map<Id, std::vector<ChildQuery>>& allowedChildQueries, Id system,
+                                     Id system,
                                      const SystemCreationInfo& pendingSystem)
     {
         if (SPARK_VERIFY(systemMap.contains(system) && systemMap.at(system).instance == nullptr))
@@ -964,14 +963,13 @@ namespace se::ecs
             record.instance->RegisterComponents();
             record.instance->m_Relationships = pendingSystem.relationships;
             record.instance->m_ChildQuery = pendingSystem.childQuerys;
-            allowedChildQueries[system] = pendingSystem.childQuerys;
             record.instance->m_DependsOn = pendingSystem.dependencies;
         }
     }
 
     void World::DestroySystemInternal(std::unordered_map<Id, SystemRecord>& systemMap,
-                                      std::unordered_map<Id, std::vector<ChildQuery>>& allowedChildQueries,
-                                      std::vector<Id>& freeSystems, Id system)
+                                      std::vector<Id>& freeSystems,
+                                      Id system)
     {
         if (SPARK_VERIFY(systemMap.contains(system)))
         {
@@ -979,7 +977,6 @@ namespace se::ecs
             delete systemRecord.instance;
             systemMap.erase(system);
             freeSystems.push_back(system);
-            allowedChildQueries.erase(system);
         }
     }
 

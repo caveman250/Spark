@@ -212,8 +212,8 @@ namespace se::ecs
         uint64_t NewSystem();
         uint64_t RecycleSystem();
 
-        static void CreateSystemInternal(std::unordered_map<Id, SystemRecord>& systemMap, std::unordered_map<Id, std::vector<ChildQuery>>& allowedChildQueries, Id system, const SystemCreationInfo& pendingSystem);
-        static void DestroySystemInternal(std::unordered_map<Id, SystemRecord>& systemMap, std::unordered_map<Id, std::vector<ChildQuery>>& allowedChildQueries, std::vector<Id>& freeSystems, Id system);
+        static void CreateSystemInternal(std::unordered_map<Id, SystemRecord>& systemMap, Id system, const SystemCreationInfo& pendingSystem);
+        static void DestroySystemInternal(std::unordered_map<Id, SystemRecord>& systemMap, std::vector<Id>& freeSystems, Id system);
 
         Id NewObserver();
         Id RecycleObserver();
@@ -238,8 +238,7 @@ namespace se::ecs
                                     std::vector<Id>& pendingDeletions,
                                     std::unordered_map<Id, SystemRecord>& systemRecords,
                                     std::vector<std::vector<Id>>& systsemUpdateGroups,
-                                    std::vector<Id>& freeSystems,
-                                    std::unordered_map<Id, std::vector<ChildQuery>>& allowedChildQueries);
+                                    std::vector<Id>& freeSystems);
         static void RebuildSystemUpdateGroups(std::vector<std::vector<Id>>& updateGroups, std::unordered_map<Id, SystemRecord>& systems);
         void ProcessPendingAppSystems();
         void ProcessPendingEngineSystems();
@@ -257,7 +256,6 @@ namespace se::ecs
         std::unordered_map<Id, reflect::ObjectBase*> m_SingletonComponents = {};
         std::unordered_map<Id, SystemRecord> m_AppSystems = {};
         std::unordered_map<Id, SystemRecord> m_EngineSystems = {};
-        std::unordered_map<Id, std::vector<ChildQuery>> m_AllowedChildQueries = {};
         std::unordered_map<Id, std::unordered_map<Id, std::shared_ptr<BaseObserver>>> m_Observers;
 
         uint32_t m_EntityCounter = 1;
