@@ -89,40 +89,90 @@ namespace se
 
     void Application::CreateInitialSystems()
     {
-        auto input = m_World.CreateEngineSystem<input::InputSystem>("InputSystem", {}, {}, {});
-        auto resetInput = m_World.CreateEngineSystem<ui::systems::ResetInputSystem>("ResetInputSystem", {}, {}, { input });
-        auto mouseInput = m_World.CreateEngineSystem<ui::systems::UIMouseInputSystem>("UIMouseInputSystem", {}, {}, { resetInput });
-        m_World.CreateEngineSystem<ui::systems::UIKeyboardInputSystem>("UIKeyboardInputSystem", {}, {}, { resetInput });
-        m_World.CreateEngineSystem<render::systems::PointLightSystem>("PointLightSystem", {}, {}, {});
-        m_World.CreateEngineSystem<render::systems::MeshRenderSystem>("MeshRenderSystem", {}, {}, {});
-        auto rootTransform = m_World.CreateEngineSystem<ecs::systems::RootTransformSystem>("RootTransformSystem", {}, {}, {});
-        auto worldTransform = m_World.CreateEngineSystem<ecs::systems::WorldTransformSystem>("WorldTransformSystem", {}, {}, { rootTransform });
-        m_World.CreateEngineSystem<ecs::systems::TransformSystem>("TransformSystem", {}, {}, { worldTransform });
-        auto rootRect = m_World.CreateEngineSystem<ui::systems::RootRectTransformSystem>("RootRectTransformSystem", {}, {}, {});
+        ecs::SystemCreationInfo inputReg = ecs::SystemCreationInfo("Input System");
+        auto input = m_World.CreateEngineSystem<input::InputSystem>(inputReg);
 
-        auto treeNodes = m_World.CreateEngineSystem<ui::systems::TreeNodeSystem>("TreeNodeSystem", {}, {}, { mouseInput });
+        ecs::SystemCreationInfo resetInputReg = ecs::SystemCreationInfo("Reset Input System")
+                                                        .WithDependency(input);
+        auto resetInput = m_World.CreateEngineSystem<ui::systems::ResetInputSystem>(resetInputReg);
+
+        ecs::SystemCreationInfo mouseInputReg = ecs::SystemCreationInfo("UIMouseInputSystem")
+                                                        .WithDependency(resetInput);
+        auto mouseInput = m_World.CreateEngineSystem<ui::systems::UIMouseInputSystem>(mouseInputReg);
+
+        ecs::SystemCreationInfo keyboardInputReg = ecs::SystemCreationInfo("UIKeyboardInputSystem")
+                                                        .WithDependency(resetInput);
+        m_World.CreateEngineSystem<ui::systems::UIKeyboardInputSystem>(keyboardInputReg);
+
+        ecs::SystemCreationInfo pointLightReg = ecs::SystemCreationInfo("PointLightSystem");
+        m_World.CreateEngineSystem<render::systems::PointLightSystem>(pointLightReg);
+
+        ecs::SystemCreationInfo meshRenderReg = ecs::SystemCreationInfo("MeshRenderSystem");
+        m_World.CreateEngineSystem<render::systems::MeshRenderSystem>(meshRenderReg);
+
+        ecs::SystemCreationInfo rootTransformReg = ecs::SystemCreationInfo("RootTransformSystem");
+        auto rootTransform = m_World.CreateEngineSystem<ecs::systems::RootTransformSystem>(rootTransformReg);
+
+        ecs::SystemCreationInfo worldTransformReg = ecs::SystemCreationInfo("WorldTransformSystem")
+                                                            .WithDependency(rootTransform);
+        auto worldTransform = m_World.CreateEngineSystem<ecs::systems::WorldTransformSystem>(worldTransformReg);
+
+        ecs::SystemCreationInfo transformReg = ecs::SystemCreationInfo("TransformSystem")
+                                                            .WithDependency(worldTransform);
+        m_World.CreateEngineSystem<ecs::systems::TransformSystem>(transformReg);
+
+        ecs::SystemCreationInfo rootRectReg = ecs::SystemCreationInfo("RootRectTransformSystem");
+        auto rootRect = m_World.CreateEngineSystem<ui::systems::RootRectTransformSystem>(rootRectReg);
+
+        ecs::SystemCreationInfo treeNodesReg = ecs::SystemCreationInfo("TreeNodeSystem")
+                                                            .WithDependency(mouseInput);
+        auto treeNodes = m_World.CreateEngineSystem<ui::systems::TreeNodeSystem>(treeNodesReg);
+
         m_World.RegisterComponent<ui::components::TreeNodeComponent>();
         m_World.RegisterComponent<ui::components::WidgetComponent>();
-        auto treeViewChildQuery =
-        {
-            std::make_pair<ecs::Id, ecs::ComponentMutability::Type>(ui::components::TreeNodeComponent::GetComponentId(), ecs::ComponentMutability::Immutable),
-            std::make_pair<ecs::Id, ecs::ComponentMutability::Type>(ui::components::RectTransformComponent::GetComponentId(), ecs::ComponentMutability::Mutable),
-            std::make_pair<ecs::Id, ecs::ComponentMutability::Type>(ui::components::WidgetComponent::GetComponentId(), ecs::ComponentMutability::Mutable)
-        };
-        auto treeView = m_World.CreateEngineSystem<ui::systems::TreeViewSystem>("TreeViewSystem", {}, treeViewChildQuery, { rootRect, treeNodes });
-        m_World.CreateEngineSystem<ui::systems::RectTransformSystem>("RectTransformSystem", {}, {}, { rootRect, treeView });
-        m_World.CreateEngineSystem<ui::systems::ButtonSystem>("ButtonSystem", {}, {}, { mouseInput });
-        m_World.CreateEngineSystem<ui::systems::TitleBarSystem>("TitleBarSystem", {}, {}, { mouseInput });
-        auto scrollBoxChildQuery =
-        {
-            std::make_pair<ecs::Id, ecs::ComponentMutability::Type>(ui::components::WidgetComponent::GetComponentId(), ecs::ComponentMutability::Mutable),
-        };
-        m_World.CreateEngineSystem<ui::systems::ScrollViewUpdateSystem>("ScrollViewUpdateSystem", {}, scrollBoxChildQuery, { mouseInput });
-        auto imageRender = m_World.CreateEngineSystem<ui::systems::ImageRenderSystem>("ImageRenderSystem", {}, {}, { });
-        auto textRender = m_World.CreateEngineSystem<ui::systems::TextRenderSystem>("TextRenderSystem", {}, {}, {});
-        auto scrollBoxRender = m_World.CreateEngineSystem<ui::systems::ScrollBoxRenderSystem>("ScrollBoxRenderSystem", {}, {}, {});
-        m_World.CreateEngineSystem<ui::systems::WidgetVisibilitySystem>("WidgetVisibilitySystem", {}, {}, {});
-        m_World.CreateEngineSystem<ui::systems::UIRenderSystem>("UIRenderSystem", {}, {}, { imageRender, textRender, scrollBoxRender });
+        ecs::SystemCreationInfo treeViewReg = ecs::SystemCreationInfo("TreeViewSystem")
+            .WithDependency(rootRect)
+            .WithDependency(treeNodes)
+            .WithChildQuery(ui::components::TreeNodeComponent::GetComponentId(), ecs::ComponentMutability::Immutable)
+            .WithChildQuery(ui::components::RectTransformComponent::GetComponentId(), ecs::ComponentMutability::Mutable)
+            .WithChildQuery(ui::components::WidgetComponent::GetComponentId(), ecs::ComponentMutability::Mutable);
+        auto treeView = m_World.CreateEngineSystem<ui::systems::TreeViewSystem>(treeViewReg);
+
+        ecs::SystemCreationInfo rectReg = ecs::SystemCreationInfo("RectTransformSystem")
+            .WithDependency(rootRect)
+            .WithDependency(treeView);
+        m_World.CreateEngineSystem<ui::systems::RectTransformSystem>(rectReg);
+
+        ecs::SystemCreationInfo buttonReg = ecs::SystemCreationInfo("ButtonSystem")
+            .WithDependency(mouseInput);
+        m_World.CreateEngineSystem<ui::systems::ButtonSystem>(buttonReg);
+
+        ecs::SystemCreationInfo titleBarReg = ecs::SystemCreationInfo("TitleBarSystem")
+            .WithDependency(mouseInput);
+        m_World.CreateEngineSystem<ui::systems::TitleBarSystem>(titleBarReg);
+
+        ecs::SystemCreationInfo scrollViewReg = ecs::SystemCreationInfo("ScrollViewUpdateSystem")
+            .WithDependency(mouseInput)
+            .WithChildQuery(ui::components::WidgetComponent::GetComponentId(), ecs::ComponentMutability::Mutable);
+        m_World.CreateEngineSystem<ui::systems::ScrollViewUpdateSystem>(scrollViewReg);
+
+        ecs::SystemCreationInfo imageRenderReg = ecs::SystemCreationInfo("ImageRenderSystem");
+        auto imageRender = m_World.CreateEngineSystem<ui::systems::ImageRenderSystem>(imageRenderReg);
+
+        ecs::SystemCreationInfo textRenderReg = ecs::SystemCreationInfo("TextRenderSystem");
+        auto textRender = m_World.CreateEngineSystem<ui::systems::TextRenderSystem>(textRenderReg);
+
+        ecs::SystemCreationInfo scrollBoxRenderReg = ecs::SystemCreationInfo("ScrollBoxRenderSystem");
+        auto scrollBoxRender = m_World.CreateEngineSystem<ui::systems::ScrollBoxRenderSystem>(scrollBoxRenderReg);
+
+        ecs::SystemCreationInfo widgetVisibilityReg = ecs::SystemCreationInfo("WidgetVisibilitySystem");
+        m_World.CreateEngineSystem<ui::systems::WidgetVisibilitySystem>(widgetVisibilityReg);
+
+        ecs::SystemCreationInfo uiRenderReg = ecs::SystemCreationInfo("UIRenderSystem")
+            .WithDependency(imageRender)
+            .WithDependency(textRender)
+            .WithDependency(scrollBoxRender);
+        m_World.CreateEngineSystem<ui::systems::UIRenderSystem>(uiRenderReg);
     }
 
     void Application::Shutdown()

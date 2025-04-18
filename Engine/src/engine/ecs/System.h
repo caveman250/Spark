@@ -42,14 +42,14 @@ namespace se::ecs
         }
 
         const std::vector<Relationship>& GetRelationships() const { return m_Relationships; }
-        const ChildQuery& GetChildQuery() const { return m_ChildQuery; }
+        const std::vector<ChildQuery>& GetChildQuery() const { return m_ChildQuery; }
         bool DependsOn(Id other) const;
         const std::unordered_set<Id>& GetDependencies() const { return m_DependsOn; }
 
     private:
         virtual void RegisterComponents() = 0;
         std::vector<Relationship> m_Relationships;
-        ChildQuery m_ChildQuery;
+        std::vector<ChildQuery> m_ChildQuery;
         std::unordered_set<Id> m_DependsOn;
 
         friend class World;

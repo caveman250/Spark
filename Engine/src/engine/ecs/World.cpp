@@ -13,11 +13,6 @@
 #include "engine/bits/FlagUtil.h"
 #include "engine/threads/ParallelForEach.h"
 
-DEFINE_SPARK_ENUM_BEGIN(se::ecs::ComponentMutability)
-                                                         DEFINE_ENUM_VALUE(ComponentMutability, Mutable)
-                                                         DEFINE_ENUM_VALUE(ComponentMutability, Immutable)
-DEFINE_SPARK_ENUM_END()
-
 namespace se::ecs
 {
     Id World::CreateEntity(const String& name, bool editorOnly)
@@ -915,12 +910,12 @@ namespace se::ecs
         ProcessPendingAppSystems();
     }
 
-    void World::ProcessPendingSystems(std::vector<std::pair<Id, PendingSystemInfo>>& pendingCreations,
+    void World::ProcessPendingSystems(std::vector<std::pair<Id, SystemCreationInfo>>& pendingCreations,
                                       std::vector<Id>& pendingDeletions,
                                       std::unordered_map<Id, SystemRecord>& systemRecords,
                                       std::vector<std::vector<Id>>& systsemUpdateGroups,
                                       std::vector<Id>& freeSystems,
-                                      std::unordered_map<Id, ChildQuery>& allowedChildQueries)
+                                      std::unordered_map<Id, std::vector<ChildQuery>>& allowedChildQueries)
     {
         bool shouldRebuildUpdateGroups = !pendingCreations.empty() || !pendingDeletions.empty(); {
             auto safeCopy = pendingCreations;
@@ -959,8 +954,8 @@ namespace se::ecs
     }
 
     void World::CreateSystemInternal(std::unordered_map<Id, SystemRecord>& systemMap,
-                                     std::unordered_map<Id, ChildQuery>& allowedChildQueries, Id system,
-                                     const PendingSystemInfo& pendingSystem)
+                                     std::unordered_map<Id, std::vector<ChildQuery>>& allowedChildQueries, Id system,
+                                     const SystemCreationInfo& pendingSystem)
     {
         if (SPARK_VERIFY(systemMap.contains(system) && systemMap.at(system).instance == nullptr))
         {
@@ -968,14 +963,14 @@ namespace se::ecs
             record.instance = static_cast<BaseSystem*>(record.type->heap_constructor());
             record.instance->RegisterComponents();
             record.instance->m_Relationships = pendingSystem.relationships;
-            record.instance->m_ChildQuery = pendingSystem.childQuery;
-            allowedChildQueries[system] = pendingSystem.childQuery;
-            record.instance->m_DependsOn = pendingSystem.dependsOn;
+            record.instance->m_ChildQuery = pendingSystem.childQuerys;
+            allowedChildQueries[system] = pendingSystem.childQuerys;
+            record.instance->m_DependsOn = pendingSystem.dependencies;
         }
     }
 
     void World::DestroySystemInternal(std::unordered_map<Id, SystemRecord>& systemMap,
-                                      std::unordered_map<Id, ChildQuery>& allowedChildQueries,
+                                      std::unordered_map<Id, std::vector<ChildQuery>>& allowedChildQueries,
                                       std::vector<Id>& freeSystems, Id system)
     {
         if (SPARK_VERIFY(systemMap.contains(system)))
