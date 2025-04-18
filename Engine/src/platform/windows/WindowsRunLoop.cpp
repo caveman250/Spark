@@ -41,16 +41,23 @@ namespace se::windows
 
     void WindowsRunLoop::Update()
     {
+        Window* window = static_cast<Window*>(m_Window);
         PROFILE_SCOPE("WindowsRunLoop::Update")
         {
             PROFILE_SCOPE("Process Messages")
             MSG msg;
-            while (PeekMessage(&msg, m_Windows->GetHWND(), 0, 0, PM_REMOVE))
+            while (PeekMessage(&msg, window->GetHWND(), 0, 0, PM_REMOVE))
             {
                 TranslateMessage(&msg);
                 DispatchMessage(&msg);
             }
         }
+
+        Application* app = Application::Get();
+        auto input = app->GetWorld()->GetSingletonComponent<input::InputComponent>();
+        input::InputComponent& temp_input = window->GetTempInputComponent();
+        *input = temp_input;
+        temp_input = {};
 
         if (m_Window->ShouldClose())
         {
@@ -63,10 +70,12 @@ namespace se::windows
             return;
         }
 
+
+
         PlatformRunLoop::Update();
 
         render::Renderer::Get<render::Renderer>()->Render();
-        SwapBuffers(m_Window->GetHDC());
+        SwapBuffers(window->GetHDC());
 
         render::Renderer::Get<render::Renderer>()->EndFrame();
     }

@@ -6,6 +6,7 @@
 #include "engine/ui/components/ImageComponent.h"
 #include "engine/ui/components/ReceivesMouseEventsComponent.h"
 #include "engine/ui/components/WidgetComponent.h"
+#include "engine/render/MaterialInstance.h"
 
 namespace se::ui::observers
 {

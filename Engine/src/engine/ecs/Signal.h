@@ -77,7 +77,7 @@ namespace se::ecs
 
         m_PendingInvokeIndex++;
 
-        if (m_PendingInvokeIndex >= m_PendingInvokeArgs.size() - 1)
+        if (m_PendingInvokeIndex >= m_PendingInvokeArgs.size())
         {
             m_PendingInvokeArgs.clear();
             m_PendingInvokeIndex = 0;

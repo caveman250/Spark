@@ -7,3 +7,4 @@ cmake-build-disteditor
 *.sass
 Engine/unity_generated
 Editor/unity_generated
+Engine/built

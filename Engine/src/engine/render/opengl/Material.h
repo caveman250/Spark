@@ -18,14 +18,14 @@ namespace se::render::opengl
         void CreatePlatformResources(const render::VertexBuffer& vb) override;
         void DestroyPlatformResources() override;
 
-        GLuint GetProgramID() { return m_CompiledProgram; }
+        GLuint GetVertexShader() { return m_VertexShader; }
+        GLuint GetFragmentShader() { return m_FragmentShader; }
     private:
-        void SetUniformInternal(const std::string& name, asset::shader::ast::AstType::Type type, int count, const void* value) override;
         void ApplyDepthStencil(DepthCompare::Type comp, StencilFunc::Type src, uint32_t writeMask, uint32_t readMask) override;
         void ApplyBlendMode(BlendMode::Type src, BlendMode::Type dest) override;
 
-        std::vector<std::pair<std::string, std::shared_ptr<render::TextureResource>>> m_Textures;
-        GLuint m_CompiledProgram = GL_INVALID_VALUE;
+        GLuint m_VertexShader = GL_INVALID_VALUE;
+        GLuint  m_FragmentShader = GL_INVALID_VALUE;
     };
 }
 #endif

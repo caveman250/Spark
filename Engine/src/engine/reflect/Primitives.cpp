@@ -40,7 +40,9 @@ return &typeDesc;\
     DEFINE_PRIMITIVE(int64_t, asset::binary::Type::Int64)
     DEFINE_PRIMITIVE(uint32_t, asset::binary::Type::Uint32)
     DEFINE_PRIMITIVE(uint64_t, asset::binary::Type::Uint64)
+#if !SPARK_PLATFORM_WINDOWS
     DEFINE_PRIMITIVE(size_t, asset::binary::Type::Uint64)
+#endif
     DEFINE_PRIMITIVE(double, asset::binary::Type::Double)
     DEFINE_PRIMITIVE(float, asset::binary::Type::Float)
     using namespace std;

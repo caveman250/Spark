@@ -56,7 +56,7 @@ namespace se::windows
 
     Window::~Window()
     {
-        PlatformRunLoop::Get()->UnregisterWindow(this);
+
     }
 
     static LRESULT CALLBACK wndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
@@ -84,14 +84,13 @@ namespace se::windows
             {
                 uint32_t scanCode = (HIWORD(lParam) & (KF_EXTENDED | 0xff));
                 input::Key::Type key = KeyMap::WindowsKeyToSparkKey(scanCode);
-                auto inputComp = Application::Get()->GetWorld()->GetSingletonComponent<input::InputComponent>();
 
                 input::KeyEvent keyEvent;
                 keyEvent.key = key;
                 keyEvent.state = message == WM_KEYDOWN ? input::KeyState::Down : input::KeyState::Up;
 
-                inputComp->keyEvents.push_back(keyEvent);
-                inputComp->keyStates[key] = keyEvent.state;
+                window->GetTempInputComponent().keyEvents.push_back(keyEvent);
+                window->GetTempInputComponent().keyStates[key] = keyEvent.state;
                 break;
             }
             case WM_MOVE:
@@ -102,120 +101,100 @@ namespace se::windows
             case WM_MOUSEMOVE:
             {
                 //SetFocus(hWnd);
-                auto app = Application::Get();
-                auto inputComp = app->GetWorld()->GetSingletonComponent<input::InputComponent>();
-                inputComp->mouseX = GET_X_LPARAM(lParam);
-                inputComp->mouseY = GET_Y_LPARAM(lParam);
+                window->GetTempInputComponent().mouseX = GET_X_LPARAM(lParam);
+                window->GetTempInputComponent().mouseY = GET_Y_LPARAM(lParam);
                 break;
             }
             case WM_LBUTTONDOWN:
             {
-                auto app = Application::Get();
-                auto inputComp = app->GetWorld()->GetSingletonComponent<input::InputComponent>();
-                inputComp->mouseButtonStates[input::MouseButton::Left] = input::KeyState::Down;
+                window->GetTempInputComponent().mouseButtonStates[input::MouseButton::Left] = input::KeyState::Down;
 
                 input::MouseEvent mouseEvent;
                 mouseEvent.button = input::MouseButton::Left;
                 mouseEvent.state = input::KeyState::Down;
-                inputComp->mouseEvents.push_back(mouseEvent);
+                window->GetTempInputComponent().mouseEvents.push_back(mouseEvent);
                 break;
             }
             case WM_LBUTTONUP:
             {
-                auto app = Application::Get();
-                auto inputComp = app->GetWorld()->GetSingletonComponent<input::InputComponent>();
-                inputComp->mouseButtonStates[input::MouseButton::Left] = input::KeyState::Up;
+                window->GetTempInputComponent().mouseButtonStates[input::MouseButton::Left] = input::KeyState::Up;
 
                 input::MouseEvent mouseEvent;
                 mouseEvent.button = input::MouseButton::Left;
                 mouseEvent.state = input::KeyState::Up;
-                inputComp->mouseEvents.push_back(mouseEvent);
+                window->GetTempInputComponent().mouseEvents.push_back(mouseEvent);
                 break;
             }
             case WM_RBUTTONDOWN:
             {
-                auto app = Application::Get();
-                auto inputComp = app->GetWorld()->GetSingletonComponent<input::InputComponent>();
-                inputComp->mouseButtonStates[input::MouseButton::Right] = input::KeyState::Down;
+                window->GetTempInputComponent().mouseButtonStates[input::MouseButton::Right] = input::KeyState::Down;
 
                 input::MouseEvent mouseEvent;
                 mouseEvent.button = input::MouseButton::Right;
                 mouseEvent.state = input::KeyState::Down;
-                inputComp->mouseEvents.push_back(mouseEvent);
+                window->GetTempInputComponent().mouseEvents.push_back(mouseEvent);
                 break;
             }
             case WM_RBUTTONUP:
             {
-                auto app = Application::Get();
-                auto inputComp = app->GetWorld()->GetSingletonComponent<input::InputComponent>();
-                inputComp->mouseButtonStates[input::MouseButton::Right] = input::KeyState::Up;
+                window->GetTempInputComponent().mouseButtonStates[input::MouseButton::Right] = input::KeyState::Up;
 
                 input::MouseEvent mouseEvent;
                 mouseEvent.button = input::MouseButton::Right;
                 mouseEvent.state = input::KeyState::Up;
-                inputComp->mouseEvents.push_back(mouseEvent);
+                window->GetTempInputComponent().mouseEvents.push_back(mouseEvent);
                 break;
             }
             case WM_MBUTTONDOWN:
             {
-                auto app = Application::Get();
-                auto inputComp = app->GetWorld()->GetSingletonComponent<input::InputComponent>();
-                inputComp->mouseButtonStates[input::MouseButton::Middle] = input::KeyState::Down;
+                window->GetTempInputComponent().mouseButtonStates[input::MouseButton::Middle] = input::KeyState::Down;
 
                 input::MouseEvent mouseEvent;
                 mouseEvent.button = input::MouseButton::Middle;
                 mouseEvent.state = input::KeyState::Down;
-                inputComp->mouseEvents.push_back(mouseEvent);
+                window->GetTempInputComponent().mouseEvents.push_back(mouseEvent);
                 break;
             }
             case WM_MBUTTONUP:
             {
-                auto app = Application::Get();
-                auto inputComp = app->GetWorld()->GetSingletonComponent<input::InputComponent>();
-                inputComp->mouseButtonStates[input::MouseButton::Middle] = input::KeyState::Up;
+                window->GetTempInputComponent().mouseButtonStates[input::MouseButton::Middle] = input::KeyState::Up;
 
                 input::MouseEvent mouseEvent;
                 mouseEvent.button = input::MouseButton::Middle;
                 mouseEvent.state = input::KeyState::Up;
-                inputComp->mouseEvents.push_back(mouseEvent);
+                window->GetTempInputComponent().mouseEvents.push_back(mouseEvent);
                 break;
             }
             case WM_XBUTTONDOWN:
             {
-                auto app = Application::Get();
-                auto inputComp = app->GetWorld()->GetSingletonComponent<input::InputComponent>();
                 input::MouseButton::Type btn = lParam == XBUTTON1 ? input::MouseButton::Btn4 : input::MouseButton::Btn5;
-                inputComp->mouseButtonStates[btn] = input::KeyState::Down;
+                window->GetTempInputComponent().mouseButtonStates[btn] = input::KeyState::Down;
 
                 input::MouseEvent mouseEvent;
                 mouseEvent.button = btn;
                 mouseEvent.state = input::KeyState::Down;
-                inputComp->mouseEvents.push_back(mouseEvent);
+                window->GetTempInputComponent().mouseEvents.push_back(mouseEvent);
                 break;
             }
             case WM_XBUTTONUP:
             {
-                auto app = Application::Get();
-                auto inputComp = app->GetWorld()->GetSingletonComponent<input::InputComponent>();
                 input::MouseButton::Type btn = lParam == XBUTTON1 ? input::MouseButton::Btn4 : input::MouseButton::Btn5;
-                inputComp->mouseButtonStates[btn] = input::KeyState::Up;
+                window->GetTempInputComponent().mouseButtonStates[btn] = input::KeyState::Up;
 
                 input::MouseEvent mouseEvent;
                 mouseEvent.button = btn;
                 mouseEvent.state = input::KeyState::Up;
-                inputComp->mouseEvents.push_back(mouseEvent);
+                window->GetTempInputComponent().mouseEvents.push_back(mouseEvent);
                 break;
             }
             case WM_MOUSEWHEEL:
             {
-                auto app = Application::Get();
-                auto inputComp = app->GetWorld()->GetSingletonComponent<input::InputComponent>();
-                inputComp->mouseScrollDelta = GET_WHEEL_DELTA_WPARAM(wParam);
+                window->GetTempInputComponent().mouseScrollDelta = GET_WHEEL_DELTA_WPARAM(wParam);
 
                 input::MouseEvent mouseEvent;
                 mouseEvent.button = input::MouseButton::None;
-                mouseEvent.scrollDelta = inputComp->mouseScrollDelta / 120;
-                inputComp->mouseEvents.push_back(mouseEvent);
+                mouseEvent.scrollDelta = window->GetTempInputComponent().mouseScrollDelta;
+                window->GetTempInputComponent().mouseEvents.push_back(mouseEvent);
                 return 0;
             }
         }
@@ -336,5 +315,10 @@ namespace se::windows
         ReleaseDC(m_Hwnd, GetHDC());
         DestroyWindow(m_Hwnd);
         s_WindowInstances.erase(m_Hwnd);
+    }
+
+    input::InputComponent& Window::GetTempInputComponent()
+    {
+        return m_TempInputComponent;
     }
 }

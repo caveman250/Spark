@@ -6,14 +6,18 @@ namespace se::input
 {
     void InputUtil::ProcessMouseEvents(InputComponent *input, const std::function<bool(const MouseEvent &)> &func)
     {
+        int initialSize = input->mouseEvents.size();
+        int numConsumed = 0;
         if (!input->mouseEvents.empty())
         {
             for (int i = static_cast<int>(input->mouseEvents.size()) - 1; i >= 0; --i)
             {
+                SPARK_ASSERT(!input->mouseEvents.empty());
                 const auto& event = input->mouseEvents[i];
                 if (func(event))
                 {
-                    ConsumeMouseEvent(event, input);
+                    ConsumeMouseEvent(input, i);
+                    numConsumed++;
                 }
             }
         }
@@ -28,21 +32,19 @@ namespace se::input
                 const auto& event = input->keyEvents[i];
                 if (func(event))
                 {
-                    ConsumeKeyEvent(event, input);
+                    ConsumeKeyEvent(input, i);
                 }
             }
         }
     }
 
-    void InputUtil::ConsumeKeyEvent(const KeyEvent& keyEvent, InputComponent* input)
+    void InputUtil::ConsumeKeyEvent(InputComponent* input, int index)
     {
-        const auto [first, last] = std::ranges::remove(input->keyEvents, keyEvent);
-        input->keyEvents.erase(first, last);
+        input->keyEvents.erase(std::next(input->keyEvents.begin(), index));
     }
 
-    void InputUtil::ConsumeMouseEvent(const MouseEvent &mouseEvent, InputComponent *input)
+    void InputUtil::ConsumeMouseEvent(InputComponent *input, int index)
     {
-        const auto [first, last] = std::ranges::remove(input->mouseEvents, mouseEvent);
-        input->mouseEvents.erase(first, last);
+        input->mouseEvents.erase(std::next(input->mouseEvents.begin(), index));
     }
 }

@@ -18,7 +18,7 @@ namespace se::input
 
         bool operator==(const MouseEvent& rhs) const
         {
-            return button == rhs.button && state == rhs.state;
+            return button == rhs.button && state == rhs.state && scrollDelta == rhs.scrollDelta;
         }
     };
 }
