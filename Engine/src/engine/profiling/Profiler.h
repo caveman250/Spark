@@ -71,7 +71,7 @@ namespace se::profiling
     };
 }
 
-#define ENABLE_PROFILING 1
+#define ENABLE_PROFILING 0
 #if ENABLE_PROFILING
 #define PROFILE_SCOPE(name) auto SPARK_CAT(profileScope, __COUNTER__) = se::profiling::ProfileScope(name);
 #define PROFILE_BEGIN_FRAME() se::profiling::Profiler::Get()->BeginFrame();

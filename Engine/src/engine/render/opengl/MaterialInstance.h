@@ -2,6 +2,8 @@
 
 #include "engine/render/MaterialInstance.h"
 
+#if OPENGL_RENDERER
+
 namespace se::render::opengl
 {
     class MaterialInstance : public render::MaterialInstance
@@ -24,3 +26,5 @@ namespace se::render::opengl
         GLuint m_CompiledProgram = GL_INVALID_VALUE;
     };
 }
+
+#endif

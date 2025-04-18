@@ -1,5 +1,7 @@
 #include "MaterialInstance.h"
 
+#if OPENGL_RENDERER
+
 namespace se::render
 {
     std::shared_ptr<MaterialInstance> MaterialInstance::CreateMaterialInstance(const std::shared_ptr<render::Material>& material)
@@ -198,3 +200,5 @@ namespace se::render::opengl
         }
     }
 }
+
+#endif

@@ -60,9 +60,7 @@ namespace se::ui::systems
                                 return false;
                             });
 
-                        int scrollBoxHeight = rectTransform.rect.size.y;
                         int scrollBoxMaxY = rectTransform.rect.topLeft.y + rectTransform.rect.size.y;
-                        int scrollContentHeight = maxChildY - minChildY;
 
                         int availableScrollSpaceTop = rectTransform.rect.topLeft.y - minChildY;
                         int availableScrollSpaceBottom = maxChildY - scrollBoxMaxY;
@@ -96,24 +94,10 @@ namespace se::ui::systems
                             int delta = std::min(-mouseEvent.scrollDelta, availableScrollSpaceTop);
                             for (auto& child: childComponents)
                             {
-                                Rect rectlol = util::CalculateScreenSpaceRect(*child.first, rectTransform);
-                                bool wastheone = false;
-                                if (rectlol.topLeft.y == minChildY)
-                                {
-                                    wastheone = true;
-                                }
-
                                 child.first->minY += delta;
                                 child.first->maxY += delta;
 
                                 Rect rect = util::CalculateScreenSpaceRect(*child.first, rectTransform);
-                                if (wastheone)
-                                {
-                                    if (rect.topLeft.y > rectTransform.rect.topLeft.y)
-                                    {
-                                        int lol =1;
-                                    }
-                                }
                                 bool outOfBounds = (rect.topLeft.y + rect.size.y < rectTransform.rect.topLeft.y) ||
                                                    (rect.topLeft.y > rectTransform.rect.topLeft.y + rectTransform.rect.
                                                     size.y);
