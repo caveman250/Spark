@@ -183,6 +183,12 @@ namespace se::ecs
         template<typename ...T, typename Func>
         bool ChildEach(Id entity, BaseSystem* system, Func&& func, const std::vector<Relationship>& relationships);
 
+        template<typename ...T>
+        bool VariantChildEach(const Id& entity, BaseSystem* system, const std::function<bool(std::variant<T*...>)>& func);
+
+        template <typename T, typename... Ts>
+        void VariantChildEachImpl(const Id& entity, const std::function<bool(std::variant<Ts*...>)>& func, bool& ret);
+
         template<typename ...T, typename Func>
         bool RecursiveChildEach(Id entity, BaseSystem* system, Func&& func, const std::vector<Relationship>& relationships);
 
@@ -470,6 +476,44 @@ namespace se::ecs
                 {
                     return true;
                 }
+            }
+        }
+
+        return false;
+    }
+
+    template <typename T, typename... Ts>
+    void World::VariantChildEachImpl(const Id& entity, const std::function<bool(std::variant<Ts*...>)>& func, bool& ret)
+    {
+        if (!ret && HasComponent<T>(entity))
+        {
+            ret = func(static_cast<T*>(GetComponent(entity, T::GetComponentId())));
+        }
+    }
+
+    template<typename... T>
+    bool World::VariantChildEach(const Id& entity, BaseSystem* system, const std::function<bool(std::variant<T*...>)>& func)
+    {
+        PROFILE_SCOPE("World::VariantChildEach");
+
+#if !SPARK_DIST
+        std::vector<std::pair<Id, ComponentMutability::Type>> compIds = {};
+        compIds.reserve(sizeof...(T));
+        (CollectComponentId<T>(compIds), ...);
+
+        if (!ValidateChildQuery(system, compIds))
+        {
+            return false;
+        }
+#endif
+
+        for (const auto& child : GetChildren(entity))
+        {
+            bool ret = false;
+            (VariantChildEachImpl<T>(child, func, ret), ...);
+            if (ret)
+            {
+                return ret;
             }
         }
 

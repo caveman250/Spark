@@ -35,6 +35,12 @@ namespace se::ecs
             Application::Get()->GetWorld()->ChildEach<Ts...>(entity, this, func, m_Relationships);
         }
 
+        template<typename... Ts>
+        void RunVariantChildQuery(const Id& entity, const std::function<bool(std::variant<Ts*...>)>& func)
+        {
+            Application::Get()->GetWorld()->VariantChildEach<Ts...>(entity, this, func);
+        }
+
         template<typename... Ts, typename Func>
         void RunRecursiveChildQuery(Id entity, Func&& func)
         {
