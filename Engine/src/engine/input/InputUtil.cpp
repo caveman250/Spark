@@ -6,8 +6,6 @@ namespace se::input
 {
     void InputUtil::ProcessMouseEvents(InputComponent *input, const std::function<bool(const MouseEvent &)> &func)
     {
-        int initialSize = input->mouseEvents.size();
-        int numConsumed = 0;
         if (!input->mouseEvents.empty())
         {
             for (int i = static_cast<int>(input->mouseEvents.size()) - 1; i >= 0; --i)
@@ -17,7 +15,6 @@ namespace se::input
                 if (func(event))
                 {
                     ConsumeMouseEvent(input, i);
-                    numConsumed++;
                 }
             }
         }
