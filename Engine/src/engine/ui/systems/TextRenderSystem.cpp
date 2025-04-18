@@ -1,7 +1,5 @@
 #include "spark.h"
 
-#include "engine/math/Mat4.h"
-#include "engine/ecs/components/MeshComponent.h"
 #include "TextRenderSystem.h"
 
 #include "engine/Application.h"

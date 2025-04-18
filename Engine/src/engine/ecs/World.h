@@ -8,6 +8,7 @@
 #include "MaybeLockGuard.h"
 #include "Observer.h"
 #include "Relationship.h"
+#include "SystemCreationInfo.h"
 #include "engine/profiling/Profiler.h"
 #include "engine/string/String.h"
 #include "engine/ecs/components/ParentComponent.h"
@@ -81,19 +82,6 @@ namespace se::ecs
         ComponentArchetypeRecord archetypeRecords;
     };
 
-    DECLARE_SPARK_ENUM_BEGIN(ComponentMutability, int)
-        Immutable,
-        Mutable,
-    DECLARE_SPARK_ENUM_END()
-
-    typedef std::vector<std::pair<Id, ComponentMutability::Type>> ChildQuery;
-    struct PendingSystemInfo
-    {
-        std::vector<Relationship> relationships;
-        ChildQuery childQuery;
-        std::unordered_set<Id> dependsOn;
-    };
-
     struct SystemRecord
     {
         reflect::Class* type = nullptr;
@@ -152,11 +140,11 @@ namespace se::ecs
         std::vector<reflect::ObjectBase*> GetSingletonComponents();
 
         template <AppSystemConcept T>
-        Id CreateAppSystem(const String& name, const std::vector<Relationship>& relationships, const ChildQuery& additionalChildQuery, const std::unordered_set<Id>& dependsOn);
+        Id CreateAppSystem(const SystemCreationInfo& reg_info);
         void DestroyAppSystem(Id id);
 
         template <EngineSystemConcept T>
-        Id CreateEngineSystem(const String& name, const std::vector<Relationship>& relationships, const ChildQuery& additionalChildQuery, const std::unordered_set<Id>& dependsOn);
+        Id CreateEngineSystem(const SystemCreationInfo& reg_info);
         void DestroyEngineSystem(Id id);
 
         template <typename T>
@@ -224,8 +212,8 @@ namespace se::ecs
         uint64_t NewSystem();
         uint64_t RecycleSystem();
 
-        static void CreateSystemInternal(std::unordered_map<Id, SystemRecord>& systemMap, std::unordered_map<Id, ChildQuery>& allowedChildQueries, Id system, const PendingSystemInfo& pendingSystem);
-        static void DestroySystemInternal(std::unordered_map<Id, SystemRecord>& systemMap, std::unordered_map<Id, ChildQuery>& allowedChildQueries, std::vector<Id>& freeSystems, Id system);
+        static void CreateSystemInternal(std::unordered_map<Id, SystemRecord>& systemMap, std::unordered_map<Id, std::vector<ChildQuery>>& allowedChildQueries, Id system, const SystemCreationInfo& pendingSystem);
+        static void DestroySystemInternal(std::unordered_map<Id, SystemRecord>& systemMap, std::unordered_map<Id, std::vector<ChildQuery>>& allowedChildQueries, std::vector<Id>& freeSystems, Id system);
 
         Id NewObserver();
         Id RecycleObserver();
@@ -246,12 +234,12 @@ namespace se::ecs
         void ProcessAllPending();
         void ProcessPendingComponents();
         void ProcessPendingSystems();
-        static void ProcessPendingSystems(std::vector<std::pair<Id, PendingSystemInfo>>& pendingCreations,
+        static void ProcessPendingSystems(std::vector<std::pair<Id, SystemCreationInfo>>& pendingCreations,
                                     std::vector<Id>& pendingDeletions,
                                     std::unordered_map<Id, SystemRecord>& systemRecords,
                                     std::vector<std::vector<Id>>& systsemUpdateGroups,
                                     std::vector<Id>& freeSystems,
-                                    std::unordered_map<Id, ChildQuery>& allowedChildQueries);
+                                    std::unordered_map<Id, std::vector<ChildQuery>>& allowedChildQueries);
         static void RebuildSystemUpdateGroups(std::vector<std::vector<Id>>& updateGroups, std::unordered_map<Id, SystemRecord>& systems);
         void ProcessPendingAppSystems();
         void ProcessPendingEngineSystems();
@@ -269,7 +257,7 @@ namespace se::ecs
         std::unordered_map<Id, reflect::ObjectBase*> m_SingletonComponents = {};
         std::unordered_map<Id, SystemRecord> m_AppSystems = {};
         std::unordered_map<Id, SystemRecord> m_EngineSystems = {};
-        std::unordered_map<Id, ChildQuery> m_AllowedChildQueries = {};
+        std::unordered_map<Id, std::vector<ChildQuery>> m_AllowedChildQueries = {};
         std::unordered_map<Id, std::unordered_map<Id, std::shared_ptr<BaseObserver>>> m_Observers;
 
         uint32_t m_EntityCounter = 1;
@@ -295,9 +283,9 @@ namespace se::ecs
         std::vector<PendingComponent> m_PendingComponentCreations = {};
         std::vector<std::pair<Id, Id>> m_PendingComponentDeletions = {};
 
-        std::vector<std::pair<Id, PendingSystemInfo>> m_PendingAppSystemCreations = {};
+        std::vector<std::pair<Id, SystemCreationInfo>> m_PendingAppSystemCreations = {};
         std::vector<Id> m_PendingAppSystemDeletions = {};
-        std::vector<std::pair<Id, PendingSystemInfo>> m_PendingEngineSystemCreations = {};
+        std::vector<std::pair<Id, SystemCreationInfo>> m_PendingEngineSystemCreations = {};
         std::vector<Id> m_PendingEngineSystemDeletions = {};
         memory::Arena m_TempStore = memory::Arena(2000000); // cleared after all pending creations/deletions
         bool m_ClearingTempObjects = {};
@@ -555,7 +543,7 @@ namespace se::ecs
     }
 
     template<EngineSystemConcept T>
-    Id World::CreateEngineSystem(const String& name, const std::vector<Relationship>& relationships, const ChildQuery& additionalChildQuery, const std::unordered_set<Id>& dependsOn)
+    Id World::CreateEngineSystem(const SystemCreationInfo& reg_info)
     {
         auto guard = MaybeLockGuard(m_UpdateMode, &m_SystemMutex);
         uint64_t system;
@@ -567,8 +555,8 @@ namespace se::ecs
         {
             system = NewSystem();
         }
-        m_IdMetaMap[system] = {name, 0};
-        m_PendingEngineSystemCreations.push_back({system, { relationships, additionalChildQuery, dependsOn }});
+        m_IdMetaMap[system] = { reg_info.name, 0 };
+        m_PendingEngineSystemCreations.push_back({system, reg_info });
         if (SPARK_VERIFY(!m_EngineSystems.contains(system)))
         {
             m_EngineSystems.insert(std::make_pair(system, SystemRecord { reflect::ClassResolver<T>::get(), nullptr }));
@@ -578,7 +566,7 @@ namespace se::ecs
     }
 
     template <AppSystemConcept T>
-    Id World::CreateAppSystem(const String& name, const std::vector<Relationship>& relationships, const ChildQuery& additionalChildQuery, const std::unordered_set<Id>& dependsOn)
+    Id World::CreateAppSystem(const SystemCreationInfo& reg_info)
     {
         auto guard = MaybeLockGuard(m_UpdateMode, &m_SystemMutex);
         Id system;
@@ -590,8 +578,8 @@ namespace se::ecs
         {
             system = NewSystem();
         }
-        m_IdMetaMap[system] = {name, 0};
-        m_PendingAppSystemCreations.push_back({system, { relationships, additionalChildQuery, dependsOn }});
+        m_IdMetaMap[system] = {reg_info.name, 0};
+        m_PendingAppSystemCreations.push_back({system, reg_info });
         if (SPARK_VERIFY(!m_AppSystems.contains(system)))
         {
             m_AppSystems.insert(std::make_pair(system, SystemRecord { reflect::ClassResolver<T>::get(), nullptr }));
