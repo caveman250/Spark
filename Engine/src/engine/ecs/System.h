@@ -22,7 +22,6 @@ namespace se::ecs
         virtual void Shutdown() = 0;
         virtual std::map<Id, ComponentMutability::Type> GetUsedComponents() const = 0;
 
-    protected:
         template<typename... Ts, typename Func>
         void RunQuery(Func&& func, bool force)
         {
@@ -36,7 +35,7 @@ namespace se::ecs
         }
 
         template<typename... Ts>
-        void RunVariantChildQuery(const Id& entity, const std::function<bool(std::variant<Ts*...>)>& func)
+        void RunVariantChildQuery(const Id& entity, const std::function<bool(const Id&, std::variant<Ts*...>)>& func)
         {
             Application::Get()->GetWorld()->VariantChildEach<Ts...>(entity, this, func);
         }
@@ -47,13 +46,18 @@ namespace se::ecs
             Application::Get()->GetWorld()->RecursiveChildEach<Ts...>(entity, this, func, m_Relationships);
         }
 
+        template<typename... Ts>
+        void RunRecursiveVariantChildQuery(const Id& entity, const std::function<bool(const Id&, std::variant<Ts*...>)>& func)
+        {
+            Application::Get()->GetWorld()->RecursiveVariantChildEach<Ts...>(entity, this, func);
+        }
+
         const std::vector<Relationship>& GetRelationships() const { return m_Relationships; }
         const std::vector<ChildQuery>& GetChildQuery() const { return m_ChildQuery; }
         bool DependsOn(Id other) const;
         const std::unordered_set<Id>& GetDependencies() const { return m_DependsOn; }
 
     private:
-        virtual void RegisterComponents() = 0;
         std::vector<Relationship> m_Relationships;
         std::vector<ChildQuery> m_ChildQuery;
         std::unordered_set<Id> m_DependsOn;
@@ -80,8 +84,6 @@ namespace se::ecs
         std::map<Id, ComponentMutability::Type> GetUsedComponents() const override;
 
     private:
-        void RegisterComponents() override;
-
         virtual void OnInit(const std::vector<se::ecs::Id>&, Cs*...) {}
         virtual void OnUpdate(const std::vector<se::ecs::Id>&, Cs*...) {}
         virtual void OnRender(const std::vector<se::ecs::Id>&, Cs*...) {}
@@ -178,7 +180,6 @@ namespace se::ecs
     template <typename T>
     void CollectUsedComponent(std::map<Id, ComponentMutability::Type>& vec)
     {
-        Application::Get()->GetWorld()->RegisterComponent<T>();
         vec.insert(std::make_pair(T::GetComponentId(), std::is_const<T>() ? ComponentMutability::Immutable : ComponentMutability::Mutable));
     }
 
@@ -192,12 +193,6 @@ namespace se::ecs
             ret.insert(std::make_pair(child.first, child.second));
         }
         return ret;
-    }
-
-    template <typename ... Cs>
-    void System<Cs...>::RegisterComponents()
-    {
-        (Application::Get()->GetWorld()->RegisterComponent<Cs>(), ...);
     }
 
     template<typename... Cs>

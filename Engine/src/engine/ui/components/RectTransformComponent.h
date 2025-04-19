@@ -4,6 +4,7 @@
 #include "engine/reflect/Reflect.h"
 #include "engine/ui/Anchors.h"
 #include "engine/ui/Rect.h"
+#include "engine/math/math.h"
 
 namespace se::ui::components
 {
@@ -19,6 +20,7 @@ namespace se::ui::components
 
         Rect rect = {};
         Rect lastRect = {};
+        math::Vec2 desiredSize = {};
 
         int layer = 0;
 

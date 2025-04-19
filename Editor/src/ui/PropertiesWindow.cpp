@@ -10,6 +10,7 @@
 #include <engine/ui/util/RectTransformUtil.h>
 #include <engine/ui/util/ScrollBoxUtil.h>
 #include <engine/ui/util/WindowUtil.h>
+#include <engine/ui/components/VerticalBoxComponent.h>
 #include "engine/reflect/Reflect.h"
 
 #include "engine/Application.h"
@@ -54,11 +55,19 @@ namespace se::editor::ui
         windowTransform->minY = 200;
         windowTransform->maxY = 500;
 
+        ecs::Id scrollBoxContentEntity;
         se::ui::components::ScrollBoxComponent *scrollBox = nullptr;
         se::ui::components::ScrollViewComponent *scrollView = nullptr;
         se::ui::components::RectTransformComponent *scrollBoxTransform = nullptr;
-        auto scrollBoxEntity = ::se::ui::util::CreateScrollBox(&scrollBox, m_ScrollBoxContent, &scrollView, &scrollBoxTransform, m_ScrollBar, true);
+        auto scrollBoxEntity = ::se::ui::util::CreateScrollBox(&scrollBox, scrollBoxContentEntity, &scrollView, &scrollBoxTransform, m_ScrollBar, true);
         world->AddChild(contentArea, scrollBoxEntity);
+
+        m_ScrollBoxContent = world->CreateEntity("Vertical Box");
+        world->AddComponent<se::ui::components::VerticalBoxComponent>(m_ScrollBoxContent);
+        world->AddComponent<se::ui::components::WidgetComponent>(m_ScrollBoxContent);
+        auto verticalBoxTransform = world->AddComponent<se::ui::components::RectTransformComponent>(m_ScrollBoxContent);
+        verticalBoxTransform->anchors = { 0.f, 1.f, 0.f, 1.f };
+        world->AddChild(scrollBoxEntity, m_ScrollBoxContent);
 
         m_Valid = true;
     }
@@ -105,12 +114,7 @@ namespace se::editor::ui
                     text->font = ariel;
                     text->fontSize = 24;
                     text->text = *m_Editor->GetSelectedEntity().name;
-                    auto textRect = world->AddComponent<se::ui::components::RectTransformComponent>(textEntity);
-                    textRect->anchors = {.left = 0.f, .right = 1.f, .top = 0.f, .bottom = 0.f};
-                    textRect->minX = 2;
-                    textRect->maxX = 2;
-                    textRect->minY = 0;
-                    textRect->maxY = 24;
+                    world->AddComponent<se::ui::components::RectTransformComponent>(textEntity);
                     world->AddComponent<se::ui::components::WidgetComponent>(textEntity);
                     world->AddChild(m_ScrollBoxContent, textEntity);
                     yOffset += 24 + 6;
@@ -125,12 +129,7 @@ namespace se::editor::ui
                         text->font = ariel;
                         text->fontSize = 21;
                         text->text = compRecord.type->name;
-                        auto textRect = world->AddComponent<se::ui::components::RectTransformComponent>(textEntity);
-                        textRect->anchors = {.left = 0.f, .right = 1.f, .top = 0.f, .bottom = 0.f};
-                        textRect->minX = 2;
-                        textRect->maxX = 2;
-                        textRect->minY = yOffset;
-                        textRect->maxY = 21 + 2 + yOffset;
+                        world->AddComponent<se::ui::components::RectTransformComponent>(textEntity);
                         world->AddComponent<se::ui::components::WidgetComponent>(textEntity);
                         world->AddChild(m_ScrollBoxContent, textEntity);
                         yOffset += 21 + 2;
@@ -167,12 +166,7 @@ namespace se::editor::ui
                             text->fontSize = 18;
                             text->text = std::format("Missing Property Editor of type {}.",
                                                      member.type->GetTypeName(nullptr));
-                            auto textRect = world->AddComponent<se::ui::components::RectTransformComponent>(textEntity);
-                            textRect->anchors = {.left = 0.f, .right = 1.f, .top = 0.f, .bottom = 0.f};
-                            textRect->minX = 2;
-                            textRect->maxX = 0;
-                            textRect->minY = yOffset;
-                            textRect->maxY = 22 + yOffset;
+                            world->AddComponent<se::ui::components::RectTransformComponent>(textEntity);
                             world->AddComponent<se::ui::components::WidgetComponent>(textEntity);
                             world->AddChild(m_ScrollBoxContent, textEntity);
                             yOffset += 22;
@@ -186,12 +180,7 @@ namespace se::editor::ui
                         text->font = ariel;
                         text->fontSize = 18;
                         text->text = "No properties.";
-                        auto textRect = world->AddComponent<se::ui::components::RectTransformComponent>(textEntity);
-                        textRect->anchors = {.left = 0.f, .right = 1.f, .top = 0.f, .bottom = 0.f};
-                        textRect->minX = 2;
-                        textRect->maxX = 2;
-                        textRect->minY = yOffset;
-                        textRect->maxY = 18 + 2 + yOffset;
+                        world->AddComponent<se::ui::components::RectTransformComponent>(textEntity);
                         world->AddComponent<se::ui::components::WidgetComponent>(textEntity);
                         world->AddChild(m_ScrollBoxContent, textEntity);
                         yOffset += 18 + 2;
@@ -208,12 +197,7 @@ namespace se::editor::ui
                 text->font = ariel;
                 text->fontSize = 21;
                 text->text = reflectClass->name;
-                auto textRect = world->AddComponent<se::ui::components::RectTransformComponent>(textEntity);
-                textRect->anchors = {.left = 0.f, .right = 1.f, .top = 0.f, .bottom = 0.f};
-                textRect->minX = 2;
-                textRect->maxX = 2;
-                textRect->minY = yOffset;
-                textRect->maxY = 21 + 2 + yOffset;
+                world->AddComponent<se::ui::components::RectTransformComponent>(textEntity);
                 world->AddComponent<se::ui::components::WidgetComponent>(textEntity);
                 world->AddChild(m_ScrollBoxContent, textEntity);
                 yOffset += 21 + 2;
@@ -244,13 +228,8 @@ namespace se::editor::ui
                         propText->fontSize = 18;
                         propText->text = std::format("Missing Property Editor of type {}.",
                                                      member.type->GetTypeName(nullptr));
-                        auto propTextRect = world->AddComponent<se::ui::components::RectTransformComponent>(
+                        world->AddComponent<se::ui::components::RectTransformComponent>(
                                 propTextEntity);
-                        propTextRect->anchors = {.left = 0.f, .right = 1.f, .top = 0.f, .bottom = 0.f};
-                        propTextRect->minX = 12;
-                        propTextRect->maxX = 0;
-                        propTextRect->minY = yOffset;
-                        propTextRect->maxY = 18 + yOffset;
                         world->AddComponent<se::ui::components::WidgetComponent>(propTextEntity);
                         world->AddChild(m_ScrollBoxContent, propTextEntity);
                         yOffset += 18;

@@ -8,3 +8,5 @@ cmake-build-disteditor
 Engine/unity_generated
 Editor/unity_generated
 Engine/built
+*.generated.h
+*.generated.cpp

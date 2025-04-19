@@ -226,7 +226,13 @@ namespace\
 DECLARE_SPARK_CLASS(Type)     \
 static se::ecs::Id s_ComponentId;\
 static se::ecs::Id GetComponentId() { SPARK_ASSERT(s_ComponentId != static_cast<uint64_t>(0), "GetComponentId called before RegisterComponent"); return s_ComponentId; } \
-static constexpr bool IsSingletonComponent() { return false; }
+static constexpr bool IsSingletonComponent() { return false; }\
+
+#define DECLARE_SPARK_WIDGET_COMPONENT(Type) \
+DECLARE_SPARK_CLASS(Type)     \
+static se::ecs::Id s_ComponentId;\
+static se::ecs::Id GetComponentId() { SPARK_ASSERT(s_ComponentId != static_cast<uint64_t>(0), "GetComponentId called before RegisterComponent"); return s_ComponentId; } \
+static constexpr bool IsSingletonComponent() { return false; }\
 
 #define DEFINE_SPARK_COMPONENT_BEGIN(type) \
 se::ecs::Id type::s_ComponentId = {};\

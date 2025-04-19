@@ -30,6 +30,13 @@ namespace se::ecs
             return *this;
         }
 
+        template <typename... Ts>
+        SystemCreationInfo& WithChildQuerys(ComponentMutability::Type mutability)
+        {
+            (childQuerys.push_back(std::make_pair(Ts::GetComponentId(), mutability)), ...);
+            return *this;
+        }
+
         SystemCreationInfo& WithDependency(const Id& system_dependency)
         {
             dependencies.insert(system_dependency);

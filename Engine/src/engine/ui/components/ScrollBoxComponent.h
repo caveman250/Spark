@@ -10,6 +10,6 @@ namespace se::ui::components
     struct RectTransformComponent;
     struct ScrollBoxComponent : reflect::ObjectBase
     {
-        DECLARE_SPARK_COMPONENT(ScrollBoxComponent)
+        DECLARE_SPARK_WIDGET_COMPONENT(ScrollBoxComponent)
     };
 }
