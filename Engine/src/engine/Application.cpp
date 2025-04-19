@@ -1,4 +1,6 @@
 #include <engine/ui/systems/ScrollViewUpdateSystem.h>
+#include <engine/ui/systems/VerticalBoxSystem.h>
+#include <Widgets.generated.h>
 #include "Application.h"
 #include "engine/ui/systems/UIRenderSystem.h"
 #include "engine/ui/systems/ScrollBoxRenderSystem.h"
@@ -35,6 +37,7 @@
 #include "engine/ui/observers/TreeNodeObserver.h"
 #include "engine/ui/observers/ImageObserver.h"
 #include "engine/ui/observers/TextObserver.h"
+#include "ComponentRegistration.generated.h"
 
 namespace se
 {
@@ -58,6 +61,8 @@ namespace se
         io::VFS::Get().Mount(std::format("{}/{}", ENGINE_DIR, "built"), "/builtin_assets");
         io::VFS::Get().Mount(std::format("{}/{}", APP_DIR, "assets"), "/source_assets");
         io::VFS::Get().Mount(std::format("{}/{}", APP_DIR, "built"), "/assets");
+
+        RegisterComponents(&m_World);
 
 #if SPARK_EDITOR
         m_EditorRuntime.Init();
@@ -128,8 +133,6 @@ namespace se
                                                             .WithDependency(mouseInput);
         auto treeNodes = m_World.CreateEngineSystem<ui::systems::TreeNodeSystem>(treeNodesReg);
 
-        m_World.RegisterComponent<ui::components::TreeNodeComponent>();
-        m_World.RegisterComponent<ui::components::WidgetComponent>();
         ecs::SystemCreationInfo treeViewReg = ecs::SystemCreationInfo("TreeViewSystem")
             .WithDependency(rootRect)
             .WithDependency(treeNodes)
@@ -138,9 +141,15 @@ namespace se
             .WithChildQuery(ui::components::WidgetComponent::GetComponentId(), ecs::ComponentMutability::Mutable);
         auto treeView = m_World.CreateEngineSystem<ui::systems::TreeViewSystem>(treeViewReg);
 
+        ecs::SystemCreationInfo verticalBoxReg = ecs::SystemCreationInfo("Vertical Box System")
+                .WithDependency(rootTransform)
+                .WithChildQuerys<SPARK_WIDGET_TYPES>(ecs::ComponentMutability::Immutable);
+        auto verticalBox = m_World.CreateEngineSystem<ui::systems::VerticalBoxSystem>(verticalBoxReg);
+
         ecs::SystemCreationInfo rectReg = ecs::SystemCreationInfo("RectTransformSystem")
             .WithDependency(rootRect)
-            .WithDependency(treeView);
+            .WithDependency(treeView)
+            .WithDependency(verticalBox);
         m_World.CreateEngineSystem<ui::systems::RectTransformSystem>(rectReg);
 
         ecs::SystemCreationInfo buttonReg = ecs::SystemCreationInfo("ButtonSystem")

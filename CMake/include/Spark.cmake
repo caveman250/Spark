@@ -44,7 +44,10 @@ endfunction()
 
 function(setup_spark_target target is_library use_editor unity_conf_dir)
     include_directories(src)
+    include_directories(sht_generated)
     setup_source_files(${target} "${unity_conf_dir}" ${is_library})
+
+    add_dependencies(${target} ${SHT_TARGET})
 
     include(${ROOT_DIR}/CMake/Linker.cmake)
     if (${use_editor})
@@ -55,6 +58,6 @@ function(setup_spark_target target is_library use_editor unity_conf_dir)
     #enable parallel std::for_each
     if (${PLATFORM} MATCHES Linux)
         find_package(TBB REQUIRED COMPONENTS tbb)
-        target_link_libraries(TestProject tbb)
+        target_link_libraries(${target} tbb)
     endif()
 endfunction()

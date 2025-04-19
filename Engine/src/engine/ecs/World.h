@@ -184,16 +184,22 @@ namespace se::ecs
         bool ChildEach(Id entity, BaseSystem* system, Func&& func, const std::vector<Relationship>& relationships);
 
         template<typename ...T>
-        bool VariantChildEach(const Id& entity, BaseSystem* system, const std::function<bool(std::variant<T*...>)>& func);
+        bool VariantChildEach(const Id& entity, BaseSystem* system, const std::function<bool(const Id&, std::variant<T*...>)>& func);
 
         template <typename T, typename... Ts>
-        void VariantChildEachImpl(const Id& entity, const std::function<bool(std::variant<Ts*...>)>& func, bool& ret);
+        void VariantChildEachImpl(const Id& entity, const std::function<bool(const Id&, std::variant<Ts*...>)>& func, bool& ret);
 
         template<typename ...T, typename Func>
         bool RecursiveChildEach(Id entity, BaseSystem* system, Func&& func, const std::vector<Relationship>& relationships);
 
         template<typename ...T, typename Func>
         bool RecurseChildren(Id entity, BaseSystem* system, Func&& func, const std::vector<Relationship>& relationships);
+
+        template<typename ...T>
+        bool RecursiveVariantChildEach(const Id& entity, BaseSystem* system, const std::function<bool(const Id&, std::variant<T*...>)>& func);
+
+        template<typename ...T>
+        bool RecurseVariantChildren(Id entity, BaseSystem* system, const std::function<bool(const Id&, std::variant<T*...>)>& func);
 
         bool ValidateChildQuery(BaseSystem* system, const std::vector<std::pair<Id, ComponentMutability::Type>>& requestedComponents);
         Relationship CreateChildRelationship(Id entity);
@@ -307,22 +313,18 @@ namespace se::ecs
     template<typename T>
     bool World::HasComponent(Id entity)
     {
-        RegisterComponent<T>();
         return HasComponent(entity, T::GetComponentId());
     }
 
     template <typename T, typename Y>
     bool World::HasRelationship(Id entity)
     {
-        RegisterComponent<T>();
-        RegisterComponent<Y>();
         return HasComponent(entity, CreateComponentRelationship<T, Y>());
     }
 
     template <typename T>
     bool World::HasRelationshipWildcard(Id entity)
     {
-        RegisterComponent<T>();
         return HasRelationshipWildcardInternal(entity, bits::UnpackA64(T::GetComponentId()));
     }
 
@@ -344,7 +346,6 @@ namespace se::ecs
             observer = NewObserver();
         }
 
-        RegisterComponent<Y>();
         m_Observers[Y::GetComponentId()][observer] = std::make_shared<T>();
         return observer;
     }
@@ -357,7 +358,6 @@ namespace se::ecs
             return nullptr;
         }
 
-        RegisterComponent<T>();
         return static_cast<T*>(GetComponent(entity, T::GetComponentId()));
     }
 
@@ -376,10 +376,9 @@ namespace se::ecs
                 id = bits::Pack64(NewEntity(), 0);
             }
 
-#if !SPARK_DIST
             reflect::Type* type = reflect::TypeResolver<T>::get();
             m_IdMetaMap[id].name = type->name;
-#endif
+
             T::s_ComponentId = id;
         }
 
@@ -389,7 +388,7 @@ namespace se::ecs
                                                      ComponentRecord
                                                      {
                                                          .type = reflect::ClassResolver<T>::get(),
-                                                         .archetypeRecords = {}
+                                                         .archetypeRecords = {},
                                                      }));
         }
     }
@@ -397,7 +396,6 @@ namespace se::ecs
     template <typename T>
     std::pair<Id, ComponentMutability::Type> World::CreateComponentUsagePair(ComponentMutability::Type type)
     {
-        RegisterComponent<T>();
         return { T::GetComponentId(), type };
     }
 
@@ -406,7 +404,6 @@ namespace se::ecs
     {
         static_assert(!std::is_same_v<components::ChildOf, T>, "Child relationships should be created via World::AddChild");
         static_assert(std::is_base_of_v<RelationshipComponent, T>, "Relationship components must inherit from RelationshipComponent.");
-        RegisterComponent<T>();
         Relationship relationship;
         relationship.SetId(bits::Pack64(bits::UnpackA64(T::GetComponentId()), bits::UnpackA64(Y::GetComponentId())));
         return relationship;
@@ -483,16 +480,19 @@ namespace se::ecs
     }
 
     template <typename T, typename... Ts>
-    void World::VariantChildEachImpl(const Id& entity, const std::function<bool(std::variant<Ts*...>)>& func, bool& ret)
+    void World::VariantChildEachImpl(const Id& entity, const std::function<bool(const Id&, std::variant<Ts*...>)>& func, bool& ret)
     {
-        if (!ret && HasComponent<T>(entity))
+        if (!ret)
         {
-            ret = func(static_cast<T*>(GetComponent(entity, T::GetComponentId())));
+            if (HasComponent<T>(entity))
+            {
+                ret = func(entity, static_cast<T *>(GetComponent(entity, T::GetComponentId())));
+            }
         }
     }
 
     template<typename... T>
-    bool World::VariantChildEach(const Id& entity, BaseSystem* system, const std::function<bool(std::variant<T*...>)>& func)
+    bool World::VariantChildEach(const Id& entity, BaseSystem* system, const std::function<bool(const Id&, std::variant<T*...>)>& func)
     {
         PROFILE_SCOPE("World::VariantChildEach");
 
@@ -514,6 +514,41 @@ namespace se::ecs
             if (ret)
             {
                 return ret;
+            }
+        }
+
+        return false;
+    }
+
+    template<typename ...T>
+    bool World::RecursiveVariantChildEach(const Id& entity, BaseSystem* system, const std::function<bool(const Id&, std::variant<T*...>)>& func)
+    {
+        PROFILE_SCOPE("World::RecursiveVariantChildEach");
+
+        if (RecurseVariantChildren<T...>(entity, system, func))
+        {
+            return true;
+        }
+
+        return false;
+    }
+
+    template<typename ...T>
+    bool World::RecurseVariantChildren(Id entity, BaseSystem* system, const std::function<bool(const Id&, std::variant<T*...>)>& func)
+    {
+        if (HasComponent<components::ParentComponent>(entity))
+        {
+            for (const auto& child : m_EntityRecords.at(entity).children)
+            {
+                if (RecurseVariantChildren<T...>(child, system, func))
+                {
+                    return true;
+                }
+            }
+
+            if (VariantChildEach<T...>(entity, system, func))
+            {
+                return true;
             }
         }
 
@@ -559,7 +594,6 @@ namespace se::ecs
     T* World::AddComponent(Id entity)
     {
         auto guard = MaybeLockGuard(m_UpdateMode, &m_ComponentMutex);
-        RegisterComponent<T>();
 
         if (!SPARK_VERIFY(!HasComponent<T>(entity)))
         {
@@ -576,7 +610,6 @@ namespace se::ecs
     void World::RemoveComponent(Id entity)
     {
         auto guard = MaybeLockGuard(m_UpdateMode, &m_ComponentMutex);
-        RegisterComponent<T>();
         if (!SPARK_VERIFY(HasComponent<T>(entity)))
         {
             return;
@@ -640,7 +673,6 @@ namespace se::ecs
             return nullptr;
         }
 
-        RegisterComponent<T>();
         m_SingletonComponents.insert(std::make_pair(T::GetComponentId(), new T()));
         return static_cast<T*>(m_SingletonComponents.at(T::GetComponentId()));
     }

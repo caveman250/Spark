@@ -10,7 +10,7 @@ namespace se::ui::components
 {
     struct TreeNodeComponent : reflect::ObjectBase
     {
-        DECLARE_SPARK_COMPONENT(TreeNodeComponent)
+        DECLARE_SPARK_WIDGET_COMPONENT(TreeNodeComponent)
 
         bool collapsed = false;
         ecs::Signal<bool> onCollapsedStateChange = {};

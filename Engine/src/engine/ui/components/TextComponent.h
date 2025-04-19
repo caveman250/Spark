@@ -9,6 +9,7 @@
 #include "engine/render/MaterialInstance.h"
 #include "engine/string/String.h"
 #include "engine/ui/Rect.h"
+#include "engine/ui/util/MeshUtil.h"
 
 namespace se::ui::systems
 {
@@ -19,7 +20,7 @@ namespace se::ui::components
 {
     struct TextComponent : reflect::ObjectBase
     {
-        DECLARE_SPARK_COMPONENT(TextComponent)
+        DECLARE_SPARK_WIDGET_COMPONENT(TextComponent)
 
         std::shared_ptr<asset::Font> font = {};
         int fontSize = 0;
@@ -36,4 +37,14 @@ namespace se::ui::components
 
         friend class systems::TextRenderSystem;
     };
+}
+
+#include "engine/ui/DesiredSizeCalculator.h"
+namespace se::ui
+{
+    template <>
+    inline math::Vec2 DesiredSizeCalculator::GetDesiredSize<components::TextComponent>(ecs::BaseSystem*, const ecs::Id&, const Rect& parentRect, const components::TextComponent* text)
+    {
+        return ui::util::MeasureText(parentRect, text->font, text->fontSize, text->text, true, true);
+    }
 }

@@ -721,7 +721,6 @@ namespace se::ecs
 
     Relationship World::CreateChildRelationship(Id entity)
     {
-        RegisterComponent<components::ChildOf>();
         Relationship childOf;
         childOf.SetId(bits::Pack64(bits::UnpackA64(components::ChildOf::GetComponentId()), bits::UnpackA64(entity)));
         return childOf;
@@ -960,7 +959,6 @@ namespace se::ecs
         {
             auto& record = systemMap.at(system);
             record.instance = static_cast<BaseSystem*>(record.type->heap_constructor());
-            record.instance->RegisterComponents();
             record.instance->m_Relationships = pendingSystem.relationships;
             record.instance->m_ChildQuery = pendingSystem.childQuerys;
             record.instance->m_DependsOn = pendingSystem.dependencies;
