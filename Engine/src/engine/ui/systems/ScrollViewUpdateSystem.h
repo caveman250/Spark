@@ -13,13 +13,10 @@ using namespace se::ecs::components;
 
 namespace se::ui::systems
 {
-class ScrollViewUpdateSystem : public ecs::EngineSystem<components::ScrollViewComponent, components::RectTransformComponent, const components::ReceivesMouseEventsComponent>
+class ScrollViewUpdateSystem : public ecs::EngineSystem
     {
     DECLARE_SPARK_SYSTEM(ScrollViewUpdateSystem)
     public:
-        void OnUpdate(const std::vector<ecs::Id>& entities,
-                      components::ScrollViewComponent*,
-                      components::RectTransformComponent*,
-                      const components::ReceivesMouseEventsComponent*) override;
+        void OnUpdate(const ecs::SystemUpdateData& updateData) override;
     };
 }

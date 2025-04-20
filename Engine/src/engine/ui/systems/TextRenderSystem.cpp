@@ -18,11 +18,7 @@ namespace se::ui::systems
 {
     DEFINE_SPARK_SYSTEM(TextRenderSystem)
 
-    void TextRenderSystem::OnRender(const std::vector<ecs::Id>& entities,
-                                    const components::RectTransformComponent* transformComps,
-                                    components::TextComponent* textComps,
-                                    const components::WidgetComponent* widgetComps,
-                                    ui::singleton_components::UIRenderComponent* renderComp)
+    void TextRenderSystem::OnRender(const ecs::SystemUpdateData& updateData)
     {
         PROFILE_SCOPE("TextRenderSystem::OnRender")
 
@@ -31,6 +27,12 @@ namespace se::ui::systems
         auto window = app->GetPrimaryWindow();
         auto assetManager = asset::AssetManager::Get();
         auto windowsSize = math::Vec2(static_cast<float>(window->GetWidth()), static_cast<float>(window->GetHeight()));
+
+        const auto& entities = updateData.GetEntities();
+        const auto* widgetComps = updateData.GetComponentArray<const components::WidgetComponent>();
+        const auto* transformComps = updateData.GetComponentArray<const components::RectTransformComponent>();
+        auto* textComps = updateData.GetComponentArray<components::TextComponent>();
+        auto* renderComp = updateData.GetSingletonComponent<singleton_components::UIRenderComponent>();
 
         for (size_t i = 0; i < entities.size(); ++i)
         {

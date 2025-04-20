@@ -9,11 +9,11 @@ namespace se::ui
     {
     public:
         template<typename T>
-        static inline math::Vec2 GetDesiredSize(ecs::BaseSystem* system, const ecs::Id& entity, const Rect& parentRect, const T*)
+        static inline math::Vec2 GetDesiredSize(ecs::System* system, const ecs::Id& entity, const Rect& parentRect, const T*)
         {
             return GetChildrenDesiredSize(system, entity, parentRect);
         }
 
-        static math::Vec2 GetChildrenDesiredSize(ecs::BaseSystem* system, const ecs::Id& entity, const Rect&);
+        static math::Vec2 GetChildrenDesiredSize(ecs::System* system, const ecs::Id& entity, const Rect&);
     };
 }

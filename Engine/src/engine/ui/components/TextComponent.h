@@ -43,7 +43,7 @@ namespace se::ui::components
 namespace se::ui
 {
     template <>
-    inline math::Vec2 DesiredSizeCalculator::GetDesiredSize<components::TextComponent>(ecs::BaseSystem*, const ecs::Id&, const Rect& parentRect, const components::TextComponent* text)
+    inline math::Vec2 DesiredSizeCalculator::GetDesiredSize<components::TextComponent>(ecs::System*, const ecs::Id&, const Rect& parentRect, const components::TextComponent* text)
     {
         return ui::util::MeasureText(parentRect, text->font, text->fontSize, text->text, true, true);
     }

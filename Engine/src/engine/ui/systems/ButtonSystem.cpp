@@ -1,9 +1,5 @@
 #include "spark.h"
-
-#include "engine/math/Mat4.h"
-#include "engine/ecs/components/MeshComponent.h"
 #include "ButtonSystem.h"
-
 #include "engine/Application.h"
 #include "engine/input/InputUtil.h"
 #include "engine/profiling/Profiler.h"
@@ -16,12 +12,14 @@ namespace se::ui::systems
 {
     DEFINE_SPARK_SYSTEM(ButtonSystem)
 
-    void ButtonSystem::OnUpdate(const std::vector<ecs::Id>& entities,
-        components::ButtonComponent* buttons,
-        components::ImageComponent* images,
-        const components::ReceivesMouseEventsComponent* mouseEventComps)
+    void ButtonSystem::OnUpdate(const ecs::SystemUpdateData& updateData)
     {
         PROFILE_SCOPE("ButtonSystem::OnUpdate")
+
+        const auto& entities = updateData.GetEntities();
+        auto* buttons = updateData.GetComponentArray<ui::components::ButtonComponent>();
+        auto* images = updateData.GetComponentArray<ui::components::ImageComponent>();
+        const auto* mouseEventComps = updateData.GetComponentArray<const ui::components::ReceivesMouseEventsComponent>();
 
         for (size_t i = 0; i < entities.size(); ++i)
         {

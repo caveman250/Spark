@@ -12,13 +12,15 @@ namespace se::ui::systems
 {
     DEFINE_SPARK_SYSTEM(UIKeyboardInputSystem)
 
-    void UIKeyboardInputSystem::OnUpdate(const std::vector<ecs::Id>& entities,
-        const components::RectTransformComponent* rectTransforms,
-        const RootComponent*,
-        components::ReceivesKeyboardEventsComponent* receivesInputComps,
-        input::InputComponent* inputComp)
+    void UIKeyboardInputSystem::OnUpdate(const ecs::SystemUpdateData& updateData)
     {
         PROFILE_SCOPE("UIKeyboardInputSystem::OnUpdate")
+
+        const auto& entities = updateData.GetEntities();
+        const auto* rectTransforms = updateData.GetComponentArray<const ui::components::RectTransformComponent>();
+        auto* receivesInputComps = updateData.GetComponentArray<ui::components::ReceivesKeyboardEventsComponent>();
+        auto* inputComp = updateData.GetSingletonComponent<input::InputComponent>();
+
 
         for (size_t i = 0; i < entities.size(); ++i)
         {
@@ -37,14 +39,20 @@ namespace se::ui::systems
                     }
 
                     bool consumed = false;
-                    RunRecursiveChildQuery<components::RectTransformComponent, components::ReceivesKeyboardEventsComponent>(entity, [this, &consumed, inputComp, keyEvent](const std::vector<ecs::Id>& children,
-                        const components::RectTransformComponent* childTransforms,
-                        components::ReceivesKeyboardEventsComponent* childInputComps)
+                    auto declaration = ecs::ChildQueryDeclaration()
+                            .WithComponent<components::RectTransformComponent>()
+                            .WithComponent<components::ReceivesKeyboardEventsComponent>();
+                    RunRecursiveChildQuery(entity, declaration,
+                [this, &consumed, inputComp, keyEvent](const ecs::SystemUpdateData& updateData)
                     {
                         if (consumed)
                         {
                             return true;
                         }
+
+                        const auto& children = updateData.GetEntities();
+                        auto* childTransforms = updateData.GetComponentArray<components::RectTransformComponent>();
+                        auto* childInputComps = updateData.GetComponentArray<components::ReceivesKeyboardEventsComponent>();
 
                         for (size_t j = 0; j < children.size(); ++j)
                         {

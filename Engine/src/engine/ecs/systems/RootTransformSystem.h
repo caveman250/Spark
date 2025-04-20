@@ -9,10 +9,10 @@ using namespace se::ecs::components;
 
 namespace se::ecs::systems
 {
-    class RootTransformSystem : public EngineSystem<TransformComponent, const RootComponent>
+    class RootTransformSystem : public EngineSystem
     {
         DECLARE_SPARK_SYSTEM(RootTransformSystem)
     public:
-        void OnUpdate(const std::vector<ecs::Id>& entities, TransformComponent* transform, const RootComponent* root) override;
+        void OnUpdate(const SystemUpdateData& updateData) override;
     };
 }

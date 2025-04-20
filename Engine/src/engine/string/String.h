@@ -14,8 +14,8 @@ namespace se
         String(const std::string& rhs);
 
         bool operator==(const String& rhs) const;
-        void operator=(const String& rhs);
-        void operator=(const char* rhs);
+        String& operator=(const String& rhs);
+        String& operator=(const char* rhs);
         char operator[](size_t i) const;
 
         const char* Data() const { return m_Data.data(); }

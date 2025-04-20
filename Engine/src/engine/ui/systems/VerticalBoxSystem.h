@@ -8,13 +8,10 @@ using namespace se::ecs::components;
 
 namespace se::ui::systems
 {
-    class VerticalBoxSystem : public ecs::EngineSystem<components::VerticalBoxComponent,
-                                                        components::RectTransformComponent>
+    class VerticalBoxSystem : public ecs::EngineSystem
     {
         DECLARE_SPARK_SYSTEM(VerticalBoxSystem)
     public:
-        void OnUpdate(const std::vector<ecs::Id>&,
-                components::VerticalBoxComponent*,
-                components::RectTransformComponent*) override;
+        void OnUpdate(const ecs::SystemUpdateData& updateData) override;
     };
 }

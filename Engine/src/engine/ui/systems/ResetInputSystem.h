@@ -13,10 +13,10 @@ using namespace se::ecs::components;
 
 namespace se::ui::systems
 {
-    class ResetInputSystem : public ecs::EngineSystem<const components::RectTransformComponent, components::ReceivesMouseEventsComponent, input::InputComponent>
+    class ResetInputSystem : public ecs::EngineSystem
     {
         DECLARE_SPARK_SYSTEM(ResetInputSystem)
     public:
-        void OnUpdate(const std::vector<ecs::Id>&, const components::RectTransformComponent*, components::ReceivesMouseEventsComponent*, input::InputComponent*) override;
+        void OnUpdate(const ecs::SystemUpdateData& updateData) override;
     };
 }

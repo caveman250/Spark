@@ -9,10 +9,12 @@ namespace se::ui::systems
 
     constexpr int s_Padding = 2;
 
-    void TreeViewSystem::OnUpdate(const std::vector<ecs::Id>& entities,
-                                  components::TreeViewComponent* treeViews,
-                                  components::RectTransformComponent* rectTransforms)
+    void TreeViewSystem::OnUpdate(const ecs::SystemUpdateData& updateData)
     {
+        const auto& entities = updateData.GetEntities();
+        auto* treeViews = updateData.GetComponentArray<ui::components::TreeViewComponent>();
+        auto* rectTransforms = updateData.GetComponentArray<ui::components::RectTransformComponent>();
+
         for (size_t i = 0; i < entities.size(); ++i)
         {
             auto& treeView = treeViews[i];
@@ -30,11 +32,13 @@ namespace se::ui::systems
     int TreeViewSystem::MeasureAndArrange(ecs::Id entity, bool collapsed, int startY)
     {
         int currentY = startY;
-        auto func = [this, collapsed, &currentY](const std::vector<ecs::Id>& children,
-                    const components::TreeNodeComponent* treeNodes,
-                    components::RectTransformComponent* rectTransforms,
-                    components::WidgetComponent* widgets)
+        auto func = [this, collapsed, &currentY](const ecs::SystemUpdateData& updateData)
         {
+            const auto& children = updateData.GetEntities();
+            auto* widgets = updateData.GetComponentArray<ui::components::WidgetComponent>();
+            auto* rectTransforms = updateData.GetComponentArray<ui::components::RectTransformComponent>();
+            const auto* treeNodes = updateData.GetComponentArray<const ui::components::TreeNodeComponent>();
+
             for (size_t j = 0; j < children.size(); ++j)
             {
                 auto& widget = widgets[j];
@@ -55,7 +59,11 @@ namespace se::ui::systems
             return false;
         };
 
-        RunChildQuery<const components::TreeNodeComponent, components::RectTransformComponent, components::WidgetComponent>(entity, func);
+        auto declaration = ecs::ChildQueryDeclaration()
+            .WithComponent<const components::TreeNodeComponent>()
+            .WithComponent<components::RectTransformComponent>()
+            .WithComponent<components::WidgetComponent>();
+        RunChildQuery(entity, declaration, func);
 
         return collapsed ? 18 : currentY;
     }

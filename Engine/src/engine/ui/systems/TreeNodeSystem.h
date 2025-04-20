@@ -11,10 +11,10 @@ namespace se::ui::components {
 
 namespace se::ui::systems
 {
-class TreeNodeSystem : public ecs::EngineSystem<components::TreeNodeComponent, components::ReceivesMouseEventsComponent>
+class TreeNodeSystem : public ecs::EngineSystem
     {
         DECLARE_SPARK_SYSTEM(TreeNodeSystem)
 
-        void OnUpdate(const std::vector<ecs::Id>&, components::TreeNodeComponent*, components::ReceivesMouseEventsComponent*) override;
+        void OnUpdate(const ecs::SystemUpdateData& updateData) override;
     };
 }

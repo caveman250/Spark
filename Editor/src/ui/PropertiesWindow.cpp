@@ -67,6 +67,7 @@ namespace se::editor::ui
         world->AddComponent<se::ui::components::WidgetComponent>(m_ScrollBoxContent);
         auto verticalBoxTransform = world->AddComponent<se::ui::components::RectTransformComponent>(m_ScrollBoxContent);
         verticalBoxTransform->anchors = { 0.f, 1.f, 0.f, 1.f };
+        verticalBoxTransform->overridesChildSizes = true; // TODO automate this
         world->AddChild(scrollBoxEntity, m_ScrollBoxContent);
 
         m_Valid = true;

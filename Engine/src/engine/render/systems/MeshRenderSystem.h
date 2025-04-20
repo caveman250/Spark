@@ -10,11 +10,11 @@ using namespace se::ecs::components;
 
 namespace se::render::systems
 {
-    class MeshRenderSystem : public ecs::EngineSystem<TransformComponent, const MeshComponent, const camera::ActiveCameraComponent>
+    class MeshRenderSystem : public ecs::EngineSystem
     {
         DECLARE_SPARK_SYSTEM(MeshRenderSystem)
     public:
-        void OnUpdate(const std::vector<ecs::Id>& entities, TransformComponent* transform, const MeshComponent* mesh, const camera::ActiveCameraComponent* camera) override;
-        void OnRender(const std::vector<se::ecs::Id> &entities, TransformComponent* transform, const MeshComponent* mesh, const camera::ActiveCameraComponent* camera) override;
+        void OnUpdate(const ecs::SystemUpdateData& updateData) override;
+        void OnRender(const ecs::SystemUpdateData& updateData) override;
     };
 }

@@ -12,12 +12,10 @@ using namespace se::ecs::components;
 
 namespace se::ui::systems
 {
-    class TitleBarSystem : public ecs::EngineSystem<components::TitleBarComponent,
-                                                    input::InputComponent,
-                                                    const components::ReceivesMouseEventsComponent>
+    class TitleBarSystem : public ecs::EngineSystem
     {
         DECLARE_SPARK_SYSTEM(TitleBarSystem)
     public:
-        void OnUpdate(const std::vector<ecs::Id>& entities, components::TitleBarComponent*, input::InputComponent*, const components::ReceivesMouseEventsComponent*) override;
+        void OnUpdate(const ecs::SystemUpdateData& updateData) override;
     };
 }

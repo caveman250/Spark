@@ -12,12 +12,14 @@ namespace se::ui::systems
 {
     DEFINE_SPARK_SYSTEM(ResetInputSystem)
 
-    void ResetInputSystem::OnUpdate(const std::vector<ecs::Id>& entities,
-                                    const components::RectTransformComponent* rectTransforms,
-                                      components::ReceivesMouseEventsComponent* receivesInputComps,
-                                      input::InputComponent* inputComp)
+    void ResetInputSystem::OnUpdate(const ecs::SystemUpdateData& updateData)
     {
         PROFILE_SCOPE("ResetInputSystem::OnUpdate")
+
+        const auto& entities = updateData.GetEntities();
+        const auto* rectTransforms = updateData.GetComponentArray<const components::RectTransformComponent>();
+        auto* receivesInputComps = updateData.GetComponentArray<components::ReceivesMouseEventsComponent>();
+        auto* inputComp = updateData.GetSingletonComponent<input::InputComponent>();
 
         for (size_t i = 0; i < entities.size(); ++i)
         {

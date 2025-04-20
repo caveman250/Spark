@@ -19,11 +19,7 @@ namespace se::ui::systems
 {
     DEFINE_SPARK_SYSTEM(ImageRenderSystem)
 
-    void ImageRenderSystem::OnRender(const std::vector<ecs::Id>& entities,
-                                     const components::RectTransformComponent* transformComps,
-                                     components::ImageComponent* imageComps,
-                                     const components::WidgetComponent* widgetComps,
-                                     ui::singleton_components::UIRenderComponent* renderComp)
+    void ImageRenderSystem::OnRender(const ecs::SystemUpdateData& updateData)
     {
         PROFILE_SCOPE("ImageRenderSystem::OnRender")
 
@@ -31,6 +27,12 @@ namespace se::ui::systems
         auto renderer = render::Renderer::Get<render::Renderer>();
         auto window = app->GetPrimaryWindow();
         auto windowsSize = math::Vec2(static_cast<float>(window->GetWidth()), static_cast<float>(window->GetHeight()));
+
+        const auto& entities = updateData.GetEntities();
+        const auto* widgetComps = updateData.GetComponentArray<const components::WidgetComponent>();
+        const auto* transformComps = updateData.GetComponentArray<const components::RectTransformComponent>();
+        auto* imageComps = updateData.GetComponentArray<components::ImageComponent>();
+        auto* renderComp = updateData.GetSingletonComponent<singleton_components::UIRenderComponent>();
 
         for (size_t i = 0; i < entities.size(); ++i)
         {

@@ -8,7 +8,7 @@
 
 namespace se::ecs
 {
-    class BaseSystem;
+    class System;
 }
 
 namespace se::ui::components
@@ -21,10 +21,10 @@ namespace se::ui::components
 
 namespace se::ui
 {
-    math::Vec2 GetVerticalBoxChildrenDesiredSize(ecs::BaseSystem* system, const ecs::Id& entity, const Rect&);
+    math::Vec2 GetVerticalBoxChildrenDesiredSize(ecs::System* system, const ecs::Id& entity, const Rect&);
 
     template <>
-    inline math::Vec2 DesiredSizeCalculator::GetDesiredSize<components::VerticalBoxComponent>(ecs::BaseSystem* system,
+    inline math::Vec2 DesiredSizeCalculator::GetDesiredSize<components::VerticalBoxComponent>(ecs::System* system,
                                                                                               const ecs::Id& entity,
                                                                                               const Rect& parentRect,
                                                                                               const components::VerticalBoxComponent*)

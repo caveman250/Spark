@@ -15,15 +15,23 @@ namespace se::ecs::systems
 {
     DEFINE_SPARK_SYSTEM(WorldTransformSystem)
 
-    void WorldTransformSystem::OnUpdate(const std::vector<Id>& entities, TransformComponent* transform, ParentComponent*)
+    void WorldTransformSystem::OnUpdate(const SystemUpdateData& updateData)
     {
         PROFILE_SCOPE("WorldTransformSystem::OnUpdate")
+
+        const auto& entities = updateData.GetEntities();
+        auto* transform = updateData.GetComponentArray<TransformComponent>();
 
         for (size_t i = 0; i < entities.size(); ++i)
         {
             const TransformComponent& parent = transform[i];
-            RunChildQuery<TransformComponent>(entities[i], [parent](const std::vector<Id>& children, TransformComponent* childTransform)
+            auto declaration = ecs::ChildQueryDeclaration()
+                                .WithComponent<TransformComponent>();
+            RunChildQuery(entities[i], declaration,
+              [parent](const SystemUpdateData& updateData)
             {
+                const auto& children = updateData.GetEntities();
+                auto* childTransform = updateData.GetComponentArray<TransformComponent>();
                 for (size_t i = 0; i < children.size(); ++i)
                 {
                     TransformComponent& transform = childTransform[i];

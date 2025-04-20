@@ -46,4 +46,34 @@ namespace se::ui::util
         }
         return ret;
     }
+
+    void LayoutChildren(ecs::World *world, ecs::System* system, ecs::Id entity, const RectTransformComponent &parentRect, int depth)
+    {
+        auto declaration = ecs::ChildQueryDeclaration()
+                .WithComponent<components::RectTransformComponent>();
+        system->RunChildQuery(entity, declaration,
+        [system, world, parentRect, depth](const ecs::SystemUpdateData& updateData)
+        {
+            const auto& children = updateData.GetEntities();
+            auto* childTransform = updateData.GetComponentArray<ui::components::RectTransformComponent>();
+
+            for (size_t i = 0; i < children.size(); ++i)
+            {
+                components::RectTransformComponent& child = childTransform[i];
+                child.rect = util::CalculateScreenSpaceRect(child, parentRect);
+                child.layer = depth;
+                child.lastRect = child.rect;
+
+                if (!child.overridesChildSizes)
+                {
+                    if (world->HasComponent<ecs::components::ParentComponent>(children[i]))
+                    {
+                        LayoutChildren(world, system, children[i], child, depth + 1);
+                    }
+                }
+            }
+
+            return false;
+        });
+    }
 }

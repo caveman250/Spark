@@ -10,10 +10,10 @@ using namespace se::ecs::components;
 
 namespace se::ui::systems
 {
-    class RootRectTransformSystem : public ecs::EngineSystem<components::RectTransformComponent, const RootComponent>
+    class RootRectTransformSystem : public ecs::EngineSystem
     {
         DECLARE_SPARK_SYSTEM(RootRectTransformSystem)
     public:
-        void OnUpdate(const std::vector<ecs::Id>& entities, components::RectTransformComponent* transform, const RootComponent*) override;
+        void OnUpdate(const ecs::SystemUpdateData& updateData) override;
     };
 }

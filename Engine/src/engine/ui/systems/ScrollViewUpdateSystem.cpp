@@ -16,17 +16,19 @@ namespace se::ui::systems
 {
     DEFINE_SPARK_SYSTEM(ScrollViewUpdateSystem)
 
-    void ScrollViewUpdateSystem::OnUpdate(const std::vector<ecs::Id>& entities,
-                                         components::ScrollViewComponent* scrollBoxes,
-                                         components::RectTransformComponent* rectTransforms,
-                                         const components::ReceivesMouseEventsComponent* mouseComps)
+    void ScrollViewUpdateSystem::OnUpdate(const ecs::SystemUpdateData& updateData)
     {
         PROFILE_SCOPE("ScrollViewUpdateSystem::OnUpdate")
+
+        const auto& entities = updateData.GetEntities();
+        auto* scrollViews = updateData.GetComponentArray<ui::components::ScrollViewComponent>();
+        auto* rectTransforms = updateData.GetComponentArray<ui::components::RectTransformComponent>();
+        const auto* mouseComps = updateData.GetComponentArray<const ui::components::ReceivesMouseEventsComponent>();
 
         for (size_t i = 0; i < entities.size(); ++i)
         {
             const auto& entity = entities[i];
-            auto& scrollBox = scrollBoxes[i];
+            auto& scrollView = scrollViews[i];
             auto& rectTransform = rectTransforms[i];
             const auto& mouseComp = mouseComps[i];
 
@@ -40,14 +42,18 @@ namespace se::ui::systems
                                 childComponents;
                         int minChildY = INT_MAX;
                         int maxChildY = 0;
-                        RunChildQuery<components::RectTransformComponent,
-                            components::WidgetComponent>(
+                        auto declaration = ecs::ChildQueryDeclaration()
+                            .WithComponent<components::RectTransformComponent>()
+                            .WithComponent<components::WidgetComponent>();
+                        RunChildQuery(
                             entity,
-                            [&childComponents, &maxChildY, &minChildY](const std::vector<ecs::Id>& children,
-                                                                       components::RectTransformComponent*
-                                                                       childTransforms,
-                                                                       components::WidgetComponent* widgets)
+                            declaration,
+                            [&childComponents, &maxChildY, &minChildY](const ecs::SystemUpdateData& updateData)
                             {
+                                const auto& children = updateData.GetEntities();
+                                auto* childTransforms = updateData.GetComponentArray<components::RectTransformComponent>();
+                                auto* widgets = updateData.GetComponentArray<components::WidgetComponent>();
+
                                 for (size_t i = 0; i < children.size(); ++i)
                                 {
                                     auto& childTransform = childTransforms[i];
@@ -85,9 +91,9 @@ namespace se::ui::systems
                             availableScrollSpaceBottom -= delta;
                             availableScrollSpaceTop = std::max(0, availableScrollSpaceTop);
                             debug::Log::Error("Scroll Top: {}", availableScrollSpaceTop);
-                            scrollBox.scrollAmount = static_cast<float>(availableScrollSpaceTop) /
-                                                     static_cast<float>(availableScrollSpaceTop + availableScrollSpaceBottom);
-                            scrollBox.onScrolled.Broadcast(&rectTransform, scrollBox.scrollAmount);
+                            scrollView.scrollAmount = static_cast<float>(availableScrollSpaceTop) /
+                                                      static_cast<float>(availableScrollSpaceTop + availableScrollSpaceBottom);
+                            scrollView.onScrolled.Broadcast(&rectTransform, scrollView.scrollAmount);
                         }
                         else if (mouseEvent.scrollDelta < 0 && availableScrollSpaceTop > 0)
                         {
@@ -110,9 +116,9 @@ namespace se::ui::systems
                             availableScrollSpaceBottom += delta;
                             availableScrollSpaceTop = std::max(0, availableScrollSpaceTop);
                             debug::Log::Error("Scroll Top: {}", availableScrollSpaceTop);
-                            scrollBox.scrollAmount = static_cast<float>(availableScrollSpaceTop) /
-                                                                   static_cast<float>(availableScrollSpaceTop + availableScrollSpaceBottom);
-                            scrollBox.onScrolled.Broadcast(&rectTransform, scrollBox.scrollAmount);
+                            scrollView.scrollAmount = static_cast<float>(availableScrollSpaceTop) /
+                                                      static_cast<float>(availableScrollSpaceTop + availableScrollSpaceBottom);
+                            scrollView.onScrolled.Broadcast(&rectTransform, scrollView.scrollAmount);
                         }
 
                         rectTransform.needsLayout = true;

@@ -15,12 +15,15 @@ namespace se::ui::systems
 {
     DEFINE_SPARK_SYSTEM(TitleBarSystem)
 
-    void TitleBarSystem::OnUpdate(const std::vector<ecs::Id>& entities,
-        components::TitleBarComponent* titleBars,
-        input::InputComponent* inputComp,
-        const components::ReceivesMouseEventsComponent* mouseEventComps)
+    void TitleBarSystem::OnUpdate(const ecs::SystemUpdateData& updateData)
     {
         PROFILE_SCOPE("TitleBarSystem::OnUpdate")
+
+        const auto& entities = updateData.GetEntities();
+        auto* titleBars = updateData.GetComponentArray<ui::components::TitleBarComponent>();
+        const auto* mouseEventComps = updateData.GetComponentArray<const ui::components::ReceivesMouseEventsComponent>();
+        auto* inputComp = updateData.GetSingletonComponent<input::InputComponent>();
+
         for (size_t i = 0; i < entities.size(); ++i)
         {
             auto& titleBar = titleBars[i];

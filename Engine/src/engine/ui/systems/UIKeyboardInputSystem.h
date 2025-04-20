@@ -13,11 +13,11 @@ using namespace se::ecs::components;
 
 namespace se::ui::systems
 {
-    class UIKeyboardInputSystem : public ecs::EngineSystem<const components::RectTransformComponent, const RootComponent, components::ReceivesKeyboardEventsComponent, input::InputComponent>
+    class UIKeyboardInputSystem : public ecs::EngineSystem
     {
         DECLARE_SPARK_SYSTEM(UIKeyboardInputSystem)
     public:
-        void OnUpdate(const std::vector<ecs::Id> &, const components::RectTransformComponent *, const RootComponent *, components::ReceivesKeyboardEventsComponent *, input::InputComponent *) override;
+        void OnUpdate(const ecs::SystemUpdateData& updateData) override;
 
     private:
         bool TryConsumeEvent(const input::KeyEvent& keyEvent, components::ReceivesKeyboardEventsComponent& inputReceiver);

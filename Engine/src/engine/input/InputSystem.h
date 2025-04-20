@@ -5,10 +5,10 @@
 
 namespace se::input
 {
-    class InputSystem : public ecs::EngineSystem<InputComponent>
+    class InputSystem : public ecs::EngineSystem
     {
         DECLARE_SPARK_SYSTEM(InputSystem)
 
-        void OnUpdate(const std::vector<se::ecs::Id> &, InputComponent *) override;
+        void OnUpdate(const ecs::SystemUpdateData &updateData) override;
     };
 }

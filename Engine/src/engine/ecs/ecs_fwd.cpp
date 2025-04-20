@@ -5,8 +5,8 @@ namespace se::ecs
 {
     Id::Id(uint64_t _id)
         : id(_id)
-        , name(Application::Get()->GetWorld()->GetName(id))
-        , flags(Application::Get()->GetWorld()->GetFlags(id))
+        , name(Application::Get()->GetWorld() ? Application::Get()->GetWorld()->GetName(id) : nullptr)
+        , flags(Application::Get()->GetWorld() ? Application::Get()->GetWorld()->GetFlags(id) : nullptr)
     {
     }
 

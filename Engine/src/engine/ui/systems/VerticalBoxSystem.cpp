@@ -6,6 +6,7 @@
 #include "engine/math/Mat4.h"
 #include "engine/ui/components/RectTransformComponent.h"
 #include "Widgets.generated.h"
+#include "engine/ui/util/RectTransformUtil.h"
 
 using namespace se;
 using namespace se::ecs::components;
@@ -14,58 +15,55 @@ namespace se::ui::systems
 {
     DEFINE_SPARK_SYSTEM(VerticalBoxSystem)
 
-    void VerticalBoxSystem::OnUpdate(const std::vector<ecs::Id>& entities,
-                                     components::VerticalBoxComponent*,
-                                     components::RectTransformComponent* rectTransforms)
+    void VerticalBoxSystem::OnUpdate(const ecs::SystemUpdateData& updateData)
     {
         PROFILE_SCOPE("VerticalBoxSystem::OnUpdate")
 
+        auto world = Application::Get()->GetWorld();
+        const auto& entities = updateData.GetEntities();
+        auto* rectTransforms = updateData.GetComponentArray<ui::components::RectTransformComponent>();
+
         for (size_t i = 0; i < entities.size(); ++i)
         {
+            const auto& entity = entities[i];
+            auto& verticalBoxTransform = rectTransforms[i];
 
-            //const auto& entity = entities[i];
-            auto& rectTransform = rectTransforms[i];
-
-            if (rectTransform.needsLayout)
+            if (verticalBoxTransform.needsLayout)
             {
-//                std::unordered_map<ecs::Id, se::math::Vec2> desiredSizes = {};
-//                RunVariantChildQuery<SPARK_CONST_WIDGET_TYPES>(entity,
-//                   (std::function<bool(const ecs::Id &, std::variant<SPARK_WIDGET_CONST_POINTER_TYPES>)>)
-//                   [this, rectTransform, &desiredSizes](const ecs::Id &child, std::variant<SPARK_WIDGET_CONST_POINTER_TYPES> var)
-//                   {
-//                       std::visit([this, rectTransform, child, &desiredSizes](
-//                               auto &&value)
-//                                  {
-//                                      math::Vec2 childDesiredSize = DesiredSizeCalculator::GetDesiredSize(
-//                                              this, child, rectTransform.rect,
-//                                              value);
-//                                      desiredSizes.insert(std::make_pair(child,
-//                                                                         childDesiredSize));
-//                                  }, var);
-//                       return false;
-//                   });
-//
-//                int currY = 0;
-//                RunChildQuery<components::RectTransformComponent>(entity,
-//                [desiredSizes, &currY](const std::vector<ecs::Id> &children,
-//                                     components::RectTransformComponent *childTransforms)
-//                {
-//                    for (size_t i = 0; i < children.size(); ++i)
-//                    {
-//                        const auto &child = children[i];
-//                        auto &rectTransform = childTransforms[i];
-//                        math::Vec2 desiredSize = desiredSizes.at(child);
-//
-//                        // only respect desired Y
-//                        rectTransform.anchors.right = 1.f;
-//                        rectTransform.minY = currY;
-//                        rectTransform.maxY = currY + desiredSize.y;
-//                        rectTransform.needsLayout = true;
-//
-//                        currY = rectTransform.maxY;
-//                    }
-//                    return false;
-//                });
+                int currY = 0;
+
+                auto dec = ecs::ChildQueryDeclaration()
+                    .WithComponent<ui::components::RectTransformComponent>()
+                    .WithVariantComponent<SPARK_CONST_WIDGET_TYPES>(ecs::ComponentMutability::Immutable);
+
+                RunChildQuery(entity, dec,
+                   [this, &currY, world, verticalBoxTransform](const ecs::SystemUpdateData& updateData)
+                   {
+                       const auto& children = updateData.GetEntities();
+                       auto* rectTransforms = updateData.GetComponentArray<ui::components::RectTransformComponent>();
+
+                       std::visit([this, &currY, world, children, verticalBoxTransform, rectTransforms](auto&& value)
+                       {
+                           for (size_t i = 0; i < children.size(); ++i)
+                           {
+                               const auto& child = children[i];
+                               auto& rectTransform = rectTransforms[i];
+                               rectTransform.anchors = { 0.f, 1.f, 0.f, 0.f };
+                               rectTransform.minY = currY;
+                               math::Vec2 childDesiredSize = DesiredSizeCalculator::GetDesiredSize(
+                                       this, child, rectTransform.rect,
+                                       &value[i]);
+                               currY = rectTransform.maxY = rectTransform.minY + childDesiredSize.y;
+
+                               rectTransform.rect = util::CalculateScreenSpaceRect(rectTransform, verticalBoxTransform);
+                               rectTransform.layer = verticalBoxTransform.layer + 1;
+                               rectTransform.lastRect = rectTransform.rect;
+
+                               util::LayoutChildren(world, this, child, rectTransform, rectTransform.layer + 1);
+                           }
+                       }, updateData.GetVariantComponentArray<SPARK_CONST_WIDGET_TYPES>());
+                       return false;
+                   });
             }
         }
     }

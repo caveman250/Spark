@@ -8,17 +8,12 @@
 namespace se::ui::systems
 {
     class UIRenderSystem
-: public ecs::EngineSystem<const ecs::components::RootComponent,
-                    const components::WidgetComponent,
-                    singleton_components::UIRenderComponent>
+: public ecs::EngineSystem
     {
         DECLARE_SPARK_SYSTEM(UIRenderSystem)
 
     public:
-        void OnRender(const std::vector<ecs::Id> &,
-                      const ecs::components::RootComponent *,
-                      const components::WidgetComponent *,
-                      singleton_components::UIRenderComponent *) override;
+        void OnRender(const ecs::SystemUpdateData& updateData) override;
 
     };
 }

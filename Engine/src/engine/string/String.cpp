@@ -62,14 +62,16 @@ namespace se
         return true;
     }
 
-    void String::operator=(const String& rhs)
+    String& String::operator=(const String& rhs)
     {
         m_Data = rhs.m_Data;
+        return *this;
     }
 
-    void String::operator=(const char* rhs)
+    String& String::operator=(const char* rhs)
     {
         *this = String(rhs);
+        return *this;
     }
 
     char String::operator[](size_t i) const

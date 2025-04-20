@@ -43,15 +43,14 @@ namespace se::ui::systems
         }
     }
 
-    void UIRenderSystem::OnRender(const std::vector<ecs::Id> & entities,
-                                  const RootComponent *,
-                                  const components::WidgetComponent *,
-                                  singleton_components::UIRenderComponent* renderComp)
+    void UIRenderSystem::OnRender(const ecs::SystemUpdateData& updateData)
     {
         auto* app = Application::Get();
         auto* world = app->GetWorld();
         auto* primaryWindow = app->GetPrimaryWindow();
         auto* renderer = render::Renderer::Get<render::Renderer>();
+        const auto& entities = updateData.GetEntities();
+        auto* renderComp = updateData.GetSingletonComponent<singleton_components::UIRenderComponent>();
         for (const auto& entity : entities)
         {
             RenderEntity(entity, renderComp, renderer, primaryWindow, world);

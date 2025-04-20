@@ -3,6 +3,7 @@
 #include "engine/math/Mat4.h"
 #include "engine/ecs/components/MeshComponent.h"
 #include "RootRectTransformSystem.h"
+#include "engine/ui/util/RectTransformUtil.h"
 
 #include "engine/Application.h"
 #include "engine/profiling/Profiler.h"
@@ -14,9 +15,13 @@ namespace se::ui::systems
 {
     DEFINE_SPARK_SYSTEM(RootRectTransformSystem)
 
-    void RootRectTransformSystem::OnUpdate(const std::vector<ecs::Id>& entities, components::RectTransformComponent* transform, const RootComponent*)
+    void RootRectTransformSystem::OnUpdate(const ecs::SystemUpdateData& updateData)
     {
         PROFILE_SCOPE("RootRectTransformSystem::OnUpdate")
+
+        auto world = Application::Get()->GetWorld();
+        const auto& entities = updateData.GetEntities();
+        auto* transform = updateData.GetComponentArray<ui::components::RectTransformComponent>();
 
         for (size_t i = 0; i < entities.size(); ++i)
         {
@@ -25,6 +30,8 @@ namespace se::ui::systems
             if (trans.rect != trans.lastRect)
             {
                 trans.needsLayout = true;
+                util::LayoutChildren(world, this, entities[i], trans, trans.layer + 1);
+                trans.needsLayout = false;
             }
 
             trans.lastRect = trans.rect;

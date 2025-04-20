@@ -6,9 +6,11 @@ namespace se::input
 {
     DEFINE_SPARK_SYSTEM(InputSystem)
 
-    void InputSystem::OnUpdate(const std::vector<se::ecs::Id> &, InputComponent* inputComp)
+    void InputSystem::OnUpdate(const ecs::SystemUpdateData &updateData)
     {
         PROFILE_SCOPE("InputSystem::OnUpdate")
+
+        auto* inputComp = updateData.GetSingletonComponent<InputComponent>();
 
         inputComp->mouseDeltaX = inputComp->mouseX - inputComp->lastMouseX;
         inputComp->mouseDeltaY = inputComp->mouseY - inputComp->lastMouseY;

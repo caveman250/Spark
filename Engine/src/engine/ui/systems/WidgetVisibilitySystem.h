@@ -9,10 +9,10 @@ using namespace se::ecs::components;
 
 namespace se::ui::systems
 {
-    class WidgetVisibilitySystem : public ecs::EngineSystem<components::WidgetComponent>
+    class WidgetVisibilitySystem : public ecs::EngineSystem
     {
     DECLARE_SPARK_SYSTEM(WidgetVisibilitySystem)
     public:
-        void OnUpdate(const std::vector<ecs::Id>&, components::WidgetComponent*) override;
+        void OnUpdate(const ecs::SystemUpdateData& updateData) override;
     };
 }

@@ -12,12 +12,13 @@ namespace se::ui::systems
 {
     DEFINE_SPARK_SYSTEM(UIMouseInputSystem)
 
-    void UIMouseInputSystem::OnUpdate(const std::vector<ecs::Id>& entities,
-        const RootComponent*,
-        components::ReceivesMouseEventsComponent* receivesInputComps,
-        input::InputComponent* inputComp)
+    void UIMouseInputSystem::OnUpdate(const ecs::SystemUpdateData& updateData)
     {
         PROFILE_SCOPE("UIMouseInputSystem::OnUpdate")
+
+        const auto& entities = updateData.GetEntities();
+        auto* inputComp = updateData.GetSingletonComponent<input::InputComponent>();
+        auto* receivesInputComps = updateData.GetComponentArray<ui::components::ReceivesMouseEventsComponent>();
 
         if (inputComp->mouseDeltaX == 0 &&
             inputComp->mouseDeltaY == 0 &&
@@ -44,13 +45,18 @@ namespace se::ui::systems
                 }
 
                 bool consumed = false;
-                RunRecursiveChildQuery<components::ReceivesMouseEventsComponent>(entity,
-                [this, &consumed, mouseEvent](const std::vector<ecs::Id>& children,components::ReceivesMouseEventsComponent* childInputComps)
+                auto declaration = ecs::ChildQueryDeclaration()
+                        .WithComponent<components::ReceivesMouseEventsComponent>();
+                RunRecursiveChildQuery(entity, declaration,
+                [this, &consumed, mouseEvent](const ecs::SystemUpdateData& updateData)
                 {
                     if (consumed)
                     {
                         return true;
                     }
+
+                    const auto& children = updateData.GetEntities();
+                    auto* childInputComps = updateData.GetComponentArray<components::ReceivesMouseEventsComponent>();
 
                     for (size_t j = 0; j < children.size(); ++j)
                     {

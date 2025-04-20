@@ -14,14 +14,15 @@ namespace se::ui::systems
 {
     DEFINE_SPARK_SYSTEM(ScrollBoxRenderSystem)
 
-    void ScrollBoxRenderSystem::OnRender(const std::vector<ecs::Id>& entities,
-                                         components::ScrollBoxComponent*,
-                                         const components::RectTransformComponent* rectTransforms,
-                                         singleton_components::UIRenderComponent* renderComp)
+    void ScrollBoxRenderSystem::OnRender(const ecs::SystemUpdateData& updateData)
     {
         PROFILE_SCOPE("ScrollBoxRenderSystem::OnRender")
 
         auto renderer = render::Renderer::Get<render::Renderer>();
+
+        const auto& entities = updateData.GetEntities();
+        const auto* rectTransforms = updateData.GetComponentArray<const components::RectTransformComponent>();
+        auto* renderComp = updateData.GetSingletonComponent<singleton_components::UIRenderComponent>();
 
         for (size_t i = 0; i < entities.size(); ++i)
         {

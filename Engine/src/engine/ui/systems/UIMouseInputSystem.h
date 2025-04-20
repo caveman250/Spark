@@ -13,11 +13,11 @@ using namespace se::ecs::components;
 
 namespace se::ui::systems
 {
-    class UIMouseInputSystem : public ecs::EngineSystem<const RootComponent, components::ReceivesMouseEventsComponent, input::InputComponent>
+    class UIMouseInputSystem : public ecs::EngineSystem
     {
         DECLARE_SPARK_SYSTEM(UIMouseInputSystem)
     public:
-        void OnUpdate(const std::vector<ecs::Id> &, const RootComponent *, components::ReceivesMouseEventsComponent *, input::InputComponent *) override;
+        void OnUpdate(const ecs::SystemUpdateData& updateData) override;
 
     private:
         bool TryConsumeEvent(const input::MouseEvent& keyEvent, components::ReceivesMouseEventsComponent& inputReceiver);

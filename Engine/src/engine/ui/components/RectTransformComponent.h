@@ -21,6 +21,7 @@ namespace se::ui::components
         Rect rect = {};
         Rect lastRect = {};
         math::Vec2 desiredSize = {};
+        bool overridesChildSizes = false;
 
         int layer = 0;
 

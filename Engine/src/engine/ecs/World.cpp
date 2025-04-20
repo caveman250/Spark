@@ -564,7 +564,16 @@ namespace se::ecs
         {
             if (systemRecord.instance)
             {
-                usedComponents.insert(std::make_pair(id, systemRecord.instance->GetUsedComponents()));
+                auto& map = (*usedComponents.insert(std::make_pair(id, std::map<Id, ComponentMutability::Type>())).first).second;
+                // TODO not taking variant components into account here
+                for (const auto& usedComp : systemRecord.instance->GetDeclaration().componentUsage)
+                {
+                    map[usedComp.id] = usedComp.mutability;
+                }
+                for (const auto& usedComp : systemRecord.instance->GetDeclaration().singletonComponentUsage)
+                {
+                    map[usedComp.id] = usedComp.mutability;
+                }
             }
         }
 
@@ -578,7 +587,7 @@ namespace se::ecs
                     auto& updateGroup = updateGroups[i];
 
                     bool blockedOnDependency = false;
-                    for (Id dependency: systemRecord.instance->GetDependencies())
+                    for (Id dependency: systemRecord.instance->GetDeclaration().dependencies)
                     {
                         if (SPARK_VERIFY(updateGroupLookup.contains(dependency), "Dependency has not been assigned an update group!")
                             && updateGroupLookup[dependency] >= i)
@@ -669,14 +678,18 @@ namespace se::ecs
         return &m_IdMetaMap.at(id).flags;
     }
 
-    std::set<Archetype*> World::CollectArchetypes(const std::vector<std::pair<Id, ComponentMutability::Type>>& compIds)
+    std::set<Archetype*> World::CollectArchetypes(std::vector<ComponentUsage> compIds, const ComponentUsage& variantUsage)
     {
+        if (variantUsage.id != s_InvalidEntity)
+        {
+            compIds.push_back(variantUsage);
+        }
         std::set<Archetype*> archetypes = {};
         for (const auto& compId: compIds)
         {
-            if (m_ComponentRecords.contains(compId.first))
+            if (m_ComponentRecords.contains(compId.id))
             {
-                auto& compRecord = m_ComponentRecords.at(compId.first);
+                auto& compRecord = m_ComponentRecords.at(compId.id);
                 for (const auto& archetypeId: compRecord.archetypeRecords | std::views::keys)
                 {
                     auto& archetype = m_Archetypes.at(archetypeId);
@@ -688,7 +701,7 @@ namespace se::ecs
                     bool containsAll = true;
                     for (auto comp: compIds)
                     {
-                        containsAll &= std::ranges::contains(archetype.type, comp.first);
+                        containsAll &= std::ranges::contains(archetype.type, comp.id);
                     }
 
                     if (!containsAll)
@@ -704,13 +717,16 @@ namespace se::ecs
         return archetypes;
     }
 
-    bool World::ValidateChildQuery(BaseSystem* system,
-                                   const std::vector<std::pair<Id, ComponentMutability::Type>>& requestedComponents)
+    bool World::ValidateChildQuery(const System* system,
+                                   const ChildQueryDeclaration& declaration)
     {
-        auto usedComponents = system->GetUsedComponents();
-        for (auto comp: requestedComponents)
+        auto systemDec = system->GetDeclaration();
+        for (const auto& comp: declaration.componentUsage)
         {
-            if (!SPARK_VERIFY(usedComponents.contains(comp.first) && comp.second <= usedComponents[comp.first]))
+            auto compIt = std::ranges::find(systemDec.componentUsage, comp);
+            auto childIt = std::ranges::find(systemDec.childQuerys, comp);
+            if (!SPARK_VERIFY((compIt != systemDec.componentUsage.end() && comp.mutability <= compIt->mutability) ||
+                                ((childIt != systemDec.childQuerys.end() && comp.mutability <= childIt->mutability))))
             {
                 return false;
             }
@@ -794,13 +810,14 @@ namespace se::ecs
     std::vector<Id> World::GetRootEntities()
     {
         std::vector<Id> ret;
-        static std::vector<Relationship> nullRelationships = {};
-        Each<components::RootComponent>(
-            [&ret](const std::vector<Id>& entities, components::RootComponent*)
+        Each({ ComponentUsage(components::RootComponent::GetComponentId(), ComponentMutability::Immutable) },
+             {},
+            [&ret](const SystemUpdateData& updateData)
             {
+                const auto& entities = updateData.GetEntities();
                 ret.reserve(ret.size() + entities.size());
                 ret.insert(ret.end(), entities.begin(), entities.end());
-            }, nullRelationships, false);
+            }, false);
 
         return ret;
     }
@@ -909,7 +926,7 @@ namespace se::ecs
         ProcessPendingAppSystems();
     }
 
-    void World::ProcessPendingSystems(std::vector<std::pair<Id, SystemCreationInfo>>& pendingCreations,
+    void World::ProcessPendingSystems(std::vector<std::pair<Id, SystemDeclaration>>& pendingCreations,
                                       std::vector<Id>& pendingDeletions,
                                       std::unordered_map<Id, SystemRecord>& systemRecords,
                                       std::vector<std::vector<Id>>& systsemUpdateGroups,
@@ -953,15 +970,13 @@ namespace se::ecs
 
     void World::CreateSystemInternal(std::unordered_map<Id, SystemRecord>& systemMap,
                                      Id system,
-                                     const SystemCreationInfo& pendingSystem)
+                                     const SystemDeclaration& pendingSystem)
     {
         if (SPARK_VERIFY(systemMap.contains(system) && systemMap.at(system).instance == nullptr))
         {
             auto& record = systemMap.at(system);
-            record.instance = static_cast<BaseSystem*>(record.type->heap_constructor());
-            record.instance->m_Relationships = pendingSystem.relationships;
-            record.instance->m_ChildQuery = pendingSystem.childQuerys;
-            record.instance->m_DependsOn = pendingSystem.dependencies;
+            record.instance = static_cast<System*>(record.type->heap_constructor());
+            record.instance->m_Declaration = pendingSystem;
         }
     }
 
@@ -1079,14 +1094,5 @@ namespace se::ecs
     Id World::GetParent(Id entity) const
     {
         return m_EntityRecords.at(entity).parent;
-    }
-
-    void CollectRelationshipIds(std::vector<std::pair<Id, ComponentMutability::Type>>& compIds,
-                                const std::vector<Relationship>& relationships)
-    {
-        std::ranges::for_each(relationships, [&compIds](const Relationship& relationship)
-        {
-            compIds.push_back(std::make_pair(relationship.GetId(), ComponentMutability::Immutable));
-        });
     }
 }

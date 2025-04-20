@@ -16,9 +16,12 @@ namespace se::ecs::systems
 {
     DEFINE_SPARK_SYSTEM(TransformSystem)
 
-    void TransformSystem::OnUpdate(const std::vector<Id>& entities, TransformComponent* transform)
+    void TransformSystem::OnUpdate(const ecs::SystemUpdateData& updateData)
     {
         PROFILE_SCOPE("TransformSystem::OnUpdate")
+
+        const auto& entities = updateData.GetEntities();
+        auto* transform = updateData.GetComponentArray<TransformComponent>();
 
         for (size_t i = 0; i < entities.size(); ++i)
         {
