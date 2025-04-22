@@ -62,8 +62,6 @@ namespace se::ui::util
             rect->needsLayout = true;
 
             rect->rect.topLeft.y = static_cast<int>(scrollRect->rect.topLeft.y + 5 + availableSize * scrollAmount);
-
-            debug::Log::Error("Scroll Amount: {}", scrollAmount);
         };
         (*outScrollView)->onScrolled.Subscribe(std::move(scrollCb));
 

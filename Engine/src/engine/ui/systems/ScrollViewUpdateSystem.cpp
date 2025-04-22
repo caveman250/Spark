@@ -131,7 +131,6 @@ namespace se::ui::systems
                             availableScrollSpaceTop += delta;
                             availableScrollSpaceBottom -= delta;
                             availableScrollSpaceTop = std::max(0, availableScrollSpaceTop);
-                            debug::Log::Error("Scroll Top: {}", availableScrollSpaceTop);
                             scrollView.scrollAmount = static_cast<float>(availableScrollSpaceTop) /
                                                       static_cast<float>(availableScrollSpaceTop + availableScrollSpaceBottom);
                             scrollView.onScrolled.Broadcast(&rectTransform, scrollView.scrollAmount);
@@ -156,7 +155,6 @@ namespace se::ui::systems
                             availableScrollSpaceTop -= delta;
                             availableScrollSpaceBottom += delta;
                             availableScrollSpaceTop = std::max(0, availableScrollSpaceTop);
-                            debug::Log::Error("Scroll Top: {}", availableScrollSpaceTop);
                             scrollView.scrollAmount = static_cast<float>(availableScrollSpaceTop) /
                                                       static_cast<float>(availableScrollSpaceTop + availableScrollSpaceBottom);
                             scrollView.onScrolled.Broadcast(&rectTransform, scrollView.scrollAmount);
