@@ -26,15 +26,35 @@ namespace se::ui::systems
         for (size_t i = 0; i < entities.size(); ++i)
         {
             auto& trans = transform[i];
+            trans.lastRect = trans.rect;
             trans.rect = {{ trans.minX, trans.minY }, { trans.maxX - trans.minX, trans.maxY - trans.minY }};
             if (trans.rect != trans.lastRect)
             {
-                trans.needsLayout = true;
-                util::LayoutChildren(world, this, entities[i], trans, trans.layer + 1);
-                trans.needsLayout = false;
-            }
+                if (trans.rect.size == trans.lastRect.size)
+                {
+                    auto posDelta = trans.rect.topLeft - trans.lastRect.topLeft;
+                    auto dec = ecs::ChildQueryDeclaration()
+                        .WithComponent<components::RectTransformComponent>();
+                    RunRecursiveChildQuery(entities[i], dec,
+                        [posDelta](const ecs::SystemUpdateData& updateData)
+                        {
+                            const auto& children = updateData.GetEntities();
+                            auto* rects = updateData.GetComponentArray<components::RectTransformComponent>();
 
-            trans.lastRect = trans.rect;
+                            for (size_t i = 0; i < children.size(); ++i)
+                            {
+                                auto& rect = rects[i];
+                                rect.rect.topLeft += posDelta;
+                            }
+
+                            return false;
+                        });
+                }
+                else if (!trans.overridesChildSizes)
+                {
+                    util::LayoutChildren(world, this, entities[i], trans, trans.layer + 1);
+                }
+            }
         }
     }
 }

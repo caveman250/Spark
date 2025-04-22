@@ -1,6 +1,7 @@
 #include <engine/ui/systems/ScrollViewUpdateSystem.h>
 #include <engine/ui/systems/VerticalBoxSystem.h>
 #include <Widgets.generated.h>
+#include <engine/ui/systems/RectTransformSystem.h>
 #include "Application.h"
 #include "engine/ui/systems/UIRenderSystem.h"
 #include "engine/ui/systems/ScrollBoxRenderSystem.h"
@@ -151,6 +152,12 @@ namespace se
             .WithComponent<const RootComponent>();
         auto rootRect = m_World.CreateEngineSystem<ui::systems::RootRectTransformSystem>(rootRectReg);
 
+        ecs::SystemDeclaration rectTransformReg = ecs::SystemDeclaration("RectTransformSystem")
+            .WithComponent<ui::components::RectTransformComponent>()
+            .WithComponent<ParentComponent>()
+            .WithDependency(rootRect);
+        auto rectTrans = m_World.CreateEngineSystem<ui::systems::RectTransformSystem>(rectTransformReg);
+
         ecs::SystemDeclaration treeNodesReg = ecs::SystemDeclaration("TreeNodeSystem")
             .WithComponent<ui::components::TreeNodeComponent>()
             .WithComponent<ui::components::ReceivesMouseEventsComponent>()
@@ -160,19 +167,12 @@ namespace se
         ecs::SystemDeclaration treeViewReg = ecs::SystemDeclaration("TreeViewSystem")
             .WithComponent<ui::components::TreeViewComponent>()
             .WithComponent<ui::components::RectTransformComponent>()
-            .WithDependency(rootRect)
+            .WithDependency(rectTrans)
             .WithDependency(treeNodes)
             .WithChildQuery(ui::components::TreeNodeComponent::GetComponentId(), ecs::ComponentMutability::Immutable)
             .WithChildQuery(ui::components::RectTransformComponent::GetComponentId(), ecs::ComponentMutability::Mutable)
             .WithChildQuery(ui::components::WidgetComponent::GetComponentId(), ecs::ComponentMutability::Mutable);
-        auto treeView = m_World.CreateEngineSystem<ui::systems::TreeViewSystem>(treeViewReg);
-
-        ecs::SystemDeclaration verticalBoxReg = ecs::SystemDeclaration("Vertical Box System")
-            .WithComponent<ui::components::VerticalBoxComponent>()
-            .WithComponent<ui::components::RectTransformComponent>()
-            .WithDependency(rootTransform)
-            .WithChildQuerys<SPARK_WIDGET_TYPES>(ecs::ComponentMutability::Immutable);
-        auto verticalBox = m_World.CreateEngineSystem<ui::systems::VerticalBoxSystem>(verticalBoxReg);
+        m_World.CreateEngineSystem<ui::systems::TreeViewSystem>(treeViewReg);
 
         ecs::SystemDeclaration buttonReg = ecs::SystemDeclaration("ButtonSystem")
             .WithComponent<ui::components::ButtonComponent>()
@@ -193,8 +193,17 @@ namespace se
             .WithComponent<ui::components::RectTransformComponent>()
             .WithComponent<const ui::components::ReceivesMouseEventsComponent>()
             .WithDependency(mouseInput)
+            .WithDependency(rectTrans)
             .WithChildQuery(ui::components::WidgetComponent::GetComponentId(), ecs::ComponentMutability::Mutable);
-        m_World.CreateEngineSystem<ui::systems::ScrollViewUpdateSystem>(scrollViewReg);
+        auto scrollView = m_World.CreateEngineSystem<ui::systems::ScrollViewUpdateSystem>(scrollViewReg);
+
+        ecs::SystemDeclaration verticalBoxReg = ecs::SystemDeclaration("Vertical Box System")
+            .WithComponent<ui::components::VerticalBoxComponent>()
+            .WithComponent<ui::components::RectTransformComponent>()
+            .WithDependency(rectTrans)
+            .WithDependency(scrollView)
+            .WithChildQuerys<SPARK_WIDGET_TYPES_WITH_NULLTYPE>(ecs::ComponentMutability::Immutable);
+        m_World.CreateEngineSystem<ui::systems::VerticalBoxSystem>(verticalBoxReg);
 
         ecs::SystemDeclaration imageRenderReg = ecs::SystemDeclaration("ImageRenderSystem")
             .WithComponent<const ui::components::RectTransformComponent>()

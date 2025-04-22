@@ -30,6 +30,7 @@ namespace se::ui::util
         *outScrollView = world->AddComponent<ui::components::ScrollViewComponent>(scrollViewEntity);
         auto scrollViewTransform = world->AddComponent<ui::components::RectTransformComponent>(scrollViewEntity);
         scrollViewTransform->anchors = { .left = 0.f, .right = 1.f, .top = 0.f, .bottom = 1.f };
+        scrollViewTransform->overridesChildSizes = true;
         auto scrollViewMouseEventComp = world->AddComponent<components::ReceivesMouseEventsComponent>(scrollViewEntity);
         scrollViewMouseEventComp->receivesScrollEvents = true;
 

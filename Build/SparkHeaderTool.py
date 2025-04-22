@@ -52,6 +52,25 @@ def WriteWidgetTypesMacros(widget_list):
         if i < len(widget_list) - 1:
             ret += ","
 
+    ret += "\n#define SPARK_WIDGET_TYPES_WITH_NULLTYPE "
+    for i in range(len(widget_list)):
+        if len(widget_list[i].namespace) > 0:
+            ret += widget_list[i].namespace + "::"
+        ret += widget_list[i].name
+        if i < len(widget_list) - 1:
+            ret += ","
+    ret += ",se::ecs::NullComponentType"
+
+    ret += "\n#define SPARK_CONST_WIDGET_TYPES_WITH_NULLTYPE "
+    for i in range(len(widget_list)):
+        ret += "const "
+        if len(widget_list[i].namespace) > 0:
+            ret += widget_list[i].namespace + "::"
+        ret += widget_list[i].name
+        if i < len(widget_list) - 1:
+            ret += ","
+    ret += ",const se::ecs::NullComponentType"
+
     ret += "\n#define SPARK_WIDGET_POINTER_TYPES "
     for i in range(len(widget_list)):
         if len(widget_list[i].namespace) > 0:
@@ -71,20 +90,40 @@ def WriteWidgetTypesMacros(widget_list):
         if i < len(widget_list) - 1:
             ret += ","
 
+    ret += "\n#define SPARK_WIDGET_POINTER_TYPES_WITH_NULLTYPE "
+    for i in range(len(widget_list)):
+        if len(widget_list[i].namespace) > 0:
+            ret += widget_list[i].namespace + "::"
+        ret += widget_list[i].name
+        ret += "*"
+        if i < len(widget_list) - 1:
+            ret += ","
+    ret += ",se::ecs::NullComponentType*"
+
+    ret += "\n#define SPARK_WIDGET_CONST_POINTER_TYPES_WITH_NULLTYPE "
+    for i in range(len(widget_list)):
+        ret += "const "
+        if len(widget_list[i].namespace) > 0:
+            ret += widget_list[i].namespace + "::"
+        ret += widget_list[i].name
+        ret += "*"
+        if i < len(widget_list) - 1:
+            ret += ","
+    ret += ",const se::ecs::NullComponentType*"
+
     return ret
 
-def WriteWidgetVariant(widget_list):
+def WriteWidgetVariant():
     ret = "\ntypedef std::variant<SPARK_WIDGET_POINTER_TYPES> WidgetVariant;"
     ret += "\ntypedef std::variant<SPARK_WIDGET_CONST_POINTER_TYPES> ConstWidgetVariant;"
     return ret
 
 def WriteWidgetHeader(widget_list):
-    print("Spark Header Tool - Widgets.generated.h")
     contents = "#pragma once\n\n#include \"spark.h\"\n"
 
     contents += IncludeWidgetFiles(widget_list)
     contents += WriteWidgetTypesMacros(widget_list)
-    contents += WriteWidgetVariant(widget_list)
+    contents += WriteWidgetVariant()
 
     output_dir = "../Engine/sht_generated/"
     output_path = "../Engine/sht_generated/Widgets.generated.h"
@@ -95,9 +134,12 @@ def WriteWidgetHeader(widget_list):
     existing_contents = input_handle.read()
     input_handle.close()
     if existing_contents != contents:
+        print("Spark Header Tool - Widgets.generated.h generating...")
         output_handle = open(output_path, "w+")
         output_handle.write(contents)
         output_handle.close()
+    else:
+        print("Spark Header Tool - Widgets.generated.h up to date. skipping.")
 
 def ProcessNamespace(line, namespace_stack, namespace_scope_depth_stack, current_scope_depth):
     start_index = len("namespace") + 1
@@ -135,7 +177,6 @@ def ProcessSingletonComponent(line, components, path, namespace_stack):
 def WriteComponentRegistrationFiles(components):
     output_dir = "../Engine/sht_generated/"
 
-    print("Spark Header Tool - ComponentRegistration.generated.h")
     header = "#pragma once\n\nnamespace se::ecs\n{\n\tclass World;\n\tvoid RegisterComponents(World* world);\n}"
     output_path = output_dir + "ComponentRegistration.generated.h"
     if not os.path.exists(output_dir):
@@ -144,11 +185,13 @@ def WriteComponentRegistrationFiles(components):
     existing_contents = input_handle.read()
     input_handle.close()
     if existing_contents != header:
+        print("Spark Header Tool - ComponentRegistration.generated.h generating...")
         output_handle = open(output_path, "w+")
         output_handle.write(header)
         output_handle.close()
+    else:
+        print("Spark Header Tool - ComponentRegistration.generated.h up to date. skipping.")
 
-    print("Spark Header Tool - ComponentRegistration.generated.cpp")
     cpp = "#include \"ComponentRegistration.generated.h\"\n#include \"spark.h\"\n#include \"engine/reflect/Reflect.h\"\n"
     for i in range(len(components)):
         cpp += "#include \"" + components[i].path + "\"\n"
@@ -170,9 +213,12 @@ def WriteComponentRegistrationFiles(components):
     existing_contents = input_handle.read()
     input_handle.close()
     if existing_contents != cpp:
+        print("Spark Header Tool - ComponentRegistration.generated.cpp generating...")
         output_handle = open(output_path, "w+")
         output_handle.write(cpp)
         output_handle.close()
+    else:
+        print("Spark Header Tool - ComponentRegistration.generated.cpp up to date. skipping.")
 
 def ProcessHeaders():
     components = []

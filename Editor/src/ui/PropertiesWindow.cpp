@@ -14,6 +14,7 @@
 #include "engine/reflect/Reflect.h"
 
 #include "engine/Application.h"
+#include "engine/ui/util/VerticalBoxUtil.h"
 
 namespace se::editor::ui
 {
@@ -55,20 +56,21 @@ namespace se::editor::ui
         windowTransform->minY = 200;
         windowTransform->maxY = 500;
 
-        ecs::Id scrollBoxContentEntity;
+        ecs::Id scrollViewEntity;
         se::ui::components::ScrollBoxComponent *scrollBox = nullptr;
         se::ui::components::ScrollViewComponent *scrollView = nullptr;
         se::ui::components::RectTransformComponent *scrollBoxTransform = nullptr;
-        auto scrollBoxEntity = ::se::ui::util::CreateScrollBox(&scrollBox, scrollBoxContentEntity, &scrollView, &scrollBoxTransform, m_ScrollBar, true);
+        auto scrollBoxEntity = ::se::ui::util::CreateScrollBox(&scrollBox, scrollViewEntity, &scrollView, &scrollBoxTransform, m_ScrollBar, true);
         world->AddChild(contentArea, scrollBoxEntity);
 
         m_ScrollBoxContent = world->CreateEntity("Vertical Box");
-        world->AddComponent<se::ui::components::VerticalBoxComponent>(m_ScrollBoxContent);
+        auto verticalBox = world->AddComponent<se::ui::components::VerticalBoxComponent>(m_ScrollBoxContent);
+        verticalBox->spacing = 5;
         world->AddComponent<se::ui::components::WidgetComponent>(m_ScrollBoxContent);
         auto verticalBoxTransform = world->AddComponent<se::ui::components::RectTransformComponent>(m_ScrollBoxContent);
-        verticalBoxTransform->anchors = { 0.f, 1.f, 0.f, 1.f };
+        verticalBoxTransform->anchors = { 0.f, 1.f, 0.f, 0.f };
         verticalBoxTransform->overridesChildSizes = true; // TODO automate this
-        world->AddChild(scrollBoxEntity, m_ScrollBoxContent);
+        world->AddChild(scrollViewEntity, m_ScrollBoxContent);
 
         m_Valid = true;
     }
@@ -105,10 +107,11 @@ namespace se::editor::ui
             ecs::Id selectedEntity = m_Editor->GetSelectedEntity();
             reflect::ObjectBase *selectedSingletonComp = m_Editor->GetSelectedSingletonComponent();
 
+            se::ui::components::VerticalBoxComponent* verticalBox = world->GetComponent<se::ui::components::VerticalBoxComponent>(m_ScrollBoxContent);
+
             if (selectedEntity)
             {
                 const auto &selectedEntityRecord = world->m_EntityRecords.at(m_Editor->GetSelectedEntity());
-                int yOffset = 0;
                 {
                     auto textEntity = world->CreateEntity("Text", true);
                     auto text = world->AddComponent<se::ui::components::TextComponent>(textEntity);
@@ -117,8 +120,7 @@ namespace se::editor::ui
                     text->text = *m_Editor->GetSelectedEntity().name;
                     world->AddComponent<se::ui::components::RectTransformComponent>(textEntity);
                     world->AddComponent<se::ui::components::WidgetComponent>(textEntity);
-                    world->AddChild(m_ScrollBoxContent, textEntity);
-                    yOffset += 24 + 6;
+                    se::ui::util::AddVerticalBoxChild(m_ScrollBoxContent, verticalBox, textEntity);
                 }
 
                 for (auto component: selectedEntityRecord.archetype->type)
@@ -132,8 +134,7 @@ namespace se::editor::ui
                         text->text = compRecord.type->name;
                         world->AddComponent<se::ui::components::RectTransformComponent>(textEntity);
                         world->AddComponent<se::ui::components::WidgetComponent>(textEntity);
-                        world->AddChild(m_ScrollBoxContent, textEntity);
-                        yOffset += 21 + 2;
+                        se::ui::util::AddVerticalBoxChild(m_ScrollBoxContent, verticalBox, textEntity);
                     }
 
                     int numSerialisedMembers = 0;
@@ -151,12 +152,6 @@ namespace se::editor::ui
                         if (auto *propEditor = properties::CreatePropertyEditor(member, instance))
                         {
                             world->AddChild(m_ScrollBoxContent, propEditor->GetWidgetId());
-                            auto propEditorRect = propEditor->GetRectTransform();
-                            se::ui::Rect rect = se::ui::util::CalculateScreenSpaceRect(*propEditorRect,
-                                                                                       *scrollBoxTransform);
-                            propEditorRect->minY = yOffset;
-                            propEditorRect->maxY = rect.size.y + yOffset;
-                            yOffset += rect.size.y;
                             m_PropertyEditors.push_back(propEditor);
                         }
                         else
@@ -169,8 +164,7 @@ namespace se::editor::ui
                                                      member.type->GetTypeName(nullptr));
                             world->AddComponent<se::ui::components::RectTransformComponent>(textEntity);
                             world->AddComponent<se::ui::components::WidgetComponent>(textEntity);
-                            world->AddChild(m_ScrollBoxContent, textEntity);
-                            yOffset += 22;
+                            se::ui::util::AddVerticalBoxChild(m_ScrollBoxContent, verticalBox, textEntity);
                         }
                     }
 
@@ -183,15 +177,13 @@ namespace se::editor::ui
                         text->text = "No properties.";
                         world->AddComponent<se::ui::components::RectTransformComponent>(textEntity);
                         world->AddComponent<se::ui::components::WidgetComponent>(textEntity);
-                        world->AddChild(m_ScrollBoxContent, textEntity);
-                        yOffset += 18 + 2;
+                        se::ui::util::AddVerticalBoxChild(m_ScrollBoxContent, verticalBox, textEntity);
                     }
                 }
             }
             else if (selectedSingletonComp)
             {
                 auto reflectClass = static_cast<reflect::Class *>(selectedSingletonComp->GetReflectType());
-                int yOffset = 0;
 
                 auto textEntity = world->CreateEntity("Text", true);
                 auto text = world->AddComponent<se::ui::components::TextComponent>(textEntity);
@@ -200,8 +192,7 @@ namespace se::editor::ui
                 text->text = reflectClass->name;
                 world->AddComponent<se::ui::components::RectTransformComponent>(textEntity);
                 world->AddComponent<se::ui::components::WidgetComponent>(textEntity);
-                world->AddChild(m_ScrollBoxContent, textEntity);
-                yOffset += 21 + 2;
+                se::ui::util::AddVerticalBoxChild(m_ScrollBoxContent, verticalBox, textEntity);
 
                 for (const auto &member: reflectClass->members)
                 {
@@ -212,13 +203,7 @@ namespace se::editor::ui
 
                     if (auto *propEditor = properties::CreatePropertyEditor(member, selectedSingletonComp))
                     {
-                        world->AddChild(m_ScrollBoxContent, propEditor->GetWidgetId());
-                        auto propEditorRect = propEditor->GetRectTransform();
-                        se::ui::Rect rect = se::ui::util::CalculateScreenSpaceRect(*propEditorRect,
-                                                                                   *scrollBoxTransform);
-                        propEditorRect->minY = yOffset;
-                        propEditorRect->maxY = rect.size.y + yOffset;
-                        yOffset += rect.size.y;
+                        se::ui::util::AddVerticalBoxChild(m_ScrollBoxContent, verticalBox, propEditor->GetWidgetId());
                         m_PropertyEditors.push_back(propEditor);
                     }
                     else
@@ -232,8 +217,7 @@ namespace se::editor::ui
                         world->AddComponent<se::ui::components::RectTransformComponent>(
                                 propTextEntity);
                         world->AddComponent<se::ui::components::WidgetComponent>(propTextEntity);
-                        world->AddChild(m_ScrollBoxContent, propTextEntity);
-                        yOffset += 18;
+                        se::ui::util::AddVerticalBoxChild(m_ScrollBoxContent, verticalBox, propTextEntity);
                     }
                 }
             }

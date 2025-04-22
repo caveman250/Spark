@@ -96,7 +96,9 @@ namespace se::ecs
         std::variant<Ts*...> GetVariantComponentArray() const
         {
 #if !SPARK_DIST
-            if (!SPARK_VERIFY(m_VariantComponentData.variant_type.id != 0,
+            bool containsNullType = false;
+            (VariantContainsNullType<Ts>(containsNullType), ...);
+            if (!SPARK_VERIFY(containsNullType || m_VariantComponentData.variant_type.id != s_InvalidEntity,
                          "SystemUpdateData::GetVariantComponentArray - Variant Component not set."))
             {
                 return std::variant<Ts*...>();
@@ -141,6 +143,13 @@ namespace se::ecs
         void AreTypesConst(bool& outConst) const
         {
             outConst &= std::is_const_v<T>;
+        }
+
+        template <typename T>
+        void VariantContainsNullType(bool& containsNullType) const
+        {
+            using ComponentType = std::decay_t<T>;
+            containsNullType |= std::is_same_v<ComponentType, NullComponentType>;
         }
 
         std::unordered_map<ecs::Id, SystemUpdateEntityComponentData> m_ComponentArrays = {};

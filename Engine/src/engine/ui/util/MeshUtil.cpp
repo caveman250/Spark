@@ -30,7 +30,7 @@ namespace se::ui::util
     {
         asset::StaticMesh mesh;
         uint32_t indexOffset = 0;
-        math::Vec2 cursorPos = { };
+        math::IntVec2 cursorPos = { };
         cursorPos.y += fontSize;
         for (size_t i = 0; i < text.Size(); ++i)
         {
@@ -48,12 +48,12 @@ namespace se::ui::util
 
             cursorPos.x += charData.leftSideBearing;
 
-            math::Vec2 TL = charData.rect.topLeft + cursorPos;
-            math::Vec2 BR = TL + charData.rect.size;
-            mesh.vertices.push_back({ TL.x, BR.y, 0 });
-            mesh.vertices.push_back({ BR.x, BR.y, 0 });
-            mesh.vertices.push_back({ BR.x, TL.y, 0 });
-            mesh.vertices.push_back({ TL.x, TL.y, 0 });
+            math::IntVec2 TL = charData.rect.topLeft + cursorPos;
+            math::IntVec2 BR = TL + charData.rect.size;
+            mesh.vertices.push_back({ (float)TL.x, (float)BR.y, 0 });
+            mesh.vertices.push_back({ (float)BR.x, (float)BR.y, 0 });
+            mesh.vertices.push_back({ (float)BR.x, (float)TL.y, 0 });
+            mesh.vertices.push_back({ (float)TL.x, (float)TL.y, 0 });
 
             mesh.indices.insert(mesh.indices.end(), { indexOffset + 1, indexOffset + 3, indexOffset, indexOffset + 3, indexOffset + 1, indexOffset + 2} );
             indexOffset += 4;
@@ -92,12 +92,12 @@ namespace se::ui::util
         return mesh;
     }
 
-    math::Vec2 MeasureText(const Rect& bounds, const std::shared_ptr<asset::Font>& font, int fontSize, const String& text,
+    math::IntVec2 MeasureText(const Rect& bounds, const std::shared_ptr<asset::Font>& font, int fontSize, const String& text,
         bool applyKerning, bool wrap)
     {
-        math::Vec2 max = {};
+        math::IntVec2 max = {};
 
-        math::Vec2 cursorPos = { };
+        math::IntVec2 cursorPos = { };
         cursorPos.y += fontSize;
         for (size_t i = 0; i < text.Size(); ++i)
         {
@@ -115,8 +115,8 @@ namespace se::ui::util
 
             cursorPos.x += charData.leftSideBearing;
 
-            math::Vec2 TL = charData.rect.topLeft + cursorPos;
-            math::Vec2 BR = TL + charData.rect.size;
+            math::IntVec2 TL = charData.rect.topLeft + cursorPos;
+            math::IntVec2 BR = TL + charData.rect.size;
             if (math::MagnitudeSquared(BR) > math::MagnitudeSquared(max))
             {
                 max = BR;

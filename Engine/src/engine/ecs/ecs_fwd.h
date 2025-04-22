@@ -3,6 +3,8 @@
 
 namespace se::ecs
 {
+    constexpr uint64_t s_InvalidEntity = 0;
+
     enum class IdFlags : uint32_t
     {
         None = 0,
@@ -34,6 +36,11 @@ namespace se::ecs
         uint64_t id = 0;
         const String* name = nullptr;
         int32_t* flags = nullptr;
+    };
+
+    struct NullComponentType
+    {
+        static se::ecs::Id GetComponentId() { return se::ecs::s_InvalidEntity; }
     };
 }
 

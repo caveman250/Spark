@@ -9,21 +9,35 @@ namespace se::ui::components
 
 namespace se::ui
 {
-    se::math::Vec2 GetVerticalBoxChildrenDesiredSize(ecs::System* system, const ecs::Id& entity, const Rect& parentRect)
+    se::math::IntVec2 GetVerticalBoxChildrenDesiredSize(ecs::System* system,
+                                                     const ecs::Id& entity,
+                                                     const ui::components::RectTransformComponent& thisRect,
+                                                     const components::VerticalBoxComponent* context)
     {
-        se::math::Vec2 desiredSize = {};
+        se::math::IntVec2 desiredSize = {};
         auto dec = ecs::ChildQueryDeclaration()
-            .WithVariantComponent<SPARK_CONST_WIDGET_TYPES>(ecs::ComponentMutability::Immutable);
+            .WithComponent<const ui::components::RectTransformComponent>()
+            .WithVariantComponent<SPARK_CONST_WIDGET_TYPES_WITH_NULLTYPE>(ecs::ComponentMutability::Immutable);
 
         system->RunChildQuery(entity, dec,
-           [parentRect, entity, &desiredSize, system](const ecs::SystemUpdateData& updateData)
+           [context, thisRect, &desiredSize, system](const ecs::SystemUpdateData& updateData)
            {
-              std::visit([parentRect, entity, &desiredSize, system](auto&& value)
+              std::visit([context, thisRect, updateData, &desiredSize, system](auto&& value)
               {
-                  math::Vec2 childDesiredSize = DesiredSizeCalculator::GetDesiredSize(system, entity, parentRect, value);
-                  desiredSize.x = std::max(childDesiredSize.x, desiredSize.x);
-                  desiredSize.y += childDesiredSize.y;
-              }, updateData.GetVariantComponentArray<SPARK_CONST_WIDGET_TYPES>());
+                  const auto& entities = updateData.GetEntities();
+                  const auto& transforms = updateData.GetComponentArray<const ui::components::RectTransformComponent>();
+
+                  for (size_t i = 0; i < entities.size(); ++i)
+                  {
+                      math::IntVec2 childDesiredSize = DesiredSizeCalculator::GetDesiredSize(system,
+                                                                                          entities[i],
+                                                                                          thisRect,
+                                                                                          transforms[i],
+                                                                                          value);
+                      desiredSize.x = std::max(childDesiredSize.x, desiredSize.x);
+                      desiredSize.y += childDesiredSize.y + context->spacing;
+                  }
+              }, updateData.GetVariantComponentArray<SPARK_CONST_WIDGET_TYPES_WITH_NULLTYPE>());
                return false;
            });
         return desiredSize;

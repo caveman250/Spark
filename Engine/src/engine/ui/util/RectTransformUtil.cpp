@@ -62,7 +62,6 @@ namespace se::ui::util
                 components::RectTransformComponent& child = childTransform[i];
                 child.rect = util::CalculateScreenSpaceRect(child, parentRect);
                 child.layer = depth;
-                child.lastRect = child.rect;
 
                 if (!child.overridesChildSizes)
                 {
@@ -70,6 +69,13 @@ namespace se::ui::util
                     {
                         LayoutChildren(world, system, children[i], child, depth + 1);
                     }
+
+                    child.lastRect = child.rect;
+                    child.needsLayout = false;
+                }
+                else
+                {
+                    child.needsLayout = true;
                 }
             }
 

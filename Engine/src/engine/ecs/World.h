@@ -13,6 +13,7 @@
 #include "engine/profiling/Profiler.h"
 #include "engine/string/String.h"
 #include "engine/ecs/components/ParentComponent.h"
+#include "ecs_fwd.h"
 
 #if SPARK_EDITOR
 #include "ui/PropertiesWindow.h"
@@ -63,7 +64,6 @@ namespace se::ecs
     template<typename... Cs>
     class SignalActionBuilder;
     class BaseSignal;
-    constexpr uint64_t s_InvalidEntity = 0;
 
     struct EntityRecord
     {
@@ -181,7 +181,22 @@ namespace se::ecs
                   Func&& func,
                   bool force);
 
-        std::set<Archetype*> CollectArchetypes(std::vector<ComponentUsage> components, const ComponentUsage& variantUsage);
+        void CollectArchetypes(const std::vector<ComponentUsage>& components,
+                                               std::set<Archetype*>& archetypes);
+
+        struct VariantQueryArchetype
+        {
+            Archetype* archetype = nullptr;
+            ComponentUsage variantUsage = ComponentUsage(NullComponentType::GetComponentId(), ComponentMutability::Immutable);
+
+            bool operator <(const VariantQueryArchetype& rhs) const
+            {
+                return archetype < rhs.archetype;
+            }
+        };
+        void CollectArchetypesWithVariant(std::vector<ComponentUsage> components,
+                               const ComponentUsage& variantUsage,
+                               std::set<VariantQueryArchetype>& archetypes);
 
         template<typename Func>
         bool ChildEach(const ecs::Id& entity,
@@ -191,9 +206,8 @@ namespace se::ecs
 
         template<typename Func>
         bool ChildEachImpl(SystemUpdateData& updateData,
-                           const std::set<Archetype*> archetypes,
+                           const std::set<VariantQueryArchetype> archetypes,
                            const std::vector<ComponentUsage>& compUsage,
-                           const ComponentUsage& variantCompUsage,
                            Func&& func);
 
         template<typename Func>
@@ -425,7 +439,8 @@ namespace se::ecs
                      bool force)
     {
         PROFILE_SCOPE("World::Each")
-        std::set<Archetype*> archetypes = CollectArchetypes(components, ComponentUsage(s_InvalidEntity, ComponentMutability::Immutable));
+        std::set<Archetype*> archetypes = {};
+        CollectArchetypes(components, archetypes);
 
         SystemUpdateData updateData = {};
         for (const auto& compUsage : singletonComponents)
@@ -478,10 +493,19 @@ namespace se::ecs
             return false;
         }
 #endif
+        bool hasNullVariant = false;
         std::set<ecs::Id> variantTypes = {};
         if (declaration.variantComponentUsage.type_hash != 0)
         {
-            variantTypes = declaration.variantComponentUsage.components;
+            for (const auto& type : declaration.variantComponentUsage.components)
+            {
+                if (type == s_InvalidEntity)
+                {
+                    hasNullVariant = true;
+                    continue;
+                }
+                variantTypes.insert(type);
+            }
         }
 
         std::vector components = declaration.componentUsage;
@@ -494,21 +518,30 @@ namespace se::ecs
 
         if (!variantTypes.empty())
         {
-            for (const ecs::Id &variantType: variantTypes)
+            std::set<VariantQueryArchetype> archetypes = {};
+            for (const ecs::Id& variantType: variantTypes)
             {
                 auto variant = ComponentUsage(variantType, declaration.variantComponentUsage.mutability);
-                std::set<Archetype *> archetypes = CollectArchetypes(components, variant);
-                if (ChildEachImpl(updateData, archetypes, components, variant, func))
-                {
-                    return true;
-                }
+                CollectArchetypesWithVariant(components, variant, archetypes);
+            }
+
+            if (hasNullVariant)
+            {
+                auto variant = ComponentUsage(s_InvalidEntity, ComponentMutability::Immutable);
+                CollectArchetypesWithVariant(components, variant, archetypes);
+            }
+
+            if (ChildEachImpl(updateData, archetypes, components, func))
+            {
+                return true;
             }
         }
         else
         {
             auto variant = ComponentUsage(s_InvalidEntity, ComponentMutability::Immutable);
-            std::set<Archetype*> archetypes = CollectArchetypes(components, variant);
-            if (ChildEachImpl(updateData, archetypes, components, variant, func))
+            std::set<VariantQueryArchetype> archetypes = {};
+            CollectArchetypesWithVariant(components, variant, archetypes);
+            if (ChildEachImpl(updateData, archetypes, components, func))
             {
                 return true;
             }
@@ -519,29 +552,33 @@ namespace se::ecs
 
     template<typename Func>
     bool World::ChildEachImpl(SystemUpdateData& updateData,
-                              const std::set<Archetype*> archetypes,
+                              const std::set<VariantQueryArchetype> archetypes,
                               const std::vector<ComponentUsage>& compUsage,
-                              const ComponentUsage& variantCompUsage,
                               Func&& func)
     {
-        for (auto* archetype: archetypes)
+        for (const auto& archetype: archetypes)
         {
-            if (!archetype->entities.empty())
+            if (!archetype.archetype->entities.empty())
             {
                 updateData.ClearEntityData();
-                updateData.SetEntities(archetype->entities);
+                updateData.SetEntities(archetype.archetype->entities);
                 for (const auto& comp : compUsage)
                 {
                     const auto& compInfo = m_ComponentRecords[comp.id];
-                    const ArchetypeComponentKey& key = compInfo.archetypeRecords.at(archetype->id);
-                    updateData.AddComponentArray(comp.id, archetype->components.at(key).Data(), comp.mutability);
+                    const ArchetypeComponentKey& key = compInfo.archetypeRecords.at(archetype.archetype->id);
+                    updateData.AddComponentArray(comp.id, archetype.archetype->components.at(key).Data(), comp.mutability);
                 }
 
-                if (variantCompUsage.id != s_InvalidEntity)
+                if (archetype.variantUsage.id != s_InvalidEntity)
                 {
-                    const auto& compInfo = m_ComponentRecords[variantCompUsage.id];
-                    const ArchetypeComponentKey& key = compInfo.archetypeRecords.at(archetype->id);
-                    updateData.AddVariantComponentArray(variantCompUsage.id, archetype->components.at(key).Data(), variantCompUsage.mutability);
+                    const auto& compInfo = m_ComponentRecords[archetype.variantUsage.id];
+                    const ArchetypeComponentKey& key = compInfo.archetypeRecords.at(archetype.archetype->id);
+                    updateData.AddVariantComponentArray(archetype.variantUsage.id, archetype.archetype->components.at(key).Data(), archetype.variantUsage.mutability);
+                }
+                else
+                {
+                    //s_InvalidEntity indicates a null type in the variant, this is valid.
+                    updateData.AddVariantComponentArray(archetype.variantUsage.id, nullptr, archetype.variantUsage.mutability);
                 }
 
                 if (func(updateData))

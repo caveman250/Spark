@@ -4,7 +4,6 @@
 #include "engine/reflect/Reflect.h"
 #include "engine/ui/Rect.h"
 #include "engine/math/math.h"
-#include "engine/ui/DesiredSizeCalculator.h"
 
 namespace se::ecs
 {
@@ -16,19 +15,27 @@ namespace se::ui::components
     struct VerticalBoxComponent : reflect::ObjectBase
     {
         DECLARE_SPARK_WIDGET_COMPONENT(VerticalBoxComponent)
+
+        int spacing = 0;
+        bool dirty = false;
     };
 }
 
+#include "engine/ui/DesiredSizeCalculator.h"
 namespace se::ui
 {
-    math::Vec2 GetVerticalBoxChildrenDesiredSize(ecs::System* system, const ecs::Id& entity, const Rect&);
+    math::IntVec2 GetVerticalBoxChildrenDesiredSize(ecs::System* system,
+                                                 const ecs::Id& entity,
+                                                 const ui::components::RectTransformComponent& thisRect,
+                                                 const components::VerticalBoxComponent* context);
 
     template <>
-    inline math::Vec2 DesiredSizeCalculator::GetDesiredSize<components::VerticalBoxComponent>(ecs::System* system,
+    inline math::IntVec2 DesiredSizeCalculator::GetDesiredSize<components::VerticalBoxComponent>(ecs::System* system,
                                                                                               const ecs::Id& entity,
-                                                                                              const Rect& parentRect,
-                                                                                              const components::VerticalBoxComponent*)
+                                                                                              const ui::components::RectTransformComponent&,
+                                                                                              const ui::components::RectTransformComponent& thisRect,
+                                                                                              const components::VerticalBoxComponent* context)
     {
-        return GetVerticalBoxChildrenDesiredSize(system, entity, parentRect);
+        return GetVerticalBoxChildrenDesiredSize(system, entity, thisRect, context);
     }
 }

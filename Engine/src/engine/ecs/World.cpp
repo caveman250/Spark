@@ -678,14 +678,10 @@ namespace se::ecs
         return &m_IdMetaMap.at(id).flags;
     }
 
-    std::set<Archetype*> World::CollectArchetypes(std::vector<ComponentUsage> compIds, const ComponentUsage& variantUsage)
+    void World::CollectArchetypes(const std::vector<ComponentUsage>& components,
+                           std::set<Archetype*>& archetypes)
     {
-        if (variantUsage.id != s_InvalidEntity)
-        {
-            compIds.push_back(variantUsage);
-        }
-        std::set<Archetype*> archetypes = {};
-        for (const auto& compId: compIds)
+        for (const auto& compId: components)
         {
             if (m_ComponentRecords.contains(compId.id))
             {
@@ -699,7 +695,7 @@ namespace se::ecs
                     }
 
                     bool containsAll = true;
-                    for (auto comp: compIds)
+                    for (auto comp : components)
                     {
                         containsAll &= std::ranges::contains(archetype.type, comp.id);
                     }
@@ -713,18 +709,56 @@ namespace se::ecs
                 }
             }
         }
+    }
 
-        return archetypes;
+    void World::CollectArchetypesWithVariant(std::vector<ComponentUsage> components,
+                                      const ComponentUsage& variantUsage,
+                                      std::set<VariantQueryArchetype>& archetypes)
+    {
+        if (variantUsage.id != s_InvalidEntity)
+        {
+            components.push_back(variantUsage);
+        }
+
+        for (const auto& compId: components)
+        {
+            if (m_ComponentRecords.contains(compId.id))
+            {
+                auto& compRecord = m_ComponentRecords.at(compId.id);
+                for (const auto& archetypeId: compRecord.archetypeRecords | std::views::keys)
+                {
+                    auto& archetype = m_Archetypes.at(archetypeId);
+                    auto it = std::find_if(archetypes.begin(), archetypes.end(), [&archetype](const VariantQueryArchetype& other){ return other.archetype == &archetype; });
+                    if (it != archetypes.end())
+                    {
+                        continue;
+                    }
+
+                    bool containsAll = true;
+                    for (auto comp : components)
+                    {
+                        containsAll &= std::ranges::contains(archetype.type, comp.id);
+                    }
+
+                    if (!containsAll)
+                    {
+                        continue;
+                    }
+
+                    archetypes.insert(VariantQueryArchetype(&archetype, variantUsage));
+                }
+            }
+        }
     }
 
     bool World::ValidateChildQuery(const System* system,
                                    const ChildQueryDeclaration& declaration)
     {
-        auto systemDec = system->GetDeclaration();
+        const auto& systemDec = system->GetDeclaration();
         for (const auto& comp: declaration.componentUsage)
         {
-            auto compIt = std::ranges::find(systemDec.componentUsage, comp);
-            auto childIt = std::ranges::find(systemDec.childQuerys, comp);
+            auto compIt = std::ranges::find_if(systemDec.componentUsage, [comp](const ComponentUsage& usage) { return usage.id == comp.id; });
+            auto childIt = std::ranges::find_if(systemDec.childQuerys, [comp](const ComponentUsage& usage) { return usage.id == comp.id; });
             if (!SPARK_VERIFY((compIt != systemDec.componentUsage.end() && comp.mutability <= compIt->mutability) ||
                                 ((childIt != systemDec.childQuerys.end() && comp.mutability <= childIt->mutability))))
             {
@@ -778,11 +812,11 @@ namespace se::ecs
                               updateGroup.end(),
                               func);
             }
-        }
 
-        if (processPending)
-        {
-            ProcessAllPending();
+            if (processPending)
+            {
+                ProcessAllPending();
+            }
         }
     }
 
@@ -859,7 +893,8 @@ namespace se::ecs
             AddComponent<components::ParentComponent>(entity);
         }
 
-        m_EntityRecords.at(entity).children.push_back(childEntity);
+        auto& parentRecord =  m_EntityRecords.at(entity);
+        parentRecord.children.push_back(childEntity);
         m_EntityRecords.at(childEntity).parent = entity;
 
         if (!HasComponent<components::RootComponent>(entity) && !HasRelationshipWildcard<components::ChildOf>(entity))
@@ -877,11 +912,11 @@ namespace se::ecs
     {
         RemoveRelationship(childEntity, CreateChildRelationship(entity));
 
-        auto& childrenRecord = m_EntityRecords.at(entity).children;
-        auto [first, last] = std::ranges::remove(childrenRecord, childEntity);
-        childrenRecord.erase(first, last);
+        auto& parentRecord = m_EntityRecords.at(entity);
+        auto [first, last] = std::ranges::remove(parentRecord.children, childEntity);
+        parentRecord.children.erase(first, last);
 
-        if (HasComponent<components::ParentComponent>(entity) && childrenRecord.empty())
+        if (HasComponent<components::ParentComponent>(entity) && parentRecord.children.empty())
         {
             RemoveComponent<components::ParentComponent>(entity);
         }

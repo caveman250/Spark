@@ -2,12 +2,9 @@
 
 #include <engine/ui/util/RectTransformUtil.h>
 
-#include "engine/math/Mat4.h"
+#include "Widgets.generated.h"
 #include "engine/Application.h"
 #include "engine/profiling/Profiler.h"
-#include "engine/render/Renderer.h"
-#include "platform/IWindow.h"
-#include "engine/render/RenderCommand.h"
 
 using namespace se;
 using namespace se::ecs::components;
@@ -20,6 +17,8 @@ namespace se::ui::systems
     {
         PROFILE_SCOPE("ScrollViewUpdateSystem::OnUpdate")
 
+        auto world = Application::Get()->GetWorld();
+
         const auto& entities = updateData.GetEntities();
         auto* scrollViews = updateData.GetComponentArray<ui::components::ScrollViewComponent>();
         auto* rectTransforms = updateData.GetComponentArray<ui::components::RectTransformComponent>();
@@ -31,6 +30,48 @@ namespace se::ui::systems
             auto& scrollView = scrollViews[i];
             auto& rectTransform = rectTransforms[i];
             const auto& mouseComp = mouseComps[i];
+
+            if (rectTransform.needsLayout)
+            {
+                auto declaration = ecs::ChildQueryDeclaration()
+                    .WithComponent<components::RectTransformComponent>()
+                    .WithVariantComponent<SPARK_CONST_WIDGET_TYPES_WITH_NULLTYPE>(ecs::ComponentMutability::Immutable);
+                RunChildQuery(entity,
+                    declaration,
+                    [this, world, &rectTransform](const ecs::SystemUpdateData& updateData)
+                    {
+                        std::visit([this, world, &updateData, &rectTransform](auto&& value)
+                        {
+                            const auto& children = updateData.GetEntities();
+                            auto* childTransforms = updateData.GetComponentArray<components::RectTransformComponent>();
+
+                            for (size_t i = 0; i < children.size(); ++i)
+                            {
+                                const auto& child = children[i];
+                                auto& childTransform = childTransforms[i];
+                                auto oldTransform = childTransform;
+                                childTransform.anchors = { 0, 1, 0, 0 };
+                                auto desiredSize = DesiredSizeCalculator::GetDesiredSize(this, child, rectTransform, childTransform, &value[i]);
+                                childTransform.maxY = childTransform.minY + desiredSize.y;
+                                childTransform.rect = util::CalculateScreenSpaceRect(childTransform, rectTransform);
+
+                                if (!childTransform.overridesChildSizes)
+                                {
+                                    util::LayoutChildren(world, this, child, rectTransform, childTransform.layer + 1);
+                                    childTransform.needsLayout = false;
+                                }
+                                else
+                                {
+                                    childTransform.needsLayout = true;
+                                }
+                            }
+                        }, updateData.GetVariantComponentArray<SPARK_CONST_WIDGET_TYPES>());
+
+                        return false;
+                    });
+
+                rectTransform.needsLayout = false;
+            }
 
             if (mouseComp.hovered)
             {
@@ -68,8 +109,8 @@ namespace se::ui::systems
 
                         int scrollBoxMaxY = rectTransform.rect.topLeft.y + rectTransform.rect.size.y;
 
-                        int availableScrollSpaceTop = rectTransform.rect.topLeft.y - minChildY;
-                        int availableScrollSpaceBottom = maxChildY - scrollBoxMaxY;
+                        int availableScrollSpaceTop = std::max(0, rectTransform.rect.topLeft.y - minChildY);
+                        int availableScrollSpaceBottom = std::max(0, maxChildY - scrollBoxMaxY);
 
                         if (mouseEvent.scrollDelta > 0 && availableScrollSpaceBottom > 0)
                         {
@@ -79,9 +120,9 @@ namespace se::ui::systems
                                 child.first->minY -= delta;
                                 child.first->maxY -= delta;
 
-                                Rect rect = util::CalculateScreenSpaceRect(*child.first, rectTransform);
-                                bool outOfBounds = (rect.topLeft.y + rect.size.y < rectTransform.rect.topLeft.y) ||
-                                                   (rect.topLeft.y > rectTransform.rect.topLeft.y + rectTransform.rect.
+                                child.first->rect = util::CalculateScreenSpaceRect(*child.first, rectTransform);
+                                bool outOfBounds = (child.first->rect.topLeft.y + child.first->rect.size.y < rectTransform.rect.topLeft.y) ||
+                                                   (child.first->rect.topLeft.y > rectTransform.rect.topLeft.y + rectTransform.rect.
                                                     size.y);
                                 child.second->updateEnabled = !outOfBounds;
                                 child.second->renderingEnabled = !outOfBounds;
@@ -103,9 +144,9 @@ namespace se::ui::systems
                                 child.first->minY += delta;
                                 child.first->maxY += delta;
 
-                                Rect rect = util::CalculateScreenSpaceRect(*child.first, rectTransform);
-                                bool outOfBounds = (rect.topLeft.y + rect.size.y < rectTransform.rect.topLeft.y) ||
-                                                   (rect.topLeft.y > rectTransform.rect.topLeft.y + rectTransform.rect.
+                                child.first->rect = util::CalculateScreenSpaceRect(*child.first, rectTransform);
+                                bool outOfBounds = (child.first->rect.topLeft.y + child.first->rect.size.y < rectTransform.rect.topLeft.y) ||
+                                                   (child.first->rect.topLeft.y > rectTransform.rect.topLeft.y + rectTransform.rect.
                                                     size.y);
                                 child.second->updateEnabled = !outOfBounds;
                                 child.second->renderingEnabled = !outOfBounds;
@@ -120,8 +161,6 @@ namespace se::ui::systems
                                                       static_cast<float>(availableScrollSpaceTop + availableScrollSpaceBottom);
                             scrollView.onScrolled.Broadcast(&rectTransform, scrollView.scrollAmount);
                         }
-
-                        rectTransform.needsLayout = true;
                     }
                 }
             }
