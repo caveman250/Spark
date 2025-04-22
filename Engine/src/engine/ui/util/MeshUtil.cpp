@@ -117,10 +117,7 @@ namespace se::ui::util
 
             math::IntVec2 TL = charData.rect.topLeft + cursorPos;
             math::IntVec2 BR = TL + charData.rect.size;
-            if (math::MagnitudeSquared(BR) > math::MagnitudeSquared(max))
-            {
-                max = BR;
-            }
+            max = math::IntVec2(std::max(BR.x, max.x), std::max(BR.y, max.y));
 
             cursorPos.x += charData.advanceWidth;
 
