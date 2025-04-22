@@ -156,13 +156,16 @@ namespace se::editor::ui
                         }
                         else
                         {
-                            auto textEntity = world->CreateEntity("Text", true);
+                            auto textEntity = world->CreateEntity("MissingPropertyEditorText", true);
                             auto text = world->AddComponent<se::ui::components::TextComponent>(textEntity);
                             text->font = ariel;
                             text->fontSize = 18;
                             text->text = std::format("Missing Property Editor of type {}.",
                                                      member.type->GetTypeName(nullptr));
-                            world->AddComponent<se::ui::components::RectTransformComponent>(textEntity);
+                            auto transform = world->AddComponent<se::ui::components::RectTransformComponent>(textEntity);
+                            transform->minX = 5;
+                            transform->maxX = 15;
+                            transform->anchors = { 0.f, 1.f, 0.f, 0.f };
                             world->AddComponent<se::ui::components::WidgetComponent>(textEntity);
                             se::ui::util::AddVerticalBoxChild(m_ScrollBoxContent, verticalBox, textEntity);
                         }
@@ -175,7 +178,10 @@ namespace se::editor::ui
                         text->font = ariel;
                         text->fontSize = 18;
                         text->text = "No properties.";
-                        world->AddComponent<se::ui::components::RectTransformComponent>(textEntity);
+                        auto transform = world->AddComponent<se::ui::components::RectTransformComponent>(textEntity);
+                        transform->minX = 5;
+                        transform->maxX = 15;
+                        transform->anchors = { 0.f, 1.f, 0.f, 0.f };
                         world->AddComponent<se::ui::components::WidgetComponent>(textEntity);
                         se::ui::util::AddVerticalBoxChild(m_ScrollBoxContent, verticalBox, textEntity);
                     }
@@ -208,14 +214,17 @@ namespace se::editor::ui
                     }
                     else
                     {
-                        auto propTextEntity = world->CreateEntity("Text", true);
+                        auto propTextEntity = world->CreateEntity("MissingPropertyEditorText", true);
                         auto propText = world->AddComponent<se::ui::components::TextComponent>(propTextEntity);
                         propText->font = ariel;
                         propText->fontSize = 18;
                         propText->text = std::format("Missing Property Editor of type {}.",
                                                      member.type->GetTypeName(nullptr));
-                        world->AddComponent<se::ui::components::RectTransformComponent>(
+                        auto transform = world->AddComponent<se::ui::components::RectTransformComponent>(
                                 propTextEntity);
+                        transform->minX = 5;
+                        transform->maxX = 15;
+                        transform->anchors = { 0.f, 1.f, 0.f, 0.f };
                         world->AddComponent<se::ui::components::WidgetComponent>(propTextEntity);
                         se::ui::util::AddVerticalBoxChild(m_ScrollBoxContent, verticalBox, propTextEntity);
                     }

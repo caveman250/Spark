@@ -32,8 +32,8 @@ namespace se::editor::ui::properties
         auto bg = world->CreateEntity("Float Editor", true);
         auto bgTransform = world->AddComponent<RectTransformComponent>(bg);
         bgTransform->anchors = { .left = constructTitle ? 0.5f : 0.f, .right = 1.f, .top = 0.f, .bottom = 0.f };
-        bgTransform->minY = 0;
-        bgTransform->maxY = 32;
+        bgTransform->minY = 2;
+        bgTransform->maxY = 34;
 
         m_RectTransform->maxY = bgTransform->maxY + 2;
 
