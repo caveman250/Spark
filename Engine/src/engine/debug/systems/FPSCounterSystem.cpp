@@ -10,7 +10,6 @@ namespace se::debug::systems
 
     void FPSCounterSystem::OnInit(const ecs::SystemUpdateData&)
     {
-        debug::Log::Error("FPSCounterSystem::OnInit");
         auto world = Application::Get()->GetWorld();
         auto assetManager = asset::AssetManager::Get();
         ecs::Id fpsCounterEntity = world->CreateEntity("FPS Counter");
@@ -26,8 +25,6 @@ namespace se::debug::systems
 
     void FPSCounterSystem::OnUpdate(const ecs::SystemUpdateData& systemUpdateData)
     {
-        debug::Log::Error("FPSCounterSystem::OnUpdate");
-
         const auto& entities = systemUpdateData.GetEntities();
         auto* textComps = systemUpdateData.GetComponentArray<ui::components::TextComponent>();
         auto* fpsCounters = systemUpdateData.GetComponentArray<components::FPSCounterComponent>();
