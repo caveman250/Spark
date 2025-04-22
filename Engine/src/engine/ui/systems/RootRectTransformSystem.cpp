@@ -54,6 +54,10 @@ namespace se::ui::systems
                 {
                     util::LayoutChildren(world, this, entities[i], trans, trans.layer + 1);
                 }
+                else
+                {
+                    trans.needsLayout = true;
+                }
             }
         }
     }
