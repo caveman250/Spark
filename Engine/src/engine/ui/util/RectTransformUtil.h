@@ -1,5 +1,6 @@
 #pragma once
 
+#include "engine/ecs/World.h"
 #include "engine/ui/components/RectTransformComponent.h"
 
 namespace se::ui::util
