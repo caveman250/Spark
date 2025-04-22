@@ -14,7 +14,6 @@
 #include "ecs/systems/WorldTransformSystem.h"
 #include "input/InputComponent.h"
 #include "input/InputSystem.h"
-#include "platform/PlatformRunLoop.h"
 #include "platform/IWindow.h"
 #include "render/Renderer.h"
 #include "io/VFS.h"
@@ -38,11 +37,14 @@
 #include "engine/ui/observers/ImageObserver.h"
 #include "engine/ui/observers/TextObserver.h"
 #include "ComponentRegistration.generated.h"
+#include "debug/components/FPSCounterComponent.h"
+#include "debug/systems/FPSCounterSystem.h"
 
 namespace se
 {
     Application* Application::s_Instance = nullptr;
 
+    // ReSharper disable once CppDFAConstantFunctionResult
     Application* Application::Get()
     {
         return s_Instance;
@@ -95,159 +97,166 @@ namespace se
     void Application::CreateInitialSystems()
     {
         ecs::SystemDeclaration inputReg = ecs::SystemDeclaration("Input System")
-            .WithSingletonComponent<input::InputComponent>();
+                .WithSingletonComponent<input::InputComponent>();
         auto input = m_World.CreateEngineSystem<input::InputSystem>(inputReg);
 
         ecs::SystemDeclaration resetInputReg = ecs::SystemDeclaration("Reset Input System")
-            .WithComponent<const ui::components::RectTransformComponent>()
-            .WithComponent<ui::components::ReceivesMouseEventsComponent>()
-            .WithSingletonComponent<input::InputComponent>()
-            .WithDependency(input);
+                .WithComponent<const ui::components::RectTransformComponent>()
+                .WithComponent<ui::components::ReceivesMouseEventsComponent>()
+                .WithSingletonComponent<input::InputComponent>()
+                .WithDependency(input);
         auto resetInput = m_World.CreateEngineSystem<ui::systems::ResetInputSystem>(resetInputReg);
 
         ecs::SystemDeclaration mouseInputReg = ecs::SystemDeclaration("UIMouseInputSystem")
-            .WithComponent<const RootComponent>()
-            .WithComponent<ui::components::ReceivesMouseEventsComponent>()
-            .WithSingletonComponent<input::InputComponent>()
-            .WithDependency(resetInput);
+                .WithComponent<const RootComponent>()
+                .WithComponent<ui::components::ReceivesMouseEventsComponent>()
+                .WithSingletonComponent<input::InputComponent>()
+                .WithDependency(resetInput);
         auto mouseInput = m_World.CreateEngineSystem<ui::systems::UIMouseInputSystem>(mouseInputReg);
 
         ecs::SystemDeclaration keyboardInputReg = ecs::SystemDeclaration("UIKeyboardInputSystem")
-            .WithComponent<const ui::components::RectTransformComponent>()
-            .WithComponent<const RootComponent>()
-            .WithComponent<ui::components::ReceivesKeyboardEventsComponent>()
-            .WithSingletonComponent<input::InputComponent>()
-            .WithDependency(resetInput);
+                .WithComponent<const ui::components::RectTransformComponent>()
+                .WithComponent<const RootComponent>()
+                .WithComponent<ui::components::ReceivesKeyboardEventsComponent>()
+                .WithSingletonComponent<input::InputComponent>()
+                .WithDependency(resetInput);
         m_World.CreateEngineSystem<ui::systems::UIKeyboardInputSystem>(keyboardInputReg);
 
         ecs::SystemDeclaration pointLightReg = ecs::SystemDeclaration("PointLightSystem")
-            .WithComponent<const render::components::PointLightComponent>()
-            .WithComponent<const ecs::components::TransformComponent>();
+                .WithComponent<const render::components::PointLightComponent>()
+                .WithComponent<const ecs::components::TransformComponent>();
         m_World.CreateEngineSystem<render::systems::PointLightSystem>(pointLightReg);
 
         ecs::SystemDeclaration meshRenderReg = ecs::SystemDeclaration("MeshRenderSystem")
-            .WithComponent<const TransformComponent>()
-            .WithComponent<const MeshComponent>()
-            .WithSingletonComponent<const camera::ActiveCameraComponent>();
+                .WithComponent<const TransformComponent>()
+                .WithComponent<const MeshComponent>()
+                .WithSingletonComponent<const camera::ActiveCameraComponent>();
         m_World.CreateEngineSystem<render::systems::MeshRenderSystem>(meshRenderReg);
 
         ecs::SystemDeclaration rootTransformReg = ecs::SystemDeclaration("RootTransformSystem")
-            .WithComponent<TransformComponent>()
-            .WithComponent<const RootComponent>();
+                .WithComponent<TransformComponent>()
+                .WithComponent<const RootComponent>();
         auto rootTransform = m_World.CreateEngineSystem<ecs::systems::RootTransformSystem>(rootTransformReg);
 
         ecs::SystemDeclaration worldTransformReg = ecs::SystemDeclaration("WorldTransformSystem")
-            .WithComponent<TransformComponent>()
-            .WithComponent<ParentComponent>()
-            .WithDependency(rootTransform);
+                .WithComponent<TransformComponent>()
+                .WithComponent<ParentComponent>()
+                .WithDependency(rootTransform);
         auto worldTransform = m_World.CreateEngineSystem<ecs::systems::WorldTransformSystem>(worldTransformReg);
 
         ecs::SystemDeclaration transformReg = ecs::SystemDeclaration("TransformSystem")
-            .WithComponent<TransformComponent>()
-            .WithDependency(worldTransform);
+                .WithComponent<TransformComponent>()
+                .WithDependency(worldTransform);
         m_World.CreateEngineSystem<ecs::systems::TransformSystem>(transformReg);
 
         ecs::SystemDeclaration rootRectReg = ecs::SystemDeclaration("RootRectTransformSystem")
-            .WithComponent<ui::components::RectTransformComponent>()
-            .WithComponent<const RootComponent>();
+                .WithComponent<ui::components::RectTransformComponent>()
+                .WithComponent<const RootComponent>();
         auto rootRect = m_World.CreateEngineSystem<ui::systems::RootRectTransformSystem>(rootRectReg);
 
         ecs::SystemDeclaration rectTransformReg = ecs::SystemDeclaration("RectTransformSystem")
-            .WithComponent<ui::components::RectTransformComponent>()
-            .WithComponent<ParentComponent>()
-            .WithDependency(rootRect);
+                .WithComponent<ui::components::RectTransformComponent>()
+                .WithComponent<ParentComponent>()
+                .WithDependency(rootRect);
         auto rectTrans = m_World.CreateEngineSystem<ui::systems::RectTransformSystem>(rectTransformReg);
 
         ecs::SystemDeclaration treeNodesReg = ecs::SystemDeclaration("TreeNodeSystem")
-            .WithComponent<ui::components::TreeNodeComponent>()
-            .WithComponent<ui::components::ReceivesMouseEventsComponent>()
-            .WithDependency(mouseInput);
+                .WithComponent<ui::components::TreeNodeComponent>()
+                .WithComponent<ui::components::ReceivesMouseEventsComponent>()
+                .WithDependency(mouseInput);
         auto treeNodes = m_World.CreateEngineSystem<ui::systems::TreeNodeSystem>(treeNodesReg);
 
         ecs::SystemDeclaration treeViewReg = ecs::SystemDeclaration("TreeViewSystem")
-            .WithComponent<ui::components::TreeViewComponent>()
-            .WithComponent<ui::components::RectTransformComponent>()
-            .WithDependency(rectTrans)
-            .WithDependency(treeNodes)
-            .WithChildQuery(ui::components::TreeNodeComponent::GetComponentId(), ecs::ComponentMutability::Immutable)
-            .WithChildQuery(ui::components::RectTransformComponent::GetComponentId(), ecs::ComponentMutability::Mutable)
-            .WithChildQuery(ui::components::WidgetComponent::GetComponentId(), ecs::ComponentMutability::Mutable);
+                .WithComponent<ui::components::TreeViewComponent>()
+                .WithComponent<ui::components::RectTransformComponent>()
+                .WithDependency(rectTrans)
+                .WithDependency(treeNodes)
+                .WithChildQuery(ui::components::TreeNodeComponent::GetComponentId(), ecs::ComponentMutability::Immutable)
+                .WithChildQuery(ui::components::RectTransformComponent::GetComponentId(), ecs::ComponentMutability::Mutable)
+                .WithChildQuery(ui::components::WidgetComponent::GetComponentId(), ecs::ComponentMutability::Mutable);
         m_World.CreateEngineSystem<ui::systems::TreeViewSystem>(treeViewReg);
 
         ecs::SystemDeclaration buttonReg = ecs::SystemDeclaration("ButtonSystem")
-            .WithComponent<ui::components::ButtonComponent>()
-            .WithComponent<ui::components::ImageComponent>()
-            .WithComponent<const ui::components::ReceivesMouseEventsComponent>()
-            .WithDependency(mouseInput);
+                .WithComponent<ui::components::ButtonComponent>()
+                .WithComponent<ui::components::ImageComponent>()
+                .WithComponent<const ui::components::ReceivesMouseEventsComponent>()
+                .WithDependency(mouseInput);
         m_World.CreateEngineSystem<ui::systems::ButtonSystem>(buttonReg);
 
         ecs::SystemDeclaration titleBarReg = ecs::SystemDeclaration("TitleBarSystem")
-            .WithComponent<ui::components::TitleBarComponent>()
-            .WithComponent<const ui::components::ReceivesMouseEventsComponent>()
-            .WithSingletonComponent<input::InputComponent>()
-            .WithDependency(mouseInput);
+                .WithComponent<ui::components::TitleBarComponent>()
+                .WithComponent<const ui::components::ReceivesMouseEventsComponent>()
+                .WithSingletonComponent<input::InputComponent>()
+                .WithDependency(mouseInput);
         m_World.CreateEngineSystem<ui::systems::TitleBarSystem>(titleBarReg);
 
         ecs::SystemDeclaration scrollViewReg = ecs::SystemDeclaration("ScrollViewUpdateSystem")
-            .WithComponent<ui::components::ScrollViewComponent>()
-            .WithComponent<ui::components::RectTransformComponent>()
-            .WithComponent<const ui::components::ReceivesMouseEventsComponent>()
-            .WithDependency(mouseInput)
-            .WithDependency(rectTrans)
-            .WithChildQuery(ui::components::WidgetComponent::GetComponentId(), ecs::ComponentMutability::Mutable);
+                .WithComponent<ui::components::ScrollViewComponent>()
+                .WithComponent<ui::components::RectTransformComponent>()
+                .WithComponent<const ui::components::ReceivesMouseEventsComponent>()
+                .WithDependency(mouseInput)
+                .WithDependency(rectTrans)
+                .WithChildQuery(ui::components::WidgetComponent::GetComponentId(), ecs::ComponentMutability::Mutable);
         auto scrollView = m_World.CreateEngineSystem<ui::systems::ScrollViewUpdateSystem>(scrollViewReg);
 
         ecs::SystemDeclaration verticalBoxReg = ecs::SystemDeclaration("Vertical Box System")
-            .WithComponent<ui::components::VerticalBoxComponent>()
-            .WithComponent<ui::components::RectTransformComponent>()
-            .WithDependency(rectTrans)
-            .WithDependency(scrollView)
-            .WithChildQuerys<SPARK_WIDGET_TYPES_WITH_NULLTYPE>(ecs::ComponentMutability::Immutable);
+                .WithComponent<ui::components::VerticalBoxComponent>()
+                .WithComponent<ui::components::RectTransformComponent>()
+                .WithDependency(rectTrans)
+                .WithDependency(scrollView)
+                .WithChildQuerys<SPARK_WIDGET_TYPES_WITH_NULLTYPE>(ecs::ComponentMutability::Immutable);
         m_World.CreateEngineSystem<ui::systems::VerticalBoxSystem>(verticalBoxReg);
 
         ecs::SystemDeclaration imageRenderReg = ecs::SystemDeclaration("ImageRenderSystem")
-            .WithComponent<const ui::components::RectTransformComponent>()
-            .WithComponent<ui::components::ImageComponent>()
-            .WithComponent<const ui::components::WidgetComponent>()
-            .WithSingletonComponent<ui::singleton_components::UIRenderComponent>();
+                .WithComponent<const ui::components::RectTransformComponent>()
+                .WithComponent<ui::components::ImageComponent>()
+                .WithComponent<const ui::components::WidgetComponent>()
+                .WithSingletonComponent<ui::singleton_components::UIRenderComponent>();
         auto imageRender = m_World.CreateEngineSystem<ui::systems::ImageRenderSystem>(imageRenderReg);
 
         ecs::SystemDeclaration textRenderReg = ecs::SystemDeclaration("TextRenderSystem")
-            .WithComponent<const ui::components::RectTransformComponent>()
-            .WithComponent<ui::components::TextComponent>()
-            .WithComponent<const ui::components::WidgetComponent>()
-            .WithSingletonComponent<ui::singleton_components::UIRenderComponent>();
+                .WithComponent<const ui::components::RectTransformComponent>()
+                .WithComponent<ui::components::TextComponent>()
+                .WithComponent<const ui::components::WidgetComponent>()
+                .WithSingletonComponent<ui::singleton_components::UIRenderComponent>();
         auto textRender = m_World.CreateEngineSystem<ui::systems::TextRenderSystem>(textRenderReg);
 
         ecs::SystemDeclaration scrollBoxRenderReg = ecs::SystemDeclaration("ScrollBoxRenderSystem")
-            .WithComponent<ui::components::ScrollBoxComponent>()
-            .WithComponent<const ui::components::RectTransformComponent>()
-            .WithSingletonComponent<ui::singleton_components::UIRenderComponent>();
+                .WithComponent<ui::components::ScrollBoxComponent>()
+                .WithComponent<const ui::components::RectTransformComponent>()
+                .WithSingletonComponent<ui::singleton_components::UIRenderComponent>();
         auto scrollBoxRender = m_World.CreateEngineSystem<ui::systems::ScrollBoxRenderSystem>(scrollBoxRenderReg);
 
         ecs::SystemDeclaration widgetVisibilityReg = ecs::SystemDeclaration("WidgetVisibilitySystem")
-            .WithComponent<ui::components::WidgetComponent>();
+                .WithComponent<ui::components::WidgetComponent>();
         m_World.CreateEngineSystem<ui::systems::WidgetVisibilitySystem>(widgetVisibilityReg);
 
         ecs::SystemDeclaration uiRenderReg = ecs::SystemDeclaration("UIRenderSystem")
-            .WithComponent<const ecs::components::RootComponent>()
-            .WithComponent<const ui::components::WidgetComponent>()
-            .WithSingletonComponent<ui::singleton_components::UIRenderComponent>()
-            .WithDependency(imageRender)
-            .WithDependency(textRender)
-            .WithDependency(scrollBoxRender);
+                .WithComponent<const ecs::components::RootComponent>()
+                .WithComponent<const ui::components::WidgetComponent>()
+                .WithSingletonComponent<ui::singleton_components::UIRenderComponent>()
+                .WithDependency(imageRender)
+                .WithDependency(textRender)
+                .WithDependency(scrollBoxRender);
         m_World.CreateEngineSystem<ui::systems::UIRenderSystem>(uiRenderReg);
+
+#if !SPARK_DIST
+        ecs::SystemDeclaration fpsCounterReg = ecs::SystemDeclaration("FPS Counter System")
+                .WithComponent<ui::components::TextComponent>()
+                .WithComponent<debug::components::FPSCounterComponent>()
+                .WithDependency(rectTrans);
+        m_World.CreateEngineSystem<debug::systems::FPSCounterSystem>(fpsCounterReg);
+#endif
     }
 
     void Application::Shutdown()
     {
-
     }
 
     void Application::Update()
     {
         PROFILE_SCOPE("Application::Update")
-        auto now = std::chrono::system_clock::now();
+        const auto now = std::chrono::system_clock::now();
         std::chrono::duration<float> elapsed_seconds = now - m_TimeLastFrame;
         m_DeltaTime = elapsed_seconds.count();
         m_TimeLastFrame = now;
