@@ -10,7 +10,7 @@
 #include "engine/string/String.h"
 #include "engine/ui/Rect.h"
 #include "engine/ui/util/MeshUtil.h"
-#include "RectTransformComponent.h"
+#include "engine/ui/util/RectTransformUtil.h"
 
 namespace se::ui::systems
 {
@@ -45,11 +45,13 @@ namespace se::ui
 {
     template <>
     inline math::IntVec2 DesiredSizeCalculator::GetDesiredSize<components::TextComponent>(ecs::System*,
-                                                                                       const ecs::Id&,
+                                                                                       [[maybe_unused]] const ecs::Id& entity,
                                                                                        const ui::components::RectTransformComponent& parentRect,
-                                                                                       const ui::components::RectTransformComponent& /* thisRect */,
+                                                                                       const ui::components::RectTransformComponent& thisRect,
                                                                                        const components::TextComponent* text)
     {
-        return ui::util::MeasureText(parentRect.rect, text->font, text->fontSize, text->text, true, true);
+        Rect bounds = util::CalculateScreenSpaceRect(thisRect, parentRect);
+        auto ret = ui::util::MeasureText(bounds, text->font, text->fontSize, text->text, true, true);
+        return ret;
     }
 }
