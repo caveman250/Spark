@@ -22,7 +22,7 @@ namespace se::ui::systems
         const auto& entities = updateData.GetEntities();
         auto* scrollViews = updateData.GetComponentArray<ui::components::ScrollViewComponent>();
         auto* rectTransforms = updateData.GetComponentArray<ui::components::RectTransformComponent>();
-        const auto* mouseComps = updateData.GetComponentArray<const ui::components::ReceivesMouseEventsComponent>();
+        const auto* mouseComps = updateData.GetComponentArray<const ui::components::MouseInputComponent>();
 
         for (size_t i = 0; i < entities.size(); ++i)
         {

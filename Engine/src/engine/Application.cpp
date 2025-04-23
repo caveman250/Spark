@@ -39,6 +39,8 @@
 #include "ComponentRegistration.generated.h"
 #include "debug/components/FPSCounterComponent.h"
 #include "debug/systems/FPSCounterSystem.h"
+#include "ui/observers/EditableTextObserver.h"
+#include "ui/systems/EditableTextSystem.h"
 
 namespace se
 {
@@ -91,6 +93,7 @@ namespace se
         m_World.CreateObserver<ui::observers::TreeNodeObserver, ui::components::TreeNodeComponent>();
         m_World.CreateObserver<ui::observers::ImageObserver, ui::components::ImageComponent>();
         m_World.CreateObserver<ui::observers::TextObserver, ui::components::TextComponent>();
+        m_World.CreateObserver<ui::observers::EditableTextObserver, ui::components::EditableTextComponent>();
         m_World.CreateObserver<ui::observers::ScrollBoxObserver, ui::components::ScrollBoxComponent>();
     }
 
@@ -102,14 +105,14 @@ namespace se
 
         ecs::SystemDeclaration resetInputReg = ecs::SystemDeclaration("Reset Input System")
                 .WithComponent<const ui::components::RectTransformComponent>()
-                .WithComponent<ui::components::ReceivesMouseEventsComponent>()
+                .WithComponent<ui::components::MouseInputComponent>()
                 .WithSingletonComponent<input::InputComponent>()
                 .WithDependency(input);
         auto resetInput = m_World.CreateEngineSystem<ui::systems::ResetInputSystem>(resetInputReg);
 
         ecs::SystemDeclaration mouseInputReg = ecs::SystemDeclaration("UIMouseInputSystem")
                 .WithComponent<const RootComponent>()
-                .WithComponent<ui::components::ReceivesMouseEventsComponent>()
+                .WithComponent<ui::components::MouseInputComponent>()
                 .WithSingletonComponent<input::InputComponent>()
                 .WithDependency(resetInput);
         auto mouseInput = m_World.CreateEngineSystem<ui::systems::UIMouseInputSystem>(mouseInputReg);
@@ -117,7 +120,7 @@ namespace se
         ecs::SystemDeclaration keyboardInputReg = ecs::SystemDeclaration("UIKeyboardInputSystem")
                 .WithComponent<const ui::components::RectTransformComponent>()
                 .WithComponent<const RootComponent>()
-                .WithComponent<ui::components::ReceivesKeyboardEventsComponent>()
+                .WithComponent<ui::components::KeyInputComponent>()
                 .WithSingletonComponent<input::InputComponent>()
                 .WithDependency(resetInput);
         m_World.CreateEngineSystem<ui::systems::UIKeyboardInputSystem>(keyboardInputReg);
@@ -162,7 +165,7 @@ namespace se
 
         ecs::SystemDeclaration treeNodesReg = ecs::SystemDeclaration("TreeNodeSystem")
                 .WithComponent<ui::components::TreeNodeComponent>()
-                .WithComponent<ui::components::ReceivesMouseEventsComponent>()
+                .WithComponent<ui::components::MouseInputComponent>()
                 .WithDependency(mouseInput);
         auto treeNodes = m_World.CreateEngineSystem<ui::systems::TreeNodeSystem>(treeNodesReg);
 
@@ -179,13 +182,13 @@ namespace se
         ecs::SystemDeclaration buttonReg = ecs::SystemDeclaration("ButtonSystem")
                 .WithComponent<ui::components::ButtonComponent>()
                 .WithComponent<ui::components::ImageComponent>()
-                .WithComponent<const ui::components::ReceivesMouseEventsComponent>()
+                .WithComponent<const ui::components::MouseInputComponent>()
                 .WithDependency(mouseInput);
         m_World.CreateEngineSystem<ui::systems::ButtonSystem>(buttonReg);
 
         ecs::SystemDeclaration titleBarReg = ecs::SystemDeclaration("TitleBarSystem")
                 .WithComponent<ui::components::TitleBarComponent>()
-                .WithComponent<const ui::components::ReceivesMouseEventsComponent>()
+                .WithComponent<const ui::components::MouseInputComponent>()
                 .WithSingletonComponent<input::InputComponent>()
                 .WithDependency(mouseInput);
         m_World.CreateEngineSystem<ui::systems::TitleBarSystem>(titleBarReg);
@@ -193,7 +196,7 @@ namespace se
         ecs::SystemDeclaration scrollViewReg = ecs::SystemDeclaration("ScrollViewUpdateSystem")
                 .WithComponent<ui::components::ScrollViewComponent>()
                 .WithComponent<ui::components::RectTransformComponent>()
-                .WithComponent<const ui::components::ReceivesMouseEventsComponent>()
+                .WithComponent<const ui::components::MouseInputComponent>()
                 .WithDependency(mouseInput)
                 .WithDependency(rectTrans)
                 .WithChildQuery(ui::components::WidgetComponent::GetComponentId(), ecs::ComponentMutability::Mutable);
@@ -221,6 +224,16 @@ namespace se
                 .WithSingletonComponent<ui::singleton_components::UIRenderComponent>();
         auto textRender = m_World.CreateEngineSystem<ui::systems::TextRenderSystem>(textRenderReg);
 
+        ecs::SystemDeclaration editableTextRenderReg = ecs::SystemDeclaration("EditableTextRenderSystem")
+                .WithComponent<const ui::components::RectTransformComponent>()
+                .WithComponent<ui::components::EditableTextComponent>()
+                .WithComponent<const ui::components::WidgetComponent>()
+                .WithComponent<const ui::components::MouseInputComponent>()
+                .WithComponent<const ui::components::KeyInputComponent>()
+                .WithSingletonComponent<ui::singleton_components::UIRenderComponent>()
+                .WithDependency(input);
+        auto editableText = m_World.CreateEngineSystem<ui::systems::EditableTextSystem>(editableTextRenderReg);
+
         ecs::SystemDeclaration scrollBoxRenderReg = ecs::SystemDeclaration("ScrollBoxRenderSystem")
                 .WithComponent<ui::components::ScrollBoxComponent>()
                 .WithComponent<const ui::components::RectTransformComponent>()
@@ -231,12 +244,14 @@ namespace se
                 .WithComponent<ui::components::WidgetComponent>();
         m_World.CreateEngineSystem<ui::systems::WidgetVisibilitySystem>(widgetVisibilityReg);
 
+        // TODO allow application to add dependencies here.
         ecs::SystemDeclaration uiRenderReg = ecs::SystemDeclaration("UIRenderSystem")
                 .WithComponent<const ecs::components::RootComponent>()
                 .WithComponent<const ui::components::WidgetComponent>()
                 .WithSingletonComponent<ui::singleton_components::UIRenderComponent>()
                 .WithDependency(imageRender)
                 .WithDependency(textRender)
+                .WithDependency(editableText)
                 .WithDependency(scrollBoxRender);
         m_World.CreateEngineSystem<ui::systems::UIRenderSystem>(uiRenderReg);
 

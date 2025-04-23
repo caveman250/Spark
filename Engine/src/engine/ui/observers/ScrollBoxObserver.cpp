@@ -14,9 +14,9 @@ namespace se::ui::observers
             world->AddComponent<components::WidgetComponent>(entity);
         }
 
-//        if (!world->HasComponent<ui::components::ReceivesMouseEventsComponent>(entity))
+//        if (!world->HasComponent<ui::components::MouseInputComponent>(entity))
 //        {
-//            world->AddComponent<components::ReceivesMouseEventsComponent>(entity);
+//            world->AddComponent<components::MouseInputComponent>(entity);
 //        }
     }
 

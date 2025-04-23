@@ -8,7 +8,7 @@ namespace se::ui::systems
     {
         const auto& entities = updateData.GetEntities();
         auto* treeNodes = updateData.GetComponentArray<ui::components::TreeNodeComponent>();
-        auto* mouseEventComps = updateData.GetComponentArray<ui::components::ReceivesMouseEventsComponent>();
+        auto* mouseEventComps = updateData.GetComponentArray<ui::components::MouseInputComponent>();
 
         for (size_t i = 0; i < entities.size(); ++i)
         {

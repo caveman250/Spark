@@ -19,7 +19,7 @@ namespace se::ui::systems
         const auto& entities = updateData.GetEntities();
         auto* buttons = updateData.GetComponentArray<ui::components::ButtonComponent>();
         auto* images = updateData.GetComponentArray<ui::components::ImageComponent>();
-        const auto* mouseEventComps = updateData.GetComponentArray<const ui::components::ReceivesMouseEventsComponent>();
+        const auto* mouseEventComps = updateData.GetComponentArray<const ui::components::MouseInputComponent>();
 
         for (size_t i = 0; i < entities.size(); ++i)
         {

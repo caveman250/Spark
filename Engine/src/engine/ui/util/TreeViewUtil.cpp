@@ -9,7 +9,7 @@
 #include "engine/ui/components/TreeViewComponent.h"
 #include "engine/ui/components/RectTransformComponent.h"
 #include "engine/ui/components/WidgetComponent.h"
-#include "engine/ui/components/ReceivesMouseEventsComponent.h"
+#include "engine/ui/components/MouseInputComponent.h"
 #include "engine/ui/components/ImageComponent.h"
 
 namespace se::ui::util
@@ -51,7 +51,7 @@ namespace se::ui::util
 
         world->AddComponent<components::RectTransformComponent>(entity);
         world->AddComponent<components::WidgetComponent>(entity);
-        world->AddComponent<components::ReceivesMouseEventsComponent>(entity);
+        world->AddComponent<components::MouseInputComponent>(entity);
 
         auto textEntity = world->CreateEntity("Text");
         *outText = world->AddComponent<components::TextComponent>(textEntity);
@@ -111,7 +111,7 @@ namespace se::ui::util
         image->materialInstance = render::MaterialInstance::CreateMaterialInstance(material);
         image->materialInstance->SetUniform("Texture", asset::shader::ast::AstType::Sampler2D, 1, &expanded_indicator_texture);
 
-        world->AddComponent<components::ReceivesMouseEventsComponent>(statusIcon);
+        world->AddComponent<components::MouseInputComponent>(statusIcon);
 
         std::function<void(bool)> collapsedImageCb = [statusIcon](bool collapsed)
         {

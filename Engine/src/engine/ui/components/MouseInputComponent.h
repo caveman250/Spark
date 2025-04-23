@@ -5,9 +5,9 @@
 
 namespace se::ui::components
 {
-    struct ReceivesMouseEventsComponent : reflect::ObjectBase
+    struct MouseInputComponent : reflect::ObjectBase
     {
-        DECLARE_SPARK_COMPONENT(ReceivesMouseEventsComponent)
+        DECLARE_SPARK_COMPONENT(MouseInputComponent)
 
         std::vector<input::MouseEvent> mouseEvents = {};
         bool hovered = false;

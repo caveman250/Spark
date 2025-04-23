@@ -21,7 +21,7 @@ namespace se::ui::systems
 
         const auto& entities = updateData.GetEntities();
         auto* titleBars = updateData.GetComponentArray<ui::components::TitleBarComponent>();
-        const auto* mouseEventComps = updateData.GetComponentArray<const ui::components::ReceivesMouseEventsComponent>();
+        const auto* mouseEventComps = updateData.GetComponentArray<const ui::components::MouseInputComponent>();
         auto* inputComp = updateData.GetSingletonComponent<input::InputComponent>();
 
         for (size_t i = 0; i < entities.size(); ++i)

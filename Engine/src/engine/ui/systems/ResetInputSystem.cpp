@@ -18,7 +18,7 @@ namespace se::ui::systems
 
         const auto& entities = updateData.GetEntities();
         const auto* rectTransforms = updateData.GetComponentArray<const components::RectTransformComponent>();
-        auto* receivesInputComps = updateData.GetComponentArray<components::ReceivesMouseEventsComponent>();
+        auto* receivesInputComps = updateData.GetComponentArray<components::MouseInputComponent>();
         auto* inputComp = updateData.GetSingletonComponent<input::InputComponent>();
 
         for (size_t i = 0; i < entities.size(); ++i)

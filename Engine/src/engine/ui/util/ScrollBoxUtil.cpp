@@ -6,7 +6,7 @@
 #include <engine/ui/components/ImageComponent.h>
 #include <engine/asset/shader/Shader.h>
 #include <engine/ui/components/RectTransformComponent.h>
-#include <engine/ui/components/ReceivesMouseEventsComponent.h>
+#include <engine/ui/components/MouseInputComponent.h>
 #include "engine/render/MaterialInstance.h"
 
 namespace se::ui::util
@@ -31,7 +31,7 @@ namespace se::ui::util
         auto scrollViewTransform = world->AddComponent<ui::components::RectTransformComponent>(scrollViewEntity);
         scrollViewTransform->anchors = { .left = 0.f, .right = 1.f, .top = 0.f, .bottom = 1.f };
         scrollViewTransform->overridesChildSizes = true;
-        auto scrollViewMouseEventComp = world->AddComponent<components::ReceivesMouseEventsComponent>(scrollViewEntity);
+        auto scrollViewMouseEventComp = world->AddComponent<components::MouseInputComponent>(scrollViewEntity);
         scrollViewMouseEventComp->receivesScrollEvents = true;
 
         scrollBarEntity = world->CreateEntity("Scroll Bar", editorOnly);

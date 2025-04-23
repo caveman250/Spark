@@ -6,7 +6,7 @@
 #include "engine/asset/AssetManager.h"
 #include "engine/ui/components/ButtonComponent.h"
 #include "engine/ui/components/ImageComponent.h"
-#include "engine/ui/components/ReceivesMouseEventsComponent.h"
+#include "engine/ui/components/MouseInputComponent.h"
 #include "engine/ui/components/RectTransformComponent.h"
 #include "engine/ui/components/TitleBarComponent.h"
 #include "engine/ui/components/WindowComponent.h"
@@ -45,9 +45,9 @@ namespace se::ui::util
             image->materialInstance = render::MaterialInstance::CreateMaterialInstance(material);
         }
 
-        if (!world->HasComponent<components::ReceivesMouseEventsComponent>(entity))
+        if (!world->HasComponent<components::MouseInputComponent>(entity))
         {
-            auto inputComp = world->AddComponent<components::ReceivesMouseEventsComponent>(entity);
+            auto inputComp = world->AddComponent<components::MouseInputComponent>(entity);
             inputComp->buttonMask = static_cast<input::MouseButton::Type>(0x0);
         }
 

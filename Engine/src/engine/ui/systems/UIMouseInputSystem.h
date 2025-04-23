@@ -4,7 +4,7 @@
 #include "engine/ecs/components/ParentComponent.h"
 #include "engine/ecs/components/RootComponent.h"
 #include "engine/input/InputComponent.h"
-#include "engine/ui/components/ReceivesMouseEventsComponent.h"
+#include "engine/ui/components/MouseInputComponent.h"
 #include "engine/ui/components/RectTransformComponent.h"
 #include "engine/ui/components/TitleBarComponent.h"
 
@@ -20,6 +20,6 @@ namespace se::ui::systems
         void OnUpdate(const ecs::SystemUpdateData& updateData) override;
 
     private:
-        bool TryConsumeEvent(const input::MouseEvent& keyEvent, components::ReceivesMouseEventsComponent& inputReceiver);
+        bool TryConsumeEvent(const input::MouseEvent& keyEvent, components::MouseInputComponent& inputReceiver);
     };
 }

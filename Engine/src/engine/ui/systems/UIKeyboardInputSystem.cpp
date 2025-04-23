@@ -18,7 +18,7 @@ namespace se::ui::systems
 
         const auto& entities = updateData.GetEntities();
         const auto* rectTransforms = updateData.GetComponentArray<const ui::components::RectTransformComponent>();
-        auto* receivesInputComps = updateData.GetComponentArray<ui::components::ReceivesKeyboardEventsComponent>();
+        auto* receivesInputComps = updateData.GetComponentArray<ui::components::KeyInputComponent>();
         auto* inputComp = updateData.GetSingletonComponent<input::InputComponent>();
 
 
@@ -41,7 +41,7 @@ namespace se::ui::systems
                     bool consumed = false;
                     auto declaration = ecs::ChildQueryDeclaration()
                             .WithComponent<components::RectTransformComponent>()
-                            .WithComponent<components::ReceivesKeyboardEventsComponent>();
+                            .WithComponent<components::KeyInputComponent>();
                     RunRecursiveChildQuery(entity, declaration,
                 [this, &consumed, inputComp, keyEvent](const ecs::SystemUpdateData& updateData)
                     {
@@ -52,7 +52,7 @@ namespace se::ui::systems
 
                         const auto& children = updateData.GetEntities();
                         auto* childTransforms = updateData.GetComponentArray<components::RectTransformComponent>();
-                        auto* childInputComps = updateData.GetComponentArray<components::ReceivesKeyboardEventsComponent>();
+                        auto* childInputComps = updateData.GetComponentArray<components::KeyInputComponent>();
 
                         for (size_t j = 0; j < children.size(); ++j)
                         {
@@ -78,7 +78,7 @@ namespace se::ui::systems
         }
     }
 
-    bool UIKeyboardInputSystem::TryConsumeEvent(const input::KeyEvent& keyEvent, components::ReceivesKeyboardEventsComponent& inputReceiver)
+    bool UIKeyboardInputSystem::TryConsumeEvent(const input::KeyEvent& keyEvent, components::KeyInputComponent& inputReceiver)
     {
         if (keyEvent.key & inputReceiver.keyMask)
         {

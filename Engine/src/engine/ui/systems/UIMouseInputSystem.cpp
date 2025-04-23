@@ -18,7 +18,7 @@ namespace se::ui::systems
 
         const auto& entities = updateData.GetEntities();
         auto* inputComp = updateData.GetSingletonComponent<input::InputComponent>();
-        auto* receivesInputComps = updateData.GetComponentArray<ui::components::ReceivesMouseEventsComponent>();
+        auto* receivesInputComps = updateData.GetComponentArray<ui::components::MouseInputComponent>();
 
         if (inputComp->mouseDeltaX == 0 &&
             inputComp->mouseDeltaY == 0 &&
@@ -46,7 +46,7 @@ namespace se::ui::systems
 
                 bool consumed = false;
                 auto declaration = ecs::ChildQueryDeclaration()
-                        .WithComponent<components::ReceivesMouseEventsComponent>();
+                        .WithComponent<components::MouseInputComponent>();
                 RunRecursiveChildQuery(entity, declaration,
                 [this, &consumed, mouseEvent](const ecs::SystemUpdateData& updateData)
                 {
@@ -56,7 +56,7 @@ namespace se::ui::systems
                     }
 
                     const auto& children = updateData.GetEntities();
-                    auto* childInputComps = updateData.GetComponentArray<components::ReceivesMouseEventsComponent>();
+                    auto* childInputComps = updateData.GetComponentArray<components::MouseInputComponent>();
 
                     for (size_t j = 0; j < children.size(); ++j)
                     {
@@ -80,7 +80,7 @@ namespace se::ui::systems
         }
     }
 
-    bool UIMouseInputSystem::TryConsumeEvent(const input::MouseEvent& mouseEvent, components::ReceivesMouseEventsComponent& inputReceiver)
+    bool UIMouseInputSystem::TryConsumeEvent(const input::MouseEvent& mouseEvent, components::MouseInputComponent& inputReceiver)
     {
         if (mouseEvent.button == input::MouseButton::None || mouseEvent.button & inputReceiver.buttonMask)
         {

@@ -3,7 +3,7 @@
 #include "engine/ecs/System.h"
 #include "engine/ui/components/RectTransformComponent.h"
 #include "engine/ui/components/TreeNodeComponent.h"
-#include "engine/ui/components/ReceivesMouseEventsComponent.h"
+#include "engine/ui/components/MouseInputComponent.h"
 
 namespace se::ui::components {
     struct TreeNodeComponent;

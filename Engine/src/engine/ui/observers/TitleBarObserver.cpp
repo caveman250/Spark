@@ -6,7 +6,7 @@
 #include "engine/ecs/components/TransformComponent.h"
 #include "engine/ui/components/ButtonComponent.h"
 #include "engine/ui/components/ImageComponent.h"
-#include "engine/ui/components/ReceivesMouseEventsComponent.h"
+#include "engine/ui/components/MouseInputComponent.h"
 #include "engine/ui/components/TitleBarComponent.h"
 #include "engine/ui/components/WidgetComponent.h"
 #include "engine/render/MaterialInstance.h"
@@ -39,9 +39,9 @@ namespace se::ui::observers
             world->AddComponent<components::WidgetComponent>(entity);
         }
 
-        if (!world->HasComponent<components::ReceivesMouseEventsComponent>(entity))
+        if (!world->HasComponent<components::MouseInputComponent>(entity))
         {
-            world->AddComponent<components::ReceivesMouseEventsComponent>(entity);
+            world->AddComponent<components::MouseInputComponent>(entity);
         }
     }
 

@@ -4,9 +4,9 @@
 
 namespace se::ui::components
 {
-    struct ReceivesKeyboardEventsComponent : reflect::ObjectBase
+    struct KeyInputComponent : reflect::ObjectBase
     {
-        DECLARE_SPARK_COMPONENT(ReceivesKeyboardEventsComponent)
+        DECLARE_SPARK_COMPONENT(KeyInputComponent)
 
         std::vector<input::KeyEvent> keyEvents;
         input::Key::Type keyMask = static_cast<input::Key::Type>(0xFFFFFFFF);

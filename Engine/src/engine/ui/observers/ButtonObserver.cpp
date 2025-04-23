@@ -4,7 +4,7 @@
 #include "engine/Application.h"
 #include "engine/asset/AssetManager.h"
 #include "engine/ui/components/ImageComponent.h"
-#include "engine/ui/components/ReceivesMouseEventsComponent.h"
+#include "engine/ui/components/MouseInputComponent.h"
 #include "engine/ui/components/WidgetComponent.h"
 #include "engine/render/MaterialInstance.h"
 
@@ -27,9 +27,9 @@ namespace se::ui::observers
             image->materialInstance->SetUniform("Texture", asset::shader::ast::AstType::Sampler2D, 1, &component->image);
         }
 
-        if (!world->HasComponent<ui::components::ReceivesMouseEventsComponent>(entity))
+        if (!world->HasComponent<ui::components::MouseInputComponent>(entity))
         {
-            world->AddComponent<components::ReceivesMouseEventsComponent>(entity);
+            world->AddComponent<components::MouseInputComponent>(entity);
         }
 
         if (!world->HasComponent<ui::components::WidgetComponent>(entity))
