@@ -340,6 +340,10 @@ namespace se::ui::systems
                     }
                 }
             }
+            else if (text.inEditMode)
+            {
+                util::EndEditingText(this, entity, text, keyInput);
+            }
 
             if (text.inEditMode)
             {
