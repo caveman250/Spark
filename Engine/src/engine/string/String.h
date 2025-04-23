@@ -17,6 +17,15 @@ namespace se
         String& operator=(const String& rhs);
         String& operator=(const char* rhs);
         char operator[](size_t i) const;
+        String& operator+=(char c);
+        String& operator+=(const char* c);
+        String& operator+=(const String& str);
+        String& operator--();
+
+        void Insert(size_t i, char c);
+        void Insert(size_t i, const char* str);
+        void Insert(size_t i, const String& str);
+        void Erase(size_t i);
 
         const char* Data() const { return m_Data.data(); }
         size_t Size() const { return m_Data.size() - 1; }

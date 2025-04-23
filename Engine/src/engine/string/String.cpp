@@ -1,5 +1,7 @@
 #include "String.h"
 
+#include "engine/container_util/RangeUtil.h"
+
 namespace se
 {
     String::String()
@@ -77,5 +79,55 @@ namespace se
     char String::operator[](size_t i) const
     {
         return m_Data[i];
+    }
+
+    String& String::operator+=(char c)
+    {
+        Insert(Size() - 1, c);
+        return *this;
+    }
+
+    String& String::operator+=(const char* c)
+    {
+        Insert(Size() - 1, c);
+        return *this;
+    }
+
+    String& String::operator+=(const String& str)
+    {
+        Insert(Size() - 1, str);
+        return *this;
+    }
+
+    String& String::operator--()
+    {
+        if (Size() > 0)
+        {
+            m_Data.erase(m_Data.end() - 2);
+        }
+        return *this;
+    }
+
+    void String::Insert(size_t i,
+                        char c)
+    {
+        m_Data.insert(m_Data.begin() + i, c);
+    }
+
+    void String::Insert(size_t i,
+                        const char* str)
+    {
+        m_Data.insert_range(m_Data.begin() + i, util::PtrRange(str, strlen(str)));
+    }
+
+    void String::Insert(size_t i,
+                        const String& str)
+    {
+        m_Data.insert_range(m_Data.begin() + i, util::PtrRange(str.Data(), str.Size()));
+    }
+
+    void String::Erase(size_t i)
+    {
+        m_Data.erase(m_Data.begin() + i);
     }
 }

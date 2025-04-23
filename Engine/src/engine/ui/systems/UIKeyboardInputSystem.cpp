@@ -21,7 +21,6 @@ namespace se::ui::systems
         auto* receivesInputComps = updateData.GetComponentArray<ui::components::KeyInputComponent>();
         auto* inputComp = updateData.GetSingletonComponent<input::InputComponent>();
 
-
         for (size_t i = 0; i < entities.size(); ++i)
         {
             auto entity = entities[i];
@@ -40,7 +39,7 @@ namespace se::ui::systems
 
                     bool consumed = false;
                     auto declaration = ecs::ChildQueryDeclaration()
-                            .WithComponent<components::RectTransformComponent>()
+                            .WithComponent<const components::RectTransformComponent>()
                             .WithComponent<components::KeyInputComponent>();
                     RunRecursiveChildQuery(entity, declaration,
                 [this, &consumed, inputComp, keyEvent](const ecs::SystemUpdateData& updateData)
@@ -51,7 +50,7 @@ namespace se::ui::systems
                         }
 
                         const auto& children = updateData.GetEntities();
-                        auto* childTransforms = updateData.GetComponentArray<components::RectTransformComponent>();
+                        auto* childTransforms = updateData.GetComponentArray<const components::RectTransformComponent>();
                         auto* childInputComps = updateData.GetComponentArray<components::KeyInputComponent>();
 
                         for (size_t j = 0; j < children.size(); ++j)

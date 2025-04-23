@@ -1,6 +1,6 @@
 #include "spark.h"
 
-#include "ResetInputSystem.h"
+#include "ResetMouseInputSystem.h"
 
 #include "engine/input/InputUtil.h"
 #include "engine/profiling/Profiler.h"
@@ -10,11 +10,11 @@ using namespace se::ecs::components;
 
 namespace se::ui::systems
 {
-    DEFINE_SPARK_SYSTEM(ResetInputSystem)
+    DEFINE_SPARK_SYSTEM(ResetMouseInputSystem)
 
-    void ResetInputSystem::OnUpdate(const ecs::SystemUpdateData& updateData)
+    void ResetMouseInputSystem::OnUpdate(const ecs::SystemUpdateData& updateData)
     {
-        PROFILE_SCOPE("ResetInputSystem::OnUpdate")
+        PROFILE_SCOPE("ResetMouseInputSystem::OnUpdate")
 
         const auto& entities = updateData.GetEntities();
         const auto* rectTransforms = updateData.GetComponentArray<const components::RectTransformComponent>();

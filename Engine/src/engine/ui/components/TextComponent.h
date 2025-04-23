@@ -27,7 +27,6 @@ namespace se::ui::components
         int fontSize = 0;
         String text = {};
 
-    private:
         // internal use
         std::shared_ptr<render::MaterialInstance> materialInstance = {};
         std::shared_ptr<render::VertexBuffer> vertBuffer = {};
@@ -35,8 +34,6 @@ namespace se::ui::components
         Rect lastRect = {};
         int lastFontSize = {};
         String lastText = {};
-
-        friend class systems::TextRenderSystem;
     };
 }
 

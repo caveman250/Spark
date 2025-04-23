@@ -13,9 +13,9 @@ using namespace se::ecs::components;
 
 namespace se::ui::systems
 {
-    class ResetInputSystem : public ecs::EngineSystem
+    class ResetMouseInputSystem : public ecs::EngineSystem
     {
-        DECLARE_SPARK_SYSTEM(ResetInputSystem)
+        DECLARE_SPARK_SYSTEM(ResetMouseInputSystem)
     public:
         void OnUpdate(const ecs::SystemUpdateData& updateData) override;
     };

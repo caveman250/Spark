@@ -7,7 +7,7 @@
 #include "engine/ui/systems/ScrollBoxRenderSystem.h"
 #include "engine/ui/observers/ScrollBoxObserver.h"
 #include "engine/ui/systems/WidgetVisibilitySystem.h"
-#include "engine/ui/systems/ResetInputSystem.h"
+#include "engine/ui/systems/ResetMouseInputSystem.h"
 #include "engine/ui/singleton_components/UIRenderComponent.h"
 #include "ecs/systems/RootTransformSystem.h"
 #include "ecs/systems/TransformSystem.h"
@@ -41,6 +41,7 @@
 #include "debug/systems/FPSCounterSystem.h"
 #include "ui/observers/EditableTextObserver.h"
 #include "ui/systems/EditableTextSystem.h"
+#include "ui/systems/ResetKeyInputSystem.h"
 
 namespace se
 {
@@ -103,18 +104,23 @@ namespace se
                 .WithSingletonComponent<input::InputComponent>();
         auto input = m_World.CreateEngineSystem<input::InputSystem>(inputReg);
 
-        ecs::SystemDeclaration resetInputReg = ecs::SystemDeclaration("Reset Input System")
+        ecs::SystemDeclaration resetMouseInputReg = ecs::SystemDeclaration("Reset Mouse Input System")
                 .WithComponent<const ui::components::RectTransformComponent>()
                 .WithComponent<ui::components::MouseInputComponent>()
                 .WithSingletonComponent<input::InputComponent>()
                 .WithDependency(input);
-        auto resetInput = m_World.CreateEngineSystem<ui::systems::ResetInputSystem>(resetInputReg);
+        auto resetMouseInput = m_World.CreateEngineSystem<ui::systems::ResetMouseInputSystem>(resetMouseInputReg);
+
+        ecs::SystemDeclaration resetKeyInputReg = ecs::SystemDeclaration("Reset Key Input System")
+                .WithComponent<ui::components::KeyInputComponent>()
+                .WithDependency(input);
+        auto resetKeyInput = m_World.CreateEngineSystem<ui::systems::ResetKeyInputSystem>(resetKeyInputReg);
 
         ecs::SystemDeclaration mouseInputReg = ecs::SystemDeclaration("UIMouseInputSystem")
                 .WithComponent<const RootComponent>()
                 .WithComponent<ui::components::MouseInputComponent>()
                 .WithSingletonComponent<input::InputComponent>()
-                .WithDependency(resetInput);
+                .WithDependency(resetMouseInput);
         auto mouseInput = m_World.CreateEngineSystem<ui::systems::UIMouseInputSystem>(mouseInputReg);
 
         ecs::SystemDeclaration keyboardInputReg = ecs::SystemDeclaration("UIKeyboardInputSystem")
@@ -122,7 +128,7 @@ namespace se
                 .WithComponent<const RootComponent>()
                 .WithComponent<ui::components::KeyInputComponent>()
                 .WithSingletonComponent<input::InputComponent>()
-                .WithDependency(resetInput);
+                .WithDependency(resetKeyInput);
         m_World.CreateEngineSystem<ui::systems::UIKeyboardInputSystem>(keyboardInputReg);
 
         ecs::SystemDeclaration pointLightReg = ecs::SystemDeclaration("PointLightSystem")
@@ -229,7 +235,7 @@ namespace se
                 .WithComponent<ui::components::EditableTextComponent>()
                 .WithComponent<const ui::components::WidgetComponent>()
                 .WithComponent<const ui::components::MouseInputComponent>()
-                .WithComponent<const ui::components::KeyInputComponent>()
+                .WithComponent<ui::components::KeyInputComponent>()
                 .WithSingletonComponent<ui::singleton_components::UIRenderComponent>()
                 .WithDependency(input);
         auto editableText = m_World.CreateEngineSystem<ui::systems::EditableTextSystem>(editableTextRenderReg);
