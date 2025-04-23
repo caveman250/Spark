@@ -1,5 +1,6 @@
 #include "EditableTextSystem.h"
 
+#include "engine/input/InputComponent.h"
 #include "engine/render/Renderer.h"
 #include "engine/ui/components/KeyInputComponent.h"
 #include "engine/ui/components/MouseInputComponent.h"
@@ -14,9 +15,9 @@ namespace se::ui::systems
     DEFINE_SPARK_SYSTEM(EditableTextSystem)
 
     void EditableTextSystem::HandleKey(const ecs::Id& entity,
-                   components::EditableTextComponent& text,
-                   components::KeyInputComponent& keyInput,
-                   input::Key::Type key)
+                                       components::EditableTextComponent& text,
+                                       components::KeyInputComponent& keyInput,
+                                       input::Key::Type key)
     {
         switch (key)
         {
@@ -232,7 +233,7 @@ namespace se::ui::systems
                 }
                 break;
             case input::Key::Delete:
-                if (text.caretPosition < text.editText.Size())
+                if (text.caretPosition < static_cast<int>(text.editText.Size()))
                 {
                     text.editText.Erase(text.caretPosition);
                 }
@@ -312,13 +313,12 @@ namespace se::ui::systems
 
     void EditableTextSystem::OnUpdate(const ecs::SystemUpdateData& updateData)
     {
-        auto app = Application::Get();
-        auto window = app->GetPrimaryWindow();
-
         const auto& entities = updateData.GetEntities();
         auto* textComps = updateData.GetComponentArray<components::EditableTextComponent>();
+        const auto* transformComps = updateData.GetComponentArray<const components::RectTransformComponent>();
         const auto* mouseInputComps = updateData.GetComponentArray<const components::MouseInputComponent>();
         auto* keyInputComps = updateData.GetComponentArray<components::KeyInputComponent>();
+        const auto* inputComp = updateData.GetSingletonComponent<const input::InputComponent>();
 
         for (size_t i = 0; i < entities.size(); ++i)
         {
@@ -326,6 +326,7 @@ namespace se::ui::systems
             components::EditableTextComponent& text = textComps[i];
             components::KeyInputComponent& keyInput = keyInputComps[i];
             const components::MouseInputComponent& mouseInput = mouseInputComps[i];
+            const components::RectTransformComponent& rectTransform = transformComps[i];
 
             if (mouseInput.hovered)
             {
@@ -335,7 +336,16 @@ namespace se::ui::systems
                     {
                         if (mouseEvent.state == input::KeyState::Up)
                         {
-                            util::BeginEditingText(this, entity, text, keyInput);
+                            if (!text.inEditMode)
+                            {
+                                util::BeginEditingText(this, entity, text, keyInput);
+                            }
+
+                            util::SetCaretPos(text,
+                                              util::CalcCaretPosition(
+                                                  math::Vec2(inputComp->mouseX, inputComp->mouseY),
+                                                  text,
+                                                  rectTransform));
                         }
                     }
                 }
@@ -353,7 +363,7 @@ namespace se::ui::systems
                     {
                         if (keyEvent.key == input::Key::Escape)
                         {
-                            util::EndEditingText(this, entity,text, keyInput);
+                            util::EndEditingText(this, entity, text, keyInput);
                         }
                         else
                         {

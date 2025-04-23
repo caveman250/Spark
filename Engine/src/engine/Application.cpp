@@ -238,6 +238,7 @@ namespace se
                 .WithComponent<const ui::components::MouseInputComponent>()
                 .WithComponent<ui::components::KeyInputComponent>()
                 .WithSingletonComponent<ui::singleton_components::UIRenderComponent>()
+                .WithSingletonComponent<const input::InputComponent>()
                 .WithChildQuery<ui::components::TextCaretComponent>()
                 .WithDependency(input);
         auto editableText = m_World.CreateEngineSystem<ui::systems::EditableTextSystem>(editableTextRenderReg);

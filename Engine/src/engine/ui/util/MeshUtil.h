@@ -36,5 +36,13 @@ namespace se::ui::util
                               const String& text,
                               bool applyKerning,
                               bool wrap,
-                              int endIndex);
+                              size_t endIndex);
+
+    int GetCharIndexForPosition(const math::Vec2& pos,
+                                const Rect& bounds,
+                                const std::shared_ptr<asset::Font>& font,
+                                int fontSize,
+                                const String& text,
+                                bool applyKerning,
+                                bool wrap);
 }

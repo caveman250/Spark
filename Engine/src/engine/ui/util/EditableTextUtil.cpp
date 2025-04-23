@@ -34,13 +34,12 @@ namespace se::ui::util
             auto assetManager = asset::AssetManager::Get();
             auto vert = assetManager->GetAsset<asset::Shader>("/builtin_assets/shaders/ui.sass");
             auto frag = assetManager->GetAsset<asset::Shader>("/builtin_assets/shaders/flat_color.sass");
-            material = render::Material::CreateMaterial({vert}, {frag});
+            material = render::Material::CreateMaterial({ vert }, { frag });
             material->GetShaderSettings().SetSetting("color_setting", math::Vec3(0.6f, 0.6f, 0.6f));
         }
         caretImage->materialInstance = render::MaterialInstance::CreateMaterialInstance(material);
         world->AddChild(ret, caretEntity);
-        std::function movedCb = [ret, world, caretEntity](int pos,
-                                                           String text)
+        std::function movedCb = [ret, world, caretEntity](int pos)
         {
             auto* editText = world->GetComponent<EditableTextComponent>(ret);
             auto* textRect = world->GetComponent<RectTransformComponent>(ret);
@@ -61,6 +60,14 @@ namespace se::ui::util
                                    const RectTransformComponent& rect)
     {
         return MeasureText(rect.rect, text.font, text.fontSize, text.editText, true, true, pos);
+    }
+
+    int CalcCaretPosition(const math::Vec2& mousePos,
+                          const EditableTextComponent& text,
+                          const RectTransformComponent& rect)
+    {
+        math::Vec2 localMousePos = mousePos - rect.rect.topLeft;
+        return GetCharIndexForPosition(localMousePos, rect.rect, text.font, text.fontSize, text.editText, true, true);
     }
 
     void BeginEditingText(ecs::System* system,
@@ -129,7 +136,7 @@ namespace se::ui::util
         textComp.caretPosition = std::clamp<int>(pos, 0, textComp.editText.Size());
         if (textComp.caretPosition != oldPos)
         {
-            textComp.onCaretMoved.Broadcast(textComp.caretPosition, textComp.editText);
+            textComp.onCaretMoved.Broadcast(textComp.caretPosition);
         }
     }
 }

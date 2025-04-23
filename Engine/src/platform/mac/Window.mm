@@ -43,7 +43,7 @@ namespace se::mac
         [metalView setDepthStencilPixelFormat:MTLPixelFormatDepth16Unorm];
         [metalView setClearDepth:1.f];
         [metalView setDrawableSize:CGSize { static_cast<double>(resX), static_cast<double>(resY) } ];
-        [metalView setPreferredFramesPerSecond: 120];
+        [metalView setPreferredFramesPerSecond: 240];
         //[metalView addTrackingRect:frame owner:metalView userData:NULL assumeInside:NO];
 
         [m_Window setContentView:metalView];

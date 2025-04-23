@@ -22,6 +22,10 @@ namespace se::ui::util
                                    const EditableTextComponent& text,
                                    const RectTransformComponent& rect);
 
+    int CalcCaretPosition(const math::Vec2& mousePos,
+                                   const EditableTextComponent& text,
+                                   const RectTransformComponent& rect);
+
     void BeginEditingText(ecs::System* system,
                           const ecs::Id& entity,
                           components::EditableTextComponent& textComp,

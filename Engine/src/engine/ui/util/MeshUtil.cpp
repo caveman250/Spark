@@ -113,7 +113,7 @@ namespace se::ui::util
         const String& text,
         bool applyKerning,
         bool wrap,
-        int endIndex)
+        size_t endIndex)
     {
         math::IntVec2 max = { };
 
@@ -166,5 +166,73 @@ namespace se::ui::util
             }
         }
         return max;
+    }
+
+    int GetCharIndexForPosition(const math::Vec2& pos,
+        const Rect& bounds,
+        const std::shared_ptr<asset::Font>& font,
+        int fontSize,
+        const String& text,
+        bool applyKerning,
+        bool wrap)
+    {
+        math::IntVec2 max = { };
+
+        math::IntVec2 cursorPos = { };
+        cursorPos.y += fontSize;
+        for (size_t i = 0; i < text.Size(); ++i)
+        {
+            float halfFontSize = fontSize * .5f;
+            if (std::abs(max.x - pos.x) < halfFontSize && std::abs(max.y - pos.y) <= fontSize)
+            {
+                return i;
+            }
+
+            char c = text[i];
+            const auto& charData = font->GetCharData(fontSize, c);
+
+            if (applyKerning && i < text.Size() - 1)
+            {
+                char nextChar = text[i + 1];
+                if (charData.kerning.contains(nextChar))
+                {
+                    cursorPos.x += charData.kerning.at(nextChar);
+                }
+            }
+
+            cursorPos.x += charData.leftSideBearing;
+
+            math::IntVec2 TL = charData.rect.topLeft + cursorPos;
+            math::IntVec2 BR = TL + charData.rect.size;
+            max = math::IntVec2(std::max(BR.x, max.x), std::max(BR.y, max.y));
+
+            cursorPos.x += charData.advanceWidth;
+
+            if (wrap)
+            {
+                if (c == ' ')
+                {
+                    size_t lookAhead = i + 1;
+                    float xCopy = cursorPos.x;
+
+                    char nextChar = text[lookAhead];
+                    while (nextChar != ' ' && lookAhead < text.Size() - 1)
+                    {
+                        const auto& nextCharData = font->GetCharData(fontSize, nextChar);
+
+                        if (xCopy + nextCharData.advanceWidth >= bounds.size.x)
+                        {
+                            cursorPos.x = 0.f;
+                            cursorPos.y += fontSize;
+                            break;
+                        }
+                        xCopy += nextCharData.advanceWidth;
+                        nextChar = text[++lookAhead];
+                    }
+                }
+            }
+        }
+
+        return text.Size();
     }
 }
