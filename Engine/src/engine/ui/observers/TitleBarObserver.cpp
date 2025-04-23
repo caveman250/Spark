@@ -22,12 +22,11 @@ namespace se::ui::observers
         if (!world->HasComponent<components::ImageComponent>(entity))
         {
             auto image = world->AddComponent<components::ImageComponent>(entity);
-
-            auto vert = assetManager->GetAsset<asset::Shader>("/builtin_assets/shaders/ui.sass");
-            auto frag = assetManager->GetAsset<asset::Shader>("/builtin_assets/shaders/flat_color.sass");
             static std::shared_ptr<render::Material> material = nullptr;
             if (!material)
             {
+                auto vert = assetManager->GetAsset<asset::Shader>("/builtin_assets/shaders/ui.sass");
+                auto frag = assetManager->GetAsset<asset::Shader>("/builtin_assets/shaders/flat_color.sass");
                 material = render::Material::CreateMaterial({vert}, {frag});
                 material->GetShaderSettings().SetSetting("color_setting", math::Vec3(0.2f, 0.2f, 0.2f));
             }

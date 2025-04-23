@@ -39,9 +39,11 @@
 #include "ComponentRegistration.generated.h"
 #include "debug/components/FPSCounterComponent.h"
 #include "debug/systems/FPSCounterSystem.h"
+#include "ui/components/TextCaretComponent.h"
 #include "ui/observers/EditableTextObserver.h"
 #include "ui/systems/EditableTextSystem.h"
 #include "ui/systems/ResetKeyInputSystem.h"
+#include "ui/systems/TextCaretSystem.h"
 
 namespace se
 {
@@ -165,7 +167,6 @@ namespace se
 
         ecs::SystemDeclaration rectTransformReg = ecs::SystemDeclaration("RectTransformSystem")
                 .WithComponent<ui::components::RectTransformComponent>()
-                .WithComponent<ParentComponent>()
                 .WithDependency(rootRect);
         auto rectTrans = m_World.CreateEngineSystem<ui::systems::RectTransformSystem>(rectTransformReg);
 
@@ -237,6 +238,7 @@ namespace se
                 .WithComponent<const ui::components::MouseInputComponent>()
                 .WithComponent<ui::components::KeyInputComponent>()
                 .WithSingletonComponent<ui::singleton_components::UIRenderComponent>()
+                .WithChildQuery<ui::components::TextCaretComponent>()
                 .WithDependency(input);
         auto editableText = m_World.CreateEngineSystem<ui::systems::EditableTextSystem>(editableTextRenderReg);
 
@@ -268,6 +270,11 @@ namespace se
                 .WithDependency(rectTrans);
         m_World.CreateEngineSystem<debug::systems::FPSCounterSystem>(fpsCounterReg);
 #endif
+
+        ecs::SystemDeclaration textCaretReg = ecs::SystemDeclaration("Text Caret System")
+                .WithComponent<ui::components::TextCaretComponent>()
+                .WithComponent<ui::components::WidgetComponent>();
+        m_World.CreateEngineSystem<ui::systems::TextCaretSystem>(textCaretReg);
     }
 
     void Application::Shutdown()

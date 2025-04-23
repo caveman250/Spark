@@ -7,6 +7,7 @@
 #include <engine/ui/components/EditableTextComponent.h>
 #include <engine/ui/components/WidgetComponent.h>
 #include "engine/render/MaterialInstance.h"
+#include "engine/ui/util/EditableTextUtil.h"
 #include "engine/ui/util/MeshUtil.h"
 
 namespace se::editor::ui::properties
@@ -64,11 +65,9 @@ namespace se::editor::ui::properties
         innerTransform->minX = innerTransform->maxX = innerTransform->minY = innerTransform->maxY = 2;
         world->AddChild(bg, innerImageEntity);
 
-        m_Label = world->CreateEntity("Label", true);
-        auto text = world->AddComponent<EditableTextComponent>(m_Label);
-        text->font = ariel;
-        text->fontSize = 16;
-        text->text = std::format("{:.2f}", *m_Value);
+        EditableTextComponent* editableText = nullptr;
+        m_Label = se::ui::util::CreateEditableText(world, ariel, 16, &editableText);
+        editableText->text = std::format("{}", *m_Value);
         std::function cb = [this](String newVal)
         {
             float f;
@@ -77,7 +76,8 @@ namespace se::editor::ui::properties
                 *m_Value = f;
             }
         };
-        text->onComitted.Subscribe(std::move(cb));
+        editableText->onComitted.Subscribe(std::move(cb));
+
         auto labelRect = world->AddComponent<RectTransformComponent>(m_Label);
         labelRect->anchors = { .left = 0.f, .right = 1.f, .top = 0.f, .bottom = 1.f };
         labelRect->minY = 2;

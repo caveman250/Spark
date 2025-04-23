@@ -14,20 +14,21 @@ namespace se::ecs
 
     struct ComponentUsage
     {
-        template <typename T>
+        template<typename T>
         ComponentUsage(ComponentMutability::Type _mutability)
             : id(T::GetComponentId())
             , mutability(_mutability)
         {
         }
 
-        ComponentUsage(const ecs::Id& component, ComponentMutability::Type _mutability)
-                : id(component)
-                , mutability(_mutability)
+        ComponentUsage(const ecs::Id& component,
+                       ComponentMutability::Type _mutability)
+            : id(component)
+            , mutability(_mutability)
         {
         }
 
-        bool operator== (const ComponentUsage& rhs) const
+        bool operator==(const ComponentUsage& rhs) const
         {
             return id == rhs.id && mutability == rhs.mutability;
         }
@@ -46,14 +47,18 @@ namespace se::ecs
     struct SystemDeclaration
     {
         SystemDeclaration() = default;
-        SystemDeclaration(const String& _name) : name(_name) {}
 
-        template <typename T>
+        SystemDeclaration(const String& _name)
+            : name(_name)
+        {
+        }
+
+        template<typename T>
         SystemDeclaration& WithComponent()
         {
             static_assert(!T::IsSingletonComponent());
             componentUsage.push_back(ComponentUsage(T::GetComponentId(),
-                std::is_const_v<T> ? ComponentMutability::Immutable : ComponentMutability::Mutable));
+                                                    std::is_const_v<T> ? ComponentMutability::Immutable : ComponentMutability::Mutable));
             return *this;
         }
 
@@ -63,12 +68,12 @@ namespace se::ecs
             return *this;
         }
 
-        template <typename T>
+        template<typename T>
         SystemDeclaration& WithSingletonComponent()
         {
             static_assert(T::IsSingletonComponent());
             singletonComponentUsage.push_back(ComponentUsage(T::GetComponentId(),
-                 std::is_const_v<T> ? ComponentMutability::Immutable : ComponentMutability::Mutable));
+                                                             std::is_const_v<T> ? ComponentMutability::Immutable : ComponentMutability::Mutable));
             return *this;
         }
 
@@ -78,13 +83,13 @@ namespace se::ecs
             return *this;
         }
 
-        template <typename T>
+        template<typename T>
         void CollectVariantComponentIds(std::set<ecs::Id> components)
         {
             components.insert(T::GetComponentId());
         }
 
-        template <typename... Ts>
+        template<typename... Ts>
         SystemDeclaration& WithVariantComponent(ComponentMutability::Type mutability)
         {
             if (!SPARK_VERIFY(variantComponentUsage.type_hash == 0), "Only one variant component supported.")
@@ -109,13 +114,22 @@ namespace se::ecs
             return *this;
         }
 
-        SystemDeclaration& WithChildQuery(const Id& component, ComponentMutability::Type mutability)
+        template<typename T>
+        SystemDeclaration& WithChildQuery()
+        {
+            childQuerys.push_back(ComponentUsage(T::GetComponentId(), std::is_const_v<T> ? ComponentMutability::Immutable : ComponentMutability::Mutable));
+            return *this;
+        }
+
+
+        SystemDeclaration& WithChildQuery(const Id& component,
+                                          ComponentMutability::Type mutability)
         {
             childQuerys.push_back(ComponentUsage(component, mutability));
             return *this;
         }
 
-        template <typename... Ts>
+        template<typename... Ts>
         SystemDeclaration& WithChildQuerys(ComponentMutability::Type mutability)
         {
             (childQuerys.push_back(ComponentUsage(Ts::GetComponentId(), mutability)), ...);
@@ -128,19 +142,19 @@ namespace se::ecs
             return *this;
         }
 
-        String name = {};
-        std::vector<ComponentUsage> componentUsage = {};
-        std::vector<ComponentUsage> singletonComponentUsage = {};
-        VariantComponentUsage variantComponentUsage = {};
-        std::vector<ComponentUsage> childQuerys = {};
-        std::unordered_set<Id> dependencies = {};
+        String name = { };
+        std::vector<ComponentUsage> componentUsage = { };
+        std::vector<ComponentUsage> singletonComponentUsage = { };
+        VariantComponentUsage variantComponentUsage = { };
+        std::vector<ComponentUsage> childQuerys = { };
+        std::unordered_set<Id> dependencies = { };
     };
 
     struct ChildQueryDeclaration
     {
         ChildQueryDeclaration() = default;
 
-        template <typename T>
+        template<typename T>
         ChildQueryDeclaration& WithComponent()
         {
             componentUsage.push_back(ComponentUsage(T::GetComponentId(),
@@ -154,7 +168,7 @@ namespace se::ecs
             return *this;
         }
 
-        template <typename T>
+        template<typename T>
         ChildQueryDeclaration& WithSingletonComponent()
         {
             singletonComponentUsage.push_back(ComponentUsage(T::GetComponentId(),
@@ -168,13 +182,13 @@ namespace se::ecs
             return *this;
         }
 
-        template <typename T>
+        template<typename T>
         void CollectVariantComponentIds(std::set<ecs::Id>& components)
         {
             components.insert(T::GetComponentId());
         }
 
-        template <typename... Ts>
+        template<typename... Ts>
         ChildQueryDeclaration& WithVariantComponent(ComponentMutability::Type mutability)
         {
             if (!SPARK_VERIFY(variantComponentUsage.type_hash == 0, "Only one variant component supported."))
@@ -193,8 +207,8 @@ namespace se::ecs
             return *this;
         }
 
-        std::vector<ComponentUsage> componentUsage = {};
-        std::vector<ComponentUsage> singletonComponentUsage = {};
-        VariantComponentUsage variantComponentUsage = {};
+        std::vector<ComponentUsage> componentUsage = { };
+        std::vector<ComponentUsage> singletonComponentUsage = { };
+        VariantComponentUsage variantComponentUsage = { };
     };
 }

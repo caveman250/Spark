@@ -34,6 +34,7 @@ namespace se::ui::components
         String editText = { };
         int caretPosition = 0;
         ecs::Signal<String> onComitted = {};
+        ecs::Signal<int, String> onCaretMoved = {};
 
         // internal
         std::shared_ptr<render::MaterialInstance> materialInstance = { };
