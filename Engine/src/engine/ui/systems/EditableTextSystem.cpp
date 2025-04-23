@@ -385,7 +385,7 @@ namespace se::ui::systems
         auto windowsSize = math::Vec2(static_cast<float>(window->GetWidth()), static_cast<float>(window->GetHeight()));
 
         const auto& entities = updateData.GetEntities();
-        const auto* widgetComps = updateData.GetComponentArray<const components::WidgetComponent>();
+        auto* widgetComps = updateData.GetComponentArray<components::WidgetComponent>();
         const auto* transformComps = updateData.GetComponentArray<const components::RectTransformComponent>();
         auto* textComps = updateData.GetComponentArray<components::EditableTextComponent>();
         auto* renderComp = updateData.GetSingletonComponent<singleton_components::UIRenderComponent>();

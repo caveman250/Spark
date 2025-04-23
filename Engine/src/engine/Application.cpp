@@ -234,7 +234,7 @@ namespace se
         ecs::SystemDeclaration editableTextRenderReg = ecs::SystemDeclaration("EditableTextRenderSystem")
                 .WithComponent<const ui::components::RectTransformComponent>()
                 .WithComponent<ui::components::EditableTextComponent>()
-                .WithComponent<const ui::components::WidgetComponent>()
+                .WithComponent<ui::components::WidgetComponent>()
                 .WithComponent<const ui::components::MouseInputComponent>()
                 .WithComponent<ui::components::KeyInputComponent>()
                 .WithSingletonComponent<ui::singleton_components::UIRenderComponent>()

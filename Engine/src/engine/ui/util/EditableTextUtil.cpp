@@ -84,15 +84,18 @@ namespace se::ui::util
         }
 
         auto dec = ecs::ChildQueryDeclaration()
-                .WithComponent<TextCaretComponent>();
+                .WithComponent<TextCaretComponent>()
+                .WithComponent<WidgetComponent>();
         system->RunChildQuery(entity, dec, [](const ecs::SystemUpdateData& updateData)
         {
             const auto& entities = updateData.GetEntities();
             auto* carets = updateData.GetComponentArray<TextCaretComponent>();
+            auto* widgets = updateData.GetComponentArray<WidgetComponent>();
 
             for (size_t i = 0; i < entities.size(); ++i)
             {
                 carets[i].active = true;
+                widgets[i].renderingEnabled = true;
             }
 
             return true;
