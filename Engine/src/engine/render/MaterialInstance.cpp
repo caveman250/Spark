@@ -19,8 +19,8 @@ namespace se::render
             color.resize(lightSetup.pointLights.size());
             std::transform(lightSetup.pointLights.begin(), lightSetup.pointLights.end(), color.begin(), [](const PointLight& light){ return light.color; });
 
-            SetUniform("lightPos", asset::shader::ast::AstType::Vec3, static_cast<int>(pos.size()), &pos[0]);
-            SetUniform("lightColor", asset::shader::ast::AstType::Vec3, static_cast<int>(color.size()), &color[0]);
+            SetUniform("lightPos", asset::shader::ast::AstType::Vec3, static_cast<int>(pos.size()), pos.data());
+            SetUniform("lightColor", asset::shader::ast::AstType::Vec3, static_cast<int>(color.size()), color.data());
         }
 
         if (!m_PlatformResourcesCreated)

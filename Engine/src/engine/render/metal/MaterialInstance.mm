@@ -173,12 +173,11 @@ namespace se::render::metal
             {
                 for (int i = 0; i < count; ++i)
                 {
-
                     size_t typeSize = asset::shader::ast::TypeUtil::GetTypeSize(type);
                     size_t paddedSize = asset::shader::ast::TypeUtil::GetTypePaddedSize(type);
                     size_t padding = paddedSize - typeSize;
                     size_t offset = m_FragmentUniformOffsets[name] + paddedSize * i;
-                    memcpy(m_FragmentUniformBufferCpu + offset, (uint8_t*)value + typeSize * i, asset::shader::ast::TypeUtil::GetTypeSize(type));
+                    memcpy(m_FragmentUniformBufferCpu + offset, (uint8_t*)value + typeSize * i, typeSize);
                     if (padding > 0)
                     {
                         memset(m_FragmentUniformBufferCpu + offset + typeSize, 0, padding);
