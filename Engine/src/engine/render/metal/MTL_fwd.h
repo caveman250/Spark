@@ -1,5 +1,7 @@
 #pragma once
 
+#include "engine/render/render_fwd.h"
+
 #if METAL_RENDERER
 
 #ifdef __OBJC__
@@ -11,6 +13,7 @@
 @protocol MTLRenderCommandEncoder;
 @protocol MTLRenderPipelineState;
 @protocol MTLTexture;
+@protocol MTLCommandBuffer;
 
 // Classes
 @class MTLRenderPassDescriptor;
@@ -24,6 +27,7 @@ typedef id<MTLDevice> MTLDevicePtr;
 typedef id<MTLRenderCommandEncoder> MTLRenderCommandEncoderPtr;
 typedef id<MTLRenderPipelineState> RenderPipelineStatePtr;
 typedef id<MTLTexture> MTLTexturePtr;
+typedef id<MTLCommandBuffer> MTLCommandBufferPtr;
 
 // Classes
 typedef MTLRenderPassDescriptor* MTLRenderPassDescriptorPtr;
@@ -38,6 +42,7 @@ typedef void* MTLDevicePtr;
 typedef void* MTLRenderCommandEncoderPtr;
 typedef void* RenderPipelineStatePtr;
 typedef void* MTLTexturePtr;
+typedef void* MTLCommandBufferPtr;
 
 // Classes
 typedef void* MTLRenderPassDescriptorPtr;
