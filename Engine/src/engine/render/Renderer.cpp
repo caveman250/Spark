@@ -7,6 +7,7 @@
 #include "engine/profiling/Profiler.h"
 #include "metal/MetalRenderer.h"
 #include "opengl/OpenGLRenderer.h"
+#include "FrameBuffer.h"
 
 DEFINE_SPARK_ENUM_BEGIN(se::render::RenderAPI)
     DEFINE_ENUM_VALUE(RenderAPI, OpenGL)
@@ -63,10 +64,9 @@ namespace se::render
     }
 
     void Renderer::SortDrawCommands()
-    {
         PROFILE_SCOPE("Renderer::SortDrawCommands")
-        auto& renderCmds = m_RenderCommands;
-        std::ranges::stable_sort(renderCmds, [](const auto& lhs, const auto& rhs)
+    {
+        std::ranges::stable_sort(m_RenderCommands, [](const auto& lhs, const auto& rhs)
         {
             if (lhs->GetRenderStage() != rhs->GetRenderStage())
             {
@@ -89,5 +89,18 @@ namespace se::render
     void Renderer::Submit(commands::RenderCommand *renderCommand)
     {
         m_RenderCommands.push_back(renderCommand);
+    }
+
+    void Renderer::PushFrameBuffer(const std::shared_ptr<FrameBuffer>& fb)
+    {
+        m_FrameBufferStack.push_back(fb);
+        fb->OnPushed();
+    }
+
+    void Renderer::PopFrameBuffer()
+    {
+        auto& fb = m_FrameBufferStack.back();
+        fb->OnPopped();
+        m_FrameBufferStack.pop_back();
     }
 }

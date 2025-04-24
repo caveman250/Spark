@@ -16,14 +16,15 @@ namespace se::render::metal
         void Init() override;
         void Render() override;
 
-        MTLDevicePtr GetDevice() const { return device; }
-        MTLRenderCommandEncoderPtr GetCurrentCommandEncoder() const { return currentCommandEncoder; }
+        MTLDevicePtr GetDevice() const { return m_Device; }
+        MTLRenderCommandEncoderPtr GetCurrentCommandEncoder() const;
+        MTLCommandQueuePtr GetCommandQueue() const { return m_CommandQueue; }
 
     private:
-        MTLDevicePtr device;
-        MTLCommandQueuePtr commandQueue;
-        MTLRenderCommandEncoderPtr currentCommandEncoder;
-        MTLRenderPassDescriptorPtr currentRenderPassDescriptor;
+        MTLDevicePtr m_Device = nullptr;
+        MTLCommandQueuePtr m_CommandQueue = nullptr;
+        MTLRenderCommandEncoderPtr m_CommandEncoder = nullptr;
+        MTLRenderPassDescriptorPtr m_CurrentRenderPassDescriptor = nullptr;
     };
 }
 #endif

@@ -20,10 +20,13 @@ namespace se::asset::texture
         {
             case Format::R8:
             case Format::BGRA8:
+            case Format::Depth16:
                 return false;
             case Format::DXT5:
             case Format::BC7:
                 return true;
+            default:
+                SPARK_ASSERT(false, "IsCompressedFormat - Unhandled format");
         }
 
         return false;
@@ -38,7 +41,7 @@ namespace se::asset::texture
             case Format::BC7:
                 return 4;
             default:
-                SPARK_ASSERT(false, "GetCompressedFormatBlockSize - Unhandled Format");
+                SPARK_ASSERT(false, "GetCompressedFormatBlockSize - Unhandled format");
                 break;
         }
 

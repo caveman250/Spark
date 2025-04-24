@@ -11,6 +11,7 @@ namespace se::render
     template<typename T>
     concept ARenderCommand = std::is_base_of<commands::RenderCommand, T>::value;
 
+    class FrameBuffer;
     class Material;
 
     DECLARE_SPARK_ENUM_BEGIN(RenderAPI, int)
@@ -43,22 +44,27 @@ namespace se::render
 
         const LightSetup& GetLightSetup() const { return m_LightSetup; }
         void AddPointLight(const PointLight& light);
+        
+        virtual void PushFrameBuffer(const std::shared_ptr<FrameBuffer>& fb);
+        virtual void PopFrameBuffer();
 
         void Update();
 
         virtual void Render();
         virtual void EndFrame();
     protected:
+        
         void SortDrawCommands();
         void ExecuteDrawCommands();
 
-        std::vector<commands::RenderCommand*> m_RenderCommands;
+        std::vector<commands::RenderCommand*> m_RenderCommands = {};
+        std::deque<std::shared_ptr<FrameBuffer>> m_FrameBufferStack = {};
 
-        memory::Arena m_RenderCommandsArena;
+        memory::Arena m_RenderCommandsArena = {};
 
-        RenderState m_CachedRenderState;
-        Material* m_BoundMaterial;
-        LightSetup m_LightSetup;
+        RenderState m_CachedRenderState = {};
+        Material* m_BoundMaterial = {};
+        LightSetup m_LightSetup = {};
 
         static Renderer* s_Renderer;
     };

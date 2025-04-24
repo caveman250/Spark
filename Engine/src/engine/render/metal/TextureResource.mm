@@ -1,5 +1,9 @@
 #import "TextureResource.h"
 #import "engine/render/metal/MetalRenderer.h"
+#include "engine/render/TextureResource.h"
+
+#if METAL_RENDERER
+
 #import <Metal/Metal.h>
 
 MTLPixelFormat TextureFormatToMetalFormat(se::asset::texture::Format::Type format)
@@ -8,21 +12,38 @@ MTLPixelFormat TextureFormatToMetalFormat(se::asset::texture::Format::Type forma
     {
         case se::asset::texture::Format::R8:
             return MTLPixelFormatR8Unorm;
+        case se::asset::texture::Format::BGRA8:
+            return MTLPixelFormatBGRA8Unorm;
+        case se::asset::texture::Format::Depth16:
+            return MTLPixelFormatDepth16Unorm;
         case se::asset::texture::Format::BC7:
             return MTLPixelFormatBC7_RGBAUnorm;
         case se::asset::texture::Format::DXT5:
             SPARK_ASSERT(false, "DXT5 not supported in Metal");
             return MTLPixelFormatInvalid;
         default:
+            SPARK_ASSERT(false, "TextureFormatToMetalFormat - Unhandled format");
             return MTLPixelFormatInvalid;
     }
 }
 
-#if METAL_RENDERER
+MTLTextureUsage TextureUsageToMetalUsage(se::asset::texture::Usage::Type format)
+{
+    switch (format)
+    {
+        case se::asset::texture::Usage::Read:
+            return MTLTextureUsageShaderRead;
+        case se::asset::texture::Usage::RenderTarget:
+            return MTLTextureUsageRenderTarget;
+        default:
+            SPARK_ASSERT(false, "TextureUsageToMetalUsage - Unhandled usage");
+            return MTLTextureUsageUnknown;
+    }
+}
 
 namespace se::render
 {
-    std::shared_ptr<TextureResource> TextureResource::Create(const asset::Texture& texture)
+    std::shared_ptr<TextureResource> TextureResource::Create(const asset::Texture &texture)
     {
         return std::make_shared<metal::TextureResource>(texture);
     }
@@ -32,35 +53,39 @@ namespace se::render::metal
 {
     void TextureResource::CreatePlatformResources()
     {
-        MTLTextureDescriptor* textureDesc = [[MTLTextureDescriptor alloc] init];
-        [textureDesc setWidth:m_Texture.GetWidth()];
-        [textureDesc setHeight:m_Texture.GetHeight()];
-        [textureDesc setPixelFormat:TextureFormatToMetalFormat(m_Texture.GetFormat())];
+        MTLTextureDescriptor *textureDesc = [[MTLTextureDescriptor alloc] init];
+        [textureDesc setWidth:m_Width];
+        [textureDesc setHeight:m_Height];
+        [textureDesc setPixelFormat:TextureFormatToMetalFormat(m_Format)];
         [textureDesc setTextureType:MTLTextureType2D];
         [textureDesc setStorageMode:MTLStorageModeManaged];
-        [textureDesc setUsage:MTLResourceUsageRead];
+        [textureDesc setUsage:TextureUsageToMetalUsage(m_Usage)];
 
         auto renderer = se::render::Renderer::Get<se::render::metal::MetalRenderer>();
         m_MetalResource = [renderer->GetDevice() newTextureWithDescriptor:textureDesc];
 
         size_t bytesPerRow = 0;
-        if (IsCompressedFormat(m_Texture.GetFormat()))
+        if (IsCompressedFormat(m_Format))
         {
-            size_t blockSize = GetCompressedFormatBlockSize(m_Texture.GetFormat());
-            size_t bytesPerBlock = GetCompressedFormatBlockSizeBytes(m_Texture.GetFormat());
-            int blocksPerRow = (m_Texture.GetWidth() + (blockSize - 1)) / blockSize;
+            size_t blockSize = GetCompressedFormatBlockSize(m_Format);
+            size_t bytesPerBlock = GetCompressedFormatBlockSizeBytes(m_Format);
+            int blocksPerRow = (m_Width + (blockSize - 1)) / blockSize;
             bytesPerRow = blocksPerRow * bytesPerBlock;
         }
         else
         {
-            bytesPerRow = m_Texture.GetWidth() * GetNumTextureChannels(m_Texture.GetFormat());
+            bytesPerRow = m_Width * GetNumTextureChannels(m_Format);
         }
 
 
-        [m_MetalResource replaceRegion:MTLRegionMake2D(0, 0, m_Texture.GetWidth(), m_Texture.GetHeight())
-                         mipmapLevel: 0
-                           withBytes: (const void*)m_Texture.GetMips()[0].m_Data.GetData()
-                         bytesPerRow:bytesPerRow];
+        if (!m_MipData.empty())
+        {
+            [m_MetalResource replaceRegion:MTLRegionMake2D(0, 0, m_Width, m_Height)
+                               mipmapLevel:0
+                                 withBytes:(const void *)m_MipData[0].m_Data.GetData()
+                               bytesPerRow:bytesPerRow];
+        }
+
 
 
         [textureDesc release];

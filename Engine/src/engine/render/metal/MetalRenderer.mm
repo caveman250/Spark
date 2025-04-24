@@ -16,37 +16,48 @@ namespace se::render::metal
 
     MetalRenderer::~MetalRenderer()
     {
-        [device release];
-        [commandQueue release];
+        [m_Device release];
+        [m_CommandQueue release];
     }
 
     void MetalRenderer::Init()
     {
-        device = MTLCreateSystemDefaultDevice();
-        commandQueue = [device newCommandQueue];
+        m_Device = MTLCreateSystemDefaultDevice();
+        m_CommandQueue = [m_Device newCommandQueue];
     }
 
     void MetalRenderer::Render()
     {
-        auto commandBuffer = [commandQueue commandBuffer];
+        auto commandBuffer= [m_CommandQueue commandBuffer];
 
         auto macWindow = static_cast<se::mac::Window*>(Application::Get()->GetPrimaryWindow());
         auto nativeWindow = macWindow->GetNativeWindow();
         auto view = [nativeWindow contentView];
-        currentRenderPassDescriptor = [view currentRenderPassDescriptor];
-        auto commandEncoder= [commandBuffer renderCommandEncoderWithDescriptor:currentRenderPassDescriptor];
-        currentCommandEncoder = commandEncoder;
+        m_CurrentRenderPassDescriptor = [view currentRenderPassDescriptor];
+        m_CommandEncoder = [commandBuffer renderCommandEncoderWithDescriptor:m_CurrentRenderPassDescriptor];
+        [m_CommandEncoder setCullMode:MTLCullModeBack];
+        [m_CommandEncoder setFrontFacingWinding:MTLWindingCounterClockwise];
 
-        [currentCommandEncoder setCullMode:MTLCullModeBack];
-        [currentCommandEncoder setFrontFacingWinding:MTLWindingCounterClockwise];
+        static std::shared_ptr<render::FrameBuffer> fb = render::FrameBuffer::CreateFrameBuffer();
+        PushFrameBuffer(fb);
 
         Renderer::Render();
 
-        [currentCommandEncoder endEncoding];
-        currentCommandEncoder = nullptr;
+        PopFrameBuffer();
+
+        [m_CommandEncoder endEncoding];
         [commandBuffer presentDrawable:[view currentDrawable]];
         [commandBuffer commit];
         m_CachedRenderState = {};
+    }
+
+    MTLRenderCommandEncoderPtr MetalRenderer::GetCurrentCommandEncoder() const
+    {
+        if (!m_FrameBufferStack.empty())
+        {
+            return static_cast<FrameBuffer*>(m_FrameBufferStack.back().get())->GetRenderCommandEncoder();
+        }
+        return m_CommandEncoder;
     }
 }
 #endif
