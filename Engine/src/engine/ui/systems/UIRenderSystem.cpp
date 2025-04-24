@@ -1,5 +1,6 @@
 #include "UIRenderSystem.h"
 #include "engine/render/Renderer.h"
+#include "engine/bits/FlagUtil.h"
 
 namespace se::ui::systems
 {
@@ -7,11 +8,19 @@ namespace se::ui::systems
 
     void RenderEntity(const ecs::Id& id, singleton_components::UIRenderComponent* renderComp, render::Renderer* renderer, IWindow* window, ecs::World* world)
     {
+#if SPARK_EDITOR
+        auto* editorRuntime = Application::Get()->GetEditorRuntime();
+        bool isEditor = bits::GetFlag<ecs::IdFlags>(*id.flags, ecs::IdFlags::Editor);
+        size_t group = isEditor ? renderer->GetDefaultRenderGroup() : editorRuntime->GetOffscreenRenderGroup();
+#else
+        size_t group = renderer->GetDefaultRenderGroup();
+#endif
+
         if (renderComp->entityPreRenderCommands.contains(id))
         {
             for (auto *renderCommand: renderComp->entityPreRenderCommands.at(id))
             {
-                renderer->Submit(renderCommand);
+                renderer->Submit(group, renderCommand);
             }
 
             renderComp->entityPreRenderCommands.at(id).clear();
@@ -21,7 +30,7 @@ namespace se::ui::systems
         {
             for (auto *renderCommand: renderComp->entityRenderCommands.at(id))
             {
-                renderer->Submit(renderCommand);
+                renderer->Submit(group, renderCommand);
             }
 
             renderComp->entityRenderCommands.at(id).clear();
@@ -36,7 +45,7 @@ namespace se::ui::systems
         {
             for (auto *renderCommand: renderComp->entityPostRenderCommands.at(id))
             {
-                renderer->Submit(renderCommand);
+                renderer->Submit(group, renderCommand);
             }
 
             renderComp->entityPostRenderCommands.at(id).clear();

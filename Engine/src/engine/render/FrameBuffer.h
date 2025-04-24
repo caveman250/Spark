@@ -9,7 +9,7 @@ namespace se::render
     public:
         virtual ~FrameBuffer() = default;
         static std::shared_ptr<FrameBuffer> CreateFrameBuffer();
-        virtual void OnPushed() = 0;
-        virtual void OnPopped() = 0;
+        virtual void Bind() = 0;
+        virtual void Commit() = 0;
     };
 }

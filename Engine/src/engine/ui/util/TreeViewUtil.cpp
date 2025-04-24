@@ -53,7 +53,7 @@ namespace se::ui::util
         world->AddComponent<components::WidgetComponent>(entity);
         world->AddComponent<components::MouseInputComponent>(entity);
 
-        auto textEntity = world->CreateEntity("Text");
+        auto textEntity = world->CreateEntity("Text", editorOnly);
         *outText = world->AddComponent<components::TextComponent>(textEntity);
         (*outText)->font = assetManager->GetAsset<asset::Font>("/builtin_assets/fonts/Arial.sass");
         (*outText)->fontSize = 18;
@@ -69,7 +69,7 @@ namespace se::ui::util
         static auto expanded_indicator_texture = assetManager->Get()->GetAsset<asset::Texture>("/builtin_assets/textures/tree_node_indicator_expanded.sass");
         static auto collapsed_indicator_texture = assetManager->Get()->GetAsset<asset::Texture>("/builtin_assets/textures/tree_node_indicator_collapsed.sass");
 
-        auto statusIcon = world->CreateEntity("Status Icon");
+        auto statusIcon = world->CreateEntity("Status Icon", editorOnly);
         auto rect = world->AddComponent<components::RectTransformComponent>(statusIcon);
         rect->anchors = { .left = 0.f, .right = 0.f, .top = 0.f, .bottom = 1.f };
         rect->minX = 2;

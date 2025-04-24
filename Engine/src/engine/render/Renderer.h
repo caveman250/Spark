@@ -5,6 +5,7 @@
 #include "RenderCommand.h"
 #include "RenderState.h"
 #include "spark.h"
+#include "RenderGroup.h"
 
 namespace se::render
 {
@@ -35,18 +36,24 @@ namespace se::render
         T* AllocRenderCommand(Args&&... args);
 
         template <ARenderCommand T, typename... Args>
+        void Submit(size_t group, Args&&... args);
+
+        template <ARenderCommand T, typename... Args>
         void Submit(Args&&... args);
-        void Submit(commands::RenderCommand* renderCommand);
+
+        void Submit(size_t group, commands::RenderCommand* renderCommand);
         const RenderState& GetCachedRenderState() const { return m_CachedRenderState; }
-        const Material* GetBoundMaterial() const { return m_BoundMaterial; }
-        void SetBoundMaterial(Material* material) { m_BoundMaterial = material; }
+        const Material* GetBoundMaterial() const { return m_RenderGroups[m_ActiveRenderGroup].boundMaterial; }
+        void SetBoundMaterial(Material* material) { m_RenderGroups[m_ActiveRenderGroup].boundMaterial = material; }
         void SetLastRenderState(const RenderState& rs);
 
         const LightSetup& GetLightSetup() const { return m_LightSetup; }
         void AddPointLight(const PointLight& light);
+
+        size_t AllocRenderGroup();
+        size_t GetDefaultRenderGroup() { return m_DefaultRenderGroup; }
         
-        virtual void PushFrameBuffer(const std::shared_ptr<FrameBuffer>& fb);
-        virtual void PopFrameBuffer();
+        virtual void SetFrameBuffer(size_t group, const std::shared_ptr<FrameBuffer>& fb);
 
         void Update();
 
@@ -57,14 +64,14 @@ namespace se::render
         void SortDrawCommands();
         void ExecuteDrawCommands();
 
-        std::vector<commands::RenderCommand*> m_RenderCommands = {};
-        std::deque<std::shared_ptr<FrameBuffer>> m_FrameBufferStack = {};
+        std::vector<RenderGroup> m_RenderGroups = {};
 
         memory::Arena m_RenderCommandsArena = {};
 
         RenderState m_CachedRenderState = {};
-        Material* m_BoundMaterial = {};
         LightSetup m_LightSetup = {};
+        size_t m_DefaultRenderGroup = 0;
+        size_t m_ActiveRenderGroup = 0;
 
         static Renderer* s_Renderer;
     };
@@ -76,9 +83,15 @@ namespace se::render
     }
 
     template<ARenderCommand T, typename... Args>
-    void Renderer::Submit(Args&&... args)
+    void Renderer::Submit(size_t group, Args&&... args)
     {
-        Submit(AllocRenderCommand<T>(std::forward<Args>(args)...));
+        Submit(group, AllocRenderCommand<T>(std::forward<Args>(args)...));
+    }
+
+    template<ARenderCommand T, typename... Args>
+    void Renderer::Submit(Args &&... args)
+    {
+        Submit(GetDefaultRenderGroup(), AllocRenderCommand<T>(std::forward<Args>(args)...));
     }
 
     template <typename T>

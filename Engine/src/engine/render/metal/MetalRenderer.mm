@@ -38,12 +38,12 @@ namespace se::render::metal
         [m_CommandEncoder setCullMode:MTLCullModeBack];
         [m_CommandEncoder setFrontFacingWinding:MTLWindingCounterClockwise];
 
-        static std::shared_ptr<render::FrameBuffer> fb = render::FrameBuffer::CreateFrameBuffer();
-        PushFrameBuffer(fb);
+//        static std::shared_ptr<render::FrameBuffer> fb = render::FrameBuffer::CreateFrameBuffer();
+//        PushFrameBuffer(fb);
 
         Renderer::Render();
 
-        PopFrameBuffer();
+        //PopFrameBuffer();
 
         [m_CommandEncoder endEncoding];
         [commandBuffer presentDrawable:[view currentDrawable]];
@@ -53,9 +53,10 @@ namespace se::render::metal
 
     MTLRenderCommandEncoderPtr MetalRenderer::GetCurrentCommandEncoder() const
     {
-        if (!m_FrameBufferStack.empty())
+        auto* frameBuffer = m_RenderGroups[m_ActiveRenderGroup].frameBuffer.get();
+        if (frameBuffer)
         {
-            return static_cast<FrameBuffer*>(m_FrameBufferStack.back().get())->GetRenderCommandEncoder();
+            return static_cast<FrameBuffer*>(frameBuffer)->GetRenderCommandEncoder();
         }
         return m_CommandEncoder;
     }

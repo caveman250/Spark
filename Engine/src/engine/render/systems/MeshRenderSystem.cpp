@@ -41,12 +41,18 @@ namespace se::render::systems
         const auto& entities = updateData.GetEntities();
         const auto* meshes = updateData.GetComponentArray<const MeshComponent>();
 
+#if SPARK_EDITOR
+        size_t renderGroup = Application::Get()->GetEditorRuntime()->GetOffscreenRenderGroup();
+#else
+        size_t renderGroup = renderer->GetDefaultRenderGroup();
+#endif
+
         for (size_t i = 0; i < entities.size(); ++i)
         {
             const auto& meshComp = meshes[i];
             if (meshComp.materialInstance && meshComp.vertBuffer && meshComp.indexBuffer)
             {
-                renderer->Submit<render::commands::SubmitGeo>(meshComp.materialInstance, meshComp.vertBuffer, meshComp.indexBuffer);
+                renderer->Submit<render::commands::SubmitGeo>(renderGroup, meshComp.materialInstance, meshComp.vertBuffer, meshComp.indexBuffer);
             }
         }
     }

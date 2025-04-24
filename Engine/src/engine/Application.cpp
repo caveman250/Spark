@@ -300,6 +300,11 @@ namespace se
     void Application::Render()
     {
         PROFILE_SCOPE("Application::Render")
+
+#if SPARK_EDITOR
+        m_EditorRuntime.Render();
+#endif
+
         m_World.Render();
     }
 }

@@ -22,8 +22,8 @@ namespace se::render::metal
         }
 
     private:
-        void OnPushed() override;
-        void OnPopped() override;
+        void Bind() override;
+        void Commit() override;
 
         std::shared_ptr<asset::Texture> m_ColorTexture = nullptr;
         std::shared_ptr<asset::Texture> m_DepthTexture = nullptr;

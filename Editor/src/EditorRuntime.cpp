@@ -1,4 +1,5 @@
 #include "EditorRuntime.h"
+#include "engine/render/Renderer.h"
 
 namespace se::editor
 {
@@ -11,11 +12,20 @@ namespace se::editor
 
         m_PropertiesWindow = new ui::PropertiesWindow(this);
         m_PropertiesWindow->ConstructUI();
+
+        m_FrameBuffer = render::FrameBuffer::CreateFrameBuffer();
     }
 
     void EditorRuntime::Update()
     {
         m_PropertiesWindow->Update();
+    }
+
+    void EditorRuntime::Render()
+    {
+        auto renderer = render::Renderer::Get<render::Renderer>();
+        m_OffscreenRenderGroup = renderer->AllocRenderGroup();
+        renderer->SetFrameBuffer(m_OffscreenRenderGroup, m_FrameBuffer);
     }
 
     void EditorRuntime::Shutdown()

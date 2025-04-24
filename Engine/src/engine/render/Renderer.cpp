@@ -9,16 +9,13 @@
 #include "opengl/OpenGLRenderer.h"
 #include "FrameBuffer.h"
 
-DEFINE_SPARK_ENUM_BEGIN(se::render::RenderAPI)
-    DEFINE_ENUM_VALUE(RenderAPI, OpenGL)
-    DEFINE_ENUM_VALUE(RenderAPI, Metal)
-DEFINE_SPARK_ENUM_END()
+DEFINE_SPARK_ENUM_BEGIN(se::render::RenderAPI)DEFINE_ENUM_VALUE(RenderAPI, OpenGL) DEFINE_ENUM_VALUE(RenderAPI, Metal)DEFINE_SPARK_ENUM_END()
 
 namespace se::render
 {
-    Renderer* Renderer::s_Renderer = nullptr;
+    Renderer *Renderer::s_Renderer = nullptr;
 
-    Renderer * Renderer::Create()
+    Renderer *Renderer::Create()
     {
 #if SPARK_PLATFORM_WINDOWS || SPARK_PLATFORM_LINUX
         s_Renderer = new opengl::OpenGLRenderer();
@@ -34,20 +31,22 @@ namespace se::render
         delete s_Renderer;
     }
 
-    void Renderer::SetLastRenderState(const RenderState& rs)
+    void Renderer::SetLastRenderState(const RenderState &rs)
     {
         m_CachedRenderState = rs;
     }
 
-    void Renderer::AddPointLight(const PointLight& light)
+    void Renderer::AddPointLight(const PointLight &light)
     {
-        m_LightSetup.pointLights.push_back(light);
+        m_LightSetup.pointLights
+                .push_back(light);
     }
 
     void Renderer::Update()
     {
         PROFILE_SCOPE("Renderer::Update")
         m_LightSetup.Reset();
+        m_DefaultRenderGroup = AllocRenderGroup();
     }
 
     void Renderer::Render()
@@ -59,48 +58,66 @@ namespace se::render
 
     void Renderer::EndFrame()
     {
-        m_RenderCommands.clear();
+        m_RenderGroups.clear();
         m_RenderCommandsArena.Reset();
     }
 
     void Renderer::SortDrawCommands()
-        PROFILE_SCOPE("Renderer::SortDrawCommands")
+    PROFILE_SCOPE("Renderer::SortDrawCommands")
     {
-        std::ranges::stable_sort(m_RenderCommands, [](const auto& lhs, const auto& rhs)
+        for (auto &group: m_RenderGroups)
         {
-            if (lhs->GetRenderStage() != rhs->GetRenderStage())
+            std::ranges::stable_sort(group.renderCommands,[](const auto &lhs, const auto &rhs)
             {
-                return lhs->GetRenderStage() < rhs->GetRenderStage();
-            }
+                if (lhs->GetRenderStage() != rhs->GetRenderStage())
+                {
+                    return lhs->GetRenderStage() < rhs->GetRenderStage();
+                }
 
-            return lhs->GetSortKey() < rhs->GetSortKey();
-        });
+                return lhs->GetSortKey() < rhs->GetSortKey();
+            });
+        }
     }
 
     void Renderer::ExecuteDrawCommands()
     {
         PROFILE_SCOPE("Renderer::ExecuteDrawCommands")
-        for (const auto& renderCmd : m_RenderCommands)
+        for (size_t i = 0; i < m_RenderGroups.size(); ++i)
         {
-            renderCmd->Execute();
+            auto& renderGroup = m_RenderGroups[i];
+            m_ActiveRenderGroup = i;
+            if (renderGroup.frameBuffer)
+            {
+                renderGroup.frameBuffer
+                        ->Bind();
+            }
+
+            for (const auto& renderCmd : renderGroup.renderCommands)
+            {
+                renderCmd->Execute();
+            }
+
+            if (renderGroup.frameBuffer)
+            {
+                renderGroup.frameBuffer
+                        ->Commit();
+            }
         }
     }
 
-    void Renderer::Submit(commands::RenderCommand *renderCommand)
+    void Renderer::Submit(size_t group, commands::RenderCommand *renderCommand)
     {
-        m_RenderCommands.push_back(renderCommand);
+        m_RenderGroups[group].renderCommands.push_back(renderCommand);
     }
 
-    void Renderer::PushFrameBuffer(const std::shared_ptr<FrameBuffer>& fb)
+    size_t Renderer::AllocRenderGroup()
     {
-        m_FrameBufferStack.push_back(fb);
-        fb->OnPushed();
+        m_RenderGroups.emplace_back();
+        return m_RenderGroups.size() - 1;
     }
 
-    void Renderer::PopFrameBuffer()
+    void Renderer::SetFrameBuffer(size_t group, const std::shared_ptr<FrameBuffer>& fb)
     {
-        auto& fb = m_FrameBufferStack.back();
-        fb->OnPopped();
-        m_FrameBufferStack.pop_back();
+        m_RenderGroups[group].frameBuffer = fb;
     }
 }

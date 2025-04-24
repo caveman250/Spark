@@ -28,7 +28,8 @@ namespace se::ecs
     Id& Id::operator=(const Id& rhs)
     {
         id = rhs.id;
-        name = Application::Get()->GetWorld()->GetName(id);
+        name = rhs.name;
+        flags = rhs.flags;
         return *this;
     }
 }
