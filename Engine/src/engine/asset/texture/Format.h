@@ -6,8 +6,15 @@ namespace se::asset::texture
 {
     DECLARE_SPARK_ENUM_BEGIN(Format, int)
         R8,
+        BGRA8,
+        Depth16,
         DXT5,
         BC7
+    DECLARE_SPARK_ENUM_END()
+
+    DECLARE_SPARK_ENUM_BEGIN(Usage, int)
+        Read,
+        RenderTarget,
     DECLARE_SPARK_ENUM_END()
 
     bool IsCompressedFormat(Format::Type format);

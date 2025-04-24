@@ -2,8 +2,14 @@
 
 DEFINE_SPARK_ENUM_BEGIN(se::asset::texture::Format)
     DEFINE_ENUM_VALUE(se::asset::texture::Format, R8)
+    DEFINE_ENUM_VALUE(se::asset::texture::Format, BGRA8)
     DEFINE_ENUM_VALUE(se::asset::texture::Format, DXT5)
     DEFINE_ENUM_VALUE(se::asset::texture::Format, BC7)
+DEFINE_SPARK_ENUM_END()
+
+DEFINE_SPARK_ENUM_BEGIN(se::asset::texture::Usage)
+    DEFINE_ENUM_VALUE(se::asset::texture::Usage, Read)
+    DEFINE_ENUM_VALUE(se::asset::texture::Usage, RenderTarget)
 DEFINE_SPARK_ENUM_END()
 
 namespace se::asset::texture
@@ -13,6 +19,7 @@ namespace se::asset::texture
         switch (format)
         {
             case Format::R8:
+            case Format::BGRA8:
                 return false;
             case Format::DXT5:
             case Format::BC7:
@@ -58,7 +65,10 @@ namespace se::asset::texture
         switch (format)
         {
             case Format::R8:
+            case Format::Depth16:
                 return 1;
+            case Format::BGRA8:
+                return 4;
             default:
                 SPARK_ASSERT(false, "GetNumTextureChannels - Unhandled Format");
         }
