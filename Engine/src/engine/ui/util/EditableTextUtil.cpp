@@ -66,7 +66,7 @@ namespace se::ui::util
                           const EditableTextComponent& text,
                           const RectTransformComponent& rect)
     {
-        math::Vec2 localMousePos = mousePos - rect.rect.topLeft;
+        math::Vec2 localMousePos = mousePos - math::Vec2(rect.rect.topLeft);
         return GetCharIndexForPosition(localMousePos, rect.rect, text.font, text.fontSize, text.editText, true, true);
     }
 

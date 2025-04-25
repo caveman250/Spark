@@ -47,6 +47,7 @@ namespace se::render
         PROFILE_SCOPE("Renderer::Update")
         m_LightSetup.Reset();
         m_DefaultRenderGroup = AllocRenderGroup();
+        Submit<render::commands::Clear>(true, true);
     }
 
     void Renderer::Render()

@@ -65,6 +65,12 @@ namespace se::math
         return *this;
     }
 
+    IntVec2::IntVec2(const Vec2& vec)
+            : x(vec.x)
+            , y(vec.y)
+    {
+    }
+
     IntVec2 operator-(const IntVec2& lhs)
     {
         return {-lhs.x, -lhs.y };

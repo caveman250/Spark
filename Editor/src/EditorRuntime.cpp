@@ -7,18 +7,22 @@ namespace se::editor
     {
         m_StartupManager.RunStartupTasks();
 
+        m_FrameBuffer = render::FrameBuffer::CreateFrameBuffer();
+
         m_OutlineWindow = new ui::OutlineWindow(this);
         m_OutlineWindow->ConstructUI();
 
         m_PropertiesWindow = new ui::PropertiesWindow(this);
         m_PropertiesWindow->ConstructUI();
 
-        m_FrameBuffer = render::FrameBuffer::CreateFrameBuffer();
+        m_ViewportWindow = new ui::ViewportWindow(this);
+        m_ViewportWindow->ConstructUI();
     }
 
     void EditorRuntime::Update()
     {
         m_PropertiesWindow->Update();
+        m_ViewportWindow->Update();
     }
 
     void EditorRuntime::Render()
@@ -26,6 +30,8 @@ namespace se::editor
         auto renderer = render::Renderer::Get<render::Renderer>();
         m_OffscreenRenderGroup = renderer->AllocRenderGroup();
         renderer->SetFrameBuffer(m_OffscreenRenderGroup, m_FrameBuffer);
+
+        renderer->Submit<render::commands::Clear>(m_OffscreenRenderGroup, true, true);
     }
 
     void EditorRuntime::Shutdown()

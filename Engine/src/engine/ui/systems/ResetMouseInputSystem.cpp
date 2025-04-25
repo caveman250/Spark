@@ -12,6 +12,21 @@ namespace se::ui::systems
 {
     DEFINE_SPARK_SYSTEM(ResetMouseInputSystem)
 
+#if SPARK_EDITOR
+    math::IntVec2 ScreenSpaceToGameViewportSpace(int mouseX, int mouseY)
+    {
+        auto app = Application::Get();
+        auto editor = app->GetEditorRuntime();
+        ui::Rect viewportRect = editor->GetViewportRect();
+        math::Vec2 relative = math::Vec2((float)(mouseX - viewportRect.topLeft.x) / viewportRect.size.x,
+                                         (float)(mouseY - viewportRect.topLeft.y) / viewportRect.size.y);
+
+        auto window = app->GetPrimaryWindow();
+
+        return relative * math::Vec2(window->GetWidth(), window->GetHeight());
+    }
+#endif
+
     void ResetMouseInputSystem::OnUpdate(const ecs::SystemUpdateData& updateData)
     {
         PROFILE_SCOPE("ResetMouseInputSystem::OnUpdate")
@@ -34,7 +49,19 @@ namespace se::ui::systems
             }
 
             inputReceiver.lastHovered = inputReceiver.hovered;
-            inputReceiver.hovered = transform.rect.Contains(math::IntVec2(inputComp->mouseX, inputComp->mouseY));
+
+#if SPARK_EDITOR
+            if (!entities[i].HasFlag(ecs::IdFlags::Editor))
+            {
+                auto adjustedMousePos = ScreenSpaceToGameViewportSpace(inputComp->mouseX, inputComp->mouseY);
+                inputReceiver.hovered = transform.rect.Contains(adjustedMousePos);
+            }
+            else
+#endif
+            {
+                inputReceiver.hovered = transform.rect.Contains(math::IntVec2(inputComp->mouseX, inputComp->mouseY));
+            }
+
         }
     }
 }

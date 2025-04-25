@@ -1,4 +1,6 @@
 #pragma once
+
+#include "ui/ViewportWindow.h"
 #include "ui/PropertiesWindow.h"
 #include "startup/StartupManager.h"
 #include "ui/OutlineWindow.h"
@@ -26,12 +28,15 @@ namespace se::editor
         void OnEntitiesChanged() const;
 
         size_t GetOffscreenRenderGroup() const { return m_OffscreenRenderGroup; }
+        render::FrameBuffer* GetFrameBuffer() const { return m_FrameBuffer.get(); }
+        se::ui::Rect GetViewportRect() const { return m_ViewportWindow->GetViewportScreenspaceRect(); }
 
     private:
         startup::StartupManager m_StartupManager;
 
         ui::OutlineWindow* m_OutlineWindow = nullptr;
         ui::PropertiesWindow* m_PropertiesWindow = nullptr;
+        ui::ViewportWindow* m_ViewportWindow = nullptr;
 
         ecs::Id m_SelectedEntity = ecs::s_InvalidEntity;
         reflect::ObjectBase* m_SelectedSingletonComp = nullptr;

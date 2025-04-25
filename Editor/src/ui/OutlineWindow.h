@@ -1,5 +1,7 @@
 #pragma once
+
 #include "ToolWindow.h"
+#include "engine/ui/Rect.h"
 
 namespace se::ecs
 {

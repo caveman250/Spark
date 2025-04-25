@@ -18,6 +18,9 @@ namespace se::ui::components
         int maxX = 0;
         int maxY = 0;
 
+        float minAspectRatio = 0.f;
+        float maxAspectRatio = 0.f;
+
         Rect rect = {};
         Rect lastRect = {};
         math::Vec2 desiredSize = {};

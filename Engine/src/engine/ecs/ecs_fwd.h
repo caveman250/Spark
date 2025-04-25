@@ -1,5 +1,6 @@
 #pragma once
 #include "engine/string/String.h"
+#include "engine/bits/FlagUtil.h"
 
 namespace se::ecs
 {
@@ -31,6 +32,16 @@ namespace se::ecs
         bool operator == (const uint64_t& rhs) const
         {
             return id == rhs;
+        }
+
+        bool HasFlag(IdFlags flag) const
+        {
+            if (!flags)
+            {
+                return false;
+            }
+
+            return bits::GetFlag<ecs::IdFlags>(*flags, flag);
         }
 
         uint64_t id = 0;

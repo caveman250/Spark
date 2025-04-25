@@ -35,6 +35,8 @@ MTLTextureUsage TextureUsageToMetalUsage(se::asset::texture::Usage::Type format)
             return MTLTextureUsageShaderRead;
         case se::asset::texture::Usage::RenderTarget:
             return MTLTextureUsageRenderTarget;
+        case se::asset::texture::Usage::Read_RenderTarget:
+            return MTLTextureUsageShaderRead | MTLTextureUsageRenderTarget;
         default:
             SPARK_ASSERT(false, "TextureUsageToMetalUsage - Unhandled usage");
             return MTLTextureUsageUnknown;

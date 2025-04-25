@@ -15,6 +15,7 @@ namespace se::asset::texture
     DECLARE_SPARK_ENUM_BEGIN(Usage, int)
         Read,
         RenderTarget,
+        Read_RenderTarget,
     DECLARE_SPARK_ENUM_END()
 
     bool IsCompressedFormat(Format::Type format);

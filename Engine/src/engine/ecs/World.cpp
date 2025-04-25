@@ -486,8 +486,6 @@ namespace se::ecs
     {
         m_Running = true;
 
-        render::Renderer::Get<render::Renderer>()->Submit<render::commands::Clear>(true, true);
-
         RunOnAllEngineSystems([this](auto&& systemId)
         {
             if (auto* system = m_EngineSystems[systemId].instance)

@@ -4,6 +4,8 @@
 #import "engine/render/Renderer.h"
 #import "engine/render/metal/TextureResource.h"
 #import "MetalRenderer.h"
+#include "engine/render/FrameBuffer.h"
+
 #import <Metal/Metal.h>
 
 namespace se::render
@@ -16,12 +18,6 @@ namespace se::render
 
 namespace se::render::metal
 {
-    FrameBuffer::FrameBuffer()
-    {
-        m_ColorTexture = asset::Texture::Create(1280, 720, asset::texture::Format::BGRA8, asset::texture::Usage::RenderTarget);
-        m_DepthTexture = asset::Texture::Create(1280, 720, asset::texture::Format::Depth16, asset::texture::Usage::RenderTarget);
-    }
-
     void FrameBuffer::Bind()
     {
         auto renderer = Renderer::Get<MetalRenderer>();
@@ -30,6 +26,8 @@ namespace se::render::metal
         MTLRenderPassColorAttachmentDescriptor* colorAttachment = [[desc colorAttachments] objectAtIndexedSubscript:0];
         const auto& colorTextureResource = static_pointer_cast<TextureResource>(m_ColorTexture->GetPlatformResource());
         [colorAttachment setTexture:colorTextureResource->GetMetalResource()];
+        [colorAttachment setClearColor:MTLClearColorMake(0, 0, 0, 1)];
+        [colorAttachment setLoadAction:MTLLoadActionClear];
         
         MTLRenderPassDepthAttachmentDescriptor* depthAttachment = [desc depthAttachment];
         const auto& depthTextureResource = static_pointer_cast<TextureResource>(m_DepthTexture->GetPlatformResource());

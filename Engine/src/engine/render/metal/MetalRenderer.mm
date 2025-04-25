@@ -38,12 +38,7 @@ namespace se::render::metal
         [m_CommandEncoder setCullMode:MTLCullModeBack];
         [m_CommandEncoder setFrontFacingWinding:MTLWindingCounterClockwise];
 
-//        static std::shared_ptr<render::FrameBuffer> fb = render::FrameBuffer::CreateFrameBuffer();
-//        PushFrameBuffer(fb);
-
         Renderer::Render();
-
-        //PopFrameBuffer();
 
         [m_CommandEncoder endEncoding];
         [commandBuffer presentDrawable:[view currentDrawable]];

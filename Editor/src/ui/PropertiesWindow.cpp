@@ -51,10 +51,10 @@ namespace se::editor::ui
                                                 { DestroyUI(); },
                                                 true);
         windowTransform->anchors = {0.f, 0.f, 0.f, 0.f};
-        windowTransform->minX = 800;
-        windowTransform->maxX = 1200;
-        windowTransform->minY = 200;
-        windowTransform->maxY = 500;
+        windowTransform->minX = 860;
+        windowTransform->maxX = 1260;
+        windowTransform->minY = 400;
+        windowTransform->maxY = 700;
 
         ecs::Id scrollViewEntity;
         se::ui::components::ScrollBoxComponent *scrollBox = nullptr;

@@ -10,7 +10,7 @@ namespace se::ui::systems
     {
 #if SPARK_EDITOR
         auto* editorRuntime = Application::Get()->GetEditorRuntime();
-        bool isEditor = bits::GetFlag<ecs::IdFlags>(*id.flags, ecs::IdFlags::Editor);
+        bool isEditor = id.HasFlag(ecs::IdFlags::Editor);
         size_t group = isEditor ? renderer->GetDefaultRenderGroup() : editorRuntime->GetOffscreenRenderGroup();
 #else
         size_t group = renderer->GetDefaultRenderGroup();

@@ -35,8 +35,8 @@ namespace se::editor::ui
         windowTransform->anchors = { 0.f, 0.f, 0.f, 0.f };
         windowTransform->minX = 20;
         windowTransform->maxX = 420;
-        windowTransform->minY = 200;
-        windowTransform->maxY = 720;
+        windowTransform->minY = 180;
+        windowTransform->maxY = 700;
 
         se::ui::components::ScrollBoxComponent* scrollBox = nullptr;
         se::ui::components::ScrollViewComponent* scrollView = nullptr;
@@ -79,8 +79,7 @@ namespace se::editor::ui
 
         for (const auto& entity : world->GetRootEntities())
         {
-            auto entityFlags = *world->GetFlags(entity);
-            if (bits::GetFlag<ecs::IdFlags>(entityFlags, ecs::IdFlags::Editor))
+            if (entity.HasFlag(ecs::IdFlags::Editor))
             {
                 continue;
             }

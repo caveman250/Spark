@@ -51,6 +51,57 @@ namespace se::ui::util
         {
             ret.size.y = static_cast<int>((parentRect.topLeft.y + transform.anchors.bottom * parentHeight) + transform.maxY - ret.topLeft.y);
         }
+
+        // < = more wide > = more tall
+        constexpr float aspectTolerance = 0.01f;
+        if (transform.minAspectRatio != 0.f)
+        {
+            float aspectRatio = (float)ret.size.x / (float)ret.size.y;
+            if (aspectRatio < transform.minAspectRatio - aspectTolerance)
+            {
+                int newWidth = ret.size.y * transform.minAspectRatio;
+                if (newWidth > ret.size.x)
+                {
+                    // shrink y
+                    int newHeight = ret.size.x / transform.minAspectRatio;
+                    int delta = ret.size.y - newHeight;
+                    ret.topLeft.y += delta * 0.5f;
+                    ret.size.y = newHeight;
+                }
+                else
+                {
+                    // grow x
+                    int delta = ret.size.x - newWidth;
+                    ret.topLeft.x += delta * 0.5f;
+                    ret.size.x = newWidth;
+                }
+            }
+        }
+
+        if (transform.maxAspectRatio != 0.f)
+        {
+            float aspectRatio = (float)ret.size.x / (float)ret.size.y;
+            if (aspectRatio > transform.maxAspectRatio + aspectTolerance)
+            {
+                int newWidth = ret.size.y * transform.maxAspectRatio;
+                if (newWidth > ret.size.x)
+                {
+                    // shrink y
+                    int newHeight = ret.size.x / transform.maxAspectRatio;
+                    int delta = ret.size.y - newHeight;
+                    ret.topLeft.y += delta * 0.5f;
+                    ret.size.y = newHeight;
+                }
+                else
+                {
+                    // grow x
+                    int delta = ret.size.x - newWidth;
+                    ret.topLeft.x += delta * 0.5f;
+                    ret.size.x = newWidth;
+                }
+            }
+        }
+
         return ret;
     }
 

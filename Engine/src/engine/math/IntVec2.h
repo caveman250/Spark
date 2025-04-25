@@ -4,6 +4,7 @@
 
 namespace se::math
 {
+    struct Vec2;
     struct IntVec2
     {
         DECLARE_SPARK_POD_CLASS(IntVec2)
@@ -15,6 +16,8 @@ namespace se::math
         IntVec2(int _x, int _y) : x(_x), y(_y)
         {
         }
+
+        IntVec2(const math::Vec2& vec);
 
         int x;
         int y;
