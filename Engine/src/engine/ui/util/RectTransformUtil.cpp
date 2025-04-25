@@ -1,4 +1,5 @@
 #include "RectTransformUtil.h"
+#include "Widgets.generated.h"
 
 namespace se::ui::util
 {
@@ -143,5 +144,84 @@ namespace se::ui::util
 
                                   return false;
                               });
+    }
+
+    std::unordered_map<ecs::Id, ChildDesiredSizeInfo> GetChildrenDesiredSizes(const ecs::Id& entity,
+                                                                              ecs::System* system,
+                                                                              const ui::components::RectTransformComponent& transform)
+    {
+        std::unordered_map<ecs::Id, ChildDesiredSizeInfo> ret = {};
+
+        auto dec = ecs::ChildQueryDeclaration()
+                .WithComponent<ui::components::RectTransformComponent>()
+                .WithVariantComponent<SPARK_CONST_WIDGET_TYPES_WITH_NULLTYPE>(
+                        ecs::ComponentMutability::Immutable);
+
+        system->RunChildQuery(entity, dec,
+        [system, &ret, transform](const ecs::SystemUpdateData &updateData)
+        {
+            const auto &children = updateData.GetEntities();
+            auto *rectTransforms = updateData.GetComponentArray<ui::components::RectTransformComponent>();
+
+            std::visit([system, &children, &ret, transform, &rectTransforms](auto &&value)
+            {
+                for (size_t i = 0; i < children.size(); ++i)
+                {
+                    const auto &child = children[i];
+                    auto &rectTransform = rectTransforms[i];
+                    math::IntVec2 childDesiredSize = DesiredSizeCalculator::GetDesiredSize(system, child, transform, rectTransform, &value[i]);
+
+                    ret[child] = ChildDesiredSizeInfo(&rectTransform, childDesiredSize);
+                }
+            },updateData.GetVariantComponentArray<SPARK_CONST_WIDGET_TYPES_WITH_NULLTYPE>());
+          return false;
+        });
+        
+        return ret;
+    }
+
+    std::unordered_map<ecs::Id, RectTransformComponent*> GetChildRectTransforms(const ecs::Id& entity, ecs::System* system)
+    {
+        std::unordered_map<ecs::Id, RectTransformComponent*> ret = {};
+
+        auto dec = ecs::ChildQueryDeclaration()
+                .WithComponent<ui::components::RectTransformComponent>();
+
+        system->RunChildQuery(entity, dec,
+        [&ret](const ecs::SystemUpdateData &updateData)
+        {
+            const auto &children = updateData.GetEntities();
+            auto *rectTransforms = updateData.GetComponentArray<ui::components::RectTransformComponent>();
+
+            for (size_t i = 0; i < children.size(); ++i)
+            {
+                const auto &child = children[i];
+                auto &rectTransform = rectTransforms[i];
+                ret[child] = &rectTransform;
+            }
+            return false;
+        });
+
+        return ret;
+    }
+
+    void TranslateChildren(const ecs::Id& entity, ecs::System* system, const math::IntVec2& delta)
+    {
+        auto dec = ecs::ChildQueryDeclaration()
+                .WithComponent<components::RectTransformComponent>();
+        system->RunRecursiveChildQuery(entity, dec,
+                               [delta](const ecs::SystemUpdateData& updateData)
+                               {
+                                   const auto& children = updateData.GetEntities();
+                                   auto* rects = updateData.GetComponentArray<components::RectTransformComponent>();
+
+                                   for (size_t i = 0; i < children.size(); ++i)
+                                   {
+                                       auto& rect = rects[i];
+                                       rect.rect.topLeft += delta;
+                                   }
+
+                                   return false;
+                               });
     }
 }

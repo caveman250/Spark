@@ -35,8 +35,8 @@ namespace se::editor::ui
         windowTransform->anchors = { 0.f, 0.f, 0.f, 0.f };
         windowTransform->minX = 20;
         windowTransform->maxX = 420;
-        windowTransform->minY = 180;
-        windowTransform->maxY = 700;
+        windowTransform->minY = 20;
+        windowTransform->maxY = 380;
 
         se::ui::components::ScrollBoxComponent* scrollBox = nullptr;
         se::ui::components::ScrollViewComponent* scrollView = nullptr;

@@ -1,5 +1,6 @@
 #include <engine/ui/systems/ScrollViewUpdateSystem.h>
 #include <engine/ui/systems/VerticalBoxSystem.h>
+#include <engine/ui/systems/GridBoxSystem.h>
 #include <Widgets.generated.h>
 #include <engine/ui/systems/RectTransformSystem.h>
 #include "Application.h"
@@ -216,6 +217,14 @@ namespace se
                 .WithDependency(scrollView)
                 .WithChildQuerys<SPARK_WIDGET_TYPES_WITH_NULLTYPE>(ecs::ComponentMutability::Immutable);
         m_World.CreateEngineSystem<ui::systems::VerticalBoxSystem>(verticalBoxReg);
+
+        ecs::SystemDeclaration gridBoxReg = ecs::SystemDeclaration("Grid Box System")
+                .WithComponent<ui::components::GridBoxComponent>()
+                .WithComponent<ui::components::RectTransformComponent>()
+                .WithDependency(rectTrans)
+                .WithDependency(scrollView)
+                .WithChildQuerys<SPARK_WIDGET_TYPES_WITH_NULLTYPE>(ecs::ComponentMutability::Immutable);
+        m_World.CreateEngineSystem<ui::systems::        GridBoxSystem>(gridBoxReg);
 
         ecs::SystemDeclaration imageRenderReg = ecs::SystemDeclaration("ImageRenderSystem")
                 .WithComponent<const ui::components::RectTransformComponent>()

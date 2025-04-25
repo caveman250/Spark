@@ -37,15 +37,14 @@ namespace se::editor::ui::properties
         world->AddChild(m_WidgetId, bg);
 
         m_RectTransform->maxY = bgTransform->maxY + 2;
-
-        auto vert = assetManager->GetAsset<asset::Shader>("/builtin_assets/shaders/ui.sass");
-        auto frag = assetManager->GetAsset<asset::Shader>("/builtin_assets/shaders/alpha_texture.sass");
-
         m_Tickbox = world->CreateEntity("Border", true);
         auto innerImage = world->AddComponent<ImageComponent>(m_Tickbox);
         static std::shared_ptr<render::Material> material = nullptr;
         if (!material)
         {
+            auto vert = assetManager->GetAsset<asset::Shader>("/builtin_assets/shaders/ui.sass");
+            auto frag = assetManager->GetAsset<asset::Shader>("/builtin_assets/shaders/alpha_texture.sass");
+
             material = render::Material::CreateMaterial({vert}, {frag});
             render::RenderState rs;
             rs.srcBlend = render::BlendMode::SrcAlpha;

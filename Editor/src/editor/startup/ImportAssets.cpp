@@ -39,7 +39,7 @@ namespace se::editor::startup
 
                             std::string jsonPth = outputPath;
                             jsonPth = jsonPth.replace(jsonPth.length() - 5, 5, ".json");
-                            io::VFS::Get().WriteText(jsonPth, builtAsset.db->ToJson().dump());
+                            io::VFS::Get().WriteText(jsonPth, builtAsset.db->ToJson().dump(4));
                         }
                         else
                         {
@@ -47,7 +47,7 @@ namespace se::editor::startup
 
                             std::string jsonPth = outputPathBase;
                             jsonPth = jsonPth.replace(jsonPth.length() - 5, 5, ".json");
-                            io::VFS::Get().WriteText(jsonPth, builtAsset.db->ToJson().dump());
+                            io::VFS::Get().WriteText(jsonPth, builtAsset.db->ToJson().dump(4));
                         }
                     }
                 }

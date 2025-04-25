@@ -17,6 +17,9 @@ namespace se::editor
 
         m_ViewportWindow = new ui::ViewportWindow(this);
         m_ViewportWindow->ConstructUI();
+
+        m_AssetBrowserWindow = new ui::AssetBrowserWindow(this);
+        m_AssetBrowserWindow->ConstructUI();
     }
 
     void EditorRuntime::Update()

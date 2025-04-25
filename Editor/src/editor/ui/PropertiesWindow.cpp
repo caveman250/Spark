@@ -53,7 +53,7 @@ namespace se::editor::ui
         windowTransform->anchors = {0.f, 0.f, 0.f, 0.f};
         windowTransform->minX = 860;
         windowTransform->maxX = 1260;
-        windowTransform->minY = 400;
+        windowTransform->minY = 390;
         windowTransform->maxY = 700;
 
         ecs::Id scrollViewEntity;
