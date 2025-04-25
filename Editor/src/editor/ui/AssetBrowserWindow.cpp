@@ -1,3 +1,4 @@
+#include <engine/ui/components/TextComponent.h>
 #include "AssetBrowserWindow.h"
 #include "engine/ui/components/GridBoxComponent.h"
 #include "engine/ui/components/ImageComponent.h"
@@ -50,28 +51,50 @@ namespace se::editor::ui
         world->AddChild(contentArea, gridBoxEntity);
 
         auto assetManager = se::asset::AssetManager::Get();
-        m_TestTexture = assetManager->GetAsset<asset::Texture>("/builtin_assets/textures/default_button.sass");
+        m_TestTexture = assetManager->GetAsset<asset::Texture>("/builtin_assets/textures/default_file.sass");
+        auto arial = assetManager->GetAsset<asset::Font>("/builtin_assets/fonts/Arial.sass");
         for (size_t i = 0; i < 10; ++i)
         {
-            ecs::Id imageEntity = world->CreateEntity("Image", true);
-            auto rect = world->AddComponent<se::ui::components::RectTransformComponent>(imageEntity);
+            ecs::Id fileEntity = world->CreateEntity("File", true);
+            auto rect = world->AddComponent<se::ui::components::RectTransformComponent>(fileEntity);
             rect->maxX = 100;
             rect->maxY = 100;
-            auto image = world->AddComponent<se::ui::components::ImageComponent>(imageEntity);
 
+            ecs::Id imageEntity = world->CreateEntity("Image", true);
+            auto imageRect = world->AddComponent<se::ui::components::RectTransformComponent>(imageEntity);
+            imageRect->anchors = { .left = 0.f, .right = 1.f, .top = 0.f, .bottom = 1.f };
+            imageRect->maxY = 20;
+            imageRect->minAspectRatio = 1.f;
+            imageRect->maxAspectRatio = 1.f;
+            auto image = world->AddComponent<se::ui::components::ImageComponent>(imageEntity);
             static std::shared_ptr<render::Material> material = nullptr;
             if (!material)
             {
                 auto vert = assetManager->GetAsset<asset::Shader>("/builtin_assets/shaders/ui.sass");
-                auto frag = assetManager->GetAsset<asset::Shader>("/builtin_assets/shaders/diffuse_texture.sass");
+                auto frag = assetManager->GetAsset<asset::Shader>("/builtin_assets/shaders/alpha_texture.sass");
 
                 material = render::Material::CreateMaterial({vert}, {frag});
+                auto rs = render::RenderState();
+                rs.srcBlend = render::BlendMode::SrcAlpha;
+                rs.dstBlend = render::BlendMode::OneMinusSrcAlpha;
+                material->SetRenderState(rs);
             }
-
             image->materialInstance = se::render::MaterialInstance::CreateMaterialInstance(material);
             image->materialInstance->SetUniform("Texture", asset::shader::ast::AstType::Sampler2D, 1, &m_TestTexture);
+            world->AddChild(fileEntity, imageEntity);
 
-            world->AddChild(gridBoxEntity, imageEntity);
+            auto textEntity = world->CreateEntity("Text", true);
+            auto text = world->AddComponent<se::ui::components::TextComponent>(textEntity);
+            text->font = arial;
+            text->fontSize = 16;
+            text->text = "File";
+            auto textRect = world->AddComponent<se::ui::components::RectTransformComponent>(textEntity);
+            textRect->anchors = { .left = 0.f, .right = 1.f, .top = 1.f, .bottom = 1.f };
+            textRect->minY = 20;
+            world->AddComponent<se::ui::components::WidgetComponent>(textEntity);
+            world->AddChild(fileEntity, textEntity);
+
+            world->AddChild(gridBoxEntity, fileEntity);
         }
 
         gridBox->dirty = true;
@@ -79,10 +102,6 @@ namespace se::editor::ui
 
     void AssetBrowserWindow::DestroyUI()
     {
-        auto app = Application::Get();
-        auto world = app->GetWorld();
 
-        world->DestroyEntity(m_Window);
-        m_Window = ecs::s_InvalidEntity;
     }
 }

@@ -15,6 +15,11 @@ namespace se::editor::ui
     void ViewportWindow::Update()
     {
         ToolWindow::Update();
+        if (!m_Valid)
+        {
+            return;
+        }
+
         auto world = Application::Get()->GetWorld();
         se::ui::components::RectTransformComponent* viewportRect = world->GetComponent<se::ui::components::RectTransformComponent>(m_Viewport);
         m_ViewportRect = viewportRect->rect;
@@ -63,14 +68,11 @@ namespace se::editor::ui
         const auto& viewportTexture = app->GetEditorRuntime()->GetFrameBuffer()->GetColorTexture();
         imageComp->materialInstance->SetUniform("Texture", asset::shader::ast::AstType::Sampler2D, 1, &viewportTexture);
         world->AddChild(contentArea, m_Viewport);
+        m_Valid = true;
     }
 
     void ViewportWindow::DestroyUI()
     {
-        auto app = Application::Get();
-        auto world = app->GetWorld();
-
-        world->DestroyEntity(m_Window);
-        m_Window = ecs::s_InvalidEntity;
+        m_Valid = false;
     }
 }
