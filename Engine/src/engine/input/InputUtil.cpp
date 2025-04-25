@@ -8,7 +8,7 @@
 
 namespace se::input
 {
-    void InputUtil::ProcessMouseEvents(const ecs::Id& entity, InputComponent *input, const std::function<bool(const MouseEvent &)> &func)
+    void InputUtil::ProcessMouseEvents([[maybe_unused]] const ecs::Id& entity, InputComponent *input, const std::function<bool(const MouseEvent &)> &func)
     {
 #if SPARK_EDITOR
         if (!entity.HasFlag(ecs::IdFlags::Editor) &&
@@ -31,7 +31,7 @@ namespace se::input
         }
     }
 
-    void InputUtil::ProcessKeyEvents(const ecs::Id& entity, InputComponent *input, const std::function<bool(const KeyEvent &)> &func)
+    void InputUtil::ProcessKeyEvents([[maybe_unused]] const ecs::Id& entity, InputComponent *input, const std::function<bool(const KeyEvent &)> &func)
     {
 #if SPARK_EDITOR
         if (!entity.HasFlag(ecs::IdFlags::Editor) &&
