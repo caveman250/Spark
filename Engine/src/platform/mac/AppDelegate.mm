@@ -14,7 +14,10 @@
 
 - (void) mtkView:(MTKView*)view drawableSizeWillChange:(CGSize) size
 {
-
+    if(auto window = se::Application::Get()->GetPrimaryWindow())
+    {
+        window->OnResize(size.width, size.height);
+    }
 }
 
 @end
