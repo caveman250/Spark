@@ -16,7 +16,7 @@
 #include "ecs_fwd.h"
 
 #if SPARK_EDITOR
-#include "ui/PropertiesWindow.h"
+#include "editor/ui/PropertiesWindow.h"
 #endif
 
 namespace se::ecs::components

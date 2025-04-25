@@ -37,7 +37,7 @@ namespace se::ui::systems
                 continue;
             }
 
-            input::InputUtil::ProcessMouseEvents(inputComp, [this, entity, &inputReceiver](const input::MouseEvent& mouseEvent)
+            input::InputUtil::ProcessMouseEvents(entity, inputComp, [this, entity, &inputReceiver](const input::MouseEvent& mouseEvent)
             {
                 if (TryConsumeEvent(mouseEvent, inputReceiver))
                 {

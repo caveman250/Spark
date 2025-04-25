@@ -4,7 +4,7 @@
 #include "engine/ecs/World.h"
 
 #if SPARK_EDITOR
-#include "EditorRuntime.h"
+#include "editor/EditorRuntime.h"
 #endif
 
 namespace se

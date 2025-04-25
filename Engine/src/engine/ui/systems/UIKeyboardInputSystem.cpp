@@ -30,7 +30,7 @@ namespace se::ui::systems
             bool hovered = transform.rect.Contains(math::IntVec2(inputComp->mouseX, inputComp->mouseY));
             if (hovered)
             {
-                input::InputUtil::ProcessKeyEvents(inputComp, [this, entity, inputComp, &inputReceiver](const input::KeyEvent& keyEvent)
+                input::InputUtil::ProcessKeyEvents(entity, inputComp, [this, entity, inputComp, &inputReceiver](const input::KeyEvent& keyEvent)
                 {
                     if (TryConsumeEvent(keyEvent, inputReceiver))
                     {

@@ -5,27 +5,16 @@
 #include "engine/input/InputUtil.h"
 #include "engine/profiling/Profiler.h"
 
+#if SPARK_EDITOR
+#include "editor/util/ViewportUtil.h"
+#endif
+
 using namespace se;
 using namespace se::ecs::components;
 
 namespace se::ui::systems
 {
     DEFINE_SPARK_SYSTEM(ResetMouseInputSystem)
-
-#if SPARK_EDITOR
-    math::IntVec2 ScreenSpaceToGameViewportSpace(int mouseX, int mouseY)
-    {
-        auto app = Application::Get();
-        auto editor = app->GetEditorRuntime();
-        ui::Rect viewportRect = editor->GetViewportRect();
-        math::Vec2 relative = math::Vec2((float)(mouseX - viewportRect.topLeft.x) / viewportRect.size.x,
-                                         (float)(mouseY - viewportRect.topLeft.y) / viewportRect.size.y);
-
-        auto window = app->GetPrimaryWindow();
-
-        return relative * math::Vec2(window->GetWidth(), window->GetHeight());
-    }
-#endif
 
     void ResetMouseInputSystem::OnUpdate(const ecs::SystemUpdateData& updateData)
     {
@@ -53,7 +42,7 @@ namespace se::ui::systems
 #if SPARK_EDITOR
             if (!entities[i].HasFlag(ecs::IdFlags::Editor))
             {
-                auto adjustedMousePos = ScreenSpaceToGameViewportSpace(inputComp->mouseX, inputComp->mouseY);
+                auto adjustedMousePos = editor::util::ScreenSpaceToGameViewportSpace(inputComp->mouseX, inputComp->mouseY);
                 inputReceiver.hovered = transform.rect.Contains(adjustedMousePos);
             }
             else

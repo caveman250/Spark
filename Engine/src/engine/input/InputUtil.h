@@ -13,8 +13,8 @@ namespace se::input
     class InputUtil
     {
     public:
-        static void ProcessMouseEvents(InputComponent* input, const std::function<bool(const MouseEvent&)>& func);
-        static void ProcessKeyEvents(InputComponent* input, const std::function<bool(const KeyEvent&)>& func);
+        static void ProcessMouseEvents(const ecs::Id& entity, InputComponent* input, const std::function<bool(const MouseEvent&)>& func);
+        static void ProcessKeyEvents(const ecs::Id& entity, InputComponent* input, const std::function<bool(const KeyEvent&)>& func);
 
     private:
         static void ConsumeKeyEvent(InputComponent* input, int index);

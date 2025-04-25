@@ -51,6 +51,7 @@ function(setup_spark_target target is_library use_editor unity_conf_dir)
 
     include(${ROOT_DIR}/CMake/Linker.cmake)
     if (${use_editor})
+        include_directories(../Editor/src)
         include(${ROOT_DIR}/CMake/editor/LinkerEditor.cmake)
     endif()
     include(${ROOT_DIR}/CMake/PCH.cmake)
