@@ -27,6 +27,11 @@ namespace se
         void Insert(size_t i, const String& str);
         void Erase(size_t i);
 
+        size_t Find(char c, bool fromEnd) const;
+        static size_t InvalidPos;
+
+        String SubString(size_t begin, size_t end) const;
+
         const char* Data() const { return m_Data.data(); }
         size_t Size() const { return m_Data.size() - 1; }
 

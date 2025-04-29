@@ -4,6 +4,8 @@
 
 namespace se
 {
+    size_t String::InvalidPos = std::numeric_limits<size_t>::max();
+
     String::String()
     {
     }
@@ -129,5 +131,42 @@ namespace se
     void String::Erase(size_t i)
     {
         m_Data.erase(m_Data.begin() + i);
+    }
+
+    size_t String::Find(char c, bool fromEnd) const
+    {
+        if (fromEnd)
+        {
+            auto it = std::find(m_Data.rbegin(), m_Data.rend(), c);
+            if (it != m_Data.rend())
+            {
+                return std::distance(m_Data.begin(), it.base()) - 1;
+            }
+        }
+        else
+        {
+            auto it = std::find(m_Data.begin(), m_Data.end(), c);
+            if (it != m_Data.end())
+            {
+                return std::distance(m_Data.begin(), it);
+            }
+        }
+
+        return InvalidPos;
+    }
+
+    String String::SubString(size_t begin, size_t end) const
+    {
+        if (!SPARK_VERIFY(begin < Size() && end <= Size()))
+        {
+            return {};
+        }
+
+        String string;
+        size_t newSize = end - begin;
+        string.m_Data.resize(newSize + 1);
+        memcpy((void *)string.Data(), m_Data.data() + begin, newSize);
+        memset((void*)(string.Data() + newSize), 0, 1);
+        return string;
     }
 }
