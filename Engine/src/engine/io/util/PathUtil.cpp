@@ -9,8 +9,18 @@ namespace se::io::util
                    String& extension)
     {
         String pathMinusExtension = {};
-        string::util::Split(path, pathMinusExtension, extension, '.', true);
-        SPARK_ASSERT(extension.Size() > 0);
+        if (!string::util::Split(path, pathMinusExtension, extension, '.', true))
+        {
+            if (!string::util::Split(path, dir, file, '/', true))
+            {
+                dir = path;
+                file = {};
+                extension = {};
+            }
+
+            return;
+        }
+
         if (!string::util::Split(pathMinusExtension, dir, file, '/', true))
         {
             dir = {};
