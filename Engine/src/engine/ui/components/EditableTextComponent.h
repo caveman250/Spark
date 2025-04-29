@@ -28,6 +28,7 @@ namespace se::ui::components
         std::shared_ptr<asset::Font> font = { };
         int fontSize = 0;
         String text = { };
+        text::Alignment::Type justification = text::Alignment::Left;
 
         // edit mode
         bool inEditMode = false;

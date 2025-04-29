@@ -60,7 +60,13 @@ namespace se::ui::util
             textComp.lastText != text ||
             textComp.lastFontSize != textComp.fontSize)
         {
-            asset::StaticMesh mesh = util::CreateTextMesh(transform.rect, textComp.font, textComp.fontSize, text, true, true);
+            asset::StaticMesh mesh = util::CreateTextMesh(transform.rect,
+                                                          textComp.font,
+                                                          textComp.fontSize,
+                                                          text,
+                                                          true,
+                                                          true,
+                                                          textComp.justification);
             textComp.vertBuffer = render::VertexBuffer::CreateVertexBuffer(mesh);
             textComp.vertBuffer->CreatePlatformResource();
             textComp.indexBuffer = render::IndexBuffer::CreateIndexBuffer(mesh);

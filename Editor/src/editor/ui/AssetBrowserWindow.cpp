@@ -88,6 +88,7 @@ namespace se::editor::ui
             text->font = arial;
             text->fontSize = 16;
             text->text = "File";
+            text->justification = se::ui::text::Alignment::Center;
             auto textRect = world->AddComponent<se::ui::components::RectTransformComponent>(textEntity);
             textRect->anchors = { .left = 0.f, .right = 1.f, .top = 1.f, .bottom = 1.f };
             textRect->minY = 20;

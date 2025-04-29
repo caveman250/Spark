@@ -26,74 +26,201 @@ namespace se::ui::util
         return mesh;
     }
 
+    math::IntVec2 ApplyWrapping(math::IntVec2 cursorPos,
+                       char c,
+                       size_t charIndex,
+                       const Rect& rect,
+                       const std::shared_ptr<asset::Font>& font,
+                       int fontSize,
+                       const String& text,
+                       bool& didWrap)
+    {
+        if (c == ' ')
+        {
+            size_t lookAhead = charIndex + 1;
+            float xCopy = cursorPos.x;
+
+            char nextChar = text[lookAhead];
+            while (nextChar != ' ' && lookAhead < text.Size() - 1)
+            {
+                const auto& nextCharData = font->GetCharData(fontSize, nextChar);
+
+                if (xCopy + nextCharData.advanceWidth >= rect.size.x)
+                {
+                    cursorPos.x = 0.f;
+                    cursorPos.y += fontSize;
+                    didWrap = true;
+                    break;
+                }
+                xCopy += nextCharData.advanceWidth;
+                nextChar = text[++lookAhead];
+            }
+        }
+
+        return cursorPos;
+    }
+
+    int CalculateJustificationXOffset(ui::text::Alignment::Type justification,
+                            int endOfLineX,
+                            const Rect& rect)
+    {
+        switch (justification)
+        {
+            case text::Alignment::Left:
+                return 0;
+            case text::Alignment::Center:
+            {
+                int availableSpace = rect.size.x - endOfLineX;
+                return availableSpace / 2;
+            }
+            case text::Alignment::Right:
+            {
+                return rect.size.x - endOfLineX;
+            }
+            default:
+                SPARK_ASSERT(false, "CalculateJustificationXOffset - Unhandled Justification.");
+                return 0;
+        }
+    }
+
+    math::IntVec2 ApplyKerning(math::IntVec2 cursorPos,
+                               size_t index,
+                               const String& text,
+                               const asset::CharData& charData)
+    {
+        if (index < text.Size() - 1)
+        {
+            char nextChar = text[index + 1];
+            if (charData.kerning.contains(nextChar))
+            {
+                cursorPos.x += charData.kerning.at(nextChar);
+            }
+        }
+
+        return cursorPos;
+    }
+
+    math::IntVec2 ApplyLeftSideBearing(math::IntVec2 cursorPos,
+                               const asset::CharData& charData)
+    {
+        cursorPos.x += charData.leftSideBearing;
+        return cursorPos;
+    }
+
+    math::IntVec2 ApplyAdvanceWidth(math::IntVec2 cursorPos,
+                                       const asset::CharData& charData)
+    {
+        cursorPos.x += charData.advanceWidth;
+        return cursorPos;
+    }
+
+    void CreateCharMesh(const asset::CharData& charData,
+                        const math::IntVec2& cursorPos,
+                        asset::StaticMesh& mesh,
+                        uint32_t& indexOffset)
+    {
+        math::IntVec2 TL = charData.rect.topLeft + cursorPos;
+        math::IntVec2 BR = TL + charData.rect.size;
+        mesh.vertices.push_back({ (float) TL.x, (float) BR.y, 0 });
+        mesh.vertices.push_back({ (float) BR.x, (float) BR.y, 0 });
+        mesh.vertices.push_back({ (float) BR.x, (float) TL.y, 0 });
+        mesh.vertices.push_back({ (float) TL.x, (float) TL.y, 0 });
+
+        mesh.indices.insert(mesh.indices.end(), { indexOffset + 1, indexOffset + 3, indexOffset, indexOffset + 3, indexOffset + 1, indexOffset + 2 });
+        indexOffset += 4;
+
+        mesh.uvs.push_back({ charData.uvTopLeft.x, charData.uvBottomRight.y });
+        mesh.uvs.push_back({ charData.uvBottomRight.x, charData.uvBottomRight.y });
+        mesh.uvs.push_back({ charData.uvBottomRight.x, charData.uvTopLeft.y });
+        mesh.uvs.push_back({ charData.uvTopLeft.x, charData.uvTopLeft.y });
+    }
+
     asset::StaticMesh CreateTextMesh(const Rect& rect,
                                      const std::shared_ptr<asset::Font>& font,
                                      int fontSize,
                                      const String& text,
                                      bool applyKerning,
-                                     bool wrap)
+                                     bool wrap,
+                                     text::Alignment::Type justification)
     {
         asset::StaticMesh mesh;
         uint32_t indexOffset = 0;
         math::IntVec2 cursorPos = { };
         cursorPos.y += fontSize;
+        size_t lineStart = 0;
         for (size_t i = 0; i < text.Size(); ++i)
         {
             char c = text[i];
             const auto& charData = font->GetCharData(fontSize, c);
 
-            if (applyKerning && i < text.Size() - 1)
+            if (applyKerning)
             {
-                char nextChar = text[i + 1];
-                if (charData.kerning.contains(nextChar))
-                {
-                    cursorPos.x += charData.kerning.at(nextChar);
-                }
+                cursorPos = ApplyKerning(cursorPos, i, text, charData);
             }
-
-            cursorPos.x += charData.leftSideBearing;
-
-            math::IntVec2 TL = charData.rect.topLeft + cursorPos;
-            math::IntVec2 BR = TL + charData.rect.size;
-            mesh.vertices.push_back({ (float) TL.x, (float) BR.y, 0 });
-            mesh.vertices.push_back({ (float) BR.x, (float) BR.y, 0 });
-            mesh.vertices.push_back({ (float) BR.x, (float) TL.y, 0 });
-            mesh.vertices.push_back({ (float) TL.x, (float) TL.y, 0 });
-
-            mesh.indices.insert(mesh.indices.end(), { indexOffset + 1, indexOffset + 3, indexOffset, indexOffset + 3, indexOffset + 1, indexOffset + 2 });
-            indexOffset += 4;
-
-            mesh.uvs.push_back({ charData.uvTopLeft.x, charData.uvBottomRight.y });
-            mesh.uvs.push_back({ charData.uvBottomRight.x, charData.uvBottomRight.y });
-            mesh.uvs.push_back({ charData.uvBottomRight.x, charData.uvTopLeft.y });
-            mesh.uvs.push_back({ charData.uvTopLeft.x, charData.uvTopLeft.y });
-
-            cursorPos.x += charData.advanceWidth;
+            cursorPos = ApplyLeftSideBearing(cursorPos, charData);
+            CreateCharMesh(charData, cursorPos, mesh, indexOffset);
+            cursorPos = ApplyAdvanceWidth(cursorPos, charData);
 
             if (wrap)
             {
-                if (c == ' ')
+                bool didWrap = false;
+                int oldX = cursorPos.x;
+                cursorPos = ApplyWrapping(cursorPos,
+                                          c,
+                                          i,
+                                          rect,
+                                          font,
+                                          fontSize,
+                                          text,
+                                          didWrap);
+
+                if (didWrap)
                 {
-                    size_t lookAhead = i + 1;
-                    float xCopy = cursorPos.x;
-
-                    char nextChar = text[lookAhead];
-                    while (nextChar != ' ' && lookAhead < text.Size() - 1)
+                    int offset = CalculateJustificationXOffset(justification,
+                                       oldX,
+                                       rect);
+                    if (offset != 0)
                     {
-                        const auto& nextCharData = font->GetCharData(fontSize, nextChar);
-
-                        if (xCopy + nextCharData.advanceWidth >= rect.size.x)
+                        size_t lineEnd = i;
+                        for (size_t j = lineStart * 4; j < lineEnd * 4; ++j)
                         {
-                            cursorPos.x = 0.f;
-                            cursorPos.y += fontSize;
-                            break;
+                            mesh.vertices[j].x += offset;
                         }
-                        xCopy += nextCharData.advanceWidth;
-                        nextChar = text[++lookAhead];
+                    }
+                    lineStart = i + 1;
+                }
+                else if (i == text.Size() - 1)
+                {
+                    int offset = CalculateJustificationXOffset(justification,
+                                                               cursorPos.x,
+                                                               rect);
+                    if (offset != 0)
+                    {
+                        size_t lineEnd = i + 1;
+                        for (size_t j = lineStart * 4; j < lineEnd * 4; ++j)
+                        {
+                            mesh.vertices[j].x += offset;
+                        }
+                    }
+                }
+            }
+            else if (i == text.Size() - 1)
+            {
+                int offset = CalculateJustificationXOffset(justification,
+                                                           cursorPos.x,
+                                                           rect);
+                if (offset != 0)
+                {
+                    size_t lineEnd = i;
+                    for (size_t j = lineStart * 4; j <= lineEnd * 4; ++j)
+                    {
+                        mesh.vertices[j].x += offset;
                     }
                 }
             }
         }
+
+
         return mesh;
     }
 
@@ -124,45 +251,31 @@ namespace se::ui::util
             char c = text[i];
             const auto& charData = font->GetCharData(fontSize, c);
 
-            if (applyKerning && i < text.Size() - 1)
+            if (applyKerning)
             {
-                char nextChar = text[i + 1];
-                if (charData.kerning.contains(nextChar))
-                {
-                    cursorPos.x += charData.kerning.at(nextChar);
-                }
+                cursorPos = ApplyKerning(cursorPos, i, text, charData);
             }
-
-            cursorPos.x += charData.leftSideBearing;
+            cursorPos = ApplyLeftSideBearing(cursorPos, charData);
 
             math::IntVec2 TL = charData.rect.topLeft + cursorPos;
             math::IntVec2 BR = TL + charData.rect.size;
             max = math::IntVec2(std::max(BR.x, max.x), std::max(BR.y, max.y));
 
-            cursorPos.x += charData.advanceWidth;
+            cursorPos = ApplyAdvanceWidth(cursorPos, charData);
 
             if (wrap)
             {
-                if (c == ' ')
-                {
-                    size_t lookAhead = i + 1;
-                    float xCopy = cursorPos.x;
+                bool didWrap = false;
+                cursorPos = ApplyWrapping(cursorPos,
+                                          c,
+                                          i,
+                                          bounds,
+                                          font,
+                                          fontSize,
+                                          text,
+                                          didWrap);
 
-                    char nextChar = text[lookAhead];
-                    while (nextChar != ' ' && lookAhead < text.Size() - 1)
-                    {
-                        const auto& nextCharData = font->GetCharData(fontSize, nextChar);
-
-                        if (xCopy + nextCharData.advanceWidth >= bounds.size.x)
-                        {
-                            cursorPos.x = 0.f;
-                            cursorPos.y += fontSize;
-                            break;
-                        }
-                        xCopy += nextCharData.advanceWidth;
-                        nextChar = text[++lookAhead];
-                    }
-                }
+                //Justification does not effect desired size.
             }
         }
         return max;
@@ -174,62 +287,77 @@ namespace se::ui::util
         int fontSize,
         const String& text,
         bool applyKerning,
-        bool wrap)
+        bool wrap,
+        text::Alignment::Type justification)
     {
-        math::IntVec2 max = { };
-
         math::IntVec2 cursorPos = { };
         cursorPos.y += fontSize;
+        size_t lineStart = 0;
+        std::vector<Rect> boundingBoxes = {};
         for (size_t i = 0; i < text.Size(); ++i)
         {
-            float halfFontSize = fontSize * .5f;
-            if (std::abs(max.x - pos.x) < halfFontSize && std::abs(max.y - pos.y) <= fontSize)
-            {
-                return i;
-            }
-
             char c = text[i];
             const auto& charData = font->GetCharData(fontSize, c);
 
-            if (applyKerning && i < text.Size() - 1)
+            if (applyKerning)
             {
-                char nextChar = text[i + 1];
-                if (charData.kerning.contains(nextChar))
-                {
-                    cursorPos.x += charData.kerning.at(nextChar);
-                }
+                cursorPos = ApplyKerning(cursorPos, i, text, charData);
             }
-
-            cursorPos.x += charData.leftSideBearing;
+            cursorPos = ApplyLeftSideBearing(cursorPos, charData);
 
             math::IntVec2 TL = charData.rect.topLeft + cursorPos;
             math::IntVec2 BR = TL + charData.rect.size;
-            max = math::IntVec2(std::max(BR.x, max.x), std::max(BR.y, max.y));
+            boundingBoxes.push_back(Rect(TL, BR));
 
-            cursorPos.x += charData.advanceWidth;
+            cursorPos = ApplyAdvanceWidth(cursorPos, charData);
 
             if (wrap)
             {
-                if (c == ' ')
+                bool didWrap = false;
+                int oldX = cursorPos.x;
+                cursorPos = ApplyWrapping(cursorPos,
+                                          c,
+                                          i,
+                                          bounds,
+                                          font,
+                                          fontSize,
+                                          text,
+                                          didWrap);
+
+                if (didWrap)
                 {
-                    size_t lookAhead = i + 1;
-                    float xCopy = cursorPos.x;
-
-                    char nextChar = text[lookAhead];
-                    while (nextChar != ' ' && lookAhead < text.Size() - 1)
+                    int offset = CalculateJustificationXOffset(justification,
+                                                               oldX,
+                                                               bounds);
+                    size_t lineEnd = i;
+                    float halfFontSize = fontSize * .5f;
+                    for (size_t j = lineStart; j < lineEnd; ++j)
                     {
-                        const auto& nextCharData = font->GetCharData(fontSize, nextChar);
-
-                        if (xCopy + nextCharData.advanceWidth >= bounds.size.x)
+                        const auto& charBounds = boundingBoxes[j];
+                        if (std::abs(charBounds.topLeft.x + offset - pos.x) < halfFontSize &&
+                            std::abs(charBounds.topLeft.y - pos.y) <= fontSize)
                         {
-                            cursorPos.x = 0.f;
-                            cursorPos.y += fontSize;
-                            break;
+                            return j;
                         }
-                        xCopy += nextCharData.advanceWidth;
-                        nextChar = text[++lookAhead];
                     }
+
+                    lineStart = i + 1;
                 }
+
+            }
+        }
+
+        int offset = CalculateJustificationXOffset(justification,
+                                                   cursorPos.x,
+                                                   bounds);
+        float halfFontSize = fontSize * .5f;
+        for (size_t j = lineStart; j < text.Size(); ++j)
+        {
+            const auto& charBounds = boundingBoxes[j];
+            if (std::abs(charBounds.topLeft.x + offset - pos.x) < halfFontSize &&
+                std::abs(charBounds.topLeft.y - pos.y) <= fontSize)
+            {
+                return j;
             }
         }
 

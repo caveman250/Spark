@@ -1,6 +1,7 @@
 #pragma once
 #include "engine/asset/mesh/StaticMesh.h"
 #include "engine/ui/Rect.h"
+#include "engine/ui/text/Alignment.h"
 
 namespace se
 {
@@ -21,7 +22,8 @@ namespace se::ui::util
                                      int fontSize,
                                      const String& text,
                                      bool applyKerning,
-                                     bool wrap);
+                                     bool wrap,
+                                     text::Alignment::Type justification);
 
     math::IntVec2 MeasureText(const Rect& bounds,
                               const std::shared_ptr<asset::Font>& font,
@@ -44,5 +46,6 @@ namespace se::ui::util
                                 int fontSize,
                                 const String& text,
                                 bool applyKerning,
-                                bool wrap);
+                                bool wrap,
+                                text::Alignment::Type justification);
 }
