@@ -13,7 +13,7 @@ namespace se::util
 
         T* p;
         T* begin() const { return p; }
-        T* end() const { return p ? p+1 : nullptr; }
+        T* end() const { return p ? p + size : nullptr; }
 
         size_t size;
     };
