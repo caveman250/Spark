@@ -27,6 +27,9 @@ namespace se
         void Insert(size_t i, const String& str);
         void Erase(size_t i);
 
+        bool Contains(const String& str) const;
+        bool StartsWith(const String& str) const;
+        bool EndsWith(const String& str) const;
         size_t Find(char c, bool fromEnd) const;
         static size_t InvalidPos;
 
@@ -38,6 +41,9 @@ namespace se
     private:
         std::vector<char> m_Data = {};
     };
+
+    String operator+(const String& lhs, const String &rhs);
+    String operator+(const String& lhs, char rhs);
 }
 
 template <>
@@ -54,3 +60,5 @@ struct std::formatter<se::String>
         return std::format_to(ctx.out(), "{}", obj.Data());
     }
 };
+
+std::ostream& operator<<(std::ostream& os, const se::String& string);

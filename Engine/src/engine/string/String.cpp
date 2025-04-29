@@ -85,19 +85,19 @@ namespace se
 
     String& String::operator+=(char c)
     {
-        Insert(Size() - 1, c);
+        Insert(Size(), c);
         return *this;
     }
 
     String& String::operator+=(const char* c)
     {
-        Insert(Size() - 1, c);
+        Insert(Size(), c);
         return *this;
     }
 
     String& String::operator+=(const String& str)
     {
-        Insert(Size() - 1, str);
+        Insert(Size(), str);
         return *this;
     }
 
@@ -131,6 +131,26 @@ namespace se
     void String::Erase(size_t i)
     {
         m_Data.erase(m_Data.begin() + i);
+    }
+
+    bool String::Contains(const String& str) const
+    {
+        if (str.Size() <= Size())
+        {
+            auto it = std::search(m_Data.begin(), m_Data.end() - 1, str.m_Data.begin(), str.m_Data.end() - 1);
+            return it != m_Data.end() - 1;
+        }
+        return false;
+    }
+
+    bool String::StartsWith(const String& str) const
+    {
+        return memcmp(Data(), str.Data(), str.Size()) == 0;
+    }
+
+    bool String::EndsWith(const String& str) const
+    {
+        return memcmp(Data() + Size() - str.Size(), str.Data(), str.Size()) == 0;
     }
 
     size_t String::Find(char c, bool fromEnd) const
@@ -169,4 +189,27 @@ namespace se
         memset((void*)(string.Data() + newSize), 0, 1);
         return string;
     }
+
+    String operator+(const String &lhs,
+                     const String &rhs)
+    {
+        String ret = lhs;
+        ret.Insert(lhs.Size(), rhs);
+        return ret;
+    }
+
+    String operator+(const String& lhs,
+                     char rhs)
+    {
+        String ret = lhs;
+        ret.Insert(lhs.Size(), rhs);
+        return ret;
+    }
+}
+
+std::ostream &operator<<(std::ostream &os,
+                         const se::String &string)
+{
+    os << string.Data();
+    return os;
 }
