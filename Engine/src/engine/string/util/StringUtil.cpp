@@ -12,7 +12,14 @@ namespace se::string::util
         if (i != String::InvalidPos)
         {
             lhs = string.SubString(0, i);
-            rhs = string.SubString(i + 1, string.Size());
+            if (i < string.Size() - 1)
+            {
+                rhs = string.SubString(i + 1, string.Size());
+            }
+            else
+            {
+                rhs = {};
+            }
             return true;
         }
 
