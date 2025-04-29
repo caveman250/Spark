@@ -57,10 +57,20 @@ namespace se::ui::systems
                     desiredSizeInfo.rectTransform->rect = util::CalculateScreenSpaceRect(*desiredSizeInfo.rectTransform,
                                                                         verticalBoxTransform);
                     desiredSizeInfo.rectTransform->layer = verticalBoxTransform.layer + 1;
-                    desiredSizeInfo.rectTransform->lastRect = desiredSizeInfo.rectTransform->rect;
 
-                    util::LayoutChildren(world, this, child, *desiredSizeInfo.rectTransform,
-                                         desiredSizeInfo.rectTransform->layer + 1);
+                    if (!desiredSizeInfo.rectTransform->overridesChildSizes)
+                    {
+                        util::LayoutChildren(world,
+                                             this,
+                                             child,
+                                             *desiredSizeInfo.rectTransform,
+                                             desiredSizeInfo.rectTransform->layer + 1);
+                        desiredSizeInfo.rectTransform->needsLayout = false;
+                    }
+                    else
+                    {
+                        desiredSizeInfo.rectTransform->needsLayout = true;
+                    }
                 }
 
                 verticalBoxTransform.rect.size.y = currY;

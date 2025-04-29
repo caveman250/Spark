@@ -26,9 +26,10 @@ namespace se::ui::systems
 
         for (size_t i = 0; i < entities.size(); ++i)
         {
+            const auto& entity = entities[i];
             auto& trans = transform[i];
-            trans.lastRect = trans.rect;
-            if (trans.needsLayout)
+
+            if (trans.needsLayout && world->HasComponent<ParentComponent>(entity))
             {
                 if (!trans.overridesChildSizes)
                 {
@@ -37,32 +38,5 @@ namespace se::ui::systems
                 }
             }
         }
-    }
-
-    void RectTransformSystem::LayoutChildren(ecs::World* world, ecs::Id entity, const components::RectTransformComponent &parentRect, int depth)
-    {
-        auto dec = ecs::ChildQueryDeclaration()
-            .WithComponent<components::RectTransformComponent>();
-        RunChildQuery(entity, dec,
-        [this, world, parentRect, depth](const ecs::SystemUpdateData& updateData)
-        {
-            const auto& children = updateData.GetEntities();
-            auto* childTransform = updateData.GetComponentArray<components::RectTransformComponent>();
-
-            for (size_t i = 0; i < children.size(); ++i)
-            {
-                components::RectTransformComponent& child = childTransform[i];
-                child.lastRect = child.rect;
-                child.rect = util::CalculateScreenSpaceRect(child, parentRect);
-                child.layer = depth;
-
-                if (world->HasComponent<ParentComponent>(children[i]) && !child.overridesChildSizes)
-                {
-                    LayoutChildren(world, children[i], child, depth + 1);
-                }
-            }
-
-            return false;
-        });
     }
 }

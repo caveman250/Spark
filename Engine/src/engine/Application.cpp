@@ -3,6 +3,7 @@
 #include <engine/ui/systems/GridBoxSystem.h>
 #include <Widgets.generated.h>
 #include <engine/ui/systems/RectTransformSystem.h>
+#include <engine/ui/systems/LastRectSystem.h>
 #include "Application.h"
 #include "engine/ui/systems/UIRenderSystem.h"
 #include "engine/ui/systems/ScrollBoxRenderSystem.h"
@@ -161,9 +162,14 @@ namespace se
                 .WithDependency(worldTransform);
         m_World.CreateEngineSystem<ecs::systems::TransformSystem>(transformReg);
 
+        ecs::SystemDeclaration lastRectReg = ecs::SystemDeclaration("LastRectSystem")
+                .WithComponent<ui::components::RectTransformComponent>();
+        auto lastRect = m_World.CreateEngineSystem<ui::systems::LastRectSystem>(lastRectReg);
+
         ecs::SystemDeclaration rootRectReg = ecs::SystemDeclaration("RootRectTransformSystem")
                 .WithComponent<ui::components::RectTransformComponent>()
-                .WithComponent<const RootComponent>();
+                .WithComponent<const RootComponent>()
+                .WithDependency(lastRect);
         auto rootRect = m_World.CreateEngineSystem<ui::systems::RootRectTransformSystem>(rootRectReg);
 
         ecs::SystemDeclaration rectTransformReg = ecs::SystemDeclaration("RectTransformSystem")

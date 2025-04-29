@@ -133,7 +133,6 @@ namespace se::ui::util
                                               LayoutChildren(world, system, children[i], child, depth + 1);
                                           }
 
-                                          child.lastRect = child.rect;
                                           child.needsLayout = false;
                                       }
                                       else

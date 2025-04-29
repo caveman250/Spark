@@ -60,10 +60,20 @@ namespace se::ui::systems
                     rectTransform->rect = util::CalculateScreenSpaceRect(*rectTransform,
                                                                         gridBoxTransform);
                     rectTransform->layer = gridBoxTransform.layer + 1;
-                    rectTransform->lastRect = rectTransform->rect;
 
-                    util::LayoutChildren(world, this, child, *rectTransform,
-                                         rectTransform->layer + 1);
+                    if (!rectTransform->overridesChildSizes)
+                    {
+                        util::LayoutChildren(world,
+                                             this,
+                                             child,
+                                             *rectTransform,
+                                             rectTransform->layer + 1);
+                        rectTransform->needsLayout = false;
+                    }
+                    else
+                    {
+                        rectTransform->needsLayout = true;
+                    }
 
                     cursor.x += itemSize.x + gridBox.spacing;
                     if (cursor.x + itemSize.x + gridBox.spacing > gridBoxTransform.rect.size.x)

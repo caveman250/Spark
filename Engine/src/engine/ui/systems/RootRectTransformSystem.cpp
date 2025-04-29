@@ -27,6 +27,7 @@ namespace se::ui::systems
 
         for (size_t i = 0; i < entities.size(); ++i)
         {
+            const auto& entity = entities[i];
             auto& trans = transform[i];
             trans.lastRect = trans.rect;
             trans.rect = util::CalculateScreenSpaceRect(trans, windowRect);
@@ -34,23 +35,7 @@ namespace se::ui::systems
             {
                 if (trans.rect.size == trans.lastRect.size)
                 {
-                    auto posDelta = trans.rect.topLeft - trans.lastRect.topLeft;
-                    auto dec = ecs::ChildQueryDeclaration()
-                        .WithComponent<components::RectTransformComponent>();
-                    RunRecursiveChildQuery(entities[i], dec,
-                        [posDelta](const ecs::SystemUpdateData& updateData)
-                        {
-                            const auto& children = updateData.GetEntities();
-                            auto* rects = updateData.GetComponentArray<components::RectTransformComponent>();
-
-                            for (size_t i = 0; i < children.size(); ++i)
-                            {
-                                auto& rect = rects[i];
-                                rect.rect.topLeft += posDelta;
-                            }
-
-                            return false;
-                        });
+                    util::TranslateChildren(entity, this, trans.rect.topLeft - trans.lastRect.topLeft);
                 }
                 else if (!trans.overridesChildSizes)
                 {

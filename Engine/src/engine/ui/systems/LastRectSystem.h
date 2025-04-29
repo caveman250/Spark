@@ -9,9 +9,9 @@ using namespace se::ecs::components;
 
 namespace se::ui::systems
 {
-    class RectTransformSystem : public ecs::EngineSystem
+    class LastRectSystem : public ecs::EngineSystem
     {
-    DECLARE_SPARK_SYSTEM(RectTransformSystem)
+    DECLARE_SPARK_SYSTEM(LastRectSystem)
     public:
         void OnUpdate(const ecs::SystemUpdateData& updateData) override;
     };

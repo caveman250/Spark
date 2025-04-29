@@ -41,7 +41,6 @@ namespace se::ui::components
         std::shared_ptr<render::MaterialInstance> materialInstance = { };
         std::shared_ptr<render::VertexBuffer> vertBuffer = { };
         std::shared_ptr<render::IndexBuffer> indexBuffer = { };
-        Rect lastRect = { };
         int lastFontSize = { };
         String lastText = { };
     };
