@@ -36,13 +36,12 @@ namespace se::render::metal
 
         if (m_VertexUniformsSize > 0 && !m_VertexUniformBufferGpu)
         {
-            m_VertexUniformBufferGpu = [device newBufferWithLength:m_VertexUniformsSize options:MTLResourceStorageModeManaged];
+            m_VertexUniformBufferGpu = [device newBufferWithLength:m_VertexUniformsSize options:MTLStorageModeShared];
         }
 
         if (m_VertexUniformsStale)
         {
             memcpy([m_VertexUniformBufferGpu contents], m_VertexUniformBufferCpu, m_VertexUniformsSize);
-            [m_VertexUniformBufferGpu didModifyRange:NSMakeRange(0, [m_VertexUniformBufferGpu length]) ];
             m_VertexUniformsStale = false;
         }
         if (m_VertexUniformBufferGpu)
@@ -52,13 +51,12 @@ namespace se::render::metal
 
         if (m_FragmentUniformsSize > 0 && !m_FragmentUniformBufferGpu)
         {
-            m_FragmentUniformBufferGpu = [device newBufferWithLength:m_FragmentUniformsSize options:MTLResourceStorageModeManaged];
+            m_FragmentUniformBufferGpu = [device newBufferWithLength:m_FragmentUniformsSize options:MTLStorageModeShared];
         }
 
         if (m_FragmentUniformsStale)
         {
             memcpy([m_FragmentUniformBufferGpu contents], m_FragmentUniformBufferCpu, m_FragmentUniformsSize);
-            [m_FragmentUniformBufferGpu didModifyRange:NSMakeRange(0, [m_FragmentUniformBufferGpu length]) ];
             m_FragmentUniformsStale = false;
         }
         if (m_FragmentUniformBufferGpu)

@@ -60,7 +60,7 @@ namespace se::render::metal
         [textureDesc setHeight:m_Height];
         [textureDesc setPixelFormat:TextureFormatToMetalFormat(m_Format)];
         [textureDesc setTextureType:MTLTextureType2D];
-        [textureDesc setStorageMode:MTLStorageModeManaged];
+        [textureDesc setStorageMode:MTLStorageModeShared];
         [textureDesc setUsage:TextureUsageToMetalUsage(m_Usage)];
 
         auto renderer = se::render::Renderer::Get<se::render::metal::MetalRenderer>();

@@ -34,7 +34,7 @@ namespace se::render::metal
             auto numElements = stream.data.size();
 
             size_t bufferSize = numElements * sizeof(float) * streamStride;
-            auto buffer= m_Buffers.emplace_back([device newBufferWithLength:bufferSize options:MTLResourceStorageModeManaged]);
+            auto buffer= m_Buffers.emplace_back([device newBufferWithLength:bufferSize options:MTLStorageModeShared]);
             [buffer retain];
             for (size_t i = 0; i < numElements; ++i)
             {
@@ -47,9 +47,6 @@ namespace se::render::metal
                     memset(paddingDest, 0, (streamStride - stride) * sizeof(float));
                 }
             }
-
-
-            [buffer didModifyRange:NSMakeRange(0, [buffer length])];
         }
     }
 

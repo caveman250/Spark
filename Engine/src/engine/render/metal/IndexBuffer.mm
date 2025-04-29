@@ -29,9 +29,8 @@ namespace se::render::metal
         auto device = se::render::Renderer::Get<se::render::metal::MetalRenderer>()->GetDevice();
         size_t dataSize = m_Indices.size() * sizeof(uint32_t);
 
-        m_Buffer = [device newBufferWithLength:dataSize options:MTLResourceStorageModeManaged];
+        m_Buffer = [device newBufferWithLength:dataSize options:MTLStorageModeShared];
         memcpy([m_Buffer contents], m_Indices.data(), dataSize);
-        [m_Buffer didModifyRange:NSMakeRange(0, [m_Buffer length])];
         [m_Buffer retain];
     }
 
