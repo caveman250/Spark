@@ -7,7 +7,7 @@ namespace se::asset::shader::compiler
 {
     Lexer::Lexer(const std::string &filePath)
     {
-        m_Code = io::VFS::Get().ReadText(filePath);
+        m_Code = io::VFS::Get().ReadText(filePath).Data();
     }
 
     std::variant<Token, std::string> Lexer::PeekToken(int offset)

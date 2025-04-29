@@ -39,9 +39,9 @@ namespace se::asset
         }
 
         auto& fullPath = *optionalFullPath;
-        if (m_AssetCache.contains(fullPath))
+        if (m_AssetCache.contains(fullPath.Data()))
         {
-            auto& asset = m_AssetCache.at(fullPath);
+            auto& asset = m_AssetCache.at(fullPath.Data());
             if (!asset.expired())
             {
                 return std::static_pointer_cast<T>(asset.lock());
@@ -51,7 +51,7 @@ namespace se::asset
         auto db = binary::Database::Load(path, true);
         std::shared_ptr<T> asset = std::make_shared<T>();
         reflect::DeserialiseType<T>(db, *asset);
-        m_AssetCache[fullPath] = asset;
+        m_AssetCache[fullPath.Data()] = asset;
 
         return asset;
     }

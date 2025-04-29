@@ -5,8 +5,17 @@ namespace se::io
 {
     struct VFSMount
     {
-        std::string fsPath;
-        std::string vfsPath;
+        String fsPath;
+        String vfsPath;
+    };
+    
+    struct VFSFile
+    {
+        String dir = {};
+        String fileName = {};
+        String extension = {};
+        String fullPath = {};
+        bool isDirectory = false;
     };
 
     class VFS
@@ -14,25 +23,25 @@ namespace se::io
     public:
         static VFS& Get();
 
-        void Mount(const std::string& fsPath, const std::string& vfsPath);
-        bool Exists(const std::string& path);
-        std::optional<std::string> ResolveFSPath(const std::string& vfsPath, bool allowMissing);
-        std::time_t GetLastModified(const std::string path);
+        void Mount(const String& fsPath, const String& vfsPath);
+        bool Exists(const String& path);
+        std::optional<String> ResolveFSPath(const String& vfsPath, bool allowMissing);
+        std::time_t GetLastModified(const String& path);
 
-        std::string ReadText(const std::string& path);
-        void WriteText(const std::string& path, const std::string& text);
-        char* ReadBinary(const std::string& path, size_t& outSize);
-        void WriteBinary(const std::string& path, char* data, size_t size);
+        String ReadText(const String& path);
+        void WriteText(const String& path, const String& text);
+        char* ReadBinary(const String& path, size_t& outSize);
+        void WriteBinary(const String& path, char* data, size_t size);
 
-        void ForEachFile(const std::string& dirPath, bool recursive, const std::function<void(const std::string&)>& func);
+        void ForEachFile(const String& dirPath, bool recursive, const std::function<void(const VFSFile&)>& func);
 
     private:
 #if SPARK_PLATFORM_WINDOWS
-        static void FixWindowsPath(std::string& path);
+        static void FixWindowsPath(String& path);
 #endif
-        static bool IsMount(const std::string& path, const VFSMount& mount);
-        std::string GetFSPath(const std::string& path, const VFSMount& mount);
-        std::string GetVFSPath(const std::string& path);
+        static bool IsMount(const String& path, const VFSMount& mount);
+        String GetFSPath(const String& path, const VFSMount& mount);
+        String GetVFSPath(const String& path);
 
         static VFS* s_Instance;
 

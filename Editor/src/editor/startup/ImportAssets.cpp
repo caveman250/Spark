@@ -15,20 +15,20 @@ namespace se::editor::startup
 
     void ImportAssets::ProcessDir(const std::string& dir, const std::string& outputDir) const
     {
-        io::VFS::Get().ForEachFile(dir, true, [dir, outputDir](const std::string& path)
+        io::VFS::Get().ForEachFile(dir, true, [dir, outputDir](const io::VFSFile& file)
         {
-            if (se::asset::builder::AssetBuilder::IsRelevantFile(path))
+            if (se::asset::builder::AssetBuilder::IsRelevantFile(file.fullPath.Data()))
             {
-                auto meta = asset::meta::MetaData::GetMetaDataForAsset(path);
+                auto meta = asset::meta::MetaData::GetMetaDataForAsset(file.fullPath.Data());
 
-                std::string outputPathBase = path;
+                std::string outputPathBase = file.fullPath.Data();
                 outputPathBase.replace(0, dir.length(), outputDir);
                 auto extensionIt = outputPathBase.find_last_of(".");
                 outputPathBase.replace(extensionIt, outputPathBase.length() - extensionIt, ".sass");
 
-                if (se::asset::builder::AssetBuilder::IsOutOfDate(path, meta.value(), outputPathBase))
+                if (se::asset::builder::AssetBuilder::IsOutOfDate(file.fullPath.Data(), meta.value(), outputPathBase))
                 {
-                    for (const auto& builtAsset : se::asset::builder::AssetBuilder::ProcessAsset(path, outputPathBase, meta.value()))
+                    for (const auto& builtAsset : se::asset::builder::AssetBuilder::ProcessAsset(file.fullPath.Data(), outputPathBase, meta.value()))
                     {
                         if (!builtAsset.fileNameSuffix.empty())
                         {

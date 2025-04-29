@@ -19,8 +19,8 @@ namespace se::asset::meta
         }
         else
         {
-            std::string metaData = io::VFS::Get().ReadText(metaPath);
-            nlohmann::json json = nlohmann::json::parse(metaData);
+            String metaData = io::VFS::Get().ReadText(metaPath);
+            nlohmann::json json = nlohmann::json::parse(metaData.Data());
             ret.FromJson(json);
             return ret;
         }
