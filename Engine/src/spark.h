@@ -87,7 +87,7 @@ std::string userMsg = SPARK_ASSERT_MESSAGE(__VA_ARGS__)\
 std::string assertMsg = std::format("{0}\n\nMessage: {1}\n", #expr, userMsg); \
 printf("%s", std::format("\033[;41mAssertion failed: {0}at {1}:{2}\033[0m\n\n", assertMsg,  __FILE__, __LINE__).c_str()); \
 fflush(stdout);\
-__builtin_trap();\
+__builtin_debugtrap();\
 }\
 } while (0)
 #endif
