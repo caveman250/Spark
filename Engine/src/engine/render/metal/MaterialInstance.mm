@@ -131,6 +131,11 @@ namespace se::render::metal
         {
             SPARK_ASSERT(count == 1, "Setting arrays of texture uniforms not supported.");
             const auto& texture = *reinterpret_cast<const std::shared_ptr<asset::Texture>*>(value);
+            if (!texture)
+            {
+                return;
+            }
+
             const auto& platformResource = texture->GetPlatformResource();
             auto it = std::ranges::find_if(m_Textures, [name](const auto& kvp){ return kvp.first == name; });
             if (it != m_Textures.end())
