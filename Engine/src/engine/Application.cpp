@@ -1,9 +1,4 @@
-#include <engine/ui/systems/ScrollViewUpdateSystem.h>
-#include <engine/ui/systems/VerticalBoxSystem.h>
-#include <engine/ui/systems/GridBoxSystem.h>
 #include <Widgets.generated.h>
-#include <engine/ui/systems/RectTransformSystem.h>
-#include <engine/ui/systems/LastRectSystem.h>
 #include "Application.h"
 #include "engine/ui/systems/UIRenderSystem.h"
 #include "engine/ui/systems/ScrollBoxRenderSystem.h"
@@ -46,6 +41,12 @@
 #include "ui/systems/EditableTextSystem.h"
 #include "ui/systems/ResetKeyInputSystem.h"
 #include "ui/systems/TextCaretSystem.h"
+#include "engine/ui/systems/ScrollViewUpdateSystem.h"
+#include "engine/ui/systems/VerticalBoxSystem.h"
+#include "engine/ui/systems/HorizontalBoxSystem.h"
+#include "engine/ui/systems/GridBoxSystem.h"
+#include "engine/ui/systems/RectTransformSystem.h"
+#include "engine/ui/systems/LastRectSystem.h"
 
 namespace se
 {
@@ -223,6 +224,14 @@ namespace se
                 .WithDependency(scrollView)
                 .WithChildQuerys<SPARK_WIDGET_TYPES_WITH_NULLTYPE>(ecs::ComponentMutability::Immutable);
         m_World.CreateEngineSystem<ui::systems::VerticalBoxSystem>(verticalBoxReg);
+
+        ecs::SystemDeclaration horizontalBoxReg = ecs::SystemDeclaration("Horizontal Box System")
+                .WithComponent<ui::components::HorizontalBoxComponent>()
+                .WithComponent<ui::components::RectTransformComponent>()
+                .WithDependency(rectTrans)
+                .WithDependency(scrollView)
+                .WithChildQuerys<SPARK_WIDGET_TYPES_WITH_NULLTYPE>(ecs::ComponentMutability::Immutable);
+        m_World.CreateEngineSystem<ui::systems::HorizontalBoxSystem>(horizontalBoxReg);
 
         ecs::SystemDeclaration gridBoxReg = ecs::SystemDeclaration("Grid Box System")
                 .WithComponent<ui::components::GridBoxComponent>()
