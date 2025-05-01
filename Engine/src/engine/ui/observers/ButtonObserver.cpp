@@ -19,8 +19,8 @@ namespace se::ui::observers
         {
             auto image = world->AddComponent<components::ImageComponent>(entity);
 
-            auto vert = assetManager->GetAsset<asset::Shader>("/builtin_assets/shaders/ui.sass");
-            auto frag = assetManager->GetAsset<asset::Shader>("/builtin_assets/shaders/diffuse_texture.sass");
+            auto vert = assetManager->GetAsset<asset::Shader>("/engine_assets/shaders/ui.sass");
+            auto frag = assetManager->GetAsset<asset::Shader>("/engine_assets/shaders/diffuse_texture.sass");
             static auto material = render::Material::CreateMaterial({vert}, {frag});
 
             image->materialInstance = render::MaterialInstance::CreateMaterialInstance(material);

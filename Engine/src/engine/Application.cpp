@@ -67,9 +67,7 @@ namespace se
         m_PrimaryWindow = IWindow::CreatePlatformWindow(1280, 720);
         m_TimeLastFrame = std::chrono::system_clock::now();
 
-        io::VFS::Get().Mount(std::format("{}/{}", ENGINE_DIR, "builtin_assets"), "/builtin_source_assets");
-        io::VFS::Get().Mount(std::format("{}/{}", ENGINE_DIR, "built"), "/builtin_assets");
-        io::VFS::Get().Mount(std::format("{}/{}", APP_DIR, "assets"), "/source_assets");
+        io::VFS::Get().Mount(std::format("{}/{}", ENGINE_DIR, "built"), "/engine_assets");
         io::VFS::Get().Mount(std::format("{}/{}", APP_DIR, "built"), "/assets");
 
         RegisterComponents(&m_World);

@@ -23,7 +23,7 @@ namespace se::editor::ui::properties
     void PropertyEditor::ConstructUI(const String& name, bool constructTitle)
     {
         auto world = Application::Get()->GetWorld();
-        auto ariel = asset::AssetManager::Get()->GetAsset<asset::Font>("/builtin_assets/fonts/Arial.sass");
+        auto ariel = asset::AssetManager::Get()->GetAsset<asset::Font>("/engine_assets/fonts/Arial.sass");
 
         m_WidgetId = world->CreateEntity(name, true);
         m_RectTransform = world->AddComponent<RectTransformComponent>(m_WidgetId);

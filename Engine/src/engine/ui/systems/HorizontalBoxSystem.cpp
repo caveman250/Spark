@@ -43,6 +43,25 @@ namespace se::ui::systems
 
             if (horizontalBox.dirty)
             {
+                // need to apply height before asking for desired size or things like grid boxes will layout as if they have a single row
+                auto dec = ecs::ChildQueryDeclaration()
+                        .WithComponent<components::RectTransformComponent>();
+                RunChildQuery(entity, dec,
+                              [horizontalBoxTransform](const ecs::SystemUpdateData& updateData)
+                              {
+                                  const auto& children = updateData.GetEntities();
+                                  auto* rects = updateData.GetComponentArray<components::RectTransformComponent>();
+
+                                  for (size_t i = 0; i < children.size(); ++i)
+                                  {
+                                      auto& rect = rects[i];
+                                      rect.anchors = { 0.f, 0.f, 0.f, 1.f };
+                                      rect.rect = ui::util::CalculateScreenSpaceRect(rect, horizontalBoxTransform);
+                                  }
+
+                                  return false;
+                              });
+
                 auto childRects = util::GetChildrenDesiredSizes(entity, this, horizontalBoxTransform);
                 int currX = 0;
                 for (const auto& child : world->GetChildren(entity))
@@ -75,6 +94,7 @@ namespace se::ui::systems
 
                 horizontalBoxTransform.rect.size.x = currX;
                 horizontalBoxTransform.maxX = horizontalBoxTransform.minX + horizontalBoxTransform.rect.size.x;
+
                 horizontalBox.dirty = false;
             }
 

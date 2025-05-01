@@ -34,8 +34,8 @@ namespace se::ui::util
         {
             auto image = world->AddComponent<ImageComponent>(entity);
 
-            auto vert = assetManager->GetAsset<asset::Shader>("/builtin_assets/shaders/ui.sass");
-            auto frag = assetManager->GetAsset<asset::Shader>("/builtin_assets/shaders/flat_color.sass");
+            auto vert = assetManager->GetAsset<asset::Shader>("/engine_assets/shaders/ui.sass");
+            auto frag = assetManager->GetAsset<asset::Shader>("/engine_assets/shaders/flat_color.sass");
             static std::shared_ptr<render::Material> material = nullptr;
             if (!material)
             {
@@ -60,7 +60,7 @@ namespace se::ui::util
 
         auto titleBarEntity = world->CreateEntity("TitleBar", editorOnly);
         auto titleBarText = world->AddComponent<TextComponent>(titleBarEntity);
-        titleBarText->font = assetManager->GetAsset<asset::Font>("/builtin_assets/fonts/Arial.sass");
+        titleBarText->font = assetManager->GetAsset<asset::Font>("/engine_assets/fonts/Arial.sass");
         titleBarText->fontSize = 30;
         titleBarText->text = title;
         *titleBar = world->AddComponent<TitleBarComponent>(titleBarEntity);
@@ -83,9 +83,9 @@ namespace se::ui::util
 
         auto buttonEntity = world->CreateEntity("Close Button", editorOnly);
         auto buttonComp = world->AddComponent<ButtonComponent>(buttonEntity);
-        buttonComp->image = assetManager->GetAsset<asset::Texture>("/builtin_assets/textures/close_button_idle.sass");
-        buttonComp->pressedImage = assetManager->GetAsset<asset::Texture>("/builtin_assets/textures/close_button_pressed.sass");
-        buttonComp->hoveredImage = assetManager->GetAsset<asset::Texture>("/builtin_assets/textures/close_button_hovered.sass");
+        buttonComp->image = assetManager->GetAsset<asset::Texture>("/engine_assets/textures/close_button_idle.sass");
+        buttonComp->pressedImage = assetManager->GetAsset<asset::Texture>("/engine_assets/textures/close_button_pressed.sass");
+        buttonComp->hoveredImage = assetManager->GetAsset<asset::Texture>("/engine_assets/textures/close_button_hovered.sass");
         std::function<void()> buttonCb = [entity, world, onClose]()
         {
             onClose();

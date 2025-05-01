@@ -27,7 +27,7 @@ namespace se::ui::components
         std::shared_ptr<asset::Font> font = {};
         int fontSize = 0;
         String text = {};
-        text::Alignment::Type justification = text::Alignment::Left;
+        text::Alignment::Type alignment = text::Alignment::Left;
 
         // internal use
         std::shared_ptr<render::MaterialInstance> materialInstance = {};

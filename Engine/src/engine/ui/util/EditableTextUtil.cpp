@@ -32,8 +32,8 @@ namespace se::ui::util
         if (!material)
         {
             auto assetManager = asset::AssetManager::Get();
-            auto vert = assetManager->GetAsset<asset::Shader>("/builtin_assets/shaders/ui.sass");
-            auto frag = assetManager->GetAsset<asset::Shader>("/builtin_assets/shaders/flat_color.sass");
+            auto vert = assetManager->GetAsset<asset::Shader>("/engine_assets/shaders/ui.sass");
+            auto frag = assetManager->GetAsset<asset::Shader>("/engine_assets/shaders/flat_color.sass");
             material = render::Material::CreateMaterial({ vert }, { frag });
             material->GetShaderSettings().SetSetting("color_setting", math::Vec3(0.6f, 0.6f, 0.6f));
         }
@@ -67,7 +67,7 @@ namespace se::ui::util
                           const RectTransformComponent& rect)
     {
         math::Vec2 localMousePos = mousePos - math::Vec2(rect.rect.topLeft);
-        return GetCharIndexForPosition(localMousePos, rect.rect, text.font, text.fontSize, text.editText, true, true, text.justification);
+        return GetCharIndexForPosition(localMousePos, rect.rect, text.font, text.fontSize, text.editText, true, true, text.alignment);
     }
 
     void BeginEditingText(ecs::System* system,

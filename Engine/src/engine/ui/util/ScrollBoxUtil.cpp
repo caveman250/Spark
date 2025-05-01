@@ -36,8 +36,8 @@ namespace se::ui::util
 
         scrollBarEntity = world->CreateEntity("Scroll Bar", editorOnly);
         auto scrollBarImage = world->AddComponent<ui::components::ImageComponent>(scrollBarEntity);
-        auto vert = assetManager->GetAsset<asset::Shader>("/builtin_assets/shaders/ui.sass");
-        auto frag = assetManager->GetAsset<asset::Shader>("/builtin_assets/shaders/flat_color.sass");
+        auto vert = assetManager->GetAsset<asset::Shader>("/engine_assets/shaders/ui.sass");
+        auto frag = assetManager->GetAsset<asset::Shader>("/engine_assets/shaders/flat_color.sass");
         static std::shared_ptr<render::Material> material = nullptr;
         if (!material)
         {

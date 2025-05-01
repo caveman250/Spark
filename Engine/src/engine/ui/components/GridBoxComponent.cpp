@@ -34,7 +34,7 @@ namespace se::ui
             }
         }
 
-        desiredSize.y += itemSize.y + context->spacing * 2;
+        desiredSize.y += itemSize.y + context->spacing;
         return desiredSize;
     }
 }

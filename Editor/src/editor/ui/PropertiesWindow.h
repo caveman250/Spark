@@ -21,7 +21,6 @@ namespace se::editor::ui
     private:
         ecs::Id m_Window;
         ecs::Id m_ScrollBoxContent;
-        ecs::Id m_ScrollBar;
         bool m_Valid = false;
         std::vector<properties::PropertyEditor*> m_PropertyEditors = {};
     };

@@ -32,8 +32,8 @@ namespace se::ui::util
         if (!textComp.materialInstance)
         {
             auto assetManager = asset::AssetManager::Get();
-            auto vert = assetManager->GetAsset<asset::Shader>("/builtin_assets/shaders/ui.sass");
-            auto frag = assetManager->GetAsset<asset::Shader>("/builtin_assets/shaders/text.sass");
+            auto vert = assetManager->GetAsset<asset::Shader>("/engine_assets/shaders/ui.sass");
+            auto frag = assetManager->GetAsset<asset::Shader>("/engine_assets/shaders/text.sass");
 
             static std::shared_ptr<render::Material> textMaterial = nullptr;
             if (!textMaterial)
@@ -66,7 +66,7 @@ namespace se::ui::util
                                                           text,
                                                           true,
                                                           true,
-                                                          textComp.justification);
+                                                          textComp.alignment);
             textComp.vertBuffer = render::VertexBuffer::CreateVertexBuffer(mesh);
             textComp.vertBuffer->CreatePlatformResource();
             textComp.indexBuffer = render::IndexBuffer::CreateIndexBuffer(mesh);

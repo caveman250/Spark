@@ -57,10 +57,11 @@ namespace se::editor::ui
         windowTransform->maxY = 700;
 
         ecs::Id scrollViewEntity;
+        ecs::Id scrollBarEntity;
         se::ui::components::ScrollBoxComponent *scrollBox = nullptr;
         se::ui::components::ScrollViewComponent *scrollView = nullptr;
         se::ui::components::RectTransformComponent *scrollBoxTransform = nullptr;
-        auto scrollBoxEntity = ::se::ui::util::CreateScrollBox(&scrollBox, scrollViewEntity, &scrollView, &scrollBoxTransform, m_ScrollBar, true);
+        auto scrollBoxEntity = ::se::ui::util::CreateScrollBox(&scrollBox, scrollViewEntity, &scrollView, &scrollBoxTransform, scrollBarEntity, true);
         world->AddChild(contentArea, scrollBoxEntity);
 
         m_ScrollBoxContent = world->CreateEntity("Vertical Box");
@@ -84,15 +85,10 @@ namespace se::editor::ui
     {
         if (m_Valid)
         {
-            auto ariel = asset::AssetManager::Get()->GetAsset<asset::Font>("/builtin_assets/fonts/Arial.sass");
+            auto ariel = asset::AssetManager::Get()->GetAsset<asset::Font>("/engine_assets/fonts/Arial.sass");
             auto world = Application::Get()->GetWorld();
             for (const auto &child: world->GetChildren(m_ScrollBoxContent))
             {
-                if (child == m_ScrollBar)
-                {
-                    continue;
-                }
-
                 world->DestroyEntity(child);
             }
             for (const auto &propertyEditor: m_PropertyEditors)

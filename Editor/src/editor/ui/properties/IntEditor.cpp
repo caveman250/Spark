@@ -29,7 +29,7 @@ namespace se::editor::ui::properties
 
         auto world = Application::Get()->GetWorld();
         auto assetManager = asset::AssetManager::Get();
-        auto ariel = assetManager->GetAsset<asset::Font>("/builtin_assets/fonts/Arial.sass");
+        auto ariel = assetManager->GetAsset<asset::Font>("/engine_assets/fonts/Arial.sass");
 
         auto bg = world->CreateEntity("Float Editor", true);
         auto bgTransform = world->AddComponent<RectTransformComponent>(bg);
@@ -41,8 +41,8 @@ namespace se::editor::ui::properties
 
         world->AddComponent<WidgetComponent>(bg);
         auto image = world->AddComponent<ImageComponent>(bg);
-        auto vert = assetManager->GetAsset<asset::Shader>("/builtin_assets/shaders/ui.sass");
-        auto frag = assetManager->GetAsset<asset::Shader>("/builtin_assets/shaders/flat_color.sass");
+        auto vert = assetManager->GetAsset<asset::Shader>("/engine_assets/shaders/ui.sass");
+        auto frag = assetManager->GetAsset<asset::Shader>("/engine_assets/shaders/flat_color.sass");
         static std::shared_ptr<render::Material> material = nullptr;
         if (!material)
         {

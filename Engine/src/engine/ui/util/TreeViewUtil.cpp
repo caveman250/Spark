@@ -55,7 +55,7 @@ namespace se::ui::util
 
         auto textEntity = world->CreateEntity("Text", editorOnly);
         *outText = world->AddComponent<components::TextComponent>(textEntity);
-        (*outText)->font = assetManager->GetAsset<asset::Font>("/builtin_assets/fonts/Arial.sass");
+        (*outText)->font = assetManager->GetAsset<asset::Font>("/engine_assets/fonts/Arial.sass");
         (*outText)->fontSize = 18;
         auto textRect = world->AddComponent<components::RectTransformComponent>(textEntity);
         textRect->anchors = { .left = 0.f, .right = 1.f, .top = 0.f, .bottom = 1.f };
@@ -66,8 +66,8 @@ namespace se::ui::util
         world->AddComponent<components::WidgetComponent>(textEntity);
         world->AddChild(entity, textEntity);
 
-        static auto expanded_indicator_texture = assetManager->Get()->GetAsset<asset::Texture>("/builtin_assets/textures/tree_node_indicator_expanded.sass");
-        static auto collapsed_indicator_texture = assetManager->Get()->GetAsset<asset::Texture>("/builtin_assets/textures/tree_node_indicator_collapsed.sass");
+        static auto expanded_indicator_texture = assetManager->Get()->GetAsset<asset::Texture>("/engine_assets/textures/tree_node_indicator_expanded.sass");
+        static auto collapsed_indicator_texture = assetManager->Get()->GetAsset<asset::Texture>("/engine_assets/textures/tree_node_indicator_collapsed.sass");
 
         auto statusIcon = world->CreateEntity("Status Icon", editorOnly);
         auto rect = world->AddComponent<components::RectTransformComponent>(statusIcon);
@@ -96,8 +96,8 @@ namespace se::ui::util
         };
         button->onPressed.Subscribe(std::move(statusIconCallback));
 
-        auto vert = assetManager->GetAsset<asset::Shader>("/builtin_assets/shaders/ui.sass");
-        auto frag = assetManager->GetAsset<asset::Shader>("/builtin_assets/shaders/alpha_texture.sass");
+        auto vert = assetManager->GetAsset<asset::Shader>("/engine_assets/shaders/ui.sass");
+        auto frag = assetManager->GetAsset<asset::Shader>("/engine_assets/shaders/alpha_texture.sass");
         static std::shared_ptr<render::Material> material = nullptr;
         if (!material)
         {

@@ -14,7 +14,7 @@ namespace se::debug::systems
         auto assetManager = asset::AssetManager::Get();
         ecs::Id fpsCounterEntity = world->CreateEntity("FPS Counter");
         auto text = world->AddComponent<ui::components::TextComponent>(fpsCounterEntity);
-        text->font = assetManager->GetAsset<asset::Font>("/builtin_assets/fonts/Arial.sass");
+        text->font = assetManager->GetAsset<asset::Font>("/engine_assets/fonts/Arial.sass");
         text->fontSize = 24;
         auto rect = world->AddComponent<ui::components::RectTransformComponent>(fpsCounterEntity);
         rect->anchors = { 1.f, 1.f, 0.f, 0.f };

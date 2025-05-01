@@ -83,6 +83,9 @@ namespace se::ui::systems
                     }
                 }
 
+                gridBoxTransform.rect.size.y = cursor.y;
+                gridBoxTransform.maxY = gridBoxTransform.minY + gridBoxTransform.rect.size.y;
+
                 gridBox.dirty = false;
             }
 

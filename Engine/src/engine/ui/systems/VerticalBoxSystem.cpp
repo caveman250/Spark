@@ -43,6 +43,25 @@ namespace se::ui::systems
 
             if (verticalBox.dirty)
             {
+                // need to apply width before asking for desired size or things like grid boxes will layout as if they have a single column
+                auto dec = ecs::ChildQueryDeclaration()
+                        .WithComponent<components::RectTransformComponent>();
+                RunChildQuery(entity, dec,
+                   [verticalBoxTransform](const ecs::SystemUpdateData& updateData)
+                   {
+                       const auto& children = updateData.GetEntities();
+                       auto* rects = updateData.GetComponentArray<components::RectTransformComponent>();
+
+                       for (size_t i = 0; i < children.size(); ++i)
+                       {
+                           auto& rect = rects[i];
+                           rect.anchors = { 0.f, 1.f, 0.f, 0.f };
+                           rect.rect = ui::util::CalculateScreenSpaceRect(rect, verticalBoxTransform);
+                       }
+
+                       return false;
+                   });
+
                 auto childRects = util::GetChildrenDesiredSizes(entity, this, verticalBoxTransform);
                 int currY = 0;
                 for (const auto& child : world->GetChildren(entity))
@@ -75,6 +94,7 @@ namespace se::ui::systems
 
                 verticalBoxTransform.rect.size.y = currY;
                 verticalBoxTransform.maxY = verticalBoxTransform.minY + verticalBoxTransform.rect.size.y;
+
                 verticalBox.dirty = false;
             }
 

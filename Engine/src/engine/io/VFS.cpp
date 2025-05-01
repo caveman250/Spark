@@ -22,6 +22,16 @@ namespace se::io
         m_Mounts.push_back(VFSMount(fsPath, vfsPath));
     }
 
+    void VFS::Unmount(const String& vfsPath)
+    {
+        auto it = std::find_if(m_Mounts.begin(), m_Mounts.end(),
+                               [&vfsPath](const VFSMount& mount) { return mount.vfsPath == vfsPath; });
+        if (it != m_Mounts.end())
+        {
+            m_Mounts.erase(it);
+        }
+    }
+
     String VFS::ReadText(const String& path)
     {
         auto fsPath = ResolveFSPath(path, false);

@@ -8,6 +8,7 @@ namespace se
 
     String::String()
     {
+        m_Data.push_back('\0');
     }
 
     String::String(const char* str)
