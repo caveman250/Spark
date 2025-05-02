@@ -20,6 +20,8 @@ namespace se::asset
         template <typename T>
         std::shared_ptr<T> GetAsset(const std::string& path);
 
+        std::shared_ptr<Asset> GetAsset(const std::string& path, reflect::Type* type);
+
     private:
         std::unordered_map<std::string, std::weak_ptr<Asset>> m_AssetCache;
         std::mutex m_Mutex;

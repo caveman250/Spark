@@ -6,6 +6,11 @@ namespace se::asset::meta
 {
     std::optional<MetaData> MetaData::GetMetaDataForAsset(const std::string& assetPath)
     {
+        if (!SPARK_VERIFY(!assetPath.ends_with(".sass"), "MetaData::GetMetaDataForAsset - Not supported for built assets."))
+        {
+            return std::nullopt;
+        }
+
         auto metaPath = GetMetaPath(assetPath);
         if (metaPath.empty())
         {

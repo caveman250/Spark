@@ -21,6 +21,7 @@
 #include "engine/asset/AssetManager.h"
 #include "engine/ui/util/VerticalBoxUtil.h"
 #include "engine/string/util/StringUtil.h"
+#include "engine/asset/meta/MetaData.h"
 
 namespace se::editor::ui
 {
@@ -288,6 +289,16 @@ namespace se::editor::ui
             if (file.isDirectory)
             {
                 SetActiveFolder(m_ActiveFolder + '/' + file.fileName);
+            }
+            else
+            {
+                auto app = Application::Get();
+                EditorRuntime* runtime = app->GetEditorRuntime();
+                auto db = asset::binary::Database::Load(file.fullPath.Data(), true);
+
+                std::shared_ptr<asset::Asset> asset = asset::AssetManager::Get()->GetAsset(file.fullPath.Data(),
+                                                                                           se::reflect::TypeFromString(db->GetRoot().GetStruct().GetName()));
+                runtime->SelectAsset(asset);
             }
         });
         world->AddChild(fileEntity, buttonEntity);

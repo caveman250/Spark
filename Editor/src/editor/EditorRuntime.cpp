@@ -50,6 +50,7 @@ namespace se::editor
     {
         m_SelectedEntity = id;
         m_SelectedSingletonComp = nullptr;
+        m_SelectedAsset = nullptr;
         m_PropertiesWindow->RebuildProperties();
     }
 
@@ -62,11 +63,25 @@ namespace se::editor
     {
         m_SelectedEntity = ecs::s_InvalidEntity;
         m_SelectedSingletonComp = comp;
+        m_SelectedAsset = nullptr;
         m_PropertiesWindow->RebuildProperties();
     }
 
     void EditorRuntime::OnEntitiesChanged() const
     {
         m_OutlineWindow->RebuildOutline();
+    }
+
+    const std::shared_ptr<asset::Asset>& EditorRuntime::GetSelectedAsset() const
+    {
+        return m_SelectedAsset;
+    }
+
+    void EditorRuntime::SelectAsset(const std::shared_ptr<asset::Asset>& asset)
+    {
+        m_SelectedEntity = ecs::s_InvalidEntity;
+        m_SelectedSingletonComp = nullptr;
+        m_SelectedAsset = asset;
+        m_PropertiesWindow->RebuildProperties();
     }
 }

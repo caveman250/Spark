@@ -7,6 +7,11 @@
 #include "ui/OutlineWindow.h"
 #include "engine/ecs/World.h"
 
+namespace se::asset
+{
+    class Asset;
+}
+
 namespace se::render
 {
     class FrameBuffer;
@@ -26,6 +31,8 @@ namespace se::editor
         void SelectEntity(const ecs::Id& id);
         reflect::ObjectBase* GetSelectedSingletonComponent() const;
         void SelectSingletonComponent(reflect::ObjectBase* comp);
+        const std::shared_ptr<asset::Asset>& GetSelectedAsset() const;
+        void SelectAsset(const std::shared_ptr<asset::Asset>& asset);
         void OnEntitiesChanged() const;
 
         size_t GetOffscreenRenderGroup() const { return m_OffscreenRenderGroup; }
@@ -42,6 +49,7 @@ namespace se::editor
 
         ecs::Id m_SelectedEntity = ecs::s_InvalidEntity;
         reflect::ObjectBase* m_SelectedSingletonComp = nullptr;
+        std::shared_ptr<asset::Asset> m_SelectedAsset = nullptr;
 
         size_t m_OffscreenRenderGroup = 0;
         std::shared_ptr<render::FrameBuffer> m_FrameBuffer = nullptr;

@@ -2,9 +2,20 @@
 #include "ToolWindow.h"
 #include "properties/PropertyEditor.h"
 
+namespace se::asset
+{
+    class Asset;
+    class Font;
+}
+
 namespace se::ecs
 {
     class World;
+}
+
+namespace se::ui::components
+{
+    struct VerticalBoxComponent;
 }
 
 namespace se::editor::ui
@@ -19,6 +30,19 @@ namespace se::editor::ui
 
         void RebuildProperties();
     private:
+        void AddEntityProperties(const ecs::Id& entity,
+                                 ecs::World* world,
+                                 const std::shared_ptr<asset::Font>& font,
+                                 se::ui::components::VerticalBoxComponent* verticalBox);
+        void AddSingletonComponentProperties(reflect::ObjectBase* selectedSingletonComp,
+                                             ecs::World* world,
+                                             const std::shared_ptr<asset::Font>& font,
+                                             se::ui::components::VerticalBoxComponent* verticalBox);
+        void AddAssetProperties(const std::shared_ptr<asset::Asset>& asset,
+                                ecs::World* world,
+                                const std::shared_ptr<asset::Font>& font,
+                                se::ui::components::VerticalBoxComponent* verticalBox);
+
         ecs::Id m_Window;
         ecs::Id m_ScrollBoxContent;
         bool m_Valid = false;

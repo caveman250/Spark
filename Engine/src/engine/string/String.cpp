@@ -43,7 +43,7 @@ namespace se
         auto len = rhs.size();
         m_Data.resize(len);
         std::memcpy(m_Data.data(), rhs.data(), len);
-        if (m_Data.back() != '\0')
+        if (m_Data.empty() || m_Data.back() != '\0')
         {
             m_Data.push_back('\0');
         }
@@ -132,6 +132,13 @@ namespace se
     void String::Erase(size_t i)
     {
         m_Data.erase(m_Data.begin() + i);
+    }
+
+    String& String::Replace(size_t start, size_t end, const String& str)
+    {
+        m_Data.erase(m_Data.begin() + start, m_Data.begin() + end);
+        m_Data.insert_range(m_Data.begin() + start, str.m_Data);
+        return *this;
     }
 
     bool String::Contains(const String& str) const
