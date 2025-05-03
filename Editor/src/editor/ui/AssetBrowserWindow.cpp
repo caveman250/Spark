@@ -65,7 +65,7 @@ namespace se::editor::ui
             auto vert = assetManager->GetAsset<asset::Shader>("/engine_assets/shaders/ui.sass");
             auto frag = assetManager->GetAsset<asset::Shader>("/engine_assets/shaders/flat_color.sass");
             bgMaterial = render::Material::CreateMaterial({vert}, {frag});
-            bgMaterial->GetShaderSettings().SetSetting("color_setting", math::Vec3(0.2f, 0.2f, 0.2f));
+            bgMaterial->GetShaderSettings().SetSetting("color_setting", math::Vec3(.25f, .25f, .25f));
         }
 
         auto treeViewBG = world->CreateEntity("Grid Box BG", true);

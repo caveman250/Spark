@@ -16,7 +16,7 @@ namespace se::ui
     {
         se::math::IntVec2 desiredSize = {};
         auto dec = ecs::ChildQueryDeclaration()
-            .WithComponent<const ui::components::RectTransformComponent>()
+            .WithComponent<ui::components::RectTransformComponent>()
             .WithVariantComponent<SPARK_CONST_WIDGET_TYPES_WITH_NULLTYPE>(ecs::ComponentMutability::Immutable);
 
         system->RunChildQuery(entity, dec,
@@ -25,7 +25,7 @@ namespace se::ui
               std::visit([context, thisRect, updateData, &desiredSize, system](auto&& value)
               {
                   const auto& entities = updateData.GetEntities();
-                  const auto& transforms = updateData.GetComponentArray<const ui::components::RectTransformComponent>();
+                  auto transforms = updateData.GetComponentArray<ui::components::RectTransformComponent>();
 
                   for (size_t i = 0; i < entities.size(); ++i)
                   {

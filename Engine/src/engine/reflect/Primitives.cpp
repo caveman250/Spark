@@ -35,10 +35,13 @@ return &typeDesc;\
 
     DEFINE_PRIMITIVE(bool, asset::binary::Type::Bool)
     DEFINE_PRIMITIVE(char, asset::binary::Type::Int8)
+    DEFINE_PRIMITIVE(int8_t, asset::binary::Type::Int8)
     DEFINE_PRIMITIVE(uint8_t, asset::binary::Type::Uint8)
-    DEFINE_PRIMITIVE(int, asset::binary::Type::Int32)
-    DEFINE_PRIMITIVE(int64_t, asset::binary::Type::Int64)
+    DEFINE_PRIMITIVE(int16_t, asset::binary::Type::Int16)
+    DEFINE_PRIMITIVE(uint16_t, asset::binary::Type::Uint16)
+    DEFINE_PRIMITIVE(int32_t, asset::binary::Type::Int32)
     DEFINE_PRIMITIVE(uint32_t, asset::binary::Type::Uint32)
+    DEFINE_PRIMITIVE(int64_t, asset::binary::Type::Int64)
     DEFINE_PRIMITIVE(uint64_t, asset::binary::Type::Uint64)
 #if !SPARK_PLATFORM_WINDOWS
     DEFINE_PRIMITIVE(size_t, asset::binary::Type::Uint64)

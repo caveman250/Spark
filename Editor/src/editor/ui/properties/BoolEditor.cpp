@@ -9,12 +9,12 @@
 
 namespace se::editor::ui::properties
 {
-    DEFINE_PROPERTY_EDITOR(bool, BoolEditor);
+    DEFINE_PROPERTY_EDITOR(bool, BoolEditor, bool);
 
     DEFINE_SPARK_CLASS_BEGIN(BoolEditor)
     DEFINE_SPARK_CLASS_END(BoolEditor)
 
-    void BoolEditor::SetValue(void* value)
+    void BoolEditor::SetValue(void* value, const reflect::Type*)
     {
         m_Value = static_cast<bool*>(value);
     }

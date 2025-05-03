@@ -28,6 +28,6 @@ namespace se::ui::components
 
         int layer = 0;
 
-        bool needsLayout = true; // runtime only
+        bool needsLayout = false; // runtime only
     };
 }

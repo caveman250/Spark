@@ -32,10 +32,16 @@ namespace se::ui
     template <>
     inline math::IntVec2 DesiredSizeCalculator::GetDesiredSize<components::VerticalBoxComponent>(ecs::System* system,
                                                                                               const ecs::Id& entity,
-                                                                                              const ui::components::RectTransformComponent&,
-                                                                                              const ui::components::RectTransformComponent& thisRect,
+                                                                                              const ui::components::RectTransformComponent& parentRect,
+                                                                                              ui::components::RectTransformComponent& thisRect,
                                                                                               const components::VerticalBoxComponent* context)
     {
+        if (thisRect.rect.size.x == 0 && thisRect.rect.size.y == 0)
+        {
+            // need to calculate rect for children to calculate their desired size.
+            thisRect.rect = util::CalculateScreenSpaceRect(thisRect, parentRect);
+        }
+
         return GetVerticalBoxChildrenDesiredSize(system, entity, thisRect, context);
     }
 }

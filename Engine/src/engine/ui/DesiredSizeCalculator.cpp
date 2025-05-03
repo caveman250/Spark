@@ -4,19 +4,19 @@
 
 se::math::IntVec2 se::ui::DesiredSizeCalculator::GetChildrenDesiredSize(se::ecs::System* system,
                                                                      const ecs::Id& entity,
-                                                                     const ui::components::RectTransformComponent& thisRect)
+                                                                     ui::components::RectTransformComponent& thisRect)
 {
     math::IntVec2 ret = {};
     auto dec = ecs::ChildQueryDeclaration()
-            .WithComponent<const ui::components::RectTransformComponent>()
+            .WithComponent<ui::components::RectTransformComponent>()
             .WithVariantComponent<SPARK_CONST_WIDGET_TYPES_WITH_NULLTYPE>(ecs::ComponentMutability::Immutable);
     system->RunChildQuery(entity,dec,
-      [&ret, system, thisRect, entity](const ecs::SystemUpdateData& updateData)
+      [&ret, system, &thisRect, entity](const ecs::SystemUpdateData& updateData)
     {
-        std::visit([&ret, system, &updateData, thisRect, entity](auto&& value)
+        std::visit([&ret, system, updateData, thisRect, entity](auto&& value)
         {
             const auto& entities = updateData.GetEntities();
-            const auto& transforms = updateData.GetComponentArray<const ui::components::RectTransformComponent>();
+            auto transforms = updateData.GetComponentArray<ui::components::RectTransformComponent>();
 
             for (size_t i = 0; i < entities.size(); ++i)
             {

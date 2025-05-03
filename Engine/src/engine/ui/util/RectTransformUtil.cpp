@@ -122,6 +122,11 @@ namespace se::ui::util
 
                                   for (size_t i = 0; i < children.size(); ++i)
                                   {
+                                      if (*children[i].name == "Vector Editor BG")
+                                      {
+                                          int lol =1;
+                                      }
+
                                       components::RectTransformComponent& child = childTransform[i];
                                       child.rect = util::CalculateScreenSpaceRect(child, parentRect);
                                       child.layer = depth;

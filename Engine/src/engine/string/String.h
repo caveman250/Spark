@@ -62,4 +62,13 @@ struct std::formatter<se::String>
     }
 };
 
+template <>
+struct std::hash<se::String>
+{
+    std::size_t operator()(const se::String& rhs) const
+    {
+        return std::hash<std::string>()(rhs.Data());
+    }
+};
+
 std::ostream& operator<<(std::ostream& os, const se::String& string);

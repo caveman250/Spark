@@ -45,11 +45,16 @@ namespace se::ui
     inline math::IntVec2 DesiredSizeCalculator::GetDesiredSize<components::TextComponent>(ecs::System*,
                                                                                        [[maybe_unused]] const ecs::Id& entity,
                                                                                        const ui::components::RectTransformComponent& parentRect,
-                                                                                       const ui::components::RectTransformComponent& thisRect,
+                                                                                       ui::components::RectTransformComponent& thisRect,
                                                                                        const components::TextComponent* text)
     {
-        Rect bounds = util::CalculateScreenSpaceRect(thisRect, parentRect);
-        auto ret = ui::util::MeasureText(bounds, text->font, text->fontSize, text->text, true, true);
+        if (thisRect.rect.size.x == 0 && thisRect.rect.size.y == 0)
+        {
+            // need to calculate rect for children to calculate their desired size.
+            thisRect.rect = util::CalculateScreenSpaceRect(thisRect, parentRect);
+        }
+
+        auto ret = ui::util::MeasureText(thisRect.rect, text->font, text->fontSize, text->text, true, true);
         return ret;
     }
 }

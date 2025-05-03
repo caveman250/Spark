@@ -54,11 +54,16 @@ namespace se::ui
     inline math::IntVec2 DesiredSizeCalculator::GetDesiredSize<components::EditableTextComponent>(ecs::System*,
                                                                                                   [[maybe_unused]] const ecs::Id& entity,
                                                                                                   const ui::components::RectTransformComponent& parentRect,
-                                                                                                  const ui::components::RectTransformComponent& thisRect,
+                                                                                                  ui::components::RectTransformComponent& thisRect,
                                                                                                   const components::EditableTextComponent* text)
     {
-        Rect bounds = util::CalculateScreenSpaceRect(thisRect, parentRect);
-        auto ret = ui::util::MeasureText(bounds,
+        if (thisRect.rect.size.x == 0 && thisRect.rect.size.y == 0)
+        {
+            // need to calculate rect for children to calculate their desired size.
+            thisRect.rect = util::CalculateScreenSpaceRect(thisRect, parentRect);
+        }
+
+        auto ret = ui::util::MeasureText(thisRect.rect,
                                          text->font,
                                          text->fontSize,
                                          text->inEditMode ? text->editText : text->text,
