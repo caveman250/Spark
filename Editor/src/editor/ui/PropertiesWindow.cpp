@@ -174,7 +174,7 @@ namespace se::editor::ui
                 }
                 else
                 {
-                    auto textEntity = properties::util::CreateMissingPropertyEditorText(member.type);
+                    auto textEntity = properties::util::CreateMissingPropertyEditorText(member.type, 0.f);
                     se::ui::util::AddVerticalBoxChild(m_ScrollBoxContent, verticalBox, textEntity);
                 }
             }
@@ -226,7 +226,7 @@ namespace se::editor::ui
             }
             else
             {
-                auto propTextEntity = properties::util::CreateMissingPropertyEditorText(member.type);
+                auto propTextEntity = properties::util::CreateMissingPropertyEditorText(member.type, 0.f);
                 se::ui::util::AddVerticalBoxChild(m_ScrollBoxContent, verticalBox, propTextEntity);
             }
         }
@@ -262,7 +262,7 @@ namespace se::editor::ui
             }
             else
             {
-                auto propTextEntity = properties::util::CreateMissingPropertyEditorText(member.type);
+                auto propTextEntity = properties::util::CreateMissingPropertyEditorText(member.type, 0.f);
                 se::ui::util::AddVerticalBoxChild(m_ScrollBoxContent, verticalBox, propTextEntity);
             }
         }

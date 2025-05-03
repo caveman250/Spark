@@ -25,7 +25,7 @@ file(GLOB_RECURSE NON_UNITY_SOURCE src/*.cpp src/*.h src/*.mm)
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${NON_UNITY_SOURCE})
 add_custom_target("${target}_Source_Files" SOURCES ${NON_UNITY_SOURCE})
 
-message("Adding library: Spark")
+message("Adding library: Spark\n")
 add_library(Spark ${SOURCE} ${OBJC_SOURCE})
 
 ###### Linker ######

@@ -70,7 +70,28 @@ namespace se::editor::ui::properties
                                                     m_VectorType->GetContainedValueByIndex(m_Value, i));
             if (!propertyEditor)
             {
-                auto entity = properties::util::CreateMissingPropertyEditorText(containedType);
+                auto entity = world->CreateEntity(name, true);
+                auto rect = world->AddComponent<RectTransformComponent>(entity);
+                rect->anchors = { .left = 0.f, .right = 1.f, .top = 0.f, .bottom = 0.f };
+                rect->minX = 5;
+                rect->maxX = 15;
+                world->AddComponent<WidgetComponent>(entity);
+
+                auto titleEntity = world->CreateEntity("Title", true);
+                auto titleText = world->AddComponent<TextComponent>(titleEntity);
+                titleText->font = asset::AssetManager::Get()->GetAsset<asset::Font>("/engine_assets/fonts/Arial.sass");
+                titleText->fontSize = 18;
+                titleText->text = std::format("{}", i);
+                auto titleRect = world->AddComponent<RectTransformComponent>(titleEntity);
+                titleRect->anchors = { .left = 0.f, .right = 0.5f, .top = 0.f, .bottom = 0.f };
+                titleRect->minX = 2;
+                titleRect->minY = 1;
+                titleRect->maxY = 22;
+                world->AddChild(entity, titleEntity);
+
+                auto text = properties::util::CreateMissingPropertyEditorText(containedType, .5f);
+                world->AddChild(entity, text);
+
                 se::ui::util::AddVerticalBoxChild(verticalBoxEntity, verticalBox, entity);
             }
             else
