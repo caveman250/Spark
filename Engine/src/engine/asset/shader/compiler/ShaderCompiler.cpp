@@ -113,15 +113,15 @@ namespace se::asset::shader
     {
         for (const auto& [name, type] : shader.GetSettingVariables())
         {
-            if (!SPARK_VERIFY(settings.HasDefinition(name)))
+            if (!SPARK_VERIFY(settings.HasDefinition(name.Data())))
             {
                 return false;
             }
 
-            auto replacementText = settings.GetSettingText(name);
+            auto replacementText = settings.GetSettingText(name.Data());
             for (const auto& node : shader.GetNodes())
             {
-                auto value = settings.GetSettingValue(name);
+                auto value = settings.GetSettingValue(name.Data());
                 std::visit([&shader, node, name](auto&& arg)
                 {
                     using T = std::decay_t<decltype(arg)>;

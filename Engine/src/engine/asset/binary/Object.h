@@ -7,6 +7,7 @@
 #include "Database.h"
 #include "Array.h"
 #include "PolymorphicArray.h"
+#include "engine/string/String.h"
 
 namespace se::asset::binary
 {
@@ -148,6 +149,18 @@ namespace se::asset::binary
 
     template<>
     inline const std::string Object::Get<std::string>(const std::string& field) const
+    {
+        return GetString(field);
+    }
+
+    template<>
+    inline void Object::Set<String>(const std::string& field, const String& val)
+    {
+        SetString(field, val.Data());
+    }
+
+    template<>
+    inline const String Object::Get<String>(const std::string& field) const
     {
         return GetString(field);
     }

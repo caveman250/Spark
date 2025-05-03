@@ -1,5 +1,5 @@
 #include <editor/ui/properties/util/PropertyUtil.h>
-#include "VectorEditor.h"
+#include "MapEditor.h"
 
 #include "engine/Application.h"
 #include "engine/ui/components/RectTransformComponent.h"
@@ -13,12 +13,12 @@
 
 namespace se::editor::ui::properties
 {
-    DEFINE_CONTAINER_PROPERTY_EDITOR("std::vector<>", VectorEditor)
+    DEFINE_CONTAINER_PROPERTY_EDITOR("std::map<>", MapEditor)
 
-    DEFINE_SPARK_CLASS_BEGIN(VectorEditor)
-    DEFINE_SPARK_CLASS_END(VectorEditor)
+    DEFINE_SPARK_CLASS_BEGIN(MapEditor)
+    DEFINE_SPARK_CLASS_END(MapEditor)
 
-    void VectorEditor::SetValue(void* value, const reflect::Type* type)
+    void MapEditor::SetValue(void* value, const reflect::Type* type)
     {
         if (SPARK_VERIFY(type->IsContainer()))
         {
@@ -27,7 +27,7 @@ namespace se::editor::ui::properties
         }
     }
 
-    void VectorEditor::ConstructUI(const String& name, bool constructTitle)
+    void MapEditor::ConstructUI(const String& name, bool constructTitle)
     {
         PropertyEditor::ConstructUI(name, constructTitle);
 
@@ -62,6 +62,8 @@ namespace se::editor::ui::properties
         verticalBox->spacing = 5;
         world->AddChild(listBG, verticalBoxEntity);
 
+        auto containedType = m_VectorType->GetContainedValueType();
+        reflect::Type* stringType = reflect::TypeResolver<String>::get();
         size_t numElements = m_VectorType->GetNumContainedElements(m_Value);
         if (numElements == 0)
         {
@@ -72,22 +74,26 @@ namespace se::editor::ui::properties
             text->text = "empty.";
             auto textRect = world->AddComponent<RectTransformComponent>(textEntity);
             textRect->anchors = { .left = 0.f, .right = 1.f, .top = 0.f, .bottom = 0.f };
-            textRect->minX = 2;
-            textRect->minY = 1;
-            textRect->maxY = 22;
+            textRect->minX = 5;
             se::ui::util::AddVerticalBoxChild(verticalBoxEntity, verticalBox, textEntity);
         }
         else
         {
-            auto containedType = m_VectorType->GetContainedValueType();
-            for (size_t i = 0; i < m_VectorType->GetNumContainedElements(m_Value); ++i)
+            for (size_t i = 0; i < numElements; ++i)
             {
-                auto propertyEditor = CreatePropertyEditor(std::format("{}", i),
+                String propName = std::format("{}", i);
+                if (m_VectorType->GetContainedKeyType() == stringType)
+                {
+                    const void* value = m_VectorType->GetContainedKeyByIndex(m_Value, i);
+                    propName = *((String*)value);
+                }
+
+                auto propertyEditor = CreatePropertyEditor(propName,
                                                            containedType,
                                                            m_VectorType->GetContainedValueByIndex(m_Value, i));
                 if (!propertyEditor)
                 {
-                    auto entity = world->CreateEntity(name, true);
+                    auto entity = world->CreateEntity(propName, true);
                     auto rect = world->AddComponent<RectTransformComponent>(entity);
                     rect->anchors = { .left = 0.f, .right = 1.f, .top = 0.f, .bottom = 0.f };
                     rect->minX = 5;
@@ -98,10 +104,12 @@ namespace se::editor::ui::properties
                     auto titleText = world->AddComponent<TextComponent>(titleEntity);
                     titleText->font = asset::AssetManager::Get()->GetAsset<asset::Font>("/engine_assets/fonts/Arial.sass");
                     titleText->fontSize = 18;
-                    titleText->text = std::format("{}", i);
+                    titleText->text = propName;
                     auto titleRect = world->AddComponent<RectTransformComponent>(titleEntity);
                     titleRect->anchors = { .left = 0.f, .right = 0.5f, .top = 0.f, .bottom = 0.f };
-                    titleRect->minX = 5;
+                    titleRect->minX = 2;
+                    titleRect->minY = 1;
+                    titleRect->maxY = 22;
                     world->AddChild(entity, titleEntity);
 
                     auto text = properties::util::CreateMissingPropertyEditorText(containedType, .5f);
@@ -117,7 +125,7 @@ namespace se::editor::ui::properties
         }
     }
 
-    void VectorEditor::Update()
+    void MapEditor::Update()
     {
     }
 }

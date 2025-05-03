@@ -1,5 +1,6 @@
 #include "PathUtil.h"
 #include "engine/string/util/StringUtil.h"
+#include "engine/string/String.h"
 
 namespace se::io::util
 {

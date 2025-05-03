@@ -1,5 +1,6 @@
 #pragma once
 #include "spark.h"
+#include "engine/string/String.h"
 
 namespace se::io
 {
@@ -8,7 +9,7 @@ namespace se::io
         String fsPath;
         String vfsPath;
     };
-    
+
     struct VFSFile
     {
         String dir = {};

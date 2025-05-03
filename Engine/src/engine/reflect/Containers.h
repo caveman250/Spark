@@ -4,6 +4,7 @@
 #include "spark.h"
 #include "TypeResolver.h"
 #include "engine/asset/binary/Object.h"
+#include "engine/string/String.h"
 
 namespace se::reflect
 {
@@ -16,9 +17,11 @@ namespace se::reflect
         {}
 
         virtual String GetContainerTypeName() const = 0;
+        virtual Type* GetContainedKeyType() const { SPARK_ASSERT(false, "GetContainedKeyType - Not implemented for type."); return nullptr; }
         virtual Type* GetContainedValueType() const = 0;
         bool IsContainer() const override { return true; }
         virtual void* GetContainedValue(void*) const { SPARK_ASSERT(false, "GetContainedValue - Not implemented for type."); return nullptr; }
+        virtual const void* GetContainedKeyByIndex(void*, size_t) const { SPARK_ASSERT(false, "GetContainedKeyByIndex - Not implemented for type."); return nullptr; }
         virtual void* GetContainedValueByIndex(void*, size_t) const { SPARK_ASSERT(false, "GetContainedValueByIndex - Not implemented for type."); return nullptr; }
         virtual size_t GetNumContainedElements(void*) const = 0;
     };
@@ -428,8 +431,10 @@ namespace se::reflect
         asset::binary::StructLayout GetStructLayout(const void*) const override;
         bool IsContainer() const override { return "true"; }
         String GetContainerTypeName() const override { return "std::map<>"; }
+        Type * GetContainedKeyType() const override { return reflect::TypeResolver<T>::get(); }
         Type* GetContainedValueType() const override { return reflect::TypeResolver<Y>::get(); }
         void * GetContainedValueByIndex(void*, size_t i) const override;
+        const void * GetContainedKeyByIndex(void*, size_t) const override;
         size_t GetNumContainedElements(void* obj) const override
         {
             if (SPARK_VERIFY(obj))
@@ -524,11 +529,33 @@ namespace se::reflect
             std::advance(it, i);
             if constexpr (std::is_pointer_v<Y>)
             {
-                return *it;
+                return it->second;
             }
             else
             {
-                return &*it;
+                return &it->second;
+            }
+        }
+
+        return nullptr;
+    }
+
+    template<typename T, typename Y>
+    const void* Type_StdMap<T, Y>::GetContainedKeyByIndex(void* obj,
+                                                      size_t i) const
+    {
+        if (SPARK_VERIFY(obj))
+        {
+            auto* typed = static_cast<std::map<T, Y>*>(obj);
+            auto it = typed->begin();
+            std::advance(it, i);
+            if constexpr (std::is_pointer_v<T>)
+            {
+                return it->first;
+            }
+            else
+            {
+                return &it->first;
             }
         }
 
@@ -574,8 +601,10 @@ namespace se::reflect
         asset::binary::StructLayout GetStructLayout(const void*) const override;
         bool IsContainer() const override { return "true"; }
         String GetContainerTypeName() const override { return "std::unordered_map<>"; }
+        Type * GetContainedKeyType() const override { return reflect::TypeResolver<T>::get(); }
         Type* GetContainedValueType() const override { return reflect::TypeResolver<Y>::get(); }
         void* GetContainedValueByIndex(void *, size_t i) const override;
+        const void * GetContainedKeyByIndex(void *, size_t) const override;
         size_t GetNumContainedElements(void* obj) const override
         {
             if (SPARK_VERIFY(obj))
@@ -670,11 +699,33 @@ namespace se::reflect
             std::advance(it, i);
             if constexpr (std::is_pointer_v<Y>)
             {
-                return *it;
+                return it->second;
             }
             else
             {
-                return &*it;
+                return &(it->second);
+            }
+        }
+
+        return nullptr;
+    }
+
+    template<typename T, typename Y>
+    const void* Type_StdUnorderedMap<T, Y>::GetContainedKeyByIndex(void* obj,
+                                                    size_t i) const
+    {
+        if (SPARK_VERIFY(obj))
+        {
+            auto* typed = static_cast<std::map<T, Y>*>(obj);
+            auto it = typed->begin();
+            std::advance(it, i);
+            if constexpr (std::is_pointer_v<T>)
+            {
+                return it->first;
+            }
+            else
+            {
+                return &it->first;
             }
         }
 

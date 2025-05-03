@@ -1,6 +1,10 @@
 #pragma once
-#include "engine/string/String.h"
 #include "engine/bits/FlagUtil.h"
+
+namespace se
+{
+    class String;
+}
 
 namespace se::ecs
 {

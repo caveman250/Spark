@@ -1,6 +1,7 @@
 #include "String.h"
 
 #include "engine/container_util/RangeUtil.h"
+#include "engine/reflect/Reflect.h"
 
 namespace se
 {
@@ -212,6 +213,26 @@ namespace se
         String ret = lhs;
         ret.Insert(lhs.Size(), rhs);
         return ret;
+    }
+
+    bool operator<(const String& lhs,
+                     const String& rhs)
+    {
+        if (lhs.Size() != rhs.Size())
+        {
+            return lhs.Size() < rhs.Size();
+        }
+        for (size_t i = 0; i < lhs.Size(); ++i)
+        {
+            char a = lhs[i];
+            char b = rhs[i];
+            if (a != b)
+            {
+                return a < b;
+            }
+        }
+
+        return false;
     }
 }
 

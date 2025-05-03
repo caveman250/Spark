@@ -603,10 +603,10 @@ namespace se::asset::shader::compiler
             return false;
         }
 
-        std::string temp;
+        String temp;
         if (!m_Shader.AddUniform(name, var, temp))
         {
-            outError = {nameToken.line, nameToken.pos, temp};
+            outError = {nameToken.line, nameToken.pos, temp.Data()};
             return false;
         }
 
@@ -636,10 +636,10 @@ namespace se::asset::shader::compiler
             return false;
         }
 
-        std::string temp;
+        String temp;
         if (!m_Shader.AddSetting(name, ast::Variable(type, 0), temp))
         {
-            outError = {nameToken.line, nameToken.pos, temp};
+            outError = {nameToken.line, nameToken.pos, temp.Data()};
             return false;
         }
 
@@ -772,10 +772,10 @@ namespace se::asset::shader::compiler
         m_Shader.AddNode<ast::VariableDeclarationNode>(nameToken.value, ast::Variable(declarationType, 0));
         m_Shader.AddNode<ast::EndOfExpressionNode>();
 
-        std::string error;
+        String error;
         if (!m_Shader.RecordVariableForScope(nameToken.value, ast::Variable(declarationType, 0), error))
         {
-            outError = {nameToken.line, nameToken.pos, error};
+            outError = {nameToken.line, nameToken.pos, error.Data()};
             return false;
         }
 

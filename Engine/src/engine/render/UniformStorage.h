@@ -35,11 +35,11 @@ namespace se::render
         ~UniformStorage();
 
         template <typename T>
-        void SetValue(const std::string& name, asset::shader::ast::AstType::Type type, int count, const T* value);
+        void SetValue(const String& name, asset::shader::ast::AstType::Type type, int count, const T* value);
         void Apply(MaterialInstance* material);
         bool IsStale() const { return m_Stale; }
     private:
-        std::map<std::string, UniformValueBase*> m_Storage;
+        std::map<String, UniformValueBase*> m_Storage;
         bool m_Stale = false;
     };
 
@@ -57,7 +57,7 @@ namespace se::render
     }
 
     template <typename T>
-    void UniformStorage::SetValue(const std::string& name, asset::shader::ast::AstType::Type type, int count, const T* value)
+    void UniformStorage::SetValue(const String& name, asset::shader::ast::AstType::Type type, int count, const T* value)
     {
         if (m_Storage.contains(name))
         {

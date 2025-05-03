@@ -34,7 +34,7 @@ namespace se::asset::shader::compiler
                     ret[otherPort->GetPortName()] = newName;
 
                     // replae all writes in current shader with new name
-                    std::map<std::string, std::string> renameMap = { {name, newName} };
+                    std::map<std::string, std::string> renameMap = { {name.Data(), newName} };
                     for (const auto& node: left.GetNodes())
                     {
                         node->ApplyNameRemapping(renameMap);
@@ -124,7 +124,7 @@ namespace se::asset::shader::compiler
             if (nameMap.contains(port->GetPortName()))
             {
                 // replae all reads in current shader with new name
-                std::map<std::string, std::string> renameMap = { { name, nameMap.at(port->GetPortName()) } };
+                std::map<std::string, std::string> renameMap = { { name.Data(), nameMap.at(port->GetPortName()) } };
                 for (const auto& node: left.GetNodes())
                 {
                     node->ApplyNameRemapping(renameMap);
@@ -159,7 +159,7 @@ namespace se::asset::shader::compiler
                 auto otherPortName = otherPort->GetPortName();
                 if (otherPortName == portName)
                 {
-                    std::map<std::string, std::string> renameMap = { { name, otherName } };
+                    std::map<std::string, std::string> renameMap = { { name.Data(), otherName.Data() } };
                     for (const auto& node: left.GetNodes())
                     {
                         node->ApplyNameRemapping(renameMap);
@@ -187,7 +187,7 @@ namespace se::asset::shader::compiler
                 auto otherPortName = otherPort->GetPortName();
                 if (otherPortName == portName)
                 {
-                    std::map<std::string, std::string> renameMap = { { name, otherName } };
+                    std::map<std::string, std::string> renameMap = { { name.Data(), otherName.Data() } };
                     for (const auto& node: left.GetNodes())
                     {
                         node->ApplyNameRemapping(renameMap);
@@ -271,13 +271,13 @@ namespace se::asset::shader::compiler
         {
             if (shader.GetType() == ShaderType::Vertex)
             {
-                shader.AddInput(std::make_shared<ast::InputAttributeNode>(GetInputLoc(port->GetPortName()), port->GetVar(), name));
+                shader.AddInput(std::make_shared<ast::InputAttributeNode>(GetInputLoc(port->GetPortName()), port->GetVar(), name.Data()));
             }
             else if (shader.GetType() == ShaderType::Fragment)
             {
                 std::string varName = port->GetPortName();
                 shader.AddInput(std::make_shared<ast::InputNode>(port->GetVar(), varName));
-                std::map<std::string, std::string> renameMap = { { name, varName } };
+                std::map<std::string, std::string> renameMap = { { name.Data(), varName } };
                 for (const auto& node : shader.GetNodes())
                 {
                     node->ApplyNameRemapping(renameMap);
@@ -316,13 +316,13 @@ namespace se::asset::shader::compiler
             }
             else if (shader.GetType() == ShaderType::Fragment)
             {
-                shader.AddOutput(std::make_shared<ast::OutputNode>(port->GetVar(), name));
+                shader.AddOutput(std::make_shared<ast::OutputNode>(port->GetVar(), name.Data()));
             }
             else if (shader.GetType() == ShaderType::Vertex)
             {
                 shader.AddOutput(std::make_shared<ast::OutputNode>(port->GetVar(), port->GetPortName()));
                 // names have to match the frag shader.
-                std::map<std::string, std::string> renameMap = { { name, port->GetPortName() } };
+                std::map<std::string, std::string> renameMap = { { name.Data(), port->GetPortName() } };
                 for (const auto& node : shader.GetNodes())
                 {
                     node->ApplyNameRemapping(renameMap);
@@ -346,7 +346,7 @@ namespace se::asset::shader::compiler
         {
             if (!leftCopy.HasUniform(name, type))
             {
-                std::string outError;
+                String outError;
                 leftCopy.AddUniform(name, type, outError);
             }
         }
@@ -358,7 +358,7 @@ namespace se::asset::shader::compiler
         {
             if (!leftCopy.HasSetting(name, type))
             {
-                std::string outError;
+                String outError;
                 leftCopy.AddSetting(name, type, outError);
             }
         }

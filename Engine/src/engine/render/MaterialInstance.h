@@ -28,10 +28,10 @@ namespace se::render
         virtual void DestroyPlatformResources();
 
         template <typename T>
-        void SetUniform(const std::string& name, asset::shader::ast::AstType::Type type, int count, const T* value);
+        void SetUniform(const String& name, asset::shader::ast::AstType::Type type, int count, const T* value);
     protected:
         MaterialInstance(const std::shared_ptr<Material>& material);
-        virtual void SetUniformInternal(const std::string& name, asset::shader::ast::AstType::Type type, int count, const void* value) = 0;
+        virtual void SetUniformInternal(const String& name, asset::shader::ast::AstType::Type type, int count, const void* value) = 0;
 
         const std::shared_ptr<Material> m_Material = nullptr;
         UniformStorage m_UniformStorage = {};
@@ -41,7 +41,7 @@ namespace se::render
     };
 
     template <typename T>
-    void MaterialInstance::SetUniform(const std::string& name, asset::shader::ast::AstType::Type type, int count, const T* value)
+    void MaterialInstance::SetUniform(const String& name, asset::shader::ast::AstType::Type type, int count, const T* value)
     {
         m_UniformStorage.SetValue(name, type, count, value);
     }

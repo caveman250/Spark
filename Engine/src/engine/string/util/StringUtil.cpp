@@ -1,4 +1,5 @@
 #include "StringUtil.h"
+#include "engine/string/String.h"
 
 namespace se::string::util
 {
