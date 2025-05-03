@@ -6,7 +6,6 @@ def parse_conf_file(path):
     root = ""
     file = open(path)
     for line in file:
-        print(line)
         if line.startswith("Root"):
             root = line[len("Root "):len(line)-1]
         elif line.startswith("ExcludeFile"):
@@ -131,10 +130,9 @@ def create_unity_files(conf_path, platform):
 def main():
     conf_file = sys.argv[1]
     platform = sys.argv[2]
-    print("-- Generating unity files")
-    print(f"-- Platform {platform}")
-
+    print("-- Generating unity files...")
     create_unity_files(conf_file, platform)
+    print("-- done.")
 
 if __name__ == '__main__':
     main()

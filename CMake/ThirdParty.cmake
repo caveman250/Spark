@@ -1,5 +1,7 @@
 set(CMAKE_WARN_DEPRECATED OFF CACHE BOOL "" FORCE)
 
+set(MESSAGE_QUIET ON)
+
 add_subdirectory(third_party/bc7enc_rdo)
 add_subdirectory(third_party/OpenFBX-365f52c)
 
@@ -10,6 +12,8 @@ elseif (${PLATFORM} MATCHES Linux)
 elseif (${PLATFORM} MATCHES Mac)
     include(${ROOT_DIR}/CMake/mac/MacThirdParty.cmake)
 endif ()
+
+set(MESSAGE_QUIET OFF)
 
 #make third party libraries shut up
 if (MSVC)

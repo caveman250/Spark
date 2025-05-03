@@ -12,7 +12,7 @@ include(${ROOT_DIR}/CMake/include/Spark.cmake)
 include(${ROOT_DIR}/CMake/ThirdParty.cmake)
 
 ###### Generate Unity Files #######
-message("Configuring Engine source files")
+message("Configuring Engine source files...")
 get_filename_component(ABSOLUTE_PATH ${ROOT_DIR}/Build ABSOLUTE)
 execute_process(COMMAND ${PYTHON_EXE} UnityBatcher.py ${ROOT_DIR}/Engine/unity.conf ${PLATFORM} WORKING_DIRECTORY ${ABSOLUTE_PATH} RESULT_VARIABLE rv)
 file(GLOB SOURCE ./unity_generated/*.cpp ./sht_generated/*.cpp)
@@ -54,4 +54,4 @@ file(GLOB_RECURSE NON_UNITY_SOURCE src/*.cpp src/*.h src/*.mm)
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${NON_UNITY_SOURCE})
 add_custom_target("Spark_Source_Files" SOURCES ${NON_UNITY_SOURCE})
 
-add_dependencies(Spark ${SHT_TARGET})
+add_dependencies(Spark ${REGEN_CMAKE_TARGET})
