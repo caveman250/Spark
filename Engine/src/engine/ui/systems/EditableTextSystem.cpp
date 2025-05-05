@@ -343,7 +343,7 @@ namespace se::ui::systems
 
                             util::SetCaretPos(text,
                                               util::CalcCaretPosition(
-                                                  math::Vec2(inputComp->mouseX, inputComp->mouseY),
+                                                  math::Vec2(static_cast<float>(inputComp->mouseX), static_cast<float>(inputComp->mouseY)),
                                                   text,
                                                   rectTransform));
                         }

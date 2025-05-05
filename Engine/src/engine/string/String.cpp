@@ -142,6 +142,20 @@ namespace se
         return *this;
     }
 
+    String& String::ReplaceAll(char c, char replacement)
+    {
+        for (size_t i = 0; i < Size(); ++i)
+        {
+            auto& val = m_Data[i];
+            if (val == c)
+            {
+                val = replacement;
+            }
+        }
+
+        return *this;
+    }
+
     bool String::Contains(const String& str) const
     {
         if (str.Size() <= Size())

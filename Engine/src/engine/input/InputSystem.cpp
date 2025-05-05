@@ -15,6 +15,11 @@ namespace se::input
         inputComp->mouseDeltaX = inputComp->mouseX - inputComp->lastMouseX;
         inputComp->mouseDeltaY = inputComp->mouseY - inputComp->lastMouseY;
 
+        if (inputComp->mouseDeltaX != 0)
+        {
+            int lol =1;
+        }
+
         inputComp->lastMouseX = inputComp->mouseX;
         inputComp->lastMouseY = inputComp->mouseY;
     }

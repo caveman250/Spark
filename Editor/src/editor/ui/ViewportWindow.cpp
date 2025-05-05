@@ -61,8 +61,19 @@ namespace se::editor::ui
         auto imageComp = world->AddComponent<se::ui::components::ImageComponent>(m_Viewport);
         auto assetManager = asset::AssetManager::Get();
         auto vert = assetManager->GetAsset<asset::Shader>("/engine_assets/shaders/ui.sass");
-        auto frag = assetManager->GetAsset<asset::Shader>("/engine_assets/shaders/diffuse_texture.sass");
-        static auto material = render::Material::CreateMaterial({vert}, {frag});
+        auto frag = assetManager->GetAsset<asset::Shader>("/engine_assets/shaders/framebuffer_texture.sass");
+        static std::shared_ptr<render::Material> material = nullptr;
+        if (!material)
+        {
+            material = render::Material::CreateMaterial({vert}, {frag});
+#if OPENGL_RENDERER
+            material->GetShaderSettings().SetSetting("ymod", -1.f);
+#else
+            material->GetShaderSettings().SetSetting("ymod", 1.f);
+#endif
+        }
+
+
 
         imageComp->materialInstance = render::MaterialInstance::CreateMaterialInstance(material);
         const auto& viewportTexture = app->GetEditorRuntime()->GetFrameBuffer()->GetColorTexture();

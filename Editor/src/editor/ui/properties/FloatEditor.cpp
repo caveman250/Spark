@@ -71,7 +71,7 @@ namespace se::editor::ui::properties
         std::function cb = [this](String newVal)
         {
             float f;
-            if (sscanf(newVal.Data(), "%f", &f) == 1)
+            if (sscanf_s(newVal.Data(), "%f", &f) == 1)
             {
                 *m_Value = f;
             }

@@ -117,7 +117,7 @@ namespace se::render::opengl
 
     void MaterialInstance::DestroyPlatformResources()
     {
-        MaterialInstance::DestroyPlatformResources();
+        render::MaterialInstance::DestroyPlatformResources();
 
         if (m_CompiledProgram != GL_INVALID_VALUE)
         {
@@ -127,7 +127,7 @@ namespace se::render::opengl
         }
     }
 
-    void MaterialInstance::SetUniformInternal(const std::string &name,
+    void MaterialInstance::SetUniformInternal(const String &name,
                                               asset::shader::ast::AstType::Type type,
                                               int count,
                                               const void *value)
@@ -143,7 +143,7 @@ namespace se::render::opengl
         GLuint uniformLoc = {};
         if (type != asset::shader::ast::AstType::Sampler2D)
         {
-            uniformLoc = glGetUniformLocation(m_CompiledProgram, name.c_str());
+            uniformLoc = glGetUniformLocation(m_CompiledProgram, name.Data());
             GL_CHECK_ERROR()
         }
 

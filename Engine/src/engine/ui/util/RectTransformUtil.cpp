@@ -60,20 +60,20 @@ namespace se::ui::util
             float aspectRatio = (float)ret.size.x / (float)ret.size.y;
             if (aspectRatio < transform.minAspectRatio - aspectTolerance)
             {
-                int newWidth = ret.size.y * transform.minAspectRatio;
+                int newWidth = static_cast<int>(ret.size.y * transform.minAspectRatio);
                 if (newWidth > ret.size.x)
                 {
                     // shrink y
-                    int newHeight = ret.size.x / transform.minAspectRatio;
+                    int newHeight = static_cast<int>(ret.size.x / transform.minAspectRatio);
                     int delta = ret.size.y - newHeight;
-                    ret.topLeft.y += delta * 0.5f;
+                    ret.topLeft.y += static_cast<int>(delta * 0.5f);
                     ret.size.y = newHeight;
                 }
                 else
                 {
                     // grow x
                     int delta = ret.size.x - newWidth;
-                    ret.topLeft.x += delta * 0.5f;
+                    ret.topLeft.x += static_cast<int>(delta * 0.5f);
                     ret.size.x = newWidth;
                 }
             }
@@ -84,20 +84,20 @@ namespace se::ui::util
             float aspectRatio = (float)ret.size.x / (float)ret.size.y;
             if (aspectRatio > transform.maxAspectRatio + aspectTolerance)
             {
-                int newWidth = ret.size.y * transform.maxAspectRatio;
+                int newWidth = static_cast<int>(ret.size.y * transform.maxAspectRatio);
                 if (newWidth > ret.size.x)
                 {
                     // shrink y
-                    int newHeight = ret.size.x / transform.maxAspectRatio;
+                    int newHeight = static_cast<int>(ret.size.x / transform.maxAspectRatio);
                     int delta = ret.size.y - newHeight;
-                    ret.topLeft.y += delta * 0.5f;
+                    ret.topLeft.y += static_cast<int>(delta * 0.5f);
                     ret.size.y = newHeight;
                 }
                 else
                 {
                     // grow x
                     int delta = ret.size.x - newWidth;
-                    ret.topLeft.x += delta * 0.5f;
+                    ret.topLeft.x += static_cast<int>(delta * 0.5f);
                     ret.size.x = newWidth;
                 }
             }

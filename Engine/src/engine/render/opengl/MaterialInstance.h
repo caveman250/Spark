@@ -17,12 +17,12 @@ namespace se::render::opengl
         GLuint GetProgramID() { return m_CompiledProgram; }
 
     private:
-        void SetUniformInternal(const std::string& name,
+        void SetUniformInternal(const String& name,
                                 asset::shader::ast::AstType::Type type,
                                 int count,
                                 const void* value) override;
 
-        std::vector<std::pair<std::string, std::shared_ptr<render::TextureResource>>> m_Textures;
+        std::vector<std::pair<String, std::shared_ptr<render::TextureResource>>> m_Textures;
         GLuint m_CompiledProgram = GL_INVALID_VALUE;
     };
 }

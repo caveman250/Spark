@@ -27,6 +27,7 @@ namespace se
         void Insert(size_t i, const String& str);
         void Erase(size_t i);
         String& Replace(size_t start, size_t end, const String& str);
+        String& ReplaceAll(char c, char replacement);
 
         bool Contains(const String& str) const;
         bool StartsWith(const String& str) const;

@@ -38,13 +38,13 @@ namespace se::debug::systems
             uint64_t delta = timeThisFrame - fpsCounter.timeLastFrame;
             fpsCounter.timeLastFrame = timeThisFrame;
             constexpr float s_MillisecondsToSeconds = 1000.f;
-            fpsCounter.fpsBuffer[fpsCounter.currentFrameIndex] = s_MillisecondsToSeconds / delta;
+            fpsCounter.fpsBuffer[fpsCounter.currentFrameIndex] = static_cast<uint64_t>(s_MillisecondsToSeconds / delta);
             fpsCounter.currentFrameIndex = (fpsCounter.currentFrameIndex + 1) % components::FPSCounterComponent::s_NumFramesToBuffer;
 
             float average = 0.f;
-            for (uint8_t i = 0; i < components::FPSCounterComponent::s_NumFramesToBuffer; ++i)
+            for (uint8_t j = 0; j < components::FPSCounterComponent::s_NumFramesToBuffer; ++j)
             {
-                average += fpsCounter.fpsBuffer[i];
+                average += fpsCounter.fpsBuffer[j];
             }
             average /= components::FPSCounterComponent::s_NumFramesToBuffer;
 

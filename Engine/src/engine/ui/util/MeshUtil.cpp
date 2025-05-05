@@ -16,6 +16,7 @@ namespace se::ui::util
             { 0.f, 0.f, 0 },
         };
         mesh.indices = { 1, 3, 0, 3, 1, 2 };
+
         mesh.uvs =
         {
             { 0, 1 },
@@ -38,7 +39,7 @@ namespace se::ui::util
         if (c == ' ')
         {
             size_t lookAhead = charIndex + 1;
-            float xCopy = cursorPos.x;
+            int xCopy = cursorPos.x;
 
             char nextChar = text[lookAhead];
             while (nextChar != ' ' && lookAhead < text.Size() - 1)
@@ -47,7 +48,7 @@ namespace se::ui::util
 
                 if (xCopy + nextCharData.advanceWidth >= rect.size.x)
                 {
-                    cursorPos.x = 0.f;
+                    cursorPos.x = 0;
                     cursorPos.y += fontSize;
                     didWrap = true;
                     break;
@@ -337,7 +338,7 @@ namespace se::ui::util
                         if (std::abs(charBounds.topLeft.x + offset - pos.x) < halfFontSize &&
                             std::abs(charBounds.topLeft.y - pos.y) <= fontSize)
                         {
-                            return j;
+                            return static_cast<int>(j);
                         }
                     }
 
@@ -357,10 +358,10 @@ namespace se::ui::util
             if (std::abs(charBounds.topLeft.x + offset - pos.x) < halfFontSize &&
                 std::abs(charBounds.topLeft.y - pos.y) <= fontSize)
             {
-                return j;
+                return static_cast<int>(j);
             }
         }
 
-        return text.Size();
+        return static_cast<int>(text.Size());
     }
 }

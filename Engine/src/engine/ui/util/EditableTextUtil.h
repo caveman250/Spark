@@ -1,30 +1,41 @@
 #pragma once
 
+#include "spark.h"
+#include "engine/math/math.h"
+
+
 namespace se::ecs
 {
     class World;
+    class System;
+}
+
+namespace se::asset
+{
+    class Font;
 }
 
 namespace se::ui::components
 {
     struct KeyInputComponent;
     struct EditableTextComponent;
+    struct RectTransformComponent;
 }
 
 namespace se::ui::util
 {
     ecs::Id CreateEditableText(ecs::World* world,
                                const std::shared_ptr<asset::Font>& font,
-                               size_t fontSize,
-                               EditableTextComponent** text);
+                               int fontSize,
+                               components::EditableTextComponent** text);
 
     math::IntVec2 GetCaretPosition(int pos,
-                                   const EditableTextComponent& text,
-                                   const RectTransformComponent& rect);
+                                   const components::EditableTextComponent& text,
+                                   const components::RectTransformComponent& rect);
 
     int CalcCaretPosition(const math::Vec2& mousePos,
-                                   const EditableTextComponent& text,
-                                   const RectTransformComponent& rect);
+                                   const components::EditableTextComponent& text,
+                                   const components::RectTransformComponent& rect);
 
     void BeginEditingText(ecs::System* system,
                           const ecs::Id& entity,

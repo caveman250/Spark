@@ -83,7 +83,7 @@ namespace se::render
     void Renderer::ExecuteDrawCommands()
     {
         PROFILE_SCOPE("Renderer::ExecuteDrawCommands")
-        for (size_t i = 0; i < m_RenderGroups.size(); ++i)
+        for (int i = m_RenderGroups.size() - 1; i >= 0; --i)
         {
             auto& renderGroup = m_RenderGroups[i];
             m_ActiveRenderGroup = i;

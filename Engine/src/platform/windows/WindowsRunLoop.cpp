@@ -57,7 +57,8 @@ namespace se::windows
         auto input = app->GetWorld()->GetSingletonComponent<input::InputComponent>();
         input::InputComponent& temp_input = window->GetTempInputComponent();
         *input = temp_input;
-        temp_input = {};
+        temp_input.keyEvents.clear();
+        temp_input.mouseEvents.clear();
 
         if (m_Window->ShouldClose())
         {

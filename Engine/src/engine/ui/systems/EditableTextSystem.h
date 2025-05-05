@@ -5,6 +5,7 @@
 namespace se::ui::components
 {
     struct KeyInputComponent;
+    struct EditableTextComponent;
 }
 
 namespace se::ui::systems

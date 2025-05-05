@@ -22,36 +22,55 @@ namespace se::render::opengl
         glBindTexture(GL_TEXTURE_2D, m_ID);
         GL_CHECK_ERROR()
 
-        int level = 0;
-        for (const auto& mip : m_Texture.GetMips())
+        if (!m_MipData.empty())
         {
-            if (!IsCompressedFormat(m_Texture.GetFormat()))
+            int level = 0;
+            for (const auto& mip : m_MipData)
+            {
+                if (!IsCompressedFormat(m_Format))
+                {
+                    glTexImage2D(GL_TEXTURE_2D,
+                                           level,
+                                           TextureFormatToGLInternalFormat(m_Format),
+                                           mip.m_SizeX,
+                                           mip.m_SizeY,
+                                           0,
+                                           TextureFormatToGLFormat(m_Format),
+                                           GL_UNSIGNED_BYTE,
+                                           mip.m_Data.GetData());
+                    GL_CHECK_ERROR()
+                }
+                else
+                {
+                    glCompressedTexImage2D(GL_TEXTURE_2D,
+                           level,
+                           TextureFormatToGLInternalFormat(m_Format),
+                           mip.m_SizeX,
+                           mip.m_SizeY,
+                           0,
+                           static_cast<int>(mip.m_Data.GetSize()),
+                           mip.m_Data.GetData());
+                    GL_CHECK_ERROR()
+                }
+
+                level++;
+            }
+        }
+        else
+        {
+            if (SPARK_VERIFY(!IsCompressedFormat(m_Format)), "TextureResource::CreatePlatformResources - Compressed format without any mip data?")
             {
                 glTexImage2D(GL_TEXTURE_2D,
-                                       level,
-                                       TextureFormatToGLInternalFormat(m_Texture.GetFormat()),
-                                       mip.m_SizeX,
-                                       mip.m_SizeY,
-                                       0,
-                                       TextureFormatToGLFormat(m_Texture.GetFormat()),
-                                       GL_UNSIGNED_BYTE,
-                                       mip.m_Data.GetData());
+                             0,
+                             TextureFormatToGLInternalFormat(m_Format),
+                             m_Width,
+                             m_Height,
+                             0,
+                             TextureFormatToGLFormat(m_Format),
+                             GL_UNSIGNED_BYTE,
+                             nullptr);
                 GL_CHECK_ERROR()
             }
-            else
-            {
-                glCompressedTexImage2D(GL_TEXTURE_2D,
-                       level,
-                       TextureFormatToGLInternalFormat(m_Texture.GetFormat()),
-                       mip.m_SizeX,
-                       mip.m_SizeY,
-                       0,
-                       static_cast<int>(mip.m_Data.GetSize()),
-                       mip.m_Data.GetData());
-                GL_CHECK_ERROR()
-            }
-
-            level++;
         }
 
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -60,10 +79,14 @@ namespace se::render::opengl
         GL_CHECK_ERROR()
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         GL_CHECK_ERROR()
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         GL_CHECK_ERROR()
-        glGenerateMipmap(GL_TEXTURE_2D);
-        GL_CHECK_ERROR()
+
+        if (!m_MipData.empty())
+        {
+            glGenerateMipmap(GL_TEXTURE_2D);
+            GL_CHECK_ERROR()
+        }
     }
 
     GLuint TextureResource::TextureFormatToGLInternalFormat(asset::texture::Format::Type format)
@@ -76,6 +99,12 @@ namespace se::render::opengl
                 return GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
             case asset::texture::Format::BC7:
                 return GL_COMPRESSED_RGBA_BPTC_UNORM;
+            case asset::texture::Format::BGRA8:
+                return GL_BGRA;
+            case asset::texture::Format::RGBA8:
+                return GL_RGBA;
+            case asset::texture::Format::Depth16:
+                return GL_DEPTH_COMPONENT16;
             default:
                 SPARK_ASSERT(false, "Unsupported GL format");
                 return GL_INVALID_VALUE;
@@ -85,21 +114,6 @@ namespace se::render::opengl
     void TextureResource::Bind(size_t)
     {
         glBindTexture(GL_TEXTURE_2D, m_ID);
-    }
-
-    bool TextureResource::IsCompressedFormat(asset::texture::Format::Type format)
-    {
-        switch (format)
-        {
-            case asset::texture::Format::R8:
-                return false;
-            case asset::texture::Format::BC7:
-            case asset::texture::Format::DXT5:
-                return true;
-            default:
-                SPARK_ASSERT(false, "Unsupported GL format");
-                return false;
-        }
     }
 
     GLuint TextureResource::TextureFormatToGLFormat(asset::texture::Format::Type format)
@@ -112,9 +126,16 @@ namespace se::render::opengl
                 return GL_RGBA;
             case asset::texture::Format::BC7:
                 return GL_RGBA;
+            case asset::texture::Format::BGRA8:
+                return GL_BGRA;
+            case asset::texture::Format::RGBA8:
+                return GL_RGBA;
+            case asset::texture::Format::Depth16:
+                return GL_DEPTH_COMPONENT;
             default:
                 SPARK_ASSERT(false, "Unsupported GL format");
             return GL_INVALID_VALUE;
+
         }
     }
 }

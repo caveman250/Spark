@@ -5,12 +5,14 @@
 #include "engine/ui/components/KeyInputComponent.h"
 #include "engine/ui/components/TextCaretComponent.h"
 #include "engine/ui/components/WidgetComponent.h"
+#include "engine/ui/components/ImageComponent.h"
+#include "engine/asset/AssetManager.h"
 
 namespace se::ui::util
 {
     ecs::Id CreateEditableText(ecs::World* world,
                                const std::shared_ptr<asset::Font>& font,
-                               size_t fontSize,
+                               int fontSize,
                                EditableTextComponent** text)
 
     {
@@ -136,7 +138,7 @@ namespace se::ui::util
                      int pos)
     {
         int oldPos = textComp.caretPosition;
-        textComp.caretPosition = std::clamp<int>(pos, 0, textComp.editText.Size());
+        textComp.caretPosition = std::clamp<int>(pos, 0, (int)textComp.editText.Size());
         if (textComp.caretPosition != oldPos)
         {
             textComp.onCaretMoved.Broadcast(textComp.caretPosition);

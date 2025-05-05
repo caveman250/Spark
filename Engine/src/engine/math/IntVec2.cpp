@@ -66,8 +66,8 @@ namespace se::math
     }
 
     IntVec2::IntVec2(const Vec2& vec)
-            : x(vec.x)
-            , y(vec.y)
+            : x(static_cast<int>(vec.x))
+            , y(static_cast<int>(vec.y))
     {
     }
 

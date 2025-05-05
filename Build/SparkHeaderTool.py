@@ -130,9 +130,11 @@ def WriteWidgetHeader(widget_list):
     if not os.path.exists(output_dir):
         os.mkdir(output_dir)
 
-    input_handle = open(output_path, "r")
-    existing_contents = input_handle.read()
-    input_handle.close()
+    existing_contents = ""
+    if os.path.isfile(output_path):
+        input_handle = open(output_path, "r")
+        existing_contents = input_handle.read()
+        input_handle.close()
     if existing_contents != contents:
         print("-- Widgets.generated.h generating...")
         output_handle = open(output_path, "w+")
@@ -181,9 +183,12 @@ def WriteComponentRegistrationFiles(components):
     output_path = output_dir + "ComponentRegistration.generated.h"
     if not os.path.exists(output_dir):
         os.mkdir(output_dir)
-    input_handle = open(output_path, "r")
-    existing_contents = input_handle.read()
-    input_handle.close()
+
+    existing_contents = ""
+    if os.path.isfile(output_path):
+        input_handle = open(output_path, "r")
+        existing_contents = input_handle.read()
+        input_handle.close()
     if existing_contents != header:
         print("-- ComponentRegistration.generated.h generating...")
         output_handle = open(output_path, "w+")
@@ -209,9 +214,11 @@ def WriteComponentRegistrationFiles(components):
     if not os.path.exists(output_dir):
         os.mkdir(output_dir)
 
-    input_handle = open(output_path, "r")
-    existing_contents = input_handle.read()
-    input_handle.close()
+    existing_contents = ""
+    if os.path.isfile(output_path):
+        input_handle = open(output_path, "r")
+        existing_contents = input_handle.read()
+        input_handle.close()
     if existing_contents != cpp:
         print("-- ComponentRegistration.generated.cpp generating...")
         output_handle = open(output_path, "w+")

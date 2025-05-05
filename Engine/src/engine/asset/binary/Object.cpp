@@ -129,6 +129,7 @@ namespace se::asset::binary
             case Type::Array:
             case Type::PolymorphicArray:
             case Type::Invalid:
+            default:
                 SPARK_ASSERT("Object::GetNativeTypeString - Invalid Type for deserialisation.");
                 return "";
         }

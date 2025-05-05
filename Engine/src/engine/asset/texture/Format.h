@@ -7,6 +7,7 @@ namespace se::asset::texture
     DECLARE_SPARK_ENUM_BEGIN(Format, int)
         R8,
         BGRA8,
+        RGBA8,
         Depth16,
         DXT5,
         BC7

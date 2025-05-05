@@ -16,9 +16,9 @@ namespace se::render::opengl
         void CreatePlatformResources() override;
         void Bind(size_t i) override;
 
-    private:
+        GLuint GetGLID() const { return m_ID; }
 
-        static bool IsCompressedFormat(asset::texture::Format::Type format);
+    private:
 
         static GLuint TextureFormatToGLFormat(asset::texture::Format::Type format);
         static GLuint TextureFormatToGLInternalFormat(asset::texture::Format::Type format);

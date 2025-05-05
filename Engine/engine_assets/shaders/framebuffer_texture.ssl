@@ -1,0 +1,14 @@
+SSL_FRAGMENT
+
+setting float ymod;
+
+port(FragUV) in vec2 inUV;
+port(FinalFragColor) out vec4 color;
+
+uniform sampler2D Texture;
+
+void main()
+{
+    vec2 uv = vec2(inUV.x, inUV.y * ymod);
+    color = texture(Texture, uv);
+}

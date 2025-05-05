@@ -246,7 +246,7 @@ namespace se::io
 #if SPARK_PLATFORM_WINDOWS
     void VFS::FixWindowsPath(String& path)
     {
-        std::replace( path.begin(), path.end(), '\\', '/' );
+        path.ReplaceAll('\\', '/' );
     }
 #endif
 

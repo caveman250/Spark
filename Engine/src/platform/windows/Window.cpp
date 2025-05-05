@@ -189,7 +189,7 @@ namespace se::windows
             }
             case WM_MOUSEWHEEL:
             {
-                window->GetTempInputComponent().mouseScrollDelta = GET_WHEEL_DELTA_WPARAM(wParam);
+                window->GetTempInputComponent().mouseScrollDelta = -GET_WHEEL_DELTA_WPARAM(wParam) / 6;
 
                 input::MouseEvent mouseEvent;
                 mouseEvent.button = input::MouseButton::None;
@@ -235,7 +235,7 @@ namespace se::windows
         {
             LPCWSTR title = L"Spark";
             LPCWSTR windowClass = L"SparkApplication";
-            m_Hwnd = CreateWindowW(windowClass, title, style, 0, 0, m_SizeX, m_SizeY, nullptr, nullptr, instance,
+            m_Hwnd = CreateWindowW(windowClass, title, style, 0, 0, rect.right - rect.left, rect.bottom - rect.top, nullptr, nullptr, instance,
                                    nullptr);
 
             if (!m_Hwnd)
