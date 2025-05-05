@@ -167,14 +167,14 @@ namespace se::editor::ui
 
                 void *instance = world->GetComponent(m_Editor->GetSelectedEntity(), component);
 
-                if (auto *propEditor = properties::CreatePropertyEditor(member, instance))
+                if (auto *propEditor = properties::CreatePropertyEditor(member, instance, {0.f, 1.f, 0.f, 0.f}, true))
                 {
                     se::ui::util::AddVerticalBoxChild(m_ScrollBoxContent, verticalBox, propEditor->GetWidgetId());
                     m_PropertyEditors.push_back(propEditor);
                 }
                 else
                 {
-                    auto textEntity = properties::util::CreateMissingPropertyEditorText(member.type, 0.f);
+                    auto textEntity = properties::util::CreateMissingPropertyEditorText(member.type, 0.f, 0);
                     se::ui::util::AddVerticalBoxChild(m_ScrollBoxContent, verticalBox, textEntity);
                 }
             }
@@ -219,14 +219,14 @@ namespace se::editor::ui
                 continue;
             }
 
-            if (auto *propEditor = properties::CreatePropertyEditor(member, selectedSingletonComp))
+            if (auto *propEditor = properties::CreatePropertyEditor(member, selectedSingletonComp, {0.f, 1.f, 0.f, 0.f}, true))
             {
                 se::ui::util::AddVerticalBoxChild(m_ScrollBoxContent, verticalBox, propEditor->GetWidgetId());
                 m_PropertyEditors.push_back(propEditor);
             }
             else
             {
-                auto propTextEntity = properties::util::CreateMissingPropertyEditorText(member.type, 0.f);
+                auto propTextEntity = properties::util::CreateMissingPropertyEditorText(member.type, 0.f, 0);
                 se::ui::util::AddVerticalBoxChild(m_ScrollBoxContent, verticalBox, propTextEntity);
             }
         }
@@ -255,14 +255,14 @@ namespace se::editor::ui
                 continue;
             }
 
-            if (auto *propEditor = properties::CreatePropertyEditor(member, asset.get()))
+            if (auto *propEditor = properties::CreatePropertyEditor(member, asset.get(), {0.f, 1.f, 0.f, 0.f}, true))
             {
                 se::ui::util::AddVerticalBoxChild(m_ScrollBoxContent, verticalBox, propEditor->GetWidgetId());
                 m_PropertyEditors.push_back(propEditor);
             }
             else
             {
-                auto propTextEntity = properties::util::CreateMissingPropertyEditorText(member.type, 0.f);
+                auto propTextEntity = properties::util::CreateMissingPropertyEditorText(member.type, 0.f, 0);
                 se::ui::util::AddVerticalBoxChild(m_ScrollBoxContent, verticalBox, propTextEntity);
             }
         }

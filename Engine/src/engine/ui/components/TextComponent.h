@@ -12,6 +12,7 @@
 #include "engine/ui/util/MeshUtil.h"
 #include "engine/ui/util/RectTransformUtil.h"
 #include "engine/ui/text/Alignment.h"
+#include "engine/ui/text/WrapMode.h"
 
 namespace se::ui::systems
 {
@@ -28,6 +29,7 @@ namespace se::ui::components
         int fontSize = 0;
         String text = {};
         text::Alignment::Type alignment = text::Alignment::Left;
+        text::WrapMode::Type wrap = text::WrapMode::Word;
 
         // internal use
         std::shared_ptr<render::MaterialInstance> materialInstance = {};
@@ -54,7 +56,13 @@ namespace se::ui
             thisRect.rect = util::CalculateScreenSpaceRect(thisRect, parentRect);
         }
 
-        auto ret = ui::util::MeasureText(thisRect.rect, text->font, text->fontSize, text->text, true, true);
+        // treat char wrap as word wrap when it comes to desired size, or we will just get a single column string every time.
+        auto wrap = text->wrap;
+        if (wrap == text::WrapMode::Char)
+        {
+            wrap = text::WrapMode::Word;
+        }
+        auto ret = ui::util::MeasureText(thisRect.rect, text->font, text->fontSize, text->text, true, wrap);
         return ret;
     }
 }

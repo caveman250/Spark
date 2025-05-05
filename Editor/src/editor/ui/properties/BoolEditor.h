@@ -15,7 +15,7 @@ namespace se::editor::ui::properties
         DECLARE_SPARK_CLASS(BoolEditor)
     public:
         void SetValue(void* value, const reflect::Type* type) override;
-        void ConstructUI(const String& name, bool constructTitle) override;
+        void ConstructUI(const String& name, bool constructTitle, const se::ui::Anchors& anchors) override;
         void Update() override;
 
     private:

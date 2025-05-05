@@ -6,7 +6,7 @@
 
 namespace se::editor::ui::properties::util
 {
-    ecs::Id CreateMissingPropertyEditorText(reflect::Type* type, float leftAnchor)
+    ecs::Id CreateMissingPropertyEditorText(reflect::Type* type, float leftAnchor, int minY)
     {
         auto world = Application::Get()->GetWorld();
         auto textEntity = world->CreateEntity("MissingPropertyEditorText", true);
@@ -18,6 +18,7 @@ namespace se::editor::ui::properties::util
         auto transform = world->AddComponent<se::ui::components::RectTransformComponent>(textEntity);
         transform->minX = 5;
         transform->maxX = 5;
+        transform->minY = minY;
         transform->anchors = { leftAnchor, 1.f, 0.f, 0.f };
         world->AddComponent<se::ui::components::WidgetComponent>(textEntity);
 

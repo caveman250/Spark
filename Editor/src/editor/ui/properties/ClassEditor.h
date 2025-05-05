@@ -6,19 +6,19 @@
 
 namespace se::editor::ui::properties
 {
-    class SharedPtrEditor : public PropertyEditor
+    class ClassEditor : public PropertyEditor
     {
-    DECLARE_SPARK_CLASS(SharedPtrEditor)
+    DECLARE_SPARK_CLASS(ClassEditor)
 
     public:
         void SetValue(void* value, const reflect::Type* type) override;
         void ConstructUI(const String& name, bool constructTitle, const se::ui::Anchors& anchors) override;
+        PropertyTitleMode::Type GetTitleMode() const override { return PropertyTitleMode::NextLine; }
         void Update() override;
-        PropertyTitleMode::Type GetTitleMode() const override { return m_WrappedEditor ? m_WrappedEditor->GetTitleMode() : PropertyEditor::GetTitleMode(); }
 
     private:
         void* m_Value = nullptr;
-        const se::reflect::Type_Container* m_Type = nullptr;
-        PropertyEditor* m_WrappedEditor = nullptr;
+        const se::reflect::Class* m_Type = nullptr;
+        std::vector<PropertyEditor*> m_Editors;
     };
 }

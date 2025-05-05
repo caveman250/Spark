@@ -22,9 +22,9 @@ namespace se::editor::ui::properties
         m_Value = static_cast<float*>(value);
     }
 
-    void FloatEditor::ConstructUI(const String& name, bool constructTitle)
+    void FloatEditor::ConstructUI(const String& name, bool constructTitle, const se::ui::Anchors& anchors)
     {
-        PropertyEditor::ConstructUI(name, constructTitle);
+        PropertyEditor::ConstructUI(name, constructTitle, anchors);
 
         auto world = Application::Get()->GetWorld();
         auto assetManager = asset::AssetManager::Get();

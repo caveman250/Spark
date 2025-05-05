@@ -73,6 +73,10 @@ namespace se::ui::systems
 
                         desiredSizeInfo.rectTransform->rect = util::CalculateScreenSpaceRect(*desiredSizeInfo.rectTransform,
                                                                             verticalBoxTransform);
+                        if (desiredSizeInfo.rectTransform->rect.size.x == -84)
+                        {
+                            int lol =1;
+                        }
                         desiredSizeInfo.rectTransform->layer = verticalBoxTransform.layer + 1;
 
                         if (!desiredSizeInfo.rectTransform->overridesChildSizes)

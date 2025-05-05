@@ -1,12 +1,18 @@
 #include "PropertyEditor.h"
+#include "ClassEditor.h"
 
 #include <engine/Application.h>
 #include <engine/asset/AssetManager.h>
 #include <engine/ui/components/RectTransformComponent.h>
 #include <engine/ui/components/TextComponent.h>
 #include <engine/ui/components/WidgetComponent.h>
-#include <engine/ui/util/MeshUtil.h>
-#include <engine/ui/util/RectTransformUtil.h>
+#include "engine/ui/components/VerticalBoxComponent.h"
+#include "engine/ui/text/WrapMode.h"
+
+DEFINE_SPARK_ENUM_BEGIN(se::editor::ui::properties::PropertyTitleMode)
+    DEFINE_ENUM_VALUE(PropertyTitleMode, Inline)
+    DEFINE_ENUM_VALUE(PropertyTitleMode, NextLine)
+DEFINE_SPARK_ENUM_END()
 
 namespace se::ui::components
 {
@@ -27,30 +33,49 @@ namespace se::editor::ui::properties
         return s_Instance;
     }
 
-    void PropertyEditor::ConstructUI(const String& name, bool constructTitle)
+    void PropertyEditor::ConstructUI(const String& name, bool constructTitle, const se::ui::Anchors& anchors)
     {
         auto world = Application::Get()->GetWorld();
         auto ariel = asset::AssetManager::Get()->GetAsset<asset::Font>("/engine_assets/fonts/Arial.sass");
+        m_Name = name;
 
-        m_WidgetId = world->CreateEntity(name, true);
-        m_RectTransform = world->AddComponent<RectTransformComponent>(m_WidgetId);
-        m_RectTransform->anchors = { .left = 0.f, .right = 1.f, .top = 0.f, .bottom = 0.f };
-        m_RectTransform->minX = 5;
-        m_RectTransform->maxX = 15;
-        world->AddComponent<WidgetComponent>(m_WidgetId);
+        if (GetTitleMode() == PropertyTitleMode::NextLine)
+        {
+            m_WidgetId = world->CreateEntity("Vector Editor Vertical Box", true);
+            m_RectTransform = world->AddComponent<se::ui::components::RectTransformComponent>(m_WidgetId);
+            m_RectTransform->anchors = anchors;
+            m_RectTransform->minX = 5;
+            m_RectTransform->maxX = 5;
+            m_RectTransform->overridesChildSizes = true;
+            world->AddComponent<se::ui::components::WidgetComponent>(m_WidgetId);
+            auto verticalBox = world->AddComponent<se::ui::components::VerticalBoxComponent>(m_WidgetId);
+            verticalBox->spacing = 5;
+            verticalBox->dirty = true;
+        }
+        else
+        {
+            m_WidgetId = world->CreateEntity(name, true);
+            m_RectTransform = world->AddComponent<RectTransformComponent>(m_WidgetId);
+            m_RectTransform->anchors = anchors;
+            m_RectTransform->minX = 5;
+            m_RectTransform->maxX = 5;
+            world->AddComponent<WidgetComponent>(m_WidgetId);
+        }
+
 
         if (constructTitle)
         {
-            auto titleEntity = world->CreateEntity("Title", true);
+            auto titleEntity = world->CreateEntity("Property Title", true);
             auto titleText = world->AddComponent<TextComponent>(titleEntity);
             titleText->font = ariel;
             titleText->fontSize = 18;
             titleText->text = m_Name;
+            titleText->wrap = se::ui::text::WrapMode::Char;
             auto titleRect = world->AddComponent<RectTransformComponent>(titleEntity);
-            titleRect->anchors = { .left = 0.f, .right = 0.5f, .top = 0.f, .bottom = 0.f };
-            titleRect->minX = 2;
-            titleRect->minY = 1;
-            titleRect->maxY = 22;
+            titleRect->anchors = { .left = 0.f,
+                                   .right = GetTitleMode() == PropertyTitleMode::Inline ? 0.5f : 1.f,
+                                   .top = 0.f,
+                                   .bottom = 0.f };
             world->AddChild(m_WidgetId, titleEntity);
         }
     }
@@ -60,9 +85,10 @@ namespace se::editor::ui::properties
         Application::Get()->GetWorld()->DestroyEntity(m_WidgetId);
     }
 
-    PropertyEditor* CreatePropertyEditor(const String& name, reflect::Type* type, void* value)
+    PropertyEditor* CreatePropertyEditor(const String& name, reflect::Type* type, void* value, const se::ui::Anchors& anchors, bool constructTitle)
     {
         reflect::Type* editor_type = nullptr;
+
         if (type->IsContainer())
         {
             auto* container = static_cast<reflect::Type_Container*>(type);
@@ -77,18 +103,25 @@ namespace se::editor::ui::properties
 
         if (!editor_type)
         {
-            return nullptr;
+            if (type->IsClass())
+            {
+                editor_type = reflect::TypeResolver<ClassEditor>::get();
+            }
+            else
+            {
+                return nullptr;
+            }
         }
 
         auto editor = static_cast<PropertyEditor*>(editor_type->heap_constructor());
         editor->SetValue(value, type);
         editor->SetName(name);
-        editor->ConstructUI(name, true);
+        editor->ConstructUI(name, constructTitle, anchors);
         return editor;
     }
 
-    PropertyEditor* CreatePropertyEditor(const reflect::Class::Member& member, const void* classInstance)
+    PropertyEditor* CreatePropertyEditor(const reflect::Class::Member& member, const void* classInstance, const se::ui::Anchors& anchors, bool constructTitle)
     {
-        return CreatePropertyEditor(member.name, member.type, member.get(classInstance));
+        return CreatePropertyEditor(member.name, member.type, member.get(classInstance), anchors, constructTitle);
     }
 }

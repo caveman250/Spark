@@ -16,7 +16,7 @@ namespace se::asset
 {
     DEFINE_SPARK_CLASS_BEGIN(Shader)
         DEFINE_SERIALIZED_MEMBER(m_Type)
-        DEFINE_SERIALIZED_MEMBER(m_MainDeclared)
+        DEFINE_MEMBER(m_MainDeclared)
         DEFINE_SERIALIZED_MEMBER(m_InputPorts)
         DEFINE_SERIALIZED_MEMBER(m_OutputPorts)
         DEFINE_SERIALIZED_MEMBER(m_Inputs)

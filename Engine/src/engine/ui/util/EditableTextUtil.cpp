@@ -61,7 +61,7 @@ namespace se::ui::util
                                    const EditableTextComponent& text,
                                    const RectTransformComponent& rect)
     {
-        return MeasureText(rect.rect, text.font, text.fontSize, text.editText, true, true, pos);
+        return MeasureText(rect.rect, text.font, text.fontSize, text.editText, true, text.wrap, pos);
     }
 
     int CalcCaretPosition(const math::Vec2& mousePos,
@@ -69,7 +69,7 @@ namespace se::ui::util
                           const RectTransformComponent& rect)
     {
         math::Vec2 localMousePos = mousePos - math::Vec2(rect.rect.topLeft);
-        return GetCharIndexForPosition(localMousePos, rect.rect, text.font, text.fontSize, text.editText, true, true, text.alignment);
+        return GetCharIndexForPosition(localMousePos, rect.rect, text.font, text.fontSize, text.editText, true, text.wrap, text.alignment);
     }
 
     void BeginEditingText(ecs::System* system,

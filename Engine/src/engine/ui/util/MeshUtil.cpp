@@ -16,7 +16,6 @@ namespace se::ui::util
             { 0.f, 0.f, 0 },
         };
         mesh.indices = { 1, 3, 0, 3, 1, 2 };
-
         mesh.uvs =
         {
             { 0, 1 },
@@ -29,6 +28,7 @@ namespace se::ui::util
 
     math::IntVec2 ApplyWrapping(math::IntVec2 cursorPos,
                        char c,
+                       text::WrapMode::Type mode,
                        size_t charIndex,
                        const Rect& rect,
                        const std::shared_ptr<asset::Font>& font,
@@ -36,7 +36,7 @@ namespace se::ui::util
                        const String& text,
                        bool& didWrap)
     {
-        if (c == ' ')
+        if (c == ' ' || mode == text::WrapMode::Char)
         {
             size_t lookAhead = charIndex + 1;
             int xCopy = cursorPos.x;
@@ -53,6 +53,12 @@ namespace se::ui::util
                     didWrap = true;
                     break;
                 }
+
+                if (mode == text::WrapMode::Char)
+                {
+                    break;
+                }
+
                 xCopy += nextCharData.advanceWidth;
                 nextChar = text[++lookAhead];
             }
@@ -162,12 +168,13 @@ namespace se::ui::util
             CreateCharMesh(charData, cursorPos, mesh, indexOffset);
             cursorPos = ApplyAdvanceWidth(cursorPos, charData);
 
-            if (wrap)
+            if (wrap == text::WrapMode::Word || wrap == text::WrapMode::Char)
             {
                 bool didWrap = false;
                 int oldX = cursorPos.x;
                 cursorPos = ApplyWrapping(cursorPos,
                                           c,
+                                          wrap,
                                           i,
                                           rect,
                                           font,
@@ -230,7 +237,7 @@ namespace se::ui::util
                               int fontSize,
                               const String& text,
                               bool applyKerning,
-                              bool wrap)
+                              text::WrapMode::Type wrap)
     {
         return MeasureText(bounds, font, fontSize, text, applyKerning, wrap, text.Size());
     }
@@ -240,7 +247,7 @@ namespace se::ui::util
         int fontSize,
         const String& text,
         bool applyKerning,
-        bool wrap,
+        text::WrapMode::Type wrap,
         size_t endIndex)
     {
         math::IntVec2 max = { };
@@ -264,11 +271,12 @@ namespace se::ui::util
 
             cursorPos = ApplyAdvanceWidth(cursorPos, charData);
 
-            if (wrap)
+            if (wrap != text::WrapMode::None)
             {
                 bool didWrap = false;
                 cursorPos = ApplyWrapping(cursorPos,
                                           c,
+                                          wrap,
                                           i,
                                           bounds,
                                           font,
@@ -288,7 +296,7 @@ namespace se::ui::util
         int fontSize,
         const String& text,
         bool applyKerning,
-        bool wrap,
+        text::WrapMode::Type wrap,
         text::Alignment::Type justification)
     {
         math::IntVec2 cursorPos = { };
@@ -312,12 +320,13 @@ namespace se::ui::util
 
             cursorPos = ApplyAdvanceWidth(cursorPos, charData);
 
-            if (wrap)
+            if (wrap != text::WrapMode::None)
             {
                 bool didWrap = false;
                 int oldX = cursorPos.x;
                 cursorPos = ApplyWrapping(cursorPos,
                                           c,
+                                          wrap,
                                           i,
                                           bounds,
                                           font,

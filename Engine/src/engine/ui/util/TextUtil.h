@@ -65,7 +65,7 @@ namespace se::ui::util
                                                           textComp.fontSize,
                                                           text,
                                                           true,
-                                                          true,
+                                                          textComp.wrap,
                                                           textComp.alignment);
             textComp.vertBuffer = render::VertexBuffer::CreateVertexBuffer(mesh);
             textComp.vertBuffer->CreatePlatformResource();

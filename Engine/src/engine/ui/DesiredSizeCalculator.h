@@ -33,7 +33,7 @@ namespace se::ui
             math::IntVec2 ret = {};
             if (transform.anchors.left == transform.anchors.right)
             {
-                ret.x = std::abs(transform.maxX - transform.minX);
+                ret.x = std::abs(transform.maxX - transform.minX) + transform.minX;
             }
             else if (transform.anchors.right == 0)
             {
@@ -46,7 +46,7 @@ namespace se::ui
 
             if (transform.anchors.top == transform.anchors.bottom)
             {
-                ret.y = std::abs(transform.maxY - transform.minY);
+                ret.y = std::abs(transform.maxY - transform.minY) + transform.minY;
             }
             else if (transform.anchors.bottom == 0)
             {

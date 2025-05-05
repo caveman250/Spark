@@ -27,27 +27,41 @@ namespace se::editor::ui::properties
         }
     }
 
-    void SharedPtrEditor::ConstructUI(const String& name, bool constructTitle)
+    void SharedPtrEditor::ConstructUI(const String& name, bool constructTitle, const se::ui::Anchors& anchors)
     {
-        PropertyEditor::ConstructUI(name, constructTitle);
+        auto containedType = m_Type->GetContainedValueType();
+        m_WrappedEditor = CreatePropertyEditor(name,
+                                               containedType,
+                                               m_Type->GetContainedValue(m_Value),
+                                               { 0.f, 1.f, 0.f, 0.f },
+                                               false);
+
+        PropertyEditor::ConstructUI(name, constructTitle, anchors);
 
         auto world = Application::Get()->GetWorld();
 
-        auto containedType = m_Type->GetContainedValueType();
-        auto propertyEditor = CreatePropertyEditor(name,
-                                                   containedType,
-                                                   m_Type->GetContainedValue(m_Value));
+        auto entity = world->CreateEntity(name, true);
+        auto rect = world->AddComponent<RectTransformComponent>(entity);
+        rect->anchors = { .left = 0.f, .right = 1.f, .top = 0.f, .bottom = 0.f };
+        rect->minX = 5;
+        rect->maxX = 15;
+        world->AddComponent<WidgetComponent>(entity);
+        world->AddChild(m_WidgetId, entity);
 
-        if (!propertyEditor)
+        auto titleMode = m_WrappedEditor ? m_WrappedEditor->GetTitleMode() : PropertyTitleMode::Inline;
+
+        if (!m_WrappedEditor)
         {
-            auto text = properties::util::CreateMissingPropertyEditorText(containedType, constructTitle ? 0.5f : 0.f);
-            world->AddChild(m_WidgetId, text);
+            auto text = properties::util::CreateMissingPropertyEditorText(containedType,
+                                                                          titleMode == PropertyTitleMode::Inline ? 0.5f : 1.f,
+                                                                          0);
+            world->AddChild(entity, text);
         }
         else
         {
-            propertyEditor->GetRectTransform()->anchors.left = constructTitle ? 0.5f : 0.f;
-            world->AddChild(m_WidgetId, propertyEditor->GetWidgetId());
-            m_RectTransform->maxY = propertyEditor->GetRectTransform()->maxY;
+            world->AddChild(entity, m_WrappedEditor->GetWidgetId());
+            auto* propertyRect = m_WrappedEditor->GetRectTransform();
+            m_RectTransform->maxY = propertyRect->maxY;
         }
     }
 

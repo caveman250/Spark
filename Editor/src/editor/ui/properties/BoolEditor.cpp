@@ -19,9 +19,9 @@ namespace se::editor::ui::properties
         m_Value = static_cast<bool*>(value);
     }
 
-    void BoolEditor::ConstructUI(const String& name, bool constructTitle)
+    void BoolEditor::ConstructUI(const String& name, bool constructTitle, const se::ui::Anchors& anchors)
     {
-       PropertyEditor::ConstructUI(name, constructTitle);
+       PropertyEditor::ConstructUI(name, constructTitle, anchors);
 
         auto world = Application::Get()->GetWorld();
         auto assetManager = asset::AssetManager::Get();
@@ -29,7 +29,7 @@ namespace se::editor::ui::properties
 
         auto bg = world->CreateEntity("Bool Editor", true);
         auto bgTransform = world->AddComponent<RectTransformComponent>(bg);
-        bgTransform->anchors = { .left = 0.5f, .right = 0.5f, .top = 0.f, .bottom = 0.f };
+        bgTransform->anchors = { .left = constructTitle ? 0.5f : 0.f, .right = 0.5f, .top = 0.f, .bottom = 0.f };
         bgTransform->minY = 0;
         bgTransform->maxY = 32;
         bgTransform->maxX = 30;

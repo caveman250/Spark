@@ -2,6 +2,7 @@
 #include "engine/asset/mesh/StaticMesh.h"
 #include "engine/ui/Rect.h"
 #include "engine/ui/text/Alignment.h"
+#include "engine/ui/text/WrapMode.h"
 
 namespace se
 {
@@ -22,7 +23,7 @@ namespace se::ui::util
                                      int fontSize,
                                      const String& text,
                                      bool applyKerning,
-                                     bool wrap,
+                                     text::WrapMode::Type wrap,
                                      text::Alignment::Type justification);
 
     math::IntVec2 MeasureText(const Rect& bounds,
@@ -30,14 +31,14 @@ namespace se::ui::util
                               int fontSize,
                               const String& text,
                               bool applyKerning,
-                              bool wrap);
+                              text::WrapMode::Type wrap);
 
     math::IntVec2 MeasureText(const Rect& bounds,
                               const std::shared_ptr<asset::Font>& font,
                               int fontSize,
                               const String& text,
                               bool applyKerning,
-                              bool wrap,
+                              text::WrapMode::Type wrap,
                               size_t endIndex);
 
     int GetCharIndexForPosition(const math::Vec2& pos,
@@ -46,6 +47,6 @@ namespace se::ui::util
                                 int fontSize,
                                 const String& text,
                                 bool applyKerning,
-                                bool wrap,
+                                text::WrapMode::Type wrap,
                                 text::Alignment::Type justification);
 }

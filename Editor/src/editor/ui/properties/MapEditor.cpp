@@ -27,9 +27,9 @@ namespace se::editor::ui::properties
         }
     }
 
-    void MapEditor::ConstructUI(const String& name, bool constructTitle)
+    void MapEditor::ConstructUI(const String& name, bool constructTitle, const se::ui::Anchors& anchors)
     {
-        PropertyEditor::ConstructUI(name, constructTitle);
+        PropertyEditor::ConstructUI(name, constructTitle, anchors);
 
         auto world = Application::Get()->GetWorld();
         auto assetManager = asset::AssetManager::Get();
@@ -45,9 +45,8 @@ namespace se::editor::ui::properties
 
         auto listBG = world->CreateEntity("Vector Editor BG", true);
         auto* listRect = world->AddComponent<se::ui::components::RectTransformComponent>(listBG);
-        listRect->anchors = { 0.f, 1.f, 0.f, 1.f };
+        listRect->anchors = {0.f, 1.f, 0.f, 0.f };
         listRect->minX = 5;
-        listRect->minY = constructTitle ? 27 : 5;
         listRect->maxX = 5;
         auto listBGImage = world->AddComponent<se::ui::components::ImageComponent>(listBG);
         listBGImage->materialInstance = se::render::MaterialInstance::CreateMaterialInstance(bgMaterial);
@@ -88,39 +87,41 @@ namespace se::editor::ui::properties
                     propName = *((String*)value);
                 }
 
-                auto propertyEditor = CreatePropertyEditor(propName,
+                auto entity = world->CreateEntity(propName, true);
+                auto rect = world->AddComponent<RectTransformComponent>(entity);
+                rect->anchors = { .left = 0.f, .right = 1.f, .top = 0.f, .bottom = 0.f };
+                rect->minX = 5;
+                rect->maxX = 15;
+                world->AddComponent<WidgetComponent>(entity);
+
+                auto titleEntity = world->CreateEntity("Title", true);
+                auto titleText = world->AddComponent<TextComponent>(titleEntity);
+                titleText->font = asset::AssetManager::Get()->GetAsset<asset::Font>("/engine_assets/fonts/Arial.sass");
+                titleText->fontSize = 18;
+                titleText->text = propName;
+                auto titleRect = world->AddComponent<RectTransformComponent>(titleEntity);
+                titleRect->anchors = {.left = 0.f, .right = 0.5f, .top = 0.f, .bottom = 0.f};
+                titleRect->minX = 2;
+                titleRect->minY = 1;
+                titleRect->maxY = 22;
+                world->AddChild(entity, titleEntity);
+
+                auto propertyEditor = CreatePropertyEditor(containedType->GetTypeName(m_VectorType->GetContainedValueByIndex(m_Value, i)),
                                                            containedType,
-                                                           m_VectorType->GetContainedValueByIndex(m_Value, i));
+                                                           m_VectorType->GetContainedValueByIndex(m_Value, i),
+                                                           se::ui::Anchors(0.5f, 1.f, 0.f, 0.f),
+                                                           true);
                 if (!propertyEditor)
                 {
-                    auto entity = world->CreateEntity(propName, true);
-                    auto rect = world->AddComponent<RectTransformComponent>(entity);
-                    rect->anchors = { .left = 0.f, .right = 1.f, .top = 0.f, .bottom = 0.f };
-                    rect->minX = 5;
-                    rect->maxX = 15;
-                    world->AddComponent<WidgetComponent>(entity);
-
-                    auto titleEntity = world->CreateEntity("Title", true);
-                    auto titleText = world->AddComponent<TextComponent>(titleEntity);
-                    titleText->font = asset::AssetManager::Get()->GetAsset<asset::Font>("/engine_assets/fonts/Arial.sass");
-                    titleText->fontSize = 18;
-                    titleText->text = propName;
-                    auto titleRect = world->AddComponent<RectTransformComponent>(titleEntity);
-                    titleRect->anchors = { .left = 0.f, .right = 0.5f, .top = 0.f, .bottom = 0.f };
-                    titleRect->minX = 2;
-                    titleRect->minY = 1;
-                    titleRect->maxY = 22;
-                    world->AddChild(entity, titleEntity);
-
-                    auto text = properties::util::CreateMissingPropertyEditorText(containedType, .5f);
+                    auto text = properties::util::CreateMissingPropertyEditorText(containedType, .5f, 0);
                     world->AddChild(entity, text);
-
-                    se::ui::util::AddVerticalBoxChild(verticalBoxEntity, verticalBox, entity);
                 }
                 else
                 {
-                    se::ui::util::AddVerticalBoxChild(verticalBoxEntity, verticalBox, propertyEditor->GetWidgetId());
+                    world->AddChild(entity, propertyEditor->GetWidgetId());
                 }
+
+                se::ui::util::AddVerticalBoxChild(verticalBoxEntity, verticalBox, entity);
             }
         }
     }

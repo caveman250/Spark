@@ -16,7 +16,7 @@ namespace se::editor::ui::properties
 
     public:
         void SetValue(void* value, const reflect::Type* type) override;
-        void ConstructUI(const String& name, bool constructTitle) override;
+        void ConstructUI(const String& name, bool constructTitle, const se::ui::Anchors& anchors) override;
         void Update() override;
 
     private:
@@ -34,15 +34,15 @@ namespace se::editor::ui::properties
     }
 
     template <Integer I>
-    void IntEditor<I>::ConstructUI(const String& name, bool constructTitle)
+    void IntEditor<I>::ConstructUI(const String& name, bool constructTitle, const se::ui::Anchors& anchors)
     {
-        PropertyEditor::ConstructUI(name, constructTitle);
+        PropertyEditor::ConstructUI(name, constructTitle, anchors);
 
         auto world = Application::Get()->GetWorld();
         auto assetManager = asset::AssetManager::Get();
         auto ariel = assetManager->GetAsset<asset::Font>("/engine_assets/fonts/Arial.sass");
 
-        auto bg = world->CreateEntity("Float Editor", true);
+        auto bg = world->CreateEntity("Int Editor", true);
         auto bgTransform = world->AddComponent<RectTransformComponent>(bg);
         bgTransform->anchors = { .left = constructTitle ? 0.5f : 0.f, .right = 1.f, .top = 0.f, .bottom = 0.f };
         bgTransform->minY = 2;

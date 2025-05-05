@@ -5,5 +5,6 @@
 
 namespace se::editor::ui::properties::util
 {
-    ecs::Id CreateMissingPropertyEditorText(reflect::Type* type, float leftAnchor);
+    ecs::Id CreateMissingPropertyEditorText(reflect::Type* type, float leftAnchor, int minY);
+
 }

@@ -29,6 +29,7 @@ namespace se::ui::components
         int fontSize = 0;
         String text = { };
         text::Alignment::Type alignment = text::Alignment::Left;
+        text::WrapMode::Type wrap = text::WrapMode::None;
 
         // edit mode
         bool inEditMode = false;
@@ -63,12 +64,19 @@ namespace se::ui
             thisRect.rect = util::CalculateScreenSpaceRect(thisRect, parentRect);
         }
 
+        // treat char wrap as word wrap when it comes to desired size, or we will just get a single column string every time.
+        auto wrap = text->wrap;
+        if (wrap == text::WrapMode::Char)
+        {
+            wrap = text::WrapMode::Word;
+        }
+
         auto ret = ui::util::MeasureText(thisRect.rect,
                                          text->font,
                                          text->fontSize,
                                          text->inEditMode ? text->editText : text->text,
                                          true,
-                                         true);
+                                         wrap);
         return ret;
     }
 }
