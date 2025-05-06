@@ -120,7 +120,7 @@ namespace se::asset::shader::ast
             {
                 SPARK_ASSERT(variableName.Size() > 0);
                 // we expect the lhs to be variableName
-                VariableReferenceNode* refNode = dynamic_cast<VariableReferenceNode*>(binaryExpression->m_Children[0].get());
+                [[maybe_unused]] VariableReferenceNode* refNode = dynamic_cast<VariableReferenceNode*>(binaryExpression->m_Children[0].get());
                 SPARK_ASSERT(refNode);
                 SPARK_ASSERT(strcmp(refNode->GetName().c_str(), variableName.Data()) == 0);
 

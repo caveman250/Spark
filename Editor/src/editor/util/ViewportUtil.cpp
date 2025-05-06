@@ -12,7 +12,8 @@ namespace se::editor::util
                                          (float)(mouseY - viewportRect.topLeft.y) / viewportRect.size.y);
 
         auto window = app->GetPrimaryWindow();
-        return relative * math::Vec2(window->GetWidth(), window->GetHeight());
+        return relative * math::Vec2(static_cast<float>(window->GetWidth()),
+                                     static_cast<float>(window->GetHeight()));
     }
 
     bool PosWithinViewport(int mouseX,

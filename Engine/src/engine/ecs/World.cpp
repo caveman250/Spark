@@ -60,7 +60,7 @@ namespace se::ecs
         SPARK_ASSERT(result.second);
 
         AddComponent<components::RootComponent>(packedId);
-        auto& record = m_EntityRecords.at(packedId);
+        [[maybe_unused]] auto& record = m_EntityRecords.at(packedId);
         SPARK_ASSERT(record.archetype);
 
         return packedId;

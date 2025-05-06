@@ -85,7 +85,7 @@ namespace se::editor::ui::properties
             I i;
             if constexpr (std::is_same_v<I, char>)
             {
-                if (sscanf_s(newVal.Data(), "%c", &i) == 1)
+                if (sscanf_s(newVal.Data(), "%c", &i, 1) == 1)
                 {
                     *m_Value = i;
                 }

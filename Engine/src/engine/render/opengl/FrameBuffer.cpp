@@ -26,7 +26,7 @@ namespace se::render::opengl
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthTextureResource->GetGLID(), 0);
         GL_CHECK_ERROR()
 
-        auto status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+        [[maybe_unused]] auto status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
         SPARK_ASSERT(status == GL_FRAMEBUFFER_COMPLETE);
 
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
