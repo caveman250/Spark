@@ -46,6 +46,7 @@
 
 #if !SPARK_DIST
 #if SPARK_PLATFORM_WINDOWS
+#if SPARK_DEBUG
 #define SPARK_ASSERT(expr, ...) \
 do { \
     if (!(expr))\
@@ -53,18 +54,31 @@ do { \
         std::string userMsg = SPARK_ASSERT_MESSAGE(__VA_ARGS__)\
         std::string assertMsg = std::format("{0}\n\nMessage: {1}\n", #expr, userMsg); \
         printf(std::format("\033[0;41mAssertion failed: {0}at {1}:{2}\033[0m\n\n", assertMsg,  __FILE__, __LINE__).c_str()); \
-        fflush(stdout);\
+        fflush(stdout);         \
         bool assertResult = _CrtDbgReport(_CRT_ASSERT, __FILE__, __LINE__, "Spark Application", assertMsg.c_str()); \
         if (assertResult == 0)\
         {\
             break; \
         }\
-        else\
+        else                    \
         {\
             __debugbreak(); \
         }\
     }\
 } while (0)
+#else
+#define SPARK_ASSERT(expr, ...) \
+do { \
+    if (!(expr))\
+    {\
+        std::string userMsg = SPARK_ASSERT_MESSAGE(__VA_ARGS__)\
+        std::string assertMsg = std::format("{0}\n\nMessage: {1}\n", #expr, userMsg); \
+        printf(std::format("\033[0;41mAssertion failed: {0}at {1}:{2}\033[0m\n\n", assertMsg,  __FILE__, __LINE__).c_str()); \
+        fflush(stdout);         \
+        __debugbreak(); \
+    }\
+} while (0)
+#endif
 #elif SPARK_PLATFORM_LINUX
 #include "csignal"
 #define SPARK_ASSERT(expr, ...)\
