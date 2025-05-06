@@ -64,14 +64,13 @@ namespace se::windows
         {
             m_Window->Cleanup();
             delete m_Window;
+            m_ShouldExit = true;
         }
 
         if (ShouldExit())
         {
             return;
         }
-
-
 
         PlatformRunLoop::Update();
 
