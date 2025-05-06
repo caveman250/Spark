@@ -23,3 +23,7 @@ else()
     target_compile_options(bc7enc PRIVATE -w)
     target_compile_options(OpenFBX PRIVATE -w)
 endif()
+
+#make them wait for cmake regen so we dont get permission denied errors under ninja
+add_dependencies(bc7enc ${REGEN_CMAKE_TARGET})
+add_dependencies(OpenFBX ${REGEN_CMAKE_TARGET})

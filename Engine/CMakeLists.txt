@@ -27,6 +27,7 @@ add_custom_target("${target}_Source_Files" SOURCES ${NON_UNITY_SOURCE})
 
 message("Adding library: Spark\n")
 add_library(Spark ${SOURCE} ${OBJC_SOURCE})
+setup_compile_options(Spark)
 
 ###### Linker ######
 target_link_libraries(Spark OpenFBX bc7enc)

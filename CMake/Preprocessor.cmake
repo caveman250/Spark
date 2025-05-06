@@ -18,12 +18,11 @@ endif()
 ###### Config Defs ######
 if(CMAKE_BUILD_TYPE MATCHES Debug)
     add_definitions(-DSPARK_DEBUG=1)
+elseif(CMAKE_BUILD_TYPE MATCHES RelWithDebInfo)
+    if(${DIST_BUILD})
+        add_definitions(-DSPARK_DIST=1)
+    else()
+        add_definitions(-DSPARK_RELEASE=1)
+    endif()
 endif()
 
-if(CMAKE_BUILD_TYPE MATCHES RelWithDebInfo)
-    add_definitions(-DSPARK_RELEASE=1)
-endif()
-
-if(CMAKE_BUILD_TYPE MATCHES Release)
-    add_definitions(-DSPARK_DIST=1)
-endif()

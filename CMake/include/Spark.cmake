@@ -45,7 +45,7 @@ function(setup_spark_target target is_library use_editor unity_conf_dir)
     include_directories(src)
     include_directories(sht_generated)
     setup_source_files(${target} "${unity_conf_dir}" ${is_library})
-
+    setup_compile_options(${target})
     add_dependencies(${target} ${REGEN_CMAKE_TARGET})
 
     include(${ROOT_DIR}/CMake/Linker.cmake)
