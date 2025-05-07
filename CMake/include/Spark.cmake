@@ -43,6 +43,7 @@ function(setup_source_files target unity_conf_dir is_library)
         message("Adding executable: ${target}\n")
         add_executable(${target} ${TARGET_SOURCE})
     endif()
+    set_target_properties(${target} PROPERTIES EXCLUDE_FROM_ALL TRUE)
 endfunction()
 
 function(setup_spark_target target is_library use_editor unity_conf_dir)

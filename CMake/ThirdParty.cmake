@@ -26,6 +26,10 @@ else()
     target_compile_options(OpenFBX PRIVATE -w)
 endif()
 
+# prevent third party libs generating an ALL_BUILD target
+set_target_properties(bc7enc PROPERTIES EXCLUDE_FROM_ALL TRUE)
+set_target_properties(OpenFBX PROPERTIES EXCLUDE_FROM_ALL TRUE)
+
 #make them wait for cmake regen so we dont get permission denied errors under ninja
 if(NOT CMAKE_CONFIGURATION_TYPES)
     add_dependencies(bc7enc ${REGEN_CMAKE_TARGET})

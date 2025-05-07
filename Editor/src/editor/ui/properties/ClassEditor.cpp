@@ -41,7 +41,7 @@ namespace se::editor::ui::properties
 
             numSerialisedMembers++;
 
-            if (auto *propEditor = properties::CreatePropertyEditor(member, member.get(m_Value), {0.f, 1.f, 0.f, 0.f}, true))
+            if (auto *propEditor = properties::CreatePropertyEditor(member, m_Value, {0.f, 1.f, 0.f, 0.f}, true))
             {
                 se::ui::util::AddVerticalBoxChild(m_WidgetId, verticalBox, propEditor->GetWidgetId());
                 m_Editors.push_back(propEditor);

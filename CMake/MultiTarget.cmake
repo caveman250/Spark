@@ -32,5 +32,7 @@ if(CMAKE_CONFIGURATION_TYPES)
     set(CMAKE_EXE_LINKER_FLAGS_DISTRIBUTIONEDITOR "${CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO}" CACHE STRING "Custom Config Value" FORCE)
     set(CMAKE_RC_FLAGS_DISTRIBUTIONEDITOR "${CMAKE_RC_FLAGS_RELWITHDEBINFO}" CACHE STRING "Custom Config Value" FORCE)
 
-    add_compile_options($<$<CONFIG:DebugEditor>:/MDd>)
+    if (WIN32)
+        add_compile_options($<$<CONFIG:DebugEditor>:/MDd>)
+    endif()
 endif()

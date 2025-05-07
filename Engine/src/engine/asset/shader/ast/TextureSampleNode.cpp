@@ -36,10 +36,13 @@ namespace se::asset::shader::ast
         outShader += string::ArenaFormat("constexpr sampler {}( address::repeat, filter::linear );\n", alloc, m_TempSamplerName);
     }
 
-    void TextureSampleNode::ToMtl(ShaderCompileContext&, string::ArenaString& outShader) const
+    void TextureSampleNode::ToMtl(ShaderCompileContext& context, string::ArenaString& outShader) const
     {
         auto alloc = outShader.get_allocator();
-        outShader += string::ArenaFormat("{}.sample({}, in.{})", alloc, m_SamplerName, m_TempSamplerName, m_UVVariableName);
+        bool isInput = context.currentShader->FindInput(m_UVVariableName) != nullptr;
+        std::string varName = isInput ? std::format("in.{}", m_UVVariableName)
+                                      : m_UVVariableName;
+        outShader += string::ArenaFormat("{}.sample({}, {})", alloc, m_SamplerName, m_TempSamplerName, varName);
     }
 
     void TextureSampleNode::ApplyNameRemapping(const std::map<std::string, std::string> &newNames)

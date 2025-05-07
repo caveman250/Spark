@@ -85,63 +85,63 @@ namespace se::editor::ui::properties
             I i;
             if constexpr (std::is_same_v<I, char>)
             {
-                if (sscanf_s(newVal.Data(), "%c", &i, 1) == 1)
+                if (SSCANF(newVal.Data(), "%c", &i, 1) == 1)
                 {
                     *m_Value = i;
                 }
             }
             else if constexpr (std::is_same_v<I, int8_t>)
             {
-                if (sscanf_s(newVal.Data(), "%" PRIi8, &i) == 1)
+                if (SSCANF(newVal.Data(), "%" PRIi8, &i) == 1)
                 {
                     *m_Value = i;
                 }
             }
             else if constexpr (std::is_same_v<I, uint8_t>)
             {
-                if (sscanf_s(newVal.Data(), "%" PRIu8, &i) == 1)
+                if (SSCANF(newVal.Data(), "%" PRIu8, &i) == 1)
                 {
                     *m_Value = i;
                 }
             }
             else if constexpr (std::is_same_v<I, int16_t>)
             {
-                if (sscanf_s(newVal.Data(), "%" PRIi16, &i) == 1)
+                if (SSCANF(newVal.Data(), "%" PRIi16, &i) == 1)
                 {
                     *m_Value = i;
                 }
             }
             else if constexpr (std::is_same_v<I, uint16_t>)
             {
-                if (sscanf_s(newVal.Data(), "%" PRIu16, &i) == 1)
+                if (SSCANF(newVal.Data(), "%" PRIu16, &i) == 1)
                 {
                     *m_Value = i;
                 }
             }
             else if constexpr (std::is_same_v<I, int32_t>)
             {
-                if (sscanf_s(newVal.Data(), "%" PRIi32, &i) == 1)
+                if (SSCANF(newVal.Data(), "%" PRIi32, &i) == 1)
                 {
                     *m_Value = i;
                 }
             }
             else if constexpr (std::is_same_v<I, uint32_t>)
             {
-                if (sscanf_s(newVal.Data(), "%" PRIu32, &i) == 1)
+                if (SSCANF(newVal.Data(), "%" PRIu32, &i) == 1)
                 {
                     *m_Value = i;
                 }
             }
             else if constexpr (std::is_same_v<I, int64_t>)
             {
-                if (sscanf_s(newVal.Data(), "%" PRIi64, &i) == 1)
+                if (SSCANF(newVal.Data(), "%" PRIi64, &i) == 1)
                 {
                     *m_Value = i;
                 }
             }
             else if constexpr (std::is_same_v<I, uint64_t>)
             {
-                if (sscanf_s(newVal.Data(), "%" PRIu64, &i) == 1)
+                if (SSCANF(newVal.Data(), "%" PRIu64, &i) == 1)
                 {
                     *m_Value = i;
                 }

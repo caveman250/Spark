@@ -147,7 +147,7 @@ namespace se::ui::util
                                      int fontSize,
                                      const String& text,
                                      bool applyKerning,
-                                     bool wrap,
+                                     text::WrapMode::Type wrap,
                                      text::Alignment::Type justification)
     {
         asset::StaticMesh mesh;

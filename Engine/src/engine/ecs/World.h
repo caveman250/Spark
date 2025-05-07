@@ -320,7 +320,7 @@ namespace se::ecs
         std::vector<Id> m_PendingAppSystemDeletions = {};
         std::vector<std::pair<Id, SystemDeclaration>> m_PendingEngineSystemCreations = {};
         std::vector<Id> m_PendingEngineSystemDeletions = {};
-        memory::Arena m_TempStore = memory::Arena(2000000); // cleared after all pending creations/deletions
+        memory::Arena m_TempStore = memory::Arena(20000000); // cleared after all pending creations/deletions
         bool m_ClearingTempObjects = {};
 
         std::vector<BaseSignal*> m_PendingSignals = {};

@@ -30,6 +30,7 @@ else()
     add_library(Spark ${SOURCE} ${OBJC_SOURCE})
 endif()
 setup_compile_options(Spark)
+set_target_properties(Spark PROPERTIES EXCLUDE_FROM_ALL TRUE)
 
 ###### Linker ######
 target_link_libraries(Spark OpenFBX bc7enc)

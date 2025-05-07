@@ -42,6 +42,12 @@ namespace se::editor::ui::properties
         map.insert(std::make_pair(Type, reflect::TypeResolver<PropertyEditorType>::get()));\
     });
 
+#if SPARK_PLATFORM_MAC
+#define SSCANF sscanf
+#else
+#define SSCANF sscanf_s
+#endif
+
     using namespace se::ui::components;
     class PropertyEditor : public reflect::ObjectBase
     {

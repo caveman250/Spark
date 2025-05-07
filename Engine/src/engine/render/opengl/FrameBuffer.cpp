@@ -2,6 +2,8 @@
 #include "engine/asset/texture/Texture.h"
 #include "engine/render/opengl/TextureResource.h"
 
+#if OPENGL_RENDERER
+
 namespace se::render
 {
     std::shared_ptr<FrameBuffer> FrameBuffer::CreateFrameBuffer()
@@ -46,3 +48,5 @@ namespace se::render::opengl
         GL_CHECK_ERROR()
     }
 }
+
+#endif

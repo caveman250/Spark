@@ -14,6 +14,8 @@ MTLPixelFormat TextureFormatToMetalFormat(se::asset::texture::Format::Type forma
             return MTLPixelFormatR8Unorm;
         case se::asset::texture::Format::BGRA8:
             return MTLPixelFormatBGRA8Unorm;
+        case se::asset::texture::Format::RGBA8:
+            return MTLPixelFormatRGBA8Unorm;
         case se::asset::texture::Format::Depth16:
             return MTLPixelFormatDepth16Unorm;
         case se::asset::texture::Format::BC7:

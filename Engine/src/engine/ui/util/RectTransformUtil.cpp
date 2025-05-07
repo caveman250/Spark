@@ -103,11 +103,6 @@ namespace se::ui::util
             }
         }
 
-        if (ret.size.x == -84)
-        {
-            int lol = 1;
-        }
-
         return ret;
     }
 

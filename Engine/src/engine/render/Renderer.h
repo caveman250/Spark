@@ -66,7 +66,7 @@ namespace se::render
 
         std::vector<RenderGroup> m_RenderGroups = {};
 
-        memory::Arena m_RenderCommandsArena = {};
+        memory::Arena m_RenderCommandsArena = memory::Arena(20000000);
 
         RenderState m_CachedRenderState = {};
         LightSetup m_LightSetup = {};

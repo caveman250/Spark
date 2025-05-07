@@ -4,6 +4,8 @@
 #include "engine/render/FrameBuffer.h"
 #include "GL_fwd.h"
 
+#if OPENGL_RENDERER
+
 namespace se::asset
 {
     class Texture;
@@ -22,3 +24,5 @@ namespace se::render::opengl
         GLuint m_PlatformResource = GL_INVALID_VALUE;
     };
 }
+
+#endif
