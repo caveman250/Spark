@@ -1,4 +1,7 @@
 cmake_minimum_required(VERSION 3.28)
 
-add_subdirectory(AssetBuilder)
-add_subdirectory(BinToText)
+set(ROOT_DIR ..)
+include(${ROOT_DIR}/CMake/include/Util.cmake)
+
+add_subdirectory_with_folder("tools" AssetBuilder)
+add_subdirectory_with_folder("tools" BinToText)

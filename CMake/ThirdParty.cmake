@@ -1,9 +1,11 @@
+include(${ROOT_DIR}/CMake/include/Util.cmake)
+
 set(CMAKE_WARN_DEPRECATED OFF CACHE BOOL "" FORCE)
 
 set(MESSAGE_QUIET ON)
 
-add_subdirectory(third_party/bc7enc_rdo)
-add_subdirectory(third_party/OpenFBX-365f52c)
+add_subdirectory_with_folder("third_party" third_party/bc7enc_rdo)
+add_subdirectory_with_folder("third_party" third_party/OpenFBX-365f52c)
 
 if (${PLATFORM} MATCHES Windows)
     include(${ROOT_DIR}/CMake/windows/WindowsThirdParty.cmake)
@@ -25,5 +27,7 @@ else()
 endif()
 
 #make them wait for cmake regen so we dont get permission denied errors under ninja
-add_dependencies(bc7enc ${REGEN_CMAKE_TARGET})
-add_dependencies(OpenFBX ${REGEN_CMAKE_TARGET})
+if(NOT CMAKE_CONFIGURATION_TYPES)
+    add_dependencies(bc7enc ${REGEN_CMAKE_TARGET})
+    add_dependencies(OpenFBX ${REGEN_CMAKE_TARGET})
+endif()
