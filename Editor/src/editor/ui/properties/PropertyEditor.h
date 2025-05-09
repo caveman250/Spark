@@ -43,9 +43,9 @@ namespace se::editor::ui::properties
     });
 
 #if SPARK_PLATFORM_MAC
-#define SSCANF sscanf
+#define SSCANF(buffer, str, var, ...) sscanf(buffer, str, var)
 #else
-#define SSCANF sscanf_s
+#define SSCANF(buffer, str, var, ...) sscanf_s(buffer, str, var, __VA_ARGS__)
 #endif
 
     using namespace se::ui::components;

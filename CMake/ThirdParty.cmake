@@ -4,8 +4,8 @@ set(CMAKE_WARN_DEPRECATED OFF CACHE BOOL "" FORCE)
 
 set(MESSAGE_QUIET ON)
 
-add_subdirectory_with_folder("third_party" third_party/bc7enc_rdo)
-add_subdirectory_with_folder("third_party" third_party/OpenFBX-365f52c)
+add_subdirectory_with_folder("Third Party" third_party/bc7enc_rdo)
+add_subdirectory_with_folder("Third Party" third_party/OpenFBX-365f52c)
 
 if (${PLATFORM} MATCHES Windows)
     include(${ROOT_DIR}/CMake/windows/WindowsThirdParty.cmake)

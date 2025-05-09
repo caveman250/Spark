@@ -73,7 +73,7 @@ namespace se::render::metal
         {
             size_t blockSize = GetCompressedFormatBlockSize(m_Format);
             size_t bytesPerBlock = GetCompressedFormatBlockSizeBytes(m_Format);
-            int blocksPerRow = (m_Width + (blockSize - 1)) / blockSize;
+            size_t blocksPerRow = (m_Width + (blockSize - 1)) / blockSize;
             bytesPerRow = blocksPerRow * bytesPerBlock;
         }
         else
