@@ -107,22 +107,22 @@ namespace se::ecs
         void Shutdown();
 
         Id CreateEntity(const String& name, bool editorOnly = false);
-        void DestroyEntity(Id entity);
+        void DestroyEntity(const Id& entity);
         std::vector<Id> GetEntities() const;
         std::vector<Id> GetRootEntities();
 
         template<typename T>
-        T* GetComponent(Id entity);
+        T* GetComponent(const Id& entity);
 
         template<typename T>
-        T* AddComponent(Id entity);
+        T* AddComponent(const Id& entity);
 
-        void AddRelationship(Id entity, const Relationship& relationship);
-        void RemoveRelationship(Id entity, const Relationship& relationship);
-        void AddChild(Id entity, Id childEntity);
-        void RemoveChild(Id entity, Id childEntity);
-        const std::vector<Id>& GetChildren(Id entity) const;
-        Id GetParent(Id entity) const;
+        void AddRelationship(const Id& entity, const Relationship& relationship);
+        void RemoveRelationship(const Id& entity, const Relationship& relationship);
+        void AddChild(const Id& entity, const Id& childEntity);
+        void RemoveChild(const Id& entity, const Id& childEntity);
+        const std::vector<Id>& GetChildren(const Id& entity) const;
+        Id GetParent(const Id& entity) const;
 
         template<typename T>
         void RemoveComponent(Id entity);
@@ -136,15 +136,15 @@ namespace se::ecs
         template <typename T>
         T* GetSingletonComponent();
 
-        std::vector<reflect::ObjectBase*> GetSingletonComponents();
+        std::vector<reflect::ObjectBase*> GetSingletonComponents() const;
 
         template <AppSystemConcept T>
         Id CreateAppSystem(const SystemDeclaration& reg_info);
-        void DestroyAppSystem(Id id);
+        void DestroyAppSystem(const Id& id);
 
         template <EngineSystemConcept T>
         Id CreateEngineSystem(const SystemDeclaration& reg_info);
-        void DestroyEngineSystem(Id id);
+        void DestroyEngineSystem(const Id& id);
 
         template <typename T>
         void RegisterComponent();
@@ -155,21 +155,21 @@ namespace se::ecs
         Relationship CreateComponentRelationship();
 
         template<typename T>
-        bool HasComponent(Id entity);
+        bool HasComponent(const Id& entity);
 
         template<typename T, typename Y>
-        bool HasRelationship(Id entity);
+        bool HasRelationship(const Id& entity);
 
         template<typename T>
-        bool HasRelationshipWildcard(Id entity);
+        bool HasRelationshipWildcard(const Id& entity);
 
-        bool IsChildOf(Id entity, Id parent);
+        bool IsChildOf(const Id& entity, const Id& parent);
 
         template<typename T, typename Y>
         Id CreateObserver();
-        void DestroyObserver(Id id);
+        void DestroyObserver(const Id& id);
 
-        const String* GetName(uint64_t id);
+        const String* GetName(uint64_t id) const;
         int32_t* GetFlags(uint64_t id);
 
     private:
@@ -222,10 +222,10 @@ namespace se::ecs
                              const ChildQueryDeclaration& declaration,
                              Func&& func);
 
-        bool ValidateChildQuery(const System* system,
-                                const ChildQueryDeclaration& declaration);
-        Relationship CreateChildRelationship(Id entity);
-        bool HasRelationshipWildcardInternal(Id entity, uint32_t lhs);
+        static bool ValidateChildQuery(const System* system,
+                                       const ChildQueryDeclaration& declaration);
+        static Relationship CreateChildRelationship(const Id& entity);
+        bool HasRelationshipWildcardInternal(const Id& entity, uint32_t lhs);
 
         void RegisterRelationship(uint64_t id);
 
@@ -241,24 +241,27 @@ namespace se::ecs
         };
 
         void AddComponentInternal(const PendingComponent& pendingComp);
-        void RemoveComponentInternal(Id entity, Id comp);
+        void RemoveComponentInternal(const Id& entity,
+ const Id& comp);
 
         uint64_t NewSystem();
         uint64_t RecycleSystem();
 
-        static void CreateSystemInternal(std::unordered_map<Id, SystemRecord>& systemMap, Id system, const SystemDeclaration& pendingSystem);
-        static void DestroySystemInternal(std::unordered_map<Id, SystemRecord>& systemMap, std::vector<Id>& freeSystems, Id system);
+        static void CreateSystemInternal(std::unordered_map<Id, SystemRecord>& systemMap,
+ const Id& system, const SystemDeclaration& pendingSystem);
+        static void DestroySystemInternal(std::unordered_map<Id, SystemRecord>& systemMap, std::vector<Id>& freeSystems,
+ const Id& system);
 
         Id NewObserver();
         Id RecycleObserver();
 
-        bool HasComponent(Id entity, Id component);
-        void* GetComponent(Id entity, Id component);
+        bool HasComponent(const Id& entity, const Id& component);
+        void* GetComponent(const Id& entity, const Id& component);
 
         uint32_t NewEntity();
         uint32_t RecycleEntity();
-        void DestroyEntityInternal(Id entity);
-        size_t MoveEntity(Id entity, Archetype* archetype, size_t entityIdx, Archetype* nextArchetype);
+        void DestroyEntityInternal(const Id& entity);
+        size_t MoveEntity(const Id& entity, Archetype* archetype, size_t entityIdx, Archetype* nextArchetype);
 
         Archetype* GetArchetype(const Type& type, bool createIfMissing);
         bool HasArchetype(const Type& type) const;
@@ -271,7 +274,7 @@ namespace se::ecs
         static void ProcessPendingSystems(std::vector<std::pair<Id, SystemDeclaration>>& pendingCreations,
                                     std::vector<Id>& pendingDeletions,
                                     std::unordered_map<Id, SystemRecord>& systemRecords,
-                                    std::vector<std::vector<Id>>& systsemUpdateGroups,
+                                    std::vector<std::vector<Id>>& systemUpdateGroups,
                                     std::vector<Id>& freeSystems);
         static void RebuildSystemUpdateGroups(std::vector<std::vector<Id>>& updateGroups, std::unordered_map<Id, SystemRecord>& systems);
         void ProcessPendingAppSystems();
@@ -334,19 +337,19 @@ namespace se::ecs
     };
 
     template<typename T>
-    bool World::HasComponent(Id entity)
+    bool World::HasComponent(const Id& entity)
     {
         return HasComponent(entity, T::GetComponentId());
     }
 
     template <typename T, typename Y>
-    bool World::HasRelationship(Id entity)
+    bool World::HasRelationship(const Id& entity)
     {
         return HasComponent(entity, CreateComponentRelationship<T, Y>());
     }
 
     template <typename T>
-    bool World::HasRelationshipWildcard(Id entity)
+    bool World::HasRelationshipWildcard(const Id& entity)
     {
         return HasRelationshipWildcardInternal(entity, bits::UnpackA64(T::GetComponentId()));
     }
@@ -374,7 +377,7 @@ namespace se::ecs
     }
 
     template<typename T>
-    T* World::GetComponent(Id entity)
+    T* World::GetComponent(const Id& entity)
     {
         if (!SPARK_VERIFY(!IsRunning()))
         {
@@ -627,7 +630,7 @@ namespace se::ecs
     }
 
     template<typename T>
-    T* World::AddComponent(Id entity)
+    T* World::AddComponent(const Id& entity)
     {
         auto guard = MaybeLockGuard(m_UpdateMode, &m_ComponentMutex);
 

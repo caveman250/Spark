@@ -66,18 +66,18 @@ namespace se::ecs
         return packedId;
     }
 
-    void World::DestroyEngineSystem(Id id)
+    void World::DestroyEngineSystem(const Id& id)
     {
         auto guard = MaybeLockGuard(m_UpdateMode, &m_SystemMutex);
         m_PendingEngineSystemDeletions.push_back(id);
     }
 
-    std::vector<reflect::ObjectBase*> World::GetSingletonComponents()
+    std::vector<reflect::ObjectBase*> World::GetSingletonComponents() const
     {
         return util::ToValueArray<reflect::ObjectBase*>(m_SingletonComponents);
     }
 
-    void World::DestroyAppSystem(Id id)
+    void World::DestroyAppSystem(const Id& id)
     {
         auto guard = MaybeLockGuard(m_UpdateMode, &m_SystemMutex);
         m_PendingAppSystemDeletions.push_back(id);
@@ -96,7 +96,7 @@ namespace se::ecs
         return entity;
     }
 
-    void* World::GetComponent(Id entity, Id component)
+    void* World::GetComponent(const Id& entity, const Id& component)
     {
         EntityRecord& record = m_EntityRecords.at(entity);
         Archetype* archetype = record.archetype;
@@ -119,7 +119,7 @@ namespace se::ecs
         return archetype->components[a_record].GetComponent(record.entity_idx);
     }
 
-    void World::DestroyEntityInternal(Id entity)
+    void World::DestroyEntityInternal(const Id& entity)
     {
         if (entity == s_InvalidEntity)
         {
@@ -160,7 +160,7 @@ namespace se::ecs
         m_FreeEntities.push_back(bits::UnpackA64(entity));
     }
 
-    bool World::HasRelationshipWildcardInternal(Id entity, uint32_t lhs)
+    bool World::HasRelationshipWildcardInternal(const Id& entity, uint32_t lhs)
     {
         EntityRecord& record = m_EntityRecords.at(entity);
 
@@ -203,7 +203,7 @@ namespace se::ecs
         return false;
     }
 
-    bool World::HasComponent(Id entity, Id component)
+    bool World::HasComponent(const Id& entity, const Id& component)
     {
         EntityRecord& record = m_EntityRecords.at(entity);
         Archetype* archetype = record.archetype;
@@ -262,7 +262,7 @@ namespace se::ecs
         }
     }
 
-    size_t World::MoveEntity(Id entity, Archetype* archetype, size_t entityIdx, Archetype* nextArchetype)
+    size_t World::MoveEntity(const Id& entity, Archetype* archetype, size_t entityIdx, Archetype* nextArchetype)
     {
         //need to update all entity records when an archetype is updated ew.
         std::vector<std::pair<Id, uint8_t*>> compData;
@@ -562,7 +562,7 @@ namespace se::ecs
         {
             if (systemRecord.instance)
             {
-                auto& map = (*usedComponents.insert(std::make_pair(id, std::map<Id, ComponentMutability::Type>())).first).second;
+                auto& map = usedComponents.insert(std::make_pair(id, std::map<Id, ComponentMutability::Type>())).first->second;
                 // TODO not taking variant components into account here
                 for (const auto& usedComp : systemRecord.instance->GetDeclaration().componentUsage)
                 {
@@ -638,15 +638,15 @@ namespace se::ecs
         }
     }
 
-    bool World::IsChildOf(Id entity, Id parent)
+    bool World::IsChildOf(const Id& entity, const Id& parent)
     {
         return HasComponent(entity, CreateChildRelationship(parent).GetId());
     }
 
-    void World::DestroyObserver(Id id)
+    void World::DestroyObserver(const Id& id)
     {
         auto guard = MaybeLockGuard(m_UpdateMode, &m_ObserverMutex);
-        for (auto& [comp, kvp]: m_Observers)
+        for (auto& kvp: m_Observers | std::views::values)
         {
             if (kvp.contains(id))
             {
@@ -656,7 +656,7 @@ namespace se::ecs
         }
     }
 
-    const String* World::GetName(uint64_t id)
+    const String* World::GetName(uint64_t id) const
     {
         if (id == s_InvalidEntity || !m_IdMetaMap.contains(id))
         {
@@ -726,7 +726,7 @@ namespace se::ecs
                 for (const auto& archetypeId: compRecord.archetypeRecords | std::views::keys)
                 {
                     auto& archetype = m_Archetypes.at(archetypeId);
-                    auto it = std::find_if(archetypes.begin(), archetypes.end(), [&archetype](const VariantQueryArchetype& other){ return other.archetype == &archetype; });
+                    auto it = std::ranges::find_if(archetypes, [&archetype](const VariantQueryArchetype& other){ return other.archetype == &archetype; });
                     if (it != archetypes.end())
                     {
                         continue;
@@ -767,7 +767,7 @@ namespace se::ecs
         return true;
     }
 
-    Relationship World::CreateChildRelationship(Id entity)
+    Relationship World::CreateChildRelationship(const Id& entity)
     {
         Relationship childOf;
         childOf.SetId(bits::Pack64(bits::UnpackA64(components::ChildOf::GetComponentId()), bits::UnpackA64(entity)));
@@ -806,9 +806,8 @@ namespace se::ecs
             }
             else
             {
-                std::for_each(updateGroup.begin(),
-                              updateGroup.end(),
-                              func);
+                std::ranges::for_each(updateGroup,
+                                      func);
             }
 
             if (processPending)
@@ -828,7 +827,7 @@ namespace se::ecs
         RunOnAllSystems(func, m_EngineSystemUpdateGroups, parallel, processPending);
     }
 
-    void World::DestroyEntity(Id entity)
+    void World::DestroyEntity(const Id& entity)
     {
         auto guard = MaybeLockGuard(m_UpdateMode, &m_EntityMutex);
         m_PendingEntityDeletions.push_back(entity);
@@ -854,7 +853,7 @@ namespace se::ecs
         return ret;
     }
 
-    void World::AddRelationship(Id entity, const Relationship& relationship)
+    void World::AddRelationship(const Id& entity, const Relationship& relationship)
     {
         auto guard = MaybeLockGuard(m_UpdateMode, &m_ComponentMutex);
         RegisterRelationship(relationship.GetId());
@@ -870,7 +869,7 @@ namespace se::ecs
         SPARK_ASSERT(m_PendingComponentCreations.back().comp.name != nullptr);
     }
 
-    void World::RemoveRelationship(Id entity, const Relationship& relationship)
+    void World::RemoveRelationship(const Id& entity, const Relationship& relationship)
     {
         auto guard = MaybeLockGuard(m_UpdateMode, &m_ComponentMutex);
         RegisterRelationship(relationship.GetId());
@@ -883,7 +882,7 @@ namespace se::ecs
         m_PendingComponentDeletions.emplace_back(std::pair<Id, Id>{entity, relationship.GetId()});
     }
 
-    void World::AddChild(Id entity, Id childEntity)
+    void World::AddChild(const Id& entity, const Id& childEntity)
     {
         AddRelationship(childEntity, CreateChildRelationship(entity));
         if (!HasComponent<components::ParentComponent>(entity))
@@ -906,7 +905,7 @@ namespace se::ecs
         }
     }
 
-    void World::RemoveChild(Id entity, Id childEntity)
+    void World::RemoveChild(const Id& entity, const Id& childEntity)
     {
         RemoveRelationship(childEntity, CreateChildRelationship(entity));
 
@@ -936,9 +935,9 @@ namespace se::ecs
         {
             if (m_Observers.contains(pendingComp.comp))
             {
-                for (const auto& observer: m_Observers.at(pendingComp.comp))
+                for (const auto& val: m_Observers.at(pendingComp.comp) | std::views::values)
                 {
-                    observer.second->Added(pendingComp.entity, GetComponent(pendingComp.entity, pendingComp.comp));
+                    val->Added(pendingComp.entity, GetComponent(pendingComp.entity, pendingComp.comp));
                 }
             }
         }
@@ -962,7 +961,7 @@ namespace se::ecs
     void World::ProcessPendingSystems(std::vector<std::pair<Id, SystemDeclaration>>& pendingCreations,
                                       std::vector<Id>& pendingDeletions,
                                       std::unordered_map<Id, SystemRecord>& systemRecords,
-                                      std::vector<std::vector<Id>>& systsemUpdateGroups,
+                                      std::vector<std::vector<Id>>& systemUpdateGroups,
                                       std::vector<Id>& freeSystems)
     {
         bool shouldRebuildUpdateGroups = !pendingCreations.empty() || !pendingDeletions.empty(); {
@@ -985,7 +984,7 @@ namespace se::ecs
 
         if (shouldRebuildUpdateGroups)
         {
-            RebuildSystemUpdateGroups(systsemUpdateGroups, systemRecords);
+            RebuildSystemUpdateGroups(systemUpdateGroups, systemRecords);
         }
     }
 
@@ -1002,7 +1001,7 @@ namespace se::ecs
     }
 
     void World::CreateSystemInternal(std::unordered_map<Id, SystemRecord>& systemMap,
-                                     Id system,
+                                     const Id& system,
                                      const SystemDeclaration& pendingSystem)
     {
         if (SPARK_VERIFY(systemMap.contains(system) && systemMap.at(system).instance == nullptr))
@@ -1015,7 +1014,7 @@ namespace se::ecs
 
     void World::DestroySystemInternal(std::unordered_map<Id, SystemRecord>& systemMap,
                                       std::vector<Id>& freeSystems,
-                                      Id system)
+                                      const Id& system)
     {
         if (SPARK_VERIFY(systemMap.contains(system)))
         {
@@ -1056,7 +1055,7 @@ namespace se::ecs
         m_ComponentRecords[pendingComp.comp].type->inplace_copy_constructor(compData, pendingComp.tempData);
     }
 
-    void World::RemoveComponentInternal(Id entity, Id comp)
+    void World::RemoveComponentInternal(const Id& entity, const Id& comp)
     {
         if (!SPARK_VERIFY(HasComponent(entity, comp)))
         {
@@ -1066,9 +1065,9 @@ namespace se::ecs
         void* data = GetComponent(entity, comp);
         if (m_Observers.contains(comp))
         {
-            for (const auto& observer: m_Observers.at(comp))
+            for (const auto& val: m_Observers.at(comp) | std::views::values)
             {
-                observer.second->Removed(entity, data);
+                val->Removed(entity, data);
             }
         }
 
@@ -1099,7 +1098,7 @@ namespace se::ecs
         PROFILE_SCOPE("World::ProcessPendingEntityDeletions")
         auto safeCopy = m_PendingEntityDeletions;
         m_PendingEntityDeletions.clear();
-        for (Id entity: safeCopy)
+        for (const Id& entity: safeCopy)
         {
             DestroyEntityInternal(entity);
         }
@@ -1119,12 +1118,12 @@ namespace se::ecs
         }
     }
 
-    const std::vector<Id>& World::GetChildren(Id entity) const
+    const std::vector<Id>& World::GetChildren(const Id& entity) const
     {
         return m_EntityRecords.at(entity).children;
     }
 
-    Id World::GetParent(Id entity) const
+    Id World::GetParent(const Id& entity) const
     {
         return m_EntityRecords.at(entity).parent;
     }
