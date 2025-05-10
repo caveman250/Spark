@@ -126,10 +126,13 @@ function(setup_target_common target is_library unity_conf_dir)
     setup_source_files(${target} "${unity_conf_dir}" ${is_library})
     setup_compile_options(${target})
 
+    # make sure cmake is reloaded before each build to run header tool and pick up new files.
+    # note: disabled in multi config as it breaks vs and xcode.
     if(NOT CMAKE_CONFIGURATION_TYPES)
         add_dependencies(${target} ${REGEN_CMAKE_TARGET})
     endif()
 
+    #xcode gets weird about executables that arent bundles
     if (NOT ${is_library} AND ${PLATFORM} MATCHES Mac)
         set_target_properties(${target} PROPERTIES MACOSX_BUNDLE TRUE)
     endif()
