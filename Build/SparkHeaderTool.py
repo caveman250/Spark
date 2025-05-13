@@ -136,12 +136,12 @@ def WriteWidgetHeader(widget_list):
         existing_contents = input_handle.read()
         input_handle.close()
     if existing_contents != contents:
-        print("-- Widgets.generated.h generating...")
+        print("-- -- Widgets.generated.h generating...")
         output_handle = open(output_path, "w+")
         output_handle.write(contents)
         output_handle.close()
     else:
-        print("-- Widgets.generated.h up to date. skipping.")
+        print("-- -- Widgets.generated.h up to date. skipping.")
 
 def ProcessNamespace(line, namespace_stack, namespace_scope_depth_stack, current_scope_depth):
     start_index = len("namespace") + 1
@@ -190,12 +190,12 @@ def WriteComponentRegistrationFiles(components):
         existing_contents = input_handle.read()
         input_handle.close()
     if existing_contents != header:
-        print("-- ComponentRegistration.generated.h generating...")
+        print("-- -- ComponentRegistration.generated.h generating...")
         output_handle = open(output_path, "w+")
         output_handle.write(header)
         output_handle.close()
     else:
-        print("-- ComponentRegistration.generated.h up to date. skipping.")
+        print("-- -- ComponentRegistration.generated.h up to date. skipping.")
 
     cpp = "#include \"ComponentRegistration.generated.h\"\n#include \"spark.h\"\n#include \"engine/reflect/Reflect.h\"\n"
     for i in range(len(components)):
@@ -220,12 +220,12 @@ def WriteComponentRegistrationFiles(components):
         existing_contents = input_handle.read()
         input_handle.close()
     if existing_contents != cpp:
-        print("-- ComponentRegistration.generated.cpp generating...")
+        print("-- -- ComponentRegistration.generated.cpp generating...")
         output_handle = open(output_path, "w+")
         output_handle.write(cpp)
         output_handle.close()
     else:
-        print("-- ComponentRegistration.generated.cpp up to date. skipping.")
+        print("-- -- ComponentRegistration.generated.cpp up to date. skipping.")
 
 def ProcessHeaders():
     components = []
@@ -264,7 +264,7 @@ def ProcessHeaders():
     WriteWidgetHeader(widgets)
     WriteComponentRegistrationFiles(components)
 if __name__ == '__main__':
-    print("Running Spark Header Tool...")
+    print("-- Running Spark Header Tool...")
     ProcessHeaders()
     print("-- done.\n")
 

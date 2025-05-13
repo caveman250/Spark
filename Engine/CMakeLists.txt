@@ -11,7 +11,7 @@ include(${ROOT_DIR}/CMake/include/Spark.cmake)
 ###### Third Party ######
 include(${ROOT_DIR}/CMake/ThirdParty.cmake)
 
-setup_target_common(Spark TRUE "${ROOT_DIR}/Engine/unity.conf")
+setup_target_common(Spark TRUE "${CMAKE_CURRENT_SOURCE_DIR}/unity.conf")
 target_precompile_headers(Spark PUBLIC $<$<COMPILE_LANGUAGE:CXX>:spark.h>)
 
 ###### Linker ######

@@ -37,7 +37,7 @@ def write_output_files(files, file_extension, root, root_dir, output_dir):
             old_file_handle.close()
 
         if old_contents != new_file:
-            print(f"stale file {new_name}")
+            print(f"-- -- -- stale file {new_name}")
             output_handle = open(output_dir + new_name, "w+")
             output_handle.write(new_file)
             output_handle.close()
@@ -56,7 +56,7 @@ def process_excluded_file(excluded_name, output_dir):
         old_file_handle.close()
 
     if old_contents != f"#include \"{excluded_name}\"":
-        print(f"stale file {new_name}")
+        print(f"-- -- -- stale file {new_name}")
         output_handle = open(output_dir + new_name, "w+")
         output_handle.write(f"#include \"{excluded_name}\"")
         output_handle.close()
@@ -130,9 +130,9 @@ def create_unity_files(conf_path, platform):
 def main():
     conf_file = sys.argv[1]
     platform = sys.argv[2]
-    print("-- Generating unity files...")
+    print("-- -- Generating unity files...")
     create_unity_files(conf_file, platform)
-    print("-- done.\n")
+    print("-- -- done.")
 
 if __name__ == '__main__':
     main()
