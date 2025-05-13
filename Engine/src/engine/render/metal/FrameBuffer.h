@@ -4,6 +4,8 @@
 #include "engine/render/FrameBuffer.h"
 #include "MTL_fwd.h"
 
+#if METAL_RENDERER
+
 namespace se::asset
 {
     class Texture;
@@ -27,3 +29,5 @@ namespace se::render::metal
         MTLRenderCommandEncoderPtr m_RenderCommandEncoder = nullptr;
     };
 }
+
+#endif
