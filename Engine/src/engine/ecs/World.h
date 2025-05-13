@@ -7,7 +7,6 @@
 #include "UpdateMode.h"
 #include "MaybeLockGuard.h"
 #include "Observer.h"
-#include "Relationship.h"
 #include "SystemDeclaration.h"
 #include "SystemUpdateData.h"
 #include "engine/profiling/Profiler.h"
@@ -30,14 +29,20 @@ namespace se::ecs
     class AppSystem;
 }
 
-template <class C>
-concept EngineSystemConcept = requires(C c) {
-    []<typename... Cs>(se::ecs::EngineSystem&){}(c);
+template<class C>
+concept EngineSystemConcept = requires(C c)
+{
+    []<typename... Cs>(se::ecs::EngineSystem&)
+    {
+    }(c);
 };
 
-template <class C>
-concept AppSystemConcept = requires(C c) {
-    []<typename... Cs>(se::ecs::AppSystem&){}(c);
+template<class C>
+concept AppSystemConcept = requires(C c)
+{
+    []<typename... Cs>(se::ecs::AppSystem&)
+    {
+    }(c);
 };
 
 template<class Alloc>
@@ -60,7 +65,6 @@ struct std::hash<std::vector<se::ecs::Id, Alloc>>
 namespace se::ecs
 {
     class System;
-    class Relationship;
     template<typename... Cs>
     class SignalActionBuilder;
     class BaseSignal;
@@ -70,7 +74,7 @@ namespace se::ecs
         Archetype* archetype;
         size_t entity_idx; // index/row of entity in component data
         Id parent = s_InvalidEntity;
-        std::vector<Id> children = {};
+        std::vector<Id> children = { };
     };
 
     typedef size_t ArchetypeComponentKey; // index of the Component for the given archetype
@@ -93,7 +97,7 @@ namespace se::ecs
         friend class editor::ui::PropertiesWindow;
 #endif
         friend class System;
-        template <typename... Cs>
+        template<typename... Cs>
         friend class Signal;
         template<typename... Cs>
         friend class SignalActionBuilder;
@@ -106,7 +110,8 @@ namespace se::ecs
         void Render();
         void Shutdown();
 
-        Id CreateEntity(const String& name, bool editorOnly = false);
+        Id CreateEntity(const String& name,
+                        bool editorOnly = false);
         void DestroyEntity(const Id& entity);
         std::vector<Id> GetEntities() const;
         std::vector<Id> GetRootEntities();
@@ -117,53 +122,45 @@ namespace se::ecs
         template<typename T>
         T* AddComponent(const Id& entity);
 
-        void AddRelationship(const Id& entity, const Relationship& relationship);
-        void RemoveRelationship(const Id& entity, const Relationship& relationship);
-        void AddChild(const Id& entity, const Id& childEntity);
-        void RemoveChild(const Id& entity, const Id& childEntity);
+        void AddChild(const Id& entity,
+                      const Id& childEntity);
+        void RemoveChild(const Id& entity,
+                         const Id& childEntity);
         const std::vector<Id>& GetChildren(const Id& entity) const;
         Id GetParent(const Id& entity) const;
 
         template<typename T>
         void RemoveComponent(Id entity);
 
-        template <typename T>
+        template<typename T>
         T* AddSingletonComponent();
 
-        template <typename T>
+        template<typename T>
         void RemoveSingletonComponent();
 
-        template <typename T>
+        template<typename T>
         T* GetSingletonComponent();
 
         std::vector<reflect::ObjectBase*> GetSingletonComponents() const;
 
-        template <AppSystemConcept T>
+        template<AppSystemConcept T>
         Id CreateAppSystem(const SystemDeclaration& reg_info);
         void DestroyAppSystem(const Id& id);
 
-        template <EngineSystemConcept T>
+        template<EngineSystemConcept T>
         Id CreateEngineSystem(const SystemDeclaration& reg_info);
         void DestroyEngineSystem(const Id& id);
 
-        template <typename T>
+        template<typename T>
         void RegisterComponent();
-        template <typename T>
+        template<typename T>
         std::pair<Id, ComponentMutability::Type> CreateComponentUsagePair(ComponentMutability::Type type);
-
-        template <typename T, typename Y>
-        Relationship CreateComponentRelationship();
 
         template<typename T>
         bool HasComponent(const Id& entity);
 
-        template<typename T, typename Y>
-        bool HasRelationship(const Id& entity);
-
-        template<typename T>
-        bool HasRelationshipWildcard(const Id& entity);
-
-        bool IsChildOf(const Id& entity, const Id& parent);
+        bool IsChildOf(const Id& entity,
+                       const Id& parent) const;
 
         template<typename T, typename Y>
         Id CreateObserver();
@@ -182,7 +179,7 @@ namespace se::ecs
                   bool force);
 
         void CollectArchetypes(const std::vector<ComponentUsage>& components,
-                                               std::set<Archetype*>& archetypes);
+                               std::set<Archetype*>& archetypes);
 
         struct VariantQueryArchetype
         {
@@ -194,21 +191,16 @@ namespace se::ecs
                 return archetype < rhs.archetype;
             }
         };
+
         void CollectArchetypesWithVariant(std::vector<ComponentUsage> components,
-                               const ComponentUsage& variantUsage,
-                               std::set<VariantQueryArchetype>& archetypes);
+                                          const ComponentUsage& variantUsage,
+                                          std::set<VariantQueryArchetype>& archetypes);
 
         template<typename Func>
         bool ChildEach(const ecs::Id& entity,
                        const System* system,
                        const ChildQueryDeclaration& declaration,
                        Func&& func);
-
-        template<typename Func>
-        bool ChildEachImpl(SystemUpdateData& updateData,
-                           const std::set<VariantQueryArchetype> archetypes,
-                           const std::vector<ComponentUsage>& compUsage,
-                           Func&& func);
 
         template<typename Func>
         bool RecursiveChildEach(Id entity,
@@ -224,14 +216,17 @@ namespace se::ecs
 
         static bool ValidateChildQuery(const System* system,
                                        const ChildQueryDeclaration& declaration);
-        static Relationship CreateChildRelationship(const Id& entity);
-        bool HasRelationshipWildcardInternal(const Id& entity, uint32_t lhs);
 
-        void RegisterRelationship(uint64_t id);
-
-        void RunOnAllSystems(const std::function<void(const Id&)>& func, const std::vector<std::vector<Id>>& systems, bool parallel, bool processPending);
-        void RunOnAllAppSystems(const std::function<void(const Id&)>& func, bool parallel, bool processPending);
-        void RunOnAllEngineSystems(const std::function<void(const Id&)>& func, bool parallel, bool processPending);
+        void RunOnAllSystems(const std::function<void(const Id&)>& func,
+                             const std::vector<std::vector<Id>>& systems,
+                             bool parallel,
+                             bool processPending);
+        void RunOnAllAppSystems(const std::function<void(const Id&)>& func,
+                                bool parallel,
+                                bool processPending);
+        void RunOnAllEngineSystems(const std::function<void(const Id&)>& func,
+                                   bool parallel,
+                                   bool processPending);
 
         struct PendingComponent
         {
@@ -242,41 +237,53 @@ namespace se::ecs
 
         void AddComponentInternal(const PendingComponent& pendingComp);
         void RemoveComponentInternal(const Id& entity,
- const Id& comp);
+                                     const Id& comp);
 
         uint64_t NewSystem();
         uint64_t RecycleSystem();
 
         static void CreateSystemInternal(std::unordered_map<Id, SystemRecord>& systemMap,
- const Id& system, const SystemDeclaration& pendingSystem);
-        static void DestroySystemInternal(std::unordered_map<Id, SystemRecord>& systemMap, std::vector<Id>& freeSystems,
- const Id& system);
+                                         const Id& system,
+                                         const SystemDeclaration& pendingSystem);
+        static void DestroySystemInternal(std::unordered_map<Id, SystemRecord>& systemMap,
+                                          std::vector<Id>& freeSystems,
+                                          const Id& system);
 
         Id NewObserver();
         Id RecycleObserver();
 
-        bool HasComponent(const Id& entity, const Id& component);
-        void* GetComponent(const Id& entity, const Id& component);
+        bool HasComponent(const Id& entity,
+                          const Id& component);
+        void* GetComponent(const Id& entity,
+                           const Id& component);
 
         uint32_t NewEntity();
         uint32_t RecycleEntity();
         void DestroyEntityInternal(const Id& entity);
-        size_t MoveEntity(const Id& entity, Archetype* archetype, size_t entityIdx, Archetype* nextArchetype);
+        size_t MoveEntity(const Id& entity,
+                          Archetype* archetype,
+                          size_t entityIdx,
+                          Archetype* nextArchetype);
 
-        Archetype* GetArchetype(const Type& type, bool createIfMissing);
+        Archetype* GetArchetype(const Type& type,
+                                bool createIfMissing);
         bool HasArchetype(const Type& type) const;
         void CreateArchetype(const Type& type);
-        Archetype* GetNextArchetype(Archetype* archetype, Id component, bool add, bool createIfMissing);
+        Archetype* GetNextArchetype(Archetype* archetype,
+                                    Id component,
+                                    bool add,
+                                    bool createIfMissing);
 
         void ProcessAllPending();
         void ProcessPendingComponents();
         void ProcessPendingSystems();
         static void ProcessPendingSystems(std::vector<std::pair<Id, SystemDeclaration>>& pendingCreations,
-                                    std::vector<Id>& pendingDeletions,
-                                    std::unordered_map<Id, SystemRecord>& systemRecords,
-                                    std::vector<std::vector<Id>>& systemUpdateGroups,
-                                    std::vector<Id>& freeSystems);
-        static void RebuildSystemUpdateGroups(std::vector<std::vector<Id>>& updateGroups, std::unordered_map<Id, SystemRecord>& systems);
+                                          std::vector<Id>& pendingDeletions,
+                                          std::unordered_map<Id, SystemRecord>& systemRecords,
+                                          std::vector<std::vector<Id>>& systemUpdateGroups,
+                                          std::vector<Id>& freeSystems);
+        static void RebuildSystemUpdateGroups(std::vector<std::vector<Id>>& updateGroups,
+                                              std::unordered_map<Id, SystemRecord>& systems);
         void ProcessPendingAppSystems();
         void ProcessPendingEngineSystems();
         void ProcessPendingEntityDeletions();
@@ -286,53 +293,54 @@ namespace se::ecs
 
         bool m_Running = false;
 
-        std::unordered_map<Id, Archetype> m_Archetypes = {};
-        std::unordered_map<Type, Id> m_ArchetypeTypeLookup = {};
-        std::unordered_map<Id, EntityRecord> m_EntityRecords = {};
-        std::unordered_map<Id, ComponentRecord> m_ComponentRecords = {};
-        std::unordered_map<Id, reflect::ObjectBase*> m_SingletonComponents = {};
-        std::unordered_map<Id, SystemRecord> m_AppSystems = {};
-        std::unordered_map<Id, SystemRecord> m_EngineSystems = {};
+        std::unordered_map<Id, Archetype> m_Archetypes = { };
+        std::unordered_map<Type, Id> m_ArchetypeTypeLookup = { };
+        std::unordered_map<Id, EntityRecord> m_EntityRecords = { };
+        std::unordered_map<Id, ComponentRecord> m_ComponentRecords = { };
+        std::unordered_map<Id, reflect::ObjectBase*> m_SingletonComponents = { };
+        std::unordered_map<Id, SystemRecord> m_AppSystems = { };
+        std::unordered_map<Id, SystemRecord> m_EngineSystems = { };
         std::unordered_map<Id, std::unordered_map<Id, std::shared_ptr<BaseObserver>>> m_Observers;
 
         uint32_t m_EntityCounter = 1;
 #if SPARK_EDITOR
         bool m_EntitiesChangedThisFrame = false;
 #endif
-        std::vector<uint32_t> m_FreeEntities = {};
+        std::vector<uint32_t> m_FreeEntities = { };
         // TODO name counter collisions with entities
         uint64_t m_SystemCounter = 1;
-        std::vector<Id> m_FreeSystems = {};
+        std::vector<Id> m_FreeSystems = { };
         uint64_t m_ArchetypeCounter = 0;
         uint64_t m_ObserverCounter = 1;
-        std::vector<Id> m_FreeObservers = {};
+        std::vector<Id> m_FreeObservers = { };
 
-        std::vector<std::vector<Id>> m_AppSystemUpdateGroups = {};
-        std::vector<std::vector<Id>> m_EngineSystemUpdateGroups = {};
+        std::vector<std::vector<Id>> m_AppSystemUpdateGroups = { };
+        std::vector<std::vector<Id>> m_EngineSystemUpdateGroups = { };
         UpdateMode::Type m_UpdateMode = UpdateMode::SingleThreaded;
-        std::mutex m_EntityMutex = {};
-        std::mutex m_ComponentMutex = {};
-        std::mutex m_SystemMutex = {};
-        std::mutex m_ObserverMutex = {};
+        std::mutex m_EntityMutex = { };
+        std::mutex m_ComponentMutex = { };
+        std::mutex m_SystemMutex = { };
+        std::mutex m_ObserverMutex = { };
 
-        std::vector<Id> m_PendingEntityDeletions = {};
-        std::vector<PendingComponent> m_PendingComponentCreations = {};
-        std::vector<std::pair<Id, Id>> m_PendingComponentDeletions = {};
+        std::vector<Id> m_PendingEntityDeletions = { };
+        std::vector<PendingComponent> m_PendingComponentCreations = { };
+        std::vector<std::pair<Id, Id>> m_PendingComponentDeletions = { };
 
-        std::vector<std::pair<Id, SystemDeclaration>> m_PendingAppSystemCreations = {};
-        std::vector<Id> m_PendingAppSystemDeletions = {};
-        std::vector<std::pair<Id, SystemDeclaration>> m_PendingEngineSystemCreations = {};
-        std::vector<Id> m_PendingEngineSystemDeletions = {};
+        std::vector<std::pair<Id, SystemDeclaration>> m_PendingAppSystemCreations = { };
+        std::vector<Id> m_PendingAppSystemDeletions = { };
+        std::vector<std::pair<Id, SystemDeclaration>> m_PendingEngineSystemCreations = { };
+        std::vector<Id> m_PendingEngineSystemDeletions = { };
         memory::Arena m_TempStore = memory::Arena(20000000); // cleared after all pending creations/deletions
-        bool m_ClearingTempObjects = {};
+        bool m_ClearingTempObjects = { };
 
-        std::vector<BaseSignal*> m_PendingSignals = {};
+        std::vector<BaseSignal*> m_PendingSignals = { };
 
         struct IdMetaData
         {
             String name;
             int32_t flags;
         };
+
         std::unordered_map<uint64_t, IdMetaData> m_IdMetaMap;
     };
 
@@ -340,18 +348,6 @@ namespace se::ecs
     bool World::HasComponent(const Id& entity)
     {
         return HasComponent(entity, T::GetComponentId());
-    }
-
-    template <typename T, typename Y>
-    bool World::HasRelationship(const Id& entity)
-    {
-        return HasComponent(entity, CreateComponentRelationship<T, Y>());
-    }
-
-    template <typename T>
-    bool World::HasRelationshipWildcard(const Id& entity)
-    {
-        return HasRelationshipWildcardInternal(entity, bits::UnpackA64(T::GetComponentId()));
     }
 
     template<typename T, typename Y>
@@ -395,7 +391,7 @@ namespace se::ecs
             uint64_t id;
             if (!m_FreeEntities.empty())
             {
-                 id = bits::Pack64(RecycleEntity(), 0);
+                id = bits::Pack64(RecycleEntity(), 0);
             }
             else
             {
@@ -414,25 +410,15 @@ namespace se::ecs
                                                      ComponentRecord
                                                      {
                                                          .type = reflect::ClassResolver<T>::get(),
-                                                         .archetypeRecords = {},
+                                                         .archetypeRecords = { },
                                                      }));
         }
     }
 
-    template <typename T>
+    template<typename T>
     std::pair<Id, ComponentMutability::Type> World::CreateComponentUsagePair(ComponentMutability::Type type)
     {
         return { T::GetComponentId(), type };
-    }
-
-    template <typename T, typename Y>
-    Relationship World::CreateComponentRelationship()
-    {
-        static_assert(!std::is_same_v<components::ChildOf, T>, "Child relationships should be created via World::AddChild");
-        static_assert(std::is_base_of_v<RelationshipComponent, T>, "Relationship components must inherit from RelationshipComponent.");
-        Relationship relationship;
-        relationship.SetId(bits::Pack64(bits::UnpackA64(T::GetComponentId()), bits::UnpackA64(Y::GetComponentId())));
-        return relationship;
     }
 
     template<typename Func>
@@ -442,11 +428,11 @@ namespace se::ecs
                      bool force)
     {
         PROFILE_SCOPE("World::Each")
-        std::set<Archetype*> archetypes = {};
+        std::set<Archetype*> archetypes = { };
         CollectArchetypes(components, archetypes);
 
-        SystemUpdateData updateData = {};
-        for (const auto& compUsage : singletonComponents)
+        SystemUpdateData updateData = { };
+        for (const auto& compUsage: singletonComponents)
         {
             updateData.AddSingletonComponent(compUsage.id, m_SingletonComponents.at(compUsage.id), compUsage.mutability);
         }
@@ -457,7 +443,7 @@ namespace se::ecs
             {
                 updateData.ClearEntityData();
                 updateData.SetEntities(archetype->entities);
-                for (const auto& compUsage : components)
+                for (const auto& compUsage: components)
                 {
                     const auto& compInfo = m_ComponentRecords[compUsage.id];
                     const ArchetypeComponentKey& key = compInfo.archetypeRecords.at(archetype->id);
@@ -473,8 +459,8 @@ namespace se::ecs
         {
             std::vector<Id> empty;
             updateData.SetEntities(empty);
-            
-            for (const auto& compUsage : components)
+
+            for (const auto& compUsage: components)
             {
                 updateData.AddComponentArray(compUsage.id, nullptr, compUsage.mutability);
             }
@@ -482,7 +468,7 @@ namespace se::ecs
         }
     }
 
-    template <typename Func>
+    template<typename Func>
     bool World::ChildEach(const ecs::Id& entity,
                           const System* system,
                           const ChildQueryDeclaration& declaration,
@@ -497,10 +483,10 @@ namespace se::ecs
         }
 #endif
         bool hasNullVariant = false;
-        std::set<ecs::Id> variantTypes = {};
+        std::set<ecs::Id> variantTypes = { };
         if (declaration.variantComponentUsage.type_hash != 0)
         {
-            for (const auto& type : declaration.variantComponentUsage.components)
+            for (const auto& type: declaration.variantComponentUsage.components)
             {
                 if (type == s_InvalidEntity)
                 {
@@ -511,40 +497,51 @@ namespace se::ecs
             }
         }
 
-        std::vector components = declaration.componentUsage;
-        components.push_back(ComponentUsage(CreateChildRelationship(entity).GetId(), ComponentMutability::Immutable));
-        SystemUpdateData updateData = {};
-        for (const auto& compUsage : declaration.singletonComponentUsage)
+        SystemUpdateData updateData = { };
+        for (const auto& compUsage: declaration.singletonComponentUsage)
         {
             updateData.AddSingletonComponent(compUsage.id, m_SingletonComponents.at(compUsage.id), compUsage.mutability);
         }
 
-        if (!variantTypes.empty())
+        for (const auto& child: GetChildren(entity))
         {
-            std::set<VariantQueryArchetype> archetypes = {};
-            for (const ecs::Id& variantType: variantTypes)
+            updateData.ClearEntityData();
+            std::vector entities = { child };
+            updateData.SetEntities(entities);
+
+            bool shouldSkip = false;
+            for (const auto& comp: declaration.componentUsage)
             {
-                auto variant = ComponentUsage(variantType, declaration.variantComponentUsage.mutability);
-                CollectArchetypesWithVariant(components, variant, archetypes);
+                if (!HasComponent(child, comp.id))
+                {
+                    shouldSkip = true;
+                    break;
+                }
+
+                updateData.AddComponentArray(comp.id, GetComponent(child, comp.id), comp.mutability);
             }
 
-            if (hasNullVariant)
+            bool hasAnyVariant = hasNullVariant || declaration.variantComponentUsage.components.empty();
+            for (const auto& comp: declaration.variantComponentUsage.components)
             {
-                auto variant = ComponentUsage(s_InvalidEntity, ComponentMutability::Immutable);
-                CollectArchetypesWithVariant(components, variant, archetypes);
+                if (!HasComponent(child, comp))
+                {
+                    continue;
+                }
+
+                hasAnyVariant = true;
+                updateData.AddVariantComponentArray(comp.id,
+                                                    GetComponent(child, comp),
+                                                    declaration.variantComponentUsage.mutability);
+                break;
             }
 
-            if (ChildEachImpl(updateData, archetypes, components, func))
+            if (shouldSkip || !hasAnyVariant)
             {
-                return true;
+                continue;
             }
-        }
-        else
-        {
-            auto variant = ComponentUsage(s_InvalidEntity, ComponentMutability::Immutable);
-            std::set<VariantQueryArchetype> archetypes = {};
-            CollectArchetypesWithVariant(components, variant, archetypes);
-            if (ChildEachImpl(updateData, archetypes, components, func))
+
+            if (func(updateData))
             {
                 return true;
             }
@@ -554,48 +551,10 @@ namespace se::ecs
     }
 
     template<typename Func>
-    bool World::ChildEachImpl(SystemUpdateData& updateData,
-                              const std::set<VariantQueryArchetype> archetypes,
-                              const std::vector<ComponentUsage>& compUsage,
-                              Func&& func)
-    {
-        for (const auto& archetype: archetypes)
-        {
-            if (!archetype.archetype->entities.empty())
-            {
-                updateData.ClearEntityData();
-                updateData.SetEntities(archetype.archetype->entities);
-                for (const auto& comp : compUsage)
-                {
-                    const auto& compInfo = m_ComponentRecords[comp.id];
-                    const ArchetypeComponentKey& key = compInfo.archetypeRecords.at(archetype.archetype->id);
-                    updateData.AddComponentArray(comp.id, archetype.archetype->components.at(key).Data(), comp.mutability);
-                }
-
-                if (archetype.variantUsage.id != s_InvalidEntity)
-                {
-                    const auto& compInfo = m_ComponentRecords[archetype.variantUsage.id];
-                    const ArchetypeComponentKey& key = compInfo.archetypeRecords.at(archetype.archetype->id);
-                    updateData.AddVariantComponentArray(archetype.variantUsage.id, archetype.archetype->components.at(key).Data(), archetype.variantUsage.mutability);
-                }
-                else
-                {
-                    //s_InvalidEntity indicates a null type in the variant, this is valid.
-                    updateData.AddVariantComponentArray(archetype.variantUsage.id, nullptr, archetype.variantUsage.mutability);
-                }
-
-                if (func(updateData))
-                {
-                    return true;
-                }
-            }
-        }
-
-        return false;
-    }
-
-    template<typename Func>
-    bool World::RecursiveChildEach(Id entity, System *system, const ChildQueryDeclaration& declaration, Func &&func)
+    bool World::RecursiveChildEach(Id entity,
+                                   System* system,
+                                   const ChildQueryDeclaration& declaration,
+                                   Func&& func)
     {
         PROFILE_SCOPE("World::RecursiveChildEach");
 
@@ -608,11 +567,14 @@ namespace se::ecs
     }
 
     template<typename Func>
-    bool World::RecurseChildren(Id entity, System *system, const ChildQueryDeclaration& declaration, Func &&func)
+    bool World::RecurseChildren(Id entity,
+                                System* system,
+                                const ChildQueryDeclaration& declaration,
+                                Func&& func)
     {
         if (HasComponent<components::ParentComponent>(entity))
         {
-            for (const auto& child : m_EntityRecords.at(entity).children)
+            for (const auto& child: m_EntityRecords.at(entity).children)
             {
                 if (RecurseChildren(child, system, declaration, func))
                 {
@@ -640,7 +602,7 @@ namespace se::ecs
         }
 
         T* tempComp = m_TempStore.Alloc<T>();
-        m_PendingComponentCreations.emplace_back(PendingComponent { .entity=entity, .comp=T::GetComponentId(), .tempData=tempComp });
+        m_PendingComponentCreations.emplace_back(PendingComponent { .entity = entity, .comp = T::GetComponentId(), .tempData = tempComp });
         SPARK_ASSERT(m_PendingComponentCreations.back().comp.name != nullptr);
         return tempComp;
     }
@@ -670,7 +632,7 @@ namespace se::ecs
             system = NewSystem();
         }
         m_IdMetaMap[system] = { reg_info.name, 0 };
-        m_PendingEngineSystemCreations.push_back({system, reg_info });
+        m_PendingEngineSystemCreations.push_back({ system, reg_info });
         if (SPARK_VERIFY(!m_EngineSystems.contains(system)))
         {
             m_EngineSystems.insert(std::make_pair(system, SystemRecord { reflect::ClassResolver<T>::get(), nullptr }));
@@ -679,7 +641,7 @@ namespace se::ecs
         return system;
     }
 
-    template <AppSystemConcept T>
+    template<AppSystemConcept T>
     Id World::CreateAppSystem(const SystemDeclaration& reg_info)
     {
         auto guard = MaybeLockGuard(m_UpdateMode, &m_SystemMutex);
@@ -692,8 +654,8 @@ namespace se::ecs
         {
             system = NewSystem();
         }
-        m_IdMetaMap[system] = {reg_info.name, 0};
-        m_PendingAppSystemCreations.push_back({system, reg_info });
+        m_IdMetaMap[system] = { reg_info.name, 0 };
+        m_PendingAppSystemCreations.push_back({ system, reg_info });
         if (SPARK_VERIFY(!m_AppSystems.contains(system)))
         {
             m_AppSystems.insert(std::make_pair(system, SystemRecord { reflect::ClassResolver<T>::get(), nullptr }));
@@ -730,7 +692,7 @@ namespace se::ecs
         m_SingletonComponents.erase(T::GetComponentId());
     }
 
-    template <typename T>
+    template<typename T>
     T* World::GetSingletonComponent()
     {
         if (!SPARK_VERIFY(!IsRunning()))

@@ -9,7 +9,6 @@
 #include "engine/ecs/System.h"
 #include "engine/profiling/Profiler.h"
 #include "engine/render/Renderer.h"
-#include "relationships/ChildOf.h"
 #include "engine/bits/FlagUtil.h"
 #include "engine/threads/ParallelForEach.h"
 
@@ -158,49 +157,6 @@ namespace se::ecs
         std::erase(record.archetype->entities, entity);
         m_EntityRecords.erase(entity);
         m_FreeEntities.push_back(bits::UnpackA64(entity));
-    }
-
-    bool World::HasRelationshipWildcardInternal(const Id& entity, uint32_t lhs)
-    {
-        EntityRecord& record = m_EntityRecords.at(entity);
-
-        if (Archetype* archetype = record.archetype)
-        {
-            for (const auto& id: archetype->type)
-            {
-                uint32_t typeRhs = bits::UnpackB64(id);
-                if (typeRhs == 0)
-                {
-                    continue; // not a relationship
-                }
-                uint32_t typeLhs = bits::UnpackA64(id);
-                if (typeLhs == lhs)
-                {
-                    return true;
-                }
-            }
-        }
-
-        // need to check pending comps.
-        for (const auto& pendingComp: m_PendingComponentCreations)
-        {
-            if (pendingComp.entity == entity)
-            {
-                auto id = pendingComp.comp;
-                uint32_t typeRhs = bits::UnpackB64(id);
-                if (typeRhs == 0)
-                {
-                    continue; // not a relationship
-                }
-                uint32_t typeLhs = bits::UnpackA64(id);
-                if (typeLhs == lhs)
-                {
-                    return true;
-                }
-            }
-        }
-
-        return false;
     }
 
     bool World::HasComponent(const Id& entity, const Id& component)
@@ -638,9 +594,9 @@ namespace se::ecs
         }
     }
 
-    bool World::IsChildOf(const Id& entity, const Id& parent)
+    bool World::IsChildOf(const Id& entity, const Id& parent) const
     {
-        return HasComponent(entity, CreateChildRelationship(parent).GetId());
+        return GetParent(entity) == parent;
     }
 
     void World::DestroyObserver(const Id& id)
@@ -767,32 +723,6 @@ namespace se::ecs
         return true;
     }
 
-    Relationship World::CreateChildRelationship(const Id& entity)
-    {
-        Relationship childOf;
-        childOf.SetId(bits::Pack64(bits::UnpackA64(components::ChildOf::GetComponentId()), bits::UnpackA64(entity)));
-        return childOf;
-    }
-
-    void World::RegisterRelationship(uint64_t id)
-    {
-        if (!m_ComponentRecords.contains(id))
-        {
-            m_ComponentRecords.insert(std::make_pair(id,
-                                                     ComponentRecord
-                                                     {
-                                                         .type = reflect::ClassResolver<Relationship>::get(),
-                                                         .archetypeRecords = {}
-                                                     }));
-            Id leftId = bits::Pack64(bits::UnpackA64(id), 0);
-            Id rightId = bits::Pack64(bits::UnpackB64(id), 0);
-            m_IdMetaMap[id] = {
-                std::format("{0} => {1}", leftId.name->Data(), rightId.id),
-                0
-            };
-        }
-    }
-
     void World::RunOnAllSystems(const std::function<void(const Id&)>& func,
                                 const std::vector<std::vector<Id>>& systemUpdateGroups, bool parallel, bool processPending)
     {
@@ -853,38 +783,8 @@ namespace se::ecs
         return ret;
     }
 
-    void World::AddRelationship(const Id& entity, const Relationship& relationship)
-    {
-        auto guard = MaybeLockGuard(m_UpdateMode, &m_ComponentMutex);
-        RegisterRelationship(relationship.GetId());
-
-        if (!SPARK_VERIFY(!HasComponent(entity, relationship.GetId())))
-        {
-            return;
-        }
-
-        m_PendingComponentCreations.emplace_back(PendingComponent{
-            .entity = entity, .comp = relationship.GetId(), .tempData = m_TempStore.Alloc<Relationship>(relationship)
-        });
-        SPARK_ASSERT(m_PendingComponentCreations.back().comp.name != nullptr);
-    }
-
-    void World::RemoveRelationship(const Id& entity, const Relationship& relationship)
-    {
-        auto guard = MaybeLockGuard(m_UpdateMode, &m_ComponentMutex);
-        RegisterRelationship(relationship.GetId());
-
-        if (!SPARK_VERIFY(HasComponent(entity, relationship.GetId())))
-        {
-            return;
-        }
-
-        m_PendingComponentDeletions.emplace_back(std::pair<Id, Id>{entity, relationship.GetId()});
-    }
-
     void World::AddChild(const Id& entity, const Id& childEntity)
     {
-        AddRelationship(childEntity, CreateChildRelationship(entity));
         if (!HasComponent<components::ParentComponent>(entity))
         {
             AddComponent<components::ParentComponent>(entity);
@@ -894,7 +794,7 @@ namespace se::ecs
         parentRecord.children.push_back(childEntity);
         m_EntityRecords.at(childEntity).parent = entity;
 
-        if (!HasComponent<components::RootComponent>(entity) && !HasRelationshipWildcard<components::ChildOf>(entity))
+        if (!HasComponent<components::RootComponent>(entity) && GetParent(entity) == s_InvalidEntity)
         {
             AddComponent<components::RootComponent>(entity);
         }
@@ -907,8 +807,6 @@ namespace se::ecs
 
     void World::RemoveChild(const Id& entity, const Id& childEntity)
     {
-        RemoveRelationship(childEntity, CreateChildRelationship(entity));
-
         auto& parentRecord = m_EntityRecords.at(entity);
         auto [first, last] = std::ranges::remove(parentRecord.children, childEntity);
         parentRecord.children.erase(first, last);
@@ -1120,11 +1018,22 @@ namespace se::ecs
 
     const std::vector<Id>& World::GetChildren(const Id& entity) const
     {
-        return m_EntityRecords.at(entity).children;
+        auto it = m_EntityRecords.find(entity);
+        if (it == m_EntityRecords.end())
+        {
+            static std::vector<Id> empty = {};
+            return empty;
+        }
+        return it->second.children;
     }
 
     Id World::GetParent(const Id& entity) const
     {
-        return m_EntityRecords.at(entity).parent;
+        auto it = m_EntityRecords.find(entity);
+        if (it == m_EntityRecords.end())
+        {
+            return s_InvalidEntity;
+        }
+        return it->second.parent;
     }
 }

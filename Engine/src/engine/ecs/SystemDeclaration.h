@@ -2,7 +2,6 @@
 
 #include "spark.h"
 #include "engine/reflect/Reflect.h"
-#include "engine/ecs/Relationship.h"
 
 namespace se::ecs
 {
@@ -103,18 +102,6 @@ namespace se::ecs
             return *this;
         }
 
-        SystemDeclaration& WithRelationship(const Relationship& relationship)
-        {
-            componentUsage.push_back(ComponentUsage(relationship.GetId(), ComponentMutability::Immutable));
-            return *this;
-        }
-
-        SystemDeclaration& WithRelationshipChildQuery(const Relationship& relationship)
-        {
-            childQuerys.push_back(ComponentUsage(relationship.GetId(), ComponentMutability::Immutable));
-            return *this;
-        }
-
         template<typename T>
         SystemDeclaration& WithChildQuery()
         {
@@ -199,12 +186,6 @@ namespace se::ecs
             std::set<ecs::Id> components;
             (CollectVariantComponentIds<Ts>(components), ...);
             variantComponentUsage = VariantComponentUsage(typeid(std::variant<Ts*...>).hash_code(), components, mutability);
-            return *this;
-        }
-
-        ChildQueryDeclaration& WithRelationship(const Relationship& relationship)
-        {
-            componentUsage.push_back(ComponentUsage(relationship.GetId(), ComponentMutability::Immutable));
             return *this;
         }
 

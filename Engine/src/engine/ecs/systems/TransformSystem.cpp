@@ -6,7 +6,6 @@
 
 #include "engine/Application.h"
 #include "engine/ecs/components/TransformComponent.h"
-#include "engine/ecs/relationships/ChildOf.h"
 #include "engine/profiling/Profiler.h"
 
 using namespace se;

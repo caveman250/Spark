@@ -2,7 +2,6 @@
 
 #include "engine/Application.h"
 #include "engine/ecs/components/RootComponent.h"
-#include "engine/ecs/relationships/ChildOf.h"
 
 namespace se::ui::observers
 {
@@ -10,7 +9,7 @@ namespace se::ui::observers
     {
         auto world = Application::Get()->GetWorld();
         if (!world->HasComponent<ecs::components::RootComponent>(entity) &&
-            !world->HasRelationshipWildcard<ecs::components::ChildOf>(entity))
+            world->GetParent(entity) == ecs::s_InvalidEntity)
         {
             world->AddComponent<ecs::components::RootComponent>(entity);
         }
