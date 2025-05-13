@@ -10,7 +10,6 @@ include(${ROOT_DIR}/CMake/editor/PreprocessorEditor.cmake)
 include(${ROOT_DIR}/CMake/editor/IncludeDirsEditor.cmake)
 
 function(exclude_files_from_vs files)
-    message("Excluding VS files ${files}")
     set_property(SOURCE ${files} PROPERTY VS_SETTINGS "ExcludedFromBuild=true")
 endfunction()
 
