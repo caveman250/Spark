@@ -50,6 +50,13 @@ namespace se::windows
 
         wglMakeCurrent(m_Hdc, m_Gglrc);
 
+        auto openGLRenderer = se::render::Renderer::Get<se::render::opengl::OpenGLRenderer>();
+        SPARK_ASSERT(openGLRenderer);
+        if (openGLRenderer->IsGLEWInitialised())
+        {
+            wglSwapIntervalEXT(0);
+        }
+
         ShowWindow(m_Hwnd, SW_NORMAL);
         UpdateWindow(m_Hwnd);
     }
@@ -300,7 +307,6 @@ namespace se::windows
                 SetPixelFormat(m_Hdc, nPixelFormat, &pfd);
                 m_Gglrc = wglCreateContext( m_Hdc );
             }
-
         }
         else
         {
