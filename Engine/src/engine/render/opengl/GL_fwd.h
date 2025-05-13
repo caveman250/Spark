@@ -4,7 +4,12 @@
 
 #if OPENGL_RENDERER
 
+#ifndef GLEW_STATIC
 #define GLEW_STATIC
+#endif
+#ifndef GLEW_NO_GLU
+#define GLEW_NO_GLU
+#endif
 #include "GL/glew.h"
 #if SPARK_PLATFORM_WINDOWS
 #include "GL/wglew.h"

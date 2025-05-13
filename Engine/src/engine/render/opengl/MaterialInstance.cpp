@@ -1,5 +1,8 @@
 #include "MaterialInstance.h"
 
+#include "Material.h"
+#include "engine/asset/shader/ast/TypeUtil.h"
+
 #if OPENGL_RENDERER
 
 namespace se::render
@@ -82,7 +85,7 @@ namespace se::render::opengl
 
     void MaterialInstance::CreatePlatformResources()
     {
-        Material* material = static_cast<Material*>(m_Material.get());
+        auto material = static_cast<Material*>(m_Material.get());
 
         m_CompiledProgram = glCreateProgram();
         glAttachShader(m_CompiledProgram, material->GetVertexShader());

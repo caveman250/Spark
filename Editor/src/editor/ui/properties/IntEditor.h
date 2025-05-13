@@ -1,8 +1,14 @@
 #pragma once
 
+#include "engine/Application.h"
 #include "PropertyEditor.h"
 #include "engine/math/math.h"
+#include "engine/ui/components/WidgetComponent.h"
+#include "engine/ui/components/ImageComponent.h"
+#include "engine/ui/components/EditableTextComponent.h"
 #include "inttypes.h"
+#include "engine/asset/AssetManager.h"
+#include "engine/ui/util/EditableTextUtil.h"
 
 namespace se::editor::ui::properties
 {
@@ -20,7 +26,7 @@ namespace se::editor::ui::properties
         void Update() override;
 
     private:
-        I* m_Value;
+        I* m_Value = nullptr;
         ecs::Id m_Label;
     };
 

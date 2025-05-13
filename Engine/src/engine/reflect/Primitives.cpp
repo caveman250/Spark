@@ -43,7 +43,7 @@ return &typeDesc;\
     DEFINE_PRIMITIVE(uint32_t, asset::binary::Type::Uint32)
     DEFINE_PRIMITIVE(int64_t, asset::binary::Type::Int64)
     DEFINE_PRIMITIVE(uint64_t, asset::binary::Type::Uint64)
-#if !SPARK_PLATFORM_WINDOWS
+#if SPARK_PLATFORM_MAC
     DEFINE_PRIMITIVE(size_t, asset::binary::Type::Uint64)
 #endif
     DEFINE_PRIMITIVE(double, asset::binary::Type::Double)

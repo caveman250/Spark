@@ -2,6 +2,7 @@
 
 #include "spark.h"
 #include "engine/reflect/Reflect.h"
+#include "engine/ecs/Relationship.h"
 
 namespace se::ecs
 {

@@ -14,8 +14,6 @@ namespace se
 
 namespace se::linux
 {
-    static std::unordered_map<SDL_Window*, Window*> s_WindowInstances;
-
     Window::Window(int resX, int resY)
         : IWindow(resX, resY)
     {
@@ -29,28 +27,11 @@ namespace se::linux
 #endif
         m_Context = SDL_GL_CreateContext(m_Window);
         SDL_GL_SetSwapInterval(0);
-        if (auto primaryWindow = Application::Get()->GetPrimaryWindow())
-        {
-            // SDL_GL_CreateContext sets the new context as current.
-            // keep the primary window as the default and make users opt in to context switches.
-            primaryWindow->SetCurrent();
-        }
-        s_WindowInstances[m_Window] = this;
     }
 
     Window::~Window()
     {
-        s_WindowInstances.erase(m_Window);
-        if (auto platformRunLoop = PlatformRunLoop::Get())
-        {
-            platformRunLoop->UnregisterWindow(this);
-        }
         SDL_DestroyWindow(m_Window);
-    }
-
-    void Window::SetCurrent()
-    {
-        SDL_GL_MakeCurrent(m_Window, m_Context);
     }
 
     void Window::Cleanup()

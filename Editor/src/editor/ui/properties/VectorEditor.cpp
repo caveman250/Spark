@@ -10,6 +10,7 @@
 #include "engine/asset/AssetManager.h"
 #include "engine/render/Material.h"
 #include "engine/render/MaterialInstance.h"
+#include "engine/ui/components/TextComponent.h"
 
 namespace se::editor::ui::properties
 {

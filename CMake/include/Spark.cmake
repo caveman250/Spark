@@ -8,6 +8,7 @@ include(${ROOT_DIR}/CMake/BuildOptions.cmake)
 include(${ROOT_DIR}/CMake/ExternalTools.cmake)
 include(${ROOT_DIR}/CMake/editor/PreprocessorEditor.cmake)
 include(${ROOT_DIR}/CMake/editor/IncludeDirsEditor.cmake)
+include(${ROOT_DIR}/CMake/editor/LinkerEditor.cmake)
 
 function(exclude_files_from_vs files)
     set_property(SOURCE ${files} PROPERTY VS_SETTINGS "ExcludedFromBuild=true")
@@ -148,18 +149,12 @@ function(setup_target_common target is_library unity_conf_dir)
     if (NOT ${is_library} AND ${PLATFORM} MATCHES Mac)
         set_target_properties(${target} PROPERTIES MACOSX_BUNDLE TRUE)
     endif()
-
-    #enable parallel std::for_each
-    if (${PLATFORM} MATCHES Linux)
-        find_package(TBB REQUIRED COMPONENTS tbb)
-        target_link_libraries(${target} tbb)
-    endif()
 endfunction()
 
 function(setup_spark_target target is_library unity_conf_dir)
     setup_target_common(${target} ${is_library} "${unity_conf_dir}")
 
     include(${ROOT_DIR}/CMake/Linker.cmake)
-    include(${ROOT_DIR}/CMake/editor/LinkerEditor.cmake)
+    link_editor_libs(${target})
     include(${ROOT_DIR}/CMake/PCH.cmake)
 endfunction()

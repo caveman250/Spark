@@ -7,15 +7,20 @@
 #include "engine/reflect/Util.h"
 #include "stb_image.h"
 
-#if !SPARK_PLATFORM_WINDOWS
+#if SPARK_PLATFORM_MAC
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wgnu-anonymous-struct"
 #pragma clang diagnostic ignored "-Wnested-anon-types"
+#elif SPARK_PLATFORM_LINUX
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpedantic"
 #endif
 #include "rdo_bc_encoder.h"
 
-#if !SPARK_PLATFORM_WINDOWS
+#if SPARK_PLATFORM_MAC
 #pragma clang diagnostic pop
+#elif SPARK_PLATFORM_LINUX
+#pragma GCC diagnostic pop
 #endif
 
 namespace se::asset::builder
@@ -73,7 +78,7 @@ namespace se::asset::builder
 
         rdo_bc::rdo_bc_encoder encoder;
         utils::image_u8 image(imageData.x, imageData.y);
-        memcpy(image.get_pixels().data(), imageData.data, imageData.x * imageData.y * sizeof(uint32_t));
+        memcpy(static_cast<void*>(image.get_pixels().data()), static_cast<void*>(imageData.data), imageData.x * imageData.y * sizeof(uint32_t));
 
         if (!encoder.init(image, rp))
         {

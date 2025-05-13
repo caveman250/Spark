@@ -121,13 +121,23 @@ namespace se
     void String::Insert(size_t i,
                         const char* str)
     {
-        m_Data.insert_range(m_Data.begin() + i, util::PtrRange(str, strlen(str)));
+        auto range = util::PtrRange(str, strlen(str));
+        for (auto it = range.begin(); it != range.end(); ++it)
+        {
+            m_Data.insert(m_Data.begin() + i, *it);
+            i++;
+        }
     }
 
     void String::Insert(size_t i,
                         const String& str)
     {
-        m_Data.insert_range(m_Data.begin() + i, util::PtrRange(str.Data(), str.Size()));
+        auto range = util::PtrRange(str.Data(), str.Size());
+        for (auto it = range.begin(); it != range.end(); ++it)
+        {
+            m_Data.insert(m_Data.begin() + i, *it);
+            i++;
+        }
     }
 
     void String::Erase(size_t i)
@@ -138,7 +148,11 @@ namespace se
     String& String::Replace(size_t start, size_t end, const String& str)
     {
         m_Data.erase(m_Data.begin() + start, m_Data.begin() + end);
-        m_Data.insert_range(m_Data.begin() + start, str.m_Data);
+        for (auto it = str.m_Data.begin(); it != str.m_Data.end(); ++it)
+        {
+            m_Data.insert(m_Data.begin() + start, *it);
+            start++;
+        }
         return *this;
     }
 

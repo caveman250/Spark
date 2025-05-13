@@ -5,6 +5,7 @@
 #include "GL_fwd.h"
 #include "engine/render/Material.h"
 #include "engine/render/VertexBuffer.h"
+#include "platform/IWindow.h"
 
 namespace se::render::commands
 {

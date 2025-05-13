@@ -13,7 +13,6 @@ namespace se::linux
         Window(int resX, int resY);
         ~Window() override;
 
-        void SetCurrent() override;
         void Cleanup() override;
 
         SDL_Window* GetSDLWindow() const { return m_Window; }

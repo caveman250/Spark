@@ -39,6 +39,8 @@ namespace se::linux
     {
         auto app = Application::Get();
         auto inputComp = app->GetWorld()->GetSingletonComponent<input::InputComponent>();
+        inputComp->mouseEvents.clear();
+        inputComp->keyEvents.clear();
 
         SDL_Event ev;
         while (SDL_PollEvent(&ev))
@@ -93,7 +95,7 @@ namespace se::linux
                 }
                 case SDL_MOUSEWHEEL:
                 {
-                    inputComp->mouseScrollDelta = ev.wheel.y;
+                    inputComp->mouseScrollDelta = ev.wheel.y * 50;
 
                     input::MouseEvent mouseEvent;
                     mouseEvent.button = input::MouseButton::None;
@@ -102,21 +104,16 @@ namespace se::linux
                     break;
                 }
                 case SDL_WINDOWEVENT:
-                    if (!m_Windows.contains(ev.window.windowID))
-                    {
-                        break;
-                    }
-                    auto* window = m_Windows.at(ev.window.windowID);
                     switch (ev.window.event)
                     {
                         case SDL_WINDOWEVENT_RESIZED:
-                            window->OnResize(ev.window.data1, ev.window.data2);
+                            m_Window->OnResize(ev.window.data1, ev.window.data2);
                             break;
                         case SDL_WINDOWEVENT_MOVED:
-                            window->OnMove(ev.window.data1, ev.window.data2);
+                            m_Window->OnMove(ev.window.data1, ev.window.data2);
                             break;
                         case SDL_WINDOWEVENT_CLOSE:
-                            window->OnClose();
+                            m_Window->OnClose();
                             break;
                         default:
                             break;
@@ -129,6 +126,7 @@ namespace se::linux
         {
             m_Window->Cleanup();
             delete m_Window;
+            m_ShouldExit = true;
         }
 
         if (ShouldExit())
@@ -138,12 +136,10 @@ namespace se::linux
 
         PlatformRunLoop::Update();
 
-        render::Renderer::Get()->Render();
-        SDL_GL_SwapWindow(m_Window->GetSDLWindow());
+        render::Renderer::Get<render::Renderer>()->Render();
+        SDL_GL_SwapWindow(static_cast<Window*>(m_Window)->GetSDLWindow());
 
-        render::Renderer::Get()->EndFrame();
-
-        PostRender();
+        render::Renderer::Get<render::Renderer>()->EndFrame();
     }
 
     bool LinuxRunLoop::ShouldExit()

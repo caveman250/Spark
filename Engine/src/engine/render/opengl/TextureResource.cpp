@@ -1,4 +1,5 @@
 #include "engine/render/TextureResource.h"
+#include "engine/render/render_fwd.h"
 #if OPENGL_RENDERER
 #include "TextureResource.h"
 #include "engine/asset/texture/Mipmap.h"

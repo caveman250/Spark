@@ -1,3 +1,3 @@
-if(NOT ${target} MATCHES Editor) # prevent duplicate library warning.
+if(${PLATFORM} MATCHES Linux OR NOT ${target} MATCHES Editor) # prevent duplicate library warning. for some reason not an issue on linux.
     target_link_libraries(${target} Spark)
 endif()

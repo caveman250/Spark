@@ -42,7 +42,7 @@ namespace se::editor::ui::properties
         map.insert(std::make_pair(Type, reflect::TypeResolver<PropertyEditorType>::get()));\
     });
 
-#if SPARK_PLATFORM_MAC
+#if SPARK_PLATFORM_MAC || SPARK_PLATFORM_LINUX
 #define SSCANF(buffer, str, var, ...) sscanf(buffer, str, var)
 #else
 #define SSCANF(buffer, str, var, ...) sscanf_s(buffer, str, var, __VA_ARGS__)

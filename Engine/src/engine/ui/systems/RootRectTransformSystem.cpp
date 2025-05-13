@@ -7,6 +7,7 @@
 
 #include "engine/Application.h"
 #include "engine/profiling/Profiler.h"
+#include "platform/IWindow.h"
 
 using namespace se;
 using namespace se::ecs::components;
