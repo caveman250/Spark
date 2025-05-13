@@ -61,7 +61,7 @@ namespace se::ui::util
         auto titleBarEntity = world->CreateEntity("TitleBar", editorOnly);
         auto titleBarText = world->AddComponent<TextComponent>(titleBarEntity);
         titleBarText->font = assetManager->GetAsset<asset::Font>("/engine_assets/fonts/Arial.sass");
-        titleBarText->fontSize = 30;
+        titleBarText->fontSize = 24;
         titleBarText->text = title;
         *titleBar = world->AddComponent<TitleBarComponent>(titleBarEntity);
         std::function<void(float, float)> moveCb = [entity](float dX, float dY)
@@ -78,7 +78,7 @@ namespace se::ui::util
         titleBarTransform->minX = 0;
         titleBarTransform->maxX = 0;
         titleBarTransform->minY = 0;
-        titleBarTransform->maxY = 40;
+        titleBarTransform->maxY = 30;
         world->AddChild(entity, titleBarEntity);
 
         auto buttonEntity = world->CreateEntity("Close Button", editorOnly);
@@ -94,7 +94,7 @@ namespace se::ui::util
         buttonComp->onReleased.Subscribe(std::move(buttonCb));
         auto buttonTransform = world->AddComponent<RectTransformComponent>(buttonEntity);
         buttonTransform->anchors = { 1.f, 1.f, 0.f, 1.f };
-        buttonTransform->minX = 35;
+        buttonTransform->minX = 25;
         buttonTransform->maxX = 5;
         buttonTransform->minY = 5;
         buttonTransform->maxY = 5;
@@ -106,7 +106,7 @@ namespace se::ui::util
         childAreaTransform->anchors = { 0.f, 1.f, 0.f, 1.f };
         childAreaTransform->minX = 0;
         childAreaTransform->maxX = 0;
-        childAreaTransform->minY = 40;
+        childAreaTransform->minY = 30;
         childAreaTransform->maxY = 0;
         world->AddChild(entity, childArea);
 

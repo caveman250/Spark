@@ -56,7 +56,7 @@ namespace se::ui::util
         auto textEntity = world->CreateEntity("Text", editorOnly);
         *outText = world->AddComponent<components::TextComponent>(textEntity);
         (*outText)->font = assetManager->GetAsset<asset::Font>("/engine_assets/fonts/Arial.sass");
-        (*outText)->fontSize = 18;
+        (*outText)->fontSize = 14;
         auto textRect = world->AddComponent<components::RectTransformComponent>(textEntity);
         textRect->anchors = { .left = 0.f, .right = 1.f, .top = 0.f, .bottom = 1.f };
         textRect->minX = 12;

@@ -168,7 +168,9 @@ namespace se::ui::util
             CreateCharMesh(charData, cursorPos, mesh, indexOffset);
             cursorPos = ApplyAdvanceWidth(cursorPos, charData);
 
-            if (wrap == text::WrapMode::Word || wrap == text::WrapMode::Char)
+            if (wrap == text::WrapMode::Word ||
+                wrap == text::WrapMode::Char ||
+                wrap == text::WrapMode::WordChar)
             {
                 bool didWrap = false;
                 int oldX = cursorPos.x;
@@ -181,6 +183,19 @@ namespace se::ui::util
                                           fontSize,
                                           text,
                                           didWrap);
+
+                if (!didWrap && wrap == text::WrapMode::WordChar && cursorPos.x > rect.size.x)
+                {
+                    cursorPos = ApplyWrapping(cursorPos,
+                                          c,
+                                          text::WrapMode::Char,
+                                          i,
+                                          rect,
+                                          font,
+                                          fontSize,
+                                          text,
+                                          didWrap);
+                }
 
                 if (didWrap)
                 {
@@ -197,7 +212,9 @@ namespace se::ui::util
                     }
                     lineStart = i + 1;
                 }
-                else if (i == text.Size() - 1)
+
+
+                if (!didWrap && i == text.Size() - 1)
                 {
                     int offset = CalculateJustificationXOffset(justification,
                                                                cursorPos.x,
@@ -284,7 +301,19 @@ namespace se::ui::util
                                           text,
                                           didWrap);
 
-                //Justification does not effect desired size.
+                if (!didWrap && wrap == text::WrapMode::WordChar && cursorPos.x > bounds.size.x)
+                {
+                    cursorPos = ApplyWrapping(cursorPos,
+                                          c,
+                                          text::WrapMode::Char,
+                                          i,
+                                          bounds,
+                                          font,
+                                          fontSize,
+                                          text,
+                                          didWrap);
+                }
+                //Alignment does not effect desired size.
             }
         }
         return max;
@@ -333,6 +362,19 @@ namespace se::ui::util
                                           fontSize,
                                           text,
                                           didWrap);
+
+                if (!didWrap && wrap == text::WrapMode::WordChar && cursorPos.x > bounds.size.x)
+                {
+                    cursorPos = ApplyWrapping(cursorPos,
+                                          c,
+                                          text::WrapMode::Char,
+                                          i,
+                                          bounds,
+                                          font,
+                                          fontSize,
+                                          text,
+                                          didWrap);
+                }
 
                 if (didWrap)
                 {

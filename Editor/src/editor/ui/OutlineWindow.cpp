@@ -34,7 +34,7 @@ namespace se::editor::ui
             true);
         windowTransform->anchors = { 0.f, 0.f, 0.f, 0.f };
         windowTransform->minX = 20;
-        windowTransform->maxX = 420;
+        windowTransform->maxX = 300;
         windowTransform->minY = 20;
         windowTransform->maxY = 380;
 

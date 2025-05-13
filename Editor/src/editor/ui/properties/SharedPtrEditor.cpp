@@ -53,7 +53,7 @@ namespace se::editor::ui::properties
         if (!m_WrappedEditor)
         {
             auto text = properties::util::CreateMissingPropertyEditorText(containedType,
-                                                                          titleMode == PropertyTitleMode::Inline ? 0.5f : 1.f,
+                                                                          titleMode == PropertyTitleMode::Inline ? 0.3f : 1.f,
                                                                           0);
             world->AddChild(entity, text);
         }

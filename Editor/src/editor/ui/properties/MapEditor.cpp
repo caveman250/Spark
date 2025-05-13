@@ -69,7 +69,7 @@ namespace se::editor::ui::properties
             auto textEntity = world->CreateEntity("Title", true);
             auto text = world->AddComponent<TextComponent>(textEntity);
             text->font = asset::AssetManager::Get()->GetAsset<asset::Font>("/engine_assets/fonts/Arial.sass");
-            text->fontSize = 18;
+            text->fontSize = 16;
             text->text = "empty.";
             auto textRect = world->AddComponent<RectTransformComponent>(textEntity);
             textRect->anchors = { .left = 0.f, .right = 1.f, .top = 0.f, .bottom = 0.f };
@@ -97,10 +97,10 @@ namespace se::editor::ui::properties
                 auto titleEntity = world->CreateEntity("Title", true);
                 auto titleText = world->AddComponent<TextComponent>(titleEntity);
                 titleText->font = asset::AssetManager::Get()->GetAsset<asset::Font>("/engine_assets/fonts/Arial.sass");
-                titleText->fontSize = 18;
+                titleText->fontSize = 16;
                 titleText->text = propName;
                 auto titleRect = world->AddComponent<RectTransformComponent>(titleEntity);
-                titleRect->anchors = {.left = 0.f, .right = 0.5f, .top = 0.f, .bottom = 0.f};
+                titleRect->anchors = {.left = 0.f, .right = 0.3f, .top = 0.f, .bottom = 0.f};
                 titleRect->minX = 2;
                 titleRect->minY = 1;
                 titleRect->maxY = 22;
@@ -109,11 +109,11 @@ namespace se::editor::ui::properties
                 auto propertyEditor = CreatePropertyEditor(containedType->GetTypeName(m_VectorType->GetContainedValueByIndex(m_Value, i)),
                                                            containedType,
                                                            m_VectorType->GetContainedValueByIndex(m_Value, i),
-                                                           se::ui::Anchors(0.5f, 1.f, 0.f, 0.f),
+                                                           se::ui::Anchors(0.3f, 1.f, 0.f, 0.f),
                                                            true);
                 if (!propertyEditor)
                 {
-                    auto text = properties::util::CreateMissingPropertyEditorText(containedType, .5f, 0);
+                    auto text = properties::util::CreateMissingPropertyEditorText(containedType, .3f, 0);
                     world->AddChild(entity, text);
                 }
                 else

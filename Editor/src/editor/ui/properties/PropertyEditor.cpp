@@ -44,7 +44,7 @@ namespace se::editor::ui::properties
             m_WidgetId = world->CreateEntity("Vector Editor Vertical Box", true);
             m_RectTransform = world->AddComponent<se::ui::components::RectTransformComponent>(m_WidgetId);
             m_RectTransform->anchors = anchors;
-            m_RectTransform->minX = 5;
+            m_RectTransform->minX = 10;
             m_RectTransform->maxX = 5;
             m_RectTransform->overridesChildSizes = true;
             world->AddComponent<se::ui::components::WidgetComponent>(m_WidgetId);
@@ -57,7 +57,7 @@ namespace se::editor::ui::properties
             m_WidgetId = world->CreateEntity(name, true);
             m_RectTransform = world->AddComponent<RectTransformComponent>(m_WidgetId);
             m_RectTransform->anchors = anchors;
-            m_RectTransform->minX = 5;
+            m_RectTransform->minX = 10;
             m_RectTransform->maxX = 5;
             world->AddComponent<WidgetComponent>(m_WidgetId);
         }
@@ -68,12 +68,12 @@ namespace se::editor::ui::properties
             auto titleEntity = world->CreateEntity("Property Title", true);
             auto titleText = world->AddComponent<TextComponent>(titleEntity);
             titleText->font = ariel;
-            titleText->fontSize = 18;
+            titleText->fontSize = 16;
             titleText->text = m_Name;
             titleText->wrap = se::ui::text::WrapMode::Char;
             auto titleRect = world->AddComponent<RectTransformComponent>(titleEntity);
             titleRect->anchors = { .left = 0.f,
-                                   .right = GetTitleMode() == PropertyTitleMode::Inline ? 0.5f : 1.f,
+                                   .right = GetTitleMode() == PropertyTitleMode::Inline ? 0.3f : 1.f,
                                    .top = 0.f,
                                    .bottom = 0.f };
             world->AddChild(m_WidgetId, titleEntity);

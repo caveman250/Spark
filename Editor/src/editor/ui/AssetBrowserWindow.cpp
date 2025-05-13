@@ -213,7 +213,7 @@ namespace se::editor::ui
             auto separatorEntity = world->CreateEntity("Separator", true);
             auto separatorText = world->AddComponent<se::ui::components::TextComponent>(separatorEntity);
             separatorText->font = font;
-            separatorText->fontSize = 21;
+            separatorText->fontSize = 18;
             separatorText->text = "/";
             separatorText->alignment = se::ui::text::Alignment::Center;
             auto separatorRect = world->AddComponent<se::ui::components::RectTransformComponent>(separatorEntity);
@@ -251,7 +251,7 @@ namespace se::editor::ui
         auto labelEntity = world->CreateEntity("Text", true);
         auto labelText = world->AddComponent<se::ui::components::TextComponent>(labelEntity);
         labelText->font = font;
-        labelText->fontSize = 21;
+        labelText->fontSize = 18;
         labelText->text = name;
         labelText->alignment = se::ui::text::Alignment::Center;
         auto textRect = world->AddComponent<se::ui::components::RectTransformComponent>(labelEntity);
@@ -338,7 +338,7 @@ namespace se::editor::ui
         auto labelEntity = world->CreateEntity("Text", true);
         auto labelText = world->AddComponent<se::ui::components::TextComponent>(labelEntity);
         labelText->font = font;
-        labelText->fontSize = 16;
+        labelText->fontSize = 14;
         labelText->text = file.fileName;
         labelText->alignment = se::ui::text::Alignment::Center;
         auto textRect = world->AddComponent<se::ui::components::RectTransformComponent>(labelEntity);

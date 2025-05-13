@@ -43,8 +43,8 @@ namespace se::editor::ui
                                                 { DestroyUI(); },
                                                 true);
         windowTransform->anchors = {0.f, 0.f, 0.f, 0.f};
-        windowTransform->minX = 430;
-        windowTransform->maxX = 1260;
+        windowTransform->minX = 310;
+        windowTransform->maxX = 850;
         windowTransform->minY = 20;
         windowTransform->maxY = 380;
 

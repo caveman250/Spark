@@ -50,9 +50,9 @@ namespace se::editor::ui::properties
 
         auto bg = world->CreateEntity("Int Editor", true);
         auto bgTransform = world->AddComponent<RectTransformComponent>(bg);
-        bgTransform->anchors = { .left = constructTitle ? 0.5f : 0.f, .right = 1.f, .top = 0.f, .bottom = 0.f };
+        bgTransform->anchors = { .left = constructTitle ? 0.3f : 0.f, .right = 1.f, .top = 0.f, .bottom = 0.f };
         bgTransform->minY = 2;
-        bgTransform->maxY = 34;
+        bgTransform->maxY = 30;
 
         m_RectTransform->maxY = bgTransform->maxY + 2;
 
@@ -84,7 +84,7 @@ namespace se::editor::ui::properties
         world->AddChild(bg, innerImageEntity);
 
         EditableTextComponent* editableText = nullptr;
-        m_Label = se::ui::util::CreateEditableText(world, ariel, 16, &editableText);
+        m_Label = se::ui::util::CreateEditableText(world, ariel, 14, &editableText);
         editableText->text = std::format("{}", *m_Value);
         std::function cb = [this](String newVal)
         {

@@ -58,10 +58,10 @@ namespace se::editor::ui::properties
             auto textEntity = world->CreateEntity("Text", true);
             auto text = world->AddComponent<se::ui::components::TextComponent>(textEntity);
             text->font = asset::AssetManager::Get()->GetAsset<asset::Font>("/engine_assets/fonts/Arial.sass");
-            text->fontSize = 18;
+            text->fontSize = 16;
             text->text = "No properties.";
             auto transform = world->AddComponent<se::ui::components::RectTransformComponent>(textEntity);
-            transform->minX = 5;
+            transform->minX = 10;
             transform->maxX = 15;
             transform->anchors = { 0.f, 1.f, 0.f, 0.f };
             world->AddComponent<se::ui::components::WidgetComponent>(textEntity);

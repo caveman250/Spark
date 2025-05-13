@@ -54,7 +54,7 @@ namespace se::editor::ui
         windowTransform->anchors = {0.f, 0.f, 0.f, 0.f};
         windowTransform->minX = 860;
         windowTransform->maxX = 1260;
-        windowTransform->minY = 390;
+        windowTransform->minY = 20;
         windowTransform->maxY = 700;
 
         ecs::Id scrollViewEntity;
@@ -134,7 +134,7 @@ namespace se::editor::ui
             auto textEntity = world->CreateEntity("Text", true);
             auto text = world->AddComponent<se::ui::components::TextComponent>(textEntity);
             text->font = font;
-            text->fontSize = 24;
+            text->fontSize = 21;
             text->text = *entity.name;
             world->AddComponent<se::ui::components::RectTransformComponent>(textEntity);
             world->AddComponent<se::ui::components::WidgetComponent>(textEntity);
@@ -148,7 +148,7 @@ namespace se::editor::ui
                 auto textEntity = world->CreateEntity("Text", true);
                 auto text = world->AddComponent<se::ui::components::TextComponent>(textEntity);
                 text->font = font;
-                text->fontSize = 21;
+                text->fontSize = 18;
                 text->text = compRecord.type->name;
                 world->AddComponent<se::ui::components::RectTransformComponent>(textEntity);
                 world->AddComponent<se::ui::components::WidgetComponent>(textEntity);
@@ -184,10 +184,10 @@ namespace se::editor::ui
                 auto textEntity = world->CreateEntity("Text", true);
                 auto text = world->AddComponent<se::ui::components::TextComponent>(textEntity);
                 text->font = font;
-                text->fontSize = 18;
+                text->fontSize = 16;
                 text->text = "No properties.";
                 auto transform = world->AddComponent<se::ui::components::RectTransformComponent>(textEntity);
-                transform->minX = 5;
+                transform->minX = 10;
                 transform->maxX = 15;
                 transform->anchors = { 0.f, 1.f, 0.f, 0.f };
                 world->AddComponent<se::ui::components::WidgetComponent>(textEntity);
@@ -206,7 +206,7 @@ namespace se::editor::ui
         auto textEntity = world->CreateEntity("Text", true);
         auto text = world->AddComponent<se::ui::components::TextComponent>(textEntity);
         text->font = font;
-        text->fontSize = 21;
+        text->fontSize = 18;
         text->text = reflectClass->name;
         world->AddComponent<se::ui::components::RectTransformComponent>(textEntity);
         world->AddComponent<se::ui::components::WidgetComponent>(textEntity);
@@ -242,7 +242,7 @@ namespace se::editor::ui
         auto textEntity = world->CreateEntity("Text", true);
         auto text = world->AddComponent<se::ui::components::TextComponent>(textEntity);
         text->font = font;
-        text->fontSize = 21;
+        text->fontSize = 18;
         text->text = reflectClass->name;
         world->AddComponent<se::ui::components::RectTransformComponent>(textEntity);
         world->AddComponent<se::ui::components::WidgetComponent>(textEntity);
