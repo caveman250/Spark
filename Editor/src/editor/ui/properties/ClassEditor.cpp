@@ -58,7 +58,7 @@ namespace se::editor::ui::properties
             auto textEntity = world->CreateEntity("Text", true);
             auto text = world->AddComponent<se::ui::components::TextComponent>(textEntity);
             text->font = asset::AssetManager::Get()->GetAsset<asset::Font>("/engine_assets/fonts/Arial.sass");
-            text->fontSize = 16;
+            text->fontSize = 14;
             text->text = "No properties.";
             auto transform = world->AddComponent<se::ui::components::RectTransformComponent>(textEntity);
             transform->minX = 10;

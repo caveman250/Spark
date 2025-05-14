@@ -134,7 +134,7 @@ namespace se::editor::ui
             auto textEntity = world->CreateEntity("Text", true);
             auto text = world->AddComponent<se::ui::components::TextComponent>(textEntity);
             text->font = font;
-            text->fontSize = 21;
+            text->fontSize = 18;
             text->text = *entity.name;
             world->AddComponent<se::ui::components::RectTransformComponent>(textEntity);
             world->AddComponent<se::ui::components::WidgetComponent>(textEntity);
@@ -148,7 +148,7 @@ namespace se::editor::ui
                 auto textEntity = world->CreateEntity("Text", true);
                 auto text = world->AddComponent<se::ui::components::TextComponent>(textEntity);
                 text->font = font;
-                text->fontSize = 18;
+                text->fontSize = 16;
                 text->text = compRecord.type->name;
                 world->AddComponent<se::ui::components::RectTransformComponent>(textEntity);
                 world->AddComponent<se::ui::components::WidgetComponent>(textEntity);
@@ -184,7 +184,7 @@ namespace se::editor::ui
                 auto textEntity = world->CreateEntity("Text", true);
                 auto text = world->AddComponent<se::ui::components::TextComponent>(textEntity);
                 text->font = font;
-                text->fontSize = 16;
+                text->fontSize = 14;
                 text->text = "No properties.";
                 auto transform = world->AddComponent<se::ui::components::RectTransformComponent>(textEntity);
                 transform->minX = 10;
@@ -206,7 +206,7 @@ namespace se::editor::ui
         auto textEntity = world->CreateEntity("Text", true);
         auto text = world->AddComponent<se::ui::components::TextComponent>(textEntity);
         text->font = font;
-        text->fontSize = 18;
+        text->fontSize = 16;
         text->text = reflectClass->name;
         world->AddComponent<se::ui::components::RectTransformComponent>(textEntity);
         world->AddComponent<se::ui::components::WidgetComponent>(textEntity);
@@ -242,7 +242,7 @@ namespace se::editor::ui
         auto textEntity = world->CreateEntity("Text", true);
         auto text = world->AddComponent<se::ui::components::TextComponent>(textEntity);
         text->font = font;
-        text->fontSize = 18;
+        text->fontSize = 16;
         text->text = reflectClass->name;
         world->AddComponent<se::ui::components::RectTransformComponent>(textEntity);
         world->AddComponent<se::ui::components::WidgetComponent>(textEntity);

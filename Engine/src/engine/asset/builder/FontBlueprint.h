@@ -12,7 +12,7 @@ struct stbtt_fontinfo;
 
 namespace se::ui
 {
-    class Rect;
+    class FloatRect;
 }
 
 namespace se::asset::builder
@@ -27,10 +27,10 @@ namespace se::asset::builder
     private:
         static bool LoadFont(stbtt_fontinfo& font, void** fontData, const std::string& path);
         static int GetAscent(stbtt_fontinfo& font);
-        static std::vector<std::pair<ui::Rect, int>> CollectSortedBoundingBoxes(stbtt_fontinfo& font, float scale);
+        static std::vector<std::pair<ui::FloatRect, int>> CollectSortedBoundingBoxes(stbtt_fontinfo& font, float scale);
         static void CollectCharMetrics(stbtt_fontinfo& font, char c, float scale, float ascent, CharData& charData);
-        static void PackChar(ui::Rect rect, std::vector<ui::Rect>& placedRects, int& imageWidth, int& imageHeight, int& scanlineDelta);
+        static void PackChar(ui::FloatRect FloatRect, std::vector<ui::FloatRect>& placedRects, int& imageWidth, int& imageHeight, int& scanlineDelta);
         static memory::BinaryBlob GenerateMonochromeBitmap(stbtt_fontinfo &font, int width, int height, float scale,
-            const std::vector<std::pair<ui::Rect, int>>& boundingBoxes, const std::vector<ui::Rect>& placedBoundingBoxes);
+            const std::vector<std::pair<ui::FloatRect, int>>& boundingBoxes, const std::vector<ui::FloatRect>& placedBoundingBoxes);
     };
 }

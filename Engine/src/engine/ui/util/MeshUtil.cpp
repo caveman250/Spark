@@ -26,7 +26,7 @@ namespace se::ui::util
         return mesh;
     }
 
-    math::IntVec2 ApplyWrapping(math::IntVec2 cursorPos,
+    math::Vec2 ApplyWrapping(math::Vec2 cursorPos,
                        char c,
                        text::WrapMode::Type mode,
                        size_t charIndex,
@@ -34,6 +34,7 @@ namespace se::ui::util
                        const std::shared_ptr<asset::Font>& font,
                        int fontSize,
                        const String& text,
+                       float scale,
                        bool& didWrap)
     {
         if (c == ' ' || mode == text::WrapMode::Char)
@@ -44,9 +45,9 @@ namespace se::ui::util
             char nextChar = text[lookAhead];
             while (nextChar != ' ' && lookAhead < text.Size() - 1)
             {
-                const auto& nextCharData = font->GetCharData(fontSize, nextChar);
+                const auto& nextCharData = font->GetCharData(nextChar);
 
-                if (xCopy + nextCharData.advanceWidth >= rect.size.x)
+                if (xCopy + nextCharData.advanceWidth * scale >= rect.size.x)
                 {
                     cursorPos.x = 0;
                     cursorPos.y += fontSize;
@@ -59,7 +60,7 @@ namespace se::ui::util
                     break;
                 }
 
-                xCopy += nextCharData.advanceWidth;
+                xCopy += nextCharData.advanceWidth * scale;
                 nextChar = text[++lookAhead];
             }
         }
@@ -90,44 +91,50 @@ namespace se::ui::util
         }
     }
 
-    math::IntVec2 ApplyKerning(math::IntVec2 cursorPos,
+    math::Vec2 ApplyKerning(math::Vec2 cursorPos,
                                size_t index,
                                const String& text,
-                               const asset::CharData& charData)
+                               const asset::CharData& charData,
+                               float scale)
     {
         if (index < text.Size() - 1)
         {
             char nextChar = text[index + 1];
             if (charData.kerning.contains(nextChar))
             {
-                cursorPos.x += charData.kerning.at(nextChar);
+                cursorPos.x += charData.kerning.at(nextChar) * scale;
             }
         }
 
         return cursorPos;
     }
 
-    math::IntVec2 ApplyLeftSideBearing(math::IntVec2 cursorPos,
-                               const asset::CharData& charData)
+    math::Vec2 ApplyLeftSideBearing(math::Vec2 cursorPos,
+                               const asset::CharData& charData,
+                               float scale)
     {
-        cursorPos.x += charData.leftSideBearing;
+        cursorPos.x += charData.leftSideBearing * scale;
         return cursorPos;
     }
 
-    math::IntVec2 ApplyAdvanceWidth(math::IntVec2 cursorPos,
-                                       const asset::CharData& charData)
+    math::Vec2 ApplyAdvanceWidth(math::Vec2 cursorPos,
+                                       const asset::CharData& charData,
+                                       float scale)
     {
-        cursorPos.x += charData.advanceWidth;
+        cursorPos.x += charData.advanceWidth * scale;
         return cursorPos;
     }
 
     void CreateCharMesh(const asset::CharData& charData,
-                        const math::IntVec2& cursorPos,
+                        const math::Vec2& cursorPos,
                         asset::StaticMesh& mesh,
-                        uint32_t& indexOffset)
+                        uint32_t& indexOffset,
+                        float scale)
     {
-        math::IntVec2 TL = charData.rect.topLeft + cursorPos;
-        math::IntVec2 BR = TL + charData.rect.size;
+        math::Vec2 TL = charData.rect.topLeft * scale + cursorPos;
+        math::Vec2 BR = TL + charData.rect.size * scale;
+        // TL *= scale;
+        // BR *= scale;
         mesh.vertices.push_back({ (float) TL.x, (float) BR.y, 0 });
         mesh.vertices.push_back({ (float) BR.x, (float) BR.y, 0 });
         mesh.vertices.push_back({ (float) BR.x, (float) TL.y, 0 });
@@ -150,23 +157,24 @@ namespace se::ui::util
                                      text::WrapMode::Type wrap,
                                      text::Alignment::Type justification)
     {
+        float scale = static_cast<float>(fontSize) / 32.f;
         asset::StaticMesh mesh;
         uint32_t indexOffset = 0;
-        math::IntVec2 cursorPos = { };
+        math::Vec2 cursorPos = { };
         cursorPos.y += fontSize;
         size_t lineStart = 0;
         for (size_t i = 0; i < text.Size(); ++i)
         {
             char c = text[i];
-            const auto& charData = font->GetCharData(fontSize, c);
+            const auto& charData = font->GetCharData(c);
 
             if (applyKerning)
             {
-                cursorPos = ApplyKerning(cursorPos, i, text, charData);
+                cursorPos = ApplyKerning(cursorPos, i, text, charData, scale);
             }
-            cursorPos = ApplyLeftSideBearing(cursorPos, charData);
-            CreateCharMesh(charData, cursorPos, mesh, indexOffset);
-            cursorPos = ApplyAdvanceWidth(cursorPos, charData);
+            cursorPos = ApplyLeftSideBearing(cursorPos, charData, scale);
+            CreateCharMesh(charData, cursorPos, mesh, indexOffset, scale);
+            cursorPos = ApplyAdvanceWidth(cursorPos, charData, scale);
 
             if (wrap == text::WrapMode::Word ||
                 wrap == text::WrapMode::Char ||
@@ -182,6 +190,7 @@ namespace se::ui::util
                                           font,
                                           fontSize,
                                           text,
+                                          scale,
                                           didWrap);
 
                 if (!didWrap && wrap == text::WrapMode::WordChar && cursorPos.x > rect.size.x)
@@ -194,6 +203,7 @@ namespace se::ui::util
                                           font,
                                           fontSize,
                                           text,
+                                          scale,
                                           didWrap);
                 }
 
@@ -249,7 +259,7 @@ namespace se::ui::util
         return mesh;
     }
 
-    math::IntVec2 MeasureText(const Rect& bounds,
+    math::Vec2 MeasureText(const Rect& bounds,
                               const std::shared_ptr<asset::Font>& font,
                               int fontSize,
                               const String& text,
@@ -259,7 +269,7 @@ namespace se::ui::util
         return MeasureText(bounds, font, fontSize, text, applyKerning, wrap, text.Size());
     }
 
-    math::IntVec2 MeasureText(const Rect& bounds,
+    math::Vec2 MeasureText(const Rect& bounds,
         const std::shared_ptr<asset::Font>& font,
         int fontSize,
         const String& text,
@@ -267,26 +277,29 @@ namespace se::ui::util
         text::WrapMode::Type wrap,
         size_t endIndex)
     {
-        math::IntVec2 max = { };
+        float scale = static_cast<float>(fontSize) / 32.f;
+        math::Vec2 max = { };
 
-        math::IntVec2 cursorPos = { };
+        math::Vec2 cursorPos = { };
         cursorPos.y += fontSize;
         for (size_t i = 0; i < endIndex; ++i)
         {
             char c = text[i];
-            const auto& charData = font->GetCharData(fontSize, c);
+            const auto& charData = font->GetCharData(c);
 
             if (applyKerning)
             {
-                cursorPos = ApplyKerning(cursorPos, i, text, charData);
+                cursorPos = ApplyKerning(cursorPos, i, text, charData, scale);
             }
-            cursorPos = ApplyLeftSideBearing(cursorPos, charData);
+            cursorPos = ApplyLeftSideBearing(cursorPos, charData, scale);
 
-            math::IntVec2 TL = charData.rect.topLeft + cursorPos;
-            math::IntVec2 BR = TL + charData.rect.size;
-            max = math::IntVec2(std::max(BR.x, max.x), std::max(BR.y, max.y));
+            math::Vec2 TL = charData.rect.topLeft * scale + cursorPos;
+            math::Vec2 BR = TL + charData.rect.size * scale;
+            // TL *= scale;
+            // BR *= scale;
+            max = math::Vec2(std::max(BR.x, max.x), std::max(BR.y, max.y));
 
-            cursorPos = ApplyAdvanceWidth(cursorPos, charData);
+            cursorPos = ApplyAdvanceWidth(cursorPos, charData, scale);
 
             if (wrap != text::WrapMode::None)
             {
@@ -299,6 +312,7 @@ namespace se::ui::util
                                           font,
                                           fontSize,
                                           text,
+                                          scale,
                                           didWrap);
 
                 if (!didWrap && wrap == text::WrapMode::WordChar && cursorPos.x > bounds.size.x)
@@ -311,9 +325,10 @@ namespace se::ui::util
                                           font,
                                           fontSize,
                                           text,
+                                          scale,
                                           didWrap);
                 }
-                //Alignment does not effect desired size.
+                //Alignment does not affect desired size.
             }
         }
         return max;
@@ -328,26 +343,27 @@ namespace se::ui::util
         text::WrapMode::Type wrap,
         text::Alignment::Type justification)
     {
-        math::IntVec2 cursorPos = { };
+        float scale = static_cast<float>(fontSize) / 32.f;
+        math::Vec2 cursorPos = { };
         cursorPos.y += fontSize;
         size_t lineStart = 0;
         std::vector<Rect> boundingBoxes = {};
         for (size_t i = 0; i < text.Size(); ++i)
         {
             char c = text[i];
-            const auto& charData = font->GetCharData(fontSize, c);
+            const auto& charData = font->GetCharData(c);
 
             if (applyKerning)
             {
-                cursorPos = ApplyKerning(cursorPos, i, text, charData);
+                cursorPos = ApplyKerning(cursorPos, i, text, charData, scale);
             }
-            cursorPos = ApplyLeftSideBearing(cursorPos, charData);
+            cursorPos = ApplyLeftSideBearing(cursorPos, charData, scale);
 
-            math::IntVec2 TL = charData.rect.topLeft + cursorPos;
-            math::IntVec2 BR = TL + charData.rect.size;
+            math::Vec2 TL = charData.rect.topLeft * scale + cursorPos;
+            math::Vec2 BR = TL + charData.rect.size * scale;
             boundingBoxes.push_back(Rect(TL, BR));
 
-            cursorPos = ApplyAdvanceWidth(cursorPos, charData);
+            cursorPos = ApplyAdvanceWidth(cursorPos, charData, scale);
 
             if (wrap != text::WrapMode::None)
             {
@@ -361,6 +377,7 @@ namespace se::ui::util
                                           font,
                                           fontSize,
                                           text,
+                                          scale,
                                           didWrap);
 
                 if (!didWrap && wrap == text::WrapMode::WordChar && cursorPos.x > bounds.size.x)
@@ -373,6 +390,7 @@ namespace se::ui::util
                                           font,
                                           fontSize,
                                           text,
+                                          scale,
                                           didWrap);
                 }
 

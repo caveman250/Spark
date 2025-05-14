@@ -68,7 +68,7 @@ namespace se::editor::ui::properties
             auto titleEntity = world->CreateEntity("Property Title", true);
             auto titleText = world->AddComponent<TextComponent>(titleEntity);
             titleText->font = ariel;
-            titleText->fontSize = 16;
+            titleText->fontSize = 14;
             titleText->text = m_Name;
             titleText->wrap = se::ui::text::WrapMode::Char;
             auto titleRect = world->AddComponent<RectTransformComponent>(titleEntity);

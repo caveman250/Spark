@@ -26,14 +26,14 @@ namespace se::ui::util
                                      text::WrapMode::Type wrap,
                                      text::Alignment::Type justification);
 
-    math::IntVec2 MeasureText(const Rect& bounds,
+    math::Vec2 MeasureText(const Rect& bounds,
                               const std::shared_ptr<asset::Font>& font,
                               int fontSize,
                               const String& text,
                               bool applyKerning,
                               text::WrapMode::Type wrap);
 
-    math::IntVec2 MeasureText(const Rect& bounds,
+    math::Vec2 MeasureText(const Rect& bounds,
                               const std::shared_ptr<asset::Font>& font,
                               int fontSize,
                               const String& text,

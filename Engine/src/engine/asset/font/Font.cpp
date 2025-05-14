@@ -1,5 +1,4 @@
 #include "Font.h"
-#include "stb_truetype.h"
 #include "engine/asset/AssetManager.h"
 #include "engine/asset/texture/Texture.h"
 
@@ -15,40 +14,25 @@ namespace se::asset
         DEFINE_SERIALIZED_MEMBER(uvBottomRight)
     DEFINE_SPARK_CLASS_END(CharData)
 
-    DEFINE_SPARK_POD_CLASS_BEGIN(FontAssetData)
-        DEFINE_SERIALIZED_MEMBER(path)
-        DEFINE_SERIALIZED_MEMBER(charData)
-    DEFINE_SPARK_CLASS_END(FontAssetData)
-
     DEFINE_SPARK_CLASS_BEGIN(Font)
         DEFINE_SERIALIZED_MEMBER(m_Name)
-        DEFINE_SERIALIZED_MEMBER(m_AssetData)
+        DEFINE_SERIALIZED_MEMBER(m_Texture)
+        DEFINE_SERIALIZED_MEMBER(m_CharData)
     DEFINE_SPARK_CLASS_END(Font)
 
-    std::shared_ptr<Texture> Font::GetTextureAsset(int fontSize)
+    std::shared_ptr<Texture> Font::GetTextureAsset()
     {
-        if (SPARK_VERIFY(m_AssetData.contains(fontSize)))
-        {
-            return AssetManager::Get()->GetAsset<Texture>(m_AssetData.at(fontSize).path);
-        }
-
-        return nullptr;
+        return m_Texture;
     }
 
-    const CharData& Font::GetCharData(int fontSize, char c) const
+    const CharData& Font::GetCharData(char c) const
     {
-        static CharData nullCharData;
-        if (!SPARK_VERIFY(m_AssetData.contains(fontSize)))
+        if (!SPARK_VERIFY(m_CharData.contains(c)))
         {
+            static CharData nullCharData = {};
             return nullCharData;
         }
 
-        auto& fontAsset = m_AssetData.at(fontSize);
-        if (!SPARK_VERIFY(fontAsset.charData.contains(c)))
-        {
-            return nullCharData;
-        }
-
-        return fontAsset.charData.at(c);
+        return m_CharData.at(c);
     }
 }

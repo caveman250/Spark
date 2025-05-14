@@ -7,9 +7,9 @@ uniform sampler2D Texture;
 
 void main()
 {
-    float smoothing = 0.05;
-    color.rgb = vec3(1, 1, 1);
-    color.a   = smoothstep( 0.5 - smoothing,
-                            0.5 + smoothing,
-                            texture(Texture, inUV).r);
+    float edgeDistance = 0.5;
+    float dist = texture(Texture, inUV).r;
+    float edgeWidth = 0.7 * length(vec2(dfdx(dist), dfdy(dist)));
+    float opacity = smoothstep(edgeDistance - edgeWidth, edgeDistance + edgeWidth, dist);
+    color = vec4(1, 1, 1, opacity);
 }

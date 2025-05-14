@@ -33,7 +33,7 @@ namespace se::asset::shader::ast
         ASTNode::ToMtlPreDeclarations(context, outShader);
         auto alloc = outShader.get_allocator();
         m_TempSamplerName = NameGenerator::GetName();
-        outShader += string::ArenaFormat("constexpr sampler {}( address::repeat, filter::nearest );\n", alloc, m_TempSamplerName);
+        outShader += string::ArenaFormat("constexpr sampler {}( address::repeat, filter::linear );\n", alloc, m_TempSamplerName);
     }
 
     void TextureSampleNode::ToMtl(ShaderCompileContext& context, string::ArenaString& outShader) const

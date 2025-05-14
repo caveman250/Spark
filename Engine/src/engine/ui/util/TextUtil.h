@@ -47,6 +47,8 @@ namespace se::ui::util
             }
 
             textComp.materialInstance = render::MaterialInstance::CreateMaterialInstance(textMaterial);
+            auto texture = textComp.font->GetTextureAsset();
+            textComp.materialInstance->SetUniform("Texture", asset::shader::ast::AstType::Sampler2D, 1, &texture);
         }
 
         if (transform.rect.topLeft != transform.lastRect.topLeft)
@@ -71,12 +73,6 @@ namespace se::ui::util
             textComp.vertBuffer->CreatePlatformResource();
             textComp.indexBuffer = render::IndexBuffer::CreateIndexBuffer(mesh);
             textComp.indexBuffer->CreatePlatformResource();
-
-            if (textComp.lastFontSize != textComp.fontSize)
-            {
-                auto texture = textComp.font->GetTextureAsset(textComp.fontSize);
-                textComp.materialInstance->SetUniform("Texture", asset::shader::ast::AstType::Sampler2D, 1, &texture);
-            }
 
             textComp.lastFontSize = textComp.fontSize;
             textComp.lastText = text;

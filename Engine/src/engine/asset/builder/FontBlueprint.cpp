@@ -4,10 +4,9 @@
 #include "engine/io/VFS.h"
 #include "engine/reflect/Util.h"
 #include "stb_truetype.h"
-#include "stb_image.h"
 #include "engine/asset/font/Font.h"
 #include "engine/asset/texture/Texture.h"
-#include "engine/ui/Rect.h"
+#include "engine/ui/FloatRect.h"
 #include "engine/asset/builder/util/Bitmap.h"
 #include "engine/threads/ParallelForEach.h"
 
@@ -29,20 +28,7 @@ namespace se::asset::builder
 
     static std::vector<unsigned> s_FontSizes =
     {
-        10,
-        11,
-        12,
-        14,
-        16,
-        18,
-        21,
-        24,
-        30,
-        36,
-        48,
-        60,
-        72,
-        96
+        32,
     };
 
     std::regex FontBlueprint::GetFilePattern() const
@@ -70,17 +56,6 @@ namespace se::asset::builder
         std::string fontName = outputPath.substr(lastSlashIt + 1, extensionIt - 1 - lastSlashIt);
 
         font.m_Name = fontName;
-        std::mutex fontAssetLock;
-        auto addFontSize = [&fontAssetLock, &font, outputDir, fontName](
-            int fontSize,
-            const std::unordered_map<char, CharData>& charData)
-        {
-            auto lock = std::lock_guard(fontAssetLock);
-
-            auto& fontAssetData = font.m_AssetData[fontSize];
-            fontAssetData.path = std::format("{}/{}_{}.sass", outputDir, fontName, fontSize);
-            fontAssetData.charData = charData;
-        };
 
         std::mutex retLock;
         auto addReturnItem = [&retLock, &ret](const std::shared_ptr<binary::Database>& db,
@@ -91,51 +66,46 @@ namespace se::asset::builder
         };
 
         int ascent = GetAscent(info);
-        std::function<void(const unsigned&)> func = [&info, addReturnItem, addFontSize, ascent](const unsigned& fontSize)
+        float scale = stbtt_ScaleForPixelHeight(&info, static_cast<float>(32));
+
+        size_t numChars = strlen(s_FontMapChars);
+        auto boundingBoxes = CollectSortedBoundingBoxes(info, scale);
+        std::vector<ui::FloatRect> placedBoundingBoxes = { };
+        placedBoundingBoxes.reserve(numChars);
+
+        std::unordered_map<char, CharData> charDataMap;
+        int imageWidth = 128;
+        int imageHeight = 128;
+        int interval = 1;
+        for (size_t i = 0; i < numChars; ++i)
         {
-            float scale = stbtt_ScaleForPixelHeight(&info, static_cast<float>(fontSize));
+            char c = s_FontMapChars[boundingBoxes[i].second];
+            auto& charData = charDataMap[c];
+            charData.rect = boundingBoxes[i].first;
+            charData.rect.size -= math::Vec2(s_SDFPadding, s_SDFPadding);
+            charData.rect.topLeft += math::Vec2(s_SDFPadding, s_SDFPadding);
 
-            size_t numChars = strlen(s_FontMapChars);
-            auto boundingBoxes = CollectSortedBoundingBoxes(info, scale);
-            std::vector<ui::Rect> placedBoundingBoxes = { };
-            placedBoundingBoxes.reserve(numChars);
+            CollectCharMetrics(info, c, scale, static_cast<float>(ascent), charData);
+            PackChar(charData.rect, placedBoundingBoxes, imageWidth, imageHeight, interval);
+        }
 
-            std::unordered_map<char, CharData> charDataMap;
-            int imageWidth = 128;
-            int imageHeight = 128;
-            int interval = 1;
-            for (size_t i = 0; i < numChars; ++i)
-            {
-                char c = s_FontMapChars[boundingBoxes[i].second];
-                auto& charData = charDataMap[c];
-                charData.rect = boundingBoxes[i].first;
-                charData.rect.size -= math::IntVec2(s_SDFPadding, s_SDFPadding);
-                charData.rect.topLeft += math::IntVec2(s_SDFPadding, s_SDFPadding);
+        for (size_t i = 0; i < numChars; ++i)
+        {
+            char c = s_FontMapChars[boundingBoxes[i].second];
+            const auto& FloatRect = placedBoundingBoxes[i];
+            auto& charData = charDataMap[c];
+            // calculate Uvs now that the image size is stable
+            charData.uvTopLeft = math::Vec2(static_cast<float>(FloatRect.topLeft.x + s_SDFPadding) / imageWidth,
+                                            static_cast<float>(FloatRect.topLeft.y + s_SDFPadding) / imageHeight);
+            charData.uvBottomRight = math::Vec2((static_cast<float>(FloatRect.topLeft.x) + static_cast<float>(FloatRect.size.x) - s_SDFPadding) / imageWidth,
+                                                (static_cast<float>(FloatRect.topLeft.y) + static_cast<float>(FloatRect.size.y) - s_SDFPadding) / imageHeight);
+        }
 
-                CollectCharMetrics(info, c, scale, static_cast<float>(ascent), charData);
-                PackChar(charData.rect, placedBoundingBoxes, imageWidth, imageHeight, interval);
-            }
+        font.m_CharData = charDataMap;
+        memory::BinaryBlob monochromeBitmap = GenerateMonochromeBitmap(info, imageWidth, imageHeight, scale,
+                                                                       boundingBoxes, placedBoundingBoxes);
 
-            for (size_t i = 0; i < numChars; ++i)
-            {
-                char c = s_FontMapChars[boundingBoxes[i].second];
-                const auto& rect = placedBoundingBoxes[i];
-                auto& charData = charDataMap[c];
-                // calculate Uvs now that the image size is stable
-                charData.uvTopLeft = math::Vec2(static_cast<float>(rect.topLeft.x + s_SDFPadding) / imageWidth,
-                                                static_cast<float>(rect.topLeft.y + s_SDFPadding) / imageHeight);
-                charData.uvBottomRight = math::Vec2((static_cast<float>(rect.topLeft.x) + static_cast<float>(rect.size.x) - s_SDFPadding) / imageWidth,
-                                                    (static_cast<float>(rect.topLeft.y) + static_cast<float>(rect.size.y) - s_SDFPadding) / imageHeight);
-            }
-
-            addFontSize(fontSize, charDataMap);
-            memory::BinaryBlob monochromeBitmap = GenerateMonochromeBitmap(info, imageWidth, imageHeight, scale,
-                                                                           boundingBoxes, placedBoundingBoxes);
-
-            auto texture = Texture::FromRawData(imageWidth, imageHeight, monochromeBitmap, texture::Format::R8);
-            addReturnItem(reflect::SerialiseType<Texture>(texture.get()), std::format("_{}", fontSize));
-        };
-        threads::ParallelForEach(s_FontSizes, func);
+        font.m_Texture = Texture::FromRawData(imageWidth, imageHeight, monochromeBitmap, texture::Format::R8);
 
         std::free(fontData);
 
@@ -168,32 +138,32 @@ namespace se::asset::builder
         return ascent;
     }
 
-    std::vector<std::pair<ui::Rect, int>> FontBlueprint::CollectSortedBoundingBoxes(stbtt_fontinfo& font,
-                                                                                    float scale)
+    std::vector<std::pair<ui::FloatRect, int>> FontBlueprint::CollectSortedBoundingBoxes(stbtt_fontinfo& font,
+                                                                                         float scale)
     {
         size_t numChars = strlen(s_FontMapChars);
 
-        std::vector<std::pair<ui::Rect, int>> ret;
+        std::vector<std::pair<ui::FloatRect, int>> ret;
         ret.reserve(numChars);
         for (size_t i = 0; i < numChars; ++i)
         {
             int sizeX = 0, sizeY = 0;
             int xOff = 0, yOff = 0;
             stbtt_GetCodepointSDF(&font,
-                scale,
-                s_FontMapChars[i],
-                s_SDFPadding,
-                s_SDFOneEdge,
-                s_SDFPixelDistScale,
-                &sizeX,
-                &sizeY,
-                &xOff,
-                &yOff);
-            ret.push_back(std::make_pair(ui::Rect { math::IntVec2(xOff, yOff), math::IntVec2(sizeX, sizeY) }, static_cast<int>(i)));
+                                  scale,
+                                  s_FontMapChars[i],
+                                  s_SDFPadding,
+                                  s_SDFOneEdge,
+                                  s_SDFPixelDistScale,
+                                  &sizeX,
+                                  &sizeY,
+                                  &xOff,
+                                  &yOff);
+            ret.push_back(std::make_pair(ui::FloatRect { math::Vec2(xOff, yOff), math::Vec2(sizeX, sizeY) }, static_cast<int>(i)));
         }
 
-        std::ranges::sort(ret, [](const std::pair<ui::Rect, int>& a,
-                                  const std::pair<ui::Rect, int>& b)
+        std::ranges::sort(ret, [](const std::pair<ui::FloatRect, int>& a,
+                                  const std::pair<ui::FloatRect, int>& b)
         {
             return a.first.size > b.first.size;
         });
@@ -207,7 +177,10 @@ namespace se::asset::builder
                                            float ascent,
                                            CharData& charData)
     {
-        stbtt_GetCodepointHMetrics(&font, c, &charData.advanceWidth, &charData.leftSideBearing);
+        int advanceWidth = 0, leftSideBearing = 0;
+        stbtt_GetCodepointHMetrics(&font, c, &advanceWidth, &leftSideBearing);
+        charData.advanceWidth = advanceWidth;
+        charData.leftSideBearing = leftSideBearing;
         charData.advanceWidth = static_cast<int>(charData.advanceWidth * scale);
         charData.leftSideBearing = static_cast<int>(charData.leftSideBearing * scale);
 
@@ -224,26 +197,26 @@ namespace se::asset::builder
         }
     }
 
-    void FontBlueprint::PackChar(ui::Rect rect,
-                                 std::vector<ui::Rect>& placedRects,
+    void FontBlueprint::PackChar(ui::FloatRect FloatRect,
+                                 std::vector<ui::FloatRect>& placedRects,
                                  int& imageWidth,
                                  int& imageHeight,
                                  int& scanlineDelta)
     {
-        rect.topLeft = { 0, 0 };
-        rect.size += { s_SDFPadding * 2, s_SDFPadding * 2 };
+        FloatRect.topLeft = { 0, 0 };
+        FloatRect.size += { s_SDFPadding * 2, s_SDFPadding * 2 };
 
         while (true)
         {
-            bool canFit = rect.topLeft.x + rect.size.x < imageWidth &&
-                          rect.topLeft.y + rect.size.y < imageHeight;
+            bool canFit = FloatRect.topLeft.x + FloatRect.size.x < imageWidth &&
+                          FloatRect.topLeft.y + FloatRect.size.y < imageHeight;
 
             bool foundPosition = canFit;
             if (canFit)
             {
                 for (const auto& otherBB: placedRects)
                 {
-                    if (otherBB.Overlaps(rect))
+                    if (otherBB.Overlaps(FloatRect))
                     {
                         foundPosition = false;
                         break;
@@ -253,25 +226,25 @@ namespace se::asset::builder
 
             if (foundPosition)
             {
-                placedRects.push_back(rect);
+                placedRects.push_back(FloatRect);
                 break;
             }
             else
             {
-                rect.topLeft.x += scanlineDelta;
-                if (rect.topLeft.x >= imageWidth)
+                FloatRect.topLeft.x += scanlineDelta;
+                if (FloatRect.topLeft.x >= imageWidth)
                 {
-                    rect.topLeft.x = 0;
-                    rect.topLeft.y += scanlineDelta;
+                    FloatRect.topLeft.x = 0;
+                    FloatRect.topLeft.y += scanlineDelta;
 
-                    if (rect.topLeft.y + rect.size.y > imageHeight)
+                    if (FloatRect.topLeft.y + FloatRect.size.y > imageHeight)
                     {
                         imageWidth = static_cast<int>(bits::RoundUpToPowerOf2(static_cast<uint32_t>(imageWidth) + 1u));
                         imageHeight = static_cast<int>(
                             bits::RoundUpToPowerOf2(static_cast<uint32_t>(imageHeight) + 1u));
                         scanlineDelta++;
-                        rect.topLeft.x = 0;
-                        rect.topLeft.y = 0;
+                        FloatRect.topLeft.x = 0;
+                        FloatRect.topLeft.y = 0;
                     }
                 }
             }
@@ -282,32 +255,32 @@ namespace se::asset::builder
                                                                int width,
                                                                int height,
                                                                float scale,
-                                                               const std::vector<std::pair<ui::Rect, int>>& boundingBoxes,
-                                                               const std::vector<ui::Rect>& placedBoundingBoxes)
+                                                               const std::vector<std::pair<ui::FloatRect, int>>& boundingBoxes,
+                                                               const std::vector<ui::FloatRect>& placedBoundingBoxes)
     {
         uint8_t* bitmap = static_cast<uint8_t*>(std::malloc(width * height));
         memset(bitmap, 0, width * height);
         size_t numChars = strlen(s_FontMapChars);
         for (size_t i = 0; i < numChars; ++i)
         {
-            const auto& rect = placedBoundingBoxes[i];
+            const auto& FloatRect = placedBoundingBoxes[i];
 
             int sizeX = 0, sizeY = 0;
             int xOff = 0, yOff = 0;
             uint8_t* pixels = stbtt_GetCodepointSDF(&font,
-                scale,
-                s_FontMapChars[boundingBoxes[i].second],
-                s_SDFPadding,
-                s_SDFOneEdge,
-                s_SDFPixelDistScale,
-                &sizeX,
-                &sizeY,
-                &xOff,
-                &yOff);
+                                                    scale,
+                                                    s_FontMapChars[boundingBoxes[i].second],
+                                                    s_SDFPadding,
+                                                    s_SDFOneEdge,
+                                                    s_SDFPixelDistScale,
+                                                    &sizeX,
+                                                    &sizeY,
+                                                    &xOff,
+                                                    &yOff);
 
             for (int j = 0; j < sizeY; ++j)
             {
-                int byteOffset = rect.topLeft.x + ((rect.topLeft.y + j) * width);
+                int byteOffset = FloatRect.topLeft.x + ((FloatRect.topLeft.y + j) * width);
                 std::memcpy(bitmap + byteOffset, pixels + j * sizeX, sizeX);
             }
         }

@@ -61,7 +61,7 @@ namespace se::ui::util
         auto titleBarEntity = world->CreateEntity("TitleBar", editorOnly);
         auto titleBarText = world->AddComponent<TextComponent>(titleBarEntity);
         titleBarText->font = assetManager->GetAsset<asset::Font>("/engine_assets/fonts/Arial.sass");
-        titleBarText->fontSize = 24;
+        titleBarText->fontSize = 18;
         titleBarText->text = title;
         *titleBar = world->AddComponent<TitleBarComponent>(titleBarEntity);
         std::function<void(float, float)> moveCb = [entity](float dX, float dY)

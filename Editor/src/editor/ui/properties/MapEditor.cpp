@@ -69,7 +69,7 @@ namespace se::editor::ui::properties
             auto textEntity = world->CreateEntity("Title", true);
             auto text = world->AddComponent<TextComponent>(textEntity);
             text->font = asset::AssetManager::Get()->GetAsset<asset::Font>("/engine_assets/fonts/Arial.sass");
-            text->fontSize = 16;
+            text->fontSize = 14;
             text->text = "empty.";
             auto textRect = world->AddComponent<RectTransformComponent>(textEntity);
             textRect->anchors = { .left = 0.f, .right = 1.f, .top = 0.f, .bottom = 0.f };
@@ -97,7 +97,7 @@ namespace se::editor::ui::properties
                 auto titleEntity = world->CreateEntity("Title", true);
                 auto titleText = world->AddComponent<TextComponent>(titleEntity);
                 titleText->font = asset::AssetManager::Get()->GetAsset<asset::Font>("/engine_assets/fonts/Arial.sass");
-                titleText->fontSize = 16;
+                titleText->fontSize = 14;
                 titleText->text = propName;
                 auto titleRect = world->AddComponent<RectTransformComponent>(titleEntity);
                 titleRect->anchors = {.left = 0.f, .right = 0.3f, .top = 0.f, .bottom = 0.f};

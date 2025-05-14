@@ -3,7 +3,7 @@
 #include "spark.h"
 #include "engine/asset/Asset.h"
 #include "engine/math/Vec2.h"
-#include "engine/ui/Rect.h"
+#include "engine/ui/FloatRect.h"
 
 struct stbtt_fontinfo;
 
@@ -22,21 +22,13 @@ namespace se::asset
     {
         DECLARE_SPARK_POD_CLASS(CharData)
 
-        int yOffset = 0;
-        int advanceWidth;
-        int leftSideBearing;
-        std::unordered_map<char, int> kerning;
-        ui::Rect rect;
+        float yOffset = 0;
+        float advanceWidth;
+        float leftSideBearing;
+        std::unordered_map<char, float> kerning;
+        ui::FloatRect rect;
         math::Vec2 uvTopLeft;
         math::Vec2 uvBottomRight;
-    };
-
-    struct FontAssetData
-    {
-        DECLARE_SPARK_POD_CLASS(FontAssetData)
-
-        std::string path;
-        std::unordered_map<char, CharData> charData = {};
     };
 
     class Font : public Asset
@@ -44,12 +36,13 @@ namespace se::asset
         DECLARE_SPARK_CLASS(Font)
 
         Font() = default;
-        std::shared_ptr<Texture> GetTextureAsset(int fontSize);
-        const CharData& GetCharData(int fontSize, char c) const;
+        std::shared_ptr<Texture> GetTextureAsset();
+        const CharData& GetCharData(char c) const;
 
     private:
         std::string m_Name;
-        std::unordered_map<int, FontAssetData> m_AssetData = {};
+        std::shared_ptr<Texture> m_Texture = nullptr;
+        std::unordered_map<char, CharData> m_CharData = {};
 
         friend class builder::FontBlueprint;
     };

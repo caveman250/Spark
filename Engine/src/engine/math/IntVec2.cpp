@@ -51,6 +51,13 @@ namespace se::math
         return *this;
     }
 
+    IntVec2& IntVec2::operator*=(float scalar)
+    {
+        x *= scalar;
+        y *= scalar;
+        return *this;
+    }
+
     IntVec2& IntVec2::operator/=(const IntVec2& rhs)
     {
         x /= rhs.x;
@@ -59,6 +66,13 @@ namespace se::math
     }
 
     IntVec2& IntVec2::operator/=(int scalar)
+    {
+        x /= scalar;
+        y /= scalar;
+        return *this;
+    }
+
+    IntVec2& IntVec2::operator/=(float scalar)
     {
         x /= scalar;
         y /= scalar;
@@ -96,6 +110,11 @@ namespace se::math
         return { lhs.x * scalar, lhs.y * scalar };
     }
 
+    IntVec2 operator*(const IntVec2& lhs, float scalar)
+    {
+        return { static_cast<int>(lhs.x * scalar), static_cast<int>(lhs.y * scalar) };
+    }
+
     IntVec2 operator/(const IntVec2& lhs, const IntVec2& rhs)
     {
         return { lhs.x / rhs.x, lhs.y / rhs.y };
@@ -104,6 +123,11 @@ namespace se::math
     IntVec2 operator/(const IntVec2& lhs, int scalar)
     {
         return { lhs.x / scalar, lhs.y / scalar };
+    }
+
+    IntVec2 operator/(const IntVec2& lhs, float scalar)
+    {
+        return { static_cast<int>(lhs.x / scalar), static_cast<int>(lhs.y / scalar) };
     }
 
     bool operator==(const IntVec2& lhs, const IntVec2& rhs)
