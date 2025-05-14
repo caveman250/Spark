@@ -31,6 +31,7 @@ namespace se::asset::shader::compiler
         bool ProcessLengthFunc(const Token& token, ParseError& outError);
         bool ProcessPowFunc(const Token& token, ParseError& outError);
         bool ProcessNormalizeFunc(const Token& token, ast::AstType::Type& returnType, ParseError& outError);
+        bool ProcessSmoothstepFunc(const Token& token, ast::AstType::Type& returnType, ParseError& outError);
         bool ProcessReflectFunc(const Token& token, ast::AstType::Type& returnType, ParseError& outError);
         bool ProcessClampFunc(const Token& token, ParseError& outError);
         bool ProcessDotFunc(const Token& token, ParseError& outError);
@@ -45,6 +46,10 @@ namespace se::asset::shader::compiler
 
         bool ProcessExpression(ast::AstType::Type& outType, ParseError& outError);
         bool ProcessForLoop(ParseError& outError);
+        bool ProcessIfStatement(ParseError& outError);
+        bool ProcessElseStatement(ParseError& outError);
+        bool ProcessDFDXStatement(const Token& token, ParseError& outError);
+        bool ProcessDFDYStatement(const Token& token, ParseError& outError);
 
         bool Peek(int offset, const std::vector<TokenType>& allowedTypes, const std::vector<std::string>& allowedValues);
         bool Peek(const std::vector<TokenType>& allowedTypes, const std::vector<std::string>& allowedValues);

@@ -14,6 +14,7 @@ namespace se::asset::shader::ast
         Mat4,
         Void,
         Sampler2D,
+        Bool,
         Invalid
     DECLARE_SPARK_ENUM_END()
 }

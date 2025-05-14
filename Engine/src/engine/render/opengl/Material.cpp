@@ -47,7 +47,7 @@ namespace se::render::opengl
         else
         {
             //debug::Log::Info("Result Vert Shader:\n {}", vert.value());
-            //debug::Log::Info("Result Frag Shader:\n {}", frag.value());
+            debug::Log::Info("Result Frag Shader:\n {}", frag.value());
         }
 
         // Create the shaders

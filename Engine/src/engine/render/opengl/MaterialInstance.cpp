@@ -196,8 +196,7 @@ namespace se::render::opengl
                 }
                 break;
             }
-            case asset::shader::ast::AstType::Void:
-            case asset::shader::ast::AstType::Invalid:
+            default:
                 debug::Log::Error("Material::SetUniform - Unhandled unfiorm type {}", asset::shader::ast::TypeUtil::TypeToGlsl(type));
                 break;
         }

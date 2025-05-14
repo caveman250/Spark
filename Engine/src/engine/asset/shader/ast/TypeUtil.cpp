@@ -26,6 +26,8 @@ namespace se::asset::shader::ast
                 return "void";
             case AstType::Sampler2D:
                 return "sampler2D";
+            case AstType::Bool:
+                return "bool";
             default:
                 SPARK_ASSERT(false);
                 return "";
@@ -52,6 +54,8 @@ namespace se::asset::shader::ast
             return AstType::Void;
         else if (type == "sampler2D")
             return AstType::Sampler2D;
+        else if (type == "bool")
+            return AstType::Bool;
 
         return AstType::Invalid;
     }
@@ -78,6 +82,8 @@ namespace se::asset::shader::ast
                 return "void";
             case AstType::Sampler2D:
                 return "texture2d";
+            case AstType::Bool:
+                return "bool";
             default:
                 SPARK_ASSERT(false);
                 return "";
@@ -104,6 +110,8 @@ namespace se::asset::shader::ast
             return AstType::Void;
         else if (type == "texture2D")
             return AstType::Sampler2D;
+        else if (type == "bool")
+            return AstType::Bool;
 
         return AstType::Invalid;
     }
@@ -130,6 +138,8 @@ namespace se::asset::shader::ast
     {
         switch (type)
         {
+            case AstType::Bool:
+                return sizeof(bool);
             case AstType::Int:
                 return sizeof(int32_t);
             case AstType::Float:
@@ -158,6 +168,8 @@ namespace se::asset::shader::ast
     {
         switch (type)
         {
+            case AstType::Bool:
+                return sizeof(bool);
             case AstType::Int:
                 return sizeof(int32_t);
             case AstType::Float:

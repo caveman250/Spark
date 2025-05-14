@@ -4,7 +4,7 @@
 
 namespace se::asset::shader::compiler
 {
-    std::array<std::string, 27> Builtins::s_Builtins =
+    std::array<std::string, 32> Builtins::s_Builtins =
         {
             "int",
             "float",
@@ -26,11 +26,16 @@ namespace se::asset::shader::compiler
             "texture",
             "length",
             "normalize",
+            "smoothstep",
             "clamp",
             "dot",
             "reflect",
             "pow",
             "for",
+            "if",
+            "else",
+            "dfdx",
+            "dfdy",
             "SSL_VERTEX",
             "SSL_FRAGMENT"
         };

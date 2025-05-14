@@ -13,7 +13,11 @@
 
 namespace se::asset::builder
 {
-    constexpr const char *s_FontMapChars =
+    constexpr int s_SDFPadding = 3;
+    constexpr int s_SDFOneEdge = 128;
+    constexpr int s_SDFPixelDistScale = 32;
+
+    constexpr const char* s_FontMapChars =
             "!@#$%^&*()_+"
             "1234567890-="
             "qwertyuiop[]"
@@ -46,17 +50,18 @@ namespace se::asset::builder
         return std::regex(".*.ttf");
     }
 
-    std::vector<BuiltAsset> FontBlueprint::BuildAsset(const std::string &path, const std::string &outputPath,
-                                                      meta::MetaData &) const
+    std::vector<BuiltAsset> FontBlueprint::BuildAsset(const std::string& path,
+                                                      const std::string& outputPath,
+                                                      meta::MetaData&) const
     {
         std::vector<BuiltAsset> ret;
         Font font;
 
-        stbtt_fontinfo info = {};
-        void *fontData = nullptr;
+        stbtt_fontinfo info = { };
+        void* fontData = nullptr;
         if (!LoadFont(info, &fontData, path))
         {
-            return {};
+            return { };
         }
 
         auto lastSlashIt = outputPath.find_last_of('/');
@@ -67,21 +72,22 @@ namespace se::asset::builder
         font.m_Name = fontName;
         std::mutex fontAssetLock;
         auto addFontSize = [&fontAssetLock, &font, outputDir, fontName](
-            int fontSize, const std::unordered_map<char, CharData> &charData)
+            int fontSize,
+            const std::unordered_map<char, CharData>& charData)
         {
             auto lock = std::lock_guard(fontAssetLock);
 
-            auto &fontAssetData = font.m_AssetData[fontSize];
+            auto& fontAssetData = font.m_AssetData[fontSize];
             fontAssetData.path = std::format("{}/{}_{}.sass", outputDir, fontName, fontSize);
             fontAssetData.charData = charData;
         };
 
         std::mutex retLock;
-        auto addReturnItem = [&retLock, &ret](const std::shared_ptr<binary::Database> &db,
+        auto addReturnItem = [&retLock, &ret](const std::shared_ptr<binary::Database>& db,
                                               const std::string fileNameSuffix)
         {
             auto lock = std::lock_guard(retLock);
-            ret.push_back({db, fileNameSuffix});
+            ret.push_back({ db, fileNameSuffix });
         };
 
         int ascent = GetAscent(info);
@@ -91,7 +97,7 @@ namespace se::asset::builder
 
             size_t numChars = strlen(s_FontMapChars);
             auto boundingBoxes = CollectSortedBoundingBoxes(info, scale);
-            std::vector<ui::Rect> placedBoundingBoxes = {};
+            std::vector<ui::Rect> placedBoundingBoxes = { };
             placedBoundingBoxes.reserve(numChars);
 
             std::unordered_map<char, CharData> charDataMap;
@@ -101,8 +107,10 @@ namespace se::asset::builder
             for (size_t i = 0; i < numChars; ++i)
             {
                 char c = s_FontMapChars[boundingBoxes[i].second];
-                auto &charData = charDataMap[c];
+                auto& charData = charDataMap[c];
                 charData.rect = boundingBoxes[i].first;
+                charData.rect.size -= math::IntVec2(s_SDFPadding, s_SDFPadding);
+                charData.rect.topLeft += math::IntVec2(s_SDFPadding, s_SDFPadding);
 
                 CollectCharMetrics(info, c, scale, static_cast<float>(ascent), charData);
                 PackChar(charData.rect, placedBoundingBoxes, imageWidth, imageHeight, interval);
@@ -112,12 +120,12 @@ namespace se::asset::builder
             {
                 char c = s_FontMapChars[boundingBoxes[i].second];
                 const auto& rect = placedBoundingBoxes[i];
-                auto &charData = charDataMap[c];
+                auto& charData = charDataMap[c];
                 // calculate Uvs now that the image size is stable
-                charData.uvTopLeft = math::Vec2(static_cast<float>(rect.topLeft.x) / imageWidth,
-                                                static_cast<float>(rect.topLeft.y) / imageHeight);
-                charData.uvBottomRight = math::Vec2((static_cast<float>(rect.topLeft.x) + static_cast<float>(rect.size.x)) / imageWidth,
-                                                    (static_cast<float>(rect.topLeft.y) + static_cast<float>(rect.size.y)) / imageHeight);
+                charData.uvTopLeft = math::Vec2(static_cast<float>(rect.topLeft.x + s_SDFPadding) / imageWidth,
+                                                static_cast<float>(rect.topLeft.y + s_SDFPadding) / imageHeight);
+                charData.uvBottomRight = math::Vec2((static_cast<float>(rect.topLeft.x) + static_cast<float>(rect.size.x) - s_SDFPadding) / imageWidth,
+                                                    (static_cast<float>(rect.topLeft.y) + static_cast<float>(rect.size.y) - s_SDFPadding) / imageHeight);
             }
 
             addFontSize(fontSize, charDataMap);
@@ -131,17 +139,19 @@ namespace se::asset::builder
 
         std::free(fontData);
 
-        ret.push_back({reflect::SerialiseType<Font>(&font), ""});
+        ret.push_back({ reflect::SerialiseType<Font>(&font), "" });
 
         return ret;
     }
 
-    bool FontBlueprint::LoadFont(stbtt_fontinfo &font, void **fontData, const std::string &path)
+    bool FontBlueprint::LoadFont(stbtt_fontinfo& font,
+                                 void** fontData,
+                                 const std::string& path)
     {
         size_t dataSize;
         *fontData = io::VFS::Get().ReadBinary(path, dataSize);
 
-        if (!stbtt_InitFont(&font, static_cast<const unsigned char *>(*fontData), 0))
+        if (!stbtt_InitFont(&font, static_cast<const unsigned char*>(*fontData), 0))
         {
             debug::Log::Error("Failed to load font {}", path);
             std::free(*fontData);
@@ -151,27 +161,39 @@ namespace se::asset::builder
         return true;
     }
 
-    int FontBlueprint::GetAscent(stbtt_fontinfo &font)
+    int FontBlueprint::GetAscent(stbtt_fontinfo& font)
     {
         int ascent, descent, lineGap;
         stbtt_GetFontVMetrics(&font, &ascent, &descent, &lineGap);
         return ascent;
     }
 
-    std::vector<std::pair<ui::Rect, int> > FontBlueprint::CollectSortedBoundingBoxes(stbtt_fontinfo &font, float scale)
+    std::vector<std::pair<ui::Rect, int>> FontBlueprint::CollectSortedBoundingBoxes(stbtt_fontinfo& font,
+                                                                                    float scale)
     {
         size_t numChars = strlen(s_FontMapChars);
 
-        std::vector<std::pair<ui::Rect, int> > ret;
+        std::vector<std::pair<ui::Rect, int>> ret;
         ret.reserve(numChars);
         for (size_t i = 0; i < numChars; ++i)
         {
-            int x1, y1, x2, y2;
-            stbtt_GetCodepointBitmapBox(&font, s_FontMapChars[i], scale, scale, &x1, &y1, &x2, &y2);
-            ret.push_back(std::make_pair(ui::Rect{math::IntVec2(x1, y1), math::IntVec2(x2 - x1, y2 - y1)}, static_cast<int>(i)));
+            int sizeX = 0, sizeY = 0;
+            int xOff = 0, yOff = 0;
+            stbtt_GetCodepointSDF(&font,
+                scale,
+                s_FontMapChars[i],
+                s_SDFPadding,
+                s_SDFOneEdge,
+                s_SDFPixelDistScale,
+                &sizeX,
+                &sizeY,
+                &xOff,
+                &yOff);
+            ret.push_back(std::make_pair(ui::Rect { math::IntVec2(xOff, yOff), math::IntVec2(sizeX, sizeY) }, static_cast<int>(i)));
         }
 
-        std::ranges::sort(ret, [](const std::pair<ui::Rect, int> &a, const std::pair<ui::Rect, int> &b)
+        std::ranges::sort(ret, [](const std::pair<ui::Rect, int>& a,
+                                  const std::pair<ui::Rect, int>& b)
         {
             return a.first.size > b.first.size;
         });
@@ -179,7 +201,11 @@ namespace se::asset::builder
         return ret;
     }
 
-    void FontBlueprint::CollectCharMetrics(stbtt_fontinfo &font, char c, float scale, float ascent, CharData &charData)
+    void FontBlueprint::CollectCharMetrics(stbtt_fontinfo& font,
+                                           char c,
+                                           float scale,
+                                           float ascent,
+                                           CharData& charData)
     {
         stbtt_GetCodepointHMetrics(&font, c, &charData.advanceWidth, &charData.leftSideBearing);
         charData.advanceWidth = static_cast<int>(charData.advanceWidth * scale);
@@ -198,10 +224,14 @@ namespace se::asset::builder
         }
     }
 
-    void FontBlueprint::PackChar(ui::Rect rect, std::vector<ui::Rect> &placedRects, int &imageWidth,
-                                 int &imageHeight, int &scanlineDelta)
+    void FontBlueprint::PackChar(ui::Rect rect,
+                                 std::vector<ui::Rect>& placedRects,
+                                 int& imageWidth,
+                                 int& imageHeight,
+                                 int& scanlineDelta)
     {
-        rect.topLeft = {0, 0};
+        rect.topLeft = { 0, 0 };
+        rect.size += { s_SDFPadding * 2, s_SDFPadding * 2 };
 
         while (true)
         {
@@ -211,7 +241,7 @@ namespace se::asset::builder
             bool foundPosition = canFit;
             if (canFit)
             {
-                for (const auto &otherBB: placedRects)
+                for (const auto& otherBB: placedRects)
                 {
                     if (otherBB.Overlaps(rect))
                     {
@@ -225,7 +255,8 @@ namespace se::asset::builder
             {
                 placedRects.push_back(rect);
                 break;
-            } else
+            }
+            else
             {
                 rect.topLeft.x += scanlineDelta;
                 if (rect.topLeft.x >= imageWidth)
@@ -247,19 +278,38 @@ namespace se::asset::builder
         }
     }
 
-    memory::BinaryBlob FontBlueprint::GenerateMonochromeBitmap(stbtt_fontinfo &font, int width, int height, float scale,
-                                                     const std::vector<std::pair<ui::Rect, int> > &boundingBoxes,
-                                                     const std::vector<ui::Rect> &placedBoundingBoxes)
+    memory::BinaryBlob FontBlueprint::GenerateMonochromeBitmap(stbtt_fontinfo& font,
+                                                               int width,
+                                                               int height,
+                                                               float scale,
+                                                               const std::vector<std::pair<ui::Rect, int>>& boundingBoxes,
+                                                               const std::vector<ui::Rect>& placedBoundingBoxes)
     {
-        uint8_t *bitmap = static_cast<uint8_t *>(std::malloc(width * height));
+        uint8_t* bitmap = static_cast<uint8_t*>(std::malloc(width * height));
         memset(bitmap, 0, width * height);
-        for (size_t i = 0; i < strlen(s_FontMapChars); ++i)
+        size_t numChars = strlen(s_FontMapChars);
+        for (size_t i = 0; i < numChars; ++i)
         {
-            const auto &rect = placedBoundingBoxes[i];
-            int byteOffset = rect.topLeft.x + (rect.topLeft.y * width);
-            stbtt_MakeCodepointBitmap(&font, bitmap + byteOffset, rect.size.x,
-                                      rect.size.y, width, scale, scale,
-                                      s_FontMapChars[boundingBoxes[i].second]);
+            const auto& rect = placedBoundingBoxes[i];
+
+            int sizeX = 0, sizeY = 0;
+            int xOff = 0, yOff = 0;
+            uint8_t* pixels = stbtt_GetCodepointSDF(&font,
+                scale,
+                s_FontMapChars[boundingBoxes[i].second],
+                s_SDFPadding,
+                s_SDFOneEdge,
+                s_SDFPixelDistScale,
+                &sizeX,
+                &sizeY,
+                &xOff,
+                &yOff);
+
+            for (int j = 0; j < sizeY; ++j)
+            {
+                int byteOffset = rect.topLeft.x + ((rect.topLeft.y + j) * width);
+                std::memcpy(bitmap + byteOffset, pixels + j * sizeX, sizeX);
+            }
         }
 
         return memory::BinaryBlob(bitmap, width * height);

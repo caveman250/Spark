@@ -1,11 +1,16 @@
+#include <engine/asset/shader/ast/IfNode.h>
+#include <engine/asset/shader/ast/ElseNode.h>
 #include "Parser.h"
 
 #include "engine/asset/shader/ast/TextureSampleNode.h"
 #include "engine/asset/shader/ast/PropertyAccessNode.h"
+#include "engine/asset/shader/ast/SmoothstepNode.h"
 #include "engine/asset/shader/ast/AnonymousScopeNode.h"
 #include "engine/asset/shader/ast/BinaryExpressionNode.h"
 #include "engine/asset/shader/ast/ClampNode.h"
 #include "engine/asset/shader/ast/ConstantNode.h"
+#include "engine/asset/shader/ast/DFDXNode.h"
+#include "engine/asset/shader/ast/DFDYNode.h"
 #include "engine/asset/shader/ast/DotNode.h"
 #include "engine/asset/shader/ast/EndOfExpressionNode.h"
 #include "engine/asset/shader/ast/ForLoopNode.h"
@@ -137,13 +142,7 @@ namespace se::asset::shader::compiler
             case ast::AstType::Vec2:
                 componentsAccountedFor += 2;
                 break;
-            case ast::AstType::Vec3:
-            case ast::AstType::Vec4:
-            case ast::AstType::Mat3:
-            case ast::AstType::Mat4:
-            case ast::AstType::Void:
-            case ast::AstType::Invalid:
-            case ast::AstType::Sampler2D:
+            default:
                 outError = {
                     nextToken.line, nextToken.pos,
                     std::format("Unexpected type {}", ast::TypeUtil::TypeToGlsl(argType))
@@ -209,10 +208,7 @@ namespace se::asset::shader::compiler
                     return false;
                 }
                 break;
-            case ast::AstType::Mat3:
-            case ast::AstType::Void:
-            case ast::AstType::Invalid:
-            case ast::AstType::Sampler2D:
+            default:
                 outError = {
                     nextToken.line, nextToken.pos,
                     std::format("Unexpected type {}", ast::TypeUtil::TypeToGlsl(argType))
@@ -273,11 +269,7 @@ namespace se::asset::shader::compiler
             case ast::AstType::Vec4:
                 componentsAccountedFor += 4;
                 break;
-            case ast::AstType::Mat3:
-            case ast::AstType::Mat4:
-            case ast::AstType::Void:
-            case ast::AstType::Sampler2D:
-            case ast::AstType::Invalid:
+            default:
                 outError = {
                     nextToken.line, nextToken.pos,
                     std::format("Unexpected type {}", ast::TypeUtil::TypeToGlsl(argType))
@@ -376,6 +368,10 @@ namespace se::asset::shader::compiler
         {
             return ProcessNormalizeFunc(token, returnType, outError);
         }
+        else if (token.value == "smoothstep")
+        {
+            return ProcessSmoothstepFunc(token, returnType, outError);
+        }
         else if (token.value == "clamp")
         {
             returnType = ast::AstType::Float;
@@ -399,6 +395,26 @@ namespace se::asset::shader::compiler
         {
             returnType = ast::AstType::Void;
             return ProcessForLoop(outError);
+        }
+        else if (token.value == "if")
+        {
+            returnType = ast::AstType::Void;
+            return ProcessIfStatement(outError);
+        }
+        else if (token.value == "else")
+        {
+            returnType = ast::AstType::Void;
+            return ProcessElseStatement(outError);
+        }
+        else if (token.value == "dfdx")
+        {
+            returnType = ast::AstType::Float;
+            return ProcessDFDXStatement(token, outError);
+        }
+        else if (token.value == "dfdy")
+        {
+            returnType = ast::AstType::Float;
+            return ProcessDFDYStatement(token, outError);
         }
 
         outError = {token.line, token.pos, std::format("Unexpected token {}", token.value)};
@@ -886,6 +902,7 @@ namespace se::asset::shader::compiler
 
     bool Parser::ProcessExpression(ast::AstType::Type& outType, ParseError& outError)
     {
+        ast::AstType::Type expressionType = ast::AstType::Invalid;
         int numBinaryExpressions = 0;
         while (true)
         {
@@ -950,7 +967,16 @@ namespace se::asset::shader::compiler
 
             if (Peek(binaryOpPeekOffset, { TokenType::Syntax }, ast::OperatorUtil::GetOperatorStrings(), binaryOpToken))
             {
-                auto binaryOp = m_Shader.AddNode<ast::BinaryExpressionNode>(ast::OperatorUtil::StringToOperatorType(binaryOpToken.value));
+                auto opType = ast::OperatorUtil::StringToOperatorType(binaryOpToken.value);
+                if (opType == ast::OperatorType::Less ||
+                    opType == ast::OperatorType::LessEquals ||
+                    opType == ast::OperatorType::Greater ||
+                    opType == ast::OperatorType::GreaterEquals ||
+                    opType == ast::OperatorType::Compare)
+                {
+                    expressionType = ast::AstType::Bool;
+                }
+                auto binaryOp = m_Shader.AddNode<ast::BinaryExpressionNode>(opType);
                 m_Shader.PushScope(binaryOp);
                 numBinaryExpressions++;
                 if (binaryOpPeekOffset == 0)
@@ -977,16 +1003,22 @@ namespace se::asset::shader::compiler
                 auto peek = m_Lexer.PeekToken();
                 if (std::holds_alternative<Token>(peek) && std::get<Token>(peek).value == ".")
                 {
-                    if (!ProcessPropertyAccess(nextToken, outType, outError))
+                    ast::AstType::Type propertyType;
+                    if (!ProcessPropertyAccess(nextToken, propertyType, outError))
                     {
                         return false;
                     }
 
                     isPropertyAccess = true;
+
+                    if (expressionType == ast::AstType::Invalid)
+                    {
+                        expressionType = propertyType;
+                    }
                 }
-                else
+                else if (expressionType == ast::AstType::Invalid)
                 {
-                    outType = type;
+                    expressionType = type;
                 }
 
                 int arrayIndex = -1;
@@ -1032,7 +1064,10 @@ namespace se::asset::shader::compiler
                 {
                     return false;
                 }
-                outType = IsInteger(nextToken.value) ? ast::AstType::Int : ast::AstType::Float;
+                if (expressionType == ast::AstType::Invalid)
+                {
+                    expressionType = IsInteger(nextToken.value) ? ast::AstType::Int : ast::AstType::Float;
+                }
             }
             else if (nextToken.type == TokenType::StringLiteral)
             {
@@ -1040,8 +1075,6 @@ namespace se::asset::shader::compiler
                 {
                     return false;
                 }
-                // strings not supported.
-                outType = ast::AstType::Invalid;
             }
             else if (nextToken.type == TokenType::Builtin)
             {
@@ -1056,16 +1089,16 @@ namespace se::asset::shader::compiler
                 auto peek = m_Lexer.PeekToken();
                 if (std::holds_alternative<Token>(peek) && std::get<Token>(peek).value == ".")
                 {
-                    if (!ProcessPropertyAccess(nextToken, outType, outError))
+                    if (!ProcessPropertyAccess(nextToken, expressionType, outError))
                     {
                         return false;
                     }
 
                     isPropertyAccess = true;
                 }
-                else
+                else if (expressionType == ast::AstType::Invalid)
                 {
-                    outType = builtinType;
+                    expressionType = builtinType;
                 }
 
                 if (isPropertyAccess)
@@ -1106,6 +1139,8 @@ namespace se::asset::shader::compiler
         {
             m_Shader.PopScope();
         }
+
+        outType = expressionType;
 
         return true;
     }
@@ -1173,6 +1208,188 @@ namespace se::asset::shader::compiler
         {
             return false;
         }
+
+        return true;
+    }
+
+    bool Parser::ProcessIfStatement(ParseError& outError)
+    {
+        auto ifNode = m_Shader.AddNode<ast::IfNode>();
+        m_Shader.PushScope(ifNode);
+
+        if (!ExpectAndConsume({TokenType::Syntax}, {"("}, outError))
+        {
+            return false;
+        }
+
+        ast::AstType::Type expressionType;
+        if (!ProcessExpression(expressionType, outError))
+        {
+            return false;
+        }
+
+        if (expressionType != ast::AstType::Type::Bool)
+        {
+            outError = { .line = 0, .pos = 0, .error = "If statement expression returning non bool type not supported."};
+            return false;
+        }
+
+        if (!ExpectAndConsume({TokenType::Syntax}, {")"}, outError))
+        {
+            return false;
+        }
+
+        if (!ExpectAndConsume({TokenType::Syntax}, {"{"}, outError))
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+    bool Parser::ProcessElseStatement(ParseError& outError)
+    {
+        auto ifNode = m_Shader.AddNode<ast::ElseNode>();
+        m_Shader.PushScope(ifNode);
+
+        if (!ExpectAndConsume({TokenType::Syntax}, {"{"}, outError))
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+    bool Parser::ProcessDFDXStatement(const Token& token, ParseError& outError)
+    {
+        if (!ExpectAndConsume({TokenType::Syntax}, {"("}, outError))
+        {
+            return false;
+        }
+
+        auto dfdx = m_Shader.AddNode<ast::DFDXNode>();
+        m_Shader.PushScope(dfdx);
+
+        int argumentsAccountedFor = 0;
+        Token nextToken;
+        while (true)
+        {
+            if (Peek({TokenType::Syntax}, {")"}))
+            {
+                break;
+            }
+
+            ast::AstType::Type argType;
+            if (!ProcessExpression(argType, outError))
+            {
+                return false;
+            }
+
+            switch (argType)
+            {
+                case ast::AstType::Float:
+                    argumentsAccountedFor++;
+                    break;
+                default:
+                    outError = {
+                    token.line, token.pos,
+                    std::format("Unexpected type {}", ast::TypeUtil::TypeToGlsl(argType))
+                };
+                    return false;
+            }
+
+            if (Peek({TokenType::Syntax}, {")"}))
+            {
+                break;
+            }
+
+            if (!ExpectedGetAndConsume({TokenType::Syntax}, {","}, nextToken, outError))
+            {
+                return false;
+            }
+        }
+
+        if (!ExpectedGetAndConsume({TokenType::Syntax}, {")"}, nextToken, outError))
+        {
+            return false;
+        }
+
+        if (argumentsAccountedFor != 1)
+        {
+            outError = {
+                nextToken.line, nextToken.pos, "Incorrect number of arguments for function call dfdx"
+            };
+            return false;
+        }
+
+        m_Shader.PopScope();
+
+        return true;
+    }
+
+    bool Parser::ProcessDFDYStatement(const Token& token, ParseError& outError)
+    {
+        if (!ExpectAndConsume({TokenType::Syntax}, {"("}, outError))
+        {
+            return false;
+        }
+
+        auto dfdy = m_Shader.AddNode<ast::DFDYNode>();
+        m_Shader.PushScope(dfdy);
+
+        int argumentsAccountedFor = 0;
+        Token nextToken;
+        while (true)
+        {
+            if (Peek({TokenType::Syntax}, {")"}))
+            {
+                break;
+            }
+
+            ast::AstType::Type argType;
+            if (!ProcessExpression(argType, outError))
+            {
+                return false;
+            }
+
+            switch (argType)
+            {
+                case ast::AstType::Float:
+                    argumentsAccountedFor++;
+                    break;
+                default:
+                    outError = {
+                    token.line, token.pos,
+                    std::format("Unexpected type {}", ast::TypeUtil::TypeToGlsl(argType))
+                };
+                    return false;
+            }
+
+            if (Peek({TokenType::Syntax}, {")"}))
+            {
+                break;
+            }
+
+            if (!ExpectedGetAndConsume({TokenType::Syntax}, {","}, nextToken, outError))
+            {
+                return false;
+            }
+        }
+
+        if (!ExpectedGetAndConsume({TokenType::Syntax}, {")"}, nextToken, outError))
+        {
+            return false;
+        }
+
+        if (argumentsAccountedFor != 1)
+        {
+            outError = {
+                nextToken.line, nextToken.pos, "Incorrect number of arguments for function call dfdx"
+            };
+            return false;
+        }
+
+        m_Shader.PopScope();
 
         return true;
     }
@@ -1285,11 +1502,7 @@ namespace se::asset::shader::compiler
             case ast::AstType::Vec4:
                 componentsAccountedFor += 4;
                 break;
-            case ast::AstType::Mat3:
-            case ast::AstType::Mat4:
-            case ast::AstType::Void:
-            case ast::AstType::Invalid:
-            case ast::AstType::Sampler2D:
+            default:
                 outError = {
                     token.line, token.pos,
                     std::format("Unexpected type {}", ast::TypeUtil::TypeToGlsl(argType))
@@ -1433,13 +1646,7 @@ namespace se::asset::shader::compiler
                 returnType = ast::AstType::Vec4;
                 argumentsAccountedFor ++;
                 break;
-            case ast::AstType::Int:
-            case ast::AstType::Float:
-            case ast::AstType::Mat3:
-            case ast::AstType::Mat4:
-            case ast::AstType::Void:
-            case ast::AstType::Invalid:
-            case ast::AstType::Sampler2D:
+            default:
                 outError = {
                     token.line, token.pos,
                     std::format("Unexpected type {}", ast::TypeUtil::TypeToGlsl(argType))
@@ -1467,6 +1674,77 @@ namespace se::asset::shader::compiler
         {
             outError = {
                 nextToken.line, nextToken.pos, "Too many arguments for function call length"
+            };
+            return false;
+        }
+
+        m_Shader.PopScope();
+
+        return true;
+    }
+
+    bool Parser::ProcessSmoothstepFunc(const Token& token,
+                                       ast::AstType::Type& returnType,
+                                       ParseError& outError)
+    {
+        if (!ExpectAndConsume({TokenType::Syntax}, {"("}, outError))
+        {
+            return false;
+        }
+
+        auto smoothstep = m_Shader.AddNode<ast::SmoothstepNode>();
+        m_Shader.PushScope(smoothstep);
+
+        int argumentsAccountedFor = 0;
+        Token nextToken;
+        while (true)
+        {
+            if (Peek({TokenType::Syntax}, {")"}))
+            {
+                break;
+            }
+
+            ast::AstType::Type argType;
+            if (!ProcessExpression(argType, outError))
+            {
+                return false;
+            }
+
+            switch (argType)
+            {
+                case ast::AstType::Float:
+                    returnType = ast::AstType::Float;
+                    argumentsAccountedFor++;
+                    break;
+                default:
+                    outError = {
+                            token.line, token.pos,
+                            std::format("Unexpected type {}", ast::TypeUtil::TypeToGlsl(argType))
+                    };
+                    return false;
+                    break;
+            }
+
+            if (Peek({TokenType::Syntax}, {")"}))
+            {
+                break;
+            }
+
+            if (!ExpectedGetAndConsume({TokenType::Syntax}, {","}, nextToken, outError))
+            {
+                return false;
+            }
+        }
+
+        if (!ExpectedGetAndConsume({TokenType::Syntax}, {")"}, nextToken, outError))
+        {
+            return false;
+        }
+
+        if (argumentsAccountedFor != 3)
+        {
+            outError = {
+                    nextToken.line, nextToken.pos, "Incorrect number of arguments for function call smoothstep"
             };
             return false;
         }
@@ -1515,13 +1793,7 @@ namespace se::asset::shader::compiler
                 returnType = ast::AstType::Vec4;
                 argumentsAccountedFor ++;
                 break;
-            case ast::AstType::Int:
-            case ast::AstType::Float:
-            case ast::AstType::Mat3:
-            case ast::AstType::Mat4:
-            case ast::AstType::Void:
-            case ast::AstType::Invalid:
-            case ast::AstType::Sampler2D:
+            default:
                 outError = {
                     token.line, token.pos,
                     std::format("Unexpected type {}", ast::TypeUtil::TypeToGlsl(argType))
@@ -1712,9 +1984,11 @@ namespace se::asset::shader::compiler
         if (propertyNameToken.value == "x" ||
             propertyNameToken.value == "y" ||
             propertyNameToken.value == "z" ||
+            propertyNameToken.value == "w" ||
             propertyNameToken.value == "r" ||
             propertyNameToken.value == "g" ||
-            propertyNameToken.value == "b")
+            propertyNameToken.value == "b" ||
+            propertyNameToken.value == "a")
         {
             returnType = ast::AstType::Float;
         }
