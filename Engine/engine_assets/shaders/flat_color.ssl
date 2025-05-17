@@ -1,6 +1,6 @@
 SSL_FRAGMENT
 
-port(FinalFragColor) out vec4 color;
+port(FragColor) out vec4 color;
 
 setting vec3 color_setting;
 

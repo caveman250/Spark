@@ -2,8 +2,8 @@ SSL_FRAGMENT
 
 setting float ymod;
 
-port(FragUV) in vec2 inUV;
-port(FinalFragColor) out vec4 color;
+port(FragmentUV) in vec2 inUV;
+port(FragColor) out vec4 color;
 
 uniform sampler2D Texture;
 
