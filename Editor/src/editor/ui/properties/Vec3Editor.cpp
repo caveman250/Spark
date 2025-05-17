@@ -23,7 +23,7 @@ namespace se::editor::ui::properties
 
         auto box = world->CreateEntity("Vect3 Editor Box", true);
         auto* boxRect = world->AddComponent<se::ui::components::RectTransformComponent>(box);
-        boxRect->anchors = {0.f, 1.f, 0.f, 0.f };
+        boxRect->anchors = { constructTitle ? 0.3f : 0.f, 1.f, 0.f, 0.f };
         world->AddChild(m_Content, box);
 
         m_XEditor.SetValue(&m_Value->x, nullptr);
@@ -43,8 +43,6 @@ namespace se::editor::ui::properties
         m_ZEditor.GetRectTransform()->minX = -2;
         m_ZEditor.GetRectTransform()->maxX = 2;
         world->AddChild(box, m_ZEditor.GetWidgetId());
-
-        m_RectTransform->maxY = 52;
     }
 
     void Vec3Editor::Update()
