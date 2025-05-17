@@ -18,6 +18,9 @@ namespace se::asset
         DEFINE_SERIALIZED_MEMBER(m_Name)
         DEFINE_SERIALIZED_MEMBER(m_Texture)
         DEFINE_SERIALIZED_MEMBER(m_CharData)
+        DEFINE_SERIALIZED_MEMBER(m_Ascent)
+        DEFINE_SERIALIZED_MEMBER(m_Descent)
+        DEFINE_SERIALIZED_MEMBER(m_CharData)
     DEFINE_SPARK_CLASS_END(Font)
 
     std::shared_ptr<Texture> Font::GetTextureAsset()
@@ -34,5 +37,18 @@ namespace se::asset
         }
 
         return m_CharData.at(c);
+    }
+
+    float Font::GetLineHeight(int fontSize) const
+    {
+        float scale = static_cast<float>(fontSize) / 32.f;
+        float height = m_Ascent - m_Descent + m_LineGap;
+        return height * scale;
+    }
+
+    float Font::GetAscent(int fontSize) const
+    {
+        float scale = static_cast<float>(fontSize) / 32.f;
+        return m_Ascent * scale;
     }
 }

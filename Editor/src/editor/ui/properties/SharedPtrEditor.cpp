@@ -46,7 +46,7 @@ namespace se::editor::ui::properties
         rect->minX = 5;
         rect->maxX = 15;
         world->AddComponent<WidgetComponent>(entity);
-        world->AddChild(m_WidgetId, entity);
+        world->AddChild(m_Content, entity);
 
         auto titleMode = m_WrappedEditor ? m_WrappedEditor->GetTitleMode() : PropertyTitleMode::Inline;
 

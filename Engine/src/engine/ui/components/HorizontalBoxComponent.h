@@ -42,6 +42,7 @@ namespace se::ui
             thisRect.rect = util::CalculateScreenSpaceRect(thisRect, parentRect);
         }
 
-        return GetHorizontalBoxChildrenDesiredSize(system, entity, thisRect, context);
+        return CalculateAnchorOffsets(thisRect, parentRect.rect) +
+                GetHorizontalBoxChildrenDesiredSize(system, entity, thisRect, context);
     }
 }

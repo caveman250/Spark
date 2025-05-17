@@ -20,6 +20,7 @@ namespace se::ui::systems
         PROFILE_SCOPE("HorizontalBoxSystem::OnUpdate")
 
         auto world = Application::Get()->GetWorld();
+        auto window = Application::Get()->GetPrimaryWindow();
         const auto& entities = updateData.GetEntities();
         auto* rectTransforms = updateData.GetComponentArray<ui::components::RectTransformComponent>();
         auto* horizontalBoxes = updateData.GetComponentArray<ui::components::HorizontalBoxComponent>();
@@ -70,7 +71,7 @@ namespace se::ui::systems
 
                     desiredSizeInfo.rectTransform->anchors = {0.f, 0.f, 0.f, 1.f};
                     desiredSizeInfo.rectTransform->minX = currX;
-                    desiredSizeInfo.rectTransform->maxX = desiredSizeInfo.rectTransform->minX + desiredSizeInfo.desiredSize.x;
+                    desiredSizeInfo.rectTransform->maxX = desiredSizeInfo.rectTransform->minX + desiredSizeInfo.desiredSize.x / window->GetContentScale();
                     currX = desiredSizeInfo.rectTransform->maxX + horizontalBox.spacing;
 
                     desiredSizeInfo.rectTransform->rect = util::CalculateScreenSpaceRect(*desiredSizeInfo.rectTransform,
@@ -92,8 +93,8 @@ namespace se::ui::systems
                     }
                 }
 
-                horizontalBoxTransform.rect.size.x = currX;
-                horizontalBoxTransform.maxX = horizontalBoxTransform.minX + horizontalBoxTransform.rect.size.x;
+                horizontalBoxTransform.rect.size.x = currX * window->GetContentScale();
+                horizontalBoxTransform.maxX = horizontalBoxTransform.minX + currX;
 
                 horizontalBox.dirty = false;
             }

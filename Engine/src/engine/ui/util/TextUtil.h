@@ -8,6 +8,7 @@
 #include "engine/ui/singleton_components/UIRenderComponent.h"
 #include "engine/asset/AssetManager.h"
 #include "engine/render/Material.h"
+#include "platform/IWindow.h"
 
 namespace se::ui::util
 {
@@ -62,9 +63,10 @@ namespace se::ui::util
             textComp.lastText != text ||
             textComp.lastFontSize != textComp.fontSize)
         {
+            auto window = Application::Get()->GetPrimaryWindow();
             asset::StaticMesh mesh = util::CreateTextMesh(transform.rect,
                                                           textComp.font,
-                                                          textComp.fontSize,
+                                                          textComp.fontSize * window->GetContentScale(),
                                                           text,
                                                           true,
                                                           textComp.wrap,

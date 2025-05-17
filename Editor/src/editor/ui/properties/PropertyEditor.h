@@ -63,6 +63,7 @@ namespace se::editor::ui::properties
         RectTransformComponent* GetRectTransform() { return m_RectTransform; }
     protected:
         ecs::Id m_WidgetId;
+        ecs::Id m_Content;
         RectTransformComponent* m_RectTransform = nullptr;
         String m_Name = {};
     };

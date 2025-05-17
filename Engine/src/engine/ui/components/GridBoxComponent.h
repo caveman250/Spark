@@ -43,6 +43,6 @@ namespace se::ui
             thisRect.rect = util::CalculateScreenSpaceRect(thisRect, parentRect);
         }
 
-        return GetGridBoxChildrenDesiredSize(system, entity, parentRect, thisRect, context);
+        return CalculateAnchorOffsets(thisRect, parentRect.rect) + GetGridBoxChildrenDesiredSize(system, entity, parentRect, thisRect, context);
     }
 }

@@ -17,7 +17,9 @@ namespace se::ui::systems
     {
         PROFILE_SCOPE("ScrollViewUpdateSystem::OnUpdate")
 
-        auto world = Application::Get()->GetWorld();
+        auto app = Application::Get();
+        auto world = app->GetWorld();
+        auto window = app->GetPrimaryWindow();
 
         const auto& entities = updateData.GetEntities();
         auto* scrollViews = updateData.GetComponentArray<ui::components::ScrollViewComponent>();
@@ -38,9 +40,9 @@ namespace se::ui::systems
                     .WithVariantComponent<SPARK_CONST_WIDGET_TYPES_WITH_NULLTYPE>(ecs::ComponentMutability::Immutable);
                 RunChildQuery(entity,
                     declaration,
-                    [this, world, &rectTransform](const ecs::SystemUpdateData& updateData)
+                    [this, world, window, &rectTransform](const ecs::SystemUpdateData& updateData)
                     {
-                        std::visit([this, world, &updateData, &rectTransform](auto&& value)
+                        std::visit([this, world, window, &updateData, &rectTransform](auto&& value)
                         {
                             const auto& children = updateData.GetEntities();
                             auto* childTransforms = updateData.GetComponentArray<components::RectTransformComponent>();
@@ -52,7 +54,7 @@ namespace se::ui::systems
                                 auto oldTransform = childTransform;
                                 childTransform.anchors = { 0, 1, 0, 0 };
                                 auto desiredSize = DesiredSizeCalculator::GetDesiredSize(this, child, rectTransform, childTransform, &value[i]);
-                                childTransform.maxY = childTransform.minY + desiredSize.y;
+                                childTransform.maxY = childTransform.minY + desiredSize.y / window->GetContentScale();
                                 childTransform.rect = util::CalculateScreenSpaceRect(childTransform, rectTransform);
 
                                 if (!childTransform.overridesChildSizes)

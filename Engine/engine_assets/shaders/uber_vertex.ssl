@@ -6,12 +6,12 @@ port(VertexPos) in vec3 inPos;
 port(VertexUV) in vec2 inUV;
 port(VertexNormal) in vec3 inNormal;
 
-port(FinalVertPos) out vec4 outPos;
-port(VertexWorldPos) out vec3 outWorldPos;
-port(VertexCameraNormal) out vec3 outNormal;
-port(FragUV) out vec2 outUV;
-port(CameraEyeDir) out vec3 outEyeDir;
-port(CameraLightDir) out vec3[numLights] outLightDir;
+port(FinalVertexPos) out vec4 outPos;
+port(FragmentWorldPos) out vec3 outWorldPos;
+port(FragmentNormalCameraSpace) out vec3 outNormal;
+port(FragmentUV) out vec2 outUV;
+port(EyeDirCameraSpace) out vec3 outEyeDir;
+port(LightDirCameraSpace) out vec3[numLights] outLightDir;
 
 uniform mat4 model;
 uniform mat4 view;

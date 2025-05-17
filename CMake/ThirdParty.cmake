@@ -1,4 +1,4 @@
-include(${ROOT_DIR}/CMake/include/Util.cmake)
+include(include/Util)
 
 set(CMAKE_WARN_DEPRECATED OFF CACHE BOOL "" FORCE)
 set(CMAKE_POLICY_VERSION_MINIMUM "3.5" CACHE STRING "" FORCE)
@@ -9,11 +9,11 @@ add_subdirectory_with_folder("Third Party" third_party/bc7enc_rdo)
 add_subdirectory_with_folder("Third Party" third_party/OpenFBX-365f52c)
 
 if (${PLATFORM} MATCHES Windows)
-    include(${ROOT_DIR}/CMake/windows/WindowsThirdParty.cmake)
+    include(windows/WindowsThirdParty)
 elseif (${PLATFORM} MATCHES Linux)
-    include(${ROOT_DIR}/CMake/linux/LinuxThirdParty.cmake)
+    include(linux/LinuxThirdParty)
 elseif (${PLATFORM} MATCHES Mac)
-    include(${ROOT_DIR}/CMake/mac/MacThirdParty.cmake)
+    include(mac/MacThirdParty)
 endif ()
 
 set(MESSAGE_QUIET OFF)

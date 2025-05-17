@@ -47,10 +47,10 @@ namespace se::ui::util
             {
                 const auto& nextCharData = font->GetCharData(nextChar);
 
-                if (xCopy + nextCharData.advanceWidth * scale >= rect.size.x)
+                if (xCopy + nextCharData.advanceWidth * scale >= rect.size.x - 1)
                 {
                     cursorPos.x = 0;
-                    cursorPos.y += fontSize;
+                    cursorPos.y += font->GetLineHeight(fontSize);
                     didWrap = true;
                     break;
                 }
@@ -133,8 +133,7 @@ namespace se::ui::util
     {
         math::Vec2 TL = charData.rect.topLeft * scale + cursorPos;
         math::Vec2 BR = TL + charData.rect.size * scale;
-        // TL *= scale;
-        // BR *= scale;
+
         mesh.vertices.push_back({ (float) TL.x, (float) BR.y, 0 });
         mesh.vertices.push_back({ (float) BR.x, (float) BR.y, 0 });
         mesh.vertices.push_back({ (float) BR.x, (float) TL.y, 0 });
@@ -161,7 +160,7 @@ namespace se::ui::util
         asset::StaticMesh mesh;
         uint32_t indexOffset = 0;
         math::Vec2 cursorPos = { };
-        cursorPos.y += fontSize;
+        cursorPos.y += font->GetAscent(fontSize);
         size_t lineStart = 0;
         for (size_t i = 0; i < text.Size(); ++i)
         {
@@ -281,7 +280,7 @@ namespace se::ui::util
         math::Vec2 max = { };
 
         math::Vec2 cursorPos = { };
-        cursorPos.y += fontSize;
+        cursorPos.y += font->GetLineHeight(fontSize);
         for (size_t i = 0; i < endIndex; ++i)
         {
             char c = text[i];
@@ -295,8 +294,6 @@ namespace se::ui::util
 
             math::Vec2 TL = charData.rect.topLeft * scale + cursorPos;
             math::Vec2 BR = TL + charData.rect.size * scale;
-            // TL *= scale;
-            // BR *= scale;
             max = math::Vec2(std::max(BR.x, max.x), std::max(BR.y, max.y));
 
             cursorPos = ApplyAdvanceWidth(cursorPos, charData, scale);
@@ -345,7 +342,7 @@ namespace se::ui::util
     {
         float scale = static_cast<float>(fontSize) / 32.f;
         math::Vec2 cursorPos = { };
-        cursorPos.y += fontSize;
+        cursorPos.y += font->GetLineHeight(fontSize);
         size_t lineStart = 0;
         std::vector<Rect> boundingBoxes = {};
         for (size_t i = 0; i < text.Size(); ++i)

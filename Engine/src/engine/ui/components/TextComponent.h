@@ -13,6 +13,7 @@
 #include "engine/ui/util/RectTransformUtil.h"
 #include "engine/ui/text/Alignment.h"
 #include "engine/ui/text/WrapMode.h"
+#include "platform/IWindow.h"
 
 namespace se::ui::systems
 {
@@ -56,13 +57,8 @@ namespace se::ui
             thisRect.rect = util::CalculateScreenSpaceRect(thisRect, parentRect);
         }
 
-        // treat char wrap as word wrap when it comes to desired size, or we will just get a single column string every time.
-        auto wrap = text->wrap;
-        if (wrap == text::WrapMode::Char)
-        {
-            wrap = text::WrapMode::Word;
-        }
-        auto ret = ui::util::MeasureText(thisRect.rect, text->font, text->fontSize, text->text, true, wrap);
-        return ret;
+        auto window = Application::Get()->GetPrimaryWindow();
+        auto ret = ui::util::MeasureText(thisRect.rect, text->font, text->fontSize * window->GetContentScale(), text->text, true, text->wrap);
+        return CalculateAnchorOffsets(thisRect, parentRect.rect) + ret;
     }
 }

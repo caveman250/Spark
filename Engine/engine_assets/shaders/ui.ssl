@@ -3,8 +3,8 @@ SSL_VERTEX
 port(VertexPos) in vec3 inPos;
 port(VertexUV) in vec2 inUV;
 
-port(FinalVertPos) out vec4 outPos;
-port(FragUV) out vec2 outUV;
+port(FinalVertexPos) out vec4 outPos;
+port(FragmentUV) out vec2 outUV;
 
 uniform vec2 screenSize;
 uniform vec2 pos;

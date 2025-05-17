@@ -68,6 +68,8 @@ namespace se::editor::ui
         m_ScrollBoxContent = world->CreateEntity("Vertical Box");
         auto verticalBox = world->AddComponent<se::ui::components::VerticalBoxComponent>(m_ScrollBoxContent);
         verticalBox->spacing = 5;
+        verticalBox->paddingLeft = 5;
+        verticalBox->paddingRight = 15;
         world->AddComponent<se::ui::components::WidgetComponent>(m_ScrollBoxContent);
         auto verticalBoxTransform = world->AddComponent<se::ui::components::RectTransformComponent>(m_ScrollBoxContent);
         verticalBoxTransform->anchors = { 0.f, 1.f, 0.f, 0.f };
@@ -187,8 +189,6 @@ namespace se::editor::ui
                 text->fontSize = 14;
                 text->text = "No properties.";
                 auto transform = world->AddComponent<se::ui::components::RectTransformComponent>(textEntity);
-                transform->minX = 10;
-                transform->maxX = 15;
                 transform->anchors = { 0.f, 1.f, 0.f, 0.f };
                 world->AddComponent<se::ui::components::WidgetComponent>(textEntity);
                 se::ui::util::AddVerticalBoxChild(m_ScrollBoxContent, verticalBox, textEntity);

@@ -24,7 +24,7 @@ namespace se::editor::ui::properties
         auto box = world->CreateEntity("Vect3 Editor Box", true);
         auto* boxRect = world->AddComponent<se::ui::components::RectTransformComponent>(box);
         boxRect->anchors = {0.f, 1.f, 0.f, 0.f };
-        world->AddChild(m_WidgetId, box);
+        world->AddChild(m_Content, box);
 
         m_XEditor.SetValue(&m_Value->x, nullptr);
         m_XEditor.ConstructUI("X", false, { 0.f, 0.33f, 0.f, 1.f });

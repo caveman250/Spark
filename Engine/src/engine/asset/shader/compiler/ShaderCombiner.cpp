@@ -287,7 +287,7 @@ namespace se::asset::shader::compiler
 
         for (auto& [name, port] : shader.GetOutputPorts())
         {
-            if (port->GetPortName() == "FinalVertPos")
+            if (port->GetPortName() == "FinalVertexPos")
             {
                 for (const auto& node : shader.GetNodes())
                 {

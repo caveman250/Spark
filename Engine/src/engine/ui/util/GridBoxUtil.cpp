@@ -13,10 +13,11 @@ namespace se::ui::util
                 .WithComponent<ui::components::RectTransformComponent>()
                 .WithVariantComponent<SPARK_CONST_WIDGET_TYPES_WITH_NULLTYPE>(ecs::ComponentMutability::Immutable);
 
+        auto window = Application::Get()->GetPrimaryWindow();
         system->RunChildQuery(entity, dec,
-        [rectTransform, &itemSize, system](const ecs::SystemUpdateData& updateData)
+        [rectTransform, &itemSize, system, window](const ecs::SystemUpdateData& updateData)
         {
-            std::visit([rectTransform, updateData, &itemSize, system](auto&& value)
+            std::visit([rectTransform, updateData, &itemSize, system, window](auto&& value)
             {
                 const auto& entities = updateData.GetEntities();
                 auto transforms = updateData.GetComponentArray<ui::components::RectTransformComponent>();
@@ -28,8 +29,8 @@ namespace se::ui::util
                                                                                             transforms[i],
                                                                                             value);
 
-                    itemSize.x = std::max(itemSize.x, childDesiredSize.x);
-                    itemSize.y = std::max(itemSize.y, childDesiredSize.y);
+                    itemSize.x = std::max(itemSize.x, static_cast<int>(childDesiredSize.x / window->GetContentScale()));
+                    itemSize.y = std::max(itemSize.y, static_cast<int>(childDesiredSize.y / window->GetContentScale()));
                 }
             }, updateData.GetVariantComponentArray<SPARK_CONST_WIDGET_TYPES_WITH_NULLTYPE>());
 

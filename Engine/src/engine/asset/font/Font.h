@@ -38,11 +38,16 @@ namespace se::asset
         Font() = default;
         std::shared_ptr<Texture> GetTextureAsset();
         const CharData& GetCharData(char c) const;
+        float GetLineHeight(int fontSize) const;
+        float GetAscent(int fontSize) const;
 
     private:
         std::string m_Name;
         std::shared_ptr<Texture> m_Texture = nullptr;
         std::unordered_map<char, CharData> m_CharData = {};
+        float m_Ascent = 0.f;
+        float m_Descent = 0.f;
+        float m_LineGap = 0.f;
 
         friend class builder::FontBlueprint;
     };

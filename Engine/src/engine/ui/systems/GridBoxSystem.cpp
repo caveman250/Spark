@@ -20,6 +20,7 @@ namespace se::ui::systems
         PROFILE_SCOPE("GridBoxSystem::OnUpdate")
 
         auto world = Application::Get()->GetWorld();
+        auto window = Application::Get()->GetPrimaryWindow();
         const auto& entities = updateData.GetEntities();
         auto* rectTransforms = updateData.GetComponentArray<ui::components::RectTransformComponent>();
         auto* gridBoxes = updateData.GetComponentArray<ui::components::GridBoxComponent>();
@@ -76,15 +77,15 @@ namespace se::ui::systems
                     }
 
                     cursor.x += itemSize.x + gridBox.spacing;
-                    if (cursor.x + itemSize.x + gridBox.spacing > gridBoxTransform.rect.size.x)
+                    if (cursor.x + itemSize.x + gridBox.spacing > gridBoxTransform.rect.size.x / window->GetContentScale())
                     {
                         cursor.x = gridBox.spacing;
                         cursor.y += itemSize.y + gridBox.spacing;
                     }
                 }
 
-                gridBoxTransform.rect.size.y = cursor.y;
-                gridBoxTransform.maxY = gridBoxTransform.minY + gridBoxTransform.rect.size.y;
+                gridBoxTransform.rect.size.y = cursor.y * window->GetContentScale();
+                gridBoxTransform.maxY = gridBoxTransform.minY + cursor.y;
 
                 gridBox.dirty = false;
             }

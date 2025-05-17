@@ -61,14 +61,17 @@ namespace se::ui::systems
                        });
 
                     auto childRects = util::GetChildrenDesiredSizes(entity, this, verticalBoxTransform);
-                    int currY = 0;
+                    int currY = verticalBox.paddingTop;
+                    auto window = Application::Get()->GetPrimaryWindow();
                     for (const auto& child : world->GetChildren(entity))
                     {
                         auto desiredSizeInfo = childRects.at(child);
 
                         desiredSizeInfo.rectTransform->anchors = {0.f, 1.f, 0.f, 0.f};
                         desiredSizeInfo.rectTransform->minY = currY;
-                        desiredSizeInfo.rectTransform->maxY = desiredSizeInfo.rectTransform->minY + desiredSizeInfo.desiredSize.y;
+                        desiredSizeInfo.rectTransform->minX = verticalBox.paddingLeft;
+                        desiredSizeInfo.rectTransform->maxX = verticalBox.paddingRight;
+                        desiredSizeInfo.rectTransform->maxY = desiredSizeInfo.rectTransform->minY + desiredSizeInfo.desiredSize.y / window->GetContentScale();
                         currY = desiredSizeInfo.rectTransform->maxY + verticalBox.spacing;
 
                         desiredSizeInfo.rectTransform->rect = util::CalculateScreenSpaceRect(*desiredSizeInfo.rectTransform,
@@ -90,8 +93,9 @@ namespace se::ui::systems
                         }
                     }
 
-                    verticalBoxTransform.rect.size.y = currY;
-                    verticalBoxTransform.maxY = verticalBoxTransform.minY + verticalBoxTransform.rect.size.y;
+                    verticalBoxTransform.rect.size.y = currY * window->GetContentScale() +
+                                                    verticalBox.paddingBottom * window->GetContentScale();
+                    verticalBoxTransform.maxY = verticalBoxTransform.minY + currY + verticalBox.paddingBottom;
 
                     verticalBox.dirty = false;
                 }

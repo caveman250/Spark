@@ -5,8 +5,8 @@
 namespace se::math
 {
     DEFINE_SPARK_POD_CLASS_BEGIN(IntVec2)
-        DEFINE_SERIALIZED_MEMBER(x)
-        DEFINE_SERIALIZED_MEMBER(y)
+                                             DEFINE_SERIALIZED_MEMBER(x)
+                                             DEFINE_SERIALIZED_MEMBER(y)
     DEFINE_SPARK_CLASS_END(IntVec2)
 
     IntVec2& IntVec2::operator+=(const IntVec2& rhs)
@@ -80,72 +80,108 @@ namespace se::math
     }
 
     IntVec2::IntVec2(const Vec2& vec)
-            : x(static_cast<int>(vec.x))
-            , y(static_cast<int>(vec.y))
+        : x(static_cast<int>(vec.x))
+        , y(static_cast<int>(vec.y))
     {
     }
 
     IntVec2 operator-(const IntVec2& lhs)
     {
-        return {-lhs.x, -lhs.y };
+        return { -lhs.x, -lhs.y };
     }
 
-    IntVec2 operator+(const IntVec2& lhs, const IntVec2& rhs)
+    IntVec2 operator+(const IntVec2& lhs,
+                      const IntVec2& rhs)
     {
         return { lhs.x + rhs.x, lhs.y + rhs.y };
     }
 
-    IntVec2 operator-(const IntVec2& lhs, const IntVec2& rhs)
+    IntVec2 operator+(const IntVec2& lhs,
+                      const Vec2& rhs)
+    {
+        return { static_cast<int>(lhs.x + rhs.x), static_cast<int>(lhs.y + rhs.y) };
+    }
+
+    IntVec2 operator-(const IntVec2& lhs,
+                      const IntVec2& rhs)
     {
         return { lhs.x - rhs.x, lhs.y - rhs.y };
     }
 
-    IntVec2 operator*(const IntVec2& lhs, const IntVec2& rhs)
+    IntVec2 operator-(const IntVec2& lhs,
+                      const Vec2& rhs)
+    {
+        return { static_cast<int>(lhs.x - rhs.x), static_cast<int>(lhs.y - rhs.y) };
+    }
+
+    IntVec2 operator*(const IntVec2& lhs,
+                      const IntVec2& rhs)
     {
         return { lhs.x * rhs.x, lhs.y * rhs.y };
     }
 
-    IntVec2 operator*(const IntVec2& lhs, int scalar)
+    IntVec2 operator*(const IntVec2& lhs,
+                      const Vec2& rhs)
+    {
+        return { static_cast<int>(lhs.x * rhs.x), static_cast<int>(lhs.y * rhs.y) };
+    }
+
+    IntVec2 operator*(const IntVec2& lhs,
+                      int scalar)
     {
         return { lhs.x * scalar, lhs.y * scalar };
     }
 
-    IntVec2 operator*(const IntVec2& lhs, float scalar)
+    IntVec2 operator*(const IntVec2& lhs,
+                      float scalar)
     {
         return { static_cast<int>(lhs.x * scalar), static_cast<int>(lhs.y * scalar) };
     }
 
-    IntVec2 operator/(const IntVec2& lhs, const IntVec2& rhs)
+    IntVec2 operator/(const IntVec2& lhs,
+                      const IntVec2& rhs)
     {
         return { lhs.x / rhs.x, lhs.y / rhs.y };
     }
 
-    IntVec2 operator/(const IntVec2& lhs, int scalar)
+    IntVec2 operator/(const IntVec2& lhs,
+                      const Vec2& rhs)
+    {
+        return { static_cast<int>(lhs.x / rhs.x), static_cast<int>(lhs.y / rhs.y) };
+    }
+
+    IntVec2 operator/(const IntVec2& lhs,
+                      int scalar)
     {
         return { lhs.x / scalar, lhs.y / scalar };
     }
 
-    IntVec2 operator/(const IntVec2& lhs, float scalar)
+    IntVec2 operator/(const IntVec2& lhs,
+                      float scalar)
     {
         return { static_cast<int>(lhs.x / scalar), static_cast<int>(lhs.y / scalar) };
     }
 
-    bool operator==(const IntVec2& lhs, const IntVec2& rhs)
+    bool operator==(const IntVec2& lhs,
+                    const IntVec2& rhs)
     {
         return lhs.x == rhs.x && lhs.y == rhs.y;
     }
 
-    bool operator!=(const IntVec2& lhs, const IntVec2& rhs)
+    bool operator!=(const IntVec2& lhs,
+                    const IntVec2& rhs)
     {
         return !(lhs == rhs);
     }
 
-    bool operator<(const IntVec2 &lhs, const IntVec2 &rhs)
+    bool operator<(const IntVec2& lhs,
+                   const IntVec2& rhs)
     {
         return lhs.x + lhs.y < rhs.x + rhs.y;
     }
 
-    bool operator>(const IntVec2 &lhs, const IntVec2 &rhs)
+    bool operator>(const IntVec2& lhs,
+                   const IntVec2& rhs)
     {
         return lhs.x + lhs.y > rhs.x + rhs.y;
     }

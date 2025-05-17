@@ -50,7 +50,7 @@ namespace se::editor::ui::properties
         listRect->maxX = 5;
         auto listBGImage = world->AddComponent<se::ui::components::ImageComponent>(listBG);
         listBGImage->materialInstance = se::render::MaterialInstance::CreateMaterialInstance(bgMaterial);
-        world->AddChild(m_WidgetId, listBG);
+        world->AddChild(m_Content, listBG);
 
         ecs::Id verticalBoxEntity = world->CreateEntity("Vector Editor Vertical Box", true);
         auto* verticalBoxRect = world->AddComponent<se::ui::components::RectTransformComponent>(verticalBoxEntity);

@@ -1,5 +1,6 @@
 #include "RectTransformUtil.h"
 #include "Widgets.generated.h"
+#include "platform/IWindow.h"
 
 namespace se::ui::util
 {
@@ -12,6 +13,8 @@ namespace se::ui::util
     Rect CalculateScreenSpaceRect(const RectTransformComponent& transform,
                                   const Rect& parentRect)
     {
+        auto window = Application::Get()->GetPrimaryWindow();
+
         math::IntVec2 parentBottomRight = parentRect.topLeft + parentRect.size;
         int parentWidth = parentBottomRight.x - parentRect.topLeft.x;
         int parentHeight = parentBottomRight.y - parentRect.topLeft.y;
@@ -19,38 +22,38 @@ namespace se::ui::util
         Rect ret = { };
         if (transform.anchors.left > 0.5f)
         {
-            ret.topLeft.x = static_cast<int>((parentRect.topLeft.x + transform.anchors.left * parentWidth) - transform.minX);
+            ret.topLeft.x = static_cast<int>((parentRect.topLeft.x + transform.anchors.left * parentWidth) - transform.minX * window->GetContentScale());
         }
         else
         {
-            ret.topLeft.x = static_cast<int>((parentRect.topLeft.x + transform.anchors.left * parentWidth) + transform.minX);
+            ret.topLeft.x = static_cast<int>((parentRect.topLeft.x + transform.anchors.left * parentWidth) + transform.minX * window->GetContentScale());
         }
 
         if (transform.anchors.top > 0.5f)
         {
-            ret.topLeft.y = static_cast<int>((parentRect.topLeft.y + transform.anchors.top * parentHeight) - transform.minY);
+            ret.topLeft.y = static_cast<int>((parentRect.topLeft.y + transform.anchors.top * parentHeight) - transform.minY * window->GetContentScale());
         }
         else
         {
-            ret.topLeft.y = static_cast<int>((parentRect.topLeft.y + transform.anchors.top * parentHeight) + transform.minY);
+            ret.topLeft.y = static_cast<int>((parentRect.topLeft.y + transform.anchors.top * parentHeight) + transform.minY * window->GetContentScale());
         }
 
         if (transform.anchors.right > 0.5f)
         {
-            ret.size.x = static_cast<int>((parentRect.topLeft.x + transform.anchors.right * parentWidth) - transform.maxX - ret.topLeft.x);
+            ret.size.x = static_cast<int>((parentRect.topLeft.x + transform.anchors.right * parentWidth) - transform.maxX * window->GetContentScale() - ret.topLeft.x);
         }
         else
         {
-            ret.size.x = static_cast<int>((parentRect.topLeft.x + transform.anchors.right * parentWidth) + transform.maxX - ret.topLeft.x);
+            ret.size.x = static_cast<int>((parentRect.topLeft.x + transform.anchors.right * parentWidth) + transform.maxX * window->GetContentScale() - ret.topLeft.x);
         }
 
         if (transform.anchors.bottom > 0.5f)
         {
-            ret.size.y = static_cast<int>((parentRect.topLeft.y + transform.anchors.bottom * parentHeight) - transform.maxY - ret.topLeft.y);
+            ret.size.y = static_cast<int>((parentRect.topLeft.y + transform.anchors.bottom * parentHeight) - transform.maxY * window->GetContentScale() - ret.topLeft.y);
         }
         else
         {
-            ret.size.y = static_cast<int>((parentRect.topLeft.y + transform.anchors.bottom * parentHeight) + transform.maxY - ret.topLeft.y);
+            ret.size.y = static_cast<int>((parentRect.topLeft.y + transform.anchors.bottom * parentHeight) + transform.maxY * window->GetContentScale() - ret.topLeft.y);
         }
 
         // < = more wide > = more tall

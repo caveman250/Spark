@@ -34,7 +34,7 @@ namespace se::editor::ui::properties
         bgTransform->maxY = 32;
         bgTransform->maxX = 30;
         world->AddComponent<WidgetComponent>(bg);
-        world->AddChild(m_WidgetId, bg);
+        world->AddChild(m_Content, bg);
 
         m_RectTransform->maxY = bgTransform->maxY + 2;
         m_Tickbox = world->CreateEntity("Border", true);

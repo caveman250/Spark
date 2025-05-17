@@ -31,7 +31,7 @@ namespace se::editor::ui::properties
         auto world = Application::Get()->GetWorld();
 
         int numSerialisedMembers = 0;
-        auto* verticalBox = world->GetComponent<VerticalBoxComponent>(m_WidgetId);
+        auto* verticalBox = world->GetComponent<VerticalBoxComponent>(m_Content);
         for (const auto &member: m_Type->members)
         {
             if (!member.serialized)
@@ -43,13 +43,13 @@ namespace se::editor::ui::properties
 
             if (auto *propEditor = properties::CreatePropertyEditor(member, m_Value, {0.f, 1.f, 0.f, 0.f}, true))
             {
-                se::ui::util::AddVerticalBoxChild(m_WidgetId, verticalBox, propEditor->GetWidgetId());
+                se::ui::util::AddVerticalBoxChild(m_Content, verticalBox, propEditor->GetWidgetId());
                 m_Editors.push_back(propEditor);
             }
             else
             {
                 auto textEntity = properties::util::CreateMissingPropertyEditorText(member.type, 0.f, 0);
-                se::ui::util::AddVerticalBoxChild(m_WidgetId, verticalBox, textEntity);
+                se::ui::util::AddVerticalBoxChild(m_Content, verticalBox, textEntity);
             }
         }
 
@@ -61,11 +61,9 @@ namespace se::editor::ui::properties
             text->fontSize = 14;
             text->text = "No properties.";
             auto transform = world->AddComponent<se::ui::components::RectTransformComponent>(textEntity);
-            transform->minX = 10;
-            transform->maxX = 15;
             transform->anchors = { 0.f, 1.f, 0.f, 0.f };
             world->AddComponent<se::ui::components::WidgetComponent>(textEntity);
-            se::ui::util::AddVerticalBoxChild(m_WidgetId, verticalBox, textEntity);
+            se::ui::util::AddVerticalBoxChild(m_Content, verticalBox, textEntity);
         }
     }
 

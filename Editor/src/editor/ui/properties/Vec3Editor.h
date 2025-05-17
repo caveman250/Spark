@@ -1,6 +1,6 @@
 #pragma once
 
-#include "FloatEditor.h"
+#include "NumberEditor.h"
 #include "PropertyEditor.h"
 #include "engine/math/math.h"
 
@@ -17,8 +17,8 @@ namespace se::editor::ui::properties
 
     private:
         math::Vec3* m_Value;
-        FloatEditor m_XEditor;
-        FloatEditor m_YEditor;
-        FloatEditor m_ZEditor;
+        NumberEditor<float> m_XEditor;
+        NumberEditor<float> m_YEditor;
+        NumberEditor<float> m_ZEditor;
     };
 }

@@ -4,6 +4,7 @@
 #include "engine/ui/Rect.h"
 #include "engine/ui/components/RectTransformComponent.h"
 #include "engine/ecs/System.h"
+#include "platform/IWindow.h"
 
 namespace se::ui
 {
@@ -31,30 +32,31 @@ namespace se::ui
         static math::IntVec2 GetDesiredSizeFromRect(const components::RectTransformComponent& transform)
         {
             math::IntVec2 ret = {};
+            auto window = Application::Get()->GetPrimaryWindow();
             if (transform.anchors.left == transform.anchors.right)
             {
-                ret.x = std::abs(transform.maxX - transform.minX) + transform.minX;
+                ret.x = std::abs(transform.maxX * window->GetContentScale() - transform.minX * window->GetContentScale()) + transform.minX * window->GetContentScale();
             }
             else if (transform.anchors.right == 0)
             {
-                ret.x = transform.maxX;
+                ret.x = transform.maxX * window->GetContentScale();
             }
             else if (transform.anchors.left == 0)
             {
-                ret.x = transform.minX;
+                ret.x = transform.minX * window->GetContentScale();
             }
 
             if (transform.anchors.top == transform.anchors.bottom)
             {
-                ret.y = std::abs(transform.maxY - transform.minY) + transform.minY;
+                ret.y = std::abs(transform.maxY * window->GetContentScale() - transform.minY * window->GetContentScale()) + transform.minY * window->GetContentScale();
             }
             else if (transform.anchors.bottom == 0)
             {
-                ret.y = transform.maxY;
+                ret.y = transform.maxY * window->GetContentScale();
             }
             else if (transform.anchors.top == 0)
             {
-                ret.y = transform.minY;
+                ret.y = transform.minY * window->GetContentScale();
             }
 
             return ret;
@@ -64,22 +66,23 @@ namespace se::ui
                                                     const Rect& parentRect)
         {
             math::IntVec2 ret = {};
+            auto window = Application::Get()->GetPrimaryWindow();
             if (transform.anchors.left > 0.5f)
             {
-                ret.x = static_cast<int>((transform.anchors.left * parentRect.size.x) - transform.minX);
+                ret.x = static_cast<int>((transform.anchors.left * parentRect.size.x) - transform.minX * window->GetContentScale());
             }
             else
             {
-                ret.x = static_cast<int>((transform.anchors.left * parentRect.size.x) + transform.minX);
+                ret.x = static_cast<int>((transform.anchors.left * parentRect.size.x) + transform.minX * window->GetContentScale());
             }
 
             if (transform.anchors.top > 0.5f)
             {
-                ret.y = static_cast<int>((transform.anchors.top * parentRect.size.y) - transform.minY);
+                ret.y = static_cast<int>((transform.anchors.top * parentRect.size.y) - transform.minY * window->GetContentScale());
             }
             else
             {
-                ret.y = static_cast<int>((transform.anchors.top * parentRect.size.y) + transform.minY);
+                ret.y = static_cast<int>((transform.anchors.top * parentRect.size.y) + transform.minY * window->GetContentScale());
             }
 
             return ret;

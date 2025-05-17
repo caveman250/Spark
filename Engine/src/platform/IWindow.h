@@ -11,10 +11,11 @@ namespace se
         virtual ~IWindow() = default;
         virtual void Cleanup() = 0;
 
-        int GetWidth() { return m_SizeX; }
-        int GetHeight() { return m_SizeY; }
+        int GetWidth() { return m_SizeX * m_ContentScale; }
+        int GetHeight() { return m_SizeY * m_ContentScale; }
         int GetPosX() { return m_PosX; }
         int GetPosY() { return m_PosY; }
+        float GetContentScale() { return m_ContentScale; }
 
         void OnResize(int x, int y);
         void OnMove(int x, int y);
@@ -27,6 +28,7 @@ namespace se
         int m_PosY = {};
         int m_SizeX = {};
         int m_SizeY = {};
+        float m_ContentScale = {};
 
         bool m_ShouldClose = false;
     };

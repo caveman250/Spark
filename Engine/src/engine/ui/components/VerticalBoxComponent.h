@@ -16,6 +16,10 @@ namespace se::ui::components
     {
         DECLARE_SPARK_WIDGET_COMPONENT(VerticalBoxComponent)
 
+        int paddingTop = 0;
+        int paddingBottom = 0;
+        int paddingLeft = 0;
+        int paddingRight = 0;
         int spacing = 0;
         bool dirty = false;
     };
@@ -42,6 +46,7 @@ namespace se::ui
             thisRect.rect = util::CalculateScreenSpaceRect(thisRect, parentRect);
         }
 
-        return GetVerticalBoxChildrenDesiredSize(system, entity, thisRect, context);
+        return CalculateAnchorOffsets(thisRect, parentRect.rect) +
+            GetVerticalBoxChildrenDesiredSize(system, entity, thisRect, context);
     }
 }

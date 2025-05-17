@@ -57,16 +57,14 @@ namespace se::asset::builder
 
         font.m_Name = fontName;
 
-        std::mutex retLock;
-        auto addReturnItem = [&retLock, &ret](const std::shared_ptr<binary::Database>& db,
-                                              const std::string fileNameSuffix)
-        {
-            auto lock = std::lock_guard(retLock);
-            ret.push_back({ db, fileNameSuffix });
-        };
-
-        int ascent = GetAscent(info);
         float scale = stbtt_ScaleForPixelHeight(&info, static_cast<float>(32));
+
+        int ascent, descent, lineGap;
+        stbtt_GetFontVMetrics(&info, &ascent, &descent, &lineGap);
+
+        font.m_Ascent = ascent * scale;
+        font.m_Descent = descent * scale;
+        font.m_LineGap = lineGap * scale;
 
         size_t numChars = strlen(s_FontMapChars);
         auto boundingBoxes = CollectSortedBoundingBoxes(info, scale);
@@ -129,13 +127,6 @@ namespace se::asset::builder
         }
 
         return true;
-    }
-
-    int FontBlueprint::GetAscent(stbtt_fontinfo& font)
-    {
-        int ascent, descent, lineGap;
-        stbtt_GetFontVMetrics(&font, &ascent, &descent, &lineGap);
-        return ascent;
     }
 
     std::vector<std::pair<ui::FloatRect, int>> FontBlueprint::CollectSortedBoundingBoxes(stbtt_fontinfo& font,

@@ -64,19 +64,13 @@ namespace se::ui
             thisRect.rect = util::CalculateScreenSpaceRect(thisRect, parentRect);
         }
 
-        // treat char wrap as word wrap when it comes to desired size, or we will just get a single column string every time.
-        auto wrap = text->wrap;
-        if (wrap == text::WrapMode::Char)
-        {
-            wrap = text::WrapMode::Word;
-        }
-
+        auto window = Application::Get()->GetPrimaryWindow();
         auto ret = ui::util::MeasureText(thisRect.rect,
                                          text->font,
-                                         text->fontSize,
+                                         text->fontSize * window->GetContentScale(),
                                          text->inEditMode ? text->editText : text->text,
                                          true,
-                                         wrap);
-        return ret;
+                                         text->wrap);
+        return CalculateAnchorOffsets(thisRect, parentRect.rect) + ret;
     }
 }

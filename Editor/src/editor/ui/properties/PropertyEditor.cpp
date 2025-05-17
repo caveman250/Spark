@@ -35,40 +35,42 @@ namespace se::editor::ui::properties
 
     void PropertyEditor::ConstructUI(const String& name, bool constructTitle, const se::ui::Anchors& anchors)
     {
+        constexpr int titleFontSize = 14;
         auto world = Application::Get()->GetWorld();
         auto ariel = asset::AssetManager::Get()->GetAsset<asset::Font>("/engine_assets/fonts/Arial.sass");
         m_Name = name;
 
+        m_WidgetId = world->CreateEntity(name, true);
+        m_RectTransform = world->AddComponent<RectTransformComponent>(m_WidgetId);
+        m_RectTransform->anchors = anchors;
+        world->AddComponent<WidgetComponent>(m_WidgetId);
+
         if (GetTitleMode() == PropertyTitleMode::NextLine)
         {
-            m_WidgetId = world->CreateEntity("Vector Editor Vertical Box", true);
-            m_RectTransform = world->AddComponent<se::ui::components::RectTransformComponent>(m_WidgetId);
-            m_RectTransform->anchors = anchors;
-            m_RectTransform->minX = 10;
-            m_RectTransform->maxX = 5;
-            m_RectTransform->overridesChildSizes = true;
-            world->AddComponent<se::ui::components::WidgetComponent>(m_WidgetId);
-            auto verticalBox = world->AddComponent<se::ui::components::VerticalBoxComponent>(m_WidgetId);
+            m_Content = world->CreateEntity("Vector Editor Vertical Box", true);
+            auto contentRect = world->AddComponent<se::ui::components::RectTransformComponent>(m_Content);
+            contentRect->anchors = { .left = 0.f, .right = 1.f, .top = 0.f, .bottom = 0.f };
+            contentRect->minY = constructTitle ? titleFontSize + 2 : 0;
+            contentRect->minX = 10;
+            contentRect->overridesChildSizes = true;
+            world->AddComponent<WidgetComponent>(m_Content);
+            auto verticalBox = world->AddComponent<se::ui::components::VerticalBoxComponent>(m_Content);
             verticalBox->spacing = 5;
+            verticalBox->paddingBottom = 5;
             verticalBox->dirty = true;
+            world->AddChild(m_WidgetId, m_Content);
         }
         else
         {
-            m_WidgetId = world->CreateEntity(name, true);
-            m_RectTransform = world->AddComponent<RectTransformComponent>(m_WidgetId);
-            m_RectTransform->anchors = anchors;
-            m_RectTransform->minX = 10;
-            m_RectTransform->maxX = 5;
-            world->AddComponent<WidgetComponent>(m_WidgetId);
+            m_Content = m_WidgetId;
         }
-
 
         if (constructTitle)
         {
             auto titleEntity = world->CreateEntity("Property Title", true);
             auto titleText = world->AddComponent<TextComponent>(titleEntity);
             titleText->font = ariel;
-            titleText->fontSize = 14;
+            titleText->fontSize = titleFontSize;
             titleText->text = m_Name;
             titleText->wrap = se::ui::text::WrapMode::Char;
             auto titleRect = world->AddComponent<RectTransformComponent>(titleEntity);

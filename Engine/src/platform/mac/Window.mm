@@ -44,6 +44,15 @@ namespace se::mac
         [metalView setClearDepth:1.f];
         [metalView setDrawableSize:CGSize { static_cast<double>(resX), static_cast<double>(resY) } ];
         [metalView setPreferredFramesPerSecond: 240];
+        m_ContentScale = [[metalView layer] contentsScale];
+
+        NSRect viewport = [metalView bounds];
+        NSRect backingSize = [metalView convertRectToBacking:viewport];
+
+        m_ContentScale = backingSize.size.width / viewport.size.width;
+        [[metalView layer] setContentsScale: m_ContentScale];
+        [metalView setDrawableSize: NSSizeToCGSize(backingSize.size)];
+
         //[metalView addTrackingRect:frame owner:metalView userData:NULL assumeInside:NO];
 
         [m_Window setContentView:metalView];

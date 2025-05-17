@@ -6,10 +6,10 @@ set(ROOT_DIR ..)
 set(ENGINE_DIR .)
 
 ###### Generic Includes ######
-include(${ROOT_DIR}/CMake/include/Spark.cmake)
+include(include/Spark)
 
 ###### Third Party ######
-include(${ROOT_DIR}/CMake/ThirdParty.cmake)
+include(ThirdParty)
 
 setup_target_common(Spark TRUE "${CMAKE_CURRENT_SOURCE_DIR}/unity.conf")
 target_precompile_headers(Spark PUBLIC $<$<COMPILE_LANGUAGE:CXX>:spark.h>)
@@ -22,11 +22,11 @@ endif()
 
 ###### Platform Linker ######
 if (${PLATFORM} MATCHES Windows)
-    include(${ROOT_DIR}/CMake/windows/WindowsLinker.cmake)
+    include(windows/WindowsLinker)
 elseif (${PLATFORM} MATCHES Linux)
-    include(${ROOT_DIR}/CMake/linux/LinuxLinker.cmake)
+    include(linux/LinuxLinker)
 elseif (${PLATFORM} MATCHES Mac)
-    include(${ROOT_DIR}/CMake/mac/MacLinker.cmake)
+    include(mac/MacLinker)
 endif ()
 
 #target_compile_options(Spark PUBLIC -fsanitize=address)

@@ -14,7 +14,7 @@ namespace se::ui
                                                      const ui::components::RectTransformComponent& thisRect,
                                                      const components::VerticalBoxComponent* context)
     {
-        se::math::IntVec2 desiredSize = {};
+        se::math::IntVec2 desiredSize = { 0, context->paddingTop + context->paddingBottom };
         auto dec = ecs::ChildQueryDeclaration()
             .WithComponent<ui::components::RectTransformComponent>()
             .WithVariantComponent<SPARK_CONST_WIDGET_TYPES_WITH_NULLTYPE>(ecs::ComponentMutability::Immutable);
@@ -34,7 +34,7 @@ namespace se::ui
                                                                                           thisRect,
                                                                                           transforms[i],
                                                                                           value);
-                      desiredSize.x = std::max(childDesiredSize.x, desiredSize.x);
+                      desiredSize.x = std::max(childDesiredSize.x + context->paddingLeft + context->paddingRight, desiredSize.x);
                       desiredSize.y += childDesiredSize.y + context->spacing;
                   }
               }, updateData.GetVariantComponentArray<SPARK_CONST_WIDGET_TYPES_WITH_NULLTYPE>());
