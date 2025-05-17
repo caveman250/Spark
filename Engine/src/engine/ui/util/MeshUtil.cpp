@@ -37,31 +37,46 @@ namespace se::ui::util
                        float scale,
                        bool& didWrap)
     {
+        if (c == '\n')
+        {
+            cursorPos.x = 0;
+            cursorPos.y += font->GetLineHeight(fontSize);
+            didWrap = true;
+        }
+
         if (c == ' ' || mode == text::WrapMode::Char)
         {
-            size_t lookAhead = charIndex + 1;
-            int xCopy = cursorPos.x;
-
-            char nextChar = text[lookAhead];
-            while (nextChar != ' ' && lookAhead < text.Size() - 1)
+            if (!didWrap)
             {
-                const auto& nextCharData = font->GetCharData(nextChar);
+                size_t lookAhead = charIndex + 1;
+                int xCopy = cursorPos.x;
 
-                if (xCopy + nextCharData.advanceWidth * scale >= rect.size.x - 1)
+                char nextChar = text[lookAhead];
+                while (nextChar != ' ' && lookAhead < text.Size() - 1)
                 {
-                    cursorPos.x = 0;
-                    cursorPos.y += font->GetLineHeight(fontSize);
-                    didWrap = true;
-                    break;
-                }
+                    if (nextChar == '\n')
+                    {
+                        break;
+                    }
 
-                if (mode == text::WrapMode::Char)
-                {
-                    break;
-                }
+                    const auto& nextCharData = font->GetCharData(nextChar);
 
-                xCopy += nextCharData.advanceWidth * scale;
-                nextChar = text[++lookAhead];
+                    if (xCopy + nextCharData.advanceWidth * scale >= rect.size.x - 1)
+                    {
+                        cursorPos.x = 0;
+                        cursorPos.y += font->GetLineHeight(fontSize);
+                        didWrap = true;
+                        break;
+                    }
+
+                    if (mode == text::WrapMode::Char)
+                    {
+                        break;
+                    }
+
+                    xCopy += nextCharData.advanceWidth * scale;
+                    nextChar = text[++lookAhead];
+                }
             }
         }
 
@@ -165,15 +180,18 @@ namespace se::ui::util
         for (size_t i = 0; i < text.Size(); ++i)
         {
             char c = text[i];
-            const auto& charData = font->GetCharData(c);
-
-            if (applyKerning)
+            if (c != '\n')
             {
-                cursorPos = ApplyKerning(cursorPos, i, text, charData, scale);
+                const auto& charData = font->GetCharData(c);
+
+                if (applyKerning)
+                {
+                    cursorPos = ApplyKerning(cursorPos, i, text, charData, scale);
+                }
+                cursorPos = ApplyLeftSideBearing(cursorPos, charData, scale);
+                CreateCharMesh(charData, cursorPos, mesh, indexOffset, scale);
+                cursorPos = ApplyAdvanceWidth(cursorPos, charData, scale);
             }
-            cursorPos = ApplyLeftSideBearing(cursorPos, charData, scale);
-            CreateCharMesh(charData, cursorPos, mesh, indexOffset, scale);
-            cursorPos = ApplyAdvanceWidth(cursorPos, charData, scale);
 
             if (wrap == text::WrapMode::Word ||
                 wrap == text::WrapMode::Char ||
@@ -284,19 +302,22 @@ namespace se::ui::util
         for (size_t i = 0; i < endIndex; ++i)
         {
             char c = text[i];
-            const auto& charData = font->GetCharData(c);
-
-            if (applyKerning)
+            if (c != '\n')
             {
-                cursorPos = ApplyKerning(cursorPos, i, text, charData, scale);
+                const auto& charData = font->GetCharData(c);
+
+                if (applyKerning)
+                {
+                    cursorPos = ApplyKerning(cursorPos, i, text, charData, scale);
+                }
+                cursorPos = ApplyLeftSideBearing(cursorPos, charData, scale);
+
+                math::Vec2 TL = charData.rect.topLeft * scale + cursorPos;
+                math::Vec2 BR = TL + charData.rect.size * scale;
+                max = math::Vec2(std::max(BR.x, max.x), std::max(BR.y, max.y));
+
+                cursorPos = ApplyAdvanceWidth(cursorPos, charData, scale);
             }
-            cursorPos = ApplyLeftSideBearing(cursorPos, charData, scale);
-
-            math::Vec2 TL = charData.rect.topLeft * scale + cursorPos;
-            math::Vec2 BR = TL + charData.rect.size * scale;
-            max = math::Vec2(std::max(BR.x, max.x), std::max(BR.y, max.y));
-
-            cursorPos = ApplyAdvanceWidth(cursorPos, charData, scale);
 
             if (wrap != text::WrapMode::None)
             {
