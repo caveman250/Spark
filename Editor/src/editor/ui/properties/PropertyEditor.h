@@ -37,7 +37,7 @@ namespace se::editor::ui::properties
     });                                                 \
 
 #define DEFINE_CONTAINER_PROPERTY_EDITOR(Type, PropertyEditorType)\
-    static PropertyEditorRegister SPARK_CAT(PropertyEditorType, _Register)([](){\
+    static PropertyEditorRegister SPARK_CAT(SPARK_CAT(PropertyEditorType, _Register), __COUNTER__)([](){\
         auto& map = se::editor::ui::properties::GetContainerPropertyEditorTypes();\
         map.insert(std::make_pair(Type, reflect::TypeResolver<PropertyEditorType>::get()));\
     });

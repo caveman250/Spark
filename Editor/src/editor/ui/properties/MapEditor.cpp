@@ -14,6 +14,7 @@
 namespace se::editor::ui::properties
 {
     DEFINE_CONTAINER_PROPERTY_EDITOR("std::map<>", MapEditor)
+    DEFINE_CONTAINER_PROPERTY_EDITOR("std::unordered_map<>", MapEditor)
 
     DEFINE_SPARK_CLASS_BEGIN(MapEditor)
     DEFINE_SPARK_CLASS_END(MapEditor)
@@ -61,7 +62,6 @@ namespace se::editor::ui::properties
         verticalBox->spacing = 5;
         world->AddChild(listBG, verticalBoxEntity);
 
-        auto containedType = m_VectorType->GetContainedValueType();
         reflect::Type* stringType = reflect::TypeResolver<String>::get();
         size_t numElements = m_VectorType->GetNumContainedElements(m_Value);
         if (numElements == 0)
@@ -80,6 +80,9 @@ namespace se::editor::ui::properties
         {
             for (size_t i = 0; i < numElements; ++i)
             {
+                void* obj = m_VectorType->GetContainedValueByIndex(m_Value, i);
+                auto containedType = m_VectorType->GetContainedValueType(obj);
+
                 String propName = std::format("{}", i);
                 if (m_VectorType->GetContainedKeyType() == stringType)
                 {
@@ -108,7 +111,7 @@ namespace se::editor::ui::properties
 
                 auto propertyEditor = CreatePropertyEditor(containedType->GetTypeName(m_VectorType->GetContainedValueByIndex(m_Value, i)),
                                                            containedType,
-                                                           m_VectorType->GetContainedValueByIndex(m_Value, i),
+                                                           obj,
                                                            se::ui::Anchors(0.3f, 1.f, 0.f, 0.f),
                                                            true);
                 if (!propertyEditor)

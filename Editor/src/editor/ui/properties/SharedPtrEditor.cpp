@@ -29,7 +29,7 @@ namespace se::editor::ui::properties
 
     void SharedPtrEditor::ConstructUI(const String& name, bool constructTitle, const se::ui::Anchors& anchors)
     {
-        auto containedType = m_Type->GetContainedValueType();
+        auto containedType = m_Type->GetContainedValueType(m_Value);
         m_WrappedEditor = CreatePropertyEditor(name,
                                                containedType,
                                                m_Type->GetContainedValue(m_Value),

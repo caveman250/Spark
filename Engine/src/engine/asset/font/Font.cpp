@@ -20,7 +20,6 @@ namespace se::asset
         DEFINE_SERIALIZED_MEMBER(m_CharData)
         DEFINE_SERIALIZED_MEMBER(m_Ascent)
         DEFINE_SERIALIZED_MEMBER(m_Descent)
-        DEFINE_SERIALIZED_MEMBER(m_CharData)
     DEFINE_SPARK_CLASS_END(Font)
 
     std::shared_ptr<Texture> Font::GetTextureAsset()

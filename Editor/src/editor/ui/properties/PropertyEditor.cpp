@@ -56,7 +56,7 @@ namespace se::editor::ui::properties
             world->AddComponent<WidgetComponent>(m_Content);
             auto verticalBox = world->AddComponent<se::ui::components::VerticalBoxComponent>(m_Content);
             verticalBox->spacing = 5;
-            verticalBox->paddingBottom = 5;
+            verticalBox->paddingBottom = 10;
             verticalBox->dirty = true;
             world->AddChild(m_WidgetId, m_Content);
         }

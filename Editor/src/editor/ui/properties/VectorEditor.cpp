@@ -79,9 +79,11 @@ namespace se::editor::ui::properties
         }
         else
         {
-            auto containedType = m_VectorType->GetContainedValueType();
             for (size_t i = 0; i < m_VectorType->GetNumContainedElements(m_Value); ++i)
             {
+                void* obj = m_VectorType->GetContainedValueByIndex(m_Value, i);
+                auto containedType = m_VectorType->GetContainedValueType(obj);
+
                 auto propName = std::format("{}", i);
                 auto entity = world->CreateEntity(propName, true);
                 auto rect = world->AddComponent<RectTransformComponent>(entity);
@@ -104,7 +106,7 @@ namespace se::editor::ui::properties
 
                 auto propertyEditor = CreatePropertyEditor(containedType->GetTypeName(m_VectorType->GetContainedValueByIndex(m_Value, i)),
                                                            containedType,
-                                                           m_VectorType->GetContainedValueByIndex(m_Value, i),
+                                                           obj,
                                                            se::ui::Anchors(0.3f, 1.f, 0.f, 0.f),
                                                            true);
                 if (!propertyEditor)
