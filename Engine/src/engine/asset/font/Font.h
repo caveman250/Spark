@@ -36,10 +36,13 @@ namespace se::asset
         DECLARE_SPARK_CLASS(Font)
 
         Font() = default;
+        const std::string& GetName() const;
         std::shared_ptr<Texture> GetTextureAsset();
         const CharData& GetCharData(char c) const;
+        size_t GetNumChars() const { return m_CharData.size(); }
         float GetLineHeight(int fontSize) const;
         float GetAscent(int fontSize) const;
+        float GetDescent(int fontSize) const;
 
     private:
         std::string m_Name;

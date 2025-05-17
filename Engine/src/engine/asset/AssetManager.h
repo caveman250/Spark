@@ -33,17 +33,9 @@ namespace se::asset
         std::lock_guard guard(m_Mutex);
 
         static_assert(std::is_convertible<T*, Asset*>::value, "Attempting to load a non asset type via AssetManager::GetAsset");
-
-        auto optionalFullPath = io::VFS::Get().ResolveFSPath(path, false);
-        if (!SPARK_VERIFY(optionalFullPath.has_value()))
+        if (m_AssetCache.contains(path))
         {
-            return nullptr;
-        }
-
-        auto& fullPath = *optionalFullPath;
-        if (m_AssetCache.contains(fullPath.Data()))
-        {
-            auto& asset = m_AssetCache.at(fullPath.Data());
+            auto& asset = m_AssetCache.at(path);
             if (!asset.expired())
             {
                 return std::static_pointer_cast<T>(asset.lock());
@@ -51,9 +43,14 @@ namespace se::asset
         }
 
         auto db = binary::Database::Load(path, true);
+        if (!SPARK_VERIFY(db))
+        {
+            return nullptr;
+        }
         std::shared_ptr<T> asset = std::make_shared<T>();
         reflect::DeserialiseType<T>(db, *asset);
-        m_AssetCache[fullPath.Data()] = asset;
+        asset->m_Path = path;
+        m_AssetCache[path] = asset;
 
         return asset;
     }

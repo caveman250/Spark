@@ -22,6 +22,17 @@ namespace se::reflect
         return nullptr;
     }
 
+    const Class::Member* Class::GetMember(const std::string& fieldName)
+    {
+        auto it = std::ranges::find_if(members, [fieldName](const Member& member){ return member.name == fieldName; });
+        if (it != members.end())
+        {
+            return &*it;
+        }
+
+        return nullptr;
+    }
+
     const char* Class::GetMemberName(int i)
     {
         return members[i].name;

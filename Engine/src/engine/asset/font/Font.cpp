@@ -22,6 +22,11 @@ namespace se::asset
         DEFINE_SERIALIZED_MEMBER(m_Descent)
     DEFINE_SPARK_CLASS_END(Font)
 
+    const std::string& Font::GetName() const
+    {
+        return m_Name;
+    }
+
     std::shared_ptr<Texture> Font::GetTextureAsset()
     {
         return m_Texture;
@@ -49,5 +54,11 @@ namespace se::asset
     {
         float scale = static_cast<float>(fontSize) / 32.f;
         return m_Ascent * scale;
+    }
+
+    float Font::GetDescent(int fontSize) const
+    {
+        float scale = static_cast<float>(fontSize) / 32.f;
+        return m_Descent * scale;
     }
 }

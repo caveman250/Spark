@@ -146,52 +146,16 @@ namespace se::editor::ui
         for (auto component: selectedEntityRecord.archetype->type)
         {
             const auto &compRecord = world->m_ComponentRecords[component];
+            auto compInstance = world->GetComponent(entity, component);
+            if (auto *propEditor = properties::CreatePropertyEditor(compRecord.type->GetTypeName(compInstance), compRecord.type, compInstance, {0.f, 1.f, 0.f, 0.f}, true))
             {
-                auto textEntity = world->CreateEntity("Text", true);
-                auto text = world->AddComponent<se::ui::components::TextComponent>(textEntity);
-                text->font = font;
-                text->fontSize = 16;
-                text->text = compRecord.type->name;
-                world->AddComponent<se::ui::components::RectTransformComponent>(textEntity);
-                world->AddComponent<se::ui::components::WidgetComponent>(textEntity);
-                se::ui::util::AddVerticalBoxChild(m_ScrollBoxContent, verticalBox, textEntity);
+                se::ui::util::AddVerticalBoxChild(m_ScrollBoxContent, verticalBox, propEditor->GetWidgetId());
+                m_PropertyEditors.push_back(propEditor);
             }
-
-            int numSerialisedMembers = 0;
-            for (const auto &member: compRecord.type->members)
+            else
             {
-                if (!member.serialized)
-                {
-                    continue;
-                }
-
-                numSerialisedMembers++;
-
-                void *instance = world->GetComponent(m_Editor->GetSelectedEntity(), component);
-
-                if (auto *propEditor = properties::CreatePropertyEditor(member, instance, {0.f, 1.f, 0.f, 0.f}, true))
-                {
-                    se::ui::util::AddVerticalBoxChild(m_ScrollBoxContent, verticalBox, propEditor->GetWidgetId());
-                    m_PropertyEditors.push_back(propEditor);
-                }
-                else
-                {
-                    auto textEntity = properties::util::CreateMissingPropertyEditorText(member.type, 0.f, 0);
-                    se::ui::util::AddVerticalBoxChild(m_ScrollBoxContent, verticalBox, textEntity);
-                }
-            }
-
-            if (numSerialisedMembers == 0)
-            {
-                auto textEntity = world->CreateEntity("Text", true);
-                auto text = world->AddComponent<se::ui::components::TextComponent>(textEntity);
-                text->font = font;
-                text->fontSize = 14;
-                text->text = "No properties.";
-                auto transform = world->AddComponent<se::ui::components::RectTransformComponent>(textEntity);
-                transform->anchors = { 0.f, 1.f, 0.f, 0.f };
-                world->AddComponent<se::ui::components::WidgetComponent>(textEntity);
-                se::ui::util::AddVerticalBoxChild(m_ScrollBoxContent, verticalBox, textEntity);
+                auto propTextEntity = properties::util::CreateMissingPropertyEditorText(compRecord.type, 0.f, 0);
+                se::ui::util::AddVerticalBoxChild(m_ScrollBoxContent, verticalBox, propTextEntity);
             }
         }
     }
@@ -203,32 +167,15 @@ namespace se::editor::ui
     {
         auto reflectClass = static_cast<reflect::Class *>(selectedSingletonComp->GetReflectType());
 
-        auto textEntity = world->CreateEntity("Text", true);
-        auto text = world->AddComponent<se::ui::components::TextComponent>(textEntity);
-        text->font = font;
-        text->fontSize = 16;
-        text->text = reflectClass->name;
-        world->AddComponent<se::ui::components::RectTransformComponent>(textEntity);
-        world->AddComponent<se::ui::components::WidgetComponent>(textEntity);
-        se::ui::util::AddVerticalBoxChild(m_ScrollBoxContent, verticalBox, textEntity);
-
-        for (const auto &member: reflectClass->members)
+        if (auto *propEditor = properties::CreatePropertyEditor(reflectClass->GetTypeName(selectedSingletonComp), reflectClass, selectedSingletonComp, {0.f, 1.f, 0.f, 0.f}, true))
         {
-            if (!member.serialized)
-            {
-                continue;
-            }
-
-            if (auto *propEditor = properties::CreatePropertyEditor(member, selectedSingletonComp, {0.f, 1.f, 0.f, 0.f}, true))
-            {
-                se::ui::util::AddVerticalBoxChild(m_ScrollBoxContent, verticalBox, propEditor->GetWidgetId());
-                m_PropertyEditors.push_back(propEditor);
-            }
-            else
-            {
-                auto propTextEntity = properties::util::CreateMissingPropertyEditorText(member.type, 0.f, 0);
-                se::ui::util::AddVerticalBoxChild(m_ScrollBoxContent, verticalBox, propTextEntity);
-            }
+            se::ui::util::AddVerticalBoxChild(m_ScrollBoxContent, verticalBox, propEditor->GetWidgetId());
+            m_PropertyEditors.push_back(propEditor);
+        }
+        else
+        {
+            auto propTextEntity = properties::util::CreateMissingPropertyEditorText(reflectClass, 0.f, 0);
+            se::ui::util::AddVerticalBoxChild(m_ScrollBoxContent, verticalBox, propTextEntity);
         }
     }
 
@@ -239,32 +186,24 @@ namespace se::editor::ui
     {
         auto reflectClass = static_cast<reflect::Class *>(asset->GetReflectType());
 
-        auto textEntity = world->CreateEntity("Text", true);
-        auto text = world->AddComponent<se::ui::components::TextComponent>(textEntity);
-        text->font = font;
-        text->fontSize = 16;
-        text->text = reflectClass->name;
-        world->AddComponent<se::ui::components::RectTransformComponent>(textEntity);
-        world->AddComponent<se::ui::components::WidgetComponent>(textEntity);
-        se::ui::util::AddVerticalBoxChild(m_ScrollBoxContent, verticalBox, textEntity);
+        auto filePathEntity = world->CreateEntity("File Path", true);
+        auto filePathText = world->AddComponent<se::ui::components::TextComponent>(filePathEntity);
+        filePathText->font = font;
+        filePathText->fontSize = 12;
+        filePathText->text = asset->m_Path;
+        world->AddComponent<se::ui::components::RectTransformComponent>(filePathEntity);
+        world->AddComponent<se::ui::components::WidgetComponent>(filePathEntity);
+        se::ui::util::AddVerticalBoxChild(m_ScrollBoxContent, verticalBox, filePathEntity);
 
-        for (const auto &member: reflectClass->members)
+        if (auto *propEditor = properties::CreatePropertyEditor(reflectClass->GetTypeName(asset.get()), reflectClass, asset.get(), {0.f, 1.f, 0.f, 0.f}, true))
         {
-            if (!member.serialized)
-            {
-                continue;
-            }
-
-            if (auto *propEditor = properties::CreatePropertyEditor(member, asset.get(), {0.f, 1.f, 0.f, 0.f}, true))
-            {
-                se::ui::util::AddVerticalBoxChild(m_ScrollBoxContent, verticalBox, propEditor->GetWidgetId());
-                m_PropertyEditors.push_back(propEditor);
-            }
-            else
-            {
-                auto propTextEntity = properties::util::CreateMissingPropertyEditorText(member.type, 0.f, 0);
-                se::ui::util::AddVerticalBoxChild(m_ScrollBoxContent, verticalBox, propTextEntity);
-            }
+            se::ui::util::AddVerticalBoxChild(m_ScrollBoxContent, verticalBox, propEditor->GetWidgetId());
+            m_PropertyEditors.push_back(propEditor);
+        }
+        else
+        {
+            auto propTextEntity = properties::util::CreateMissingPropertyEditorText(reflectClass, 0.f, 0);
+            se::ui::util::AddVerticalBoxChild(m_ScrollBoxContent, verticalBox, propTextEntity);
         }
     }
 }

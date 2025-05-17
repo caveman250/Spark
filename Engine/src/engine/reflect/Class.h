@@ -18,6 +18,7 @@ namespace se::reflect
         Class();
 
         Type* GetMemberType(const std::string& fieldName);
+        const Member* GetMember(const std::string& fieldName);
         const char* GetMemberName(int i);
 
         asset::binary::StructLayout GetStructLayout(const void* obj) const override;

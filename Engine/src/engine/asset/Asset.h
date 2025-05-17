@@ -9,5 +9,7 @@ namespace se::asset
     class Asset : public reflect::ObjectBase
     {
         DECLARE_SPARK_CLASS(Asset)
+
+        String m_Path = {};
     };
 }
