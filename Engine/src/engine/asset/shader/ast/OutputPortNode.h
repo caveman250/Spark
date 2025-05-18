@@ -25,8 +25,13 @@ namespace se::asset::shader::ast
         const std::string& GetName() const { return m_Name; }
         void SetName(const std::string& name) { m_Name = name; }
     private:
+        SPARK_MEMBER(Serialized)
         std::string m_PortName = {};
+
+        SPARK_MEMBER(Serialized)
         Variable m_Var = {};
+
+        SPARK_MEMBER(Serialized)
         std::string m_Name = {};
     };
 }

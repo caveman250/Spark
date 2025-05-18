@@ -1,5 +1,9 @@
 #pragma once
+#include "ast/ASTNode.h"
+#include "ast/InputNode.h"
 #include "ast/InputPortNode.h"
+#include "ast/OutputPortNode.h"
+#include "ast/OutputNode.h"
 #include "spark.h"
 #include "ast/Types.h"
 #include "ast/Variable.h"
@@ -98,16 +102,36 @@ namespace se::asset
         ShaderType::Type GetType() const { return m_Type; }
 
     private:
+        SPARK_MEMBER(Serialized)
         ShaderType::Type m_Type = {};
+
+        SPARK_MEMBER()
         bool m_MainDeclared = false;
+
+        SPARK_MEMBER(Serialized)
         std::map<String, std::shared_ptr<shader::ast::InputPortNode>> m_InputPorts;
+
+        SPARK_MEMBER(Serialized)
         std::map<String, std::shared_ptr<shader::ast::OutputPortNode>> m_OutputPorts;
+
+        SPARK_MEMBER()
         std::map<String, std::shared_ptr<shader::ast::InputNode>> m_Inputs;
+
+        SPARK_MEMBER()
         std::map<String, std::shared_ptr<shader::ast::OutputNode>> m_Outputs;
+
+        SPARK_MEMBER(Serialized)
         std::vector<std::shared_ptr<shader::ast::ASTNode>> m_AstNodes;
+
         std::vector<AstScope> m_ScopeStack;
+
+        SPARK_MEMBER(Serialized)
         std::map<String, shader::ast::Variable> m_Uniforms;
+
+        SPARK_MEMBER(Serialized)
         std::map<String, shader::ast::Variable> m_GlobalVariables;
+
+        SPARK_MEMBER(Serialized)
         std::map<String, shader::ast::Variable> m_Settings;
 
         friend class shader::ShaderCompiler;

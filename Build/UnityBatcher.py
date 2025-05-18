@@ -12,7 +12,7 @@ def parse_conf_file(path):
             excluded_files.append(line[len("ExcludeFile "):len(line)-1])
     file.close()
 
-    output_dir = root + "/../unity_generated/"
+    output_dir = root + "/../unity/"
 
     return root, excluded_files, output_dir
 

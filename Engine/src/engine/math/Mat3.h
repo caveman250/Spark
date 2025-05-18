@@ -32,6 +32,7 @@ namespace se::math
         Mat3& operator/=(float scalar);
 
     private:
+        SPARK_MEMBER(Serialized)
         std::array<Vec3, 3> m_Value;
     };
 

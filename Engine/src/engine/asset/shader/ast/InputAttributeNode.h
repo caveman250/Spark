@@ -20,6 +20,7 @@ namespace se::asset::shader::ast
 
         uint8_t GetLocation() const { return m_Location; }
     private:
+        SPARK_MEMBER(Serialized)
         uint8_t m_Location = {};
     };
 }

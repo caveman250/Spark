@@ -9,9 +9,6 @@ namespace se::editor::ui::properties
 {
     DEFINE_PROPERTY_EDITOR(se::asset::StaticMesh, StaticMeshEditor, StaticMesh);
 
-    DEFINE_SPARK_CLASS_BEGIN(StaticMeshEditor)
-    DEFINE_SPARK_CLASS_END(StaticMeshEditor)
-
     void StaticMeshEditor::SetValue(void* value, const reflect::Type*)
     {
         m_Value = static_cast<asset::StaticMesh*>(value);

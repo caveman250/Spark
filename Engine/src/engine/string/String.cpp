@@ -182,11 +182,21 @@ namespace se
 
     bool String::StartsWith(const String& str) const
     {
+        if (Size() < str.Size())
+        {
+            return false;
+        }
+
         return memcmp(Data(), str.Data(), str.Size()) == 0;
     }
 
     bool String::EndsWith(const String& str) const
     {
+        if (Size() < str.Size())
+        {
+            return false;
+        }
+
         return memcmp(Data() + Size() - str.Size(), str.Data(), str.Size()) == 0;
     }
 

@@ -2,10 +2,6 @@
 
 namespace se::asset::shader::ast
 {
-    DEFINE_SPARK_CLASS_BEGIN(DFDYNode)
-        DEFINE_SERIALIZED_MEMBER(m_Children)
-    DEFINE_SPARK_CLASS_END(DFDYNode)
-
     std::string DFDYNode::GetDebugString() const
     {
         return "DFDYNode";

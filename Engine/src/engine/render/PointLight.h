@@ -10,7 +10,10 @@ namespace se::render
     {
         DECLARE_SPARK_POD_CLASS(PointLight)
 
+        SPARK_MEMBER(Serialized)
         math::Vec3 pos;
+
+        SPARK_MEMBER(Serialized)
         math::Vec3 color;
     };
 }

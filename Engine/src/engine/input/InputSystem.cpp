@@ -4,8 +4,6 @@
 
 namespace se::input
 {
-    DEFINE_SPARK_SYSTEM(InputSystem)
-
     void InputSystem::OnUpdate(const ecs::SystemUpdateData &updateData)
     {
         PROFILE_SCOPE("InputSystem::OnUpdate")

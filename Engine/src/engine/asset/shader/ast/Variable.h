@@ -32,8 +32,13 @@ namespace se::asset::shader::ast
                     arraySizeConstant == rhs.arraySizeConstant;
         }
 
+        SPARK_MEMBER(Serialized)
         AstType::Type type = {};
+
+        SPARK_MEMBER(Serialized)
         std::string arraySizeVariable = {};
+
+        SPARK_MEMBER(Serialized)
         int arraySizeConstant = 0;
     };
 }

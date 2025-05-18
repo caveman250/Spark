@@ -2,10 +2,6 @@
 
 namespace se::asset::shader::ast
 {
-    DEFINE_SPARK_CLASS_BEGIN(NormalizeNode)
-        DEFINE_SERIALIZED_MEMBER(m_Children)
-    DEFINE_SPARK_CLASS_END(NormalizeNode)
-
     std::string NormalizeNode::GetDebugString() const
     {
         return "NormalizeNode";

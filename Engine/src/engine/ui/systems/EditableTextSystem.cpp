@@ -12,8 +12,6 @@
 
 namespace se::ui::systems
 {
-    DEFINE_SPARK_SYSTEM(EditableTextSystem)
-
     void EditableTextSystem::HandleKey(const ecs::Id& entity,
                                        components::EditableTextComponent& text,
                                        components::KeyInputComponent& keyInput,

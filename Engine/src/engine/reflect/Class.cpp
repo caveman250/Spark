@@ -43,7 +43,10 @@ namespace se::reflect
         asset::binary::StructLayout structLayout;
         for (const Member& member : members)
         {
-            structLayout.push_back( { asset::binary::CreateFixedString32(member.name), member.type->GetBinaryType() });
+            if (member.serialized)
+            {
+                structLayout.push_back( { asset::binary::CreateFixedString32(member.name), member.type->GetBinaryType() });
+            }
         }
         return structLayout;
     }

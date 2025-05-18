@@ -17,7 +17,10 @@ namespace se::asset::shader::ast
         void ToMtl(ShaderCompileContext& context, string::ArenaString& outShader) const override;
         void ApplyNameRemapping(const std::map<std::string, std::string> &newNames) override;
     private:
+        SPARK_MEMBER(Serialized)
         std::string m_SamplerName = {};
+
+        SPARK_MEMBER(Serialized)
         std::string m_UVVariableName = {};
 
         // only used during shader generation

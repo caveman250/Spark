@@ -2,10 +2,6 @@
 
 namespace se::asset::shader::ast
 {
-    DEFINE_SPARK_CLASS_BEGIN(ClampNode)
-        DEFINE_SERIALIZED_MEMBER(m_Children)
-    DEFINE_SPARK_CLASS_END(ClampNode)
-
     std::string ClampNode::GetDebugString() const
     {
         return "ClampNode";

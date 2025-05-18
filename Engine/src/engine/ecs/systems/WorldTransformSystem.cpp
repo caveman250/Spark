@@ -13,8 +13,6 @@ using namespace se::ecs::components;
 
 namespace se::ecs::systems
 {
-    DEFINE_SPARK_SYSTEM(WorldTransformSystem)
-
     void WorldTransformSystem::OnUpdate(const SystemUpdateData& updateData)
     {
         PROFILE_SCOPE("WorldTransformSystem::OnUpdate")

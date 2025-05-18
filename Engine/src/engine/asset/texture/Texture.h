@@ -2,8 +2,8 @@
 
 #include "Format.h"
 #include "engine/asset/Asset.h"
-#include "engine/asset/binary/Database.h"
 #include "engine/asset/texture/Mipmap.h"
+#include "engine/render/TextureResource.h"
 
 namespace se::render
 {
@@ -41,14 +41,24 @@ namespace se::asset
     private:
         Texture(uint32_t width, uint32_t height, texture::Format::Type format, texture::Usage::Type usage);
 
+        SPARK_MEMBER(Serialized)
         uint32_t m_Width = {};
+
+        SPARK_MEMBER(Serialized)
         uint32_t m_Height = {};
+
+        SPARK_MEMBER(Serialized)
         uint32_t m_MipCount = {};
+
+        SPARK_MEMBER(Serialized)
         std::vector<texture::Mipmap> m_Mips = {};
+
+        SPARK_MEMBER(Serialized)
         texture::Format::Type m_Format = {};
+
+        SPARK_MEMBER(Serialized)
         texture::Usage::Type m_Usage = texture::Usage::Read;
 
-        // Not serialised
         std::shared_ptr<render::TextureResource> m_PlatformResource = nullptr;
     };
 }

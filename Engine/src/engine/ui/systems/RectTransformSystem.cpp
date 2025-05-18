@@ -14,8 +14,6 @@ using namespace se::ecs::components;
 
 namespace se::ui::systems
 {
-    DEFINE_SPARK_SYSTEM(RectTransformSystem)
-
     void RectTransformSystem::OnUpdate(const ecs::SystemUpdateData& updateData)
     {
         PROFILE_SCOPE("RectTransformSystem::OnUpdate")

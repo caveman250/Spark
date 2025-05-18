@@ -39,9 +39,17 @@ namespace se::asset::shader::ast
         bool IsVertexOutput(ShaderCompileContext& context) const;
         bool IsFragmentInput(ShaderCompileContext& context) const;
         bool IsFragmentOutput(const ShaderCompileContext& context) const;
+
+        SPARK_MEMBER(Serialized)
         AstType::Type m_Type = {};
+
+        SPARK_MEMBER(Serialized)
         std::string m_Name = {};
+
+        SPARK_MEMBER(Serialized)
         int m_Index = -1;
+
+        SPARK_MEMBER(Serialized)
         std::string m_IndexVar = "";
     };
 }

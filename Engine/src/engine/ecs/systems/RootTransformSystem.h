@@ -9,7 +9,7 @@ using namespace se::ecs::components;
 
 namespace se::ecs::systems
 {
-    class RootTransformSystem : public EngineSystem
+    class RootTransformSystem : public ecs::EngineSystem
     {
         DECLARE_SPARK_SYSTEM(RootTransformSystem)
     public:

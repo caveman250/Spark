@@ -4,12 +4,6 @@
 
 namespace se::asset::shader::ast
 {
-    DEFINE_SPARK_CLASS_BEGIN(VariableDeclarationNode)
-        DEFINE_SERIALIZED_MEMBER(m_Children)
-        DEFINE_SERIALIZED_MEMBER(m_Var)
-        DEFINE_SERIALIZED_MEMBER(m_Name)
-    DEFINE_SPARK_CLASS_END(VariableDeclarationNode)
-
     VariableDeclarationNode::VariableDeclarationNode(const std::string &name, const Variable& var)
         : m_Var(var)
         , m_Name(name)

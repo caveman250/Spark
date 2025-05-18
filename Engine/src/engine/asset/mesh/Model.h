@@ -19,6 +19,7 @@ namespace se::asset
 
         const StaticMesh& GetMesh(size_t i) { return m_Meshes[i]; }
     private:
+        SPARK_MEMBER(Serialized)
         std::vector<StaticMesh> m_Meshes;
     };
 }

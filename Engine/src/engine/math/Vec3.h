@@ -16,8 +16,13 @@ namespace se::math
         {
         }
 
+        SPARK_MEMBER(Serialized)
         float x;
+
+        SPARK_MEMBER(Serialized)
         float y;
+
+        SPARK_MEMBER(Serialized)
         float z;
 
         float& operator[](size_t i);

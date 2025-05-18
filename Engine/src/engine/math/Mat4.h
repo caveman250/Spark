@@ -38,6 +38,7 @@ namespace se::math
         Mat4& operator/=(float scalar);
 
     private:
+        SPARK_MEMBER(Serialized)
         std::array<Vec4, 4> m_Value;
     };
     

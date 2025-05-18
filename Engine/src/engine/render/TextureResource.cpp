@@ -1,5 +1,7 @@
 #include "TextureResource.h"
 
+#include "engine/asset/texture/Texture.h"
+
 namespace se::render
 {
     TextureResource::TextureResource(const asset::Texture& texture)

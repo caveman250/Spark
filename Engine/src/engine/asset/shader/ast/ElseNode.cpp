@@ -9,10 +9,6 @@
 
 namespace se::asset::shader::ast
 {
-    DEFINE_SPARK_CLASS_BEGIN(ElseNode)
-        DEFINE_SERIALIZED_MEMBER(m_Children)
-    DEFINE_SPARK_CLASS_END(ElseNode)
-
     ElseNode::ElseNode(const ElseNode& rhs)
             : ASTNode(rhs)
     {

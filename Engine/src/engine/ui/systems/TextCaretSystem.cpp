@@ -11,8 +11,6 @@ using namespace se::ecs::components;
 
 namespace se::ui::systems
 {
-    DEFINE_SPARK_SYSTEM(TextCaretSystem)
-
     void TextCaretSystem::OnUpdate(const ecs::SystemUpdateData& updateData)
     {
         PROFILE_SCOPE("TextCaretSystem::OnUpdate")

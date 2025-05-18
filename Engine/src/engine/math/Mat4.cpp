@@ -7,10 +7,6 @@
 
 namespace se::math
 {
-    DEFINE_SPARK_POD_CLASS_BEGIN(Mat4)
-        DEFINE_SERIALIZED_MEMBER(m_Value)
-    DEFINE_SPARK_CLASS_END(Mat4)
-
     Mat4::Mat4()
         : m_Value { Vec4(1.f, 0, 0, 0), Vec4(0, 1.f, 0, 0), Vec4(0, 0, 1.f, 0), Vec4(0, 0, 0, 1.f) }
     {

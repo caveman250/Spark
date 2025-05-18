@@ -4,24 +4,6 @@
 
 namespace se::asset
 {
-    DEFINE_SPARK_POD_CLASS_BEGIN(CharData)
-        DEFINE_SERIALIZED_MEMBER(yOffset)
-        DEFINE_SERIALIZED_MEMBER(advanceWidth)
-        DEFINE_SERIALIZED_MEMBER(leftSideBearing)
-        DEFINE_SERIALIZED_MEMBER(kerning)
-        DEFINE_SERIALIZED_MEMBER(rect)
-        DEFINE_SERIALIZED_MEMBER(uvTopLeft)
-        DEFINE_SERIALIZED_MEMBER(uvBottomRight)
-    DEFINE_SPARK_CLASS_END(CharData)
-
-    DEFINE_SPARK_CLASS_BEGIN(Font)
-        DEFINE_SERIALIZED_MEMBER(m_Name)
-        DEFINE_SERIALIZED_MEMBER(m_Texture)
-        DEFINE_SERIALIZED_MEMBER(m_CharData)
-        DEFINE_SERIALIZED_MEMBER(m_Ascent)
-        DEFINE_SERIALIZED_MEMBER(m_Descent)
-    DEFINE_SPARK_CLASS_END(Font)
-
     const std::string& Font::GetName() const
     {
         return m_Name;

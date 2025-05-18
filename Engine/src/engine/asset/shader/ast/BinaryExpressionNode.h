@@ -20,6 +20,7 @@ namespace se::asset::shader::ast
         OperatorType::Type GetOperatorType() const { return m_OpType; }
 
     private:
+        SPARK_MEMBER(Serialized)
         OperatorType::Type m_OpType;
     };
 }

@@ -13,8 +13,6 @@ using namespace se::ecs::components;
 
 namespace se::ecs::systems
 {
-    DEFINE_SPARK_SYSTEM(TransformSystem)
-
     void TransformSystem::OnUpdate(const ecs::SystemUpdateData& updateData)
     {
         PROFILE_SCOPE("TransformSystem::OnUpdate")

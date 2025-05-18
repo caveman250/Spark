@@ -6,8 +6,6 @@
 
 namespace se::debug::systems
 {
-    DEFINE_SPARK_SYSTEM(FPSCounterSystem)
-
     void FPSCounterSystem::OnInit(const ecs::SystemUpdateData&)
     {
         auto world = Application::Get()->GetWorld();

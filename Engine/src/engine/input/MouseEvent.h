@@ -12,8 +12,13 @@ namespace se::input
     {
         DECLARE_SPARK_CLASS(MouseEvent)
 
+        SPARK_MEMBER()
         MouseButton::Type button = {};
+
+        SPARK_MEMBER()
         KeyState::Type state = KeyState::Down;
+
+        SPARK_MEMBER()
         int scrollDelta = 0;
 
         bool operator==(const MouseEvent& rhs) const

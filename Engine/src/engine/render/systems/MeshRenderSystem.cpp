@@ -15,8 +15,6 @@ using namespace se::ecs::components;
 
 namespace se::render::systems
 {
-    DEFINE_SPARK_SYSTEM(MeshRenderSystem)
-
     void MeshRenderSystem::OnUpdate(const ecs::SystemUpdateData& updateData)
     {
         const auto& entities = updateData.GetEntities();

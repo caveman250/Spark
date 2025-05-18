@@ -10,9 +10,6 @@ namespace se::editor::ui::properties
 {
     DEFINE_PROPERTY_EDITOR(se::asset::shader::ast::MainNode, MainNodeEditor, MainNode);
 
-    DEFINE_SPARK_CLASS_BEGIN(MainNodeEditor)
-    DEFINE_SPARK_CLASS_END(MainNodeEditor)
-
     void MainNodeEditor::SetValue(void* value, const reflect::Type*)
     {
         m_Value = static_cast<asset::shader::ast::MainNode*>(value);

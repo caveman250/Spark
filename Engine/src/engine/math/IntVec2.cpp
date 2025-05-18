@@ -4,11 +4,6 @@
 
 namespace se::math
 {
-    DEFINE_SPARK_POD_CLASS_BEGIN(IntVec2)
-                                             DEFINE_SERIALIZED_MEMBER(x)
-                                             DEFINE_SERIALIZED_MEMBER(y)
-    DEFINE_SPARK_CLASS_END(IntVec2)
-
     IntVec2& IntVec2::operator+=(const IntVec2& rhs)
     {
         x += rhs.x;

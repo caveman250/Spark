@@ -9,11 +9,6 @@
 
 namespace se::asset::shader::ast
 {
-    DEFINE_SPARK_CLASS_BEGIN(IfNode)
-        DEFINE_SERIALIZED_MEMBER(m_Children)
-        DEFINE_SERIALIZED_MEMBER(m_Condition)
-    DEFINE_SPARK_CLASS_END(IfNode)
-
     IfNode::IfNode(const IfNode& rhs)
             : ASTNode(rhs)
     {

@@ -1,12 +1,6 @@
 #include <Widgets.generated.h>
 #include "VerticalBoxComponent.h"
 
-namespace se::ui::components
-{
-    DEFINE_SPARK_COMPONENT_BEGIN(VerticalBoxComponent)
-    DEFINE_SPARK_COMPONENT_END(VerticalBoxComponent)
-}
-
 namespace se::ui
 {
     se::math::IntVec2 GetVerticalBoxChildrenDesiredSize(ecs::System* system,

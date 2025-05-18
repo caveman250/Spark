@@ -112,10 +112,8 @@ Each expression must be ended with the `;` character.
 
 Example:
 ```
-Variable Declaration:
 vec3 myVec = vec3(1.0, 1.0, 1.0);
 
-Variable Assignment:
 outColor = diffuse + ambient * shadow;
 ```
 #### Operators

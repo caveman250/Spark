@@ -9,15 +9,6 @@
 
 namespace se::asset
 {
-DEFINE_SPARK_CLASS_BEGIN(Texture)
-    DEFINE_SERIALIZED_MEMBER(m_Width)
-    DEFINE_SERIALIZED_MEMBER(m_Height)
-    DEFINE_SERIALIZED_MEMBER(m_MipCount)
-    DEFINE_SERIALIZED_MEMBER(m_Mips)
-    DEFINE_SERIALIZED_MEMBER(m_Format)
-    DEFINE_SERIALIZED_MEMBER(m_Usage)
-DEFINE_SPARK_CLASS_END(Texture)
-
     Texture::Texture()
     {
     }

@@ -10,8 +10,6 @@ using namespace se::ecs::components;
 
 namespace se::ui::systems
 {
-    DEFINE_SPARK_SYSTEM(ResetKeyInputSystem)
-
     void ResetKeyInputSystem::OnUpdate(const ecs::SystemUpdateData& updateData)
     {
         PROFILE_SCOPE("ResetKeyInputSystem::OnUpdate")

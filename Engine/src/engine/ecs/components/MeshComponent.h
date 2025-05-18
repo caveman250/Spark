@@ -17,7 +17,7 @@ namespace se::ecs::components
     {
         DECLARE_SPARK_COMPONENT(MeshComponent)
 
-        MeshComponent();
+        MeshComponent() = default;
 
         std::shared_ptr<render::MaterialInstance> materialInstance = {};
         std::shared_ptr<render::VertexBuffer> vertBuffer = {};

@@ -1,11 +1,5 @@
 #include "Shader.h"
-
-#include "ast/ASTNode.h"
-#include "ast/InputNode.h"
-#include "ast/InputPortNode.h"
-#include "ast/OutputPortNode.h"
 #include "ast/MainNode.h"
-#include "ast/OutputNode.h"
 
 DEFINE_SPARK_ENUM_BEGIN(se::asset::ShaderType)
     DEFINE_ENUM_VALUE(ShaderType, Vertex)
@@ -14,19 +8,6 @@ DEFINE_SPARK_ENUM_END()
 
 namespace se::asset
 {
-    DEFINE_SPARK_CLASS_BEGIN(Shader)
-        DEFINE_SERIALIZED_MEMBER(m_Type)
-        DEFINE_MEMBER(m_MainDeclared)
-        DEFINE_SERIALIZED_MEMBER(m_InputPorts)
-        DEFINE_SERIALIZED_MEMBER(m_OutputPorts)
-        DEFINE_MEMBER(m_Inputs)
-        DEFINE_MEMBER(m_Outputs)
-        DEFINE_SERIALIZED_MEMBER(m_AstNodes)
-        DEFINE_SERIALIZED_MEMBER(m_Uniforms)
-        DEFINE_SERIALIZED_MEMBER(m_GlobalVariables)
-        DEFINE_SERIALIZED_MEMBER(m_Settings)
-    DEFINE_SPARK_CLASS_END(Shader)
-
     void Shader::AddInputPort(const std::shared_ptr<shader::ast::InputPortNode>& node)
     {
         if (SPARK_VERIFY(FindInputPortByPortName(node->GetPortName()) == nullptr))

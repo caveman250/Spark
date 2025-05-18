@@ -2,10 +2,6 @@
 
 namespace se::asset::shader::ast
 {
-    DEFINE_SPARK_CLASS_BEGIN(LengthNode)
-        DEFINE_SERIALIZED_MEMBER(m_Children)
-    DEFINE_SPARK_CLASS_END(LengthNode)
-
     std::string LengthNode::GetDebugString() const
     {
         return "LengthNode";

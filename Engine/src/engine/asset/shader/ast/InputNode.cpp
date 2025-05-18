@@ -3,12 +3,6 @@
 
 namespace se::asset::shader::ast
 {
-    DEFINE_SPARK_CLASS_BEGIN(InputNode)
-        DEFINE_SERIALIZED_MEMBER(m_Children)
-        DEFINE_SERIALIZED_MEMBER(m_Var)
-        DEFINE_SERIALIZED_MEMBER(m_Name)
-    DEFINE_SPARK_CLASS_END(InputNode)
-
     InputNode::InputNode(const Variable& var, const std::string& name)
         : m_Var(var)
         , m_Name(name)

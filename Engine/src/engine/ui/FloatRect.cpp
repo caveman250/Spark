@@ -2,11 +2,6 @@
 
 namespace se::ui
 {
-    DEFINE_SPARK_POD_CLASS_BEGIN(FloatRect)
-        DEFINE_SERIALIZED_MEMBER(topLeft)
-        DEFINE_SERIALIZED_MEMBER(size)
-    DEFINE_SPARK_CLASS_END(FloatRect)
-
     bool FloatRect::Contains(const math::Vec2 &point) const
     {
         return point.x >= topLeft.x && point.y >= topLeft.y &&

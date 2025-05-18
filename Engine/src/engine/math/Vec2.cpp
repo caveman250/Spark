@@ -5,11 +5,6 @@
 
 namespace se::math
 {
-    DEFINE_SPARK_POD_CLASS_BEGIN(Vec2)
-        DEFINE_SERIALIZED_MEMBER(x)
-        DEFINE_SERIALIZED_MEMBER(y)
-    DEFINE_SPARK_CLASS_END(Vec2)
-
     Vec2::Vec2(const IntVec2 &v)
         : x(static_cast<float>(v.x))
         , y(static_cast<float>(v.y))

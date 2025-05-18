@@ -9,8 +9,6 @@ using namespace se::ecs::components;
 
 namespace se::ui::systems
 {
-    DEFINE_SPARK_SYSTEM(WidgetVisibilitySystem)
-
     void WidgetVisibilitySystem::OnUpdate(const ecs::SystemUpdateData& updateData)
     {
         PROFILE_SCOPE("WidgetVisibilitySystem::OnUpdate")

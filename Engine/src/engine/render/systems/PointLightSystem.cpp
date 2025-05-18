@@ -4,8 +4,6 @@
 
 namespace se::render::systems
 {
-    DEFINE_SPARK_SYSTEM(PointLightSystem)
-
     void PointLightSystem::OnUpdate(const ecs::SystemUpdateData& updateData)
     {
         const auto& entities = updateData.GetEntities();

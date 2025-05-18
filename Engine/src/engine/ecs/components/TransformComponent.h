@@ -10,11 +10,19 @@ namespace se::ecs::components
     {
         DECLARE_SPARK_COMPONENT(TransformComponent)
 
+        SPARK_MEMBER(Serialized)
         math::Vec3 pos = {};
+
+        SPARK_MEMBER(Serialized)
         math::Vec3 rot = {};
+
+        SPARK_MEMBER(Serialized)
         math::Vec3 scale = math::Vec3(1.f, 1.f, 1.f);
 
+        SPARK_MEMBER()
         math::Mat4 transform = {};
+
+        SPARK_MEMBER()
         math::Mat4 worldTransform = {};
     };
 }

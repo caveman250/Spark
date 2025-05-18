@@ -9,13 +9,6 @@
 
 namespace se::asset::shader::ast
 {
-    DEFINE_SPARK_CLASS_BEGIN(ForLoopNode)
-        DEFINE_SERIALIZED_MEMBER(m_Children)
-        DEFINE_SERIALIZED_MEMBER(m_Declaration)
-        DEFINE_SERIALIZED_MEMBER(m_Condition)
-        DEFINE_SERIALIZED_MEMBER(m_Expression)
-    DEFINE_SPARK_CLASS_END(ForLoopNode)
-
     ForLoopNode::ForLoopNode(const ForLoopNode& rhs)
         : ASTNode(rhs)
     {

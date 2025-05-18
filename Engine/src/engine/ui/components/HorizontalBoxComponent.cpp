@@ -1,12 +1,6 @@
 #include <Widgets.generated.h>
 #include "HorizontalBoxComponent.h"
 
-namespace se::ui::components
-{
-    DEFINE_SPARK_COMPONENT_BEGIN(HorizontalBoxComponent)
-    DEFINE_SPARK_COMPONENT_END(HorizontalBoxComponent)
-}
-
 namespace se::ui
 {
     se::math::IntVec2 GetHorizontalBoxChildrenDesiredSize(ecs::System* system,

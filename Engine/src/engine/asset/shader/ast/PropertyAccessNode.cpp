@@ -2,11 +2,6 @@
 
 namespace se::asset::shader::ast
 {
-    DEFINE_SPARK_CLASS_BEGIN(PropertyAccessNode)
-        DEFINE_SERIALIZED_MEMBER(m_Children)
-        DEFINE_SERIALIZED_MEMBER(m_PropertyName)
-    DEFINE_SPARK_CLASS_END(PropertyAccessNode)
-
     PropertyAccessNode::PropertyAccessNode(const std::string& propName)
         : m_PropertyName(propName)
     {

@@ -8,7 +8,10 @@ namespace se::ui
     {
         DECLARE_SPARK_POD_CLASS(FloatRect)
 
+        SPARK_MEMBER(Serialized)
         math::Vec2 topLeft;
+
+        SPARK_MEMBER(Serialized)
         math::Vec2 size;
 
         bool operator==(const FloatRect& rhs) const

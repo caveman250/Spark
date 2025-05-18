@@ -10,9 +10,16 @@ namespace se::asset
     {
         DECLARE_SPARK_CLASS(StaticMesh)
 
+        SPARK_MEMBER(Serialized)
         std::vector<math::Vec3> vertices;
+
+        SPARK_MEMBER(Serialized)
         std::vector<math::Vec2> uvs;
+
+        SPARK_MEMBER(Serialized)
         std::vector<math::Vec3> normals;
+
+        SPARK_MEMBER(Serialized)
         std::vector<uint32_t> indices;
     };
 }

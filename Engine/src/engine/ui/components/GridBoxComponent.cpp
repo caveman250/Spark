@@ -2,12 +2,6 @@
 #include "engine/ui/util/GridBoxUtil.h"
 #include "GridBoxComponent.h"
 
-namespace se::ui::components
-{
-    DEFINE_SPARK_COMPONENT_BEGIN(GridBoxComponent)
-    DEFINE_SPARK_COMPONENT_END(GridBoxComponent)
-}
-
 namespace se::ui
 {
     se::math::IntVec2 GetGridBoxChildrenDesiredSize(ecs::System* system,

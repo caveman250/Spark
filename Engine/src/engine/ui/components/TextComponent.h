@@ -27,9 +27,17 @@ namespace se::ui::components
         DECLARE_SPARK_WIDGET_COMPONENT(TextComponent)
 
         std::shared_ptr<asset::Font> font = {};
+
+        SPARK_MEMBER(Serialized)
         int fontSize = 0;
+
+        SPARK_MEMBER(Serialized)
         String text = {};
+
+        SPARK_MEMBER(Serialized)
         text::Alignment::Type alignment = text::Alignment::Left;
+
+        SPARK_MEMBER(Serialized)
         text::WrapMode::Type wrap = text::WrapMode::Word;
 
         // internal use

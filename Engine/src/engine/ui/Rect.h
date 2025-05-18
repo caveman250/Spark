@@ -1,5 +1,5 @@
 #pragma once
-#include "engine/math/IntVec2.h"
+#include "engine/math/math.h"
 #include "engine/reflect/Reflect.h"
 
 namespace se::ui
@@ -8,7 +8,10 @@ namespace se::ui
     {
         DECLARE_SPARK_POD_CLASS(Rect)
 
+        SPARK_MEMBER(Serialized)
         math::IntVec2 topLeft;
+
+        SPARK_MEMBER(Serialized)
         math::IntVec2 size;
 
         bool operator==(const Rect& rhs) const

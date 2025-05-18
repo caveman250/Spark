@@ -4,13 +4,6 @@
 
 namespace se::math
 {
-    DEFINE_SPARK_POD_CLASS_BEGIN(Vec4)
-        DEFINE_SERIALIZED_MEMBER(x)
-        DEFINE_SERIALIZED_MEMBER(y)
-        DEFINE_SERIALIZED_MEMBER(z)
-        DEFINE_SERIALIZED_MEMBER(w)
-    DEFINE_SPARK_CLASS_END(Vec4)
-
     float& Vec4::operator[](size_t i)
     {
         SPARK_ASSERT(i <= 3u);

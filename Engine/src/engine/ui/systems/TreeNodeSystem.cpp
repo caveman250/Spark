@@ -2,8 +2,6 @@
 
 namespace se::ui::systems
 {
-    DEFINE_SPARK_SYSTEM(TreeNodeSystem)
-
     void TreeNodeSystem::OnUpdate(const ecs::SystemUpdateData& updateData)
     {
         const auto& entities = updateData.GetEntities();

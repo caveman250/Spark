@@ -7,9 +7,6 @@ namespace se::editor::ui::properties
 {
     DEFINE_PROPERTY_EDITOR(math::Vec3, Vec3Editor, Vec3);
 
-    DEFINE_SPARK_CLASS_BEGIN(Vec3Editor)
-    DEFINE_SPARK_CLASS_END(Vec3Editor)
-
     void Vec3Editor::SetValue(void* value, const reflect::Type*)
     {
         m_Value = static_cast<math::Vec3*>(value);

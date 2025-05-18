@@ -10,6 +10,7 @@ namespace se::render::components
     {
         DECLARE_SPARK_COMPONENT(PointLightComponent)
 
+        SPARK_MEMBER(Serialized)
         math::Vec3 color;
     };
 }

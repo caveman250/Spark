@@ -35,8 +35,6 @@ namespace se::editor::ui
                                  const std::shared_ptr<asset::Font>& font,
                                  se::ui::components::VerticalBoxComponent* verticalBox);
         void AddSingletonComponentProperties(reflect::ObjectBase* selectedSingletonComp,
-                                             ecs::World* world,
-                                             const std::shared_ptr<asset::Font>& font,
                                              se::ui::components::VerticalBoxComponent* verticalBox);
         void AddAssetProperties(const std::shared_ptr<asset::Asset>& asset,
                                 ecs::World* world,

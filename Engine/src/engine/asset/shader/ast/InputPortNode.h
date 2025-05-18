@@ -26,8 +26,13 @@ namespace se::asset::shader::ast
         void ApplyNameRemapping(const std::map<std::string, std::string>& newNames) override;
 
     private:
+        SPARK_MEMBER(Serialized)
         std::string m_PortName = {};
+
+        SPARK_MEMBER(Serialized)
         Variable m_Var = {};
+
+        SPARK_MEMBER(Serialized)
         std::string m_Name = {};
     };
 }

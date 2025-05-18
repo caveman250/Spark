@@ -16,9 +16,6 @@ namespace se::editor::ui::properties
 {
     DEFINE_CONTAINER_PROPERTY_EDITOR("std::vector<>", VectorEditor)
 
-    DEFINE_SPARK_CLASS_BEGIN(VectorEditor)
-    DEFINE_SPARK_CLASS_END(VectorEditor)
-
     void VectorEditor::SetValue(void* value, const reflect::Type* type)
     {
         if (SPARK_VERIFY(type->IsContainer()))

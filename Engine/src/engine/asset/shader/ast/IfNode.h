@@ -12,7 +12,7 @@ namespace se::asset::shader::ast
 {
     class IfNode : public ASTNode
     {
-    DECLARE_SPARK_CLASS(IfNode)
+        DECLARE_SPARK_CLASS(IfNode)
 
         IfNode() = default;
         IfNode(const IfNode& rhs);
@@ -24,6 +24,7 @@ namespace se::asset::shader::ast
         void ToGlsl(ShaderCompileContext& context, string::ArenaString& outShader) const override;
         void ToMtl(ShaderCompileContext& context, string::ArenaString& outShader) const override;
 
+        SPARK_MEMBER(Serialized)
         std::shared_ptr<ASTNode> m_Condition = nullptr;
     };
 }

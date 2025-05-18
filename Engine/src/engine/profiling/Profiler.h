@@ -14,10 +14,19 @@ namespace se::profiling
             children.reserve(1024);
         }
 
+        SPARK_MEMBER(Serialized)
         std::string name;
+
+        SPARK_MEMBER(Serialized)
         double duration;
+
+        SPARK_MEMBER(Serialized)
         int64_t startTime;
+
+        SPARK_MEMBER(Serialized)
         int64_t endTime;
+
+        SPARK_MEMBER(Serialized)
         std::vector<ProfileRecord> children;
     };
 
@@ -25,9 +34,16 @@ namespace se::profiling
     {
         DECLARE_SPARK_CLASS(ThreadRecord)
 
+        SPARK_MEMBER(Serialized)
         double duration = {};
+
+        SPARK_MEMBER(Serialized)
         int64_t startTime = {};
+
+        SPARK_MEMBER(Serialized)
         int64_t endTime = {};
+
+        SPARK_MEMBER(Serialized)
         std::vector<ProfileRecord> profileRecords = {};
     };
 
@@ -35,9 +51,16 @@ namespace se::profiling
     {
         DECLARE_SPARK_CLASS(FrameRecord)
 
+        SPARK_MEMBER(Serialized)
         double duration = {};
+
+        SPARK_MEMBER(Serialized)
         int64_t startTime = {};
+
+        SPARK_MEMBER(Serialized)
         int64_t endTime = {};
+
+        SPARK_MEMBER(Serialized)
         std::unordered_map<size_t, ThreadRecord> threadRecords = {};
     };
 

@@ -2,11 +2,6 @@
 
 namespace se::asset::shader::ast
 {
-    DEFINE_SPARK_CLASS_BEGIN(BinaryExpressionNode)
-        DEFINE_SERIALIZED_MEMBER(m_Children)
-        DEFINE_SERIALIZED_MEMBER(m_OpType)
-    DEFINE_SPARK_CLASS_END(BinaryExpressionNode)
-
     BinaryExpressionNode::BinaryExpressionNode(OperatorType::Type opType)
         : m_OpType(opType)
     {

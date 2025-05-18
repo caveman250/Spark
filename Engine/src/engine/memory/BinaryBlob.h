@@ -21,7 +21,7 @@ namespace se::memory
     public:
         static constexpr bool s_IsPOD = false;
         static reflect::Type* GetReflection();
-        DECLARE_SPARK_TYPE(BinaryBlob)
+        static size_t s_StaticId;
 
         reflect::Type* GetReflectType() const override;
         void Serialize(const void* obj, asset::binary::Object& parentObj, const std::string& fieldName) override;

@@ -2,10 +2,6 @@
 
 namespace se::asset::shader::ast
 {
-    DEFINE_SPARK_CLASS_BEGIN(EndOfExpressionNode)
-        DEFINE_SERIALIZED_MEMBER(m_Children)
-    DEFINE_SPARK_CLASS_END(EndOfExpressionNode)
-
     std::string EndOfExpressionNode::GetDebugString() const
     {
         return "EndOfExpressionNode";

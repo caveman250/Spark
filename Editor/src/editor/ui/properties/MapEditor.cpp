@@ -16,9 +16,6 @@ namespace se::editor::ui::properties
     DEFINE_CONTAINER_PROPERTY_EDITOR("std::map<>", MapEditor)
     DEFINE_CONTAINER_PROPERTY_EDITOR("std::unordered_map<>", MapEditor)
 
-    DEFINE_SPARK_CLASS_BEGIN(MapEditor)
-    DEFINE_SPARK_CLASS_END(MapEditor)
-
     void MapEditor::SetValue(void* value, const reflect::Type* type)
     {
         if (SPARK_VERIFY(type->IsContainer()))

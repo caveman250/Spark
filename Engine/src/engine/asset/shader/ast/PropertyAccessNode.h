@@ -14,6 +14,7 @@ namespace se::asset::shader::ast
         void ToGlsl(ShaderCompileContext& context, string::ArenaString& outShader) const override;
         void ToMtl(ShaderCompileContext& context, string::ArenaString& outShader) const override;
     private:
+        SPARK_MEMBER(Serialized)
         std::string m_PropertyName = {};
     };
 }

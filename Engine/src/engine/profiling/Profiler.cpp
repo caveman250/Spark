@@ -5,28 +5,6 @@
 
 namespace se::profiling
 {
-    DEFINE_SPARK_CLASS_BEGIN(ProfileRecord)
-        DEFINE_SERIALIZED_MEMBER(name)
-        DEFINE_SERIALIZED_MEMBER(duration)
-        DEFINE_SERIALIZED_MEMBER(startTime)
-        DEFINE_SERIALIZED_MEMBER(endTime)
-        DEFINE_SERIALIZED_MEMBER(children)
-    DEFINE_SPARK_CLASS_END(ProfileRecord)
-
-    DEFINE_SPARK_CLASS_BEGIN(ThreadRecord)
-        DEFINE_SERIALIZED_MEMBER(duration)
-        DEFINE_SERIALIZED_MEMBER(startTime)
-        DEFINE_SERIALIZED_MEMBER(endTime)
-        DEFINE_SERIALIZED_MEMBER(profileRecords)
-    DEFINE_SPARK_CLASS_END(ThreadRecord)
-
-    DEFINE_SPARK_CLASS_BEGIN(FrameRecord)
-        DEFINE_SERIALIZED_MEMBER(duration)
-        DEFINE_SERIALIZED_MEMBER(startTime)
-        DEFINE_SERIALIZED_MEMBER(endTime)
-        DEFINE_SERIALIZED_MEMBER(threadRecords)
-    DEFINE_SPARK_CLASS_END(FrameRecord)
-
     Profiler * Profiler::Get()
     {
         static Profiler* s_Profiler = new Profiler();

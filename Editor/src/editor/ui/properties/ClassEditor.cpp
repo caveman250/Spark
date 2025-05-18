@@ -12,9 +12,6 @@
 
 namespace se::editor::ui::properties
 {
-    DEFINE_SPARK_CLASS_BEGIN(ClassEditor)
-    DEFINE_SPARK_CLASS_END(ClassEditor)
-
     void ClassEditor::SetValue(void* value, const reflect::Type* type)
     {
         if (SPARK_VERIFY(type->IsClass()))

@@ -11,9 +11,6 @@ namespace se::editor::ui::properties
 {
     DEFINE_PROPERTY_EDITOR(se::asset::Font, FontEditor, Font);
 
-    DEFINE_SPARK_CLASS_BEGIN(FontEditor)
-    DEFINE_SPARK_CLASS_END(FontEditor)
-
     void FontEditor::SetValue(void* value, const reflect::Type*)
     {
         m_Value = static_cast<asset::Font*>(value);

@@ -9,7 +9,7 @@ using namespace se::ecs::components;
 
 namespace se::ecs::systems
 {
-    class WorldTransformSystem : public EngineSystem
+    class WorldTransformSystem : public ecs::EngineSystem
     {
         DECLARE_SPARK_SYSTEM(WorldTransformSystem)
     public:

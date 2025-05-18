@@ -2,9 +2,6 @@
 
 namespace se::asset::shader::ast
 {
-    DEFINE_ABSTRACT_SPARK_CLASS_BEGIN(ASTNode)
-    DEFINE_SPARK_CLASS_END(ASTNode)
-
     ASTNode::ASTNode(const ASTNode& rhs)
     {
         m_Children.reserve(rhs.m_Children.size());

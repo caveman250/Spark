@@ -8,7 +8,10 @@ namespace se::input
     {
         DECLARE_SPARK_CLASS(KeyEvent)
 
+        SPARK_MEMBER(Serialized)
         Key::Type key = {};
+
+        SPARK_MEMBER(Serialized)
         KeyState::Type state = {};
 
         bool operator==(const KeyEvent& rhs) const

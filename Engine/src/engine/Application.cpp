@@ -1,4 +1,3 @@
-#include <Widgets.generated.h>
 #include "Application.h"
 #include "engine/ui/systems/UIRenderSystem.h"
 #include "engine/ui/systems/ScrollBoxRenderSystem.h"
@@ -48,6 +47,9 @@
 #include "engine/ui/systems/RectTransformSystem.h"
 #include "engine/ui/systems/LastRectSystem.h"
 
+#include "Widgets.generated.h"
+#include "Classes.generated.h"
+
 namespace se
 {
     Application* Application::s_Instance = nullptr;
@@ -71,6 +73,7 @@ namespace se
         io::VFS::Get().Mount(std::format("{}/{}", APP_DIR, "built"), "/assets");
 
         RegisterComponents(&m_World);
+        InitClassReflection();
 
 #if SPARK_EDITOR
         m_EditorRuntime.Init();

@@ -10,8 +10,6 @@ using namespace se::ecs::components;
 
 namespace se::ui::systems
 {
-    DEFINE_SPARK_SYSTEM(ButtonSystem)
-
     void ButtonSystem::OnUpdate(const ecs::SystemUpdateData& updateData)
     {
         PROFILE_SCOPE("ButtonSystem::OnUpdate")

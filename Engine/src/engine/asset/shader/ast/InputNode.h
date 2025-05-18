@@ -22,7 +22,10 @@ namespace se::asset::shader::ast
         const std::string& GetName() const;
 
     protected:
+        SPARK_MEMBER(Serialized)
         Variable m_Var = {};
+
+        SPARK_MEMBER(Serialized)
         std::string m_Name = {};
     };
 }

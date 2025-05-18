@@ -1,8 +1,15 @@
 #pragma once
 
 #include "spark.h"
-#include "engine/asset/texture/Texture.h"
 #include "engine/math/math.h"
+#include "engine/asset/texture/Format.h"
+#include "engine/asset/texture/Mipmap.h"
+#include "engine/reflect/Reflect.h"
+
+namespace se::asset
+{
+    class Texture;
+}
 
 namespace se::render
 {
@@ -26,6 +33,7 @@ namespace se::render
 
     protected:
         TextureResource(const asset::Texture& texture);
+
         size_t m_Width;
         size_t m_Height;
         asset::texture::Format::Type m_Format;

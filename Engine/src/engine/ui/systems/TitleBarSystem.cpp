@@ -13,8 +13,6 @@ using namespace se::ecs::components;
 
 namespace se::ui::systems
 {
-    DEFINE_SPARK_SYSTEM(TitleBarSystem)
-
     void TitleBarSystem::OnUpdate(const ecs::SystemUpdateData& updateData)
     {
         PROFILE_SCOPE("TitleBarSystem::OnUpdate")

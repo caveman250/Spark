@@ -4,8 +4,6 @@
 
 namespace se::ui::systems
 {
-    DEFINE_SPARK_SYSTEM(UIRenderSystem)
-
     void RenderEntity(const ecs::Id& id, singleton_components::UIRenderComponent* renderComp, render::Renderer* renderer, IWindow* window, ecs::World* world)
     {
 #if SPARK_EDITOR

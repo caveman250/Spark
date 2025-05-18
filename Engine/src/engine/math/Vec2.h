@@ -19,8 +19,10 @@ namespace se::math
 
         Vec2(const IntVec2 &v);
 
-
+        SPARK_MEMBER(Serialized)
         float x;
+
+        SPARK_MEMBER(Serialized)
         float y;
 
         Vec2& operator+=(const Vec2 &rhs);

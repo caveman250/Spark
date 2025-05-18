@@ -5,8 +5,6 @@
 
 namespace se::ui::systems
 {
-    DEFINE_SPARK_SYSTEM(TreeViewSystem)
-
     constexpr int s_Padding = 2;
 
     void TreeViewSystem::OnUpdate(const ecs::SystemUpdateData& updateData)

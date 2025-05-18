@@ -2,10 +2,6 @@
 
 namespace se::asset::shader::ast
 {
-    DEFINE_SPARK_CLASS_BEGIN(SmoothstepNode)
-        DEFINE_SERIALIZED_MEMBER(m_Children)
-    DEFINE_SPARK_CLASS_END(SmoothstepNode)
-
     std::string SmoothstepNode::GetDebugString() const
     {
         return "SmoothstepNode";

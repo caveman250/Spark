@@ -9,7 +9,7 @@ namespace se::asset::shader::ast
     struct ShaderCompileContext;
     class ASTNode : public reflect::ObjectBase
     {
-        DECLARE_SPARK_CLASS(ASTNode)
+        DECLARE_SPARK_CLASS(ASTNode, Abstract)
     public:
         ASTNode() = default;
         virtual ~ASTNode() = default;
@@ -29,7 +29,9 @@ namespace se::asset::shader::ast
         virtual void ApplyNameRemapping(const std::map<std::string, std::string>& newNames);
         virtual void ForEachChild(const std::function<void(ASTNode*)>& func);
 
+        SPARK_MEMBER(Serialized)
         std::vector<std::shared_ptr<ASTNode>> m_Children;
+
         ast::ASTNode* m_Parent = nullptr;
     };
 }

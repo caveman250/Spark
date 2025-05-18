@@ -115,7 +115,7 @@ namespace se::editor::ui
             }
             else if (selectedSingletonComp)
             {
-                AddSingletonComponentProperties(selectedSingletonComp, world, ariel, verticalBox);
+                AddSingletonComponentProperties(selectedSingletonComp, verticalBox);
             }
             else if (selectedAsset)
             {
@@ -161,8 +161,6 @@ namespace se::editor::ui
     }
 
     void PropertiesWindow::AddSingletonComponentProperties(reflect::ObjectBase* selectedSingletonComp,
-                                                           ecs::World* world,
-                                                           const std::shared_ptr<asset::Font>& font,
                                                            se::ui::components::VerticalBoxComponent* verticalBox)
     {
         auto reflectClass = static_cast<reflect::Class *>(selectedSingletonComp->GetReflectType());

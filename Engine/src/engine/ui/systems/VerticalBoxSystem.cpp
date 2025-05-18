@@ -13,8 +13,6 @@ using namespace se::ecs::components;
 
 namespace se::ui::systems
 {
-    DEFINE_SPARK_SYSTEM(VerticalBoxSystem)
-
     void VerticalBoxSystem::OnUpdate(const ecs::SystemUpdateData& updateData)
     {
         PROFILE_SCOPE("VerticalBoxSystem::OnUpdate")
