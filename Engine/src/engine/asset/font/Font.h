@@ -17,7 +17,7 @@ namespace se::asset
 {
     struct CharData
     {
-        DECLARE_SPARK_POD_CLASS(CharData)
+        SPARK_POD_CLASS(CharData)
 
         SPARK_MEMBER(Serialized)
         float yOffset = 0;
@@ -43,7 +43,7 @@ namespace se::asset
 
     class Font : public Asset
     {
-        DECLARE_SPARK_CLASS(Font)
+        SPARK_CLASS(Font)
 
         Font() = default;
         const std::string& GetName() const;

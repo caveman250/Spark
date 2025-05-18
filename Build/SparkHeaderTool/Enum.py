@@ -10,7 +10,7 @@ class Enum:
     values: list
 
 def ProcessEnum(line, enum_list, lines, line_index, namespace_stack, filepath):
-    start_index = len("DECLARE_SPARK_ENUM_BEGIN") + 1
+    start_index = len("SPARK_ENUM_BEGIN") + 1
     end_index = len(line)
     enum = ""
     for i in range(start_index, end_index):
@@ -22,7 +22,7 @@ def ProcessEnum(line, enum_list, lines, line_index, namespace_stack, filepath):
     values = []
     for i in range(line_index + 1, len(lines)):
         line = lines[i].strip()
-        if line.startswith("DECLARE_SPARK_ENUM_END"):
+        if line.startswith("SPARK_ENUM_END"):
             break
         val = line
         if "=" in line:

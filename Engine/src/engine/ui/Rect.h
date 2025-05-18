@@ -6,7 +6,7 @@ namespace se::ui
 {
     class Rect 
     {
-        DECLARE_SPARK_POD_CLASS(Rect)
+        SPARK_POD_CLASS(Rect)
 
         SPARK_MEMBER(Serialized)
         math::IntVec2 topLeft;

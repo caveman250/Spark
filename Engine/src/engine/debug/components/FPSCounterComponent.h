@@ -6,7 +6,7 @@ namespace se::debug::components
 {
     struct FPSCounterComponent : reflect::ObjectBase
     {
-        DECLARE_SPARK_COMPONENT(FPSCounterComponent)
+        SPARK_COMPONENT(FPSCounterComponent)
 
         static constexpr size_t s_NumFramesToBuffer = 60;
         uint64_t timeLastFrame = 0;

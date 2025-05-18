@@ -41,14 +41,14 @@ namespace se::asset
         std::map<String, shader::ast::Variable> m_Variables;
     };
 
-    DECLARE_SPARK_ENUM_BEGIN(ShaderType, int)
+    SPARK_ENUM_BEGIN(ShaderType, int)
         Vertex,
         Fragment
-    DECLARE_SPARK_ENUM_END()
+    SPARK_ENUM_END()
 
     class Shader : public Asset
     {
-        DECLARE_SPARK_CLASS(Shader)
+        SPARK_CLASS(Shader)
 
         Shader() = default;
         Shader(const Shader& rhs);

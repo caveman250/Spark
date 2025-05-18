@@ -8,7 +8,7 @@ namespace se::editor::ui::properties
 {
     class FontEditor : public PropertyEditor
     {
-        DECLARE_SPARK_CLASS(FontEditor)
+        SPARK_CLASS(FontEditor)
     public:
         void SetValue(void* value, const reflect::Type* type) override;
         void ConstructUI(const String& name, bool constructTitle, const se::ui::Anchors& anchors) override;

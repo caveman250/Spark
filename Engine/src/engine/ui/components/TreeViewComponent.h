@@ -8,7 +8,7 @@ namespace se::ui::components
 {
     struct TreeViewComponent : reflect::ObjectBase
     {
-        DECLARE_SPARK_WIDGET_COMPONENT(TreeViewComponent)
+        SPARK_WIDGET_COMPONENT(TreeViewComponent)
 
         bool dirty = false;
         ui::Rect lastRect = {};

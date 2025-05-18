@@ -7,7 +7,7 @@ namespace se::asset::shader::ast
 {
     class DFDYNode : public ASTNode
     {
-        DECLARE_SPARK_CLASS(DFDYNode)
+        SPARK_CLASS(DFDYNode)
 
         std::string GetDebugString() const override;
         void ToGlsl(ShaderCompileContext& context, string::ArenaString& outShader) const override;

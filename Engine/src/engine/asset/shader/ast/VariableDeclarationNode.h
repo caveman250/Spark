@@ -7,7 +7,7 @@ namespace se::asset::shader::ast
 {
     class VariableDeclarationNode : public ASTNode
     {
-        DECLARE_SPARK_CLASS(VariableDeclarationNode)
+        SPARK_CLASS(VariableDeclarationNode)
 
     public:
         VariableDeclarationNode() = default;

@@ -15,7 +15,7 @@ namespace se::asset::shader::ast
     template <typename T>
     class ConstantNode : public ConstantNodeBase
     {
-        DECLARE_SPARK_CLASS_TEMPLATED(ConstantNode, T)
+        SPARK_CLASS_TEMPLATED(ConstantNode, T)
     public:
         ConstantNode() : ConstantNodeBase() {}
         ConstantNode(T t);

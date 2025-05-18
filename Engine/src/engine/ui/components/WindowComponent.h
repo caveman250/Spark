@@ -7,6 +7,6 @@ namespace se::ui::components
 {
     struct WindowComponent : reflect::ObjectBase
     {
-        DECLARE_SPARK_WIDGET_COMPONENT(WindowComponent)
+        SPARK_WIDGET_COMPONENT(WindowComponent)
     };
 }

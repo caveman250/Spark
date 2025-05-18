@@ -12,7 +12,7 @@ namespace se::asset::shader::ast
 {
     class IfNode : public ASTNode
     {
-        DECLARE_SPARK_CLASS(IfNode)
+        SPARK_CLASS(IfNode)
 
         IfNode() = default;
         IfNode(const IfNode& rhs);

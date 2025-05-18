@@ -8,7 +8,7 @@ namespace se::asset::shader::ast
 {
     class BinaryExpressionNode : public ASTNode
     {
-        DECLARE_SPARK_CLASS(BinaryExpressionNode)
+        SPARK_CLASS(BinaryExpressionNode)
 
     public:
         BinaryExpressionNode() {}

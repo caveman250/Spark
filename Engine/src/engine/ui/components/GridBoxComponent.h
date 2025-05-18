@@ -14,7 +14,7 @@ namespace se::ui::components
 {
     struct GridBoxComponent : reflect::ObjectBase
     {
-        DECLARE_SPARK_WIDGET_COMPONENT(GridBoxComponent)
+        SPARK_WIDGET_COMPONENT(GridBoxComponent)
 
         int spacing = 0;
         bool dirty = false;

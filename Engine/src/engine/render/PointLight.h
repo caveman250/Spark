@@ -8,7 +8,7 @@ namespace se::render
 {
     struct PointLight
     {
-        DECLARE_SPARK_POD_CLASS(PointLight)
+        SPARK_POD_CLASS(PointLight)
 
         SPARK_MEMBER(Serialized)
         math::Vec3 pos;

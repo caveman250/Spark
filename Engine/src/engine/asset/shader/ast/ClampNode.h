@@ -7,7 +7,7 @@ namespace se::asset::shader::ast
 {
     class ClampNode : public ASTNode
     {
-        DECLARE_SPARK_CLASS(ClampNode)
+        SPARK_CLASS(ClampNode)
 
         std::string GetDebugString() const override;
         void ToGlsl(ShaderCompileContext& context, string::ArenaString& outShader) const override;

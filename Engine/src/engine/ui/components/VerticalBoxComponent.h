@@ -14,7 +14,7 @@ namespace se::ui::components
 {
     struct VerticalBoxComponent : reflect::ObjectBase
     {
-        DECLARE_SPARK_WIDGET_COMPONENT(VerticalBoxComponent)
+        SPARK_WIDGET_COMPONENT(VerticalBoxComponent)
 
         int paddingTop = 0;
         int paddingBottom = 0;

@@ -13,7 +13,7 @@ namespace se::ui::systems
 {
     class ButtonSystem : public ecs::EngineSystem
     {
-        DECLARE_SPARK_SYSTEM(ButtonSystem)
+        SPARK_SYSTEM(ButtonSystem)
     public:
         void OnUpdate(const ecs::SystemUpdateData& updateData) override;
     };

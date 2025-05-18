@@ -7,7 +7,7 @@ namespace se::math
 {
     class Mat3
     {
-        DECLARE_SPARK_POD_CLASS(Mat3)
+        SPARK_POD_CLASS(Mat3)
     public:
         Mat3();
         Mat3(const Mat3& other);

@@ -7,7 +7,7 @@ namespace se::asset::shader::ast
 {
     class OutputPortNode : public ASTNode
     {
-        DECLARE_SPARK_CLASS(OutputPortNode)
+        SPARK_CLASS(OutputPortNode)
 
     public:
         OutputPortNode() = default;

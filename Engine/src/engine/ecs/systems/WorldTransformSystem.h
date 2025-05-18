@@ -11,7 +11,7 @@ namespace se::ecs::systems
 {
     class WorldTransformSystem : public ecs::EngineSystem
     {
-        DECLARE_SPARK_SYSTEM(WorldTransformSystem)
+        SPARK_SYSTEM(WorldTransformSystem)
     public:
         void OnUpdate(const SystemUpdateData& updateData) override;
     };

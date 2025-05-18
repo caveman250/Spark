@@ -10,14 +10,14 @@ namespace se::reflect
     struct Class;
 
 /// Class ///
-#define DECLARE_SPARK_POD_CLASS(Type) \
+#define SPARK_POD_CLASS(Type) \
 public:               \
 static size_t s_StaticId;                         \
 static constexpr bool s_IsPOD = true;\
 static ::se::reflect::Class* GetReflection(); \
 static void InitMembers();
 
-#define DECLARE_SPARK_CLASS(type, ...) \
+#define SPARK_CLASS(type, ...) \
 public:               \
 static size_t s_StaticId;                          \
 static constexpr bool s_IsPOD = false;\
@@ -44,28 +44,28 @@ return reflect::TypeResolver<type>::get()->GetTypeName(nullptr);\
 static se::reflect::Class* GetReflection(); \
 static void InitMembers();
 
-#define DECLARE_SPARK_COMPONENT(Type) \
-DECLARE_SPARK_CLASS(Type)     \
+#define SPARK_COMPONENT(Type) \
+SPARK_CLASS(Type)     \
 static se::ecs::Id s_ComponentId;\
 static se::ecs::Id GetComponentId() { SPARK_ASSERT(s_ComponentId != static_cast<uint64_t>(0), "GetComponentId called before RegisterComponent"); return s_ComponentId; } \
 static constexpr bool IsSingletonComponent() { return false; }
 
-#define DECLARE_SPARK_WIDGET_COMPONENT(Type) \
-DECLARE_SPARK_CLASS(Type)     \
+#define SPARK_WIDGET_COMPONENT(Type) \
+SPARK_CLASS(Type)     \
 static se::ecs::Id s_ComponentId;\
 static se::ecs::Id GetComponentId() { SPARK_ASSERT(s_ComponentId != static_cast<uint64_t>(0), "GetComponentId called before RegisterComponent"); return s_ComponentId; } \
 static constexpr bool IsSingletonComponent() { return false; }
 
-#define DECLARE_SPARK_SINGLETON_COMPONENT(Type) \
-DECLARE_SPARK_CLASS(Type)     \
+#define SPARK_SINGLETON_COMPONENT(Type) \
+SPARK_CLASS(Type)     \
 static se::ecs::Id s_ComponentId;\
 static se::ecs::Id GetComponentId() { return s_ComponentId; } \
 static constexpr bool IsSingletonComponent() { return true; }
 
-#define DECLARE_SPARK_SYSTEM(Type) \
-DECLARE_SPARK_CLASS(Type)
+#define SPARK_SYSTEM(Type) \
+SPARK_CLASS(Type)
 
-#define DECLARE_SPARK_CLASS_TEMPLATED(type, templateTypes) \
+#define SPARK_CLASS_TEMPLATED(type, templateTypes) \
 public:               \
 static size_t s_StaticId;                         \
 static constexpr bool s_IsPOD = false;\
@@ -161,7 +161,7 @@ namespace\
 { static auto SPARK_CAT(type, SPARK_CAT(templateArg, Reflection)) = type<templateArg>::GetReflection(); }
 
 /// Enum ///
-#define DECLARE_SPARK_ENUM_BEGIN(_enum, type) \
+#define SPARK_ENUM_BEGIN(_enum, type) \
 struct _enum : reflect::ObjectBase\
 {                                             \
 static size_t s_StaticId;                      \
@@ -174,7 +174,7 @@ static se::reflect::Enum* GetReflection(); \
 enum Type : type\
 {\
 
-#define DECLARE_SPARK_ENUM_END()\
+#define SPARK_ENUM_END()\
 };\
 };
 }

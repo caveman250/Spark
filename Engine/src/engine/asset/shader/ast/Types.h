@@ -4,7 +4,7 @@
 
 namespace se::asset::shader::ast
 {
-    DECLARE_SPARK_ENUM_BEGIN(AstType, int)
+    SPARK_ENUM_BEGIN(AstType, int)
         Int,
         Float,
         Vec2,
@@ -16,5 +16,5 @@ namespace se::asset::shader::ast
         Sampler2D,
         Bool,
         Invalid
-    DECLARE_SPARK_ENUM_END()
+    SPARK_ENUM_END()
 }

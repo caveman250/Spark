@@ -11,7 +11,7 @@ namespace se::ui::systems
 {
     class RectTransformSystem : public ecs::EngineSystem
     {
-    DECLARE_SPARK_SYSTEM(RectTransformSystem)
+    SPARK_SYSTEM(RectTransformSystem)
     public:
         void OnUpdate(const ecs::SystemUpdateData& updateData) override;
     };

@@ -4,7 +4,7 @@
 
 namespace se::asset::shader::ast
 {
-    DECLARE_SPARK_ENUM_BEGIN(OperatorType, int)
+    SPARK_ENUM_BEGIN(OperatorType, int)
         Multiply,
         MultiplyEquals,
         Divide,
@@ -19,7 +19,7 @@ namespace se::asset::shader::ast
         LessEquals,
         Greater,
         GreaterEquals,
-    DECLARE_SPARK_ENUM_END()
+    SPARK_ENUM_END()
 
     class OperatorUtil
     {

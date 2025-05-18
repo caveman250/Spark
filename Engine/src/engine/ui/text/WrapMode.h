@@ -4,10 +4,10 @@
 
 namespace se::ui::text
 {
-    DECLARE_SPARK_ENUM_BEGIN(WrapMode, int)
+    SPARK_ENUM_BEGIN(WrapMode, int)
         Word,
         Char,
         WordChar,
         None
-    DECLARE_SPARK_ENUM_END()
+    SPARK_ENUM_END()
 }

@@ -7,7 +7,7 @@ namespace se::editor::ui::properties
 {
     class MapEditor : public PropertyEditor
     {
-    DECLARE_SPARK_CLASS(MapEditor)
+    SPARK_CLASS(MapEditor)
 
     public:
         void SetValue(void* value, const reflect::Type* type) override;

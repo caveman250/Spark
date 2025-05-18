@@ -167,7 +167,7 @@ def ProcessNativeClassInheritance(line, class_list, class_heirachy_map, namespac
         class_heirachy_map[GetFullClassName(class_name, namespace_stack)] = FindRealClassType(full_name, class_list, last_namespace_idx, using_namespace_stack)
 
 def ProcessClass(tag, line, class_stack, class_depth_stack, namespace_stack, current_scope_depth, filepath):
-    if tag == "DECLARE_SPARK_CLASS_TEMPLATED":
+    if tag == "SPARK_CLASS_TEMPLATED":
         return #templated classes auto gen not supported yet.
 
     start_index = len(tag) + 1
@@ -201,17 +201,17 @@ def ProcessClass(tag, line, class_stack, class_depth_stack, namespace_stack, cur
     namespace = Namespace.MakeNamespace(namespace_stack)
 
     class_type = ClassType.CLASS
-    if tag == "DECLARE_SPARK_CLASS":
+    if tag == "SPARK_CLASS":
         class_type = ClassType.CLASS
-    elif tag == "DECLARE_SPARK_SYSTEM":
+    elif tag == "SPARK_SYSTEM":
         class_type = ClassType.SYSTEM
-    elif tag == "DECLARE_SPARK_POD_CLASS":
+    elif tag == "SPARK_POD_CLASS":
         class_type = ClassType.POD_CLASS
-    elif tag == "DECLARE_SPARK_SINGLETON_COMPONENT":
+    elif tag == "SPARK_SINGLETON_COMPONENT":
         class_type = ClassType.SINGLETON_COMPONENT
-    elif tag == "DECLARE_SPARK_COMPONENT":
+    elif tag == "SPARK_COMPONENT":
         class_type = ClassType.COMPONENT
-    elif tag == "DECLARE_SPARK_WIDGET_COMPONENT":
+    elif tag == "SPARK_WIDGET_COMPONENT":
         class_type = ClassType.WIDGET_COMPONENT
 
     class_stack.append(Class(class_type, type, filepath, namespace, is_abstract, []))

@@ -13,7 +13,7 @@ namespace se::ui::systems
 {
 class TreeNodeSystem : public ecs::EngineSystem
     {
-        DECLARE_SPARK_SYSTEM(TreeNodeSystem)
+        SPARK_SYSTEM(TreeNodeSystem)
 
         void OnUpdate(const ecs::SystemUpdateData& updateData) override;
     };

@@ -6,7 +6,7 @@ namespace se::input
 {
     struct KeyEvent : reflect::ObjectBase
     {
-        DECLARE_SPARK_CLASS(KeyEvent)
+        SPARK_CLASS(KeyEvent)
 
         SPARK_MEMBER(Serialized)
         Key::Type key = {};

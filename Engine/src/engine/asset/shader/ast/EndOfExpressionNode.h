@@ -5,7 +5,7 @@ namespace se::asset::shader::ast
 {
     class EndOfExpressionNode : public ASTNode
     {
-        DECLARE_SPARK_CLASS(EndOfExpressionNode)
+        SPARK_CLASS(EndOfExpressionNode)
 
         std::string GetDebugString() const override;
         void ToGlsl(ShaderCompileContext& context, string::ArenaString& outShader) const override;

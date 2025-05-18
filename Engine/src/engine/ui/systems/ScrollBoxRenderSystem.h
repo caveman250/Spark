@@ -14,7 +14,7 @@ namespace se::ui::systems
 {
 class ScrollBoxRenderSystem : public ecs::EngineSystem
     {
-        DECLARE_SPARK_SYSTEM(ScrollBoxRenderSystem)
+        SPARK_SYSTEM(ScrollBoxRenderSystem)
     public:
         void OnRender(const ecs::SystemUpdateData& updateData) override;
     };

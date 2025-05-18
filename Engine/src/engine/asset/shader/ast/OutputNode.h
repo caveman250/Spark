@@ -7,7 +7,7 @@ namespace se::asset::shader::ast
 {
     class OutputNode : public ASTNode
     {
-        DECLARE_SPARK_CLASS(OutputNode)
+        SPARK_CLASS(OutputNode)
 
     public:
         OutputNode() = default;

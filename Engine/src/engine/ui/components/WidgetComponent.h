@@ -8,7 +8,7 @@ namespace se::ui::components
 {
     struct WidgetComponent : reflect::ObjectBase
     {
-        DECLARE_SPARK_COMPONENT(WidgetComponent)
+        SPARK_COMPONENT(WidgetComponent)
 
         bool parentRenderingEnabled = true;
         bool renderingEnabled = true;

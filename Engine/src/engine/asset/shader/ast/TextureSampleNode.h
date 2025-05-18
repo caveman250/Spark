@@ -7,7 +7,7 @@ namespace se::asset::shader::ast
 {
     class TextureSampleNode : public ASTNode
     {
-        DECLARE_SPARK_CLASS(TextureSampleNode)
+        SPARK_CLASS(TextureSampleNode)
     public:
         TextureSampleNode() {}
         TextureSampleNode(const std::string& samplerName, const std::string& uvVarName);

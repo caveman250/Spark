@@ -13,7 +13,7 @@ namespace se::asset
 {
     class Model : public Asset
     {
-        DECLARE_SPARK_CLASS(Model)
+        SPARK_CLASS(Model)
 
         static std::shared_ptr<Model> FromFBX(ofbx::IScene* fbxScene);
 

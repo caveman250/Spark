@@ -10,7 +10,7 @@ namespace se::ui::systems
     class UIRenderSystem
 : public ecs::EngineSystem
     {
-        DECLARE_SPARK_SYSTEM(UIRenderSystem)
+        SPARK_SYSTEM(UIRenderSystem)
 
     public:
         void OnRender(const ecs::SystemUpdateData& updateData) override;

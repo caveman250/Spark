@@ -8,7 +8,7 @@ namespace se::asset
 {
     struct StaticMesh : reflect::ObjectBase
     {
-        DECLARE_SPARK_CLASS(StaticMesh)
+        SPARK_CLASS(StaticMesh)
 
         SPARK_MEMBER(Serialized)
         std::vector<math::Vec3> vertices;

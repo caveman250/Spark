@@ -7,7 +7,7 @@ namespace se::asset::shader::ast
 {
     struct Variable : reflect::ObjectBase
     {
-        DECLARE_SPARK_CLASS(Variable)
+        SPARK_CLASS(Variable)
 
         Variable() = default;
         Variable(const Variable&) = default;

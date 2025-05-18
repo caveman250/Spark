@@ -6,7 +6,7 @@ namespace se::math
 {
     struct Vec3
     {
-        DECLARE_SPARK_POD_CLASS(Vec3)
+        SPARK_POD_CLASS(Vec3)
 
         Vec3() : x(0.f), y(0.f), z(0.f)
         {

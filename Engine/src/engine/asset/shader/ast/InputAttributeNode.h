@@ -8,7 +8,7 @@ namespace se::asset::shader::ast
 {
     class InputAttributeNode : public InputNode
     {
-        DECLARE_SPARK_CLASS(InputAttributeNode)
+        SPARK_CLASS(InputAttributeNode)
 
     public:
         InputAttributeNode() = default;

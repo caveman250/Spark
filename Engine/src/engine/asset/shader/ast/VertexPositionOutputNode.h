@@ -5,7 +5,7 @@ namespace se::asset::shader::ast
 {
     class VertexPositionOutputNode : public ASTNode
     {
-        DECLARE_SPARK_CLASS(VertexPositionOutputNode)
+        SPARK_CLASS(VertexPositionOutputNode)
 
         std::string GetDebugString() const override;
         void ToGlsl(ShaderCompileContext& context, string::ArenaString& outShader) const override;

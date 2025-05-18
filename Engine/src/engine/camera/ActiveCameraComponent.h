@@ -9,7 +9,7 @@ namespace se::camera
 {
     struct ActiveCameraComponent : reflect::ObjectBase
     {
-        DECLARE_SPARK_SINGLETON_COMPONENT(ActiveCameraComponent);
+        SPARK_SINGLETON_COMPONENT(ActiveCameraComponent);
 
         SPARK_MEMBER()
         math::Vec3 pos = math::Vec3(0, 2.f, 10.f);

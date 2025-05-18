@@ -12,7 +12,7 @@ namespace se::render::systems
 {
     class MeshRenderSystem : public ecs::EngineSystem
     {
-        DECLARE_SPARK_SYSTEM(MeshRenderSystem)
+        SPARK_SYSTEM(MeshRenderSystem)
     public:
         void OnUpdate(const ecs::SystemUpdateData& updateData) override;
         void OnRender(const ecs::SystemUpdateData& updateData) override;

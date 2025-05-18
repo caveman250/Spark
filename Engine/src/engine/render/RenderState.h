@@ -5,16 +5,16 @@
 
 namespace se::render
 {
-    DECLARE_SPARK_ENUM_BEGIN(DepthCompare, int)
+    SPARK_ENUM_BEGIN(DepthCompare, int)
         Less,
         LessEqual,
         Equal,
         Greater,
         GreaterEqual,
         None
-    DECLARE_SPARK_ENUM_END()
+    SPARK_ENUM_END()
 
-    DECLARE_SPARK_ENUM_BEGIN(BlendMode, int)
+    SPARK_ENUM_BEGIN(BlendMode, int)
         Zero,
         One,
         SrcColor,
@@ -26,16 +26,16 @@ namespace se::render
         DstAlpha,
         OneMinusDstAlpha,
         None
-    DECLARE_SPARK_ENUM_END()
+    SPARK_ENUM_END()
 
-    DECLARE_SPARK_ENUM_BEGIN(StencilFunc, int)
+    SPARK_ENUM_BEGIN(StencilFunc, int)
         Less,
         LessEqual,
         Equal,
         Greater,
         GreaterEqual,
         None
-    DECLARE_SPARK_ENUM_END()
+    SPARK_ENUM_END()
 
     struct RenderState
     {

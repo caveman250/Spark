@@ -7,10 +7,10 @@ namespace se::ecs
 {
     class Relationship;
 
-    DECLARE_SPARK_ENUM_BEGIN(ComponentMutability, int)
+    SPARK_ENUM_BEGIN(ComponentMutability, int)
         Immutable,
         Mutable,
-    DECLARE_SPARK_ENUM_END()
+    SPARK_ENUM_END()
 
     struct ComponentUsage
     {

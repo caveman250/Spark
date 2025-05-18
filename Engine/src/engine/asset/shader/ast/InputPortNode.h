@@ -7,7 +7,7 @@ namespace se::asset::shader::ast
 {
     class InputPortNode : public ASTNode
     {
-        DECLARE_SPARK_CLASS(InputPortNode)
+        SPARK_CLASS(InputPortNode)
 
     public:
         InputPortNode() = default;

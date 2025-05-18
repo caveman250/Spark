@@ -12,7 +12,7 @@ namespace se::ui::systems
 {
     class RootRectTransformSystem : public ecs::EngineSystem
     {
-        DECLARE_SPARK_SYSTEM(RootRectTransformSystem)
+        SPARK_SYSTEM(RootRectTransformSystem)
     public:
         void OnUpdate(const ecs::SystemUpdateData& updateData) override;
     };

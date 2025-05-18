@@ -5,7 +5,7 @@ namespace se::asset::shader::ast
 {
     class PropertyAccessNode : public ASTNode
     {
-        DECLARE_SPARK_CLASS(PropertyAccessNode)
+        SPARK_CLASS(PropertyAccessNode)
 
     public:
         PropertyAccessNode() {}

@@ -22,7 +22,7 @@ namespace se::ui::components
 {
     struct EditableTextComponent : reflect::ObjectBase
     {
-        DECLARE_SPARK_WIDGET_COMPONENT(EditableTextComponent)
+        SPARK_WIDGET_COMPONENT(EditableTextComponent)
 
         // text
         std::shared_ptr<asset::Font> font = { };

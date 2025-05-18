@@ -9,7 +9,7 @@ class ComponentFile:
     namespace: str
 
 def ProcessComponent(line, components, path, namespace_stack):
-    start_index = len("DECLARE_SPARK_COMPONENT") + 1
+    start_index = len("SPARK_COMPONENT") + 1
     end_index = len(line)
     type = ""
     for i in range(start_index, end_index):
@@ -20,7 +20,7 @@ def ProcessComponent(line, components, path, namespace_stack):
     components.append(ComponentFile(os.path.abspath(path), type, namespace))
 
 def ProcessSingletonComponent(line, components, path, namespace_stack):
-    start_index = len("DECLARE_SPARK_SINGLETON_COMPONENT") + 1
+    start_index = len("SPARK_SINGLETON_COMPONENT") + 1
     end_index = len(line)
     type = ""
     for i in range(start_index, end_index):

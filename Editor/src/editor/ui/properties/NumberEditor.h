@@ -18,7 +18,7 @@ namespace se::editor::ui::properties
     template <Number N>
     class NumberEditor : public PropertyEditor
     {
-        DECLARE_SPARK_CLASS_TEMPLATED(NumberEditor, N)
+        SPARK_CLASS_TEMPLATED(NumberEditor, N)
 
     public:
         void SetValue(void* value, const reflect::Type* type) override;

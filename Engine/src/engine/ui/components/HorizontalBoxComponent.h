@@ -14,7 +14,7 @@ namespace se::ui::components
 {
     struct HorizontalBoxComponent : reflect::ObjectBase
     {
-    DECLARE_SPARK_WIDGET_COMPONENT(HorizontalBoxComponent)
+    SPARK_WIDGET_COMPONENT(HorizontalBoxComponent)
 
         int spacing = 0;
         bool dirty = false;

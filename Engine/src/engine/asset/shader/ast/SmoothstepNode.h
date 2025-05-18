@@ -7,7 +7,7 @@ namespace se::asset::shader::ast
 {
     class SmoothstepNode : public ASTNode
     {
-    DECLARE_SPARK_CLASS(SmoothstepNode)
+    SPARK_CLASS(SmoothstepNode)
 
         std::string GetDebugString() const override;
         void ToGlsl(ShaderCompileContext& context, string::ArenaString& outShader) const override;

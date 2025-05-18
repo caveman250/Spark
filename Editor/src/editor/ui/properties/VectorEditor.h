@@ -7,7 +7,7 @@ namespace se::editor::ui::properties
 {
     class VectorEditor : public PropertyEditor
     {
-    DECLARE_SPARK_CLASS(VectorEditor)
+    SPARK_CLASS(VectorEditor)
 
     public:
         void SetValue(void* value, const reflect::Type* type) override;

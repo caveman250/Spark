@@ -16,11 +16,11 @@ namespace se
 
 namespace se::render::commands
 {
-    DECLARE_SPARK_ENUM_BEGIN(RenderStage, int)
+    SPARK_ENUM_BEGIN(RenderStage, int)
         Clear,
         Scene,
         UI
-    DECLARE_SPARK_ENUM_END()
+    SPARK_ENUM_END()
 
     class RenderCommand
     {

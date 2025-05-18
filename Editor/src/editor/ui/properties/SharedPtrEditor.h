@@ -7,7 +7,7 @@ namespace se::editor::ui::properties
 {
     class SharedPtrEditor : public PropertyEditor
     {
-    DECLARE_SPARK_CLASS(SharedPtrEditor)
+    SPARK_CLASS(SharedPtrEditor)
 
     public:
         void SetValue(void* value, const reflect::Type* type) override;

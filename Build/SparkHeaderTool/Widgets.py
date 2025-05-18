@@ -3,7 +3,7 @@ import Components
 import os
 
 def ProcessWidget(line, widget_list, path, namespace_stack, components):
-    start_index = len("DECLARE_SPARK_WIDGET_COMPONENT") + 1
+    start_index = len("SPARK_WIDGET_COMPONENT") + 1
     end_index = len(line)
     type = ""
     namespace = Namespace.MakeNamespace(namespace_stack)
