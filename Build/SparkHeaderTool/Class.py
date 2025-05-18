@@ -369,7 +369,7 @@ def WriteClassFiles(classes, base_class_map):
         init_members_cpp_content += f"#include \"{class_obj.path}\"\n"
     init_members_cpp_content += "\nnamespace se\n{\nvoid InitClassReflection()\n{\n"
     for full_name, class_obj in classes.items():
-        init_members_cpp_content += full_name + "::InitMembers();\n"
+        init_members_cpp_content += "    " + full_name + "::InitMembers();\n"
     init_members_cpp_content += "}\n}"
 
     output_path = output_dir + "Classes.generated.cpp"
