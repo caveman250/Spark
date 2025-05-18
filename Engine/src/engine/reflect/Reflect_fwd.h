@@ -10,7 +10,6 @@ namespace se::reflect
     struct Class;
 
 /// Class ///
-
 #define DECLARE_SPARK_POD_CLASS(Type) \
 public:               \
 static size_t s_StaticId;                         \
@@ -178,45 +177,4 @@ enum Type : type\
 #define DECLARE_SPARK_ENUM_END()\
 };\
 };
-
-#define DEFINE_SPARK_ENUM_BEGIN(type) \
-DEFINE_SPARK_TYPE(type)                                      \
-std::string type::ToString(type::Type val) {\
-se::reflect::Enum* enumReflection = se::reflect::EnumResolver<type>::get();\
-return enumReflection->ToString(val);\
-}\
-type::Type type::FromString(const std::string& str) {\
-se::reflect::Enum* enumReflection = se::reflect::EnumResolver<type>::get();\
-return static_cast<type::Type>(enumReflection->FromString(str));\
-}\
-    namespace se::reflect {\
-    template <>\
-    Type* getPrimitiveDescriptor<type::Type>()\
-    {\
-        return TypeResolver<type>::get();\
-    }\
-}\
-size_t type::ValuesCount() {\
-se::reflect::Enum* enumReflection = se::reflect::EnumResolver<type>::get();\
-return enumReflection->values.size();\
-}\
-se::reflect::Enum* type::GetReflection() { \
-static se::reflect::Enum* s_Instance = nullptr;\
-if (!s_Instance)\
-{\
-s_Instance = new se::reflect::Enum();\
-se::reflect::TypeLookup::GetTypeMap()[#type] = s_Instance;\
-using VarType = type; \
-s_Instance->name = #type; \
-s_Instance->size = sizeof(VarType); \
-s_Instance->values = {
-
-#define DEFINE_ENUM_VALUE(_enum, name) \
-{#name, _enum::name},
-
-#define DEFINE_SPARK_ENUM_END() \
-       };\
-    }\
-return s_Instance;\
-}
 }

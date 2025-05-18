@@ -1,10 +1,5 @@
 #include "RenderCommand.h"
 
-DEFINE_SPARK_ENUM_BEGIN(se::render::commands::RenderStage)
-    DEFINE_ENUM_VALUE(RenderStage, Scene)
-    DEFINE_ENUM_VALUE(RenderStage, UI)
-DEFINE_SPARK_ENUM_END()
-
 namespace se::render::commands
 {
     Clear::Clear(bool clearColour, bool clearDepth)

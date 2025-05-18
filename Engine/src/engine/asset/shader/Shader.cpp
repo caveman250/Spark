@@ -1,11 +1,6 @@
 #include "Shader.h"
 #include "ast/MainNode.h"
 
-DEFINE_SPARK_ENUM_BEGIN(se::asset::ShaderType)
-    DEFINE_ENUM_VALUE(ShaderType, Vertex)
-    DEFINE_ENUM_VALUE(ShaderType, Fragment)
-DEFINE_SPARK_ENUM_END()
-
 namespace se::asset
 {
     void Shader::AddInputPort(const std::shared_ptr<shader::ast::InputPortNode>& node)

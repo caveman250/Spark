@@ -5,6 +5,7 @@ import Widgets
 import Components
 import Namespace
 import Class
+import Enum
 
 def ProcessHeaders():
     components = []
@@ -13,6 +14,7 @@ def ProcessHeaders():
 
     print("-- -- First pass, collect classes.")
     class_list = []
+    enum_list = []
     # first pass, collect all classes in their actual namespace so we cna look them up later when resolving inheritance.
     for dir in source_dirs:
         for root, dirs, files in os.walk(dir):
@@ -97,6 +99,8 @@ def ProcessHeaders():
                                 Class.ProcessMember(line, lines[i + 1], class_stack, namespace_stack, class_list, using_namespace_stack)
                             elif line.startswith("class "):
                                 Class.ProcessNativeClassInheritance(line, class_list, class_heirachy_map, namespace_stack, using_namespace_stack)
+                            elif line.startswith("DECLARE_SPARK_ENUM_BEGIN"):
+                                Enum.ProcessEnum(line, enum_list, lines, i, namespace_stack, root + "/" + file_path)
 
                             for char in line:
                                 if char == "{":
@@ -114,6 +118,7 @@ def ProcessHeaders():
     Widgets.WriteWidgetHeader(widgets)
     Components.WriteComponentRegistrationFiles(components)
     Class.WriteClassFiles(finalised_reflected_classes, class_heirachy_map)
+    Enum.WriteEnumFiles(enum_list)
 if __name__ == '__main__':
     print("-- Running Spark Header Tool...")
     ProcessHeaders()

@@ -9,8 +9,6 @@
 #include "opengl/OpenGLRenderer.h"
 #include "FrameBuffer.h"
 
-DEFINE_SPARK_ENUM_BEGIN(se::render::RenderAPI)DEFINE_ENUM_VALUE(RenderAPI, OpenGL) DEFINE_ENUM_VALUE(RenderAPI, Metal)DEFINE_SPARK_ENUM_END()
-
 namespace se::render
 {
     Renderer *Renderer::s_Renderer = nullptr;

@@ -9,11 +9,6 @@
 #include "engine/ui/components/VerticalBoxComponent.h"
 #include "engine/ui/text/WrapMode.h"
 
-DEFINE_SPARK_ENUM_BEGIN(se::editor::ui::properties::PropertyTitleMode)
-    DEFINE_ENUM_VALUE(PropertyTitleMode, Inline)
-    DEFINE_ENUM_VALUE(PropertyTitleMode, NextLine)
-DEFINE_SPARK_ENUM_END()
-
 namespace se::ui::components
 {
     struct WidgetComponent;

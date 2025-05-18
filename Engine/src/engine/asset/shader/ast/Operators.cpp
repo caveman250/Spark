@@ -1,22 +1,5 @@
 #include "Operators.h"
 
-DEFINE_SPARK_ENUM_BEGIN(se::asset::shader::ast::OperatorType)
-    DEFINE_ENUM_VALUE(OperatorType, Multiply)
-    DEFINE_ENUM_VALUE(OperatorType, MultiplyEquals)
-    DEFINE_ENUM_VALUE(OperatorType, Divide)
-    DEFINE_ENUM_VALUE(OperatorType, DivideEquals)
-    DEFINE_ENUM_VALUE(OperatorType, Add)
-    DEFINE_ENUM_VALUE(OperatorType, AddEquals)
-    DEFINE_ENUM_VALUE(OperatorType, Subtract)
-    DEFINE_ENUM_VALUE(OperatorType, SubtractEquals)
-    DEFINE_ENUM_VALUE(OperatorType, Equals)
-    DEFINE_ENUM_VALUE(OperatorType, Compare)
-    DEFINE_ENUM_VALUE(OperatorType, Less)
-    DEFINE_ENUM_VALUE(OperatorType, LessEquals)
-    DEFINE_ENUM_VALUE(OperatorType, Greater)
-    DEFINE_ENUM_VALUE(OperatorType, GreaterEquals)
-DEFINE_SPARK_ENUM_END()
-
 namespace se::asset::shader::ast
 {
     std::map<OperatorType::Type, uint8_t> OperatorUtil::s_OperatorPriorities =
