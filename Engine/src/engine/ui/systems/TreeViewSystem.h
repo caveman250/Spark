@@ -12,7 +12,7 @@ namespace se::ui::systems
 {
     class TreeViewSystem : public ecs::EngineSystem
     {
-        SPARK_SYSTEM(TreeViewSystem)
+        SPARK_SYSTEM()
 
         void OnUpdate(const ecs::SystemUpdateData& updateData) override;
     private:

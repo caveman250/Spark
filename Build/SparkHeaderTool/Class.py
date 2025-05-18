@@ -27,6 +27,7 @@ class Class:
     namespace: str
     abstract: bool
     members: list
+    is_reflected: bool
 
 def GetFullClassName(class_name, namespace_stack):
     if "::" not in class_name:
@@ -58,8 +59,12 @@ def GetFullClassName(class_name, namespace_stack):
     else:
         return class_name
 
-def ProcessNativeClass(line, namespace_stack, class_list):
-    start_index = len("class") + 1
+def ProcessNativeClass(tag, line, namespace_stack, class_list):
+    # ignore forward decs
+    if line.endswith(";"):
+        return
+
+    start_index = len(tag) + 1
     end_index = len(line)
     class_name = ""
     num_open_template_params = 0
@@ -74,8 +79,9 @@ def ProcessNativeClass(line, namespace_stack, class_list):
             break
         class_name += line[i]
 
-    if len(class_name) > 0:
-        class_list.append(GetFullClassName(class_name, namespace_stack))
+    if class_list is not None and len(class_name) > 0:
+        if class_list is not None:
+            class_list.append(GetFullClassName(class_name, namespace_stack))
 
 def RemoveNamespaceAtIndex(type, index):
     split = type.split("::")
@@ -114,8 +120,12 @@ def CountNamespaces(namespace_str):
     split = namespace_str.split("::")
     return len(split)
 
-def ProcessNativeClassInheritance(line, class_list, class_heirachy_map, namespace_stack, using_namespace_stack):
-    start_index = len("class") + 1
+def ProcessNativeClassInheritance(tag, line, class_list, class_heirachy_map, namespace_stack, using_namespace_stack, class_stack, class_depth_stack, current_scope_depth, filepath):
+    # ignore forward decs
+    if line.endswith(";"):
+        return
+
+    start_index = len(tag) + 1
     end_index = len(line)
     num_open_template_params = 0
     has_started_super = False
@@ -166,39 +176,32 @@ def ProcessNativeClassInheritance(line, class_list, class_heirachy_map, namespac
         full_name = GetFullClassName(super_name, namespace_stack)
         class_heirachy_map[GetFullClassName(class_name, namespace_stack)] = FindRealClassType(full_name, class_list, last_namespace_idx, using_namespace_stack)
 
-def ProcessClass(tag, line, class_stack, class_depth_stack, namespace_stack, current_scope_depth, filepath):
+    if len(class_name) > 0:
+        class_stack.append(Class(ClassType.CLASS, class_name, filepath, Namespace.MakeNamespace(namespace_stack), False, [], False))
+        class_depth_stack.append(current_scope_depth + 1)
+
+def ProcessClass(tag, line, class_stack):
     if tag == "SPARK_CLASS_TEMPLATED":
         return #templated classes auto gen not supported yet.
 
     start_index = len(tag) + 1
     end_index = len(line)
-    type = ""
-    started_processing_decorators = False
     current_decorator = ""
     decorators = []
     for i in range(start_index, end_index):
         if line[i] == " ":
             continue
         if line[i] == ',':
-            if not started_processing_decorators:
-                started_processing_decorators = True
-                continue
-            else:
-                decorators.append(current_decorator)
-                current_decorator = ""
+            decorators.append(current_decorator)
+            current_decorator = ""
 
         if line[i] == ")":
-            if started_processing_decorators:
-                decorators.append(current_decorator)
+            decorators.append(current_decorator)
             break
 
-        if started_processing_decorators:
-            current_decorator += line[i]
-        else:
-            type += line[i]
+        current_decorator += line[i]
 
     is_abstract = decorators.count("Abstract") > 0
-    namespace = Namespace.MakeNamespace(namespace_stack)
 
     class_type = ClassType.CLASS
     if tag == "SPARK_CLASS":
@@ -214,8 +217,10 @@ def ProcessClass(tag, line, class_stack, class_depth_stack, namespace_stack, cur
     elif tag == "SPARK_WIDGET_COMPONENT":
         class_type = ClassType.WIDGET_COMPONENT
 
-    class_stack.append(Class(class_type, type, filepath, namespace, is_abstract, []))
-    class_depth_stack.append(current_scope_depth)
+    class_stack[-1].type = class_type
+    class_stack[-1].abstract = is_abstract
+    class_stack[-1].is_reflected = True
+
 
 def ProcessMember(line, next_line, class_stack, namespace_stack, class_list, using_namespace_stack):
     start_index = len("SPARK_MEMBER") + 1
@@ -277,6 +282,26 @@ def GetFullnameFromClassObject(class_obj: Class):
 
 def DefineAbstractClassBegin(class_name):
     return f"""DEFINE_SPARK_TYPE({class_name})
+    reflect::Type* {class_name}::GetReflectType() const
+    {{
+        return reflect::TypeResolver<{class_name}>::get();
+    }}
+    void {class_name}::Serialize(const void* obj, asset::binary::Object& parentObj, const std::string& fieldName)
+    {{
+        reflect::TypeResolver<{class_name}>::get()->Serialize(obj, parentObj, fieldName);
+    }}
+    void {class_name}::Deserialize(void* obj, asset::binary::Object& parentObj, const std::string& fieldName)
+    {{
+        reflect::TypeResolver<{class_name}>::get()->Deserialize(obj, parentObj, fieldName);
+    }}
+    asset::binary::StructLayout {class_name}::GetStructLayout(const void*) const
+    {{
+        return reflect::TypeResolver<{class_name}>::get()->GetStructLayout(nullptr);
+    }}
+    std::string {class_name}::GetTypeName() const
+    {{
+        return reflect::TypeResolver<{class_name}>::get()->GetTypeName(nullptr);
+    }}
     se::reflect::Class* {class_name}::GetReflection()
     {{
         static se::reflect::Class* s_Reflection = nullptr;
@@ -300,8 +325,30 @@ def DefineAbstractClassBegin(class_name):
         GetReflection()->members =
         {{"""
 
-def DefineClassBeginCommon(class_name):
-    return f"""    se::reflect::Class* {class_name}::GetReflection() 
+def DefineClassBeginCommon(class_name, is_pod):
+    ret = ""
+    if not is_pod:
+        ret += f"""    reflect::Type* {class_name}::GetReflectType() const
+    {{
+        return reflect::TypeResolver<{class_name}>::get();
+    }}
+    void {class_name}::Serialize(const void* obj, asset::binary::Object& parentObj, const std::string& fieldName)
+    {{
+        reflect::TypeResolver<{class_name}>::get()->Serialize(obj, parentObj, fieldName);
+    }}
+    void {class_name}::Deserialize(void* obj, asset::binary::Object& parentObj, const std::string& fieldName)
+    {{
+        reflect::TypeResolver<{class_name}>::get()->Deserialize(obj, parentObj, fieldName);
+    }}
+    asset::binary::StructLayout {class_name}::GetStructLayout(const void*) const
+    {{
+        return reflect::TypeResolver<{class_name}>::get()->GetStructLayout(nullptr);
+    }}
+    std::string {class_name}::GetTypeName() const
+    {{
+        return reflect::TypeResolver<{class_name}>::get()->GetTypeName(nullptr);
+    }}\n"""
+    ret += f"""se::reflect::Class* {class_name}::GetReflection() 
     {{
         static se::reflect::Class* s_Reflection = nullptr;
         if (!s_Reflection)
@@ -323,9 +370,10 @@ def DefineClassBeginCommon(class_name):
     {{
         GetReflection()->members = 
         {{\n"""
+    return ret
 
 def DefineClassBegin(class_name):
-    return f"    DEFINE_SPARK_TYPE({class_name})\n" + DefineClassBeginCommon(class_name)
+    return f"    DEFINE_SPARK_TYPE({class_name})\n" + DefineClassBeginCommon(class_name, False)
 
 def DefineClassEnd(class_name):
     return f"""        }};
@@ -336,10 +384,10 @@ def DefineClassEnd(class_name):
 """
 
 def DefinePODClassBegin(class_name):
-    return f"    size_t {class_name}::s_StaticId = typeid({class_name}).hash_code();\n" + DefineClassBeginCommon(class_name)
+    return f"    size_t {class_name}::s_StaticId = typeid({class_name}).hash_code();\n" + DefineClassBeginCommon(class_name, True)
 
 def DefineComponentBegin(class_name):
-    return f"    DEFINE_SPARK_TYPE({class_name})\nse::ecs::Id {class_name}::s_ComponentId = {{}};" + DefineClassBeginCommon(class_name)
+    return f"    DEFINE_SPARK_TYPE({class_name})\nse::ecs::Id {class_name}::s_ComponentId = {{}};" + DefineClassBeginCommon(class_name, False)
 
 def DefineSystem(class_name):
     return DefineClassBegin(class_name) + DefineClassEnd(class_name)
@@ -366,10 +414,12 @@ def WriteClassFiles(classes, base_class_map):
 
     init_members_cpp_content = "#include \"spark.h\"\n"
     for full_name, class_obj in classes.items():
-        init_members_cpp_content += f"#include \"{class_obj.path}\"\n"
+        if class_obj.is_reflected:
+            init_members_cpp_content += f"#include \"{class_obj.path}\"\n"
     init_members_cpp_content += "\nnamespace se\n{\nvoid InitClassReflection()\n{\n"
     for full_name, class_obj in classes.items():
-        init_members_cpp_content += "    " + full_name + "::InitMembers();\n"
+        if class_obj.is_reflected:
+            init_members_cpp_content += "    " + full_name + "::InitMembers();\n"
     init_members_cpp_content += "}\n}"
 
     output_path = output_dir + "Classes.generated.cpp"
@@ -385,66 +435,68 @@ def WriteClassFiles(classes, base_class_map):
         output_handle.close()
 
     for full_name, classobj in classes.items():
-        contents = f"#include \"spark.h\"\n#include \"engine/reflect/Reflect.h\"\n#include \"{classobj.path}\"\n"
+        reflected_str = "reflected" if classobj.is_reflected else "not reflected"
+        if classobj.is_reflected:
+            contents = f"#include \"spark.h\"\n#include \"engine/reflect/Reflect.h\"\n#include \"{classobj.path}\"\n"
 
-        includes = []
-        current_type = full_name
-        while current_type in classes:
-            class_obj = classes[current_type]
-            for member in class_obj.members:
-                if member.full_type_name in classes:
-                    if includes.count(classes[member.full_type_name].path) == 0:
-                        includes.append(classes[member.full_type_name].path)
-            if current_type in base_class_map:
-                current_type = base_class_map[current_type]
-            else:
-                break
-
-        includes.sort()
-        for include in includes:
-            contents += f"#include \"{include}\"\n"
-
-        contents += f"\nnamespace {classobj.namespace}\n{{\n"
-
-        if classobj.type == ClassType.CLASS:
-            if classobj.abstract:
-                contents += DefineAbstractClassBegin(classobj.name)
-            else:
-                contents += DefineClassBegin(classobj.name)
-        elif classobj.type == ClassType.SYSTEM:
-            contents += DefineSystem(classobj.name)
-        elif classobj.type == ClassType.POD_CLASS:
-            contents += DefinePODClassBegin(classobj.name)
-        elif classobj.type ==  ClassType.COMPONENT:
-            contents += DefineComponentBegin(classobj.name)
-        elif classobj.type == ClassType.WIDGET_COMPONENT:
-            contents += DefineComponentBegin(classobj.name)
-        elif classobj.type == ClassType.SINGLETON_COMPONENT:
-            contents += DefineComponentBegin(classobj.name)
-
-        if classobj.type != ClassType.SYSTEM:
+            includes = []
             current_type = full_name
             while current_type in classes:
                 class_obj = classes[current_type]
                 for member in class_obj.members:
-                    contents += DefineMember(classobj.name, member.name, member.serialized)
+                    if member.full_type_name in classes:
+                        if includes.count(classes[member.full_type_name].path) == 0:
+                            includes.append(classes[member.full_type_name].path)
                 if current_type in base_class_map:
                     current_type = base_class_map[current_type]
                 else:
                     break
 
-            contents += DefineClassEnd(classobj.name)
+            includes.sort()
+            for include in includes:
+                contents += f"#include \"{include}\"\n"
 
-        
-        namespace_text = classobj.namespace.replace("::", "_")
-        output_path = output_dir + f"{namespace_text}_{classobj.name}.generated.cpp"
-        existing_contents = ""
-        if os.path.isfile(output_path):
-            input_handle = open(output_path, "r")
-            existing_contents = input_handle.read()
-            input_handle.close()
-        if existing_contents != contents:
-            print(f"-- -- {namespace_text}_{classobj.name}.generated.h generating...")
-            output_handle = open(output_path, "w+")
-            output_handle.write(contents)
-            output_handle.close()
+            contents += f"\nnamespace {classobj.namespace}\n{{\n"
+
+            if classobj.type == ClassType.CLASS:
+                if classobj.abstract:
+                    contents += DefineAbstractClassBegin(classobj.name)
+                else:
+                    contents += DefineClassBegin(classobj.name)
+            elif classobj.type == ClassType.SYSTEM:
+                contents += DefineSystem(classobj.name)
+            elif classobj.type == ClassType.POD_CLASS:
+                contents += DefinePODClassBegin(classobj.name)
+            elif classobj.type ==  ClassType.COMPONENT:
+                contents += DefineComponentBegin(classobj.name)
+            elif classobj.type == ClassType.WIDGET_COMPONENT:
+                contents += DefineComponentBegin(classobj.name)
+            elif classobj.type == ClassType.SINGLETON_COMPONENT:
+                contents += DefineComponentBegin(classobj.name)
+
+            if classobj.type != ClassType.SYSTEM:
+                current_type = full_name
+                while current_type in classes:
+                    class_obj = classes[current_type]
+                    for member in class_obj.members:
+                        contents += DefineMember(classobj.name, member.name, member.serialized)
+                    if current_type in base_class_map:
+                        current_type = base_class_map[current_type]
+                    else:
+                        break
+
+                contents += DefineClassEnd(classobj.name)
+
+
+            namespace_text = classobj.namespace.replace("::", "_")
+            output_path = output_dir + f"{namespace_text}_{classobj.name}.generated.cpp"
+            existing_contents = ""
+            if os.path.isfile(output_path):
+                input_handle = open(output_path, "r")
+                existing_contents = input_handle.read()
+                input_handle.close()
+            if existing_contents != contents:
+                print(f"-- -- {namespace_text}_{classobj.name}.generated.h generating...")
+                output_handle = open(output_path, "w+")
+                output_handle.write(contents)
+                output_handle.close()

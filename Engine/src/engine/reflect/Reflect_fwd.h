@@ -17,53 +17,38 @@ static constexpr bool s_IsPOD = true;\
 static ::se::reflect::Class* GetReflection(); \
 static void InitMembers();
 
-#define SPARK_CLASS(type, ...) \
+#define SPARK_CLASS(...) \
 public:               \
 static size_t s_StaticId;                          \
 static constexpr bool s_IsPOD = false;\
-virtual reflect::Type* GetReflectType() const override\
-{\
-return reflect::TypeResolver<type>::get();\
-}\
-virtual void Serialize(const void* obj, asset::binary::Object& parentObj, const std::string& fieldName) override\
-{\
-reflect::TypeResolver<type>::get()->Serialize(obj, parentObj, fieldName);\
-}\
-virtual void Deserialize(void* obj, asset::binary::Object& parentObj, const std::string& fieldName) override\
-{\
-reflect::TypeResolver<type>::get()->Deserialize(obj, parentObj, fieldName);\
-}\
-virtual asset::binary::StructLayout GetStructLayout(const void*) const override\
-{\
-return reflect::TypeResolver<type>::get()->GetStructLayout(nullptr);\
-}\
-virtual std::string GetTypeName() const override\
-{\
-return reflect::TypeResolver<type>::get()->GetTypeName(nullptr);\
-}\
+virtual reflect::Type* GetReflectType() const override;\
+virtual void Serialize(const void* obj, asset::binary::Object& parentObj, const std::string& fieldName) override;\
+virtual void Deserialize(void* obj, asset::binary::Object& parentObj, const std::string& fieldName) override;\
+virtual asset::binary::StructLayout GetStructLayout(const void*) const override;\
+virtual std::string GetTypeName() const override;\
 static se::reflect::Class* GetReflection(); \
 static void InitMembers();
 
-#define SPARK_COMPONENT(Type) \
-SPARK_CLASS(Type)     \
+#define SPARK_COMPONENT(...) \
+SPARK_CLASS()     \
 static se::ecs::Id s_ComponentId;\
 static se::ecs::Id GetComponentId() { SPARK_ASSERT(s_ComponentId != static_cast<uint64_t>(0), "GetComponentId called before RegisterComponent"); return s_ComponentId; } \
 static constexpr bool IsSingletonComponent() { return false; }
 
-#define SPARK_WIDGET_COMPONENT(Type) \
-SPARK_CLASS(Type)     \
+#define SPARK_WIDGET_COMPONENT(...) \
+SPARK_CLASS()     \
 static se::ecs::Id s_ComponentId;\
 static se::ecs::Id GetComponentId() { SPARK_ASSERT(s_ComponentId != static_cast<uint64_t>(0), "GetComponentId called before RegisterComponent"); return s_ComponentId; } \
 static constexpr bool IsSingletonComponent() { return false; }
 
-#define SPARK_SINGLETON_COMPONENT(Type) \
-SPARK_CLASS(Type)     \
+#define SPARK_SINGLETON_COMPONENT(...) \
+SPARK_CLASS()     \
 static se::ecs::Id s_ComponentId;\
 static se::ecs::Id GetComponentId() { return s_ComponentId; } \
 static constexpr bool IsSingletonComponent() { return true; }
 
-#define SPARK_SYSTEM(Type) \
-SPARK_CLASS(Type)
+#define SPARK_SYSTEM(...) \
+SPARK_CLASS()
 
 #define SPARK_CLASS_TEMPLATED(type, templateTypes) \
 public:               \

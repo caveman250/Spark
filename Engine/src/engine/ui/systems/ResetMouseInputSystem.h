@@ -15,7 +15,7 @@ namespace se::ui::systems
 {
     class ResetMouseInputSystem : public ecs::EngineSystem
     {
-        SPARK_SYSTEM(ResetMouseInputSystem)
+        SPARK_SYSTEM()
     public:
         void OnUpdate(const ecs::SystemUpdateData& updateData) override;
     };

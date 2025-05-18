@@ -8,26 +8,14 @@ class ComponentFile:
     name: str
     namespace: str
 
-def ProcessComponent(line, components, path, namespace_stack):
-    start_index = len("SPARK_COMPONENT") + 1
-    end_index = len(line)
-    type = ""
-    for i in range(start_index, end_index):
-        if line[i] == ")":
-            break
-        type += line[i]
-    namespace = Namespace.MakeNamespace(namespace_stack)
+def ProcessComponent(components, path, class_stack):
+    type = class_stack[-1].name
+    namespace = class_stack[-1].namespace
     components.append(ComponentFile(os.path.abspath(path), type, namespace))
 
-def ProcessSingletonComponent(line, components, path, namespace_stack):
-    start_index = len("SPARK_SINGLETON_COMPONENT") + 1
-    end_index = len(line)
-    type = ""
-    for i in range(start_index, end_index):
-        if line[i] == ")":
-            break
-        type += line[i]
-    namespace = Namespace.MakeNamespace(namespace_stack)
+def ProcessSingletonComponent(components, path, class_stack):
+    type = class_stack[-1].name
+    namespace = class_stack[-1].namespace
     components.append(ComponentFile(os.path.abspath(path), type, namespace))
 
 def WriteComponentRegistrationFiles(components):

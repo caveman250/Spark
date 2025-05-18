@@ -11,7 +11,7 @@ namespace se::ui::systems
 {
     class WidgetVisibilitySystem : public ecs::EngineSystem
     {
-    SPARK_SYSTEM(WidgetVisibilitySystem)
+    SPARK_SYSTEM()
     public:
         void OnUpdate(const ecs::SystemUpdateData& updateData) override;
     };

@@ -16,7 +16,7 @@ namespace se::ui::components
 {
     struct TitleBarComponent : reflect::ObjectBase
     {
-        SPARK_WIDGET_COMPONENT(TitleBarComponent)
+        SPARK_WIDGET_COMPONENT()
 
         bool pressed = false;
         ecs::Signal<float, float> onMove = {};

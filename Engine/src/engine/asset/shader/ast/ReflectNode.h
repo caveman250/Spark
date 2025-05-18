@@ -7,7 +7,7 @@ namespace se::asset::shader::ast
 {
     class ReflectNode : public ASTNode
     {
-        SPARK_CLASS(ReflectNode)
+        SPARK_CLASS()
 
         std::string GetDebugString() const override;
         void ToGlsl(ShaderCompileContext& context, string::ArenaString& outShader) const override;

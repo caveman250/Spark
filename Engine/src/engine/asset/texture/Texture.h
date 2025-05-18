@@ -19,7 +19,7 @@ namespace se::asset
 {
     class Texture : public Asset
     {
-        SPARK_CLASS(Texture)
+        SPARK_CLASS()
 
     public:
         Texture();

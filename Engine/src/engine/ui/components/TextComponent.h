@@ -24,7 +24,7 @@ namespace se::ui::components
 {
     struct TextComponent : reflect::ObjectBase
     {
-        SPARK_WIDGET_COMPONENT(TextComponent)
+        SPARK_WIDGET_COMPONENT()
 
         std::shared_ptr<asset::Font> font = {};
 

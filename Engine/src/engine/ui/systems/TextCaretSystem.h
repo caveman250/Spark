@@ -7,7 +7,7 @@ namespace se::ui::systems
 {
     class TextCaretSystem : public ecs::EngineSystem
     {
-        SPARK_SYSTEM(TextCaretSystem)
+        SPARK_SYSTEM()
 
     public:
         void OnUpdate(const ecs::SystemUpdateData& updateData) override;

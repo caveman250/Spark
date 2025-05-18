@@ -8,7 +8,7 @@ namespace se::asset
 {
     class Asset : public reflect::ObjectBase
     {
-        SPARK_CLASS(Asset)
+        SPARK_CLASS()
 
         String m_Path = {};
     };

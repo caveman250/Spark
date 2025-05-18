@@ -15,7 +15,7 @@ namespace se::ui::systems
 {
     class UIKeyboardInputSystem : public ecs::EngineSystem
     {
-        SPARK_SYSTEM(UIKeyboardInputSystem)
+        SPARK_SYSTEM()
     public:
         void OnUpdate(const ecs::SystemUpdateData& updateData) override;
 

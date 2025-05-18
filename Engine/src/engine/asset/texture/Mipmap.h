@@ -7,7 +7,7 @@ namespace se::asset::texture
 {
     struct Mipmap : reflect::ObjectBase
     {
-        SPARK_CLASS(Mipmap)
+        SPARK_CLASS()
         Mipmap();
         Mipmap(memory::BinaryBlob m_Data, uint32_t sizeX, uint32_t sizeY);
 

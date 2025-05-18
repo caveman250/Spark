@@ -7,7 +7,7 @@ namespace se::asset::shader::ast
 {
     class NormalizeNode : public ASTNode
     {
-        SPARK_CLASS(NormalizeNode)
+        SPARK_CLASS()
 
         std::string GetDebugString() const override;
         void ToGlsl(ShaderCompileContext& context, string::ArenaString& outShader) const override;

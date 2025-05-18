@@ -10,7 +10,7 @@ namespace se::ui::systems
 {
     class HorizontalBoxSystem : public ecs::EngineSystem
     {
-    SPARK_SYSTEM(HorizontalBoxSystem)
+    SPARK_SYSTEM()
     public:
         void OnUpdate(const ecs::SystemUpdateData& updateData) override;
     };

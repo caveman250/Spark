@@ -11,7 +11,7 @@ namespace se::ecs::systems
 {
     class RootTransformSystem : public ecs::EngineSystem
     {
-        SPARK_SYSTEM(RootTransformSystem)
+        SPARK_SYSTEM()
     public:
         void OnUpdate(const SystemUpdateData& updateData) override;
     };

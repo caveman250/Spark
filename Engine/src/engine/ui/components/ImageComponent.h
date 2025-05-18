@@ -12,7 +12,7 @@ namespace se::ui::components
 {
     struct ImageComponent : reflect::ObjectBase
     {
-        SPARK_WIDGET_COMPONENT(ImageComponent)
+        SPARK_WIDGET_COMPONENT()
 
         std::shared_ptr<render::MaterialInstance> materialInstance = {};
         std::shared_ptr<render::VertexBuffer> vertBuffer = {};

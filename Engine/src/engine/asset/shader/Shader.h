@@ -48,7 +48,7 @@ namespace se::asset
 
     class Shader : public Asset
     {
-        SPARK_CLASS(Shader)
+        SPARK_CLASS()
 
         Shader() = default;
         Shader(const Shader& rhs);

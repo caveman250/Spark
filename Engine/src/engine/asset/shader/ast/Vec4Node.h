@@ -5,7 +5,7 @@ namespace se::asset::shader::ast
 {
     class Vec4Node : public ASTNode
     {
-        SPARK_CLASS(Vec4Node)
+        SPARK_CLASS()
 
         std::string GetDebugString() const override;
         void ToGlsl(ShaderCompileContext& context, string::ArenaString& outShader) const override;

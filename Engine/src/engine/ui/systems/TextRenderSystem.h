@@ -14,7 +14,7 @@ namespace se::ui::systems
     class TextRenderSystem
             : public ecs::EngineSystem
     {
-    SPARK_SYSTEM(TextRenderSystem)
+    SPARK_SYSTEM()
 
     public:
         void OnRender(const ecs::SystemUpdateData& updateData) override;

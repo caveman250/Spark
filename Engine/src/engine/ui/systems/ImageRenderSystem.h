@@ -15,7 +15,7 @@ namespace se::ui::systems
     class ImageRenderSystem
             : public ecs::EngineSystem
     {
-    SPARK_SYSTEM(ImageRenderSystem)
+    SPARK_SYSTEM()
 
     public:
         void OnRender(const ecs::SystemUpdateData& updateData) override;

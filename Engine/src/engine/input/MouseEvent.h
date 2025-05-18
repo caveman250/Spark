@@ -10,7 +10,7 @@ namespace se::input
 {
     struct MouseEvent : reflect::ObjectBase
     {
-        SPARK_CLASS(MouseEvent)
+        SPARK_CLASS()
 
         SPARK_MEMBER()
         MouseButton::Type button = {};

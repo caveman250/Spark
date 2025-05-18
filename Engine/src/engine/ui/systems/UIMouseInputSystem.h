@@ -15,7 +15,7 @@ namespace se::ui::systems
 {
     class UIMouseInputSystem : public ecs::EngineSystem
     {
-        SPARK_SYSTEM(UIMouseInputSystem)
+        SPARK_SYSTEM()
     public:
         void OnUpdate(const ecs::SystemUpdateData& updateData) override;
 

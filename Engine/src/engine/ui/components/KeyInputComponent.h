@@ -6,7 +6,7 @@ namespace se::ui::components
 {
     struct KeyInputComponent : reflect::ObjectBase
     {
-        SPARK_COMPONENT(KeyInputComponent)
+        SPARK_COMPONENT()
 
         SPARK_MEMBER()
         std::vector<input::KeyEvent> keyEvents;

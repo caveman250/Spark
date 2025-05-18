@@ -15,7 +15,7 @@ namespace se::ui::singleton_components
 {
     struct UIRenderComponent : reflect::ObjectBase
     {
-        SPARK_SINGLETON_COMPONENT(UIRenderComponent)
+        SPARK_SINGLETON_COMPONENT()
 
         std::unordered_map<ecs::Id, std::vector<render::commands::RenderCommand*>> entityPreRenderCommands;
         std::unordered_map<ecs::Id, std::vector<render::commands::RenderCommand*>> entityRenderCommands;

@@ -7,7 +7,7 @@ namespace se::asset::shader::ast
 {
     class DotNode : public ASTNode
     {
-        SPARK_CLASS(DotNode)
+        SPARK_CLASS()
 
         std::string GetDebugString() const override;
         void ToGlsl(ShaderCompileContext& context, string::ArenaString& outShader) const override;

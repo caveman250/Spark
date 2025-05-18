@@ -6,7 +6,7 @@ namespace se::ui::components
 {
     struct CollapsingHeaderComponent : reflect::ObjectBase
     {
-        SPARK_WIDGET_COMPONENT(CollapsingHeaderComponent)
+        SPARK_WIDGET_COMPONENT()
 
         ecs::Signal<bool> onCollapsed = {};
         bool collapsed = true;

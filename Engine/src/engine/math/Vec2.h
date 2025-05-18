@@ -7,7 +7,7 @@ namespace se::math
     struct IntVec2;
     struct Vec2
     {
-        SPARK_POD_CLASS(Vec2)
+        SPARK_POD_CLASS()
 
         Vec2() : x(0.f), y(0.f)
         {

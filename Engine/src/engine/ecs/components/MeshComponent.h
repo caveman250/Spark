@@ -15,7 +15,7 @@ namespace se::ecs::components
 {
     struct MeshComponent : reflect::ObjectBase
     {
-        SPARK_COMPONENT(MeshComponent)
+        SPARK_COMPONENT()
 
         MeshComponent() = default;
 

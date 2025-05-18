@@ -5,7 +5,7 @@ namespace se::ui
 {
     struct Anchors
     {
-        SPARK_POD_CLASS(Anchors)
+        SPARK_POD_CLASS()
 
         SPARK_MEMBER(Serialized)
         float left = 0.f;

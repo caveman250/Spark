@@ -8,7 +8,7 @@ namespace se::editor::ui::properties
 {
     class MainNodeEditor : public PropertyEditor
     {
-        SPARK_CLASS(MainNodeEditor)
+        SPARK_CLASS()
     public:
         void SetValue(void* value, const reflect::Type* type) override;
         void ConstructUI(const String& name, bool constructTitle, const se::ui::Anchors& anchors) override;

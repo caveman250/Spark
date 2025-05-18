@@ -8,6 +8,6 @@ namespace se::ecs::components
 {
     struct ParentComponent : reflect::ObjectBase
     {
-        SPARK_COMPONENT(ParentComponent)
+        SPARK_COMPONENT()
     };
 }

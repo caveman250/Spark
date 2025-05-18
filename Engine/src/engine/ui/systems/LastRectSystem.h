@@ -11,7 +11,7 @@ namespace se::ui::systems
 {
     class LastRectSystem : public ecs::EngineSystem
     {
-    SPARK_SYSTEM(LastRectSystem)
+    SPARK_SYSTEM()
     public:
         void OnUpdate(const ecs::SystemUpdateData& updateData) override;
     };

@@ -6,7 +6,7 @@ namespace se::ui
 {
     class FloatRect 
     {
-        SPARK_POD_CLASS(FloatRect)
+        SPARK_POD_CLASS()
 
         SPARK_MEMBER(Serialized)
         math::Vec2 topLeft;

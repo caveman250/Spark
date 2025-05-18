@@ -15,7 +15,7 @@ namespace se::ui::components
 {
     struct ButtonComponent : reflect::ObjectBase
     {
-        SPARK_WIDGET_COMPONENT(ButtonComponent)
+        SPARK_WIDGET_COMPONENT()
 
         bool pressed = false;
         bool hovered = false;

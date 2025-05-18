@@ -5,7 +5,7 @@ namespace se::asset::shader::ast
 {
     class AnonymousScopeNode : public ASTNode
     {
-        SPARK_CLASS(AnonymousScopeNode)
+        SPARK_CLASS()
         
         std::string GetDebugString() const override;
         void ToGlsl(ShaderCompileContext& context, string::ArenaString &outShader) const override;

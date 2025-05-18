@@ -9,7 +9,7 @@ namespace se::input
 {
     struct InputComponent : reflect::ObjectBase
     {
-        SPARK_SINGLETON_COMPONENT(InputComponent)
+        SPARK_SINGLETON_COMPONENT()
 
         InputComponent();
 

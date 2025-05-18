@@ -2,16 +2,10 @@ import Namespace
 import Components
 import os
 
-def ProcessWidget(line, widget_list, path, namespace_stack, components):
-    start_index = len("SPARK_WIDGET_COMPONENT") + 1
-    end_index = len(line)
-    type = ""
-    namespace = Namespace.MakeNamespace(namespace_stack)
-    for i in range(start_index, end_index):
-        if line[i] == ")":
-            widget_list.append(Components.ComponentFile(os.path.abspath(path), type, namespace))
-            break
-        type += line[i]
+def ProcessWidget(widget_list, path, class_stack, components):
+    type = class_stack[-1].name
+    namespace = class_stack[-1].namespace
+    widget_list.append(Components.ComponentFile(os.path.abspath(path), type, namespace))
     components.append(Components.ComponentFile(os.path.abspath(path), type, namespace))
 
 def IncludeWidgetFiles(widget_list):

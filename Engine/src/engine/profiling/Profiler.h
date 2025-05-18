@@ -7,7 +7,7 @@ namespace se::profiling
 {
     struct ProfileRecord : reflect::ObjectBase
     {
-        SPARK_CLASS(ProfileRecord)
+        SPARK_CLASS()
 
         ProfileRecord()
         {
@@ -32,7 +32,7 @@ namespace se::profiling
 
     struct ThreadRecord : reflect::ObjectBase
     {
-        SPARK_CLASS(ThreadRecord)
+        SPARK_CLASS()
 
         SPARK_MEMBER(Serialized)
         double duration = {};
@@ -49,7 +49,7 @@ namespace se::profiling
 
     struct FrameRecord : reflect::ObjectBase
     {
-        SPARK_CLASS(FrameRecord)
+        SPARK_CLASS()
 
         SPARK_MEMBER(Serialized)
         double duration = {};

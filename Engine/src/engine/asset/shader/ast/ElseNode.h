@@ -7,7 +7,7 @@ namespace se::asset::shader::ast
 {
     class ElseNode : public ASTNode
     {
-    SPARK_CLASS(ElseNode)
+    SPARK_CLASS()
 
         ElseNode() = default;
         ElseNode(const ElseNode& rhs);

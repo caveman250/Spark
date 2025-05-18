@@ -7,7 +7,7 @@ namespace se::asset::shader::ast
 {
     class LengthNode : public ASTNode
     {
-        SPARK_CLASS(LengthNode)
+        SPARK_CLASS()
 
         std::string GetDebugString() const override;
         void ToGlsl(ShaderCompileContext& context, string::ArenaString& outShader) const override;

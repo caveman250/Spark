@@ -12,7 +12,7 @@ namespace se::asset::shader::ast
 {
     class ForLoopNode : public ASTNode
     {
-        SPARK_CLASS(ForLoopNode)
+        SPARK_CLASS()
 
         ForLoopNode() = default;
         ForLoopNode(const ForLoopNode& rhs);

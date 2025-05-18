@@ -7,7 +7,7 @@ namespace se::ui::components
 {
     struct MouseInputComponent : reflect::ObjectBase
     {
-        SPARK_COMPONENT(MouseInputComponent)
+        SPARK_COMPONENT()
 
         SPARK_MEMBER()
         std::vector<input::MouseEvent> mouseEvents = {};

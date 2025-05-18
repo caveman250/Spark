@@ -16,7 +16,7 @@ namespace se::asset::shader::ast
 {
     class VariableReferenceNode : public ASTNode
     {
-        SPARK_CLASS(VariableReferenceNode)
+        SPARK_CLASS()
 
     public:
         VariableReferenceNode() = default;

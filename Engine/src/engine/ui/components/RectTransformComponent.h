@@ -10,7 +10,7 @@ namespace se::ui::components
 {
     struct RectTransformComponent : reflect::ObjectBase
     {
-        SPARK_COMPONENT(RectTransformComponent)
+        SPARK_COMPONENT()
 
         SPARK_MEMBER(Serialized)
         Anchors anchors = {};

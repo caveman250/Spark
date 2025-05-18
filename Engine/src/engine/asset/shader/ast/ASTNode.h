@@ -9,7 +9,7 @@ namespace se::asset::shader::ast
     struct ShaderCompileContext;
     class ASTNode : public reflect::ObjectBase
     {
-        SPARK_CLASS(ASTNode, Abstract)
+        SPARK_CLASS(Abstract)
     public:
         ASTNode() = default;
         virtual ~ASTNode() = default;

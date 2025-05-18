@@ -8,7 +8,7 @@ namespace se::ecs::components
 {
     struct TransformComponent : reflect::ObjectBase
     {
-        SPARK_COMPONENT(TransformComponent)
+        SPARK_COMPONENT()
 
         SPARK_MEMBER(Serialized)
         math::Vec3 pos = {};

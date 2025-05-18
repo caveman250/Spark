@@ -7,7 +7,7 @@ namespace se::input
 {
     class InputSystem : public ecs::EngineSystem
     {
-        SPARK_SYSTEM(InputSystem)
+        SPARK_SYSTEM()
 
         void OnUpdate(const ecs::SystemUpdateData &updateData) override;
     };

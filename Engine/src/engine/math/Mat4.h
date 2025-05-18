@@ -9,7 +9,7 @@ namespace se::math
 
     class Mat4
     {
-        SPARK_POD_CLASS(Mat4)
+        SPARK_POD_CLASS()
 
     public:
         Mat4();

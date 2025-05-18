@@ -9,7 +9,7 @@ namespace se::render::systems
 {
     class PointLightSystem : public ecs::EngineSystem
     {
-        SPARK_SYSTEM(PointLightSystem)
+        SPARK_SYSTEM()
 
         void OnUpdate(const ecs::SystemUpdateData& updateData) override;
     };

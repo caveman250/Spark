@@ -34,7 +34,9 @@ def ProcessHeaders():
                         for i in range(0, lineCount):
                             line = lines[i].strip()
                             if line.startswith("class "):
-                                Class.ProcessNativeClass(line, namespace_stack, class_list)
+                                Class.ProcessNativeClass("class", line, namespace_stack, class_list)
+                            if line.startswith("struct "):
+                                Class.ProcessNativeClass("struct", line, namespace_stack, class_list)
                             elif line.startswith("namespace"):
                                 Namespace.ProcessNamespace(line, namespace_stack, namespace_scope_depth_stack, current_scope_depth)
                             elif line.startswith("using namespace"):
@@ -77,28 +79,30 @@ def ProcessHeaders():
                         for i in range(0, lineCount):
                             line = lines[i].strip()
                             if line.startswith("SPARK_WIDGET_COMPONENT"):
-                                Widgets.ProcessWidget(line, widgets, path, namespace_stack, components)
-                                Class.ProcessClass("SPARK_WIDGET_COMPONENT", line, class_stack, class_depth_stack, namespace_stack, current_scope_depth, root + "/" + file_path)
+                                Widgets.ProcessWidget(widgets, path, class_stack, components)
+                                Class.ProcessClass("SPARK_WIDGET_COMPONENT", line, class_stack)
                             elif line.startswith("SPARK_COMPONENT"):
-                                Components.ProcessComponent(line, components, path, namespace_stack)
-                                Class.ProcessClass("SPARK_COMPONENT", line, class_stack, class_depth_stack, namespace_stack, current_scope_depth, root + "/" + file_path)
+                                Components.ProcessComponent(components, path, class_stack)
+                                Class.ProcessClass("SPARK_COMPONENT", line, class_stack)
                             elif line.startswith("SPARK_SINGLETON_COMPONENT"):
-                                Components.ProcessSingletonComponent(line, components, path, namespace_stack)
-                                Class.ProcessClass("SPARK_SINGLETON_COMPONENT", line, class_stack, class_depth_stack, namespace_stack, current_scope_depth, root + "/" + file_path)
+                                Components.ProcessSingletonComponent(components, path, class_stack)
+                                Class.ProcessClass("SPARK_SINGLETON_COMPONENT", line, class_stack)
                             elif line.startswith("namespace"):
                                 Namespace.ProcessNamespace(line, namespace_stack, namespace_scope_depth_stack, current_scope_depth)
                             elif line.startswith("using namespace"):
                                 Namespace.ProcessUsingNamespace(line, using_namespace_stack, using_namespace_scope_depth_stack, current_scope_depth)
                             elif line.startswith("SPARK_CLASS("):
-                                Class.ProcessClass("SPARK_CLASS", line, class_stack, class_depth_stack, namespace_stack, current_scope_depth, root + "/" + file_path)
+                                Class.ProcessClass("SPARK_CLASS", line, class_stack)
                             elif line.startswith("SPARK_POD_CLASS("):
-                                Class.ProcessClass("SPARK_POD_CLASS", line, class_stack, class_depth_stack, namespace_stack, current_scope_depth, root + "/" + file_path)
+                                Class.ProcessClass("SPARK_POD_CLASS", line, class_stack)
                             elif line.startswith("SPARK_SYSTEM("):
-                                Class.ProcessClass("SPARK_SYSTEM", line, class_stack, class_depth_stack, namespace_stack, current_scope_depth, root + "/" + file_path)
+                                Class.ProcessClass("SPARK_SYSTEM", line, class_stack)
                             elif line.startswith("SPARK_MEMBER") and i < lineCount - 1:
                                 Class.ProcessMember(line, lines[i + 1], class_stack, namespace_stack, class_list, using_namespace_stack)
                             elif line.startswith("class "):
-                                Class.ProcessNativeClassInheritance(line, class_list, class_heirachy_map, namespace_stack, using_namespace_stack)
+                                Class.ProcessNativeClassInheritance("class", line, class_list, class_heirachy_map, namespace_stack, using_namespace_stack, class_stack, class_depth_stack, current_scope_depth, root + "/" + file_path)
+                            elif line.startswith("struct "):
+                                Class.ProcessNativeClassInheritance("struct", line, class_list, class_heirachy_map, namespace_stack, using_namespace_stack, class_stack, class_depth_stack, current_scope_depth, root + "/" + file_path)
                             elif line.startswith("SPARK_ENUM_BEGIN"):
                                 Enum.ProcessEnum(line, enum_list, lines, i, namespace_stack, root + "/" + file_path)
 

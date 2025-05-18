@@ -14,7 +14,7 @@ namespace se::ui::systems
 {
     class TitleBarSystem : public ecs::EngineSystem
     {
-        SPARK_SYSTEM(TitleBarSystem)
+        SPARK_SYSTEM()
     public:
         void OnUpdate(const ecs::SystemUpdateData& updateData) override;
     };

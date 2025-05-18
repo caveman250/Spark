@@ -15,7 +15,7 @@ namespace se::ui::systems
 {
 class ScrollViewUpdateSystem : public ecs::EngineSystem
     {
-    SPARK_SYSTEM(ScrollViewUpdateSystem)
+    SPARK_SYSTEM()
     public:
         void OnUpdate(const ecs::SystemUpdateData& updateData) override;
     };
