@@ -13,10 +13,10 @@ namespace se::input
         SPARK_CLASS()
 
         SPARK_MEMBER()
-        MouseButton::Type button = {};
+        MouseButton button = {};
 
         SPARK_MEMBER()
-        KeyState::Type state = KeyState::Down;
+        KeyState state = KeyState::Down;
 
         SPARK_MEMBER()
         int scrollDelta = 0;

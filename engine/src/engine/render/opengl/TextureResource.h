@@ -20,8 +20,8 @@ namespace se::render::opengl
 
     private:
 
-        static GLuint TextureFormatToGLFormat(asset::texture::Format::Type format);
-        static GLuint TextureFormatToGLInternalFormat(asset::texture::Format::Type format);
+        static GLuint TextureFormatToGLFormat(asset::texture::Format format);
+        static GLuint TextureFormatToGLInternalFormat(asset::texture::Format format);
 
         GLuint m_ID;
     };

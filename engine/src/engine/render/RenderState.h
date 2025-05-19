@@ -39,11 +39,11 @@ namespace se::render
 
     struct RenderState
     {
-        DepthCompare::Type depthComp = DepthCompare::None;
-        BlendMode::Type srcBlend = BlendMode::One;
-        BlendMode::Type dstBlend = BlendMode::Zero;
+        DepthCompare depthComp = DepthCompare::None;
+        BlendMode srcBlend = BlendMode::One;
+        BlendMode dstBlend = BlendMode::Zero;
         uint32_t stencilWriteMask = 0x00;
-        StencilFunc::Type stencilFunc = StencilFunc::None;
+        StencilFunc stencilFunc = StencilFunc::None;
         uint32_t stencilReadMask = 0x00;
         bool lit = false;
     };

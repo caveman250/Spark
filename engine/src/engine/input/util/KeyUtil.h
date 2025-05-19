@@ -4,5 +4,5 @@
 
 namespace se::input::util
 {
-    bool IsModifierKey(Key::Type key);
+    bool IsModifierKey(Key key);
 }

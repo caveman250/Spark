@@ -16,7 +16,7 @@ namespace se::render
         virtual const void* GetValue() const = 0;
         virtual void SetValue(const void* val, int count) = 0;
 
-        asset::shader::ast::AstType::Type type;
+        asset::shader::ast::AstType type;
         int valueCount;
     };
 
@@ -35,7 +35,7 @@ namespace se::render
         ~UniformStorage();
 
         template <typename T>
-        void SetValue(const String& name, asset::shader::ast::AstType::Type type, int count, const T* value);
+        void SetValue(const String& name, asset::shader::ast::AstType type, int count, const T* value);
         void Apply(MaterialInstance* material);
         bool IsStale() const { return m_Stale; }
     private:
@@ -57,7 +57,7 @@ namespace se::render
     }
 
     template <typename T>
-    void UniformStorage::SetValue(const String& name, asset::shader::ast::AstType::Type type, int count, const T* value)
+    void UniformStorage::SetValue(const String& name, asset::shader::ast::AstType type, int count, const T* value)
     {
         if (m_Storage.contains(name))
         {

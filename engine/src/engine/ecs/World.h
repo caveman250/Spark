@@ -154,7 +154,7 @@ namespace se::ecs
         template<typename T>
         void RegisterComponent();
         template<typename T>
-        std::pair<Id, ComponentMutability::Type> CreateComponentUsagePair(ComponentMutability::Type type);
+        std::pair<Id, ComponentMutability> CreateComponentUsagePair(ComponentMutability type);
 
         template<typename T>
         bool HasComponent(const Id& entity);
@@ -316,7 +316,7 @@ namespace se::ecs
 
         std::vector<std::vector<Id>> m_AppSystemUpdateGroups = { };
         std::vector<std::vector<Id>> m_EngineSystemUpdateGroups = { };
-        UpdateMode::Type m_UpdateMode = UpdateMode::SingleThreaded;
+        UpdateMode m_UpdateMode = UpdateMode::SingleThreaded;
         std::mutex m_EntityMutex = { };
         std::mutex m_ComponentMutex = { };
         std::mutex m_SystemMutex = { };
@@ -416,7 +416,7 @@ namespace se::ecs
     }
 
     template<typename T>
-    std::pair<Id, ComponentMutability::Type> World::CreateComponentUsagePair(ComponentMutability::Type type)
+    std::pair<Id, ComponentMutability> World::CreateComponentUsagePair(ComponentMutability type)
     {
         return { T::GetComponentId(), type };
     }

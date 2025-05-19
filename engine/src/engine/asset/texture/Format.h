@@ -19,8 +19,8 @@ namespace se::asset::texture
         Read_RenderTarget,
     SPARK_ENUM_END()
 
-    bool IsCompressedFormat(Format::Type format);
-    size_t GetCompressedFormatBlockSize(Format::Type format);
-    size_t GetCompressedFormatBlockSizeBytes(Format::Type format);
-    size_t GetNumTextureChannels(Format::Type format);
+    bool IsCompressedFormat(Format format);
+    size_t GetCompressedFormatBlockSize(Format format);
+    size_t GetCompressedFormatBlockSizeBytes(Format format);
+    size_t GetNumTextureChannels(Format format);
 }

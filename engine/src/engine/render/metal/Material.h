@@ -18,8 +18,8 @@ namespace se::render::metal
         void DestroyPlatformResources() override;
 
     private:
-        void ApplyDepthStencil(DepthCompare::Type comp, StencilFunc::Type src, uint32_t writeMask, uint32_t readMask) override;
-        void ApplyBlendMode(BlendMode::Type src, BlendMode::Type dest) override;
+        void ApplyDepthStencil(DepthCompare comp, StencilFunc src, uint32_t writeMask, uint32_t readMask) override;
+        void ApplyBlendMode(BlendMode src, BlendMode dest) override;
 
         RenderPipelineStatePtr m_RenderPipelineState = nullptr;
         MTLDepthStencilStatePtr m_DepthStencilState = nullptr;

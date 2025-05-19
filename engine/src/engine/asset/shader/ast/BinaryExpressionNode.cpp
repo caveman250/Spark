@@ -2,7 +2,7 @@
 
 namespace se::asset::shader::ast
 {
-    BinaryExpressionNode::BinaryExpressionNode(OperatorType::Type opType)
+    BinaryExpressionNode::BinaryExpressionNode(OperatorType opType)
         : m_OpType(opType)
     {
 

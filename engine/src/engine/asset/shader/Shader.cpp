@@ -141,7 +141,7 @@ namespace se::asset
         return *this;
     }
 
-    bool Shader::FindVariable(const String &name, shader::ast::AstType::Type &type) const
+    bool Shader::FindVariable(const String &name, shader::ast::AstType &type) const
     {
         for (int i = static_cast<int>(m_ScopeStack.size()) - 1; i > -1; --i)
         {

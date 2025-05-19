@@ -66,14 +66,14 @@ namespace se::asset::shader::compiler
                 {
                 case TokenType::Builtin:
                     m_Lexer.ConsumeToken();
-                    ast::AstType::Type builtinType;
+                    ast::AstType builtinType;
                     if (!ProcessBuiltin(token, builtinType, error))
                     {
                         return error;
                     }
                     break;
                 case TokenType::Identifier:
-                    ast::AstType::Type type;
+                    ast::AstType type;
                     if (!ProcessExpression(type, error))
                     {
                         return error;
@@ -127,7 +127,7 @@ namespace se::asset::shader::compiler
         int componentsAccountedFor = 0;
         while (componentsAccountedFor < 2)
         {
-            ast::AstType::Type argType;
+            ast::AstType argType;
             if (!ProcessExpression(argType, outError))
             {
                 return false;
@@ -183,7 +183,7 @@ namespace se::asset::shader::compiler
         int componentsAccountedFor = 0;
         while (componentsAccountedFor < 3)
         {
-            ast::AstType::Type argType;
+            ast::AstType argType;
             if (!ProcessExpression(argType, outError))
             {
                 return false;
@@ -248,7 +248,7 @@ namespace se::asset::shader::compiler
         int componentsAccountedFor = 0;
         while (componentsAccountedFor < 4)
         {
-            ast::AstType::Type argType;
+            ast::AstType argType;
             if (!ProcessExpression(argType, outError))
             {
                 return false;
@@ -296,7 +296,7 @@ namespace se::asset::shader::compiler
         return true;
     }
 
-    bool Parser::ProcessBuiltin(const Token& token, ast::AstType::Type& returnType, ParseError& outError)
+    bool Parser::ProcessBuiltin(const Token& token, ast::AstType& returnType, ParseError& outError)
     {
         returnType = ast::AstType::Invalid;
 
@@ -479,7 +479,7 @@ namespace se::asset::shader::compiler
         }
     }
 
-    bool Parser::ProcessPortDeclaration(const Token&, ast::AstType::Type& returnType, ParseError& outError)
+    bool Parser::ProcessPortDeclaration(const Token&, ast::AstType& returnType, ParseError& outError)
     {
         if (!ExpectAndConsume({TokenType::Syntax}, {"("}, outError))
         {
@@ -509,7 +509,7 @@ namespace se::asset::shader::compiler
         {
             return false;
         }
-        ast::AstType::Type type = ast::TypeUtil::GlslToType(typeToken.value);
+        ast::AstType type = ast::TypeUtil::GlslToType(typeToken.value);
         returnType = type;
 
         auto var = ast::Variable(type, 0);
@@ -566,7 +566,7 @@ namespace se::asset::shader::compiler
         return true;
     }
 
-    bool Parser::ProcessUniformDeclaration(const Token&, ast::AstType::Type& returnType, ParseError& outError)
+    bool Parser::ProcessUniformDeclaration(const Token&, ast::AstType& returnType, ParseError& outError)
     {
         Token typeToken;
         if (!ExpectedGetAndConsume({TokenType::Builtin}, ast::TypeUtil::GetTypeStrings(), typeToken,
@@ -574,7 +574,7 @@ namespace se::asset::shader::compiler
         {
             return false;
         }
-        ast::AstType::Type type = ast::TypeUtil::GlslToType(typeToken.value);
+        ast::AstType type = ast::TypeUtil::GlslToType(typeToken.value);
         returnType = type;
 
         Token nameToken;
@@ -629,7 +629,7 @@ namespace se::asset::shader::compiler
         return true;
     }
 
-    bool Parser::ProcessSettingDeclaration(const Token&, ast::AstType::Type& returnType, ParseError& outError)
+    bool Parser::ProcessSettingDeclaration(const Token&, ast::AstType& returnType, ParseError& outError)
     {
         Token typeToken;
         if (!ExpectedGetAndConsume({TokenType::Builtin}, ast::TypeUtil::GetTypeStrings(), typeToken,
@@ -637,7 +637,7 @@ namespace se::asset::shader::compiler
         {
             return false;
         }
-        ast::AstType::Type type = ast::TypeUtil::GlslToType(typeToken.value);
+        ast::AstType type = ast::TypeUtil::GlslToType(typeToken.value);
         returnType = type;
 
         Token nameToken;
@@ -784,7 +784,7 @@ namespace se::asset::shader::compiler
             return false;
         }
 
-        ast::AstType::Type declarationType = ast::TypeUtil::GlslToType(token.value);
+        ast::AstType declarationType = ast::TypeUtil::GlslToType(token.value);
         m_Shader.AddNode<ast::VariableDeclarationNode>(nameToken.value, ast::Variable(declarationType, 0));
         m_Shader.AddNode<ast::EndOfExpressionNode>();
 
@@ -795,7 +795,7 @@ namespace se::asset::shader::compiler
             return false;
         }
 
-        ast::AstType::Type expressionType;
+        ast::AstType expressionType;
         if (!ProcessExpression(expressionType, outError))
         {
             return false;
@@ -900,9 +900,9 @@ namespace se::asset::shader::compiler
         return true;
     }
 
-    bool Parser::ProcessExpression(ast::AstType::Type& outType, ParseError& outError)
+    bool Parser::ProcessExpression(ast::AstType& outType, ParseError& outError)
     {
-        ast::AstType::Type expressionType = ast::AstType::Invalid;
+        ast::AstType expressionType = ast::AstType::Invalid;
         int numBinaryExpressions = 0;
         while (true)
         {
@@ -991,7 +991,7 @@ namespace se::asset::shader::compiler
 
             if (nextToken.type == TokenType::Identifier)
             {
-                ast::AstType::Type type;
+                ast::AstType type;
                 if (!m_Shader.FindVariable(nextToken.value, type))
                 {
                     outError = {nextToken.line, nextToken.pos, std::format("Undefined variable {}", nextToken.value)};
@@ -1003,7 +1003,7 @@ namespace se::asset::shader::compiler
                 auto peek = m_Lexer.PeekToken();
                 if (std::holds_alternative<Token>(peek) && std::get<Token>(peek).value == ".")
                 {
-                    ast::AstType::Type propertyType;
+                    ast::AstType propertyType;
                     if (!ProcessPropertyAccess(nextToken, propertyType, outError))
                     {
                         return false;
@@ -1078,7 +1078,7 @@ namespace se::asset::shader::compiler
             }
             else if (nextToken.type == TokenType::Builtin)
             {
-                ast::AstType::Type builtinType;
+                ast::AstType builtinType;
                 if (!ProcessBuiltin(nextToken, builtinType, outError))
                 {
                     return false;
@@ -1180,7 +1180,7 @@ namespace se::asset::shader::compiler
 
         forLoop->m_DeclarationEnded = true;
 
-        ast::AstType::Type expression1Type;
+        ast::AstType expression1Type;
         if (!ProcessExpression(expression1Type, outError))
         {
             return false;
@@ -1191,7 +1191,7 @@ namespace se::asset::shader::compiler
             return false;
         }
 
-        ast::AstType::Type expression2Type;
+        ast::AstType expression2Type;
         if (!ProcessExpression(expression2Type, outError))
         {
             return false;
@@ -1222,13 +1222,13 @@ namespace se::asset::shader::compiler
             return false;
         }
 
-        ast::AstType::Type expressionType;
+        ast::AstType expressionType;
         if (!ProcessExpression(expressionType, outError))
         {
             return false;
         }
 
-        if (expressionType != ast::AstType::Type::Bool)
+        if (expressionType != ast::AstType::Bool)
         {
             outError = { .line = 0, .pos = 0, .error = "If statement expression returning non bool type not supported."};
             return false;
@@ -1279,7 +1279,7 @@ namespace se::asset::shader::compiler
                 break;
             }
 
-            ast::AstType::Type argType;
+            ast::AstType argType;
             if (!ProcessExpression(argType, outError))
             {
                 return false;
@@ -1346,7 +1346,7 @@ namespace se::asset::shader::compiler
                 break;
             }
 
-            ast::AstType::Type argType;
+            ast::AstType argType;
             if (!ProcessExpression(argType, outError))
             {
                 return false;
@@ -1406,7 +1406,7 @@ namespace se::asset::shader::compiler
         {
             return false;
         }
-        ast::AstType::Type varType;
+        ast::AstType varType;
         if (!m_Shader.FindVariable(textureVariableToken.value, varType))
         {
             outError = {
@@ -1434,7 +1434,7 @@ namespace se::asset::shader::compiler
         {
             return false;
         }
-        ast::AstType::Type uvVarType;
+        ast::AstType uvVarType;
         if (!m_Shader.FindVariable(uvVariableToken.value, uvVarType))
         {
             outError = {
@@ -1481,7 +1481,7 @@ namespace se::asset::shader::compiler
                 break;
             }
 
-            ast::AstType::Type argType;
+            ast::AstType argType;
             if (!ProcessExpression(argType, outError))
             {
                 return false;
@@ -1558,7 +1558,7 @@ namespace se::asset::shader::compiler
                 break;
             }
 
-            ast::AstType::Type argType;
+            ast::AstType argType;
             if (!ProcessExpression(argType, outError))
             {
                 return false;
@@ -1607,7 +1607,7 @@ namespace se::asset::shader::compiler
         return true;
     }
 
-    bool Parser::ProcessNormalizeFunc(const Token& token, ast::AstType::Type& returnType, ParseError& outError)
+    bool Parser::ProcessNormalizeFunc(const Token& token, ast::AstType& returnType, ParseError& outError)
     {
         if (!ExpectAndConsume({TokenType::Syntax}, {"("}, outError))
         {
@@ -1626,7 +1626,7 @@ namespace se::asset::shader::compiler
                 break;
             }
 
-            ast::AstType::Type argType;
+            ast::AstType argType;
             if (!ProcessExpression(argType, outError))
             {
                 return false;
@@ -1684,7 +1684,7 @@ namespace se::asset::shader::compiler
     }
 
     bool Parser::ProcessSmoothstepFunc(const Token& token,
-                                       ast::AstType::Type& returnType,
+                                       ast::AstType& returnType,
                                        ParseError& outError)
     {
         if (!ExpectAndConsume({TokenType::Syntax}, {"("}, outError))
@@ -1704,7 +1704,7 @@ namespace se::asset::shader::compiler
                 break;
             }
 
-            ast::AstType::Type argType;
+            ast::AstType argType;
             if (!ProcessExpression(argType, outError))
             {
                 return false;
@@ -1754,7 +1754,7 @@ namespace se::asset::shader::compiler
         return true;
     }
 
-    bool Parser::ProcessReflectFunc(const Token& token, ast::AstType::Type& returnType, ParseError& outError)
+    bool Parser::ProcessReflectFunc(const Token& token, ast::AstType& returnType, ParseError& outError)
     {
         if (!ExpectAndConsume({TokenType::Syntax}, {"("}, outError))
         {
@@ -1773,7 +1773,7 @@ namespace se::asset::shader::compiler
                 break;
             }
 
-            ast::AstType::Type argType;
+            ast::AstType argType;
             if (!ProcessExpression(argType, outError))
             {
                 return false;
@@ -1850,7 +1850,7 @@ namespace se::asset::shader::compiler
                 break;
             }
 
-            ast::AstType::Type argType;
+            ast::AstType argType;
             if (!ProcessExpression(argType, outError))
             {
                 return false;
@@ -1918,7 +1918,7 @@ namespace se::asset::shader::compiler
                 break;
             }
 
-            ast::AstType::Type argType;
+            ast::AstType argType;
             if (!ProcessExpression(argType, outError))
             {
                 return false;
@@ -1968,7 +1968,7 @@ namespace se::asset::shader::compiler
         return true;
     }
 
-    bool Parser::ProcessPropertyAccess(const Token&, ast::AstType::Type& returnType, ParseError& outError)
+    bool Parser::ProcessPropertyAccess(const Token&, ast::AstType& returnType, ParseError& outError)
     {
         if (!ExpectAndConsume({TokenType::Syntax}, {"."}, outError))
         {

@@ -4,7 +4,7 @@
 
 namespace se::asset::shader::ast
 {
-    std::string TypeUtil::TypeToGlsl(AstType::Type type)
+    std::string TypeUtil::TypeToGlsl(AstType type)
     {
         switch (type)
         {
@@ -34,7 +34,7 @@ namespace se::asset::shader::ast
         }
     }
 
-    AstType::Type TypeUtil::GlslToType(const std::string& type)
+    AstType TypeUtil::GlslToType(const std::string& type)
     {
         if (type == "int")
             return AstType::Int;
@@ -60,7 +60,7 @@ namespace se::asset::shader::ast
         return AstType::Invalid;
     }
 
-    std::string TypeUtil::TypeToMtl(AstType::Type type)
+    std::string TypeUtil::TypeToMtl(AstType type)
     {
         switch (type)
         {
@@ -90,7 +90,7 @@ namespace se::asset::shader::ast
         }
     }
 
-    AstType::Type TypeUtil::MtlToType(const std::string& type)
+    AstType TypeUtil::MtlToType(const std::string& type)
     {
         if (type == "int")
             return AstType::Int;
@@ -134,7 +134,7 @@ namespace se::asset::shader::ast
         return s_TypeStrings;
     }
 
-    size_t TypeUtil::GetTypeSize(AstType::Type type)
+    size_t TypeUtil::GetTypeSize(AstType type)
     {
         switch (type)
         {
@@ -164,7 +164,7 @@ namespace se::asset::shader::ast
         }
     }
 
-    size_t TypeUtil::GetTypePaddedSize(AstType::Type type)
+    size_t TypeUtil::GetTypePaddedSize(AstType type)
     {
         switch (type)
         {

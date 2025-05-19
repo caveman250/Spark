@@ -49,6 +49,7 @@
 
 #include "Widgets.generated.h"
 #include "Classes.generated.h"
+#include "asset/shader/ast/Operators.h"
 
 namespace se
 {

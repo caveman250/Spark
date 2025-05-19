@@ -131,7 +131,7 @@ namespace se::render::opengl
     }
 
     void MaterialInstance::SetUniformInternal(const String &name,
-                                              asset::shader::ast::AstType::Type type,
+                                              asset::shader::ast::AstType type,
                                               int count,
                                               const void *value)
     {

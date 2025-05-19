@@ -117,7 +117,7 @@ namespace se::render::opengl
         render::Material::DestroyPlatformResources();
     }
 
-    void Material::ApplyDepthStencil(DepthCompare::Type comp, StencilFunc::Type src, uint32_t writeMask, uint32_t readMask)
+    void Material::ApplyDepthStencil(DepthCompare comp, StencilFunc src, uint32_t writeMask, uint32_t readMask)
     {
         if (comp == DepthCompare::None)
         {
@@ -205,7 +205,7 @@ namespace se::render::opengl
         }
     }
 
-    GLuint BlendModeToGLBlendMode(BlendMode::Type blendMode)
+    GLuint BlendModeToGLBlendMode(BlendMode blendMode)
     {
         switch (blendMode)
         {
@@ -235,7 +235,7 @@ namespace se::render::opengl
         }
     }
 
-    void Material::ApplyBlendMode(BlendMode::Type src, BlendMode::Type dst)
+    void Material::ApplyBlendMode(BlendMode src, BlendMode dst)
     {
         if (src == BlendMode::None || dst == BlendMode::None)
         {

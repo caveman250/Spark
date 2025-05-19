@@ -6,7 +6,7 @@
 
 #import <Metal/Metal.h>
 
-MTLPixelFormat TextureFormatToMetalFormat(se::asset::texture::Format::Type format)
+MTLPixelFormat TextureFormatToMetalFormat(se::asset::texture::Format format)
 {
     switch (format)
     {
@@ -29,7 +29,7 @@ MTLPixelFormat TextureFormatToMetalFormat(se::asset::texture::Format::Type forma
     }
 }
 
-MTLTextureUsage TextureUsageToMetalUsage(se::asset::texture::Usage::Type format)
+MTLTextureUsage TextureUsageToMetalUsage(se::asset::texture::Usage format)
 {
     switch (format)
     {

@@ -35,10 +35,10 @@ namespace se::ui::components
         String text = {};
 
         SPARK_MEMBER(Serialized)
-        text::Alignment::Type alignment = text::Alignment::Left;
+        text::Alignment alignment = text::Alignment::Left;
 
         SPARK_MEMBER(Serialized)
-        text::WrapMode::Type wrap = text::WrapMode::Word;
+        text::WrapMode wrap = text::WrapMode::Word;
 
         // internal use
         std::shared_ptr<render::MaterialInstance> materialInstance = {};

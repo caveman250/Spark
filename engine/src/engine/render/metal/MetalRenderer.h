@@ -12,7 +12,7 @@ namespace se::render::metal
     public:
         MetalRenderer();
         ~MetalRenderer() override;
-        RenderAPI::Type GetRenderAPIType() const override { return RenderAPI::Metal; }
+        RenderAPI GetRenderAPIType() const override { return RenderAPI::Metal; }
         void Init() override;
         void Render() override;
 

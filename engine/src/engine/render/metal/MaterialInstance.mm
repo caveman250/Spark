@@ -117,7 +117,7 @@ namespace se::render::metal
         render::MaterialInstance::DestroyPlatformResources();
     }
 
-    void MaterialInstance::SetUniformInternal(const String& name, asset::shader::ast::AstType::Type type, int count,
+    void MaterialInstance::SetUniformInternal(const String& name, asset::shader::ast::AstType type, int count,
                                       const void* value)
     {
         if (!m_PlatformResourcesCreated)

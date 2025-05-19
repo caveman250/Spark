@@ -11,7 +11,7 @@ namespace se::asset::shader::ast
     VariableReferenceNode::VariableReferenceNode(const std::string& name, const Shader& shaderStageAst, int index, const std::string& indexVar)
     {
         SPARK_ASSERT(name != " ");
-        AstType::Type type;
+        AstType type;
         if (shaderStageAst.FindVariable(name, type))
         {
             m_Type = type;

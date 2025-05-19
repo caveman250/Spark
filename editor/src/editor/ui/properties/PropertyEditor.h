@@ -57,7 +57,7 @@ namespace se::editor::ui::properties
         virtual void SetValue(void* value, const reflect::Type* type) = 0;
         virtual void SetName(const String& name) { m_Name = name; }
         virtual void Update() = 0;
-        virtual PropertyTitleMode::Type GetTitleMode() const { return PropertyTitleMode::Inline; }
+        virtual PropertyTitleMode GetTitleMode() const { return PropertyTitleMode::Inline; }
 
         ecs::Id GetWidgetId() const { return m_WidgetId; }
         RectTransformComponent* GetRectTransform() { return m_RectTransform; }

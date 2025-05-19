@@ -35,8 +35,8 @@ namespace se::render
         const std::map<String, asset::shader::ast::Variable>& GetFragUniforms() const { return m_FragUniforms; }
 
     protected:
-        virtual void ApplyDepthStencil(DepthCompare::Type comp, StencilFunc::Type src, uint32_t writeMask, uint32_t readMask) = 0;
-        virtual void ApplyBlendMode(BlendMode::Type src, BlendMode::Type dest) = 0;
+        virtual void ApplyDepthStencil(DepthCompare comp, StencilFunc src, uint32_t writeMask, uint32_t readMask) = 0;
+        virtual void ApplyBlendMode(BlendMode src, BlendMode dest) = 0;
         Material(const std::vector<std::shared_ptr<asset::Shader>>& vertShaders,
                 const std::vector<std::shared_ptr<asset::Shader>>& fragShaders);
 

@@ -35,52 +35,56 @@ def ProcessEnum(line, enum_list, lines, line_index, namespace_stack, filepath, s
         values.append(val)
 
     enum_list.append(Enum(enum, filepath, namespace, values, source_dir))
+
+"""namespace se::reflect 
+{ 
+    template <> 
+    Type* getPrimitiveDescriptor<editor::ui::properties::PropertyTitleMode>()
+    {
+        static se::reflect::Enum* s_Instance = nullptr;
+        if (!s_Instance)
+        {
+            s_Instance = new se::reflect::Enum();
+            se::reflect::TypeLookup::GetTypeMap()["se::editor::ui::properties::PropertyTitleMode"] = s_Instance;
+            s_Instance->name = "se::editor::ui::properties::PropertyTitleMode";
+            s_Instance->size = sizeof(se::editor::ui::properties::PropertyTitleMode);
+            s_Instance->values =
+            {
+                EnumValue{"Inline", static_cast<int>(se::editor::ui::properties::PropertyTitleMode::Inline)},
+                EnumValue{"NextLine", static_cast<int>(se::editor::ui::properties::PropertyTitleMode::NextLine)},
+            };
+        }
+        return s_Instance;
+    } 
+}"""
     
 def DefineEnumBegin(enum):
     full_enum_name = enum.namespace + "::" + enum.name
-    return f"""DEFINE_SPARK_TYPE({full_enum_name}) 
-std::string {full_enum_name}::ToString({full_enum_name}::Type val) 
-{{ 
-    se::reflect::Enum* enumReflection = se::reflect::EnumResolver<{full_enum_name}>::get(); 
-    return enumReflection->ToString(val); 
-}} 
-{full_enum_name}::Type {full_enum_name}::FromString(const std::string& str) 
-{{ 
-    se::reflect::Enum* enumReflection = se::reflect::EnumResolver<{full_enum_name}>::get(); 
-    return static_cast<{full_enum_name}::Type>(enumReflection->FromString(str)); 
-}} 
+    return f"""
 namespace se::reflect 
 {{ 
     template <> 
-    Type* getPrimitiveDescriptor<{full_enum_name}::Type>() 
+    Type* getPrimitiveDescriptor<{full_enum_name}>() 
     {{ 
-        return TypeResolver<{full_enum_name}>::get(); 
-    }} 
-}} 
-size_t {full_enum_name}::ValuesCount() 
-{{ 
-    se::reflect::Enum* enumReflection = se::reflect::EnumResolver<{full_enum_name}>::get(); 
-    return enumReflection->values.size(); 
-}} 
-se::reflect::Enum* {full_enum_name}::GetReflection() 
-{{ 
-    static se::reflect::Enum* s_Instance = nullptr; 
-    if (!s_Instance) 
-    {{
-        s_Instance = new se::reflect::Enum(); 
-        se::reflect::TypeLookup::GetTypeMap()["{full_enum_name}"] = s_Instance; 
-        s_Instance->name = "{full_enum_name}"; 
-        s_Instance->size = sizeof({full_enum_name}); 
-        s_Instance->values = 
-        {{\n"""
+        static se::reflect::Enum* s_Instance = nullptr; 
+        if (!s_Instance) 
+        {{
+            s_Instance = new se::reflect::Enum(); 
+            se::reflect::TypeLookup::GetTypeMap()["{full_enum_name}"] = s_Instance; 
+            s_Instance->name = "{full_enum_name}"; 
+            s_Instance->size = sizeof({full_enum_name}); 
+            s_Instance->values = 
+            {{\n"""
 
 def DefineEnumValue(enum, value):
-    return f"            {{\"{value}\", {enum.name}::{value}}},\n"
+    full_enum_name = enum.namespace + "::" + enum.name
+    return f"            {{\"{value}\", static_cast<int>({full_enum_name}::{value})}},\n"
 
 def DefineEnumEnd():
-    return f"""        }};
+    return f"""            }};
+        }}
+        return s_Instance;
     }}
-    return s_Instance;
 }}"""
 
 def WriteEnumFiles(enum_list):

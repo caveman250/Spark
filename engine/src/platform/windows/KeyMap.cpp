@@ -2,7 +2,7 @@
 
 namespace se::windows
 {
-    input::Key::Type KeyMap::WindowsKeyToSparkKey(uint32_t winKey)
+    input::Key KeyMap::WindowsKeyToSparkKey(uint32_t winKey)
     {
         switch (winKey)
         {

@@ -13,7 +13,7 @@ namespace se::editor::ui::properties
         void SetValue(void* value, const reflect::Type* type) override;
         void ConstructUI(const String& name, bool constructTitle, const se::ui::Anchors& anchors) override;
         void Update() override;
-        PropertyTitleMode::Type GetTitleMode() const override { return m_WrappedEditor ? m_WrappedEditor->GetTitleMode() : PropertyEditor::GetTitleMode(); }
+        PropertyTitleMode GetTitleMode() const override { return m_WrappedEditor ? m_WrappedEditor->GetTitleMode() : PropertyEditor::GetTitleMode(); }
 
     private:
         void* m_Value = nullptr;

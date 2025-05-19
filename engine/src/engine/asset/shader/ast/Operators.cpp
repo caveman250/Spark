@@ -2,7 +2,7 @@
 
 namespace se::asset::shader::ast
 {
-    std::map<OperatorType::Type, uint8_t> OperatorUtil::s_OperatorPriorities =
+    std::map<OperatorType, uint8_t> OperatorUtil::s_OperatorPriorities =
     {
         { OperatorType::Multiply, static_cast<uint8_t>(0u) },
         { OperatorType::MultiplyEquals, static_cast<uint8_t>(0u) },
@@ -20,7 +20,7 @@ namespace se::asset::shader::ast
         { OperatorType::GreaterEquals, static_cast<uint8_t>(2u) },
     };
 
-    std::map<std::string, OperatorType::Type> OperatorUtil::s_ShaderLangToType =
+    std::map<std::string, OperatorType> OperatorUtil::s_ShaderLangToType =
     {
         {"*", OperatorType::Multiply},
         {"*=", OperatorType::MultiplyEquals},
@@ -38,7 +38,7 @@ namespace se::asset::shader::ast
         {">=", OperatorType::GreaterEquals},
     };
 
-    std::map<OperatorType::Type, std::string> OperatorUtil::s_TypeToGlsl =
+    std::map<OperatorType, std::string> OperatorUtil::s_TypeToGlsl =
     {
         {OperatorType::Multiply, "*"},
         {OperatorType::MultiplyEquals, "*="},
@@ -56,17 +56,17 @@ namespace se::asset::shader::ast
         {OperatorType::GreaterEquals, ">="},
     };
 
-    uint8_t OperatorUtil::GetOperatorPriority(OperatorType::Type type)
+    uint8_t OperatorUtil::GetOperatorPriority(OperatorType type)
     {
         return s_OperatorPriorities[type];
     }
 
-    OperatorType::Type OperatorUtil::StringToOperatorType(const std::string& token)
+    OperatorType OperatorUtil::StringToOperatorType(const std::string& token)
     {
         return s_ShaderLangToType[token];
     }
 
-    std::string OperatorUtil::OperatorTypeToGlsl(OperatorType::Type type)
+    std::string OperatorUtil::OperatorTypeToGlsl(OperatorType type)
     {
         return s_TypeToGlsl[type];
     }

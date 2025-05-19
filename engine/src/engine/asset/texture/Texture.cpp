@@ -15,8 +15,8 @@ namespace se::asset
 
     Texture::Texture(uint32_t width,
             uint32_t height,
-            texture::Format::Type format,
-            texture::Usage::Type usage)
+            texture::Format format,
+            texture::Usage usage)
             : m_Width(width)
             , m_Height(height)
             , m_MipCount(0)
@@ -37,7 +37,7 @@ namespace se::asset
         }
     }
 
-    std::shared_ptr<Texture> Texture::FromRawData(uint32_t width, uint32_t height, const memory::BinaryBlob &blob, texture::Format::Type format)
+    std::shared_ptr<Texture> Texture::FromRawData(uint32_t width, uint32_t height, const memory::BinaryBlob &blob, texture::Format format)
     {
         std::shared_ptr<Texture> ret = std::make_shared<Texture>();
         ret->m_Width = width;
@@ -48,7 +48,7 @@ namespace se::asset
         return ret;
     }
 
-    std::shared_ptr<Texture> Texture::Create(uint32_t width, uint32_t height, texture::Format::Type format, texture::Usage::Type usage)
+    std::shared_ptr<Texture> Texture::Create(uint32_t width, uint32_t height, texture::Format format, texture::Usage usage)
     {
         return std::shared_ptr<Texture>(new Texture(width, height, format, usage));
     }

@@ -132,7 +132,7 @@ namespace se::asset::shader::ast
     // VERY BASIC
     struct ForLoopExpression
     {
-        OperatorType::Type opType;
+        OperatorType opType;
         String lhs;
         ShaderValue rhs;
     };

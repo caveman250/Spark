@@ -12,7 +12,7 @@ namespace se::render::opengl
         OpenGLRenderer();
         void Init() override;
         void Render() override;
-        RenderAPI::Type GetRenderAPIType() const override { return RenderAPI::OpenGL; }
+        RenderAPI GetRenderAPIType() const override { return RenderAPI::OpenGL; }
 
         bool IsGLEWInitialised() const;
 

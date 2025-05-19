@@ -2,7 +2,7 @@
 
 namespace se::asset::texture
 {
-    bool IsCompressedFormat(Format::Type format)
+    bool IsCompressedFormat(Format format)
     {
         switch (format)
         {
@@ -21,7 +21,7 @@ namespace se::asset::texture
         return false;
     }
 
-    size_t GetCompressedFormatBlockSize(Format::Type format)
+    size_t GetCompressedFormatBlockSize(Format format)
     {
         switch (format)
         {
@@ -37,7 +37,7 @@ namespace se::asset::texture
         return 0;
     }
 
-    size_t GetCompressedFormatBlockSizeBytes(Format::Type format)
+    size_t GetCompressedFormatBlockSizeBytes(Format format)
     {
         switch (format)
         {
@@ -52,7 +52,7 @@ namespace se::asset::texture
         return 0;
     }
 
-    size_t GetNumTextureChannels(Format::Type format)
+    size_t GetNumTextureChannels(Format format)
     {
         switch (format)
         {

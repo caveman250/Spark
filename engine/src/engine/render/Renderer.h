@@ -27,7 +27,7 @@ namespace se::render
         static void Shutdown();
         template <typename T>
         static T* Get();
-        virtual RenderAPI::Type GetRenderAPIType() const = 0;
+        virtual RenderAPI GetRenderAPIType() const = 0;
 
         virtual ~Renderer() {}
         virtual void Init() = 0;

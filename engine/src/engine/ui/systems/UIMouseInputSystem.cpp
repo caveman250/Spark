@@ -80,9 +80,9 @@ namespace se::ui::systems
 
     bool UIMouseInputSystem::TryConsumeEvent(const input::MouseEvent& mouseEvent, components::MouseInputComponent& inputReceiver)
     {
-        if (mouseEvent.button == input::MouseButton::None || mouseEvent.button & inputReceiver.buttonMask)
+        if (mouseEvent.button == input::MouseButton::None || static_cast<int>(mouseEvent.button) & inputReceiver.buttonMask)
         {
-            if (mouseEvent.state & inputReceiver.stateMask)
+            if (static_cast<int>(mouseEvent.state) & inputReceiver.stateMask)
             {
                 if (mouseEvent.scrollDelta == 0 || inputReceiver.receivesScrollEvents)
                 {

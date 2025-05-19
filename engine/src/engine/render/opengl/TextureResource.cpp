@@ -90,7 +90,7 @@ namespace se::render::opengl
         }
     }
 
-    GLuint TextureResource::TextureFormatToGLInternalFormat(asset::texture::Format::Type format)
+    GLuint TextureResource::TextureFormatToGLInternalFormat(asset::texture::Format format)
     {
         switch (format)
         {
@@ -117,7 +117,7 @@ namespace se::render::opengl
         glBindTexture(GL_TEXTURE_2D, m_ID);
     }
 
-    GLuint TextureResource::TextureFormatToGLFormat(asset::texture::Format::Type format)
+    GLuint TextureResource::TextureFormatToGLFormat(asset::texture::Format format)
     {
         switch (format)
         {

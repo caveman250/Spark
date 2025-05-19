@@ -82,7 +82,7 @@ namespace se::ui::util
             textComp.inEditMode = true;
             textComp.editText = textComp.text;
             SetCaretPos(textComp, 0);
-            keyInputComp.keyMask = static_cast<input::Key::Type>(0xFFFFFFFF);
+            keyInputComp.keyMask = static_cast<input::Key>(0xFFFFFFFF);
         }
 
         auto dec = ecs::ChildQueryDeclaration()
@@ -110,7 +110,7 @@ namespace se::ui::util
                         KeyInputComponent& keyInputComp)
     {
         textComp.inEditMode = false;
-        keyInputComp.keyMask = static_cast<input::Key::Type>(0);
+        keyInputComp.keyMask = static_cast<input::Key>(0);
 
         auto dec = ecs::ChildQueryDeclaration()
                 .WithComponent<TextCaretComponent>();

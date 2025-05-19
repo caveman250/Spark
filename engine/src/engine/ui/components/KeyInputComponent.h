@@ -12,9 +12,9 @@ namespace se::ui::components
         std::vector<input::KeyEvent> keyEvents;
 
         SPARK_MEMBER()
-        input::Key::Type keyMask = static_cast<input::Key::Type>(0xFFFFFFFF);
+        input::Key keyMask = static_cast<input::Key>(0xFFFFFFFF);
 
         SPARK_MEMBER()
-        input::KeyState::Type stateMask = static_cast<input::KeyState::Type>(input::KeyState::Up | input::KeyState::Down);
+        input::KeyState stateMask = static_cast<input::KeyState>(static_cast<int>(input::KeyState::Up) | static_cast<int>(input::KeyState::Down));
     };
 }

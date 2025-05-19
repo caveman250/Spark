@@ -12,14 +12,14 @@ namespace se::asset::shader::ast
         Variable() = default;
         Variable(const Variable&) = default;
         Variable& operator=(const Variable& rhs) = default;
-        Variable(AstType::Type _type, std::string& _arraySize)
+        Variable(AstType _type, std::string& _arraySize)
             : type(_type)
             , arraySizeVariable(_arraySize)
         {
 
         }
 
-        Variable(AstType::Type _type, int _arraySize)
+        Variable(AstType _type, int _arraySize)
             : type(_type)
             , arraySizeConstant(_arraySize)
         {
@@ -33,7 +33,7 @@ namespace se::asset::shader::ast
         }
 
         SPARK_MEMBER(Serialized)
-        AstType::Type type = {};
+        AstType type = {};
 
         SPARK_MEMBER(Serialized)
         std::string arraySizeVariable = {};

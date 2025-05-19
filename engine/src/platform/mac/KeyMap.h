@@ -6,6 +6,6 @@ namespace se::mac
     class KeyMap
     {
     public:
-        static input::Key::Type MacKeyToSparkKey(uint32_t macKey);
+        static input::Key MacKeyToSparkKey(uint32_t macKey);
     };
 }

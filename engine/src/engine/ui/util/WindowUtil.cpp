@@ -49,13 +49,13 @@ namespace se::ui::util
         if (!world->HasComponent<MouseInputComponent>(entity))
         {
             auto inputComp = world->AddComponent<MouseInputComponent>(entity);
-            inputComp->buttonMask = static_cast<input::MouseButton::Type>(0x0);
+            inputComp->buttonMask = 0x0;
         }
 
         if (!world->HasComponent<KeyInputComponent>(entity))
         {
             auto inputComp = world->AddComponent<KeyInputComponent>(entity);
-            inputComp->keyMask = static_cast<input::Key::Type>(0x0);
+            inputComp->keyMask = static_cast<input::Key>(0x0);
         }
 
         auto titleBarEntity = world->CreateEntity("TitleBar", editorOnly);

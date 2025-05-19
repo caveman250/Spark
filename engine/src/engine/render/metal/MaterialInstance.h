@@ -17,7 +17,7 @@ namespace se::render::metal
         void DestroyPlatformResources() override;
 
     private:
-        void SetUniformInternal(const String& name, asset::shader::ast::AstType::Type type, int count, const void* value) override;
+        void SetUniformInternal(const String& name, asset::shader::ast::AstType type, int count, const void* value) override;
 
         std::vector<std::pair<String, std::shared_ptr<render::TextureResource>>> m_Textures;
 

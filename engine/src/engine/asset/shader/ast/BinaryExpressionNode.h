@@ -12,15 +12,15 @@ namespace se::asset::shader::ast
 
     public:
         BinaryExpressionNode() {}
-        explicit BinaryExpressionNode(OperatorType::Type opType);
+        explicit BinaryExpressionNode(OperatorType opType);
         std::string GetDebugString() const override;
         void ToGlsl(ShaderCompileContext& context, string::ArenaString& outShader) const override;
         void ToMtl(ShaderCompileContext& context, string::ArenaString& outShader) const override;
 
-        OperatorType::Type GetOperatorType() const { return m_OpType; }
+        OperatorType GetOperatorType() const { return m_OpType; }
 
     private:
         SPARK_MEMBER(Serialized)
-        OperatorType::Type m_OpType;
+        OperatorType m_OpType;
     };
 }

@@ -18,7 +18,7 @@ namespace se::render::opengl
 
     private:
         void SetUniformInternal(const String& name,
-                                asset::shader::ast::AstType::Type type,
+                                asset::shader::ast::AstType type,
                                 int count,
                                 const void* value) override;
 

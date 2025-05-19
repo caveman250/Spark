@@ -1,6 +1,6 @@
 #import "MetalTypeUtil.h"
 
-MTLCompareFunction DepthCompareToMtl(se::render::DepthCompare::Type depthCompare)
+MTLCompareFunction DepthCompareToMtl(se::render::DepthCompare depthCompare)
 {
     switch (depthCompare)
     {
@@ -22,7 +22,7 @@ MTLCompareFunction DepthCompareToMtl(se::render::DepthCompare::Type depthCompare
     }
 }
 
-MTLBlendFactor BlendModeToMtl(se::render::BlendMode::Type blendMode)
+MTLBlendFactor BlendModeToMtl(se::render::BlendMode blendMode)
 {
     switch (blendMode)
     {

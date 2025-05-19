@@ -23,22 +23,22 @@ namespace se::ui::util
                                      int fontSize,
                                      const String& text,
                                      bool applyKerning,
-                                     text::WrapMode::Type wrap,
-                                     text::Alignment::Type justification);
+                                     text::WrapMode wrap,
+                                     text::Alignment justification);
 
     math::Vec2 MeasureText(const Rect& bounds,
                               const std::shared_ptr<asset::Font>& font,
                               int fontSize,
                               const String& text,
                               bool applyKerning,
-                              text::WrapMode::Type wrap);
+                              text::WrapMode wrap);
 
     math::Vec2 MeasureText(const Rect& bounds,
                               const std::shared_ptr<asset::Font>& font,
                               int fontSize,
                               const String& text,
                               bool applyKerning,
-                              text::WrapMode::Type wrap,
+                              text::WrapMode wrap,
                               size_t endIndex);
 
     int GetCharIndexForPosition(const math::Vec2& pos,
@@ -47,6 +47,6 @@ namespace se::ui::util
                                 int fontSize,
                                 const String& text,
                                 bool applyKerning,
-                                text::WrapMode::Type wrap,
-                                text::Alignment::Type justification);
+                                text::WrapMode wrap,
+                                text::Alignment justification);
 }

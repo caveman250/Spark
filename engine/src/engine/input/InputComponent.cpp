@@ -6,7 +6,9 @@ namespace se::input
 {
     InputComponent::InputComponent()
     {
-        keyStates.resize(Key::ValuesCount());
-        mouseButtonStates.resize(MouseButton::ValuesCount());
+        reflect::Enum* key = reflect::EnumResolver<Key>::get();
+        reflect::Enum* mouseButton = reflect::EnumResolver<MouseButton>::get();
+        keyStates.resize(key->values.size());
+        mouseButtonStates.resize(mouseButton->values.size());
     }
 }

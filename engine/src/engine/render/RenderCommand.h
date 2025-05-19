@@ -27,7 +27,7 @@ namespace se::render::commands
     public:
         virtual ~RenderCommand() {}
         virtual void Execute() = 0;
-        virtual RenderStage::Type GetRenderStage() const = 0;
+        virtual RenderStage GetRenderStage() const = 0;
         virtual uint32_t GetSortKey() const { return 0; }
     };
 
@@ -37,7 +37,7 @@ namespace se::render::commands
         Clear(bool clearColour, bool clearDepth);
         void Execute() override;
 
-        RenderStage::Type GetRenderStage() const override { return RenderStage::Clear; }
+        RenderStage GetRenderStage() const override { return RenderStage::Clear; }
 
     private:
         bool m_ClearColour = {};
@@ -49,7 +49,7 @@ namespace se::render::commands
     public:
         SubmitGeo(const std::shared_ptr<MaterialInstance>& materialInstance, const std::shared_ptr<VertexBuffer>& vertBuffer, const std::shared_ptr<IndexBuffer>& indexBuffer);
         void Execute() override;
-        RenderStage::Type GetRenderStage() const override { return RenderStage::Scene; }
+        RenderStage GetRenderStage() const override { return RenderStage::Scene; }
 
     private:
         std::shared_ptr<MaterialInstance> m_MaterialInstance = {};
@@ -62,7 +62,7 @@ namespace se::render::commands
     public:
         SubmitUI(const std::shared_ptr<MaterialInstance>& materialInstance, const std::shared_ptr<VertexBuffer>& vertBuffer, const std::shared_ptr<IndexBuffer>& indexBuffer);
         void Execute() override;
-        RenderStage::Type GetRenderStage() const override { return RenderStage::UI; }
+        RenderStage GetRenderStage() const override { return RenderStage::UI; }
 
     private:
         std::shared_ptr<MaterialInstance> m_MaterialInstance = {};
@@ -76,7 +76,7 @@ namespace se::render::commands
     public:
         PushScissor(const ui::Rect& rect);
         void Execute() override;
-        RenderStage::Type GetRenderStage() const override { return RenderStage::UI; }
+        RenderStage GetRenderStage() const override { return RenderStage::UI; }
     private:
         ui::Rect m_Rect;
     };
@@ -86,6 +86,6 @@ namespace se::render::commands
     public:
         PopScissor();
         void Execute() override;
-        RenderStage::Type GetRenderStage() const override { return RenderStage::UI; }
+        RenderStage GetRenderStage() const override { return RenderStage::UI; }
     };
 }

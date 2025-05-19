@@ -21,14 +21,14 @@ static std::map<uint32_t, bool> s_ModifierKeyStates = {}; // TODO
         {
             s_ModifierKeyStates[keyCode] = !s_ModifierKeyStates[keyCode];
 
-            se::input::Key::Type key = se::mac::KeyMap::MacKeyToSparkKey(keyCode);
+            se::input::Key key = se::mac::KeyMap::MacKeyToSparkKey(keyCode);
 
             se::input::KeyEvent keyEvent;
             keyEvent.key = key;
             keyEvent.state = s_ModifierKeyStates[keyCode] ? se::input::KeyState::Down : se::input::KeyState::Up;
 
             inputComp->keyEvents.push_back(keyEvent);
-            inputComp->keyStates[key] = keyEvent.state;
+            inputComp->keyStates[static_cast<int>(key)] = keyEvent.state;
         }
 
         return theEvent;
@@ -38,7 +38,7 @@ static std::map<uint32_t, bool> s_ModifierKeyStates = {}; // TODO
 - (void)keyDown:(NSEvent*) event
 {
     uint32_t scanCode = [event keyCode];
-    se::input::Key::Type key = se::mac::KeyMap::MacKeyToSparkKey(scanCode);
+    se::input::Key key = se::mac::KeyMap::MacKeyToSparkKey(scanCode);
     auto inputComp = se::Application::Get()->GetWorld()->GetSingletonComponent<se::input::InputComponent>();
 
     se::input::KeyEvent keyEvent;
@@ -46,13 +46,13 @@ static std::map<uint32_t, bool> s_ModifierKeyStates = {}; // TODO
     keyEvent.state = se::input::KeyState::Down;
 
     inputComp->keyEvents.push_back(keyEvent);
-    inputComp->keyStates[key] = keyEvent.state;
+    inputComp->keyStates[static_cast<int>(key)] = keyEvent.state;
 }
 
 - (void)keyUp:(NSEvent*) event
 {
     uint32_t scanCode = [event keyCode];
-    se::input::Key::Type key = se::mac::KeyMap::MacKeyToSparkKey(scanCode);
+    se::input::Key key = se::mac::KeyMap::MacKeyToSparkKey(scanCode);
     auto inputComp = se::Application::Get()->GetWorld()->GetSingletonComponent<se::input::InputComponent>();
 
     se::input::KeyEvent keyEvent;
@@ -60,14 +60,14 @@ static std::map<uint32_t, bool> s_ModifierKeyStates = {}; // TODO
     keyEvent.state = se::input::KeyState::Up;
 
     inputComp->keyEvents.push_back(keyEvent);
-    inputComp->keyStates[key] = keyEvent.state;
+    inputComp->keyStates[static_cast<int>(key)] = keyEvent.state;
 }
 
 - (void)mouseDown:(NSEvent*) event
 {
     auto app = se::Application::Get();
     auto inputComp = app->GetWorld()->GetSingletonComponent<se::input::InputComponent>();
-    inputComp->mouseButtonStates[se::input::MouseButton::Left] = se::input::KeyState::Down;
+    inputComp->mouseButtonStates[static_cast<int>(se::input::MouseButton::Left)] = se::input::KeyState::Down;
 
     se::input::MouseEvent mouseEvent;
     mouseEvent.button = se::input::MouseButton::Left;
@@ -79,7 +79,7 @@ static std::map<uint32_t, bool> s_ModifierKeyStates = {}; // TODO
 {
     auto app = se::Application::Get();
     auto inputComp = app->GetWorld()->GetSingletonComponent<se::input::InputComponent>();
-    inputComp->mouseButtonStates[se::input::MouseButton::Left] = se::input::KeyState::Up;
+    inputComp->mouseButtonStates[static_cast<int>(se::input::MouseButton::Left)] = se::input::KeyState::Up;
 
     se::input::MouseEvent mouseEvent;
     mouseEvent.button = se::input::MouseButton::Left;
@@ -91,7 +91,7 @@ static std::map<uint32_t, bool> s_ModifierKeyStates = {}; // TODO
 {
     auto app = se::Application::Get();
     auto inputComp = app->GetWorld()->GetSingletonComponent<se::input::InputComponent>();
-    inputComp->mouseButtonStates[se::input::MouseButton::Left] = se::input::KeyState::Up;
+    inputComp->mouseButtonStates[static_cast<int>(se::input::MouseButton::Left)] = se::input::KeyState::Up;
 
     se::input::MouseEvent mouseEvent;
     mouseEvent.button = se::input::MouseButton::Left;
@@ -103,7 +103,7 @@ static std::map<uint32_t, bool> s_ModifierKeyStates = {}; // TODO
 {
     auto app = se::Application::Get();
     auto inputComp = app->GetWorld()->GetSingletonComponent<se::input::InputComponent>();
-    inputComp->mouseButtonStates[se::input::MouseButton::Right] = se::input::KeyState::Up;
+    inputComp->mouseButtonStates[static_cast<int>(se::input::MouseButton::Right)] = se::input::KeyState::Up;
 
     se::input::MouseEvent mouseEvent;
     mouseEvent.button = se::input::MouseButton::Right;
@@ -139,9 +139,9 @@ static std::map<uint32_t, bool> s_ModifierKeyStates = {}; // TODO
     auto window = app->GetPrimaryWindow();
     auto inputComp = app->GetWorld()->GetSingletonComponent<se::input::InputComponent>();
 
-    if (inputComp->mouseButtonStates[se::input::MouseButton::Left] != se::input::KeyState::Down)
+    if (inputComp->mouseButtonStates[static_cast<int>(se::input::MouseButton::Left)] != se::input::KeyState::Down)
     {
-        inputComp->mouseButtonStates[se::input::MouseButton::Left] = se::input::KeyState::Down;
+        inputComp->mouseButtonStates[static_cast<int>(se::input::MouseButton::Left)] = se::input::KeyState::Down;
 
         se::input::MouseEvent mouseEvent;
         mouseEvent.button = se::input::MouseButton::Left;

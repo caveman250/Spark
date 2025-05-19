@@ -2,7 +2,7 @@
 
 namespace se::mac
 {
-    input::Key::Type KeyMap::MacKeyToSparkKey(uint32_t macKey)
+    input::Key KeyMap::MacKeyToSparkKey(uint32_t macKey)
     {
         switch (macKey)
         {

@@ -7,7 +7,7 @@ namespace se::ecs
 {
     struct MaybeLockGuard
     {
-        [[nodiscard]] MaybeLockGuard(UpdateMode::Type mode, std::mutex* mutex)
+        [[nodiscard]] MaybeLockGuard(UpdateMode mode, std::mutex* mutex)
                 : m_Mode(mode)
                 , m_Mutex(mutex)
         {
@@ -25,7 +25,7 @@ namespace se::ecs
             }
         }
 
-        UpdateMode::Type m_Mode;
+        UpdateMode m_Mode;
         std::mutex* m_Mutex;
     };
 }

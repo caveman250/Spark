@@ -10,6 +10,6 @@ namespace se::linux
     class KeyMap 
     {
     public:
-        static input::Key::Type SDLKeyToSparkKey(SDL_Scancode sdlKey);
+        static input::Key SDLKeyToSparkKey(SDL_Scancode sdlKey);
     };
 }

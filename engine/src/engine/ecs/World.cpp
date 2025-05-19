@@ -512,13 +512,13 @@ namespace se::ecs
                               }
                           });
 
-        std::unordered_map<Id, std::map<Id, ComponentMutability::Type>> usedComponents;
+        std::unordered_map<Id, std::map<Id, ComponentMutability>> usedComponents;
         std::unordered_map<Id, size_t> updateGroupLookup;
         for (const auto& [id, systemRecord]: systems)
         {
             if (systemRecord.instance)
             {
-                auto& map = usedComponents.insert(std::make_pair(id, std::map<Id, ComponentMutability::Type>())).first->second;
+                auto& map = usedComponents.insert(std::make_pair(id, std::map<Id, ComponentMutability>())).first->second;
                 // TODO not taking variant components into account here
                 for (const auto& usedComp : systemRecord.instance->GetDeclaration().componentUsage)
                 {
@@ -562,7 +562,7 @@ namespace se::ecs
                         const auto& usedComps = usedComponents[id];
                         conflict = std::ranges::any_of(usedComponents[other_id],
                                                        [usedComps](
-                                                   const std::pair<Id, ComponentMutability::Type>& compId)
+                                                   const std::pair<Id, ComponentMutability>& compId)
                                                        {
                                                            return usedComps.contains(compId.first)
                                                                   && (compId.second == ComponentMutability::Mutable ||

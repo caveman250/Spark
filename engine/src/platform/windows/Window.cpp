@@ -90,7 +90,7 @@ namespace se::windows
             case WM_KEYUP:
             {
                 uint32_t scanCode = (HIWORD(lParam) & (KF_EXTENDED | 0xff));
-                input::Key::Type key = KeyMap::WindowsKeyToSparkKey(scanCode);
+                input::Key key = KeyMap::WindowsKeyToSparkKey(scanCode);
 
                 input::KeyEvent keyEvent;
                 keyEvent.key = key;
@@ -174,7 +174,7 @@ namespace se::windows
             }
             case WM_XBUTTONDOWN:
             {
-                input::MouseButton::Type btn = lParam == XBUTTON1 ? input::MouseButton::Btn4 : input::MouseButton::Btn5;
+                input::MouseButton btn = lParam == XBUTTON1 ? input::MouseButton::Btn4 : input::MouseButton::Btn5;
                 window->GetTempInputComponent().mouseButtonStates[btn] = input::KeyState::Down;
 
                 input::MouseEvent mouseEvent;
@@ -185,7 +185,7 @@ namespace se::windows
             }
             case WM_XBUTTONUP:
             {
-                input::MouseButton::Type btn = lParam == XBUTTON1 ? input::MouseButton::Btn4 : input::MouseButton::Btn5;
+                input::MouseButton btn = lParam == XBUTTON1 ? input::MouseButton::Btn4 : input::MouseButton::Btn5;
                 window->GetTempInputComponent().mouseButtonStates[btn] = input::KeyState::Up;
 
                 input::MouseEvent mouseEvent;

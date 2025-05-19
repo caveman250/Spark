@@ -24,14 +24,14 @@ namespace se::asset::shader::ast
     class OperatorUtil
     {
     public:
-        static uint8_t GetOperatorPriority(OperatorType::Type type);
-        static OperatorType::Type StringToOperatorType(const std::string& token);
-        static std::string OperatorTypeToGlsl(OperatorType::Type type);
+        static uint8_t GetOperatorPriority(OperatorType type);
+        static OperatorType StringToOperatorType(const std::string& token);
+        static std::string OperatorTypeToGlsl(OperatorType type);
         static bool IsOperator(const std::string& str);
         static const std::vector<std::string>& GetOperatorStrings();
     private:
-        static std::map<OperatorType::Type, uint8_t> s_OperatorPriorities;
-        static std::map<std::string, OperatorType::Type> s_ShaderLangToType;
-        static std::map<OperatorType::Type, std::string> s_TypeToGlsl;
+        static std::map<OperatorType, uint8_t> s_OperatorPriorities;
+        static std::map<std::string, OperatorType> s_ShaderLangToType;
+        static std::map<OperatorType, std::string> s_TypeToGlsl;
     };
 }

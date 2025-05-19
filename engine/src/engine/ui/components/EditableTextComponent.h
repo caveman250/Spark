@@ -28,8 +28,8 @@ namespace se::ui::components
         std::shared_ptr<asset::Font> font = { };
         int fontSize = 0;
         String text = { };
-        text::Alignment::Type alignment = text::Alignment::Left;
-        text::WrapMode::Type wrap = text::WrapMode::None;
+        text::Alignment alignment = text::Alignment::Left;
+        text::WrapMode wrap = text::WrapMode::None;
 
         // edit mode
         bool inEditMode = false;

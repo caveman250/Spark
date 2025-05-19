@@ -128,7 +128,7 @@ namespace se::render::metal
         render::Material::DestroyPlatformResources();
     }
 
-    void Material::ApplyDepthStencil(DepthCompare::Type, StencilFunc::Type, uint32_t, uint32_t)
+    void Material::ApplyDepthStencil(DepthCompare, StencilFunc, uint32_t, uint32_t)
     {
         if (!m_DepthStencilState)
         {
@@ -145,7 +145,7 @@ namespace se::render::metal
         [commandEncoder setDepthStencilState:m_DepthStencilState];
     }
 
-    void Material::ApplyBlendMode(BlendMode::Type, BlendMode::Type)
+    void Material::ApplyBlendMode(BlendMode, BlendMode)
     {
         // nothing to do here. Has to be done as part of the pipeline state creation.
     }

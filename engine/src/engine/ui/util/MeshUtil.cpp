@@ -28,7 +28,7 @@ namespace se::ui::util
 
     math::Vec2 ApplyWrapping(math::Vec2 cursorPos,
                        char c,
-                       text::WrapMode::Type mode,
+                       text::WrapMode mode,
                        size_t charIndex,
                        const Rect& rect,
                        const std::shared_ptr<asset::Font>& font,
@@ -83,7 +83,7 @@ namespace se::ui::util
         return cursorPos;
     }
 
-    int CalculateJustificationXOffset(ui::text::Alignment::Type justification,
+    int CalculateJustificationXOffset(ui::text::Alignment justification,
                             int endOfLineX,
                             const Rect& rect)
     {
@@ -168,8 +168,8 @@ namespace se::ui::util
                                      int fontSize,
                                      const String& text,
                                      bool applyKerning,
-                                     text::WrapMode::Type wrap,
-                                     text::Alignment::Type justification)
+                                     text::WrapMode wrap,
+                                     text::Alignment justification)
     {
         float scale = static_cast<float>(fontSize) / 32.f;
         asset::StaticMesh mesh;
@@ -281,7 +281,7 @@ namespace se::ui::util
                               int fontSize,
                               const String& text,
                               bool applyKerning,
-                              text::WrapMode::Type wrap)
+                              text::WrapMode wrap)
     {
         return MeasureText(bounds, font, fontSize, text, applyKerning, wrap, text.Size());
     }
@@ -291,7 +291,7 @@ namespace se::ui::util
         int fontSize,
         const String& text,
         bool applyKerning,
-        text::WrapMode::Type wrap,
+        text::WrapMode wrap,
         size_t endIndex)
     {
         float scale = static_cast<float>(fontSize) / 32.f;
@@ -358,8 +358,8 @@ namespace se::ui::util
         int fontSize,
         const String& text,
         bool applyKerning,
-        text::WrapMode::Type wrap,
-        text::Alignment::Type justification)
+        text::WrapMode wrap,
+        text::Alignment justification)
     {
         float scale = static_cast<float>(fontSize) / 32.f;
         math::Vec2 cursorPos = { };

@@ -9,7 +9,7 @@ namespace se::reflect
     struct Type;
     struct Class;
 
-/// Class ///
+    /// Class ///
 #define SPARK_POD_CLASS(Type) \
 public:               \
 static size_t s_StaticId;                         \
@@ -64,18 +64,18 @@ static void InitMembers();
 
 #define SPARK_MEMBER(...)
 
-template <typename T>
-std::enable_if_t<std::is_default_constructible_v<T>, void> CreateDefaultConstructorMethods(se::reflect::Class* typeDesc)
-{
-    typeDesc->heap_constructor = [typeDesc]{ return typeDesc->has_default_constructor ? new T() : nullptr; };        \
-    typeDesc->inplace_constructor = [typeDesc](void* mem){ return typeDesc->has_default_constructor ? new(mem) T() : nullptr; }; \
-}
+    template <typename T>
+    std::enable_if_t<std::is_default_constructible_v<T>, void> CreateDefaultConstructorMethods(se::reflect::Class* typeDesc)
+    {
+        typeDesc->heap_constructor = [typeDesc]{ return typeDesc->has_default_constructor ? new T() : nullptr; };        \
+        typeDesc->inplace_constructor = [typeDesc](void* mem){ return typeDesc->has_default_constructor ? new(mem) T() : nullptr; }; \
+    }
 
-template <typename T>
-std::enable_if_t<!std::is_default_constructible_v<T>, void> CreateDefaultConstructorMethods(se::reflect::Class*)
-{
-    // ...
-}
+    template <typename T>
+    std::enable_if_t<!std::is_default_constructible_v<T>, void> CreateDefaultConstructorMethods(se::reflect::Class*)
+    {
+        // ...
+    }
 
 #define DEFINE_SPARK_TYPE(Type) \
 static_assert(std::is_convertible<Type*, se::reflect::ObjectBase*>::value, "Reflectable types must inherit from reflect::ObjectBase");\
@@ -83,21 +83,12 @@ size_t Type::s_StaticId = typeid(Type).hash_code();
 
 #define SPARK_INSTANTIATE_TEMPLATE(...)
 
-/// Enum ///
+    /// Enum ///
 #define SPARK_ENUM_BEGIN(_enum, type) \
-struct _enum : reflect::ObjectBase\
-{                                             \
-static size_t s_StaticId;                      \
-static constexpr bool s_IsPOD = true;\
-enum Type : type;\
-static std::string ToString(_enum::Type val); \
-static _enum::Type FromString(const std::string& str); \
-static size_t ValuesCount();\
-static se::reflect::Enum* GetReflection(); \
-enum Type : type\
-{\
+enum class _enum : type\
+{
 
 #define SPARK_ENUM_END()\
-};\
 };
+
 }

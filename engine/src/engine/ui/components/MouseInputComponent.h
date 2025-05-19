@@ -22,7 +22,7 @@ namespace se::ui::components
         int buttonMask = 0xFFFFFFFF;
 
         SPARK_MEMBER()
-        int stateMask = input::KeyState::Up | input::KeyState::Down;
+        int stateMask = static_cast<int>(input::KeyState::Up) | static_cast<int>(input::KeyState::Down);
 
         SPARK_MEMBER()
         bool receivesScrollEvents = false;

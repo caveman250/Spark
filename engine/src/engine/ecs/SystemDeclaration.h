@@ -15,14 +15,14 @@ namespace se::ecs
     struct ComponentUsage
     {
         template<typename T>
-        ComponentUsage(ComponentMutability::Type _mutability)
+        ComponentUsage(ComponentMutability _mutability)
             : id(T::GetComponentId())
             , mutability(_mutability)
         {
         }
 
         ComponentUsage(const ecs::Id& component,
-                       ComponentMutability::Type _mutability)
+                       ComponentMutability _mutability)
             : id(component)
             , mutability(_mutability)
         {
@@ -34,14 +34,14 @@ namespace se::ecs
         }
 
         Id id = 0;
-        ComponentMutability::Type mutability;
+        ComponentMutability mutability;
     };
 
     struct VariantComponentUsage
     {
         size_t type_hash = 0;
         std::set<ecs::Id> components;
-        ComponentMutability::Type mutability;
+        ComponentMutability mutability;
     };
 
     struct SystemDeclaration
@@ -90,7 +90,7 @@ namespace se::ecs
         }
 
         template<typename... Ts>
-        SystemDeclaration& WithVariantComponent(ComponentMutability::Type mutability)
+        SystemDeclaration& WithVariantComponent(ComponentMutability mutability)
         {
             if (!SPARK_VERIFY(variantComponentUsage.type_hash == 0), "Only one variant component supported.")
             {
@@ -111,14 +111,14 @@ namespace se::ecs
 
 
         SystemDeclaration& WithChildQuery(const Id& component,
-                                          ComponentMutability::Type mutability)
+                                          ComponentMutability mutability)
         {
             childQuerys.push_back(ComponentUsage(component, mutability));
             return *this;
         }
 
         template<typename... Ts>
-        SystemDeclaration& WithChildQuerys(ComponentMutability::Type mutability)
+        SystemDeclaration& WithChildQuerys(ComponentMutability mutability)
         {
             (childQuerys.push_back(ComponentUsage(Ts::GetComponentId(), mutability)), ...);
             return *this;
@@ -177,7 +177,7 @@ namespace se::ecs
         }
 
         template<typename... Ts>
-        ChildQueryDeclaration& WithVariantComponent(ComponentMutability::Type mutability)
+        ChildQueryDeclaration& WithVariantComponent(ComponentMutability mutability)
         {
             if (!SPARK_VERIFY(variantComponentUsage.type_hash == 0, "Only one variant component supported."))
             {

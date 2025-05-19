@@ -7,20 +7,20 @@ namespace se::ecs
     struct SystemUpdateEntityComponentData
     {
         void* componentArray = nullptr;
-        ComponentMutability::Type mutability = {};
+        ComponentMutability mutability = {};
     };
 
     struct SystemUpdateSingletonComponentData
     {
         void* component = nullptr;
-        ComponentMutability::Type mutability = {};
+        ComponentMutability mutability = {};
     };
 
     struct SystemUpdateVariantComponentData
     {
         void* variant = nullptr;
         ecs::Id variant_type = {};
-        ComponentMutability::Type mutability = {};
+        ComponentMutability mutability = {};
     };
 
     class SystemUpdateData
@@ -121,19 +121,19 @@ namespace se::ecs
             return ret;
         }
 
-        void AddComponentArray(const ecs::Id& component, void* compArray, ComponentMutability::Type mutability)
+        void AddComponentArray(const ecs::Id& component, void* compArray, ComponentMutability mutability)
         {
             m_ComponentArrays.insert(
                     std::make_pair(component, SystemUpdateEntityComponentData(compArray, mutability)));
         }
 
-        void AddSingletonComponent(const ecs::Id& id, void* compArray, ComponentMutability::Type mutability)
+        void AddSingletonComponent(const ecs::Id& id, void* compArray, ComponentMutability mutability)
         {
             m_SingletonComponents.insert(
                     std::make_pair(id, SystemUpdateSingletonComponentData(compArray, mutability)));
         }
 
-        void AddVariantComponentArray(const ecs::Id& id, void* compArray, ComponentMutability::Type mutability)
+        void AddVariantComponentArray(const ecs::Id& id, void* compArray, ComponentMutability mutability)
         {
             m_VariantComponentData = SystemUpdateVariantComponentData(compArray, id, mutability);
         }

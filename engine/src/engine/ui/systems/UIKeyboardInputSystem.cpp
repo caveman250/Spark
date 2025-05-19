@@ -77,9 +77,9 @@ namespace se::ui::systems
 
     bool UIKeyboardInputSystem::TryConsumeEvent(const input::KeyEvent& keyEvent, components::KeyInputComponent& inputReceiver)
     {
-        if (keyEvent.key & inputReceiver.keyMask)
+        if (static_cast<int>(keyEvent.key) & static_cast<int>(inputReceiver.keyMask))
         {
-            if (keyEvent.state & inputReceiver.stateMask)
+            if (static_cast<int>(keyEvent.state) & static_cast<int>(inputReceiver.stateMask))
             {
                 inputReceiver.keyEvents.push_back(keyEvent);
                 return true;

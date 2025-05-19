@@ -21,6 +21,6 @@ namespace se::ui::systems
         void HandleKey(const ecs::Id& entity,
                    components::EditableTextComponent& text,
                    components::KeyInputComponent& keyInput,
-                   input::Key::Type key);
+                   input::Key key);
     };
 }

@@ -21,8 +21,8 @@ namespace se::render::opengl
         GLuint GetVertexShader() { return m_VertexShader; }
         GLuint GetFragmentShader() { return m_FragmentShader; }
     private:
-        void ApplyDepthStencil(DepthCompare::Type comp, StencilFunc::Type src, uint32_t writeMask, uint32_t readMask) override;
-        void ApplyBlendMode(BlendMode::Type src, BlendMode::Type dest) override;
+        void ApplyDepthStencil(DepthCompare comp, StencilFunc src, uint32_t writeMask, uint32_t readMask) override;
+        void ApplyBlendMode(BlendMode src, BlendMode dest) override;
 
         GLuint m_VertexShader = GL_INVALID_VALUE;
         GLuint  m_FragmentShader = GL_INVALID_VALUE;

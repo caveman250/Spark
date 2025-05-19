@@ -30,7 +30,7 @@ namespace se::asset::shader::ast
 
         void SetName(const std::string& name) { m_Name = name; }
 
-        AstType::Type GetType() { return m_Type; }
+        AstType GetType() { return m_Type; }
         const std::string& GetName() { return m_Name; }
         int GetIndex() { return m_Index; }
 
@@ -41,7 +41,7 @@ namespace se::asset::shader::ast
         bool IsFragmentOutput(const ShaderCompileContext& context) const;
 
         SPARK_MEMBER(Serialized)
-        AstType::Type m_Type = {};
+        AstType m_Type = {};
 
         SPARK_MEMBER(Serialized)
         std::string m_Name = {};

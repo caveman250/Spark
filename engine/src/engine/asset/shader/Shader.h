@@ -54,7 +54,7 @@ namespace se::asset
         Shader(const Shader& rhs);
         Shader& operator=(const Shader& rhs);
 
-        bool FindVariable(const String& name, shader::ast::AstType::Type& type) const;
+        bool FindVariable(const String& name, shader::ast::AstType& type) const;
         const std::map<String, std::shared_ptr<shader::ast::InputNode>>& GetInputs() const { return m_Inputs; }
         const std::map<String, std::shared_ptr<shader::ast::OutputNode>>& GetOutputs() const { return m_Outputs; }
         const std::map<String, std::shared_ptr<shader::ast::InputPortNode>>& GetInputPorts() const { return m_InputPorts; }
@@ -98,12 +98,12 @@ namespace se::asset
         bool HasUniform(const String& name, const shader::ast::Variable& type);
         bool HasSetting(const String& name, const shader::ast::Variable& type);
 
-        void SetType(ShaderType::Type type) { m_Type = type; }
-        ShaderType::Type GetType() const { return m_Type; }
+        void SetType(ShaderType type) { m_Type = type; }
+        ShaderType GetType() const { return m_Type; }
 
     private:
         SPARK_MEMBER(Serialized)
-        ShaderType::Type m_Type = {};
+        ShaderType m_Type = {};
 
         SPARK_MEMBER()
         bool m_MainDeclared = false;

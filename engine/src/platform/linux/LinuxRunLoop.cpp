@@ -49,7 +49,7 @@ namespace se::linux
             {
                 case SDL_KEYDOWN:
                 {
-                    input::Key::Type key = KeyMap::SDLKeyToSparkKey(ev.key.keysym.scancode);
+                    input::Key key = KeyMap::SDLKeyToSparkKey(ev.key.keysym.scancode);
                     input::KeyEvent keyEvent;
                     keyEvent.key = key;
                     keyEvent.state = input::KeyState::Down;
@@ -59,7 +59,7 @@ namespace se::linux
                 }
                 case SDL_KEYUP:
                 {
-                    input::Key::Type key = KeyMap::SDLKeyToSparkKey(ev.key.keysym.scancode);
+                    input::Key key = KeyMap::SDLKeyToSparkKey(ev.key.keysym.scancode);
                     input::KeyEvent keyEvent;
                     keyEvent.key = key;
                     keyEvent.state = input::KeyState::Up;
@@ -72,7 +72,7 @@ namespace se::linux
                     inputComp->mouseButtonStates[ev.button.button] = input::KeyState::Down;
 
                     input::MouseEvent mouseEvent;
-                    mouseEvent.button = static_cast<input::MouseButton::Type>(ev.button.button);
+                    mouseEvent.button = static_cast<input::MouseButton>(ev.button.button);
                     mouseEvent.state = input::KeyState::Down;
                     inputComp->mouseEvents.push_back(mouseEvent);
                     break;
@@ -82,7 +82,7 @@ namespace se::linux
                     inputComp->mouseButtonStates[ev.button.button] = input::KeyState::Up;
 
                     input::MouseEvent mouseEvent;
-                    mouseEvent.button = static_cast<input::MouseButton::Type>(ev.button.button);
+                    mouseEvent.button = static_cast<input::MouseButton>(ev.button.button);
                     mouseEvent.state = input::KeyState::Up;
                     inputComp->mouseEvents.push_back(mouseEvent);
                     break;

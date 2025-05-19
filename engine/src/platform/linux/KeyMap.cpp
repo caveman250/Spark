@@ -2,7 +2,7 @@
 
 namespace se::linux
 {
-    input::Key::Type KeyMap::SDLKeyToSparkKey(SDL_Scancode sdlKey)
+    input::Key KeyMap::SDLKeyToSparkKey(SDL_Scancode sdlKey)
     {
         switch (sdlKey)
         {

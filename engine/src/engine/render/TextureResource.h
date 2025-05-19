@@ -36,8 +36,8 @@ namespace se::render
 
         size_t m_Width;
         size_t m_Height;
-        asset::texture::Format::Type m_Format;
-        asset::texture::Usage::Type m_Usage;
+        asset::texture::Format m_Format;
+        asset::texture::Usage m_Usage;
         std::vector<asset::texture::Mipmap> m_MipData;
         bool m_HasCreatedPlatformResources = false;
     };

@@ -17,7 +17,7 @@ namespace se::input
         std::vector<KeyEvent> keyEvents;
 
         SPARK_MEMBER()
-        std::vector<KeyState::Type> keyStates;
+        std::vector<KeyState> keyStates;
 
         SPARK_MEMBER()
         int lastMouseX = 0;
@@ -41,7 +41,7 @@ namespace se::input
         int mouseScrollDelta = 0;
 
         SPARK_MEMBER()
-        std::vector<KeyState::Type> mouseButtonStates;
+        std::vector<KeyState> mouseButtonStates;
 
         SPARK_MEMBER()
         std::vector<MouseEvent> mouseEvents;
