@@ -136,7 +136,6 @@ endfunction()
 function(setup_target_common target is_library unity_conf_dir)
     include_directories(src)
     include_directories(src/generated)
-    include_directories(generated)
     setup_source_files(${target} "${unity_conf_dir}" ${is_library})
     setup_compile_options(${target})
 

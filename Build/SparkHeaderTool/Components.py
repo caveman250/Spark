@@ -20,7 +20,7 @@ def ProcessSingletonComponent(components, path, class_stack):
     components.append(ComponentFile(os.path.abspath(path), type, namespace))
 
 def WriteComponentRegistrationFiles(components):
-    output_dir = "../../Engine/src/generated/"
+    output_dir = "../../Engine/src/engine/generated/"
 
     header = "#pragma once\n\nnamespace se::ecs\n{\n\tclass World;\n\tvoid RegisterComponents(World* world);\n}"
     output_path = output_dir + "ComponentRegistration.generated.h"

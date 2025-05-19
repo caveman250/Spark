@@ -8,6 +8,7 @@ import Class
 import Enum
 import Log
 
+
 def ProcessHeaders():
     components = []
     widgets = []
@@ -55,13 +56,20 @@ def ProcessHeaders():
                                         using_namespace_stack.pop()
                                     current_scope_depth -= 1
 
-
     Log.Msg("Second pass, generate reflection code.")
     finalised_reflected_classes = {}
     class_heirachy_map = {}
     template_instantiations = []
 
     for dir in source_dirs:
+        print(dir)
+        source_dir = dir.strip()
+        if source_dir.endswith("Engine/src"):
+            source_dir += "/engine"
+        if not source_dir.endswith("/") and not source_dir.endswith("\\"):
+            source_dir += "/"
+        source_dir += "generated/"
+        print(source_dir)
         for root, dirs, files in os.walk(dir):
             for file_path in files:
                 if file_path == "Reflect_fwd.h":
@@ -105,13 +113,41 @@ def ProcessHeaders():
                             elif line.startswith("SPARK_MEMBER") and i < lineCount - 1:
                                 Class.ProcessMember(line, lines[i + 1], class_stack, namespace_stack, class_list, using_namespace_stack)
                             elif line.startswith("class "):
-                                Class.ProcessNativeClassSecondPass("class", line, lines[i - 1].strip(), class_list, class_heirachy_map, namespace_stack, using_namespace_stack, class_stack, class_depth_stack, current_scope_depth, root + "/" + file_path)
+                                Class.ProcessNativeClassSecondPass("class",
+                                                                   line,
+                                                                   lines[i - 1].strip(),
+                                                                   class_list,
+                                                                   class_heirachy_map,
+                                                                   namespace_stack,
+                                                                   using_namespace_stack,
+                                                                   class_stack,
+                                                                   class_depth_stack,
+                                                                   current_scope_depth,
+                                                                   root + "/" + file_path,
+                                                                   source_dir)
                             elif line.startswith("struct "):
-                                Class.ProcessNativeClassSecondPass("struct", line, lines[i - 1].strip(), class_list, class_heirachy_map, namespace_stack, using_namespace_stack, class_stack, class_depth_stack, current_scope_depth, root + "/" + file_path)
+                                Class.ProcessNativeClassSecondPass("struct",
+                                                                   line,
+                                                                   lines[i - 1].strip(),
+                                                                   class_list,
+                                                                   class_heirachy_map,
+                                                                   namespace_stack,
+                                                                   using_namespace_stack,
+                                                                   class_stack,
+                                                                   class_depth_stack,
+                                                                   current_scope_depth,
+                                                                   root + "/" + file_path,
+                                                                   source_dir)
                             elif line.startswith("SPARK_ENUM_BEGIN"):
-                                Enum.ProcessEnum(line, enum_list, lines, i, namespace_stack, root + "/" + file_path)
+                                Enum.ProcessEnum(line, enum_list, lines, i, namespace_stack, root + "/" + file_path, source_dir)
                             elif line.startswith("SPARK_INSTANTIATE_TEMPLATE"):
-                                Class.ProcessInstantiateTemplate(line, template_instantiations, namespace_stack, root + "/" + file_path, class_list, using_namespace_stack)
+                                Class.ProcessInstantiateTemplate(line,
+                                                                 template_instantiations,
+                                                                 namespace_stack,
+                                                                 root + "/" + file_path,
+                                                                 class_list,
+                                                                 using_namespace_stack,
+                                                                 source_dir)
 
                             for char in line:
                                 if char == "{":
@@ -131,12 +167,11 @@ def ProcessHeaders():
     Class.WriteClassFiles(finalised_reflected_classes, class_heirachy_map, template_instantiations)
     Enum.WriteEnumFiles(enum_list)
     return 0
+
+
 if __name__ == '__main__':
     print("-- Running Spark Header Tool...")
     ret = ProcessHeaders()
     if ret == 0:
         print("-- done.\n")
     exit(ret)
-
-
-

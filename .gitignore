@@ -1,13 +1,5 @@
-cmake-build-debug
-cmake-build-release
-cmake-build-dist
-cmake-build-debugeditor
-cmake-build-releaseeditor
-cmake-build-disteditor
-*.sass
-Engine/src/generated
-Engine/unity
-Editor/unity
 Engine/built
+Editor/built
 *.generated.h
 *.generated.cpp
+*.generated.mm

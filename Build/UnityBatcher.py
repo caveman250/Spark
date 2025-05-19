@@ -26,9 +26,9 @@ def write_output_files(files, file_extension, root, root_dir, output_dir):
         if new_name.endswith("_"):
             new_name = new_name[0:len(new_name)-1]
         if file_counter > 0:
-            new_name += f"_{file_counter}.{file_extension}"
+            new_name += f"_{file_counter}.generated.{file_extension}"
         else:
-            new_name += f".{file_extension}"
+            new_name += f".generated.{file_extension}"
 
         old_contents = ""
         if os.path.exists(output_dir + new_name):
@@ -48,6 +48,8 @@ def process_excluded_file(excluded_name, output_dir):
     new_name = new_name.replace("//", "_")
     new_name = new_name.replace("\\", "_")
     new_name = "src_" + new_name
+    new_name_split = new_name.rsplit('.', 1)
+    new_name = new_name_split[0] + ".generated." + new_name_split[1]
 
     old_contents = ""
     if os.path.exists(output_dir + new_name):

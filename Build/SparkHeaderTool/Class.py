@@ -31,6 +31,7 @@ class Class:
     is_reflected: bool
     is_template: bool
     template_params: list
+    project_src_dir: str
 
 @dataclass
 class TemplateInstantiation:
@@ -38,6 +39,7 @@ class TemplateInstantiation:
     class_name: str
     template_types: list
     filepath: str
+    project_src_dir: str
 
 def GetFullClassName(class_name, namespace_stack):
     if "::" not in class_name:
@@ -130,7 +132,7 @@ def CountNamespaces(namespace_str):
     split = namespace_str.split("::")
     return len(split)
 
-def ProcessNativeClassSecondPass(tag, line, line_before, class_list, class_heirachy_map, namespace_stack, using_namespace_stack, class_stack, class_depth_stack, current_scope_depth, filepath):
+def ProcessNativeClassSecondPass(tag, line, line_before, class_list, class_heirachy_map, namespace_stack, using_namespace_stack, class_stack, class_depth_stack, current_scope_depth, filepath, source_dir):
     # ignore forward decs
     if line.endswith(";"):
         return
@@ -208,7 +210,7 @@ def ProcessNativeClassSecondPass(tag, line, line_before, class_list, class_heira
         class_heirachy_map[GetFullClassName(class_name, namespace_stack)] = FindRealClassType(full_name, class_list, last_namespace_idx, using_namespace_stack)
 
     if len(class_name) > 0:
-        class_stack.append(Class(ClassType.CLASS, class_name, filepath, Namespace.MakeNamespace(namespace_stack), False, [], False, len(template_params) > 0, template_params))
+        class_stack.append(Class(ClassType.CLASS, class_name, filepath, Namespace.MakeNamespace(namespace_stack), False, [], False, len(template_params) > 0, template_params, source_dir))
         class_depth_stack.append(current_scope_depth + 1)
 
 def IsBuiltinPrimitive(type):
@@ -228,7 +230,7 @@ def IsBuiltinPrimitive(type):
         type == "float" or
         type == "std::string")
 
-def ProcessInstantiateTemplate(line, template_instantiations, namespace_stack, filepath, class_list, using_namespace_stack):
+def ProcessInstantiateTemplate(line, template_instantiations, namespace_stack, filepath, class_list, using_namespace_stack, source_dir):
     start_index = len("SPARK_INSTANTIATE_TEMPLATE") + 1
     end_index = len(line)
     num_open_template_params = 0
@@ -271,7 +273,7 @@ def ProcessInstantiateTemplate(line, template_instantiations, namespace_stack, f
             template_type = FindRealClassType(template_type, class_list, last_namespace_idx, using_namespace_stack)
             template_types[i] = template_type
 
-    template_instantiations.append(TemplateInstantiation(Namespace.MakeNamespace(namespace_stack), class_name, template_types, filepath))
+    template_instantiations.append(TemplateInstantiation(Namespace.MakeNamespace(namespace_stack), class_name, template_types, filepath, source_dir))
 
 def ProcessClass(tag, line, class_stack):
     if tag == "SPARK_CLASS_TEMPLATED":
@@ -590,7 +592,7 @@ def DefineMember(class_name, name, serialized):
     return f"            {{\"{name}\", se::reflect::TypeResolver<decltype({class_name}::{name})>::get(), [](const void* obj){{ return (void*)&(({class_name}*)obj)->{name}; }},{bool_val}}},\n"
 
 def WriteClassFiles(classes, base_class_map, template_instantiations):
-    output_dir = "../../Engine/src/generated/"
+    output_dir = "../../Engine/src/engine/generated/"
 
     init_members_h_content = "namespace se\n{\nvoid InitClassReflection();\n}"
     output_path = output_dir + "Classes.generated.h"
@@ -683,7 +685,9 @@ def WriteClassFiles(classes, base_class_map, template_instantiations):
                 contents += DefineClassEnd(classobj.name)
 
             namespace_text = classobj.namespace.replace("::", "_")
-            output_path = output_dir + f"{namespace_text}_{classobj.name}.generated.cpp"
+            output_path = classobj.project_src_dir + f"{namespace_text}_{classobj.name}.generated.cpp"
+            if not os.path.exists(classobj.project_src_dir):
+                os.mkdir(classobj.project_src_dir)
             existing_contents = ""
             if os.path.isfile(output_path):
                 input_handle = open(output_path, "r")
@@ -721,7 +725,9 @@ def WriteClassFiles(classes, base_class_map, template_instantiations):
                 contents += DefineTemplateClassEnd()
 
                 namespace_text = classobj.namespace.replace("::", "_")
-                output_path = output_dir + f"{namespace_text}_{classobj.name}.generated.h"
+                output_path = classobj.project_src_dir + f"{namespace_text}_{classobj.name}.generated.h"
+                if not os.path.exists(classobj.project_src_dir):
+                    os.mkdir(classobj.project_src_dir)
                 existing_contents = ""
                 if os.path.isfile(output_path):
                     input_handle = open(output_path, "r")
@@ -739,7 +745,7 @@ def WriteClassFiles(classes, base_class_map, template_instantiations):
             output_file = f"{namespace_text}_{template_instantiation.class_name}.generated.cpp"
             contents = ""
             if output_file in instantiation_files:
-                contents += instantiation_files[output_file]
+                contents += instantiation_files[template_instantiation.project_src_dir + output_file]
             else:
                 contents += f"#include \"spark.h\"\n#include \"engine/reflect/Reflect.h\"\n#include \"{template_instantiation.filepath}\"\n"
 
@@ -754,10 +760,10 @@ def WriteClassFiles(classes, base_class_map, template_instantiations):
 
             template_types_str = ",".join(template_instantiation.template_types)
             contents += f"static auto SPARK_CAT(SPARK_CAT({template_instantiation.class_name}, Reflection), __COUNTER__) = {template_instantiation.namespace}::{template_instantiation.class_name}<{template_types_str}>::GetReflection();\n"
-            instantiation_files[output_file] = contents
+            instantiation_files[template_instantiation.project_src_dir + output_file] = contents
 
         for path, contents in instantiation_files.items():
-            output_path = output_dir + path
+            output_path = path
             existing_contents = ""
             if os.path.isfile(output_path):
                 input_handle = open(output_path, "r")

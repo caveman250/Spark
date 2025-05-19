@@ -106,8 +106,8 @@ def WriteWidgetHeader(widget_list):
     contents += WriteWidgetTypesMacros(widget_list)
     contents += WriteWidgetVariant()
 
-    output_dir = "../../Engine/src/generated/"
-    output_path = "../../Engine/src/generated/Widgets.generated.h"
+    output_dir = "../../Engine/src/engine/generated/"
+    output_path = "../../Engine/src/engine/generated/Widgets.generated.h"
     if not os.path.exists(output_dir):
         os.mkdir(output_dir)
 

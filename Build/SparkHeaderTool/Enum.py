@@ -8,8 +8,9 @@ class Enum:
     path: str
     namespace: str
     values: list
+    project_src_dir:str
 
-def ProcessEnum(line, enum_list, lines, line_index, namespace_stack, filepath):
+def ProcessEnum(line, enum_list, lines, line_index, namespace_stack, filepath, source_dir):
     start_index = len("SPARK_ENUM_BEGIN") + 1
     end_index = len(line)
     enum = ""
@@ -33,7 +34,7 @@ def ProcessEnum(line, enum_list, lines, line_index, namespace_stack, filepath):
             val = val[:-1]
         values.append(val)
 
-    enum_list.append(Enum(enum, filepath, namespace, values))
+    enum_list.append(Enum(enum, filepath, namespace, values, source_dir))
     
 def DefineEnumBegin(enum):
     full_enum_name = enum.namespace + "::" + enum.name
@@ -83,8 +84,6 @@ def DefineEnumEnd():
 }}"""
 
 def WriteEnumFiles(enum_list):
-    output_dir = "../../Engine/src/generated/"
-
     for enum in enum_list:
         contents = f"#include \"spark.h\"\n#include \"engine/reflect/Reflect.h\"\n#include \"{enum.path}\"\n\n"
         contents += DefineEnumBegin(enum)
@@ -93,7 +92,7 @@ def WriteEnumFiles(enum_list):
         contents += DefineEnumEnd()
 
         namespace_text = enum.namespace.replace("::", "_")
-        output_path = output_dir + f"{namespace_text}_{enum.name}.generated.cpp"
+        output_path = enum.project_src_dir + f"{namespace_text}_{enum.name}.generated.cpp"
         existing_contents = ""
         if os.path.isfile(output_path):
             input_handle = open(output_path, "r")
