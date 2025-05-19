@@ -134,8 +134,8 @@ def ProcessHeaders():
                                                                    current_scope_depth,
                                                                    root + "/" + file_path,
                                                                    source_dir)
-                            elif line.startswith("SPARK_ENUM_BEGIN"):
-                                Enum.ProcessEnum(line, enum_list, lines, i, namespace_stack, root + "/" + file_path, source_dir)
+                            elif line.startswith("SPARK_ENUM"):
+                                Enum.ProcessEnum(lines[i + 1].strip(), enum_list, lines, i, namespace_stack, root + "/" + file_path, source_dir)
                             elif line.startswith("SPARK_INSTANTIATE_TEMPLATE"):
                                 Class.ProcessInstantiateTemplate(line,
                                                                  template_instantiations,

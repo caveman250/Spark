@@ -5,8 +5,10 @@
 
 namespace se::input
 {
-    SPARK_ENUM_BEGIN(KeyState, int)
+    SPARK_ENUM()
+    enum class KeyState : int
+    {
         Up = 1,
         Down = 2
-    SPARK_ENUM_END()
+    };
 }

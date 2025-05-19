@@ -5,7 +5,9 @@
 
 namespace se::input
 {
-    SPARK_ENUM_BEGIN(MouseButton, int)
+    SPARK_ENUM()
+    enum class MouseButton : int
+    {
         Unknown,
         Left,
         Right,
@@ -13,5 +15,5 @@ namespace se::input
         Btn4,
         Btn5,
         None
-    SPARK_ENUM_END()
+    };
 }

@@ -10,20 +10,20 @@ class Enum:
     values: list
     project_src_dir:str
 
-def ProcessEnum(line, enum_list, lines, line_index, namespace_stack, filepath, source_dir):
-    start_index = len("SPARK_ENUM_BEGIN") + 1
-    end_index = len(line)
+def ProcessEnum(next_line, enum_list, lines, line_index, namespace_stack, filepath, source_dir):
+    start_index = len("enum class ")
+    end_index = len(next_line)
     enum = ""
     for i in range(start_index, end_index):
-        if line[i] == ",":
+        if next_line[i] == " ":
             break
-        enum += line[i]
+        enum += next_line[i]
 
     namespace = Namespace.MakeNamespace(namespace_stack)
     values = []
-    for i in range(line_index + 1, len(lines)):
+    for i in range(line_index + 3, len(lines)):
         line = lines[i].strip()
-        if line.startswith("SPARK_ENUM_END"):
+        if line.startswith("};"):
             break
         val = line
         if "=" in line:

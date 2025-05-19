@@ -5,7 +5,9 @@
 
 namespace se::input
 {
-    SPARK_ENUM_BEGIN(Key, int)
+    SPARK_ENUM()
+    enum class Key : int
+    {
         Unknown,
         Space,
         Apostrophe,
@@ -125,5 +127,5 @@ namespace se::input
         RightAlt,
         RightSuper,
         Menu,
-    SPARK_ENUM_END()
+    };
 }

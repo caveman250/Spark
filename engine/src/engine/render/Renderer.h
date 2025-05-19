@@ -15,10 +15,12 @@ namespace se::render
     class FrameBuffer;
     class Material;
 
-    SPARK_ENUM_BEGIN(RenderAPI, int)
+    SPARK_ENUM()
+    enum class RenderAPI : int
+    {
         OpenGL,
         Metal
-    SPARK_ENUM_END()
+    };
 
     class Renderer
     {

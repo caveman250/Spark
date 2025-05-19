@@ -13,10 +13,12 @@ namespace se::ui
 
 namespace se::editor::ui::properties
 {
-    SPARK_ENUM_BEGIN(PropertyTitleMode, int)
+    SPARK_ENUM()
+    enum class PropertyTitleMode : int
+    {
         Inline,
         NextLine
-    SPARK_ENUM_END()
+    };
 
     class PropertyEditor;
 

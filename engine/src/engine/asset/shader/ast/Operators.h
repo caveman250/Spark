@@ -4,7 +4,9 @@
 
 namespace se::asset::shader::ast
 {
-    SPARK_ENUM_BEGIN(OperatorType, int)
+    SPARK_ENUM()
+    enum class OperatorType : int
+    {
         Multiply,
         MultiplyEquals,
         Divide,
@@ -19,7 +21,7 @@ namespace se::asset::shader::ast
         LessEquals,
         Greater,
         GreaterEquals,
-    SPARK_ENUM_END()
+    };
 
     class OperatorUtil
     {

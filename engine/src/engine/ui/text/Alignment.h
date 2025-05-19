@@ -4,9 +4,11 @@
 
 namespace se::ui::text
 {
-    SPARK_ENUM_BEGIN(Alignment, int)
+    SPARK_ENUM()
+    enum class Alignment : int
+    {
         Left,
         Center,
         Right
-    SPARK_ENUM_END()
+    };
 }

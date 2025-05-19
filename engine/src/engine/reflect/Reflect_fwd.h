@@ -83,12 +83,7 @@ size_t Type::s_StaticId = typeid(Type).hash_code();
 
 #define SPARK_INSTANTIATE_TEMPLATE(...)
 
-    /// Enum ///
-#define SPARK_ENUM_BEGIN(_enum, type) \
-enum class _enum : type\
-{
-
-#define SPARK_ENUM_END()\
-};
+/// Enum ///
+#define SPARK_ENUM(...)
 
 }
