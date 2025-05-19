@@ -1,5 +1,5 @@
 include_directories(${ENGINE_DIR}/src)
-include_directories(${ENGINE_DIR}/src/engine/generated)
+include_directories(${ENGINE_DIR}/src/generated)
 include_directories(${ENGINE_DIR}/third_party/bc7enc_rdo)
 include_directories(${ENGINE_DIR}/third_party/stb-ae721c5)
 include_directories(${ENGINE_DIR}/third_party/nlohmann_json-3.13.3)

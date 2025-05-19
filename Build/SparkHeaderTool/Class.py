@@ -592,7 +592,7 @@ def DefineMember(class_name, name, serialized):
     return f"            {{\"{name}\", se::reflect::TypeResolver<decltype({class_name}::{name})>::get(), [](const void* obj){{ return (void*)&(({class_name}*)obj)->{name}; }},{bool_val}}},\n"
 
 def WriteClassFiles(classes, base_class_map, template_instantiations):
-    output_dir = "../../Engine/src/engine/generated/"
+    output_dir = "../../Engine/src/generated/"
 
     init_members_h_content = "namespace se\n{\nvoid InitClassReflection();\n}"
     output_path = output_dir + "Classes.generated.h"

@@ -63,8 +63,6 @@ def ProcessHeaders():
 
     for dir in source_dirs:
         source_dir = dir.strip()
-        if source_dir.endswith("Engine/src"):
-            source_dir += "/engine"
         if not source_dir.endswith("/") and not source_dir.endswith("\\"):
             source_dir += "/"
         source_dir += "generated/"
