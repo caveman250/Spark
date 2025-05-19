@@ -12,7 +12,7 @@ import Log
 def ProcessHeaders():
     components = []
     widgets = []
-    source_dirs = sys.argv[1].split(':')
+    source_dirs = sys.argv[1].split(';')
 
     Log.Msg("Pass 1: Collect classes...")
     class_list = []

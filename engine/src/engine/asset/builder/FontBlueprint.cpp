@@ -150,7 +150,8 @@ namespace se::asset::builder
                                   &sizeY,
                                   &xOff,
                                   &yOff);
-            ret.push_back(std::make_pair(ui::FloatRect { math::Vec2(xOff, yOff), math::Vec2(sizeX, sizeY) }, static_cast<int>(i)));
+            ret.push_back(std::make_pair(ui::FloatRect { math::Vec2(static_cast<float>(xOff), static_cast<float>(yOff)),
+                                                                math::Vec2(static_cast<float>(sizeX), static_cast<float>(sizeY)) }, static_cast<int>(i)));
         }
 
         std::ranges::sort(ret, [](const std::pair<ui::FloatRect, int>& a,
@@ -170,12 +171,9 @@ namespace se::asset::builder
     {
         int advanceWidth = 0, leftSideBearing = 0;
         stbtt_GetCodepointHMetrics(&font, c, &advanceWidth, &leftSideBearing);
-        charData.advanceWidth = advanceWidth;
-        charData.leftSideBearing = leftSideBearing;
-        charData.advanceWidth = static_cast<int>(charData.advanceWidth * scale);
-        charData.leftSideBearing = static_cast<int>(charData.leftSideBearing * scale);
-
-        charData.yOffset = static_cast<int>(roundf(ascent * scale) + charData.rect.topLeft.y);
+        charData.advanceWidth = advanceWidth * scale;
+        charData.leftSideBearing = leftSideBearing * scale;
+        charData.yOffset = roundf(ascent * scale) + charData.rect.topLeft.y;
 
         for (size_t j = 0; j < strlen(s_FontMapChars); ++j)
         {
@@ -183,7 +181,7 @@ namespace se::asset::builder
             kern = stbtt_GetCodepointKernAdvance(&font, c, s_FontMapChars[j]);
             if (kern != 0)
             {
-                charData.kerning[s_FontMapChars[j]] = static_cast<int>(kern * scale);
+                charData.kerning[s_FontMapChars[j]] = kern * scale;
             }
         }
     }
@@ -271,7 +269,7 @@ namespace se::asset::builder
 
             for (int j = 0; j < sizeY; ++j)
             {
-                int byteOffset = FloatRect.topLeft.x + ((FloatRect.topLeft.y + j) * width);
+                int byteOffset = static_cast<int>(FloatRect.topLeft.x + ((FloatRect.topLeft.y + j) * width));
                 std::memcpy(bitmap + byteOffset, pixels + j * sizeX, sizeX);
             }
         }

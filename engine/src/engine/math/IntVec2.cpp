@@ -48,8 +48,8 @@ namespace se::math
 
     IntVec2& IntVec2::operator*=(float scalar)
     {
-        x *= scalar;
-        y *= scalar;
+        x = static_cast<int>(x * scalar);
+        y = static_cast<int>(y * scalar);
         return *this;
     }
 
@@ -69,8 +69,8 @@ namespace se::math
 
     IntVec2& IntVec2::operator/=(float scalar)
     {
-        x /= scalar;
-        y /= scalar;
+        x = static_cast<int>(x / scalar);
+        y = static_cast<int>(y / scalar);
         return *this;
     }
 

@@ -52,7 +52,7 @@ namespace se::ui::systems
                                 auto oldTransform = childTransform;
                                 childTransform.anchors = { 0, 1, 0, 0 };
                                 auto desiredSize = DesiredSizeCalculator::GetDesiredSize(this, child, rectTransform, childTransform, &value[i]);
-                                childTransform.maxY = childTransform.minY + desiredSize.y / window->GetContentScale();
+                                childTransform.maxY = static_cast<int>(childTransform.minY + desiredSize.y / window->GetContentScale());
                                 childTransform.rect = util::CalculateScreenSpaceRect(childTransform, rectTransform);
 
                                 if (!childTransform.overridesChildSizes)

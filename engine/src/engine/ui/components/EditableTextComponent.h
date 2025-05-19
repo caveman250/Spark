@@ -67,7 +67,7 @@ namespace se::ui
         auto window = Application::Get()->GetPrimaryWindow();
         auto ret = ui::util::MeasureText(thisRect.rect,
                                          text->font,
-                                         text->fontSize * window->GetContentScale(),
+                                         static_cast<int>(text->fontSize * window->GetContentScale()),
                                          text->inEditMode ? text->editText : text->text,
                                          true,
                                          text->wrap);

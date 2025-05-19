@@ -6,6 +6,7 @@
 #include "engine/render/Renderer.h"
 #include "platform/IWindow.h"
 #include "engine/render/RenderCommand.h"
+#include "engine/ui/singleton_components/UIRenderComponent.h"
 
 using namespace se;
 using namespace se::ecs::components;

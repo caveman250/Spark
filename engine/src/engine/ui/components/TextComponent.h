@@ -66,7 +66,7 @@ namespace se::ui
         }
 
         auto window = Application::Get()->GetPrimaryWindow();
-        auto ret = ui::util::MeasureText(thisRect.rect, text->font, text->fontSize * window->GetContentScale(), text->text, true, text->wrap);
+        auto ret = ui::util::MeasureText(thisRect.rect, text->font, static_cast<int>(text->fontSize * window->GetContentScale()), text->text, true, text->wrap);
         return CalculateAnchorOffsets(thisRect, parentRect.rect) + ret;
     }
 }

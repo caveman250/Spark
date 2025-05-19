@@ -69,7 +69,7 @@ namespace se::ui::systems
 
                     desiredSizeInfo.rectTransform->anchors = {0.f, 0.f, 0.f, 1.f};
                     desiredSizeInfo.rectTransform->minX = currX;
-                    desiredSizeInfo.rectTransform->maxX = desiredSizeInfo.rectTransform->minX + desiredSizeInfo.desiredSize.x / window->GetContentScale();
+                    desiredSizeInfo.rectTransform->maxX = static_cast<int>(desiredSizeInfo.rectTransform->minX + desiredSizeInfo.desiredSize.x / window->GetContentScale());
                     currX = desiredSizeInfo.rectTransform->maxX + horizontalBox.spacing;
 
                     desiredSizeInfo.rectTransform->rect = util::CalculateScreenSpaceRect(*desiredSizeInfo.rectTransform,
@@ -91,7 +91,7 @@ namespace se::ui::systems
                     }
                 }
 
-                horizontalBoxTransform.rect.size.x = currX * window->GetContentScale();
+                horizontalBoxTransform.rect.size.x = static_cast<int>(currX * window->GetContentScale());
                 horizontalBoxTransform.maxX = horizontalBoxTransform.minX + currX;
 
                 horizontalBox.dirty = false;

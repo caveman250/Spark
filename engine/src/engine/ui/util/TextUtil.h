@@ -66,7 +66,7 @@ namespace se::ui::util
             auto window = Application::Get()->GetPrimaryWindow();
             asset::StaticMesh mesh = util::CreateTextMesh(transform.rect,
                                                           textComp.font,
-                                                          textComp.fontSize * window->GetContentScale(),
+                                                          static_cast<int>(textComp.fontSize * window->GetContentScale()),
                                                           text,
                                                           true,
                                                           textComp.wrap,

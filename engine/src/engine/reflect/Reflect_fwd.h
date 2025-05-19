@@ -3,7 +3,7 @@
 #include "Type.h"
 #include "Class.h"
 
-#define SPARK_POD_CLASS(Type) \
+#define SPARK_POD_CLASS(...) \
     public:               \
     static size_t s_StaticId;                         \
     static constexpr bool s_IsPOD = true;\

@@ -49,7 +49,7 @@ namespace se::ui::util
             if (!didWrap)
             {
                 size_t lookAhead = charIndex + 1;
-                int xCopy = cursorPos.x;
+                float xCopy = cursorPos.x;
 
                 char nextChar = text[lookAhead];
                 while (nextChar != ' ' && lookAhead < text.Size() - 1)
@@ -83,8 +83,8 @@ namespace se::ui::util
         return cursorPos;
     }
 
-    int CalculateJustificationXOffset(ui::text::Alignment justification,
-                            int endOfLineX,
+    float CalculateJustificationXOffset(ui::text::Alignment justification,
+                            float endOfLineX,
                             const Rect& rect)
     {
         switch (justification)
@@ -93,8 +93,8 @@ namespace se::ui::util
                 return 0;
             case text::Alignment::Center:
             {
-                int availableSpace = rect.size.x - endOfLineX;
-                return availableSpace / 2;
+                float availableSpace = rect.size.x - endOfLineX;
+                return availableSpace / 2.f;
             }
             case text::Alignment::Right:
             {
@@ -198,7 +198,7 @@ namespace se::ui::util
                 wrap == text::WrapMode::WordChar)
             {
                 bool didWrap = false;
-                int oldX = cursorPos.x;
+                float oldX = cursorPos.x;
                 cursorPos = ApplyWrapping(cursorPos,
                                           c,
                                           wrap,
@@ -226,7 +226,7 @@ namespace se::ui::util
 
                 if (didWrap)
                 {
-                    int offset = CalculateJustificationXOffset(justification,
+                    float offset = CalculateJustificationXOffset(justification,
                                        oldX,
                                        rect);
                     if (offset != 0)
@@ -243,7 +243,7 @@ namespace se::ui::util
 
                 if (!didWrap && i == text.Size() - 1)
                 {
-                    int offset = CalculateJustificationXOffset(justification,
+                    float offset = CalculateJustificationXOffset(justification,
                                                                cursorPos.x,
                                                                rect);
                     if (offset != 0)
@@ -258,7 +258,7 @@ namespace se::ui::util
             }
             else if (i == text.Size() - 1)
             {
-                int offset = CalculateJustificationXOffset(justification,
+                float offset = CalculateJustificationXOffset(justification,
                                                            cursorPos.x,
                                                            rect);
                 if (offset != 0)
@@ -386,7 +386,7 @@ namespace se::ui::util
             if (wrap != text::WrapMode::None)
             {
                 bool didWrap = false;
-                int oldX = cursorPos.x;
+                float oldX = cursorPos.x;
                 cursorPos = ApplyWrapping(cursorPos,
                                           c,
                                           wrap,
@@ -414,7 +414,7 @@ namespace se::ui::util
 
                 if (didWrap)
                 {
-                    int offset = CalculateJustificationXOffset(justification,
+                    float offset = CalculateJustificationXOffset(justification,
                                                                oldX,
                                                                bounds);
                     size_t lineEnd = i;
@@ -435,7 +435,7 @@ namespace se::ui::util
             }
         }
 
-        int offset = CalculateJustificationXOffset(justification,
+        float offset = CalculateJustificationXOffset(justification,
                                                    cursorPos.x,
                                                    bounds);
         float halfFontSize = fontSize * .5f;

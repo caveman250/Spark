@@ -97,7 +97,7 @@ namespace se::windows
                 keyEvent.state = message == WM_KEYDOWN ? input::KeyState::Down : input::KeyState::Up;
 
                 window->GetTempInputComponent().keyEvents.push_back(keyEvent);
-                window->GetTempInputComponent().keyStates[key] = keyEvent.state;
+                window->GetTempInputComponent().keyStates[static_cast<int>(key)] = keyEvent.state;
                 break;
             }
             case WM_MOVE:
@@ -114,7 +114,7 @@ namespace se::windows
             }
             case WM_LBUTTONDOWN:
             {
-                window->GetTempInputComponent().mouseButtonStates[input::MouseButton::Left] = input::KeyState::Down;
+                window->GetTempInputComponent().mouseButtonStates[static_cast<int>(input::MouseButton::Left)] = input::KeyState::Down;
 
                 input::MouseEvent mouseEvent;
                 mouseEvent.button = input::MouseButton::Left;
@@ -124,7 +124,7 @@ namespace se::windows
             }
             case WM_LBUTTONUP:
             {
-                window->GetTempInputComponent().mouseButtonStates[input::MouseButton::Left] = input::KeyState::Up;
+                window->GetTempInputComponent().mouseButtonStates[static_cast<int>(input::MouseButton::Left)] = input::KeyState::Up;
 
                 input::MouseEvent mouseEvent;
                 mouseEvent.button = input::MouseButton::Left;
@@ -134,7 +134,7 @@ namespace se::windows
             }
             case WM_RBUTTONDOWN:
             {
-                window->GetTempInputComponent().mouseButtonStates[input::MouseButton::Right] = input::KeyState::Down;
+                window->GetTempInputComponent().mouseButtonStates[static_cast<int>(input::MouseButton::Right)] = input::KeyState::Down;
 
                 input::MouseEvent mouseEvent;
                 mouseEvent.button = input::MouseButton::Right;
@@ -144,7 +144,7 @@ namespace se::windows
             }
             case WM_RBUTTONUP:
             {
-                window->GetTempInputComponent().mouseButtonStates[input::MouseButton::Right] = input::KeyState::Up;
+                window->GetTempInputComponent().mouseButtonStates[static_cast<int>(input::MouseButton::Right)] = input::KeyState::Up;
 
                 input::MouseEvent mouseEvent;
                 mouseEvent.button = input::MouseButton::Right;
@@ -154,7 +154,7 @@ namespace se::windows
             }
             case WM_MBUTTONDOWN:
             {
-                window->GetTempInputComponent().mouseButtonStates[input::MouseButton::Middle] = input::KeyState::Down;
+                window->GetTempInputComponent().mouseButtonStates[static_cast<int>(input::MouseButton::Middle)] = input::KeyState::Down;
 
                 input::MouseEvent mouseEvent;
                 mouseEvent.button = input::MouseButton::Middle;
@@ -164,7 +164,7 @@ namespace se::windows
             }
             case WM_MBUTTONUP:
             {
-                window->GetTempInputComponent().mouseButtonStates[input::MouseButton::Middle] = input::KeyState::Up;
+                window->GetTempInputComponent().mouseButtonStates[static_cast<int>(input::MouseButton::Middle)] = input::KeyState::Up;
 
                 input::MouseEvent mouseEvent;
                 mouseEvent.button = input::MouseButton::Middle;
@@ -175,7 +175,7 @@ namespace se::windows
             case WM_XBUTTONDOWN:
             {
                 input::MouseButton btn = lParam == XBUTTON1 ? input::MouseButton::Btn4 : input::MouseButton::Btn5;
-                window->GetTempInputComponent().mouseButtonStates[btn] = input::KeyState::Down;
+                window->GetTempInputComponent().mouseButtonStates[static_cast<int>(btn)] = input::KeyState::Down;
 
                 input::MouseEvent mouseEvent;
                 mouseEvent.button = btn;
@@ -186,7 +186,7 @@ namespace se::windows
             case WM_XBUTTONUP:
             {
                 input::MouseButton btn = lParam == XBUTTON1 ? input::MouseButton::Btn4 : input::MouseButton::Btn5;
-                window->GetTempInputComponent().mouseButtonStates[btn] = input::KeyState::Up;
+                window->GetTempInputComponent().mouseButtonStates[static_cast<int>(btn)] = input::KeyState::Up;
 
                 input::MouseEvent mouseEvent;
                 mouseEvent.button = btn;

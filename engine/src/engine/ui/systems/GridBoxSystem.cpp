@@ -82,7 +82,7 @@ namespace se::ui::systems
                     }
                 }
 
-                gridBoxTransform.rect.size.y = cursor.y * window->GetContentScale();
+                gridBoxTransform.rect.size.y = static_cast<int>(cursor.y * window->GetContentScale());
                 gridBoxTransform.maxY = gridBoxTransform.minY + cursor.y;
 
                 gridBox.dirty = false;

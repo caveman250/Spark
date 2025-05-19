@@ -69,7 +69,7 @@ namespace se::ui::systems
                         desiredSizeInfo.rectTransform->minY = currY;
                         desiredSizeInfo.rectTransform->minX = verticalBox.paddingLeft;
                         desiredSizeInfo.rectTransform->maxX = verticalBox.paddingRight;
-                        desiredSizeInfo.rectTransform->maxY = desiredSizeInfo.rectTransform->minY + desiredSizeInfo.desiredSize.y / window->GetContentScale();
+                        desiredSizeInfo.rectTransform->maxY = static_cast<int>(desiredSizeInfo.rectTransform->minY + desiredSizeInfo.desiredSize.y / window->GetContentScale());
                         currY = desiredSizeInfo.rectTransform->maxY + verticalBox.spacing;
 
                         desiredSizeInfo.rectTransform->rect = util::CalculateScreenSpaceRect(*desiredSizeInfo.rectTransform,
@@ -91,8 +91,8 @@ namespace se::ui::systems
                         }
                     }
 
-                    verticalBoxTransform.rect.size.y = currY * window->GetContentScale() +
-                                                    verticalBox.paddingBottom * window->GetContentScale();
+                    verticalBoxTransform.rect.size.y = static_cast<int>(currY * window->GetContentScale() +
+                                                    verticalBox.paddingBottom * window->GetContentScale());
                     verticalBoxTransform.maxY = verticalBoxTransform.minY + currY + verticalBox.paddingBottom;
 
                     verticalBox.dirty = false;
