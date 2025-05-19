@@ -735,7 +735,6 @@ def WriteClassFiles(classes, base_class_map, template_instantiations):
 
         instantiation_files = dict()
         for template_instantiation in template_instantiations:
-            print(template_instantiation)
             namespace_text = template_instantiation.namespace.replace("::", "_")
             output_file = f"{namespace_text}_{template_instantiation.class_name}.generated.cpp"
             contents = ""
