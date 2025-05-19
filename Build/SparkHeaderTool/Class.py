@@ -481,7 +481,7 @@ def DefineClassBeginCommon(class_name, is_pod):
     {{
         return reflect::TypeResolver<{class_name}>::get()->GetTypeName(nullptr);
     }}\n"""
-    ret += f"""se::reflect::Class* {class_name}::GetReflection() 
+    ret += f"""    se::reflect::Class* {class_name}::GetReflection() 
     {{
         static se::reflect::Class* s_Reflection = nullptr;
         if (!s_Reflection)
@@ -574,7 +574,7 @@ def DefineClassEnd(class_name):
     return f"""        }};
     }}
     
-    static auto SPARK_CAT(SPARK_CAT(type, Reflection), __COUNTER__) = {class_name}::GetReflection(); // ensure reflection has been initialised.
+    static auto SPARK_CAT({class_name}Reflection, __COUNTER__) = {class_name}::GetReflection();
 }}
 """
 
@@ -582,7 +582,7 @@ def DefinePODClassBegin(class_name):
     return f"    size_t {class_name}::s_StaticId = typeid({class_name}).hash_code();\n" + DefineClassBeginCommon(class_name, True)
 
 def DefineComponentBegin(class_name):
-    return f"    DEFINE_SPARK_TYPE({class_name})\nse::ecs::Id {class_name}::s_ComponentId = {{}};" + DefineClassBeginCommon(class_name, False)
+    return f"    DEFINE_SPARK_TYPE({class_name})\n    se::ecs::Id {class_name}::s_ComponentId = {{}};\n" + DefineClassBeginCommon(class_name, False)
 
 def DefineSystem(class_name):
     return DefineClassBegin(class_name) + DefineClassEnd(class_name)
@@ -743,9 +743,10 @@ def WriteClassFiles(classes, base_class_map, template_instantiations):
         for template_instantiation in template_instantiations:
             namespace_text = template_instantiation.namespace.replace("::", "_")
             output_file = f"{namespace_text}_{template_instantiation.class_name}.generated.cpp"
+            full_output_path = template_instantiation.project_src_dir + output_file
             contents = ""
-            if output_file in instantiation_files:
-                contents += instantiation_files[template_instantiation.project_src_dir + output_file]
+            if full_output_path in instantiation_files:
+                contents += instantiation_files[full_output_path]
             else:
                 contents += f"#include \"spark.h\"\n#include \"engine/reflect/Reflect.h\"\n#include \"{template_instantiation.filepath}\"\n"
 
@@ -759,8 +760,8 @@ def WriteClassFiles(classes, base_class_map, template_instantiations):
                 contents += f"#include \"{include}\"\n"
 
             template_types_str = ",".join(template_instantiation.template_types)
-            contents += f"static auto SPARK_CAT(SPARK_CAT({template_instantiation.class_name}, Reflection), __COUNTER__) = {template_instantiation.namespace}::{template_instantiation.class_name}<{template_types_str}>::GetReflection();\n"
-            instantiation_files[template_instantiation.project_src_dir + output_file] = contents
+            contents += f"static auto SPARK_CAT({template_instantiation.class_name}Reflection, __COUNTER__) = {template_instantiation.namespace}::{template_instantiation.class_name}<{template_types_str}>::GetReflection();\n"
+            instantiation_files[full_output_path] = contents
 
         for path, contents in instantiation_files.items():
             output_path = path
