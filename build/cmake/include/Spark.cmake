@@ -1,4 +1,4 @@
-set(ENGINE_DIR ${ROOT_DIR}/Engine)
+set(ENGINE_DIR ${ROOT_DIR}/engine)
 
 include(Preprocessor)
 include(Platform)
@@ -74,7 +74,7 @@ function(setup_source_files target unity_conf_dir is_library)
     else()
         set(unity_build TRUE)
         message(STATUS "-- Unity build enabled.")
-        get_filename_component(ABSOLUTE_PATH ${ROOT_DIR}/Build/ ABSOLUTE)
+        get_filename_component(ABSOLUTE_PATH ${ROOT_DIR}/build/ ABSOLUTE)
         execute_process(COMMAND ${PYTHON_EXE} UnityBatcher.py ${unity_conf_dir} ${PLATFORM} WORKING_DIRECTORY ${ABSOLUTE_PATH})
 
         file(GLOB SOURCE unity/*.cpp unity/*.h)

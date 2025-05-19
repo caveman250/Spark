@@ -1,5 +1,5 @@
-Engine/built
-Editor/built
+engine/built
+editor/built
 *.generated.h
 *.generated.cpp
 *.generated.mm

@@ -6,10 +6,11 @@ def parse_conf_file(path):
     root = ""
     file = open(path)
     for line in file:
+        line = line.strip()
         if line.startswith("Root"):
-            root = line[len("Root "):len(line)-1]
+            root = line[len("Root "):]
         elif line.startswith("ExcludeFile"):
-            excluded_files.append(line[len("ExcludeFile "):len(line)-1])
+            excluded_files.append(line[len("ExcludeFile "):])
     file.close()
 
     output_dir = root + "/../unity/"
