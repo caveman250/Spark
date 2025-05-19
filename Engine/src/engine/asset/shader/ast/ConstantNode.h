@@ -15,7 +15,7 @@ namespace se::asset::shader::ast
     template <typename T>
     class ConstantNode : public ConstantNodeBase
     {
-        SPARK_CLASS_TEMPLATED(ConstantNode, T)
+        SPARK_CLASS_TEMPLATED()
     public:
         ConstantNode() : ConstantNodeBase() {}
         ConstantNode(T t);
@@ -24,8 +24,16 @@ namespace se::asset::shader::ast
         void ToMtl(ShaderCompileContext& context, string::ArenaString& outShader) const override;
         ShaderValue GetValue() override;
     private:
+
+        SPARK_MEMBER(Serialized)
         T m_Constant = {};
     };
+
+    SPARK_INSTANTIATE_TEMPLATE(ConstantNode, int);
+    SPARK_INSTANTIATE_TEMPLATE(ConstantNode, float);
+    SPARK_INSTANTIATE_TEMPLATE(ConstantNode, math::Vec2);
+    SPARK_INSTANTIATE_TEMPLATE(ConstantNode, math::Vec3);
+    SPARK_INSTANTIATE_TEMPLATE(ConstantNode, math::Vec4);
 
     template <typename T>
     ConstantNode<T>::ConstantNode(T t)
@@ -94,9 +102,6 @@ namespace se::asset::shader::ast
     {
         return m_Constant;
     }
-
-    DEFINE_SPARK_CLASS_TEMPLATED_BEGIN(ConstantNode, TEMPLATE_TYPES(T), TEMPLATE_PARAMETERS(typename T))
-        DEFINE_SERIALIZED_MEMBER_TEMPLATED(ConstantNode, m_Children, TEMPLATE_TYPES(T))
-        DEFINE_SERIALIZED_MEMBER_TEMPLATED(ConstantNode, m_Constant, TEMPLATE_TYPES(T))
-    DEFINE_SPARK_CLASS_TEMPLATED_END(ConstantNode)
 }
+
+#include "se_asset_shader_ast_ConstantNode.generated.h"

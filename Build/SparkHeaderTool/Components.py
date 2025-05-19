@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 import Namespace
 import os
+import Log
 
 @dataclass
 class ComponentFile:
@@ -32,12 +33,12 @@ def WriteComponentRegistrationFiles(components):
         existing_contents = input_handle.read()
         input_handle.close()
     if existing_contents != header:
-        print("-- -- ComponentRegistration.generated.h generating...")
+        Log.Msg("ComponentRegistration.generated.h generating...")
         output_handle = open(output_path, "w+")
         output_handle.write(header)
         output_handle.close()
     else:
-        print("-- -- ComponentRegistration.generated.h up to date. skipping.")
+        Log.Msg("ComponentRegistration.generated.h up to date. skipping.")
 
     cpp = "#include \"ComponentRegistration.generated.h\"\n#include \"spark.h\"\n#include \"engine/reflect/Reflect.h\"\n"
     for i in range(len(components)):
@@ -62,9 +63,9 @@ def WriteComponentRegistrationFiles(components):
         existing_contents = input_handle.read()
         input_handle.close()
     if existing_contents != cpp:
-        print("-- -- ComponentRegistration.generated.cpp generating...")
+        Log.Msg("ComponentRegistration.generated.cpp generating...")
         output_handle = open(output_path, "w+")
         output_handle.write(cpp)
         output_handle.close()
     else:
-        print("-- -- ComponentRegistration.generated.cpp up to date. skipping.")
+        Log.Msg("ComponentRegistration.generated.cpp up to date. skipping.")

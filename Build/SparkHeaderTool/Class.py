@@ -1,7 +1,7 @@
 import os
 from dataclasses import dataclass
 from enum import Enum
-
+import Log
 import Namespace
 
 
@@ -17,7 +17,8 @@ ClassType = Enum('ClassType',
                            ('WIDGET_COMPONENT', 3),
                            ('SINGLETON_COMPONENT', 4),
                            ('POD_CLASS', 5),
-                           ('SYSTEM', 6),])
+                           ('SYSTEM', 6),
+                           ('TEMPLATED_CLASS', 6),])
 
 @dataclass
 class Class:
@@ -28,6 +29,15 @@ class Class:
     abstract: bool
     members: list
     is_reflected: bool
+    is_template: bool
+    template_params: list
+
+@dataclass
+class TemplateInstantiation:
+    namespace: str
+    class_name: str
+    template_types: list
+    filepath: str
 
 def GetFullClassName(class_name, namespace_stack):
     if "::" not in class_name:
@@ -59,7 +69,7 @@ def GetFullClassName(class_name, namespace_stack):
     else:
         return class_name
 
-def ProcessNativeClass(tag, line, namespace_stack, class_list):
+def ProcessNativeClassFirstPass(tag, line, namespace_stack, class_list):
     # ignore forward decs
     if line.endswith(";"):
         return
@@ -120,7 +130,7 @@ def CountNamespaces(namespace_str):
     split = namespace_str.split("::")
     return len(split)
 
-def ProcessNativeClassInheritance(tag, line, class_list, class_heirachy_map, namespace_stack, using_namespace_stack, class_stack, class_depth_stack, current_scope_depth, filepath):
+def ProcessNativeClassSecondPass(tag, line, line_before, class_list, class_heirachy_map, namespace_stack, using_namespace_stack, class_stack, class_depth_stack, current_scope_depth, filepath):
     # ignore forward decs
     if line.endswith(";"):
         return
@@ -171,14 +181,97 @@ def ProcessNativeClassInheritance(tag, line, class_list, class_heirachy_map, nam
                     break
             super_name += line[i]
 
+    template_params = []
+    if line_before.startswith("template <") or line_before.startswith("template<"):
+        start_index = len("template <") if line_before.startswith("template <") else len("template<")
+        end_index = len(line_before)
+        num_open_template_params = 0
+        current_template_param = ""
+        for i in range(start_index, end_index):
+            if line_before[i] == '<':
+                num_open_template_params += 1
+            elif line_before[i] == '>':
+                num_open_template_params -= 1
+                if num_open_template_params == -1 and len(current_template_param) > 0:
+                    template_params.append(current_template_param)
+                    current_template_param = ""
+
+            if line_before[i] == "," and num_open_template_params == 0:
+                template_params.append(current_template_param)
+                current_template_param = ""
+            else:
+                current_template_param += line_before[i]
+
     if len(super_name) > 0:
         last_namespace_idx = CountNamespaces(Namespace.MakeNamespace(namespace_stack)) - 1
         full_name = GetFullClassName(super_name, namespace_stack)
         class_heirachy_map[GetFullClassName(class_name, namespace_stack)] = FindRealClassType(full_name, class_list, last_namespace_idx, using_namespace_stack)
 
     if len(class_name) > 0:
-        class_stack.append(Class(ClassType.CLASS, class_name, filepath, Namespace.MakeNamespace(namespace_stack), False, [], False))
+        class_stack.append(Class(ClassType.CLASS, class_name, filepath, Namespace.MakeNamespace(namespace_stack), False, [], False, len(template_params) > 0, template_params))
         class_depth_stack.append(current_scope_depth + 1)
+
+def IsBuiltinPrimitive(type):
+    return (type == "bool" or
+        type == "char" or
+        type == "int" or
+        type == "int8_t" or
+        type == "uint8_t" or
+        type == "int16_t" or
+        type == "uint16_t" or
+        type == "int32_t" or
+        type == "uint32_t" or
+        type == "int64_t" or
+        type == "uint64_t" or
+        type == "size_t" or
+        type == "double" or
+        type == "float" or
+        type == "std::string")
+
+def ProcessInstantiateTemplate(line, template_instantiations, namespace_stack, filepath, class_list, using_namespace_stack):
+    start_index = len("SPARK_INSTANTIATE_TEMPLATE") + 1
+    end_index = len(line)
+    num_open_template_params = 0
+    has_started_template_types = False
+    class_name = ""
+    template_types = []
+    current_template_type = ""
+    for i in range(start_index, end_index):
+        if not has_started_template_types:
+            if line[i] == ",":
+                has_started_template_types = True
+            else:
+                class_name += line[i]
+        else:
+            if line[i] == ' ':
+                continue
+            if line[i] == '<':
+                num_open_template_params += 1
+            elif line[i] == '>':
+                num_open_template_params -= 1
+                if num_open_template_params == 0:
+                    template_types.append(current_template_type)
+                    current_template_type = ""
+
+            if line[i] == ',' and num_open_template_params == 0:
+                template_types.append(current_template_type)
+                current_template_type = ""
+            elif line[i] == ')':
+                template_types.append(current_template_type)
+                current_template_type = ""
+                break
+            else:
+                current_template_type += line[i]
+
+    for i in range(0, len(template_types)):
+        template_type = template_types[i]
+        if not IsBuiltinPrimitive(template_type):
+            last_namespace_idx = CountNamespaces(Namespace.MakeNamespace(namespace_stack)) - 1
+            template_type = GetFullClassName(template_type, namespace_stack)
+            template_type = FindRealClassType(template_type, class_list, last_namespace_idx, using_namespace_stack)
+            template_types[i] = template_type
+
+    template_instantiations.append(TemplateInstantiation(Namespace.MakeNamespace(namespace_stack), class_name, template_types, filepath))
 
 def ProcessClass(tag, line, class_stack):
     if tag == "SPARK_CLASS_TEMPLATED":
@@ -220,6 +313,44 @@ def ProcessClass(tag, line, class_stack):
     class_stack[-1].type = class_type
     class_stack[-1].abstract = is_abstract
     class_stack[-1].is_reflected = True
+
+
+def ProcessTemplateClass(line, lines, class_stack, file_path):
+    start_index = len("SPARK_CLASS_TEMPLATED") + 1
+    end_index = len(line)
+    current_decorator = ""
+    decorators = []
+    for i in range(start_index, end_index):
+        if line[i] == " ":
+            continue
+        if line[i] == ',':
+            decorators.append(current_decorator)
+            current_decorator = ""
+
+        if line[i] == ")":
+            decorators.append(current_decorator)
+            break
+
+        current_decorator += line[i]
+
+    is_abstract = decorators.count("Abstract") > 0
+    class_type = ClassType.TEMPLATED_CLASS
+
+    class_stack[-1].type = class_type
+    class_stack[-1].abstract = is_abstract
+    class_stack[-1].is_reflected = True
+
+    # make sure file ends with generated include
+    last_line = lines[-1]
+    namespace_text = class_stack[-1].namespace.replace("::", "_")
+    class_name = class_stack[-1].name
+    expected_text = f"#include \"{namespace_text}_{class_name}.generated.h\""
+    if last_line.strip() != expected_text:
+        Log.Error(f"File:{file_path}")
+        Log.Error(f"Reflected templated class {class_name}: Header must end with: \"{expected_text}\"")
+        return False
+
+    return True
 
 
 def ProcessMember(line, next_line, class_stack, namespace_stack, class_list, using_namespace_stack):
@@ -375,6 +506,68 @@ def DefineClassBeginCommon(class_name, is_pod):
 def DefineClassBegin(class_name):
     return f"    DEFINE_SPARK_TYPE({class_name})\n" + DefineClassBeginCommon(class_name, False)
 
+def DefineTemplateClassBegin(class_name, template_types, template_params):
+    return f"""    template <{template_params}>
+    size_t {class_name}<{template_types}>::s_StaticId = typeid({class_name}<{template_types}>).hash_code();
+    template <{template_params}>
+    reflect::Type* {class_name}<{template_types}>::GetReflectType() const
+    {{
+        return reflect::TypeResolver<{class_name}<{template_types}>>::get();
+    }}
+    template <{template_params}>
+    void {class_name}<{template_types}>::Serialize(const void* obj, asset::binary::Object& parentObj, const std::string& fieldName) 
+    {{
+        reflect::TypeResolver<{class_name}<{template_types}>>::get()->Serialize(obj, parentObj, fieldName); 
+    }}
+    template <{template_params}>
+    void {class_name}<{template_types}>::Deserialize(void* obj, asset::binary::Object& parentObj, const std::string& fieldName) 
+    {{
+        reflect::TypeResolver<{class_name}<{template_types}>>::get()->Deserialize(obj, parentObj, fieldName); 
+    }}
+    template <{template_params}>
+    asset::binary::StructLayout {class_name}<{template_types}>::GetStructLayout(const void*) const 
+    {{
+        return reflect::TypeResolver<{class_name}<{template_types}>>::get()->GetStructLayout(nullptr); 
+    }}
+    template <{template_params}>
+    std::string {class_name}<{template_types}>::GetTypeName() const 
+    {{
+        return reflect::TypeResolver<{class_name}<{template_types}>>::get()->GetTypeName(nullptr); 
+    }}
+    template <{template_params}>
+    se::reflect::Class* {class_name}<{template_types}>::GetReflection()
+    {{
+        static se::reflect::TemplatedClass<{template_types}>* s_Reflection = nullptr;
+        if (!s_Reflection)
+        {{
+            s_Reflection = new se::reflect::TemplatedClass<{template_types}>();
+            static_assert(std::is_convertible<{class_name}<{template_types}>*, se::reflect::ObjectBase*>::value, "Reflectable types must inherit from reflect::ObjectBase");
+            s_Reflection->name = \"{class_name}\";
+            se::reflect::TypeLookup::GetTypeMap()[s_Reflection->GetTypeName(nullptr)] = s_Reflection;
+            s_Reflection->size = sizeof({class_name}<{template_types}>); 
+            s_Reflection->heap_constructor = []{{ return new {class_name}<{template_types}>(); }}; 
+            s_Reflection->inplace_constructor = [](void* mem){{ return new(mem) {class_name}<{template_types}>(); }}; 
+            s_Reflection->heap_copy_constructor = [](void* other){{ return new {class_name}<{template_types}>(*reinterpret_cast<{class_name}<{template_types}>*>(other)); }}; 
+            s_Reflection->inplace_copy_constructor = [](void* mem, void* other){{ return new(mem) {class_name}<{template_types}>(*reinterpret_cast<{class_name}<{template_types}>*>(other)); }}; 
+            s_Reflection->destructor = [](void* data){{ reinterpret_cast<{class_name}<{template_types}>*>(data)->~{class_name}<{template_types}>(); }}; 
+            s_Reflection->members = {{}};
+        }} 
+        return s_Reflection; 
+    }}
+    template <{template_params}> 
+    void {class_name}<{template_types}>::InitMembers() 
+    {{
+        GetReflection()->members = 
+        {{\n"""
+
+def DefineTemplateMember(type, name, template_types, serialized):
+    serialized_str = "true" if serialized else "false"
+    return f"            {{\"{name}\", se::reflect::TypeResolver<decltype({name})>::get(), [](const void* obj){{ return (void*)&(({type}<{template_types}>*)obj)->{name}; }}, {serialized_str}}},\n"
+
+def DefineTemplateClassEnd():
+    return """        };
+    }
+}"""
 def DefineClassEnd(class_name):
     return f"""        }};
     }}
@@ -396,7 +589,7 @@ def DefineMember(class_name, name, serialized):
     bool_val = "true" if serialized else "false"
     return f"            {{\"{name}\", se::reflect::TypeResolver<decltype({class_name}::{name})>::get(), [](const void* obj){{ return (void*)&(({class_name}*)obj)->{name}; }},{bool_val}}},\n"
 
-def WriteClassFiles(classes, base_class_map):
+def WriteClassFiles(classes, base_class_map, template_instantiations):
     output_dir = "../../Engine/src/generated/"
 
     init_members_h_content = "namespace se\n{\nvoid InitClassReflection();\n}"
@@ -418,8 +611,11 @@ def WriteClassFiles(classes, base_class_map):
             init_members_cpp_content += f"#include \"{class_obj.path}\"\n"
     init_members_cpp_content += "\nnamespace se\n{\nvoid InitClassReflection()\n{\n"
     for full_name, class_obj in classes.items():
-        if class_obj.is_reflected:
+        if class_obj.is_reflected and not class_obj.is_template:
             init_members_cpp_content += "    " + full_name + "::InitMembers();\n"
+    for template_instantiation in template_instantiations:
+        template_params_string = ", ".join(template_instantiation.template_types)
+        init_members_cpp_content += f"    {template_instantiation.namespace}::{template_instantiation.class_name}<{template_params_string}>::InitMembers();\n"
     init_members_cpp_content += "}\n}"
 
     output_path = output_dir + "Classes.generated.cpp"
@@ -435,8 +631,7 @@ def WriteClassFiles(classes, base_class_map):
         output_handle.close()
 
     for full_name, classobj in classes.items():
-        reflected_str = "reflected" if classobj.is_reflected else "not reflected"
-        if classobj.is_reflected:
+        if classobj.is_reflected and not classobj.is_template:
             contents = f"#include \"spark.h\"\n#include \"engine/reflect/Reflect.h\"\n#include \"{classobj.path}\"\n"
 
             includes = []
@@ -487,7 +682,6 @@ def WriteClassFiles(classes, base_class_map):
 
                 contents += DefineClassEnd(classobj.name)
 
-
             namespace_text = classobj.namespace.replace("::", "_")
             output_path = output_dir + f"{namespace_text}_{classobj.name}.generated.cpp"
             existing_contents = ""
@@ -496,7 +690,82 @@ def WriteClassFiles(classes, base_class_map):
                 existing_contents = input_handle.read()
                 input_handle.close()
             if existing_contents != contents:
-                print(f"-- -- {namespace_text}_{classobj.name}.generated.h generating...")
+                print(f"-- -- {namespace_text}_{classobj.name}.generated.cpp generating...")
+                output_handle = open(output_path, "w+")
+                output_handle.write(contents)
+                output_handle.close()
+
+        for full_name, classobj in classes.items():
+            if classobj.is_reflected and classobj.is_template:
+                contents = f"#pragma once\n\nnamespace {classobj.namespace}\n{{\n"
+
+                template_params = ",".join(classobj.template_params)
+                template_types = ""
+                for i in range(0, len(classobj.template_params)):
+                    template_types += classobj.template_params[i].split(" ", 1)[1]
+                    if i < len(classobj.template_params) - 1:
+                        template_types += ","
+
+                contents += DefineTemplateClassBegin(classobj.name, template_types, template_params)
+
+                current_type = full_name
+                while current_type in classes:
+                    class_obj = classes[current_type]
+                    for member in class_obj.members:
+                        contents += DefineTemplateMember(classobj.name, member.name, template_types, member.serialized)
+                    if current_type in base_class_map:
+                        current_type = base_class_map[current_type]
+                    else:
+                        break
+
+                contents += DefineTemplateClassEnd()
+
+                namespace_text = classobj.namespace.replace("::", "_")
+                output_path = output_dir + f"{namespace_text}_{classobj.name}.generated.h"
+                existing_contents = ""
+                if os.path.isfile(output_path):
+                    input_handle = open(output_path, "r")
+                    existing_contents = input_handle.read()
+                    input_handle.close()
+                if existing_contents != contents:
+                    print(f"-- -- {namespace_text}_{classobj.name}.generated.h generating...")
+                    output_handle = open(output_path, "w+")
+                    output_handle.write(contents)
+                    output_handle.close()
+
+        instantiation_files = dict()
+        for template_instantiation in template_instantiations:
+            print(template_instantiation)
+            namespace_text = template_instantiation.namespace.replace("::", "_")
+            output_file = f"{namespace_text}_{template_instantiation.class_name}.generated.cpp"
+            contents = ""
+            if output_file in instantiation_files:
+                contents += instantiation_files[output_file]
+            else:
+                contents += f"#include \"spark.h\"\n#include \"engine/reflect/Reflect.h\"\n#include \"{template_instantiation.filepath}\"\n"
+
+            includes = list()
+            for template_type in template_instantiation.template_types:
+                if template_type in classes:
+                    if includes.count(classes[template_type].path) == 0:
+                        includes.append(classes[template_type].path)
+
+            for include in includes:
+                contents += f"#include \"{include}\"\n"
+
+            template_types_str = ",".join(template_instantiation.template_types)
+            contents += f"static auto SPARK_CAT(SPARK_CAT({template_instantiation.class_name}, Reflection), __COUNTER__) = {template_instantiation.namespace}::{template_instantiation.class_name}<{template_types_str}>::GetReflection();\n"
+            instantiation_files[output_file] = contents
+
+        for path, contents in instantiation_files.items():
+            output_path = output_dir + path
+            existing_contents = ""
+            if os.path.isfile(output_path):
+                input_handle = open(output_path, "r")
+                existing_contents = input_handle.read()
+                input_handle.close()
+            if existing_contents != contents:
+                Log.Msg(f"{path} generating...")
                 output_handle = open(output_path, "w+")
                 output_handle.write(contents)
                 output_handle.close()

@@ -1,6 +1,7 @@
 import Namespace
 import Components
 import os
+import Log
 
 def ProcessWidget(widget_list, path, class_stack, components):
     type = class_stack[-1].name
@@ -116,9 +117,9 @@ def WriteWidgetHeader(widget_list):
         existing_contents = input_handle.read()
         input_handle.close()
     if existing_contents != contents:
-        print("-- -- Widgets.generated.h generating...")
+        Log.Msg("Widgets.generated.h generating...")
         output_handle = open(output_path, "w+")
         output_handle.write(contents)
         output_handle.close()
     else:
-        print("-- -- Widgets.generated.h up to date. skipping.")
+        Log.Msg("Widgets.generated.h up to date. skipping.")

@@ -18,7 +18,7 @@ namespace se::editor::ui::properties
     template <Number N>
     class NumberEditor : public PropertyEditor
     {
-        SPARK_CLASS_TEMPLATED(NumberEditor, N)
+        SPARK_CLASS_TEMPLATED()
 
     public:
         void SetValue(void* value, const reflect::Type* type) override;
@@ -30,8 +30,17 @@ namespace se::editor::ui::properties
         ecs::Id m_Label;
     };
 
-    DEFINE_SPARK_CLASS_TEMPLATED_BEGIN(NumberEditor, TEMPLATE_TYPES(N), TEMPLATE_PARAMETERS(Number N))
-    DEFINE_SPARK_CLASS_TEMPLATED_END(NumberEditor)
+    SPARK_INSTANTIATE_TEMPLATE(NumberEditor, char);
+    SPARK_INSTANTIATE_TEMPLATE(NumberEditor, int8_t);
+    SPARK_INSTANTIATE_TEMPLATE(NumberEditor, uint8_t);
+    SPARK_INSTANTIATE_TEMPLATE(NumberEditor, int16_t);
+    SPARK_INSTANTIATE_TEMPLATE(NumberEditor, uint16_t);
+    SPARK_INSTANTIATE_TEMPLATE(NumberEditor, int32_t);
+    SPARK_INSTANTIATE_TEMPLATE(NumberEditor, uint32_t);
+    SPARK_INSTANTIATE_TEMPLATE(NumberEditor, int64_t);
+    SPARK_INSTANTIATE_TEMPLATE(NumberEditor, uint64_t);
+    SPARK_INSTANTIATE_TEMPLATE(NumberEditor, float);
+    SPARK_INSTANTIATE_TEMPLATE(NumberEditor, double);
 
     template <Number N>
     void NumberEditor<N>::SetValue(void* value, const reflect::Type*)
@@ -200,3 +209,5 @@ namespace se::editor::ui::properties
         }
     }
 }
+
+#include "se_editor_ui_properties_NumberEditor.generated.h"
