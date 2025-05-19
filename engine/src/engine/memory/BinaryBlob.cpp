@@ -51,7 +51,7 @@ namespace se::reflect
 
 namespace se::memory
 {
-    DEFINE_SPARK_TYPE(BinaryBlob)
+    size_t BinaryBlob::s_StaticId = typeid(BinaryBlob).hash_code();
 
     reflect::Type* BinaryBlob::GetReflection()
     {

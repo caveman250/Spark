@@ -413,9 +413,12 @@ def GetFullnameFromClassObject(class_obj: Class):
         return class_obj.namespace + "::" + class_obj.name
     return class_obj.name
 
+def DefineNonPODType(class_name):
+    return f"""static_assert(std::is_convertible<{class_name}*, se::reflect::ObjectBase*>::value, "Reflectable types must inherit from reflect::ObjectBase");
+size_t {class_name}::s_StaticId = typeid({class_name}).hash_code();\n"""
+
 def DefineAbstractClassBegin(class_name):
-    return f"""DEFINE_SPARK_TYPE({class_name})
-    reflect::Type* {class_name}::GetReflectType() const
+    return DefineNonPODType(class_name) + f"""reflect::Type* {class_name}::GetReflectType() const
     {{
         return reflect::TypeResolver<{class_name}>::get();
     }}
@@ -506,7 +509,7 @@ def DefineClassBeginCommon(class_name, is_pod):
     return ret
 
 def DefineClassBegin(class_name):
-    return f"    DEFINE_SPARK_TYPE({class_name})\n" + DefineClassBeginCommon(class_name, False)
+    return f"    " + DefineNonPODType(class_name) + DefineClassBeginCommon(class_name, False)
 
 def DefineTemplateClassBegin(class_name, template_types, template_params):
     return f"""    template <{template_params}>
@@ -582,7 +585,7 @@ def DefinePODClassBegin(class_name):
     return f"    size_t {class_name}::s_StaticId = typeid({class_name}).hash_code();\n" + DefineClassBeginCommon(class_name, True)
 
 def DefineComponentBegin(class_name):
-    return f"    DEFINE_SPARK_TYPE({class_name})\n    se::ecs::Id {class_name}::s_ComponentId = {{}};\n" + DefineClassBeginCommon(class_name, False)
+    return f"    " + DefineNonPODType(class_name) + f"    se::ecs::Id {class_name}::s_ComponentId = {{}};\n" + DefineClassBeginCommon(class_name, False)
 
 def DefineSystem(class_name):
     return DefineClassBegin(class_name) + DefineClassEnd(class_name)
