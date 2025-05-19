@@ -5,7 +5,7 @@
 namespace se::asset::shader::ast
 {
     SPARK_ENUM()
-    enum class OperatorType : int
+    enum class OperatorType
     {
         Multiply,
         MultiplyEquals,

@@ -17,7 +17,7 @@ namespace se
 namespace se::render::commands
 {
     SPARK_ENUM()
-    enum class RenderStage : int
+    enum class RenderStage
     {
         Clear,
         Scene,

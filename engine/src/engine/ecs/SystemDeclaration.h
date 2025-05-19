@@ -8,7 +8,7 @@ namespace se::ecs
     class Relationship;
 
     SPARK_ENUM()
-    enum class ComponentMutability : int
+    enum class ComponentMutability
     {
         Immutable,
         Mutable,

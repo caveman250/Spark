@@ -14,7 +14,7 @@ namespace se::ui
 namespace se::editor::ui::properties
 {
     SPARK_ENUM()
-    enum class PropertyTitleMode : int
+    enum class PropertyTitleMode
     {
         Inline,
         NextLine

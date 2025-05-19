@@ -16,7 +16,7 @@ namespace se::render
     class Material;
 
     SPARK_ENUM()
-    enum class RenderAPI : int
+    enum class RenderAPI
     {
         OpenGL,
         Metal

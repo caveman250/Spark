@@ -5,7 +5,7 @@
 namespace se::asset::texture
 {
     SPARK_ENUM()
-    enum class Format : int
+    enum class Format
     {
         R8,
         BGRA8,
@@ -16,7 +16,7 @@ namespace se::asset::texture
     };
 
     SPARK_ENUM()
-    enum class Usage : int
+    enum class Usage
     {
         Read,
         RenderTarget,

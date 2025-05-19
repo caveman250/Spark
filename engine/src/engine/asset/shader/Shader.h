@@ -42,7 +42,7 @@ namespace se::asset
     };
 
     SPARK_ENUM()
-    enum class ShaderType : int
+    enum class ShaderType
     {
         Vertex,
         Fragment

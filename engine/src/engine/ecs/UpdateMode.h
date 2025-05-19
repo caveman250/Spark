@@ -5,7 +5,7 @@
 namespace se::ecs
 {
     SPARK_ENUM()
-    enum class UpdateMode : int
+    enum class UpdateMode
     {
         SingleThreaded,
         MultiThreaded

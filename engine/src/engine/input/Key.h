@@ -6,7 +6,7 @@
 namespace se::input
 {
     SPARK_ENUM()
-    enum class Key : int
+    enum class Key
     {
         Unknown,
         Space,

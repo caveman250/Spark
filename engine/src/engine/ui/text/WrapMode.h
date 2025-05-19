@@ -5,7 +5,7 @@
 namespace se::ui::text
 {
     SPARK_ENUM()
-    enum class WrapMode : int
+    enum class WrapMode
     {
         Word,
         Char,

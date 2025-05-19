@@ -5,7 +5,7 @@
 namespace se::asset::shader::ast
 {
     SPARK_ENUM()
-    enum class AstType : int
+    enum class AstType
     {
         Int,
         Float,

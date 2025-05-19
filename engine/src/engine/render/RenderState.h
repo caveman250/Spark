@@ -6,7 +6,7 @@
 namespace se::render
 {
     SPARK_ENUM()
-    enum class DepthCompare : int
+    enum class DepthCompare
     {
         Less,
         LessEqual,
@@ -17,7 +17,7 @@ namespace se::render
     };
 
     SPARK_ENUM()
-enum class BlendMode : int
+enum class BlendMode
 {
         Zero,
         One,
@@ -33,7 +33,7 @@ enum class BlendMode : int
     };
 
     SPARK_ENUM()
-enum class StencilFunc : int
+enum class StencilFunc
 {
         Less,
         LessEqual,
