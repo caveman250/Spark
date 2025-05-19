@@ -14,7 +14,7 @@ def ProcessHeaders():
     widgets = []
     source_dirs = sys.argv[1].split(':')
 
-    Log.Msg("First pass, collect classes.")
+    Log.Msg("Pass 1: Collect classes...")
     class_list = []
     enum_list = []
     # first pass, collect all classes in their actual namespace so we cna look them up later when resolving inheritance.
@@ -55,21 +55,19 @@ def ProcessHeaders():
                                         using_namespace_scope_depth_stack.pop()
                                         using_namespace_stack.pop()
                                     current_scope_depth -= 1
-
-    Log.Msg("Second pass, generate reflection code.")
+    Log.Msg("Pass 1: Done.")
+    Log.Msg("Pass 2: Generate reflection code...")
     finalised_reflected_classes = {}
     class_heirachy_map = {}
     template_instantiations = []
 
     for dir in source_dirs:
-        print(dir)
         source_dir = dir.strip()
         if source_dir.endswith("Engine/src"):
             source_dir += "/engine"
         if not source_dir.endswith("/") and not source_dir.endswith("\\"):
             source_dir += "/"
         source_dir += "generated/"
-        print(source_dir)
         for root, dirs, files in os.walk(dir):
             for file_path in files:
                 if file_path == "Reflect_fwd.h":
@@ -166,6 +164,7 @@ def ProcessHeaders():
     Components.WriteComponentRegistrationFiles(components)
     Class.WriteClassFiles(finalised_reflected_classes, class_heirachy_map, template_instantiations)
     Enum.WriteEnumFiles(enum_list)
+    Log.Msg("Pass 2: Done.")
     return 0
 
 
@@ -173,5 +172,5 @@ if __name__ == '__main__':
     print("-- Running Spark Header Tool...")
     ret = ProcessHeaders()
     if ret == 0:
-        print("-- done.\n")
+        print("-- Done.\n")
     exit(ret)

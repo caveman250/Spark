@@ -134,7 +134,7 @@ def main():
     platform = sys.argv[2]
     print("-- -- Generating unity files...")
     create_unity_files(conf_file, platform)
-    print("-- -- done.")
+    print("-- -- Done.")
 
 if __name__ == '__main__':
     main()

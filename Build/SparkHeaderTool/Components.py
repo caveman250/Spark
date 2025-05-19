@@ -37,8 +37,6 @@ def WriteComponentRegistrationFiles(components):
         output_handle = open(output_path, "w+")
         output_handle.write(header)
         output_handle.close()
-    else:
-        Log.Msg("ComponentRegistration.generated.h up to date. skipping.")
 
     cpp = "#include \"ComponentRegistration.generated.h\"\n#include \"spark.h\"\n#include \"engine/reflect/Reflect.h\"\n"
     for i in range(len(components)):
@@ -67,5 +65,3 @@ def WriteComponentRegistrationFiles(components):
         output_handle = open(output_path, "w+")
         output_handle.write(cpp)
         output_handle.close()
-    else:
-        Log.Msg("ComponentRegistration.generated.cpp up to date. skipping.")

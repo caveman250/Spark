@@ -770,7 +770,8 @@ def WriteClassFiles(classes, base_class_map, template_instantiations):
                 existing_contents = input_handle.read()
                 input_handle.close()
             if existing_contents != contents:
-                Log.Msg(f"{path} generating...")
+                filename = path.rsplit("/", 1)[1]
+                Log.Msg(f"{filename} generating...")
                 output_handle = open(output_path, "w+")
                 output_handle.write(contents)
                 output_handle.close()

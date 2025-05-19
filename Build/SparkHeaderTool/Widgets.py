@@ -121,5 +121,3 @@ def WriteWidgetHeader(widget_list):
         output_handle = open(output_path, "w+")
         output_handle.write(contents)
         output_handle.close()
-    else:
-        Log.Msg("Widgets.generated.h up to date. skipping.")
