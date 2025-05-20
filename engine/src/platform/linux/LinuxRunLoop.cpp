@@ -9,7 +9,7 @@
 
 namespace se
 {
-    PlatformRunLoop* PlatformRunLoop::s_Instance = nullptr;
+    PlatformRunLoop* PlatformRunLoopstatic_cast<int>(::s_Instance = nullptr;
 
     PlatformRunLoop* PlatformRunLoop::CreatePlatformRunloop()
     {
@@ -54,7 +54,7 @@ namespace se::linux
                     keyEvent.key = key;
                     keyEvent.state = input::KeyState::Down;
                     inputComp->keyEvents.push_back(keyEvent);
-                    inputComp->keyStates[key] = keyEvent.state;
+                    inputComp->keyStates[static_cast<int>(key)] = keyEvent.state;
                     break;
                 }
                 case SDL_KEYUP:
@@ -64,7 +64,7 @@ namespace se::linux
                     keyEvent.key = key;
                     keyEvent.state = input::KeyState::Up;
                     inputComp->keyEvents.push_back(keyEvent);
-                    inputComp->keyStates[key] = keyEvent.state;
+                    inputComp->keyStates[static_cast<int>(key)] = keyEvent.state;
                     break;
                 }
                 case SDL_MOUSEBUTTONDOWN:
