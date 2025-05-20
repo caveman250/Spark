@@ -83,6 +83,9 @@ namespace se::render::opengl
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         GL_CHECK_ERROR()
 
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, 4.f);
+        GL_CHECK_ERROR()
+
         if (!m_MipData.empty())
         {
             glGenerateMipmap(GL_TEXTURE_2D);
