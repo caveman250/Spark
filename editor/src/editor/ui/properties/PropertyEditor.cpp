@@ -1,14 +1,14 @@
 #include "PropertyEditor.h"
+
 #include "ClassEditor.h"
-
-#include <engine/Application.h>
-#include <engine/asset/AssetManager.h>
-#include <engine/ui/components/RectTransformComponent.h>
-#include <engine/ui/components/TextComponent.h>
-#include <engine/ui/components/WidgetComponent.h>
-
+#include "EnumEditor.h"
+#include "engine/Application.h"
+#include "engine/asset/AssetManager.h"
 #include "engine/ui/components/CollapsingHeaderComponent.h"
+#include "engine/ui/components/RectTransformComponent.h"
+#include "engine/ui/components/TextComponent.h"
 #include "engine/ui/components/VerticalBoxComponent.h"
+#include "engine/ui/components/WidgetComponent.h"
 #include "engine/ui/text/WrapMode.h"
 #include "engine/ui/util/CollapsingHeaderUtil.h"
 
@@ -19,17 +19,8 @@ namespace se::ui::components
 
 namespace se::editor::ui::properties
 {
-    std::unordered_map<String, reflect::Type*>& GetContainerPropertyEditorTypes()
-    {
-        static std::unordered_map<String, reflect::Type*> s_Instance = { };
-        return s_Instance;
-    }
-
-    std::unordered_map<reflect::Type*, reflect::Type*>& GetPropertyEditorTypes()
-    {
-        static std::unordered_map<reflect::Type*, reflect::Type*> s_Instance = { };
-        return s_Instance;
-    }
+    std::unordered_map<reflect::Type*, reflect::Type*> PropertyEditorRegister::s_PropertyEditorTypes = {};
+    std::unordered_map<String, reflect::Type*> PropertyEditorRegister::s_ContainerPropertyEditorTypes = {};
 
     void PropertyEditor::ConstructUI(const String& name,
                                      bool constructTitle,
@@ -105,16 +96,18 @@ namespace se::editor::ui::properties
     {
         reflect::Type* editor_type = nullptr;
 
-        if (type->IsContainer())
+        if (type->IsEnum())
+        {
+            editor_type = EnumEditor::GetReflection();
+        }
+        else if (type->IsContainer())
         {
             auto* container = static_cast<reflect::Type_Container*>(type);
-            auto& map = GetContainerPropertyEditorTypes();
-            editor_type = map[container->GetContainerTypeName()];
+            editor_type = PropertyEditorRegister::s_ContainerPropertyEditorTypes[container->GetContainerTypeName()];
         }
         else
         {
-            auto& map = GetPropertyEditorTypes();
-            editor_type = map[type];
+            editor_type = PropertyEditorRegister::s_PropertyEditorTypes[type];
         }
 
         if (!editor_type)

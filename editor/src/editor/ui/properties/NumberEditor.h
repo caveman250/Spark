@@ -66,7 +66,7 @@ namespace se::editor::ui::properties
 
         auto bg = world->CreateEntity("Int Editor", true);
         auto bgTransform = world->AddComponent<RectTransformComponent>(bg);
-        bgTransform->anchors = { .left = constructTitle ? 0.3f : 0.f, .right = 1.f, .top = 0.f, .bottom = 0.f };
+        bgTransform->anchors = { .left = constructTitle ? 0.35f : 0.f, .right = 1.f, .top = 0.f, .bottom = 0.f };
         bgTransform->minY = 0;
         bgTransform->maxY = static_cast<int>(ariel->GetLineHeight(fontSize) + padding + borderSize * 2 + 0.5f);
 

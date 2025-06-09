@@ -106,13 +106,13 @@ namespace se::editor::ui::properties
                 auto propertyEditor = CreatePropertyEditor(containedType->GetTypeName(m_VectorType->GetContainedValueByIndex(m_Value, i)),
                                                            containedType,
                                                            obj,
-                                                           se::ui::Anchors(0.3f, 1.f, 0.f, 0.f),
+                                                           se::ui::Anchors(0.35f, 1.f, 0.f, 0.f),
                                                            true,
                                                            false,
                                                            true);
                 if (!propertyEditor)
                 {
-                    auto text = util::CreateMissingPropertyEditorText(containedType, .3f, 0);
+                    auto text = util::CreateMissingPropertyEditorText(containedType, .35f, 0);
                     world->AddChild(entity, text);
                 }
                 else

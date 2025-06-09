@@ -28,6 +28,7 @@ namespace se::reflect
         virtual asset::binary::Type GetBinaryType() const { return binaryType; }
         virtual bool IsPolymorphic() const { return false; }
         virtual bool IsContainer() const { return false; }
+        virtual bool IsEnum() const { return false; }
         virtual bool IsClass() const { return false; }
         virtual void* Instantiate(const std::string&, void*) const { return nullptr; }
         virtual bool RequiresExplicitInstantiationWithinClass() const { return false; }

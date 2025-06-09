@@ -19,6 +19,8 @@ namespace se::reflect
         const std::string& ToString(int value) const;
         int FromString(const std::string& str) const;
 
+        bool IsEnum() const override { return true; }
+
         void Serialize(const void* obj, asset::binary::Object& parentObj, const std::string& fieldName) const override;
         void Deserialize(void* obj, asset::binary::Object& parentObj, const std::string& fieldName) const override;
         asset::binary::StructLayout GetStructLayout(const void*) const override;

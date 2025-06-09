@@ -9,6 +9,7 @@
 #include "engine/asset/AssetManager.h"
 #include "engine/render/Material.h"
 #include "engine/render/MaterialInstance.h"
+#include "engine/ui/components/TextComponent.h"
 
 namespace se::editor::ui::properties
 {
@@ -64,7 +65,7 @@ namespace se::editor::ui::properties
         if (numElements == 0)
         {
             auto textEntity = world->CreateEntity("Title", true);
-            world->AddComponent<se::ui::components::WidgetComponent>(textEntity);
+            world->AddComponent<WidgetComponent>(textEntity);
             auto text = world->AddComponent<TextComponent>(textEntity);
             text->font = asset::AssetManager::Get()->GetAsset<asset::Font>("/engine_assets/fonts/Arial.sass");
             text->fontSize = 14;
@@ -111,18 +112,19 @@ namespace se::editor::ui::properties
                 auto propertyEditor = CreatePropertyEditor(containedType->GetTypeName(m_VectorType->GetContainedValueByIndex(m_Value, i)),
                                                            containedType,
                                                            obj,
-                                                           se::ui::Anchors(0.31f, 1.f, 0.f, 0.f),
+                                                           se::ui::Anchors(0.35f, 1.f, 0.f, 0.f),
                                                            true,
                                                            false,
                                                            true);
                 if (!propertyEditor)
                 {
-                    auto text = properties::util::CreateMissingPropertyEditorText(containedType, .3f, 0);
+                    auto text = properties::util::CreateMissingPropertyEditorText(containedType, .35f, 0);
                     world->AddChild(entity, text);
                 }
                 else
                 {
                     world->AddChild(entity, propertyEditor->GetWidgetId());
+                    m_Editors.push_back(propertyEditor);
                 }
 
                 world->AddChild(verticalBoxEntity, entity);
@@ -132,5 +134,9 @@ namespace se::editor::ui::properties
 
     void MapEditor::Update()
     {
+        for (auto* editor : m_Editors)
+        {
+            editor->Update();
+        }
     }
 }
