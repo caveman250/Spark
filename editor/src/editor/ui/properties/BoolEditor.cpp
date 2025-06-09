@@ -7,6 +7,8 @@
 #include <engine/ui/components/TextComponent.h>
 #include <engine/ui/components/WidgetComponent.h>
 
+#include "engine/ui/components/ButtonComponent.h"
+
 namespace se::editor::ui::properties
 {
     DEFINE_PROPERTY_EDITOR(bool, BoolEditor, bool);
@@ -28,35 +30,25 @@ namespace se::editor::ui::properties
         auto bgTransform = world->AddComponent<RectTransformComponent>(bg);
         bgTransform->anchors = { .left = constructTitle ? 0.3f : 0.f, .right = 0.3f, .top = 0.f, .bottom = 0.f };
         bgTransform->minY = 0;
-        bgTransform->maxY = 32;
-        bgTransform->maxX = 30;
+        bgTransform->maxY = 24;
+        bgTransform->maxX = 24;
         world->AddComponent<WidgetComponent>(bg);
         world->AddChild(m_Content, bg);
 
         m_RectTransform->maxY = bgTransform->maxY + 2;
         m_Tickbox = world->CreateEntity("Border", true);
-        auto innerImage = world->AddComponent<ImageComponent>(m_Tickbox);
-        static std::shared_ptr<render::Material> material = nullptr;
-        if (!material)
-        {
-            auto vert = assetManager->GetAsset<asset::Shader>("/engine_assets/shaders/ui.sass");
-            auto frag = assetManager->GetAsset<asset::Shader>("/engine_assets/shaders/alpha_texture.sass");
-
-            material = render::Material::CreateMaterial({vert}, {frag});
-            render::RenderState rs;
-            rs.srcBlend = render::BlendMode::SrcAlpha;
-            rs.dstBlend = render::BlendMode::OneMinusSrcAlpha;
-            material->SetRenderState(rs);
-        }
-
-        innerImage->materialInstance = render::MaterialInstance::CreateMaterialInstance(material);
+        auto button = world->AddComponent<ButtonComponent>(m_Tickbox);
         m_CheckedTexture = assetManager->GetAsset<asset::Texture>("/engine_assets/textures/checkbox_checked.sass");
         m_UncheckedTexture = assetManager->GetAsset<asset::Texture>("/engine_assets/textures/checkbox_unchecked.sass");
-        innerImage->materialInstance->SetUniform("Texture", asset::shader::ast::AstType::Sampler2D, 1, &m_UncheckedTexture);
-
+        button->image = *m_Value == true ? m_CheckedTexture : m_UncheckedTexture;
+        button->pressedImage = *m_Value == true ? m_CheckedTexture : m_UncheckedTexture;
+        button->hoveredImage = *m_Value == true ? m_CheckedTexture : m_UncheckedTexture;
+        button->onReleased.Subscribe([this]()
+        {
+            *m_Value = !(*m_Value);
+        });
         auto innerTransform = world->AddComponent<RectTransformComponent>(m_Tickbox);
         innerTransform->anchors = { .left = 0.f, .right = 1.f, .top = 0.f, .bottom = 1.f };
-        innerTransform->minY = innerTransform->maxY = 2;
         world->AddChild(bg, m_Tickbox);
     }
 
@@ -64,9 +56,18 @@ namespace se::editor::ui::properties
     {
         if (m_Value && m_LastValue != *m_Value)
         {
-            auto tick = Application::Get()->GetWorld()->GetComponent<ImageComponent>(m_Tickbox);
-            tick->materialInstance->SetUniform("Texture", asset::shader::ast::AstType::Sampler2D, 1,
-                *m_Value == true ? &m_CheckedTexture : &m_UncheckedTexture);
+            const auto& texture = *m_Value == true ? m_CheckedTexture : m_UncheckedTexture;
+            if (auto button = Application::Get()->GetWorld()->GetComponent<ButtonComponent>(m_Tickbox))
+            {
+                button->image = texture;
+                button->pressedImage = texture;
+                button->hoveredImage = texture;
+            }
+
+            if (auto image = Application::Get()->GetWorld()->GetComponent<ImageComponent>(m_Tickbox))
+            {
+                image->materialInstance->SetUniform("Texture", asset::shader::ast::AstType::Sampler2D, 1, &texture);
+            }
             m_LastValue = *m_Value;
         }
     }

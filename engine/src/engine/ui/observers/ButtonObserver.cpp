@@ -20,8 +20,12 @@ namespace se::ui::observers
             auto image = world->AddComponent<components::ImageComponent>(entity);
 
             auto vert = assetManager->GetAsset<asset::Shader>("/engine_assets/shaders/ui.sass");
-            auto frag = assetManager->GetAsset<asset::Shader>("/engine_assets/shaders/diffuse_texture.sass");
+            auto frag = assetManager->GetAsset<asset::Shader>("/engine_assets/shaders/alpha_texture.sass");
             static auto material = render::Material::CreateMaterial({vert}, {frag});
+            auto rs = render::RenderState();
+            rs.srcBlend = render::BlendMode::SrcAlpha;
+            rs.dstBlend = render::BlendMode::OneMinusSrcAlpha;
+            material->SetRenderState(rs);
 
             image->materialInstance = render::MaterialInstance::CreateMaterialInstance(material);
             image->materialInstance->SetUniform("Texture", asset::shader::ast::AstType::Sampler2D, 1, &component->image);
