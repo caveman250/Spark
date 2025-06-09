@@ -4,7 +4,6 @@
 
 #if METAL_RENDERER
 
-#include "spark.h"
 #include "engine/render/IndexBuffer.h"
 
 namespace se::render::metal

@@ -6,7 +6,6 @@
 #include "FBXBlueprint.h"
 #include "FontBlueprint.h"
 #include "ShaderBlueprint.h"
-#include "engine/io/OutputFileStream.h"
 
 namespace se::asset::builder
 {

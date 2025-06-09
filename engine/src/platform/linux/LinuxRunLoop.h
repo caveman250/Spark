@@ -1,6 +1,5 @@
 #pragma once
 
-#include "spark.h"
 #include "platform/PlatformRunLoop.h"
 
 #undef linux

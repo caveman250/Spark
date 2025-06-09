@@ -1,6 +1,5 @@
 #pragma once
 #include "engine/render/render_fwd.h"
-#include <map>
 
 #if METAL_RENDERER
 #include "engine/render/metal/MTL_fwd.h"
@@ -20,7 +19,7 @@ namespace se::render::metal
     private:
         void Cleanup();
 
-        static size_t GetStreamStride(se::render::VertexStreamType streamType);
+        static size_t GetStreamStride(VertexStreamType streamType);
 
         std::vector<MTLBufferPtr> m_Buffers;
     };

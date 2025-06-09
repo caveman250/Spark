@@ -7,7 +7,10 @@
 #include <engine/asset/shader/Shader.h>
 #include <engine/ui/components/RectTransformComponent.h>
 #include <engine/ui/components/MouseInputComponent.h>
+
+#include "engine/render/Material.h"
 #include "engine/render/MaterialInstance.h"
+#include "engine/ui/components/WidgetComponent.h"
 
 namespace se::ui::util
 {
@@ -22,20 +25,21 @@ namespace se::ui::util
         auto assetManager = asset::AssetManager::Get();
 
         auto scrollBoxEntity = world->CreateEntity("ScrollBox", editorOnly);
-        *outScrollBox = world->AddComponent<ui::components::ScrollBoxComponent>(scrollBoxEntity);
-        *outTransform = world->AddComponent<ui::components::RectTransformComponent>(scrollBoxEntity);
+        *outScrollBox = world->AddComponent<components::ScrollBoxComponent>(scrollBoxEntity);
+        *outTransform = world->AddComponent<components::RectTransformComponent>(scrollBoxEntity);
         (*outTransform)->anchors = { .left = 0.f, .right = 1.f, .top = 0.f, .bottom = 1.f };
 
         scrollViewEntity = world->CreateEntity("ScrollView", editorOnly);
-        *outScrollView = world->AddComponent<ui::components::ScrollViewComponent>(scrollViewEntity);
-        auto scrollViewTransform = world->AddComponent<ui::components::RectTransformComponent>(scrollViewEntity);
+        world->AddComponent<components::WidgetComponent>(scrollViewEntity);
+        *outScrollView = world->AddComponent<components::ScrollViewComponent>(scrollViewEntity);
+        auto scrollViewTransform = world->AddComponent<components::RectTransformComponent>(scrollViewEntity);
         scrollViewTransform->anchors = { .left = 0.f, .right = 1.f, .top = 0.f, .bottom = 1.f };
         scrollViewTransform->overridesChildSizes = true;
         auto scrollViewMouseEventComp = world->AddComponent<components::MouseInputComponent>(scrollViewEntity);
         scrollViewMouseEventComp->receivesScrollEvents = true;
 
         scrollBarEntity = world->CreateEntity("Scroll Bar", editorOnly);
-        auto scrollBarImage = world->AddComponent<ui::components::ImageComponent>(scrollBarEntity);
+        auto scrollBarImage = world->AddComponent<components::ImageComponent>(scrollBarEntity);
         auto vert = assetManager->GetAsset<asset::Shader>("/engine_assets/shaders/ui.sass");
         auto frag = assetManager->GetAsset<asset::Shader>("/engine_assets/shaders/flat_color.sass");
         static std::shared_ptr<render::Material> material = nullptr;
@@ -45,16 +49,16 @@ namespace se::ui::util
             material->GetShaderSettings().SetSetting("color_setting", math::Vec3(0.8f, 0.8f, 0.8f));
         }
         scrollBarImage->materialInstance = render::MaterialInstance::CreateMaterialInstance(material);
-        auto scrollBarRect = world->AddComponent<ui::components::RectTransformComponent>(scrollBarEntity);
+        auto scrollBarRect = world->AddComponent<components::RectTransformComponent>(scrollBarEntity);
         scrollBarRect->anchors = { 1.f, 1.f, 0.f, 0.f };
         scrollBarRect->minX = 10;
         scrollBarRect->maxX = 5;
         scrollBarRect->minY = 5;
         scrollBarRect->maxY = 25;
-        std::function<void(const ui::components::RectTransformComponent*, float)> scrollCb =
-            [scrollBarEntity](const ui::components::RectTransformComponent* scrollRect, float scrollAmount)
+        std::function<void(const components::RectTransformComponent*, float)> scrollCb =
+            [scrollBarEntity](const components::RectTransformComponent* scrollRect, float scrollAmount)
         {
-            auto rect = Application::Get()->GetWorld()->GetComponent<ui::components::RectTransformComponent>(scrollBarEntity);
+            auto rect = Application::Get()->GetWorld()->GetComponent<components::RectTransformComponent>(scrollBarEntity);
             float availableSize = scrollRect->rect.size.y - 25.f - 5.f * 2.f;
 
             rect->minY = static_cast<int>(5 + availableSize * scrollAmount);

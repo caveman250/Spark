@@ -9,27 +9,27 @@
 
 namespace se::ui::observers
 {
-    void EditableTextObserver::OnAdded(ecs::Id entity, components::EditableTextComponent*)
+    void EditableTextObserver::OnAdded(const ecs::Id& entity, components::EditableTextComponent*)
     {
         auto world = Application::Get()->GetWorld();
 
-        if (!world->HasComponent<ui::components::WidgetComponent>(entity))
+        if (!world->HasComponent<components::WidgetComponent>(entity))
         {
             world->AddComponent<components::WidgetComponent>(entity);
         }
 
-        if (!world->HasComponent<ui::components::MouseInputComponent>(entity))
+        if (!world->HasComponent<components::MouseInputComponent>(entity))
         {
             world->AddComponent<components::MouseInputComponent>(entity);
         }
 
-        if (!world->HasComponent<ui::components::KeyInputComponent>(entity))
+        if (!world->HasComponent<components::KeyInputComponent>(entity))
         {
             world->AddComponent<components::KeyInputComponent>(entity);
         }
     }
 
-    void EditableTextObserver::OnRemoved(ecs::Id, components::EditableTextComponent*)
+    void EditableTextObserver::OnRemoved(const ecs::Id&, components::EditableTextComponent*)
     {
 
     }

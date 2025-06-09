@@ -1,7 +1,7 @@
 #pragma once
 
 #include "spark.h"
-#include "engine/reflect/Reflect.h"
+#include "engine/string/String.h"
 
 namespace se::ecs
 {
@@ -23,7 +23,7 @@ namespace se::ecs
         {
         }
 
-        ComponentUsage(const ecs::Id& component,
+        ComponentUsage(const Id& component,
                        ComponentMutability _mutability)
             : id(component)
             , mutability(_mutability)
@@ -42,7 +42,7 @@ namespace se::ecs
     struct VariantComponentUsage
     {
         size_t type_hash = 0;
-        std::set<ecs::Id> components;
+        std::set<Id> components;
         ComponentMutability mutability;
     };
 
@@ -86,7 +86,7 @@ namespace se::ecs
         }
 
         template<typename T>
-        void CollectVariantComponentIds(std::set<ecs::Id> components)
+        void CollectVariantComponentIds(std::set<Id> components)
         {
             components.insert(T::GetComponentId());
         }
@@ -98,21 +98,21 @@ namespace se::ecs
             {
                 return *this;
             }
-            std::set<ecs::Id> components;
+            std::set<Id> components;
             (CollectVariantComponentIds<Ts>(components), ...);
             variantComponentUsage = VariantComponentUsage(typeid(std::variant<Ts*...>).hash_code(), components, mutability);
             return *this;
         }
 
         template<typename T>
-        SystemDeclaration& WithChildQuery()
+        SystemDeclaration& WithHeirachyQuery()
         {
             childQuerys.push_back(ComponentUsage(T::GetComponentId(), std::is_const_v<T> ? ComponentMutability::Immutable : ComponentMutability::Mutable));
             return *this;
         }
 
 
-        SystemDeclaration& WithChildQuery(const Id& component,
+        SystemDeclaration& WithHeirachyQuery(const Id& component,
                                           ComponentMutability mutability)
         {
             childQuerys.push_back(ComponentUsage(component, mutability));
@@ -120,7 +120,7 @@ namespace se::ecs
         }
 
         template<typename... Ts>
-        SystemDeclaration& WithChildQuerys(ComponentMutability mutability)
+        SystemDeclaration& WithHeirachyQuerys(ComponentMutability mutability)
         {
             (childQuerys.push_back(ComponentUsage(Ts::GetComponentId(), mutability)), ...);
             return *this;
@@ -140,52 +140,52 @@ namespace se::ecs
         std::unordered_set<Id> dependencies = { };
     };
 
-    struct ChildQueryDeclaration
+    struct HeirachyQueryDeclaration
     {
-        ChildQueryDeclaration() = default;
+        HeirachyQueryDeclaration() = default;
 
         template<typename T>
-        ChildQueryDeclaration& WithComponent()
+        HeirachyQueryDeclaration& WithComponent()
         {
             componentUsage.push_back(ComponentUsage(T::GetComponentId(),
                                                     std::is_const_v<T> ? ComponentMutability::Immutable : ComponentMutability::Mutable));
             return *this;
         }
 
-        ChildQueryDeclaration& WithComponent(const ComponentUsage& usage)
+        HeirachyQueryDeclaration& WithComponent(const ComponentUsage& usage)
         {
             componentUsage.push_back(usage);
             return *this;
         }
 
         template<typename T>
-        ChildQueryDeclaration& WithSingletonComponent()
+        HeirachyQueryDeclaration& WithSingletonComponent()
         {
             singletonComponentUsage.push_back(ComponentUsage(T::GetComponentId(),
                                                              std::is_const_v<T> ? ComponentMutability::Immutable : ComponentMutability::Mutable));
             return *this;
         }
 
-        ChildQueryDeclaration& WithSingletonComponent(const ComponentUsage& usage)
+        HeirachyQueryDeclaration& WithSingletonComponent(const ComponentUsage& usage)
         {
             singletonComponentUsage.push_back(usage);
             return *this;
         }
 
         template<typename T>
-        void CollectVariantComponentIds(std::set<ecs::Id>& components)
+        void CollectVariantComponentIds(std::set<Id>& components)
         {
             components.insert(T::GetComponentId());
         }
 
         template<typename... Ts>
-        ChildQueryDeclaration& WithVariantComponent(ComponentMutability mutability)
+        HeirachyQueryDeclaration& WithVariantComponent(ComponentMutability mutability)
         {
             if (!SPARK_VERIFY(variantComponentUsage.type_hash == 0, "Only one variant component supported."))
             {
                 return *this;
             }
-            std::set<ecs::Id> components;
+            std::set<Id> components;
             (CollectVariantComponentIds<Ts>(components), ...);
             variantComponentUsage = VariantComponentUsage(typeid(std::variant<Ts*...>).hash_code(), components, mutability);
             return *this;

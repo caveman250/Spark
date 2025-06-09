@@ -2,7 +2,6 @@
 
 #include "spark.h"
 #include "binary/Database.h"
-#include "engine/io/VFS.h"
 #include "engine/reflect/Util.h"
 
 namespace se::asset

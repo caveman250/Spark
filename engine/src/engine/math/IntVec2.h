@@ -17,7 +17,7 @@ namespace se::math
         {
         }
 
-        IntVec2(const math::Vec2& vec);
+        IntVec2(const Vec2& vec);
 
         SPARK_MEMBER(Serialized)
         int x;
@@ -56,14 +56,11 @@ namespace se::math
     bool operator>(const IntVec2 & lhs, const IntVec2& rhs);
 }
 
-template <> struct std::formatter<se::math::IntVec2>
+template <>
+struct std::formatter<se::math::IntVec2> : std::formatter<std::string>
 {
-    static constexpr auto parse(std::format_parse_context& ctx)
-    {
-        return ctx.begin();
-    }
-
-    static auto format(const se::math::IntVec2& obj, std::format_context& ctx)
+    template <class FormatContext>
+    static auto format(const se::math::IntVec2& obj, FormatContext& ctx)
     {
         return std::format_to(ctx.out(), "IntVec2({}, {})", obj.x, obj.y);
     }

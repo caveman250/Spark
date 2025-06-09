@@ -3,7 +3,6 @@
 #include "spark.h"
 #include "engine/asset/font/Font.h"
 #include "engine/ecs/Signal.h"
-#include "engine/reflect/Reflect.h"
 #include "engine/string/String.h"
 
 namespace se::ui::components

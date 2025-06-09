@@ -1,9 +1,7 @@
 #include "TextureBlueprint.h"
 #include "engine/io/VFS.h"
-#include "engine/asset/meta/MetaData.h"
 #include "engine/asset/texture/Mipmap.h"
 #include "engine/asset/texture/Texture.h"
-#include "engine/io/OutputFileStream.h"
 #include "engine/reflect/Util.h"
 #include "stb_image.h"
 

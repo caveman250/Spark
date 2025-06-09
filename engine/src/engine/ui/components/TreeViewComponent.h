@@ -1,7 +1,6 @@
 #pragma once
 
 #include "spark.h"
-#include "engine/reflect/Reflect.h"
 #include "engine/ui/Rect.h"
 
 namespace se::ui::components
@@ -11,6 +10,6 @@ namespace se::ui::components
         SPARK_WIDGET_COMPONENT()
 
         bool dirty = false;
-        ui::Rect lastRect = {};
+        Rect lastRect = {};
     };
 }

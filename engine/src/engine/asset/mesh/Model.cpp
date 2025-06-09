@@ -1,7 +1,6 @@
 #include "spark.h"
 #include "Model.h"
 #include "ofbx.h"
-#include "engine/asset/binary/Database.h"
 
 namespace se::asset
 {

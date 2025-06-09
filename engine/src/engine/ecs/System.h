@@ -2,7 +2,6 @@
 
 #include "World.h"
 #include "engine/Application.h"
-#include "engine/profiling/Profiler.h"
 
 namespace se
 {
@@ -28,13 +27,25 @@ namespace se::ecs
         }
 
         template<typename Func>
-        void RunChildQuery(Id entity, const ChildQueryDeclaration& declaration, Func&& func)
+        void RunChildQuery(const Id& entity, const HeirachyQueryDeclaration& declaration, Func&& func)
         {
             Application::Get()->GetWorld()->ChildEach(entity, this, declaration, func);
         }
 
         template<typename Func>
-        void RunRecursiveChildQuery(Id entity, const ChildQueryDeclaration& declaration, Func&& func)
+        void RunQueryOnChild(const Id& child, const HeirachyQueryDeclaration& declaration, Func&& func)
+        {
+            Application::Get()->GetWorld()->HeirachyQuery(child, this, declaration, func);
+        }
+
+        template<typename Func>
+        void RunQueryOnParent(const Id& entity, const HeirachyQueryDeclaration& declaration, Func&& func)
+        {
+            Application::Get()->GetWorld()->ParentQuery(entity, this, declaration, func);
+        }
+
+        template<typename Func>
+        void RunRecursiveChildQuery(const Id& entity, const HeirachyQueryDeclaration& declaration, Func&& func)
         {
             Application::Get()->GetWorld()->RecursiveChildEach(entity, this, declaration, func);
         }

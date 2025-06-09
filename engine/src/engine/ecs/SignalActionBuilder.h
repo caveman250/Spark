@@ -11,27 +11,27 @@ namespace se::ecs
     {
     public:
         template <typename... As, typename Func>
-        void DoAction(Id entity, World* world, const Func& func, As... args);
+        void DoAction(const Id& entity, World* world, const Func& func, As... args);
 
         template<size_t Index, typename... Ts, typename Func>
-        std::enable_if_t<Index == sizeof...(Cs)> CallWrappedFunc(Id entity, World *world,
+        std::enable_if_t<Index == sizeof...(Cs)> CallWrappedFunc(const Id& entity, World *world,
                                                                  const Func& func, Ts... ts);
 
         template<size_t Index, typename... Ts, typename Func>
-        std::enable_if_t<Index != sizeof...(Cs)> CallWrappedFunc(Id entity, World *world,
+        std::enable_if_t<Index != sizeof...(Cs)> CallWrappedFunc(const Id& entity, World *world,
                                                                  const Func& func, Ts... ts);
     };
 
     template<typename... Cs>
     template<size_t Index, typename... Ts, typename Func>
-    std::enable_if_t<Index == sizeof...(Cs)> SignalActionBuilder<Cs...>::CallWrappedFunc(Id, World*, const Func& func, Ts... ts)
+    std::enable_if_t<Index == sizeof...(Cs)> SignalActionBuilder<Cs...>::CallWrappedFunc(const Id&, World*, const Func& func, Ts... ts)
     {
         func(ts...);
     }
 
     template<typename... Cs>
     template<size_t Index, typename... Ts, typename Func>
-    std::enable_if_t<Index != sizeof...(Cs)> SignalActionBuilder<Cs...>::CallWrappedFunc(Id entity, World* world, const Func& func, Ts... ts)
+    std::enable_if_t<Index != sizeof...(Cs)> SignalActionBuilder<Cs...>::CallWrappedFunc(const Id& entity, World* world, const Func& func, Ts... ts)
     {
         using IthT = std::tuple_element<Index, std::tuple<Cs...>>::type;
 
@@ -42,7 +42,7 @@ namespace se::ecs
 
     template<typename... Cs>
     template <typename... As, typename Func>
-    void SignalActionBuilder<Cs...>::DoAction(Id entity, World* world, const Func& func, As... args)
+    void SignalActionBuilder<Cs...>::DoAction(const Id& entity, World* world, const Func& func, As... args)
     {
         CallWrappedFunc<0>(entity, world, func, args...);
     }

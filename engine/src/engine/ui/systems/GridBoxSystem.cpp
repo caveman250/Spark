@@ -3,7 +3,6 @@
 #include "GridBoxSystem.h"
 #include "engine/profiling/Profiler.h"
 #include "engine/ui/DesiredSizeCalculator.h"
-#include "engine/math/Mat4.h"
 #include "engine/ui/components/RectTransformComponent.h"
 #include "engine/ui/util/GridBoxUtil.h"
 #include "Widgets.generated.h"
@@ -20,8 +19,8 @@ namespace se::ui::systems
         auto world = Application::Get()->GetWorld();
         auto window = Application::Get()->GetPrimaryWindow();
         const auto& entities = updateData.GetEntities();
-        auto* rectTransforms = updateData.GetComponentArray<ui::components::RectTransformComponent>();
-        auto* gridBoxes = updateData.GetComponentArray<ui::components::GridBoxComponent>();
+        auto* rectTransforms = updateData.GetComponentArray<components::RectTransformComponent>();
+        auto* gridBoxes = updateData.GetComponentArray<components::GridBoxComponent>();
 
         for (size_t i = 0; i < entities.size(); ++i)
         {
@@ -31,13 +30,7 @@ namespace se::ui::systems
 
             if (gridBoxTransform.needsLayout)
             {
-                gridBox.dirty |= gridBoxTransform.rect.size != gridBoxTransform.lastRect.size;
-                if (!gridBox.dirty)
-                {
-                    auto posDelta = gridBoxTransform.rect.topLeft - gridBoxTransform.lastRect.topLeft;
-                    util::TranslateChildren(entity, this, posDelta);
-                    gridBoxTransform.needsLayout = false;
-                }
+                gridBox.dirty = true;
             }
 
             if (gridBox.dirty)

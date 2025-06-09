@@ -11,6 +11,6 @@ namespace se::asset::shader::ast
         Shader* currentShader = nullptr;
         String vertexPositionOutputName = {}; // only used for Metal
         std::map<std::string, std::string> tempRenames ={}; // only used for Metal
-        std::vector<std::pair<String, ast::Variable>> fragmentShaderUniforms = {}; // only used for Metal
+        std::vector<std::pair<String, Variable>> fragmentShaderUniforms = {}; // only used for Metal
     };
 }

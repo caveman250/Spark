@@ -1,6 +1,5 @@
 #pragma once
 #include "Lexer.h"
-#include "engine/memory/Arena.h"
 #include "engine/asset/shader/Shader.h"
 
 namespace se::asset::shader::compiler

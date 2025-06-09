@@ -4,7 +4,6 @@
 #include "engine/Application.h"
 #include "engine/asset/AssetManager.h"
 #include "engine/ecs/components/TransformComponent.h"
-#include "engine/ui/components/ButtonComponent.h"
 #include "engine/ui/components/ImageComponent.h"
 #include "engine/ui/components/MouseInputComponent.h"
 #include "engine/ui/components/TitleBarComponent.h"
@@ -13,7 +12,7 @@
 
 namespace se::ui::observers
 {
-    void TitleBarObserver::OnAdded(ecs::Id entity, components::TitleBarComponent*)
+    void TitleBarObserver::OnAdded(const ecs::Id& entity, components::TitleBarComponent*)
     {
         auto world = Application::Get()->GetWorld();
         auto* assetManager = asset::AssetManager::Get();
@@ -30,10 +29,10 @@ namespace se::ui::observers
                 material = render::Material::CreateMaterial({vert}, {frag});
                 material->GetShaderSettings().SetSetting("color_setting", math::Vec3(0.2f, 0.2f, 0.2f));
             }
-            image->materialInstance = se::render::MaterialInstance::CreateMaterialInstance(material);
+            image->materialInstance = render::MaterialInstance::CreateMaterialInstance(material);
         }
 
-        if (!world->HasComponent<ui::components::WidgetComponent>(entity))
+        if (!world->HasComponent<components::WidgetComponent>(entity))
         {
             world->AddComponent<components::WidgetComponent>(entity);
         }
@@ -44,7 +43,7 @@ namespace se::ui::observers
         }
     }
 
-    void TitleBarObserver::OnRemoved(ecs::Id, components::TitleBarComponent*)
+    void TitleBarObserver::OnRemoved(const ecs::Id&, components::TitleBarComponent*)
     {
 
     }

@@ -10,7 +10,7 @@
 
 namespace se::ui::observers
 {
-    void ButtonObserver::OnAdded(ecs::Id entity, components::ButtonComponent *component)
+    void ButtonObserver::OnAdded(const ecs::Id& entity, components::ButtonComponent *component)
     {
         auto world = Application::Get()->GetWorld();
         auto* assetManager = asset::AssetManager::Get();
@@ -27,18 +27,18 @@ namespace se::ui::observers
             image->materialInstance->SetUniform("Texture", asset::shader::ast::AstType::Sampler2D, 1, &component->image);
         }
 
-        if (!world->HasComponent<ui::components::MouseInputComponent>(entity))
+        if (!world->HasComponent<components::MouseInputComponent>(entity))
         {
             world->AddComponent<components::MouseInputComponent>(entity);
         }
 
-        if (!world->HasComponent<ui::components::WidgetComponent>(entity))
+        if (!world->HasComponent<components::WidgetComponent>(entity))
         {
             world->AddComponent<components::WidgetComponent>(entity);
         }
     }
 
-    void ButtonObserver::OnRemoved(ecs::Id, components::ButtonComponent*)
+    void ButtonObserver::OnRemoved(const ecs::Id&, components::ButtonComponent*)
     {
         // leave image there for time being. see how annoying it is in practice.
     }

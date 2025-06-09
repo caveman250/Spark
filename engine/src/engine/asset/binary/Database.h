@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Struct.h"
 #include "binary.h"
 #include "Object.h"
 #include "Array.h"

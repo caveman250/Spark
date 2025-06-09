@@ -64,13 +64,11 @@ namespace se::ui::util
         titleBarText->fontSize = 18;
         titleBarText->text = title;
         *titleBar = world->AddComponent<TitleBarComponent>(titleBarEntity);
-        std::function<void(float, float)> moveCb = [entity](float dX, float dY)
+        std::function moveCb = [entity](float dX, float dY)
         {
-            auto transform = Application::Get()->GetWorld()->GetComponent<RectTransformComponent>(entity);
-            transform->minX += static_cast<int>(dX);
-            transform->maxX += static_cast<int>(dX);
-            transform->minY += static_cast<int>(dY);
-            transform->maxY += static_cast<int>(dY);
+            auto window = Application::Get()->GetWorld()->GetComponent<WindowComponent>(entity);
+            window->pendingDeltaX += dX;
+            window->pendingDeltaY += dY;
         };
         (*titleBar)->onMove.Subscribe(std::move(moveCb));
         auto titleBarTransform = world->AddComponent<RectTransformComponent>(titleBarEntity);

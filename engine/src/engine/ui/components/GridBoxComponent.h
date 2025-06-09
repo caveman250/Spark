@@ -2,7 +2,6 @@
 
 #include "spark.h"
 #include "engine/reflect/Reflect.h"
-#include "engine/ui/Rect.h"
 #include "engine/math/math.h"
 
 namespace se::ecs
@@ -24,25 +23,17 @@ namespace se::ui::components
 #include "engine/ui/DesiredSizeCalculator.h"
 namespace se::ui
 {
-    se::math::IntVec2 GetGridBoxChildrenDesiredSize(ecs::System* system,
+    math::IntVec2 GetGridBoxChildrenDesiredSize(ecs::System* system,
                                                     const ecs::Id& entity,
-                                                    const ui::components::RectTransformComponent& parentRect,
-                                                    const ui::components::RectTransformComponent& thisRect,
+                                                    const components::RectTransformComponent& thisRect,
                                                     const components::GridBoxComponent* context);
 
     template <>
     inline math::IntVec2 DesiredSizeCalculator::GetDesiredSize<components::GridBoxComponent>(ecs::System* system,
                                                                                                  const ecs::Id& entity,
-                                                                                                 const ui::components::RectTransformComponent& parentRect,
-                                                                                                 ui::components::RectTransformComponent& thisRect,
+                                                                                                 components::RectTransformComponent& thisRect,
                                                                                                  const components::GridBoxComponent* context)
     {
-        if (thisRect.rect.size.x == 0 && thisRect.rect.size.y == 0)
-        {
-            // need to calculate rect for children to calculate their desired size.
-            thisRect.rect = util::CalculateScreenSpaceRect(thisRect, parentRect);
-        }
-
-        return CalculateAnchorOffsets(thisRect, parentRect.rect) + GetGridBoxChildrenDesiredSize(system, entity, parentRect, thisRect, context);
+        return GetGridBoxChildrenDesiredSize(system, entity, thisRect, context);
     }
 }

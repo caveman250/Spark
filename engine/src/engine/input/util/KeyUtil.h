@@ -1,6 +1,5 @@
 #pragma once
 #include "engine/input/Key.h"
-#include "engine/input/Key.h"
 
 namespace se::input::util
 {

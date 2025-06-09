@@ -1,14 +1,13 @@
 #include "spark.h"
 
-#include "engine/render/MaterialInstance.h"
-#include "engine/asset/shader/ast/Types.h"
-#include "engine/ecs/components/MeshComponent.h"
-#include "engine/render/Renderer.h"
 #include "MeshRenderSystem.h"
-
 #include "engine/Application.h"
+#include "engine/asset/shader/ast/Types.h"
+#include "engine/camera/ActiveCameraComponent.h"
+#include "engine/ecs/components/MeshComponent.h"
 #include "engine/ecs/components/TransformComponent.h"
-#include "platform/IWindow.h"
+#include "engine/render/MaterialInstance.h"
+#include "engine/render/Renderer.h"
 
 using namespace se;
 using namespace se::ecs::components;
@@ -34,7 +33,7 @@ namespace se::render::systems
 
     void MeshRenderSystem::OnRender(const ecs::SystemUpdateData& updateData)
     {
-        auto renderer = render::Renderer::Get<render::Renderer>();
+        auto renderer = Renderer::Get<Renderer>();
 
         const auto& entities = updateData.GetEntities();
         const auto* meshes = updateData.GetComponentArray<const MeshComponent>();
@@ -50,7 +49,7 @@ namespace se::render::systems
             const auto& meshComp = meshes[i];
             if (meshComp.materialInstance && meshComp.vertBuffer && meshComp.indexBuffer)
             {
-                renderer->Submit<render::commands::SubmitGeo>(renderGroup, meshComp.materialInstance, meshComp.vertBuffer, meshComp.indexBuffer);
+                renderer->Submit<commands::SubmitGeo>(renderGroup, meshComp.materialInstance, meshComp.vertBuffer, meshComp.indexBuffer);
             }
         }
     }

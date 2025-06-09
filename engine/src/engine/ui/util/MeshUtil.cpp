@@ -83,7 +83,7 @@ namespace se::ui::util
         return cursorPos;
     }
 
-    float CalculateJustificationXOffset(ui::text::Alignment justification,
+    float CalculateJustificationXOffset(text::Alignment justification,
                             float endOfLineX,
                             const Rect& rect)
     {

@@ -206,7 +206,7 @@ namespace se::io
                     .fullPath = GetVFSPath(file.path().string()),
                     .isDirectory = file.is_directory()
                 };
-                io::util::SplitPath(vfsFile.fullPath, vfsFile.dir, vfsFile.fileName, vfsFile.extension);
+                util::SplitPath(vfsFile.fullPath, vfsFile.dir, vfsFile.fileName, vfsFile.extension);
                 func(vfsFile);
             }
         }
@@ -218,7 +218,7 @@ namespace se::io
                         .fullPath = GetVFSPath(file.path().string()),
                         .isDirectory = file.is_directory()
                 };
-                io::util::SplitPath(vfsFile.fullPath, vfsFile.dir, vfsFile.fileName, vfsFile.extension);
+                util::SplitPath(vfsFile.fullPath, vfsFile.dir, vfsFile.fileName, vfsFile.extension);
                 func(vfsFile);
             }
         }

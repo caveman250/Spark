@@ -1,4 +1,3 @@
-#include <engine/asset/shader/ast/ShaderCompileContext.h>
 #include "Material.h"
 
 #if OPENGL_RENDERER

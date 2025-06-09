@@ -1,10 +1,7 @@
 #include "ScrollBoxRenderSystem.h"
 
-#include "engine/math/Mat4.h"
-#include "engine/Application.h"
 #include "engine/profiling/Profiler.h"
 #include "engine/render/Renderer.h"
-#include "platform/IWindow.h"
 #include "engine/render/RenderCommand.h"
 #include "engine/ui/singleton_components/UIRenderComponent.h"
 

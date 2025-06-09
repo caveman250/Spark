@@ -4,7 +4,6 @@
 #include "UniformStorage.h"
 #include "engine/asset/shader/Shader.h"
 #include "engine/asset/shader/ShaderSettings.h"
-#include "engine/asset/shader/ast/Types.h"
 
 namespace se::asset::shader::ast
 {

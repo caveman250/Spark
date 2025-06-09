@@ -16,6 +16,6 @@ namespace se::ui::systems
 
         void OnUpdate(const ecs::SystemUpdateData& updateData) override;
     private:
-        int MeasureAndArrange(ecs::Id entity,  bool collapsed, int startY);
+        int MeasureAndArrange(const ecs::Id& entity,  bool collapsed, int startY);
     };
 }

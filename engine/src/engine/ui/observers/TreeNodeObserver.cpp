@@ -9,7 +9,7 @@
 
 namespace se::ui::observers
 {
-    void TreeNodeObserver::OnAdded(ecs::Id entity, components::TreeNodeComponent*)
+    void TreeNodeObserver::OnAdded(const ecs::Id& entity, components::TreeNodeComponent*)
     {
         auto world = Application::Get()->GetWorld();
         if (!world->HasComponent<components::MouseInputComponent>(entity))
@@ -17,13 +17,13 @@ namespace se::ui::observers
             world->AddComponent<components::MouseInputComponent>(entity);
         }
 
-        if (!world->HasComponent<ui::components::WidgetComponent>(entity))
+        if (!world->HasComponent<components::WidgetComponent>(entity))
         {
             world->AddComponent<components::WidgetComponent>(entity);
         }
     }
 
-    void TreeNodeObserver::OnRemoved(ecs::Id, components::TreeNodeComponent*)
+    void TreeNodeObserver::OnRemoved(const ecs::Id&, components::TreeNodeComponent*)
     {
 
     }

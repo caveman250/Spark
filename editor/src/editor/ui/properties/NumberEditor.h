@@ -8,6 +8,8 @@
 #include "engine/ui/components/EditableTextComponent.h"
 #include "inttypes.h"
 #include "engine/asset/AssetManager.h"
+#include "engine/asset/shader/Shader.h"
+#include "engine/render/Material.h"
 #include "engine/ui/util/EditableTextUtil.h"
 
 namespace se::editor::ui::properties
@@ -22,7 +24,7 @@ namespace se::editor::ui::properties
 
     public:
         void SetValue(void* value, const reflect::Type* type) override;
-        void ConstructUI(const String& name, bool constructTitle, const se::ui::Anchors& anchors) override;
+        void ConstructUI(const String& name, bool constructTitle, const se::ui::Anchors& anchors, bool collapsed, bool withBackground) override;
         void Update() override;
 
     private:
@@ -49,9 +51,9 @@ namespace se::editor::ui::properties
     }
 
     template <Number N>
-    void NumberEditor<N>::ConstructUI(const String& name, bool constructTitle, const se::ui::Anchors& anchors)
+    void NumberEditor<N>::ConstructUI(const String& name, bool constructTitle, const se::ui::Anchors& anchors, bool collapsed, bool withBackground)
     {
-        PropertyEditor::ConstructUI(name, constructTitle, anchors);
+        PropertyEditor::ConstructUI(name, constructTitle, anchors, collapsed, withBackground);
 
         constexpr int fontSize = 14;
         constexpr int padding = 4;

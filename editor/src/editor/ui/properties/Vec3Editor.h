@@ -11,7 +11,7 @@ namespace se::editor::ui::properties
         SPARK_CLASS()
     public:
         void SetValue(void* value, const reflect::Type* type) override;
-        void ConstructUI(const String& name, bool constructTitle, const se::ui::Anchors& anchors) override;
+        void ConstructUI(const String& name, bool constructTitle, const se::ui::Anchors& anchors, bool collapsed, bool withBackground) override;
         void Update() override;
 
     private:

@@ -15,8 +15,8 @@ namespace se::ui::systems
         PROFILE_SCOPE("UIKeyboardInputSystem::OnUpdate")
 
         const auto& entities = updateData.GetEntities();
-        const auto* rectTransforms = updateData.GetComponentArray<const ui::components::RectTransformComponent>();
-        auto* receivesInputComps = updateData.GetComponentArray<ui::components::KeyInputComponent>();
+        const auto* rectTransforms = updateData.GetComponentArray<const components::RectTransformComponent>();
+        auto* receivesInputComps = updateData.GetComponentArray<components::KeyInputComponent>();
         auto* inputComp = updateData.GetSingletonComponent<input::InputComponent>();
 
         for (size_t i = 0; i < entities.size(); ++i)
@@ -36,7 +36,7 @@ namespace se::ui::systems
                     }
 
                     bool consumed = false;
-                    auto declaration = ecs::ChildQueryDeclaration()
+                    auto declaration = ecs::HeirachyQueryDeclaration()
                             .WithComponent<const components::RectTransformComponent>()
                             .WithComponent<components::KeyInputComponent>();
                     RunRecursiveChildQuery(entity, declaration,

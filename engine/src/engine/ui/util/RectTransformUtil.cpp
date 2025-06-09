@@ -111,22 +111,22 @@ namespace se::ui::util
 
     void LayoutChildren(ecs::World* world,
                         ecs::System* system,
-                        ecs::Id entity,
+                        const ecs::Id& entity,
                         const RectTransformComponent& parentRect,
                         int depth)
     {
-        auto declaration = ecs::ChildQueryDeclaration()
-                .WithComponent<components::RectTransformComponent>();
+        auto declaration = ecs::HeirachyQueryDeclaration()
+                .WithComponent<RectTransformComponent>();
         system->RunChildQuery(entity, declaration,
                               [system, world, parentRect, depth](const ecs::SystemUpdateData& updateData)
                               {
                                   const auto& children = updateData.GetEntities();
-                                  auto* childTransform = updateData.GetComponentArray<ui::components::RectTransformComponent>();
+                                  auto* childTransform = updateData.GetComponentArray<RectTransformComponent>();
 
                                   for (size_t i = 0; i < children.size(); ++i)
                                   {
-                                      components::RectTransformComponent& child = childTransform[i];
-                                      child.rect = util::CalculateScreenSpaceRect(child, parentRect);
+                                      RectTransformComponent& child = childTransform[i];
+                                      child.rect = CalculateScreenSpaceRect(child, parentRect);
                                       child.layer = depth;
 
                                       if (!child.overridesChildSizes)
@@ -150,12 +150,13 @@ namespace se::ui::util
 
     std::unordered_map<ecs::Id, ChildDesiredSizeInfo> GetChildrenDesiredSizes(const ecs::Id& entity,
                                                                               ecs::System* system,
-                                                                              const ui::components::RectTransformComponent& transform)
+                                                                              const RectTransformComponent& transform)
     {
         std::unordered_map<ecs::Id, ChildDesiredSizeInfo> ret = {};
 
-        auto dec = ecs::ChildQueryDeclaration()
-                .WithComponent<ui::components::RectTransformComponent>()
+        auto dec = ecs::HeirachyQueryDeclaration()
+                .WithComponent<RectTransformComponent>()
+                .WithComponent<const WidgetComponent>()
                 .WithVariantComponent<SPARK_CONST_WIDGET_TYPES_WITH_NULLTYPE>(
                         ecs::ComponentMutability::Immutable);
 
@@ -163,22 +164,22 @@ namespace se::ui::util
         [system, &ret, transform](const ecs::SystemUpdateData &updateData)
         {
             const auto &children = updateData.GetEntities();
-            auto *rectTransforms = updateData.GetComponentArray<ui::components::RectTransformComponent>();
+            auto *rectTransforms = updateData.GetComponentArray<RectTransformComponent>();
+            auto *widgets = updateData.GetComponentArray<const WidgetComponent>();
 
-            std::visit([system, &children, &ret, transform, &rectTransforms](auto &&value)
+            std::visit([system, &widgets, &children, &ret, transform, &rectTransforms](auto &&value)
             {
                 for (size_t i = 0; i < children.size(); ++i)
                 {
                     const auto &child = children[i];
                     auto &rectTransform = rectTransforms[i];
-                    math::IntVec2 childDesiredSize = DesiredSizeCalculator::GetDesiredSize(system, child, transform, rectTransform, &value[i]);
-
+                    math::IntVec2 childDesiredSize = DesiredSizeCalculator::GetDesiredSize(system, child, &widgets[i], transform, rectTransform, &value[i]);
                     ret[child] = ChildDesiredSizeInfo(&rectTransform, childDesiredSize);
                 }
             },updateData.GetVariantComponentArray<SPARK_CONST_WIDGET_TYPES_WITH_NULLTYPE>());
           return false;
         });
-        
+
         return ret;
     }
 
@@ -186,14 +187,14 @@ namespace se::ui::util
     {
         std::unordered_map<ecs::Id, RectTransformComponent*> ret = {};
 
-        auto dec = ecs::ChildQueryDeclaration()
-                .WithComponent<ui::components::RectTransformComponent>();
+        auto dec = ecs::HeirachyQueryDeclaration()
+                .WithComponent<RectTransformComponent>();
 
         system->RunChildQuery(entity, dec,
         [&ret](const ecs::SystemUpdateData &updateData)
         {
             const auto &children = updateData.GetEntities();
-            auto *rectTransforms = updateData.GetComponentArray<ui::components::RectTransformComponent>();
+            auto *rectTransforms = updateData.GetComponentArray<RectTransformComponent>();
 
             for (size_t i = 0; i < children.size(); ++i)
             {
@@ -209,13 +210,13 @@ namespace se::ui::util
 
     void TranslateChildren(const ecs::Id& entity, ecs::System* system, const math::IntVec2& delta)
     {
-        auto dec = ecs::ChildQueryDeclaration()
-                .WithComponent<components::RectTransformComponent>();
+        auto dec = ecs::HeirachyQueryDeclaration()
+                .WithComponent<RectTransformComponent>();
         system->RunRecursiveChildQuery(entity, dec,
                                [delta](const ecs::SystemUpdateData& updateData)
                                {
                                    const auto& children = updateData.GetEntities();
-                                   auto* rects = updateData.GetComponentArray<components::RectTransformComponent>();
+                                   auto* rects = updateData.GetComponentArray<RectTransformComponent>();
 
                                    for (size_t i = 0; i < children.size(); ++i)
                                    {
@@ -225,5 +226,30 @@ namespace se::ui::util
 
                                    return false;
                                });
+    }
+
+    void InvalidateParent(const ecs::Id& entity, ecs::System* system)
+    {
+        auto world = Application::Get()->GetWorld();
+        auto currentEntity = entity;
+        auto dec = ecs::HeirachyQueryDeclaration()
+            .WithComponent<RectTransformComponent>();
+        auto func = [](const ecs::SystemUpdateData& updateData)
+        {
+            auto rectTransform = updateData.GetComponentArray<RectTransformComponent>();
+            rectTransform->needsLayout = true;
+        };
+
+        ecs::Id lastEntity = currentEntity;
+        while (currentEntity != ecs::s_InvalidEntity)
+        {
+            auto parent = world->GetParent(currentEntity);
+            if (parent == ecs::s_InvalidEntity)
+            {
+                system->RunQueryOnParent(lastEntity, dec, func);
+            }
+            lastEntity = currentEntity;
+            currentEntity = parent;
+        }
     }
 }

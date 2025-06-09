@@ -1,7 +1,5 @@
 #pragma once
 
-#include "engine/reflect/Reflect.h"
-
 namespace se::ui::components
 {
     struct TextCaretComponent : reflect::ObjectBase

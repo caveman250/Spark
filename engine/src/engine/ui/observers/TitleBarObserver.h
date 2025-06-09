@@ -6,7 +6,7 @@ namespace se::ui::observers
 {
     class TitleBarObserver : public ecs::Observer<components::TitleBarComponent>
     {
-        void OnAdded(ecs::Id entity, components::TitleBarComponent *component) override;
-        void OnRemoved(ecs::Id entity, components::TitleBarComponent *component) override;
+        void OnAdded(const ecs::Id& entity, components::TitleBarComponent *component) override;
+        void OnRemoved(const ecs::Id& entity, components::TitleBarComponent *component) override;
     };
 }

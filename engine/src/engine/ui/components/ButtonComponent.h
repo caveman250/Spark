@@ -4,7 +4,6 @@
 #include "engine/asset/texture/Texture.h"
 #include "engine/ecs/Signal.h"
 #include "engine/reflect/Object.h"
-#include "engine/reflect/Reflect.h"
 
 namespace se::ui::systems
 {

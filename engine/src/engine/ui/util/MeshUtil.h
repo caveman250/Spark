@@ -18,7 +18,7 @@ namespace se::ui::util
 {
     asset::StaticMesh CreateMeshFromRect(const Rect& rect);
 
-    asset::StaticMesh CreateTextMesh(const ui::Rect& rect,
+    asset::StaticMesh CreateTextMesh(const Rect& rect,
                                      const std::shared_ptr<asset::Font>& font,
                                      int fontSize,
                                      const String& text,

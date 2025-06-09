@@ -11,5 +11,5 @@ namespace se::ui::util
 {
     math::IntVec2 GetGridBoxItemSize(const ecs::Id& entity,
                                      ecs::System* system,
-                                     const ui::components::RectTransformComponent& rectTransform);
+                                     const RectTransformComponent& rectTransform);
 }

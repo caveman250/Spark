@@ -2,7 +2,6 @@
 #include "Window.h"
 
 #include "engine/Application.h"
-#include "platform/PlatformRunLoop.h"
 
 namespace se
 {

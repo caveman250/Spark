@@ -13,7 +13,7 @@ using namespace se::ecs::components;
 
 namespace se::ecs::systems
 {
-    void TransformSystem::OnUpdate(const ecs::SystemUpdateData& updateData)
+    void TransformSystem::OnUpdate(const SystemUpdateData& updateData)
     {
         PROFILE_SCOPE("TransformSystem::OnUpdate")
 

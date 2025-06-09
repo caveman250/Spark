@@ -1,11 +1,6 @@
 #include "spark.h"
 
-#include "engine/math/Mat4.h"
-#include "engine/ecs/components/MeshComponent.h"
 #include "TitleBarSystem.h"
-
-#include "engine/Application.h"
-#include "engine/input/InputUtil.h"
 #include "engine/profiling/Profiler.h"
 
 using namespace se;
@@ -18,8 +13,8 @@ namespace se::ui::systems
         PROFILE_SCOPE("TitleBarSystem::OnUpdate")
 
         const auto& entities = updateData.GetEntities();
-        auto* titleBars = updateData.GetComponentArray<ui::components::TitleBarComponent>();
-        const auto* mouseEventComps = updateData.GetComponentArray<const ui::components::MouseInputComponent>();
+        auto* titleBars = updateData.GetComponentArray<components::TitleBarComponent>();
+        const auto* mouseEventComps = updateData.GetComponentArray<const components::MouseInputComponent>();
         auto* inputComp = updateData.GetSingletonComponent<input::InputComponent>();
 
         for (size_t i = 0; i < entities.size(); ++i)

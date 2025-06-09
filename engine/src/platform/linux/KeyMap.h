@@ -1,6 +1,5 @@
 #pragma once
 
-#include "spark.h"
 #include "engine/input/Key.h"
 
 #undef linux

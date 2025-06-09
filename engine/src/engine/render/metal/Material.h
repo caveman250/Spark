@@ -3,7 +3,6 @@
 
 #if METAL_RENDERER
 
-#include "engine/asset/texture/Texture.h"
 #include "engine/render/Material.h"
 
 namespace se::render::metal
@@ -13,8 +12,8 @@ namespace se::render::metal
     public:
         Material(const std::vector<std::shared_ptr<asset::Shader>>& vertShaders,
                  const std::vector<std::shared_ptr<asset::Shader>>& fragShaders);
-        void Bind(const render::VertexBuffer&) override;
-        void CreatePlatformResources(const render::VertexBuffer& vb) override;
+        void Bind(const VertexBuffer&) override;
+        void CreatePlatformResources(const VertexBuffer& vb) override;
         void DestroyPlatformResources() override;
 
     private:

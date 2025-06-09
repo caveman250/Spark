@@ -32,14 +32,11 @@ namespace se::editor::ui
     private:
         void AddEntityProperties(const ecs::Id& entity,
                                  ecs::World* world,
-                                 const std::shared_ptr<asset::Font>& font,
-                                 se::ui::components::VerticalBoxComponent* verticalBox);
-        void AddSingletonComponentProperties(reflect::ObjectBase* selectedSingletonComp,
-                                             se::ui::components::VerticalBoxComponent* verticalBox);
+                                 const std::shared_ptr<asset::Font>& font);
+        void AddSingletonComponentProperties(reflect::ObjectBase* selectedSingletonComp);
         void AddAssetProperties(const std::shared_ptr<asset::Asset>& asset,
                                 ecs::World* world,
-                                const std::shared_ptr<asset::Font>& font,
-                                se::ui::components::VerticalBoxComponent* verticalBox);
+                                const std::shared_ptr<asset::Font>& font);
 
         ecs::Id m_Window;
         ecs::Id m_ScrollBoxContent;

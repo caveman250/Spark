@@ -49,7 +49,11 @@
 
 #include "Widgets.generated.h"
 #include "Classes.generated.h"
-#include "asset/shader/ast/Operators.h"
+#include "camera/ActiveCameraComponent.h"
+#include "ecs/components/MeshComponent.h"
+#include "render/components/PointLightComponent.h"
+#include "ui/systems/CollapsingHeaderSystem.h"
+#include "ui/systems/WindowSystem.h"
 
 namespace se
 {
@@ -114,6 +118,7 @@ namespace se
         ecs::SystemDeclaration resetMouseInputReg = ecs::SystemDeclaration("Reset Mouse Input System")
                 .WithComponent<const ui::components::RectTransformComponent>()
                 .WithComponent<ui::components::MouseInputComponent>()
+                .WithComponent<const ui::components::WidgetComponent>()
                 .WithSingletonComponent<input::InputComponent>()
                 .WithDependency(input);
         auto resetMouseInput = m_World.CreateEngineSystem<ui::systems::ResetMouseInputSystem>(resetMouseInputReg);
@@ -140,7 +145,7 @@ namespace se
 
         ecs::SystemDeclaration pointLightReg = ecs::SystemDeclaration("PointLightSystem")
                 .WithComponent<const render::components::PointLightComponent>()
-                .WithComponent<const ecs::components::TransformComponent>();
+                .WithComponent<const TransformComponent>();
         m_World.CreateEngineSystem<render::systems::PointLightSystem>(pointLightReg);
 
         ecs::SystemDeclaration meshRenderReg = ecs::SystemDeclaration("MeshRenderSystem")
@@ -191,9 +196,9 @@ namespace se
                 .WithComponent<ui::components::RectTransformComponent>()
                 .WithDependency(rectTrans)
                 .WithDependency(treeNodes)
-                .WithChildQuery(ui::components::TreeNodeComponent::GetComponentId(), ecs::ComponentMutability::Immutable)
-                .WithChildQuery(ui::components::RectTransformComponent::GetComponentId(), ecs::ComponentMutability::Mutable)
-                .WithChildQuery(ui::components::WidgetComponent::GetComponentId(), ecs::ComponentMutability::Mutable);
+                .WithHeirachyQuery(ui::components::TreeNodeComponent::GetComponentId(), ecs::ComponentMutability::Immutable)
+                .WithHeirachyQuery(ui::components::RectTransformComponent::GetComponentId(), ecs::ComponentMutability::Mutable)
+                .WithHeirachyQuery(ui::components::WidgetComponent::GetComponentId(), ecs::ComponentMutability::Mutable);
         m_World.CreateEngineSystem<ui::systems::TreeViewSystem>(treeViewReg);
 
         ecs::SystemDeclaration buttonReg = ecs::SystemDeclaration("ButtonSystem")
@@ -210,38 +215,47 @@ namespace se
                 .WithDependency(mouseInput);
         m_World.CreateEngineSystem<ui::systems::TitleBarSystem>(titleBarReg);
 
+        ecs::SystemDeclaration windowReg = ecs::SystemDeclaration("Window System")
+                .WithComponent<ui::components::WindowComponent>()
+                .WithComponent<ui::components::RectTransformComponent>()
+                .WithDependency(mouseInput);
+        m_World.CreateEngineSystem<ui::systems::WindowSystem>(windowReg);
+
         ecs::SystemDeclaration scrollViewReg = ecs::SystemDeclaration("ScrollViewUpdateSystem")
                 .WithComponent<ui::components::ScrollViewComponent>()
                 .WithComponent<ui::components::RectTransformComponent>()
                 .WithComponent<const ui::components::MouseInputComponent>()
                 .WithDependency(mouseInput)
                 .WithDependency(rectTrans)
-                .WithChildQuery(ui::components::WidgetComponent::GetComponentId(), ecs::ComponentMutability::Mutable);
+                .WithHeirachyQuery(ui::components::WidgetComponent::GetComponentId(), ecs::ComponentMutability::Mutable);
         auto scrollView = m_World.CreateEngineSystem<ui::systems::ScrollViewUpdateSystem>(scrollViewReg);
 
         ecs::SystemDeclaration verticalBoxReg = ecs::SystemDeclaration("Vertical Box System")
                 .WithComponent<ui::components::VerticalBoxComponent>()
                 .WithComponent<ui::components::RectTransformComponent>()
+                .WithComponent<const ui::components::WidgetComponent>()
                 .WithDependency(rectTrans)
                 .WithDependency(scrollView)
-                .WithChildQuerys<SPARK_WIDGET_TYPES_WITH_NULLTYPE>(ecs::ComponentMutability::Immutable);
+                .WithHeirachyQuerys<SPARK_WIDGET_TYPES_WITH_NULLTYPE>(ecs::ComponentMutability::Immutable);
         m_World.CreateEngineSystem<ui::systems::VerticalBoxSystem>(verticalBoxReg);
 
         ecs::SystemDeclaration horizontalBoxReg = ecs::SystemDeclaration("Horizontal Box System")
                 .WithComponent<ui::components::HorizontalBoxComponent>()
                 .WithComponent<ui::components::RectTransformComponent>()
+                .WithComponent<const ui::components::WidgetComponent>()
                 .WithDependency(rectTrans)
                 .WithDependency(scrollView)
-                .WithChildQuerys<SPARK_WIDGET_TYPES_WITH_NULLTYPE>(ecs::ComponentMutability::Immutable);
+                .WithHeirachyQuerys<SPARK_WIDGET_TYPES_WITH_NULLTYPE>(ecs::ComponentMutability::Immutable);
         m_World.CreateEngineSystem<ui::systems::HorizontalBoxSystem>(horizontalBoxReg);
 
         ecs::SystemDeclaration gridBoxReg = ecs::SystemDeclaration("Grid Box System")
                 .WithComponent<ui::components::GridBoxComponent>()
                 .WithComponent<ui::components::RectTransformComponent>()
+                .WithHeirachyQuery<const ui::components::WidgetComponent>()
                 .WithDependency(rectTrans)
                 .WithDependency(scrollView)
-                .WithChildQuerys<SPARK_WIDGET_TYPES_WITH_NULLTYPE>(ecs::ComponentMutability::Immutable);
-        m_World.CreateEngineSystem<ui::systems::        GridBoxSystem>(gridBoxReg);
+                .WithHeirachyQuerys<SPARK_WIDGET_TYPES_WITH_NULLTYPE>(ecs::ComponentMutability::Immutable);
+        m_World.CreateEngineSystem<ui::systems::GridBoxSystem>(gridBoxReg);
 
         ecs::SystemDeclaration imageRenderReg = ecs::SystemDeclaration("ImageRenderSystem")
                 .WithComponent<const ui::components::RectTransformComponent>()
@@ -265,7 +279,7 @@ namespace se
                 .WithComponent<ui::components::KeyInputComponent>()
                 .WithSingletonComponent<ui::singleton_components::UIRenderComponent>()
                 .WithSingletonComponent<const input::InputComponent>()
-                .WithChildQuery<ui::components::TextCaretComponent>()
+                .WithHeirachyQuery<ui::components::TextCaretComponent>()
                 .WithDependency(input);
         auto editableText = m_World.CreateEngineSystem<ui::systems::EditableTextSystem>(editableTextRenderReg);
 
@@ -279,17 +293,6 @@ namespace se
                 .WithComponent<ui::components::WidgetComponent>();
         m_World.CreateEngineSystem<ui::systems::WidgetVisibilitySystem>(widgetVisibilityReg);
 
-        // TODO allow application to add dependencies here.
-        ecs::SystemDeclaration uiRenderReg = ecs::SystemDeclaration("UIRenderSystem")
-                .WithComponent<const ecs::components::RootComponent>()
-                .WithComponent<const ui::components::WidgetComponent>()
-                .WithSingletonComponent<ui::singleton_components::UIRenderComponent>()
-                .WithDependency(imageRender)
-                .WithDependency(textRender)
-                .WithDependency(editableText)
-                .WithDependency(scrollBoxRender);
-        m_World.CreateEngineSystem<ui::systems::UIRenderSystem>(uiRenderReg);
-
 #if !SPARK_DIST
         ecs::SystemDeclaration fpsCounterReg = ecs::SystemDeclaration("FPS Counter System")
                 .WithComponent<ui::components::TextComponent>()
@@ -302,6 +305,26 @@ namespace se
                 .WithComponent<ui::components::TextCaretComponent>()
                 .WithComponent<ui::components::WidgetComponent>();
         m_World.CreateEngineSystem<ui::systems::TextCaretSystem>(textCaretReg);
+
+        ecs::SystemDeclaration collapsingHeaderReg = ecs::SystemDeclaration("Collapsing Header System")
+                .WithComponent<ui::components::CollapsingHeaderComponent>()
+                .WithComponent<ui::components::RectTransformComponent>()
+                .WithComponent<const ui::components::MouseInputComponent>()
+                .WithHeirachyQuery<ui::components::WidgetComponent>()
+                .WithDependency(rootRect);
+        auto collapsingHeader = m_World.CreateEngineSystem<ui::systems::CollapsingHeaderSystem>(collapsingHeaderReg);
+
+        // TODO allow application to add dependencies here.
+        ecs::SystemDeclaration uiRenderReg = ecs::SystemDeclaration("UIRenderSystem")
+                .WithComponent<const RootComponent>()
+                .WithComponent<const ui::components::WidgetComponent>()
+                .WithSingletonComponent<ui::singleton_components::UIRenderComponent>()
+                .WithDependency(imageRender)
+                .WithDependency(textRender)
+                .WithDependency(editableText)
+                .WithDependency(scrollBoxRender)
+                .WithDependency(collapsingHeader);
+        m_World.CreateEngineSystem<ui::systems::UIRenderSystem>(uiRenderReg);
     }
 
     void Application::Shutdown()

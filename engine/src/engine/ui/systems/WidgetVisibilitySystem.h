@@ -14,5 +14,8 @@ namespace se::ui::systems
     SPARK_SYSTEM()
     public:
         void OnUpdate(const ecs::SystemUpdateData& updateData) override;
+
+    private:
+        void UpdateWidgetVisibility(const ecs::Id& entity, components::WidgetComponent& widget);
     };
 }

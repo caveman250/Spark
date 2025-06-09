@@ -32,6 +32,6 @@ namespace se::asset::shader::ast
         SPARK_MEMBER(Serialized)
         std::vector<std::shared_ptr<ASTNode>> m_Children;
 
-        ast::ASTNode* m_Parent = nullptr;
+        ASTNode* m_Parent = nullptr;
     };
 }

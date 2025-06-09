@@ -1,6 +1,5 @@
 #include "UIRenderSystem.h"
 #include "engine/render/Renderer.h"
-#include "engine/bits/FlagUtil.h"
 
 namespace se::ui::systems
 {

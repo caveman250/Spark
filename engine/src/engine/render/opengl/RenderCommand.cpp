@@ -1,4 +1,3 @@
-#include "spark.h"
 #if OPENGL_RENDERER
 #include "engine/render/RenderCommand.h"
 #include "engine/Application.h"

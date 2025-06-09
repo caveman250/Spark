@@ -1,6 +1,5 @@
 #pragma once
 #include "ASTNode.h"
-#include "Types.h"
 #include "Variable.h"
 
 namespace se::asset::shader::ast

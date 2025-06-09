@@ -1,7 +1,5 @@
 #pragma once
 
-#include "engine/reflect/Reflect.h"
-
 namespace se::debug::components
 {
     struct FPSCounterComponent : reflect::ObjectBase

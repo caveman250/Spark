@@ -1,7 +1,5 @@
 #pragma once
 
-#include "spark.h"
-#include "engine/reflect/Reflect.h"
 #include "engine/math/Mat4.h"
 #include "engine/math/Mat3.h"
 
@@ -18,10 +16,10 @@ namespace se::camera
         math::Vec3 rot = { 0.f, 3.14f, 0.f };
 
         SPARK_MEMBER()
-        se::math::Mat4 proj = {};
+        math::Mat4 proj = {};
 
         SPARK_MEMBER()
-        se::math::Mat4 view = {};
+        math::Mat4 view = {};
 
         SPARK_MEMBER()
         int lastMouseX = {};

@@ -19,12 +19,15 @@ namespace se::ui::systems
         PROFILE_SCOPE("LastRectSystem::OnUpdate")
 
         const auto& entities = updateData.GetEntities();
-        auto* transform = updateData.GetComponentArray<ui::components::RectTransformComponent>();
+        auto* transform = updateData.GetComponentArray<components::RectTransformComponent>();
 
         for (size_t i = 0; i < entities.size(); ++i)
         {
             auto& trans = transform[i];
-            trans.lastRect = trans.rect;
+            if (!trans.needsLayout) // some layout optimisations rely on a position delta.
+            {
+                trans.lastRect = trans.rect;
+            }
         }
     }
 }

@@ -1,5 +1,5 @@
 #pragma once
-#include <engine/reflect/Reflect.h>
+#include "engine/reflect/Object.h"
 
 namespace se::ui
 {
@@ -54,14 +54,14 @@ namespace se::editor::ui::properties
     class PropertyEditor : public reflect::ObjectBase
     {
     public:
-        virtual void ConstructUI(const String& name, bool constructTitle, const se::ui::Anchors& anchors);
+        virtual void ConstructUI(const String& name, bool constructTitle, const se::ui::Anchors& anchors, bool collapsed, bool withBackground);
         virtual void DestroyUI();
         virtual void SetValue(void* value, const reflect::Type* type) = 0;
         virtual void SetName(const String& name) { m_Name = name; }
         virtual void Update() = 0;
         virtual PropertyTitleMode GetTitleMode() const { return PropertyTitleMode::Inline; }
 
-        ecs::Id GetWidgetId() const { return m_WidgetId; }
+        virtual ecs::Id GetWidgetId() const { return m_WidgetId; }
         RectTransformComponent* GetRectTransform() { return m_RectTransform; }
     protected:
         ecs::Id m_WidgetId;
@@ -70,6 +70,6 @@ namespace se::editor::ui::properties
         String m_Name = {};
     };
 
-    PropertyEditor* CreatePropertyEditor(const String& name, reflect::Type* type, void* value, const se::ui::Anchors& anchors, bool constructTitle);
-    PropertyEditor* CreatePropertyEditor(const reflect::Class::Member& member, const void* classInstance, const se::ui::Anchors& anchors, bool constructTitle);
+    PropertyEditor* CreatePropertyEditor(const String& name, reflect::Type* type, void* value, const se::ui::Anchors& anchors, bool collapsed, bool withBackground, bool constructTitle);
+    PropertyEditor* CreatePropertyEditor(const reflect::Class::Member& member, const void* classInstance, const se::ui::Anchors& anchors, bool collapsed, bool withBackground, bool constructTitle);
 }

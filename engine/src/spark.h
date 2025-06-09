@@ -143,3 +143,4 @@ __builtin_debugtrap();\
 
 #include "engine/debug/Log.h"
 #include "engine/ecs/ecs_fwd.h"
+#include "engine/reflect/Reflect_fwd.h"

@@ -1,6 +1,5 @@
 #pragma once
 
-#include "spark.h"
 #include "platform/IWindow.h"
 #include "engine/render/metal/MTL_fwd.h"
 

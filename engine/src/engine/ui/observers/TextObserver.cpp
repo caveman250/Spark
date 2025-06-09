@@ -7,17 +7,17 @@
 
 namespace se::ui::observers
 {
-    void TextObserver::OnAdded(ecs::Id entity, components::TextComponent*)
+    void TextObserver::OnAdded(const ecs::Id& entity, components::TextComponent*)
     {
         auto world = Application::Get()->GetWorld();
 
-        if (!world->HasComponent<ui::components::WidgetComponent>(entity))
+        if (!world->HasComponent<components::WidgetComponent>(entity))
         {
             world->AddComponent<components::WidgetComponent>(entity);
         }
     }
 
-    void TextObserver::OnRemoved(ecs::Id, components::TextComponent*)
+    void TextObserver::OnRemoved(const ecs::Id&, components::TextComponent*)
     {
 
     }

@@ -1,7 +1,6 @@
 #include "MaterialInstance.h"
 
 #include "Material.h"
-#include "engine/asset/shader/ast/TypeUtil.h"
 
 #if OPENGL_RENDERER
 

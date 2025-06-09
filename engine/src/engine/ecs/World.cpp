@@ -10,7 +10,10 @@
 #include "engine/profiling/Profiler.h"
 #include "engine/render/Renderer.h"
 #include "engine/bits/FlagUtil.h"
+#include "engine/io/VFS.h"
+#include "engine/reflect/Util.h"
 #include "engine/threads/ParallelForEach.h"
+#include "engine/ui/components/RectTransformComponent.h"
 
 namespace se::ecs
 {
@@ -111,7 +114,6 @@ namespace se::ecs
                 }
             }
 
-            SPARK_ASSERT(false);
             return nullptr;
         }
         ArchetypeComponentKey& a_record = compInfo.archetypeRecords[archetype->id];
@@ -125,15 +127,21 @@ namespace se::ecs
             return;
         }
 
+        const auto it = m_EntityRecords.find(entity);
+        if (!SPARK_VERIFY(it != m_EntityRecords.end()))
+        {
+            return;
+        }
+
 #if SPARK_EDITOR
         auto entityFlags = m_IdMetaMap[entity].flags;
-        if (!bits::GetFlag<ecs::IdFlags>(entityFlags, ecs::IdFlags::Editor))
+        if (!bits::GetFlag<IdFlags>(entityFlags, IdFlags::Editor))
         {
             m_EntitiesChangedThisFrame = true;
         }
 #endif
 
-        auto& record = m_EntityRecords.at(entity);
+        auto& record = it->second;
 
         auto safeCopy = record.children;
         for (const auto& child: safeCopy)
@@ -167,7 +175,8 @@ namespace se::ecs
         {
             return false;
         }
-        auto compInfo = m_ComponentRecords[component];
+
+        const auto& compInfo = m_ComponentRecords[component];
         if (compInfo.archetypeRecords.contains(archetype->id))
         {
             return true;
@@ -436,6 +445,8 @@ namespace se::ecs
             m_EntitiesChangedThisFrame = false;
         }
 #endif
+
+        //DumpWidgetHeirachy();
     }
 
     void World::Render()
@@ -484,6 +495,54 @@ namespace se::ecs
         m_Running = false;
 
         ProcessAllPending();
+    }
+
+    void RecurseWidgetChildren(World* world, const Id& entity, nlohmann::ordered_json& parentJson)
+    {
+        for (const auto& child: world->GetChildren(entity))
+        {
+            if (world->HasComponent<ui::components::RectTransformComponent>(child))
+            {
+                auto rectTransform = world->GetComponent<ui::components::RectTransformComponent>(child);
+                auto db = reflect::SerialiseType<ui::components::RectTransformComponent>(rectTransform);
+                nlohmann::ordered_json json;
+                auto dbJson = db->ToJson();
+                json["id"] = child.id;
+                json["name"] = child.name->Data();
+                json["rect"] = dbJson["root"];
+                RecurseWidgetChildren(world, child, json);
+                parentJson["children"].push_back(json);
+            }
+        }
+    }
+
+    void World::DumpWidgetHeirachy()
+    {
+        nlohmann::ordered_json result;
+
+        std::vector<ComponentUsage> usage = {};
+        usage.push_back(ComponentUsage(components::RootComponent::GetComponentId(), ComponentMutability::Immutable));
+        usage.push_back(ComponentUsage(ui::components::RectTransformComponent::GetComponentId(), ComponentMutability::Immutable));
+        Each(usage, {}, [this, &result](const SystemUpdateData& updateData)
+        {
+            const auto& entities = updateData.GetEntities();
+            const auto* rectTransforms = updateData.GetComponentArray<const ui::components::RectTransformComponent>();
+
+            for (size_t i = 0; i < entities.size(); ++i)
+            {
+                const auto& entity = entities[i];
+                auto db = reflect::SerialiseType<ui::components::RectTransformComponent>(rectTransforms + i);
+                nlohmann::ordered_json json;
+                auto dbJson = db->ToJson();
+                json["id"] = entity.id;
+                json["name"] = entity.name->Data();
+                json["rect"] = dbJson["root"];
+                RecurseWidgetChildren(this, entity, json);
+                result["root_widgets"].push_back(json);
+            }
+        }, false);
+
+        io::VFS::Get().WriteText("/Users/ouchqt/widgets.json", result.dump(4));
     }
 
     void World::RebuildSystemUpdateGroups(std::vector<std::vector<Id>>& updateGroups,
@@ -705,8 +764,8 @@ namespace se::ecs
         }
     }
 
-    bool World::ValidateChildQuery(const System* system,
-                                   const ChildQueryDeclaration& declaration)
+    bool World::ValidateHeirachyQuery(const System* system,
+                                   const HeirachyQueryDeclaration& declaration)
     {
         const auto& systemDec = system->GetDeclaration();
         for (const auto& comp: declaration.componentUsage)
@@ -760,6 +819,7 @@ namespace se::ecs
     void World::DestroyEntity(const Id& entity)
     {
         auto guard = MaybeLockGuard(m_UpdateMode, &m_EntityMutex);
+        SPARK_ASSERT(!std::ranges::contains(m_PendingEntityDeletions, entity));
         m_PendingEntityDeletions.push_back(entity);
     }
 
@@ -936,7 +996,7 @@ namespace se::ecs
         return id;
     }
 
-    void World::AddComponentInternal(const World::PendingComponent& pendingComp)
+    void World::AddComponentInternal(const PendingComponent& pendingComp)
     {
         if (!SPARK_VERIFY(!HasComponent(pendingComp.entity, pendingComp.comp)))
         {

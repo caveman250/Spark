@@ -1,8 +1,6 @@
 #include "InputAttributeNode.h"
 
-#include "NameGenerator.h"
 #include "TypeUtil.h"
-#include "engine/memory/Arena.h"
 #include "engine/memory/ArenaAllocator.h"
 
 namespace se::asset::shader::ast

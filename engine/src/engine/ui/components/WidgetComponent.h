@@ -1,8 +1,7 @@
 #pragma once
 
 #include "spark.h"
-#include "engine/reflect/Reflect.h"
-#include "engine/ui/Rect.h"
+#include "engine/ui/Visibility.h"
 
 namespace se::ui::components
 {
@@ -10,9 +9,10 @@ namespace se::ui::components
     {
         SPARK_COMPONENT()
 
-        bool parentRenderingEnabled = true;
-        bool renderingEnabled = true;
+        Visibility visibility = Visibility::Visible;
+        Visibility parentVisibility = Visibility::Visible;
         bool updateEnabled = true;
+        bool parentUpdateEnabled = true;
         bool dirty = false;
     };
 }

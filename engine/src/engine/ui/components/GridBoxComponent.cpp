@@ -4,10 +4,9 @@
 
 namespace se::ui
 {
-    se::math::IntVec2 GetGridBoxChildrenDesiredSize(ecs::System* system,
+    math::IntVec2 GetGridBoxChildrenDesiredSize(ecs::System* system,
                                                         const ecs::Id& entity,
-                                                        const ui::components::RectTransformComponent& parentRect,
-                                                        const ui::components::RectTransformComponent& thisRect,
+                                                        const components::RectTransformComponent& thisRect,
                                                         const components::GridBoxComponent* context)
     {
         auto world = Application::Get()->GetWorld();
@@ -17,7 +16,7 @@ namespace se::ui
         auto numChildren = world->GetChildren(entity).size();
         for (size_t i = 0; i < numChildren; ++i)
         {
-            if (desiredSize.x + itemSize.x + context->spacing > parentRect.rect.size.x)
+            if (desiredSize.x + itemSize.x + context->spacing > thisRect.rect.size.x)
             {
                 desiredSize.x = 0;
                 desiredSize.y += itemSize.y + context->spacing;

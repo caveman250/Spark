@@ -45,12 +45,12 @@ namespace se::ui::util
         {
             auto* editText = world->GetComponent<EditableTextComponent>(ret);
             auto* textRect = world->GetComponent<RectTransformComponent>(ret);
-            math::IntVec2 offset = se::ui::util::GetCaretPosition(pos, *editText, *textRect);
+            math::IntVec2 offset = GetCaretPosition(pos, *editText, *textRect);
 
             auto* caretRect = world->GetComponent<RectTransformComponent>(caretEntity);
             caretRect->minX = offset.x;
             caretRect->maxX = caretRect->minX + 2;
-            caretRect->rect = se::ui::util::CalculateScreenSpaceRect(*caretRect, *textRect);
+            caretRect->rect = CalculateScreenSpaceRect(*caretRect, *textRect);
         };
         (*text)->onCaretMoved.Subscribe(std::move(movedCb));
 
@@ -85,7 +85,7 @@ namespace se::ui::util
             keyInputComp.keyMask = static_cast<input::Key>(0xFFFFFFFF);
         }
 
-        auto dec = ecs::ChildQueryDeclaration()
+        auto dec = ecs::HeirachyQueryDeclaration()
                 .WithComponent<TextCaretComponent>()
                 .WithComponent<WidgetComponent>();
         system->RunChildQuery(entity, dec, [](const ecs::SystemUpdateData& updateData)
@@ -97,7 +97,7 @@ namespace se::ui::util
             for (size_t i = 0; i < entities.size(); ++i)
             {
                 carets[i].active = true;
-                widgets[i].renderingEnabled = true;
+                widgets[i].visibility = Visibility::Visible;
             }
 
             return true;
@@ -112,7 +112,7 @@ namespace se::ui::util
         textComp.inEditMode = false;
         keyInputComp.keyMask = static_cast<input::Key>(0);
 
-        auto dec = ecs::ChildQueryDeclaration()
+        auto dec = ecs::HeirachyQueryDeclaration()
                 .WithComponent<TextCaretComponent>();
         system->RunChildQuery(entity, dec, [](const ecs::SystemUpdateData& updateData)
         {
@@ -134,7 +134,7 @@ namespace se::ui::util
         SetCaretPos(textComp, textComp.caretPosition + delta);
     }
 
-    void SetCaretPos(components::EditableTextComponent& textComp,
+    void SetCaretPos(EditableTextComponent& textComp,
                      int pos)
     {
         int oldPos = textComp.caretPosition;

@@ -1,6 +1,5 @@
 #pragma once
 
-#include "spark.h"
 #include "engine/reflect/Reflect.h"
 #include "engine/math/math.h"
 

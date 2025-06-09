@@ -1,7 +1,6 @@
 #include "spark.h"
 
 #include "engine/math/Mat4.h"
-#include "engine/ecs/components/MeshComponent.h"
 #include "RectTransformSystem.h"
 
 #include <engine/ui/util/RectTransformUtil.h>
@@ -20,7 +19,7 @@ namespace se::ui::systems
         auto world = Application::Get()->GetWorld();
 
         const auto& entities = updateData.GetEntities();
-        auto* transform = updateData.GetComponentArray<ui::components::RectTransformComponent>();
+        auto* transform = updateData.GetComponentArray<components::RectTransformComponent>();
 
         for (size_t i = 0; i < entities.size(); ++i)
         {

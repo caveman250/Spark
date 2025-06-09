@@ -3,12 +3,8 @@
 #include "TextRenderSystem.h"
 
 #include "engine/Application.h"
-#include "engine/asset/AssetManager.h"
 #include "engine/profiling/Profiler.h"
 #include "engine/render/Renderer.h"
-#include "engine/render/VertexBuffer.h"
-#include "engine/ui/util/MeshUtil.h"
-#include "engine/render/Material.h"
 #include "engine/ui/util/TextUtil.h"
 #include "platform/IWindow.h"
 
@@ -36,6 +32,11 @@ namespace se::ui::systems
         {
             const auto& entity = entities[i];
             const auto& widget = widgetComps[i];
+            if (widget.visibility != Visibility::Visible || widget.parentVisibility != Visibility::Visible)
+            {
+                continue;
+            }
+
             const auto& transform = transformComps[i];
             auto& text = textComps[i];
 

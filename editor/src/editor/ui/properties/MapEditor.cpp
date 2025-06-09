@@ -6,7 +6,6 @@
 #include "engine/ui/components/ImageComponent.h"
 #include "engine/ui/components/WidgetComponent.h"
 #include "engine/ui/components/VerticalBoxComponent.h"
-#include "engine/ui/util/VerticalBoxUtil.h"
 #include "engine/asset/AssetManager.h"
 #include "engine/render/Material.h"
 #include "engine/render/MaterialInstance.h"
@@ -25,9 +24,9 @@ namespace se::editor::ui::properties
         }
     }
 
-    void MapEditor::ConstructUI(const String& name, bool constructTitle, const se::ui::Anchors& anchors)
+    void MapEditor::ConstructUI(const String& name, bool constructTitle, const se::ui::Anchors& anchors, bool collapsed, bool withBackground)
     {
-        PropertyEditor::ConstructUI(name, constructTitle, anchors);
+        PropertyEditor::ConstructUI(name, constructTitle, anchors, collapsed, withBackground);
 
         auto world = Application::Get()->GetWorld();
         auto assetManager = asset::AssetManager::Get();
@@ -38,11 +37,12 @@ namespace se::editor::ui::properties
             auto vert = assetManager->GetAsset<asset::Shader>("/engine_assets/shaders/ui.sass");
             auto frag = assetManager->GetAsset<asset::Shader>("/engine_assets/shaders/flat_color.sass");
             bgMaterial = render::Material::CreateMaterial({vert}, {frag});
-            bgMaterial->GetShaderSettings().SetSetting("color_setting", math::Vec3(0.25f, 0.25f, 0.25f));
+            bgMaterial->GetShaderSettings().SetSetting("color_setting", math::Vec3(0.27f, 0.27f, 0.27f));
         }
 
         auto listBG = world->CreateEntity("Vector Editor BG", true);
         auto* listRect = world->AddComponent<se::ui::components::RectTransformComponent>(listBG);
+        world->AddComponent<se::ui::components::WidgetComponent>(listBG);
         listRect->anchors = {0.f, 1.f, 0.f, 0.f };
         listRect->minX = 5;
         listRect->maxX = 5;
@@ -64,6 +64,7 @@ namespace se::editor::ui::properties
         if (numElements == 0)
         {
             auto textEntity = world->CreateEntity("Title", true);
+            world->AddComponent<se::ui::components::WidgetComponent>(textEntity);
             auto text = world->AddComponent<TextComponent>(textEntity);
             text->font = asset::AssetManager::Get()->GetAsset<asset::Font>("/engine_assets/fonts/Arial.sass");
             text->fontSize = 14;
@@ -71,7 +72,7 @@ namespace se::editor::ui::properties
             auto textRect = world->AddComponent<RectTransformComponent>(textEntity);
             textRect->anchors = { .left = 0.f, .right = 1.f, .top = 0.f, .bottom = 0.f };
             textRect->minX = 5;
-            se::ui::util::AddVerticalBoxChild(verticalBoxEntity, verticalBox, textEntity);
+            world->AddChild(verticalBoxEntity, textEntity);
         }
         else
         {
@@ -99,6 +100,7 @@ namespace se::editor::ui::properties
                 titleText->font = asset::AssetManager::Get()->GetAsset<asset::Font>("/engine_assets/fonts/Arial.sass");
                 titleText->fontSize = 14;
                 titleText->text = propName;
+                titleText->wrap = se::ui::text::WrapMode::Char;
                 auto titleRect = world->AddComponent<RectTransformComponent>(titleEntity);
                 titleRect->anchors = {.left = 0.f, .right = 0.3f, .top = 0.f, .bottom = 0.f};
                 titleRect->minX = 2;
@@ -109,7 +111,9 @@ namespace se::editor::ui::properties
                 auto propertyEditor = CreatePropertyEditor(containedType->GetTypeName(m_VectorType->GetContainedValueByIndex(m_Value, i)),
                                                            containedType,
                                                            obj,
-                                                           se::ui::Anchors(0.3f, 1.f, 0.f, 0.f),
+                                                           se::ui::Anchors(0.31f, 1.f, 0.f, 0.f),
+                                                           true,
+                                                           false,
                                                            true);
                 if (!propertyEditor)
                 {
@@ -121,7 +125,7 @@ namespace se::editor::ui::properties
                     world->AddChild(entity, propertyEditor->GetWidgetId());
                 }
 
-                se::ui::util::AddVerticalBoxChild(verticalBoxEntity, verticalBox, entity);
+                world->AddChild(verticalBoxEntity, entity);
             }
         }
     }

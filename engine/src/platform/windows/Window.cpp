@@ -1,6 +1,5 @@
 #include "Window.h"
 #include "platform/IWindow.h"
-#include "engine/render/opengl/GL_fwd.h"
 
 #include <unordered_map>
 
@@ -9,8 +8,6 @@
 #include "engine/input/InputComponent.h"
 #include "engine/input/Key.h"
 #include "engine/render/Renderer.h"
-#include "engine/render/opengl/OpenGLRenderer.h"
-#include "platform/PlatformRunLoop.h"
 #include "engine/input/MouseButton.h"
 
 #ifndef DWMWA_USE_IMMERSIVE_DARK_MODE

@@ -1,10 +1,6 @@
 #include "IfNode.h"
 
 #include "BinaryExpressionNode.h"
-#include "ConstantNode.h"
-#include "VariableDeclarationNode.h"
-#include "VariableReferenceNode.h"
-#include "engine/math/math.h"
 #include "ShaderCompileContext.h"
 
 namespace se::asset::shader::ast

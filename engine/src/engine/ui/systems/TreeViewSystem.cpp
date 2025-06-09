@@ -10,8 +10,8 @@ namespace se::ui::systems
     void TreeViewSystem::OnUpdate(const ecs::SystemUpdateData& updateData)
     {
         const auto& entities = updateData.GetEntities();
-        auto* treeViews = updateData.GetComponentArray<ui::components::TreeViewComponent>();
-        auto* rectTransforms = updateData.GetComponentArray<ui::components::RectTransformComponent>();
+        auto* treeViews = updateData.GetComponentArray<components::TreeViewComponent>();
+        auto* rectTransforms = updateData.GetComponentArray<components::RectTransformComponent>();
 
         for (size_t i = 0; i < entities.size(); ++i)
         {
@@ -27,21 +27,21 @@ namespace se::ui::systems
         }
     }
 
-    int TreeViewSystem::MeasureAndArrange(ecs::Id entity, bool collapsed, int startY)
+    int TreeViewSystem::MeasureAndArrange(const ecs::Id& entity, bool collapsed, int startY)
     {
         int currentY = startY;
         auto func = [this, collapsed, &currentY](const ecs::SystemUpdateData& updateData)
         {
             const auto& children = updateData.GetEntities();
-            auto* widgets = updateData.GetComponentArray<ui::components::WidgetComponent>();
-            auto* rectTransforms = updateData.GetComponentArray<ui::components::RectTransformComponent>();
-            const auto* treeNodes = updateData.GetComponentArray<const ui::components::TreeNodeComponent>();
+            auto* widgets = updateData.GetComponentArray<components::WidgetComponent>();
+            auto* rectTransforms = updateData.GetComponentArray<components::RectTransformComponent>();
+            const auto* treeNodes = updateData.GetComponentArray<const components::TreeNodeComponent>();
 
             for (size_t j = 0; j < children.size(); ++j)
             {
                 auto& widget = widgets[j];
-                widget.dirty = widget.renderingEnabled == collapsed;
-                widget.renderingEnabled = !collapsed;
+                widget.dirty = (widget.visibility == Visibility::Hidden) != collapsed;
+                widget.visibility = collapsed ? Visibility::Hidden : Visibility::Visible; // TODO should be collapsed instead of Hidden.
 
                 auto& childTransform = rectTransforms[j];
                 childTransform.minY = currentY;
@@ -57,7 +57,7 @@ namespace se::ui::systems
             return false;
         };
 
-        auto declaration = ecs::ChildQueryDeclaration()
+        auto declaration = ecs::HeirachyQueryDeclaration()
             .WithComponent<const components::TreeNodeComponent>()
             .WithComponent<components::RectTransformComponent>()
             .WithComponent<components::WidgetComponent>();

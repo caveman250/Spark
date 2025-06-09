@@ -5,8 +5,8 @@ namespace se::ui::systems
     void TreeNodeSystem::OnUpdate(const ecs::SystemUpdateData& updateData)
     {
         const auto& entities = updateData.GetEntities();
-        auto* treeNodes = updateData.GetComponentArray<ui::components::TreeNodeComponent>();
-        auto* mouseEventComps = updateData.GetComponentArray<ui::components::MouseInputComponent>();
+        auto* treeNodes = updateData.GetComponentArray<components::TreeNodeComponent>();
+        auto* mouseEventComps = updateData.GetComponentArray<components::MouseInputComponent>();
 
         for (size_t i = 0; i < entities.size(); ++i)
         {

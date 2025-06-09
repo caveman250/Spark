@@ -5,7 +5,7 @@
 
 namespace se::ui::observers
 {
-    void RectTransformObserver::OnAdded(ecs::Id entity, components::RectTransformComponent*)
+    void RectTransformObserver::OnAdded(const ecs::Id& entity, components::RectTransformComponent*)
     {
         auto world = Application::Get()->GetWorld();
         if (!world->HasComponent<ecs::components::RootComponent>(entity) &&
@@ -15,7 +15,7 @@ namespace se::ui::observers
         }
     }
 
-    void RectTransformObserver::OnRemoved(ecs::Id, components::RectTransformComponent*)
+    void RectTransformObserver::OnRemoved(const ecs::Id&, components::RectTransformComponent*)
     {
 
     }

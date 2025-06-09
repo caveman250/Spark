@@ -28,14 +28,14 @@ namespace se::ui::systems
 
             if (!textCaret.active)
             {
-                widget.renderingEnabled = false;
+                widget.visibility = Visibility::Collapsed;
                 continue;
             }
 
             textCaret.currentStateTime += app->GetDeltaTime();
             if (textCaret.currentStateTime >= 0.5f)
             {
-                widget.renderingEnabled = !widget.renderingEnabled;
+                widget.visibility = widget.visibility == Visibility::Visible ? Visibility::Collapsed : Visibility::Visible;
                 textCaret.currentStateTime = 0.f;
             }
         }

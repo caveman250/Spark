@@ -3,6 +3,7 @@
 #include "Object.h"
 #include "spark.h"
 #include "TypeResolver.h"
+#include "engine/asset/binary/Database.h"
 #include "engine/asset/binary/Object.h"
 #include "engine/string/String.h"
 
@@ -76,7 +77,7 @@ namespace se::reflect
 
         void* Instantiate(const std::string& type, void* obj) const override
         {
-            const Type* reflect = reflect::TypeFromString(type);
+            const Type* reflect = TypeFromString(type);
             *(std::shared_ptr<T>*)obj = std::shared_ptr<T>(static_cast<T*>(reflect->heap_constructor()));
             return obj;
         }
@@ -168,7 +169,7 @@ namespace se::reflect
             auto* objBase = static_cast<ObjectBase*>(typed->get());
             return objBase->GetReflectType();
         }
-        return reflect::TypeResolver<T>::get();
+        return TypeResolver<T>::get();
     }
 
     template <typename T>
@@ -190,7 +191,7 @@ namespace se::reflect
     template<SharedPtr T>
     T InstantiateContainerObj(const std::string& type)
     {
-        const Type* reflect = reflect::TypeFromString(type);
+        const Type* reflect = TypeFromString(type);
         T obj = std::shared_ptr<typename T::element_type>(static_cast<typename T::element_type*>(reflect->heap_constructor()));
         return obj;
     }
@@ -248,7 +249,7 @@ namespace se::reflect
         asset::binary::StructLayout GetStructLayout(const void*) const override;
         bool IsContainer() const override { return "true"; }
         String GetContainerTypeName() const override { return "std::vector<>"; }
-        Type * GetContainedValueType(const void*) const override { return reflect::TypeResolver<T>::get(); }
+        Type * GetContainedValueType(const void*) const override { return TypeResolver<T>::get(); }
         void* GetContainedValueByIndex(void* obj, size_t i) const override;
         size_t GetNumContainedElements(void* obj) const override
         {
@@ -444,8 +445,8 @@ namespace se::reflect
         asset::binary::StructLayout GetStructLayout(const void*) const override;
         bool IsContainer() const override { return "true"; }
         String GetContainerTypeName() const override { return "std::map<>"; }
-        Type * GetContainedKeyType() const override { return reflect::TypeResolver<T>::get(); }
-        Type* GetContainedValueType(const void*) const override { return reflect::TypeResolver<Y>::get(); }
+        Type * GetContainedKeyType() const override { return TypeResolver<T>::get(); }
+        Type* GetContainedValueType(const void*) const override { return TypeResolver<Y>::get(); }
         void * GetContainedValueByIndex(void*, size_t i) const override;
         const void * GetContainedKeyByIndex(void*, size_t) const override;
         size_t GetNumContainedElements(void* obj) const override
@@ -614,8 +615,8 @@ namespace se::reflect
         asset::binary::StructLayout GetStructLayout(const void*) const override;
         bool IsContainer() const override { return "true"; }
         String GetContainerTypeName() const override { return "std::unordered_map<>"; }
-        Type * GetContainedKeyType() const override { return reflect::TypeResolver<T>::get(); }
-        Type* GetContainedValueType(const void*) const override { return reflect::TypeResolver<Y>::get(); }
+        Type * GetContainedKeyType() const override { return TypeResolver<T>::get(); }
+        Type* GetContainedValueType(const void*) const override { return TypeResolver<Y>::get(); }
         void* GetContainedValueByIndex(void *, size_t i) const override;
         const void * GetContainedKeyByIndex(void *, size_t) const override;
         size_t GetNumContainedElements(void* obj) const override

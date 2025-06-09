@@ -1,5 +1,8 @@
 #include "ViewportUtil.h"
 
+#include "engine/Application.h"
+#include "platform/IWindow.h"
+
 namespace se::editor::util
 {
     math::IntVec2 ScreenSpaceToGameViewportSpace(int mouseX,

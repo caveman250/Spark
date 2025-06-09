@@ -10,7 +10,6 @@
 #include <engine/ui/util/ScrollBoxUtil.h>
 #include <engine/ui/util/TreeViewUtil.h>
 #include <engine/ui/util/WindowUtil.h>
-#include "engine/bits/FlagUtil.h"
 
 #include "engine/Application.h"
 
@@ -116,7 +115,7 @@ namespace se::editor::ui
         }
     }
 
-    void OutlineWindow::AddEntityUI(ecs::World* world, ecs::Id entity, ecs::Id parent, se::ui::components::TreeViewComponent* treeView) const
+    void OutlineWindow::AddEntityUI(ecs::World* world, const ecs::Id& entity, const ecs::Id& parent, se::ui::components::TreeViewComponent* treeView) const
     {
         se::ui::components::TreeNodeComponent* treeNodeComp = nullptr;
         se::ui::components::TextComponent* textComp = nullptr;

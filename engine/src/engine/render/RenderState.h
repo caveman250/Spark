@@ -1,6 +1,5 @@
 #pragma once
 
-#include "engine/render/opengl/GL_fwd.h"
 #include "engine/reflect/Reflect.h"
 
 namespace se::render

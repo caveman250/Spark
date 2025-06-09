@@ -2,16 +2,13 @@
 
 #include "spark.h"
 #include "engine/asset/font/Font.h"
-#include "engine/asset/texture/Texture.h"
 #include "engine/ecs/Signal.h"
 #include "engine/reflect/Reflect.h"
 #include "engine/render/VertexBuffer.h"
 #include "engine/render/IndexBuffer.h"
 #include "engine/render/MaterialInstance.h"
 #include "engine/string/String.h"
-#include "engine/ui/Rect.h"
 #include "engine/ui/util/MeshUtil.h"
-#include "engine/ui/util/RectTransformUtil.h"
 
 namespace se::ui::systems
 {
@@ -54,23 +51,16 @@ namespace se::ui
     template<>
     inline math::IntVec2 DesiredSizeCalculator::GetDesiredSize<components::EditableTextComponent>(ecs::System*,
                                                                                                   [[maybe_unused]] const ecs::Id& entity,
-                                                                                                  const ui::components::RectTransformComponent& parentRect,
-                                                                                                  ui::components::RectTransformComponent& thisRect,
+                                                                                                  components::RectTransformComponent& thisRect,
                                                                                                   const components::EditableTextComponent* text)
     {
-        if (thisRect.rect.size.x == 0 && thisRect.rect.size.y == 0)
-        {
-            // need to calculate rect for children to calculate their desired size.
-            thisRect.rect = util::CalculateScreenSpaceRect(thisRect, parentRect);
-        }
-
         auto window = Application::Get()->GetPrimaryWindow();
-        auto ret = ui::util::MeasureText(thisRect.rect,
+        auto ret = util::MeasureText(thisRect.rect,
                                          text->font,
                                          static_cast<int>(text->fontSize * window->GetContentScale()),
                                          text->inEditMode ? text->editText : text->text,
                                          true,
                                          text->wrap);
-        return CalculateAnchorOffsets(thisRect, parentRect.rect) + ret;
+        return ret;
     }
 }

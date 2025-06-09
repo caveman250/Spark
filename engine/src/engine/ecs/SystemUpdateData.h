@@ -19,19 +19,24 @@ namespace se::ecs
     struct SystemUpdateVariantComponentData
     {
         void* variant = nullptr;
-        ecs::Id variant_type = {};
+        Id variant_type = {};
         ComponentMutability mutability = {};
     };
 
     class SystemUpdateData
     {
     public:
-        void SetEntities(const std::vector<ecs::Id>& entities)
+        void SetEntities(const std::vector<Id>& entities)
         {
             m_Entities = &entities;
         }
 
-        const std::vector<se::ecs::Id>& GetEntities() const
+        const Id& GetEntity() const
+        {
+            return m_Entities->at(0);
+        }
+
+        const std::vector<Id>& GetEntities() const
         {
             return *m_Entities;
         }
@@ -83,7 +88,7 @@ namespace se::ecs
         }
 
         template <typename T, typename... Ts>
-        void EmplaceVariantArray(const ecs::Id& id, void* val, std::variant<Ts...>& variant, bool& didFindType) const
+        void EmplaceVariantArray(const Id& id, void* val, std::variant<Ts...>& variant, bool& didFindType) const
         {
             if (id == T::GetComponentId())
             {
@@ -121,19 +126,19 @@ namespace se::ecs
             return ret;
         }
 
-        void AddComponentArray(const ecs::Id& component, void* compArray, ComponentMutability mutability)
+        void AddComponentArray(const Id& component, void* compArray, ComponentMutability mutability)
         {
             m_ComponentArrays.insert(
                     std::make_pair(component, SystemUpdateEntityComponentData(compArray, mutability)));
         }
 
-        void AddSingletonComponent(const ecs::Id& id, void* compArray, ComponentMutability mutability)
+        void AddSingletonComponent(const Id& id, void* compArray, ComponentMutability mutability)
         {
             m_SingletonComponents.insert(
                     std::make_pair(id, SystemUpdateSingletonComponentData(compArray, mutability)));
         }
 
-        void AddVariantComponentArray(const ecs::Id& id, void* compArray, ComponentMutability mutability)
+        void AddVariantComponentArray(const Id& id, void* compArray, ComponentMutability mutability)
         {
             m_VariantComponentData = SystemUpdateVariantComponentData(compArray, id, mutability);
         }
@@ -152,9 +157,9 @@ namespace se::ecs
             containsNullType |= std::is_same_v<ComponentType, NullComponentType>;
         }
 
-        std::unordered_map<ecs::Id, SystemUpdateEntityComponentData> m_ComponentArrays = {};
-        std::unordered_map<ecs::Id, SystemUpdateSingletonComponentData> m_SingletonComponents = {};
+        std::unordered_map<Id, SystemUpdateEntityComponentData> m_ComponentArrays = {};
+        std::unordered_map<Id, SystemUpdateSingletonComponentData> m_SingletonComponents = {};
         SystemUpdateVariantComponentData m_VariantComponentData = {};
-        const std::vector<se::ecs::Id>* m_Entities = nullptr;
+        const std::vector<Id>* m_Entities = nullptr;
     };
 }

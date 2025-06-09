@@ -20,12 +20,14 @@ namespace se::ui::systems
 
         const auto& entities = updateData.GetEntities();
         const auto* rectTransforms = updateData.GetComponentArray<const components::RectTransformComponent>();
+        const auto* widgets = updateData.GetComponentArray<const components::WidgetComponent>();
         auto* receivesInputComps = updateData.GetComponentArray<components::MouseInputComponent>();
         auto* inputComp = updateData.GetSingletonComponent<input::InputComponent>();
 
         for (size_t i = 0; i < entities.size(); ++i)
         {
             const auto& transform = rectTransforms[i];
+            const auto& widget = widgets[i];
             auto& inputReceiver = receivesInputComps[i];
             inputReceiver.mouseEvents.clear();
 
@@ -36,6 +38,12 @@ namespace se::ui::systems
             }
 
             inputReceiver.lastHovered = inputReceiver.hovered;
+
+            if (!widget.updateEnabled || !widget.parentUpdateEnabled)
+            {
+                inputReceiver.hovered = false;
+                continue;
+            }
 
 #if SPARK_EDITOR
             if (!entities[i].HasFlag(ecs::IdFlags::Editor))

@@ -1,6 +1,5 @@
 #include "OutputNode.h"
 
-#include "NameGenerator.h"
 #include "TypeUtil.h"
 
 namespace se::asset::shader::ast

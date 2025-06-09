@@ -23,7 +23,7 @@ namespace se::editor::ui
         void RebuildOutline() const;
 
     private:
-        void AddEntityUI(ecs::World* world, ecs::Id entity, ecs::Id parent, se::ui::components::TreeViewComponent* treeView) const;
+        void AddEntityUI(ecs::World* world, const ecs::Id& entity, const ecs::Id& parent, se::ui::components::TreeViewComponent* treeView) const;
 
         ecs::Id m_Window;
         ecs::Id m_TreeViewEntity;

@@ -16,9 +16,9 @@ namespace se::editor::ui::properties
         m_Value = static_cast<bool*>(value);
     }
 
-    void BoolEditor::ConstructUI(const String& name, bool constructTitle, const se::ui::Anchors& anchors)
+    void BoolEditor::ConstructUI(const String& name, bool constructTitle, const se::ui::Anchors& anchors, bool collapsed, bool withBackground)
     {
-       PropertyEditor::ConstructUI(name, constructTitle, anchors);
+       PropertyEditor::ConstructUI(name, constructTitle, anchors, collapsed, withBackground);
 
         auto world = Application::Get()->GetWorld();
         auto assetManager = asset::AssetManager::Get();

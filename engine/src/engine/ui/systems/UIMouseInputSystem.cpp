@@ -16,7 +16,7 @@ namespace se::ui::systems
 
         const auto& entities = updateData.GetEntities();
         auto* inputComp = updateData.GetSingletonComponent<input::InputComponent>();
-        auto* receivesInputComps = updateData.GetComponentArray<ui::components::MouseInputComponent>();
+        auto* receivesInputComps = updateData.GetComponentArray<components::MouseInputComponent>();
 
         if (inputComp->mouseDeltaX == 0 &&
             inputComp->mouseDeltaY == 0 &&
@@ -43,7 +43,7 @@ namespace se::ui::systems
                 }
 
                 bool consumed = false;
-                auto declaration = ecs::ChildQueryDeclaration()
+                auto declaration = ecs::HeirachyQueryDeclaration()
                         .WithComponent<components::MouseInputComponent>();
                 RunRecursiveChildQuery(entity, declaration,
                 [this, &consumed, mouseEvent](const ecs::SystemUpdateData& updateData)

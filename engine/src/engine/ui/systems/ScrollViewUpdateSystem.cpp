@@ -20,9 +20,9 @@ namespace se::ui::systems
         auto window = app->GetPrimaryWindow();
 
         const auto& entities = updateData.GetEntities();
-        auto* scrollViews = updateData.GetComponentArray<ui::components::ScrollViewComponent>();
-        auto* rectTransforms = updateData.GetComponentArray<ui::components::RectTransformComponent>();
-        const auto* mouseComps = updateData.GetComponentArray<const ui::components::MouseInputComponent>();
+        auto* scrollViews = updateData.GetComponentArray<components::ScrollViewComponent>();
+        auto* rectTransforms = updateData.GetComponentArray<components::RectTransformComponent>();
+        const auto* mouseComps = updateData.GetComponentArray<const components::MouseInputComponent>();
 
         for (size_t i = 0; i < entities.size(); ++i)
         {
@@ -33,8 +33,9 @@ namespace se::ui::systems
 
             if (rectTransform.needsLayout)
             {
-                auto declaration = ecs::ChildQueryDeclaration()
+                auto declaration = ecs::HeirachyQueryDeclaration()
                     .WithComponent<components::RectTransformComponent>()
+                    .WithComponent<components::WidgetComponent>()
                     .WithVariantComponent<SPARK_CONST_WIDGET_TYPES_WITH_NULLTYPE>(ecs::ComponentMutability::Immutable);
                 RunChildQuery(entity,
                     declaration,
@@ -44,14 +45,14 @@ namespace se::ui::systems
                         {
                             const auto& children = updateData.GetEntities();
                             auto* childTransforms = updateData.GetComponentArray<components::RectTransformComponent>();
-
+                            auto widgets = updateData.GetComponentArray<components::WidgetComponent>();
                             for (size_t i = 0; i < children.size(); ++i)
                             {
                                 const auto& child = children[i];
                                 auto& childTransform = childTransforms[i];
                                 auto oldTransform = childTransform;
                                 childTransform.anchors = { 0, 1, 0, 0 };
-                                auto desiredSize = DesiredSizeCalculator::GetDesiredSize(this, child, rectTransform, childTransform, &value[i]);
+                                auto desiredSize = DesiredSizeCalculator::GetDesiredSize(this, child, &widgets[i], rectTransform, childTransform, &value[i]);
                                 childTransform.maxY = static_cast<int>(childTransform.minY + desiredSize.y / window->GetContentScale());
                                 childTransform.rect = util::CalculateScreenSpaceRect(childTransform, rectTransform);
 
@@ -79,21 +80,17 @@ namespace se::ui::systems
                 {
                     if (mouseEvent.scrollDelta != 0)
                     {
-                        std::vector<std::pair<components::RectTransformComponent*, components::WidgetComponent*>>
-                                childComponents;
                         int minChildY = INT_MAX;
                         int maxChildY = 0;
-                        auto declaration = ecs::ChildQueryDeclaration()
-                            .WithComponent<components::RectTransformComponent>()
-                            .WithComponent<components::WidgetComponent>();
+                        auto declaration = ecs::HeirachyQueryDeclaration()
+                            .WithComponent<components::RectTransformComponent>();
                         RunChildQuery(
                             entity,
                             declaration,
-                            [&childComponents, &maxChildY, &minChildY](const ecs::SystemUpdateData& updateData)
+                            [&maxChildY, &minChildY](const ecs::SystemUpdateData& updateData)
                             {
                                 const auto& children = updateData.GetEntities();
                                 auto* childTransforms = updateData.GetComponentArray<components::RectTransformComponent>();
-                                auto* widgets = updateData.GetComponentArray<components::WidgetComponent>();
 
                                 for (size_t i = 0; i < children.size(); ++i)
                                 {
@@ -101,7 +98,6 @@ namespace se::ui::systems
                                     minChildY = std::min(childTransform.rect.topLeft.y, minChildY);
                                     maxChildY = std::max(childTransform.rect.topLeft.y + childTransform.rect.size.y,
                                                          maxChildY);
-                                    childComponents.emplace_back(std::make_pair(&childTransform, &widgets[i]));
                                 }
 
                                 return false;
@@ -115,19 +111,7 @@ namespace se::ui::systems
                         if (mouseEvent.scrollDelta > 0 && availableScrollSpaceBottom > 0)
                         {
                             int delta = std::min(mouseEvent.scrollDelta, availableScrollSpaceBottom);
-                            for (auto& child: childComponents)
-                            {
-                                child.first->minY -= delta;
-                                child.first->maxY -= delta;
-
-                                child.first->rect = util::CalculateScreenSpaceRect(*child.first, rectTransform);
-                                bool outOfBounds = (child.first->rect.topLeft.y + child.first->rect.size.y < rectTransform.rect.topLeft.y) ||
-                                                   (child.first->rect.topLeft.y > rectTransform.rect.topLeft.y + rectTransform.rect.
-                                                    size.y);
-                                child.second->updateEnabled = !outOfBounds;
-                                child.second->renderingEnabled = !outOfBounds;
-                                child.first->needsLayout = true;
-                            }
+                            util::TranslateChildren(entity, this, math::IntVec2(0, -delta));
                             availableScrollSpaceTop += delta;
                             availableScrollSpaceBottom -= delta;
                             availableScrollSpaceTop = std::max(0, availableScrollSpaceTop);
@@ -138,20 +122,7 @@ namespace se::ui::systems
                         else if (mouseEvent.scrollDelta < 0 && availableScrollSpaceTop > 0)
                         {
                             int delta = std::min(-mouseEvent.scrollDelta, availableScrollSpaceTop);
-                            for (auto& child: childComponents)
-                            {
-                                child.first->minY += delta;
-                                child.first->maxY += delta;
-
-                                child.first->rect = util::CalculateScreenSpaceRect(*child.first, rectTransform);
-                                bool outOfBounds = (child.first->rect.topLeft.y + child.first->rect.size.y < rectTransform.rect.topLeft.y) ||
-                                                   (child.first->rect.topLeft.y > rectTransform.rect.topLeft.y + rectTransform.rect.
-                                                    size.y);
-                                child.second->updateEnabled = !outOfBounds;
-                                child.second->renderingEnabled = !outOfBounds;
-                                child.first->needsLayout = true;
-                            }
-
+                            util::TranslateChildren(entity, this, math::IntVec2(0, delta));
                             availableScrollSpaceTop -= delta;
                             availableScrollSpaceBottom += delta;
                             availableScrollSpaceTop = std::max(0, availableScrollSpaceTop);

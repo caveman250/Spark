@@ -1,7 +1,6 @@
 #pragma once
 
 #include "engine/ecs/System.h"
-#include "engine/ui/components/VerticalBoxComponent.h"
 
 using namespace se;
 using namespace se::ecs::components;

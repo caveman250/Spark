@@ -3,7 +3,6 @@
 #include "math.h"
 #include "Vec3.h"
 #include "engine/render/Renderer.h"
-#include "engine/render/systems/MeshRenderSystem.h"
 
 namespace se::math
 {

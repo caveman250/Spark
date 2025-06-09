@@ -4,7 +4,6 @@
 
 #include "Struct.h"
 #include "Blob.h"
-#include "Database.h"
 #include "Array.h"
 #include "PolymorphicArray.h"
 #include "engine/string/String.h"

@@ -8,7 +8,6 @@
 #include "engine/render/IndexBuffer.h"
 #include "engine/render/MaterialInstance.h"
 #include "engine/string/String.h"
-#include "engine/ui/Rect.h"
 #include "engine/ui/util/MeshUtil.h"
 #include "engine/ui/util/RectTransformUtil.h"
 #include "engine/ui/text/Alignment.h"
@@ -55,18 +54,11 @@ namespace se::ui
     template <>
     inline math::IntVec2 DesiredSizeCalculator::GetDesiredSize<components::TextComponent>(ecs::System*,
                                                                                        [[maybe_unused]] const ecs::Id& entity,
-                                                                                       const ui::components::RectTransformComponent& parentRect,
-                                                                                       ui::components::RectTransformComponent& thisRect,
+                                                                                       components::RectTransformComponent& thisRect,
                                                                                        const components::TextComponent* text)
     {
-        if (thisRect.rect.size.x == 0 && thisRect.rect.size.y == 0)
-        {
-            // need to calculate rect for children to calculate their desired size.
-            thisRect.rect = util::CalculateScreenSpaceRect(thisRect, parentRect);
-        }
-
         auto window = Application::Get()->GetPrimaryWindow();
-        auto ret = ui::util::MeasureText(thisRect.rect, text->font, static_cast<int>(text->fontSize * window->GetContentScale()), text->text, true, text->wrap);
-        return CalculateAnchorOffsets(thisRect, parentRect.rect) + ret;
+        auto ret = util::MeasureText(thisRect.rect, text->font, static_cast<int>(text->fontSize * window->GetContentScale()), text->text, true, text->wrap);
+        return ret;
     }
 }

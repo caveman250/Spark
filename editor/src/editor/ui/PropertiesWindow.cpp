@@ -1,20 +1,16 @@
 #include "PropertiesWindow.h"
 
-#include <engine/asset/AssetManager.h>
-#include <engine/ui/components/RectTransformComponent.h>
-#include <engine/ui/components/ScrollBoxComponent.h>
-#include <engine/ui/components/TextComponent.h>
-#include <engine/ui/components/TitleBarComponent.h>
-#include <engine/ui/components/WidgetComponent.h>
-#include <engine/ui/components/WindowComponent.h>
-#include <engine/ui/util/RectTransformUtil.h>
-#include <engine/ui/util/ScrollBoxUtil.h>
-#include <engine/ui/util/WindowUtil.h>
-#include <engine/ui/components/VerticalBoxComponent.h>
-#include "engine/reflect/Reflect.h"
-
 #include "engine/Application.h"
-#include "engine/ui/util/VerticalBoxUtil.h"
+#include "engine/asset/AssetManager.h"
+#include "engine/ui/components/RectTransformComponent.h"
+#include "engine/ui/components/ScrollBoxComponent.h"
+#include "engine/ui/components/TextComponent.h"
+#include "engine/ui/components/TitleBarComponent.h"
+#include "engine/ui/components/VerticalBoxComponent.h"
+#include "engine/ui/components/WidgetComponent.h"
+#include "engine/ui/components/WindowComponent.h"
+#include "engine/ui/util/ScrollBoxUtil.h"
+#include "engine/ui/util/WindowUtil.h"
 #include "properties/util/PropertyUtil.h"
 
 namespace se::editor::ui
@@ -107,19 +103,17 @@ namespace se::editor::ui
             reflect::ObjectBase* selectedSingletonComp = m_Editor->GetSelectedSingletonComponent();
             const auto& selectedAsset = m_Editor->GetSelectedAsset();
 
-            se::ui::components::VerticalBoxComponent* verticalBox = world->GetComponent<se::ui::components::VerticalBoxComponent>(m_ScrollBoxContent);
-
             if (selectedEntity)
             {
-                AddEntityProperties(selectedEntity, world, ariel, verticalBox);
+                AddEntityProperties(selectedEntity, world, ariel);
             }
             else if (selectedSingletonComp)
             {
-                AddSingletonComponentProperties(selectedSingletonComp, verticalBox);
+                AddSingletonComponentProperties(selectedSingletonComp);
             }
             else if (selectedAsset)
             {
-                AddAssetProperties(selectedAsset, world, ariel, verticalBox);
+                AddAssetProperties(selectedAsset, world, ariel);
             }
 
             scrollBoxTransform->needsLayout = true;
@@ -128,8 +122,7 @@ namespace se::editor::ui
 
     void PropertiesWindow::AddEntityProperties(const ecs::Id& entity,
                                                ecs::World* world,
-                                               const std::shared_ptr<asset::Font>& font,
-                                               se::ui::components::VerticalBoxComponent* verticalBox)
+                                               const std::shared_ptr<asset::Font>& font)
     {
         const auto &selectedEntityRecord = world->m_EntityRecords.at(entity);
         {
@@ -140,47 +133,46 @@ namespace se::editor::ui
             text->text = *entity.name;
             world->AddComponent<se::ui::components::RectTransformComponent>(textEntity);
             world->AddComponent<se::ui::components::WidgetComponent>(textEntity);
-            se::ui::util::AddVerticalBoxChild(m_ScrollBoxContent, verticalBox, textEntity);
+            world->AddChild(m_ScrollBoxContent, textEntity);
         }
 
         for (auto component: selectedEntityRecord.archetype->type)
         {
             const auto &compRecord = world->m_ComponentRecords[component];
             auto compInstance = world->GetComponent(entity, component);
-            if (auto *propEditor = properties::CreatePropertyEditor(compRecord.type->GetTypeName(compInstance), compRecord.type, compInstance, {0.f, 1.f, 0.f, 0.f}, true))
+            if (auto *propEditor = properties::CreatePropertyEditor(compRecord.type->GetTypeName(compInstance), compRecord.type, compInstance, {0.f, 1.f, 0.f, 0.f}, false, true, true))
             {
-                se::ui::util::AddVerticalBoxChild(m_ScrollBoxContent, verticalBox, propEditor->GetWidgetId());
+                world->AddChild(m_ScrollBoxContent, propEditor->GetWidgetId());
                 m_PropertyEditors.push_back(propEditor);
             }
             else
             {
                 auto propTextEntity = properties::util::CreateMissingPropertyEditorText(compRecord.type, 0.f, 0);
-                se::ui::util::AddVerticalBoxChild(m_ScrollBoxContent, verticalBox, propTextEntity);
+                world->AddChild(m_ScrollBoxContent, propTextEntity);
             }
         }
     }
 
-    void PropertiesWindow::AddSingletonComponentProperties(reflect::ObjectBase* selectedSingletonComp,
-                                                           se::ui::components::VerticalBoxComponent* verticalBox)
+    void PropertiesWindow::AddSingletonComponentProperties(reflect::ObjectBase* selectedSingletonComp)
     {
+        auto world = Application::Get()->GetWorld();
         auto reflectClass = static_cast<reflect::Class *>(selectedSingletonComp->GetReflectType());
 
-        if (auto *propEditor = properties::CreatePropertyEditor(reflectClass->GetTypeName(selectedSingletonComp), reflectClass, selectedSingletonComp, {0.f, 1.f, 0.f, 0.f}, true))
+        if (auto *propEditor = properties::CreatePropertyEditor(reflectClass->GetTypeName(selectedSingletonComp), reflectClass, selectedSingletonComp, {0.f, 1.f, 0.f, 0.f}, false, true, true))
         {
-            se::ui::util::AddVerticalBoxChild(m_ScrollBoxContent, verticalBox, propEditor->GetWidgetId());
+            world->AddChild(m_ScrollBoxContent, propEditor->GetWidgetId());
             m_PropertyEditors.push_back(propEditor);
         }
         else
         {
             auto propTextEntity = properties::util::CreateMissingPropertyEditorText(reflectClass, 0.f, 0);
-            se::ui::util::AddVerticalBoxChild(m_ScrollBoxContent, verticalBox, propTextEntity);
+            world->AddChild(m_ScrollBoxContent, propTextEntity);
         }
     }
 
     void PropertiesWindow::AddAssetProperties(const std::shared_ptr<asset::Asset>& asset,
                                               ecs::World* world,
-                                              const std::shared_ptr<asset::Font>& font,
-                                              se::ui::components::VerticalBoxComponent* verticalBox)
+                                              const std::shared_ptr<asset::Font>& font)
     {
         auto reflectClass = static_cast<reflect::Class *>(asset->GetReflectType());
 
@@ -191,17 +183,17 @@ namespace se::editor::ui
         filePathText->text = asset->m_Path;
         world->AddComponent<se::ui::components::RectTransformComponent>(filePathEntity);
         world->AddComponent<se::ui::components::WidgetComponent>(filePathEntity);
-        se::ui::util::AddVerticalBoxChild(m_ScrollBoxContent, verticalBox, filePathEntity);
+        world->AddChild(m_ScrollBoxContent, filePathEntity);
 
-        if (auto *propEditor = properties::CreatePropertyEditor(reflectClass->GetTypeName(asset.get()), reflectClass, asset.get(), {0.f, 1.f, 0.f, 0.f}, true))
+        if (auto *propEditor = properties::CreatePropertyEditor(reflectClass->GetTypeName(asset.get()), reflectClass, asset.get(), {0.f, 1.f, 0.f, 0.f}, false, true, true))
         {
-            se::ui::util::AddVerticalBoxChild(m_ScrollBoxContent, verticalBox, propEditor->GetWidgetId());
+            world->AddChild(m_ScrollBoxContent, propEditor->GetWidgetId());
             m_PropertyEditors.push_back(propEditor);
         }
         else
         {
             auto propTextEntity = properties::util::CreateMissingPropertyEditorText(reflectClass, 0.f, 0);
-            se::ui::util::AddVerticalBoxChild(m_ScrollBoxContent, verticalBox, propTextEntity);
+            world->AddChild(m_ScrollBoxContent, propTextEntity);
         }
     }
 }

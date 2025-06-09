@@ -3,7 +3,6 @@
 #include "engine/input/InputComponent.h"
 #include "engine/profiling/Profiler.h"
 #include "engine/render/Renderer.h"
-#include "platform/IWindow.h"
 
 namespace se
 {

@@ -45,7 +45,7 @@ namespace se::ecs
                 return false;
             }
 
-            return bits::GetFlag<ecs::IdFlags>(*flags, flag);
+            return bits::GetFlag<IdFlags>(*flags, flag);
         }
 
         uint64_t id = 0;
@@ -55,7 +55,7 @@ namespace se::ecs
 
     struct NullComponentType
     {
-        static se::ecs::Id GetComponentId() { return se::ecs::s_InvalidEntity; }
+        static Id GetComponentId() { return s_InvalidEntity; }
     };
 }
 
@@ -65,5 +65,15 @@ struct std::hash<se::ecs::Id>
     std::size_t operator()(const se::ecs::Id& rhs) const
     {
         return std::hash<uint64_t>()(rhs.id);
+    }
+};
+
+template <>
+struct std::formatter<se::ecs::Id> : std::formatter<std::string>
+{
+    template <class FormatContext>
+    static auto format(const se::ecs::Id& obj, FormatContext& ctx)
+    {
+        return std::format_to(ctx.out(), "{}", obj.id);
     }
 };

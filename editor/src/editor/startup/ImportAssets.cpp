@@ -3,8 +3,6 @@
 #include "engine/asset/builder/AssetBuilder.h"
 #include "ImportAssets.h"
 
-#include "engine/io/OutputFileStream.h"
-
 namespace se::editor::startup
 {
     void ImportAssets::Run()

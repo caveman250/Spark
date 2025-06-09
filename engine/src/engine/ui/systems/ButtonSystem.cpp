@@ -4,6 +4,7 @@
 #include "engine/input/InputUtil.h"
 #include "engine/profiling/Profiler.h"
 #include "engine/render/MaterialInstance.h"
+#include "engine/ui/components/MouseInputComponent.h"
 
 using namespace se;
 using namespace se::ecs::components;
@@ -15,9 +16,9 @@ namespace se::ui::systems
         PROFILE_SCOPE("ButtonSystem::OnUpdate")
 
         const auto& entities = updateData.GetEntities();
-        auto* buttons = updateData.GetComponentArray<ui::components::ButtonComponent>();
-        auto* images = updateData.GetComponentArray<ui::components::ImageComponent>();
-        const auto* mouseEventComps = updateData.GetComponentArray<const ui::components::MouseInputComponent>();
+        auto* buttons = updateData.GetComponentArray<components::ButtonComponent>();
+        auto* images = updateData.GetComponentArray<components::ImageComponent>();
+        const auto* mouseEventComps = updateData.GetComponentArray<const components::MouseInputComponent>();
 
         for (size_t i = 0; i < entities.size(); ++i)
         {

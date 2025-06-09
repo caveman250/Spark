@@ -1,5 +1,6 @@
 #pragma once
 
+#include "components/WidgetComponent.h"
 #include "engine/ui/util/RectTransformUtil.h"
 #include "engine/ui/Rect.h"
 #include "engine/ui/components/RectTransformComponent.h"
@@ -11,22 +12,43 @@ namespace se::ui
     class DesiredSizeCalculator
     {
     public:
+
         template<typename T>
         static inline math::IntVec2 GetDesiredSize(ecs::System* system,
                                                 const ecs::Id& entity,
-                                                const components::RectTransformComponent& parentRect,
                                                 components::RectTransformComponent& thisRect,
                                                 const T*)
         {
+            auto window = Application::Get()->GetPrimaryWindow();
+            math::IntVec2 rectSize = GetDesiredSizeFromRect(thisRect);
+            auto childrenSize = GetChildrenDesiredSize(system, entity, thisRect);
+            return math::IntVec2(std::max(std::max(rectSize.x, childrenSize.x), static_cast<int>(thisRect.minWidth * window->GetContentScale())),
+                                 std::max(std::max(rectSize.y, childrenSize.y), static_cast<int>(thisRect.minHeight * window->GetContentScale())));
+        }
+
+        template<typename T>
+        static inline math::IntVec2 GetDesiredSize(ecs::System* system,
+                                                const ecs::Id& entity,
+                                                const components::WidgetComponent* widget,
+                                                const components::RectTransformComponent& parentRect,
+                                                components::RectTransformComponent& thisRect,
+                                                const T* context)
+        {
+            if (widget && widget->visibility == Visibility::Collapsed)
+            {
+                return {};
+            }
+
             if (thisRect.rect.size.x == 0 && thisRect.rect.size.y == 0)
             {
                 // need to calculate rect for children to calculate their desired size.
                 thisRect.rect = util::CalculateScreenSpaceRect(thisRect, parentRect);
             }
 
-            auto rectSize = GetDesiredSizeFromRect(thisRect);
-            auto childrenSize = CalculateAnchorOffsets(thisRect, parentRect.rect) + GetChildrenDesiredSize(system, entity, thisRect);
-            return math::IntVec2(std::max(rectSize.x, childrenSize.x), std::max(rectSize.y, childrenSize.y));
+            auto anchorOffsets = CalculateAnchorOffsets(thisRect, parentRect.rect);
+            auto desired = GetDesiredSize(system, entity, thisRect, context);
+            thisRect.desiredSize = anchorOffsets + desired;
+            return anchorOffsets + desired;
         }
 
         static math::IntVec2 GetDesiredSizeFromRect(const components::RectTransformComponent& transform)

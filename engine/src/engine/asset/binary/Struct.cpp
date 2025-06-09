@@ -1,4 +1,6 @@
 #include "Struct.h"
+
+#include "Database.h"
 #include "Object.h"
 
 namespace se::asset::binary

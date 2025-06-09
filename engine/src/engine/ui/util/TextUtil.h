@@ -25,7 +25,7 @@ namespace se::ui::util
                     singleton_components::UIRenderComponent* renderComp,
                     const String& text)
     {
-        if (!widget.renderingEnabled || !widget.parentRenderingEnabled || text.Size() == 0)
+        if (widget.visibility != Visibility::Visible || widget.parentVisibility != Visibility::Visible || text.Size() == 0)
         {
             return;
         }
@@ -52,9 +52,10 @@ namespace se::ui::util
             textComp.materialInstance->SetUniform("Texture", asset::shader::ast::AstType::Sampler2D, 1, &texture);
         }
 
-        if (transform.rect.topLeft != transform.lastRect.topLeft)
+        const math::Vec2* materialPos = textComp.materialInstance->template GetUniform<math::Vec2>("pos");
+        auto floatVec = math::Vec2(transform.rect.topLeft);
+        if (!materialPos || *materialPos != floatVec)
         {
-            auto floatVec = math::Vec2(transform.rect.topLeft);
             textComp.materialInstance->SetUniform("pos", asset::shader::ast::AstType::Vec2, 1, &floatVec);
         }
 

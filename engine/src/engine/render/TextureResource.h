@@ -1,10 +1,8 @@
 #pragma once
 
 #include "spark.h"
-#include "engine/math/math.h"
 #include "engine/asset/texture/Format.h"
 #include "engine/asset/texture/Mipmap.h"
-#include "engine/reflect/Reflect.h"
 
 namespace se::asset
 {

@@ -16,16 +16,16 @@ namespace se::ui::components
         Anchors anchors = {};
 
         SPARK_MEMBER(Serialized)
-        int minX = 0;
+        float minX = 0;
 
         SPARK_MEMBER(Serialized)
-        int minY = 0;
+        float minY = 0;
 
         SPARK_MEMBER(Serialized)
-        int maxX = 0;
+        float maxX = 0;
 
         SPARK_MEMBER(Serialized)
-        int maxY = 0;
+        float maxY = 0;
 
         SPARK_MEMBER(Serialized)
         float minAspectRatio = 0.f;
@@ -33,13 +33,19 @@ namespace se::ui::components
         SPARK_MEMBER(Serialized)
         float maxAspectRatio = 0.f;
 
+        SPARK_MEMBER(Serialized)
+        float minWidth = 0;
+
+        SPARK_MEMBER(Serialized)
+        float minHeight = 0;
+
         SPARK_MEMBER()
         Rect rect = {};
 
         SPARK_MEMBER()
         Rect lastRect = {};
 
-        SPARK_MEMBER()
+        SPARK_MEMBER(Serialized)
         math::Vec2 desiredSize = {};
 
         SPARK_MEMBER()

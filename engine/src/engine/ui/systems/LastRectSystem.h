@@ -1,7 +1,6 @@
 #pragma once
 
 #include "engine/ecs/System.h"
-#include "engine/ecs/components/ParentComponent.h"
 #include "engine/ui/components/RectTransformComponent.h"
 
 using namespace se;

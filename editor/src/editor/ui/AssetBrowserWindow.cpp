@@ -1,27 +1,24 @@
-#include <engine/ui/util/TreeViewUtil.h>
-#include <engine/ui/components/ScrollBoxComponent.h>
-#include <engine/ui/components/ScrollViewComponent.h>
-#include <engine/ui/util/ScrollBoxUtil.h>
 #include "AssetBrowserWindow.h"
-#include "engine/ui/components/GridBoxComponent.h"
-#include "engine/ui/components/ImageComponent.h"
 #include "engine/Application.h"
-#include "engine/ui/components/WindowComponent.h"
-#include "engine/ui/components/WidgetComponent.h"
-#include "engine/ui/components/TitleBarComponent.h"
-#include "engine/ui/components/RectTransformComponent.h"
-#include "engine/ui/components/TextComponent.h"
-#include "engine/ui/components/VerticalBoxComponent.h"
-#include "engine/ui/components/HorizontalBoxComponent.h"
-#include "engine/ui/components/ButtonComponent.h"
-#include "engine/ui/components/TreeNodeComponent.h"
-#include "engine/ui/util/WindowUtil.h"
-#include "engine/render/FrameBuffer.h"
-#include "engine/render/MaterialInstance.h"
 #include "engine/asset/AssetManager.h"
-#include "engine/ui/util/VerticalBoxUtil.h"
+#include "engine/io/VFS.h"
+#include "engine/render/MaterialInstance.h"
 #include "engine/string/util/StringUtil.h"
-#include "engine/asset/meta/MetaData.h"
+#include "engine/ui/components/ButtonComponent.h"
+#include "engine/ui/components/GridBoxComponent.h"
+#include "engine/ui/components/HorizontalBoxComponent.h"
+#include "engine/ui/components/ImageComponent.h"
+#include "engine/ui/components/RectTransformComponent.h"
+#include "engine/ui/components/ScrollBoxComponent.h"
+#include "engine/ui/components/ScrollViewComponent.h"
+#include "engine/ui/components/TextComponent.h"
+#include "engine/ui/components/TitleBarComponent.h"
+#include "engine/ui/components/TreeNodeComponent.h"
+#include "engine/ui/components/WidgetComponent.h"
+#include "engine/ui/components/WindowComponent.h"
+#include "engine/ui/util/ScrollBoxUtil.h"
+#include "engine/ui/util/TreeViewUtil.h"
+#include "engine/ui/util/WindowUtil.h"
 
 namespace se::editor::ui
 {
@@ -108,6 +105,7 @@ namespace se::editor::ui
         auto pathBarRect = world->AddComponent<se::ui::components::RectTransformComponent>(m_PathBarBox);
         pathBarRect->anchors = { 0.f, 1.f, 0.f, 1.f };
         pathBarRect->minX = 5;
+        pathBarRect->overridesChildSizes = true;
         world->AddComponent<se::ui::components::WidgetComponent>(m_PathBarBox);
         auto horBox = world->AddComponent<se::ui::components::HorizontalBoxComponent>(m_PathBarBox);
         horBox->spacing = 5;
@@ -228,8 +226,8 @@ namespace se::editor::ui
         cumulativePath += path;
         CreatePathItem(world, path, cumulativePath, font);
 
-        auto horBox = world->GetComponent<se::ui::components::HorizontalBoxComponent>(m_PathBarBox);
-        horBox->dirty = true;
+        auto horBox = world->GetComponent<se::ui::components::RectTransformComponent>(m_PathBarBox);
+        horBox->needsLayout = true;
     }
 
     void AssetBrowserWindow::CreatePathItem(ecs::World* world,
@@ -241,7 +239,7 @@ namespace se::editor::ui
         auto buttonRect = world->AddComponent<se::ui::components::RectTransformComponent>(buttonEntity);
         buttonRect->anchors = { .left = 0.f, .right = 1.f, .top = 0.f, .bottom = 1.f };
         auto buttonWidget = world->AddComponent<se::ui::components::WidgetComponent>(buttonEntity);
-        buttonWidget->renderingEnabled = false;
+        buttonWidget->visibility = se::ui::Visibility::Hidden;
         auto button = world->AddComponent<se::ui::components::ButtonComponent>(buttonEntity);
         button->onReleased.Subscribe([this, path]()
                                      {
@@ -275,14 +273,15 @@ namespace se::editor::ui
 
         ecs::Id fileEntity = world->CreateEntity("File", true);
         auto rect = world->AddComponent<se::ui::components::RectTransformComponent>(fileEntity);
-        rect->maxX = 100;
-        rect->maxY = 100;
+        rect->minWidth = 100;
+        rect->minHeight = 100;
+        world->AddComponent<se::ui::components::WidgetComponent>(fileEntity);
 
         ecs::Id buttonEntity = world->CreateEntity("Button", true);
         auto buttonRect = world->AddComponent<se::ui::components::RectTransformComponent>(buttonEntity);
         buttonRect->anchors = { .left = 0.f, .right = 1.f, .top = 0.f, .bottom = 1.f };
         auto buttonWidget = world->AddComponent<se::ui::components::WidgetComponent>(buttonEntity);
-        buttonWidget->renderingEnabled = false;
+        buttonWidget->visibility = se::ui::Visibility::Hidden;
         auto button = world->AddComponent<se::ui::components::ButtonComponent>(buttonEntity);
         button->onReleased.Subscribe([this, file]()
         {

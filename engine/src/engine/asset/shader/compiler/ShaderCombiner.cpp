@@ -15,7 +15,6 @@
 #include "engine/asset/shader/Shader.h"
 #include "engine/asset/shader/ast/VariableDeclarationNode.h"
 #include "engine/asset/shader/ast/VariableReferenceNode.h"
-#include "engine/asset/shader/ast/VertexPositionOutputNode.h"
 
 namespace se::asset::shader::compiler
 {

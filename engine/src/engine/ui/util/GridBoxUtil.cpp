@@ -6,11 +6,12 @@ namespace se::ui::util
 {
     math::IntVec2 GetGridBoxItemSize(const ecs::Id &entity,
                                      ecs::System *system,
-                                     const ui::components::RectTransformComponent& rectTransform)
+                                     const RectTransformComponent& rectTransform)
     {
-        se::math::IntVec2 itemSize = {};
-        auto dec = ecs::ChildQueryDeclaration()
-                .WithComponent<ui::components::RectTransformComponent>()
+        math::IntVec2 itemSize = {};
+        auto dec = ecs::HeirachyQueryDeclaration()
+                .WithComponent<RectTransformComponent>()
+                .WithComponent<const WidgetComponent>()
                 .WithVariantComponent<SPARK_CONST_WIDGET_TYPES_WITH_NULLTYPE>(ecs::ComponentMutability::Immutable);
 
         auto window = Application::Get()->GetPrimaryWindow();
@@ -20,11 +21,13 @@ namespace se::ui::util
             std::visit([rectTransform, updateData, &itemSize, system, window](auto&& value)
             {
                 const auto& entities = updateData.GetEntities();
-                auto transforms = updateData.GetComponentArray<ui::components::RectTransformComponent>();
+                auto transforms = updateData.GetComponentArray<RectTransformComponent>();
+                auto widgets = updateData.GetComponentArray<const WidgetComponent>();
                 for (size_t i = 0; i < entities.size(); ++i)
                 {
                     math::IntVec2 childDesiredSize = DesiredSizeCalculator::GetDesiredSize(system,
                                                                                             entities[i],
+                                                                                            &widgets[i],
                                                                                            rectTransform,
                                                                                             transforms[i],
                                                                                             value);

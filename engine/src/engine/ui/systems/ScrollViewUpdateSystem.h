@@ -3,8 +3,6 @@
 #include "spark.h"
 #include "engine/ui/components/ScrollViewComponent.h"
 #include "engine/ecs/System.h"
-#include "engine/ui/components/RectTransformComponent.h"
-#include "engine/ui/components/TextComponent.h"
 #include "engine/ui/components/WidgetComponent.h"
 #include "engine/ui/components/MouseInputComponent.h"
 

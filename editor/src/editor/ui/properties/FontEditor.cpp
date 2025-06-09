@@ -3,9 +3,7 @@
 #include <engine/Application.h>
 #include <engine/ui/components/RectTransformComponent.h>
 
-#include "engine/asset/shader/ast/MainNode.h"
 #include "engine/ui/components/TextComponent.h"
-#include "engine/ui/util/VerticalBoxUtil.h"
 
 namespace se::editor::ui::properties
 {
@@ -16,9 +14,9 @@ namespace se::editor::ui::properties
         m_Value = static_cast<asset::Font*>(value);
     }
 
-    void FontEditor::ConstructUI(const String& name, bool constructTitle, const se::ui::Anchors& anchors)
+    void FontEditor::ConstructUI(const String& name, bool constructTitle, const se::ui::Anchors& anchors, bool collapsed, bool withBackground)
     {
-        PropertyEditor::ConstructUI(name, constructTitle, anchors);
+        PropertyEditor::ConstructUI(name, constructTitle, anchors, collapsed, withBackground);
 
         auto world = Application::Get()->GetWorld();
 
@@ -34,7 +32,7 @@ namespace se::editor::ui::properties
         }
 
         auto reflect = reflect::ClassResolver<asset::Font>::get();
-        if (auto *propEditor = properties::CreatePropertyEditor(*reflect->GetMember("m_Texture"), m_Value, {0.f, 1.f, 0.f, 0.f}, true))
+        if (auto *propEditor = properties::CreatePropertyEditor(*reflect->GetMember("m_Texture"), m_Value, {0.f, 1.f, 0.f, 0.f}, true, false, true))
         {
             world->AddChild(m_Content, propEditor->GetWidgetId());
             m_Editors.push_back(propEditor);

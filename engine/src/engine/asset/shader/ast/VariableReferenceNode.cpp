@@ -1,8 +1,6 @@
 #include "VariableReferenceNode.h"
 
 #include "InputAttributeNode.h"
-#include "NameGenerator.h"
-#include "OutputNode.h"
 #include "ShaderCompileContext.h"
 #include "../Shader.h"
 

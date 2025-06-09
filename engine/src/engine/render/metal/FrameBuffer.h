@@ -1,6 +1,5 @@
 #pragma once
 
-#include "spark.h"
 #include "engine/render/FrameBuffer.h"
 #include "MTL_fwd.h"
 

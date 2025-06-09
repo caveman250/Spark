@@ -36,6 +36,8 @@ namespace se::render
 
         template <typename T>
         void SetValue(const String& name, asset::shader::ast::AstType type, int count, const T* value);
+        template<typename T>
+        const T* GetValue(const String& name);
         void Apply(MaterialInstance* material);
         bool IsStale() const { return m_Stale; }
     private:
@@ -76,5 +78,16 @@ namespace se::render
             m_Storage.insert(std::make_pair(name, uniformVal));
             m_Stale = true;
         }
+    }
+
+    template<typename T>
+    const T* UniformStorage::GetValue(const String& name)
+    {
+        if (m_Storage.contains(name))
+        {
+            return static_cast<const T*>(m_Storage.at(name)->GetValue());
+        }
+
+        return nullptr;
     }
 }

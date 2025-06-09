@@ -9,8 +9,8 @@ namespace se::ecs
         BaseObserver() = default;
         virtual ~BaseObserver()  = default;
     private:
-        virtual void Added(Id entity, void* component) = 0;
-        virtual void Removed(Id entity, void* component) = 0;
+        virtual void Added(const Id& entity, void* component) = 0;
+        virtual void Removed(const Id& entity, void* component) = 0;
 
         friend class World;
     };
@@ -22,11 +22,11 @@ namespace se::ecs
         Observer() = default;
         ~Observer() override = default;
     protected:
-        virtual void OnAdded(Id entity, T* component) = 0;
-        virtual void OnRemoved(Id entity, T* component) = 0;
+        virtual void OnAdded(const Id& entity, T* component) = 0;
+        virtual void OnRemoved(const Id& entity, T* component) = 0;
 
     private:
-        void Added(Id entity, void *component) override { OnAdded(entity, static_cast<T*>(component)); }
-        void Removed(Id entity, void *component) override { OnRemoved(entity, static_cast<T*>(component)); }
+        void Added(const Id& entity, void *component) override { OnAdded(entity, static_cast<T*>(component)); }
+        void Removed(const Id& entity, void *component) override { OnRemoved(entity, static_cast<T*>(component)); }
     };
 }

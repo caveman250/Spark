@@ -2,7 +2,6 @@
 
 #include "spark.h"
 #include "engine/reflect/Reflect.h"
-#include "engine/render/PointLight.h"
 
 namespace se::render::components
 {

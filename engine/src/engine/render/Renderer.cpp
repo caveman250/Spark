@@ -1,12 +1,9 @@
-#include "engine/render/opengl/GL_fwd.h"
 #include "Renderer.h"
 
 #include <engine/Application.h>
-#include <engine/ui/singleton_components/UIRenderComponent.h>
 
 #include "engine/profiling/Profiler.h"
 #include "metal/MetalRenderer.h"
-#include "opengl/OpenGLRenderer.h"
 #include "FrameBuffer.h"
 
 namespace se::render
@@ -45,7 +42,7 @@ namespace se::render
         PROFILE_SCOPE("Renderer::Update")
         m_LightSetup.Reset();
         m_DefaultRenderGroup = AllocRenderGroup();
-        Submit<render::commands::Clear>(true, true);
+        Submit<commands::Clear>(true, true);
     }
 
     void Renderer::Render()

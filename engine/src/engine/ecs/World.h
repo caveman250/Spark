@@ -3,7 +3,6 @@
 #include "engine/memory/Arena.h"
 #include "Archetype.h"
 #include "engine/reflect/TypeResolver.h"
-#include "Action.h"
 #include "UpdateMode.h"
 #include "MaybeLockGuard.h"
 #include "Observer.h"
@@ -110,6 +109,8 @@ namespace se::ecs
         void Render();
         void Shutdown();
 
+        void DumpWidgetHeirachy();
+
         Id CreateEntity(const String& name,
                         bool editorOnly = false);
         void DestroyEntity(const Id& entity);
@@ -130,7 +131,7 @@ namespace se::ecs
         Id GetParent(const Id& entity) const;
 
         template<typename T>
-        void RemoveComponent(Id entity);
+        void RemoveComponent(const Id& entity);
 
         template<typename T>
         T* AddSingletonComponent();
@@ -197,25 +198,37 @@ namespace se::ecs
                                           std::set<VariantQueryArchetype>& archetypes);
 
         template<typename Func>
-        bool ChildEach(const ecs::Id& entity,
+        bool ChildEach(const Id& entity,
                        const System* system,
-                       const ChildQueryDeclaration& declaration,
+                       const HeirachyQueryDeclaration& declaration,
                        Func&& func);
 
         template<typename Func>
-        bool RecursiveChildEach(Id entity,
+        void HeirachyQuery(const Id& child,
+                       const System* system,
+                       const HeirachyQueryDeclaration& declaration,
+                       Func&& func);
+
+        template<typename Func>
+        void ParentQuery(const Id& entity,
+               const System* system,
+               const HeirachyQueryDeclaration& declaration,
+               Func&& func);
+
+        template<typename Func>
+        bool RecursiveChildEach(const Id& entity,
                                 System* system,
-                                const ChildQueryDeclaration& declaration,
+                                const HeirachyQueryDeclaration& declaration,
                                 Func&& func);
 
         template<typename Func>
-        bool RecurseChildren(Id entity,
+        bool RecurseChildren(const Id& entity,
                              System* system,
-                             const ChildQueryDeclaration& declaration,
+                             const HeirachyQueryDeclaration& declaration,
                              Func&& func);
 
-        static bool ValidateChildQuery(const System* system,
-                                       const ChildQueryDeclaration& declaration);
+        static bool ValidateHeirachyQuery(const System* system,
+                                       const HeirachyQueryDeclaration& declaration);
 
         void RunOnAllSystems(const std::function<void(const Id&)>& func,
                              const std::vector<std::vector<Id>>& systems,
@@ -469,21 +482,26 @@ namespace se::ecs
     }
 
     template<typename Func>
-    bool World::ChildEach(const ecs::Id& entity,
+    bool World::ChildEach(const Id& entity,
                           const System* system,
-                          const ChildQueryDeclaration& declaration,
+                          const HeirachyQueryDeclaration& declaration,
                           Func&& func)
     {
         PROFILE_SCOPE("World::ChildEach");
 
+        if (!HasComponent<components::ParentComponent>(entity))
+        {
+            return false;
+        }
+
 #if !SPARK_DIST
-        if (!ValidateChildQuery(system, declaration))
+        if (!ValidateHeirachyQuery(system, declaration))
         {
             return false;
         }
 #endif
         bool hasNullVariant = false;
-        std::set<ecs::Id> variantTypes = { };
+        std::set<Id> variantTypes = { };
         if (declaration.variantComponentUsage.type_hash != 0)
         {
             for (const auto& type: declaration.variantComponentUsage.components)
@@ -503,7 +521,7 @@ namespace se::ecs
             updateData.AddSingletonComponent(compUsage.id, m_SingletonComponents.at(compUsage.id), compUsage.mutability);
         }
 
-        for (const auto& child: GetChildren(entity))
+        for (const auto& child : GetChildren(entity))
         {
             updateData.ClearEntityData();
             std::vector entities = { child };
@@ -551,9 +569,75 @@ namespace se::ecs
     }
 
     template<typename Func>
-    bool World::RecursiveChildEach(Id entity,
+    void World::HeirachyQuery(const Id& child,
+        const System* system,
+        const HeirachyQueryDeclaration& declaration,
+        Func&& func)
+    {
+#if !SPARK_DIST
+        if (!ValidateHeirachyQuery(system, declaration))
+        {
+            return;
+        }
+#endif
+
+        SystemUpdateData updateData = { };
+        for (const auto& compUsage: declaration.singletonComponentUsage)
+        {
+            updateData.AddSingletonComponent(compUsage.id, m_SingletonComponents.at(compUsage.id), compUsage.mutability);
+        }
+        updateData.SetEntities({ child });
+        for (const auto& comp : declaration.componentUsage)
+        {
+            updateData.AddComponentArray(comp.id,
+                GetComponent(child, comp.id),
+                comp.mutability);
+        }
+
+        bool didFindVariant = declaration.variantComponentUsage.components.empty();
+        if (!didFindVariant)
+        {
+            for (const auto& comp : declaration.variantComponentUsage.components)
+            {
+                if (HasComponent(child, comp))
+                {
+                    updateData.AddComponentArray(comp,
+                        GetComponent(comp, child),
+                        declaration.variantComponentUsage.mutability);
+                    didFindVariant = true;
+                    break;
+                }
+            }
+        }
+        if (!didFindVariant)
+        {
+            updateData.AddComponentArray(s_InvalidEntity,
+                    nullptr,
+                    ComponentMutability::Immutable);
+        }
+
+        func(updateData);
+    }
+
+    template<typename Func>
+    void World::ParentQuery(const Id& entity,
+        const System* system,
+        const HeirachyQueryDeclaration& declaration,
+        Func&& func)
+    {
+        Id parent = GetParent(entity);
+        if (parent == s_InvalidEntity)
+        {
+            return;
+        }
+
+        HeirachyQuery(parent, system, declaration, func);
+    }
+
+    template<typename Func>
+    bool World::RecursiveChildEach(const Id& entity,
                                    System* system,
-                                   const ChildQueryDeclaration& declaration,
+                                   const HeirachyQueryDeclaration& declaration,
                                    Func&& func)
     {
         PROFILE_SCOPE("World::RecursiveChildEach");
@@ -567,9 +651,9 @@ namespace se::ecs
     }
 
     template<typename Func>
-    bool World::RecurseChildren(Id entity,
+    bool World::RecurseChildren(const Id& entity,
                                 System* system,
-                                const ChildQueryDeclaration& declaration,
+                                const HeirachyQueryDeclaration& declaration,
                                 Func&& func)
     {
         if (HasComponent<components::ParentComponent>(entity))
@@ -608,7 +692,7 @@ namespace se::ecs
     }
 
     template<typename T>
-    void World::RemoveComponent(Id entity)
+    void World::RemoveComponent(const Id& entity)
     {
         auto guard = MaybeLockGuard(m_UpdateMode, &m_ComponentMutex);
         if (!SPARK_VERIFY(HasComponent<T>(entity)))

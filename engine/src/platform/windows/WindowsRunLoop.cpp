@@ -1,7 +1,6 @@
 
 #include "WindowsRunLoop.h"
 
-#include <algorithm>
 #include "platform/PlatformRunLoop.h"
 
 

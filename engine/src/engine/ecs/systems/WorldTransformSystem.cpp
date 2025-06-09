@@ -23,7 +23,7 @@ namespace se::ecs::systems
         for (size_t i = 0; i < entities.size(); ++i)
         {
             const TransformComponent& parent = transform[i];
-            auto declaration = ecs::ChildQueryDeclaration()
+            auto declaration = HeirachyQueryDeclaration()
                                 .WithComponent<TransformComponent>();
             RunChildQuery(entities[i], declaration,
               [parent](const SystemUpdateData& updateData)

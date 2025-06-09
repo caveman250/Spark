@@ -2,8 +2,6 @@
 
 #include "Format.h"
 #include "Mipmap.h"
-#include "engine/asset/binary/binary.h"
-#include "engine/asset/binary/Database.h"
 #include "engine/asset/builder/TextureBlueprint.h"
 #include "engine/render/TextureResource.h"
 

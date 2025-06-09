@@ -6,7 +6,7 @@ namespace se::ui::observers
 {
     class ButtonObserver : public ecs::Observer<components::ButtonComponent>
     {
-        void OnAdded(ecs::Id entity, components::ButtonComponent *component) override;
-        void OnRemoved(ecs::Id entity, components::ButtonComponent *component) override;
+        void OnAdded(const ecs::Id& entity, components::ButtonComponent *component) override;
+        void OnRemoved(const ecs::Id& entity, components::ButtonComponent *component) override;
     };
 }

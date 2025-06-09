@@ -1,7 +1,5 @@
 #include "StartupManager.h"
 
-#include "StartupTask.h"
-
 namespace se::editor::startup
 {
     void StartupManager::RunStartupTasks()

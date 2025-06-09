@@ -3,8 +3,6 @@
 #include "engine/ecs/System.h"
 #include "engine/ecs/components/ParentComponent.h"
 #include "engine/ui/components/ButtonComponent.h"
-#include "engine/ui/components/ImageComponent.h"
-#include "engine/ui/components/MouseInputComponent.h"
 
 using namespace se;
 using namespace se::ecs::components;

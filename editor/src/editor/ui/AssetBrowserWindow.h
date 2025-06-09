@@ -2,7 +2,7 @@
 
 #include "ToolWindow.h"
 #include "engine/ecs/ecs_fwd.h"
-#include "engine/ui/Rect.h"
+#include "engine/string/String.h"
 
 namespace se::ecs
 {

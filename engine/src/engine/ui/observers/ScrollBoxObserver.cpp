@@ -6,10 +6,10 @@
 
 namespace se::ui::observers
 {
-    void ScrollBoxObserver::OnAdded(ecs::Id entity, components::ScrollBoxComponent*)
+    void ScrollBoxObserver::OnAdded(const ecs::Id& entity, components::ScrollBoxComponent*)
     {
         auto world = Application::Get()->GetWorld();
-        if (!world->HasComponent<ui::components::WidgetComponent>(entity))
+        if (!world->HasComponent<components::WidgetComponent>(entity))
         {
             world->AddComponent<components::WidgetComponent>(entity);
         }
@@ -20,7 +20,7 @@ namespace se::ui::observers
 //        }
     }
 
-    void ScrollBoxObserver::OnRemoved(ecs::Id, components::ScrollBoxComponent*)
+    void ScrollBoxObserver::OnRemoved(const ecs::Id&, components::ScrollBoxComponent*)
     {
 
     }
