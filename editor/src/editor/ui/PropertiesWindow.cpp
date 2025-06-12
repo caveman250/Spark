@@ -64,7 +64,7 @@ namespace se::editor::ui
         m_ScrollBoxContent = world->CreateEntity("Vertical Box");
         auto verticalBox = world->AddComponent<se::ui::components::VerticalBoxComponent>(m_ScrollBoxContent);
         verticalBox->spacing = 5;
-        verticalBox->paddingLeft = 5;
+        verticalBox->paddingLeft = 2;
         verticalBox->paddingRight = 15;
         world->AddComponent<se::ui::components::WidgetComponent>(m_ScrollBoxContent);
         auto verticalBoxTransform = world->AddComponent<se::ui::components::RectTransformComponent>(m_ScrollBoxContent);

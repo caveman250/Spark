@@ -37,11 +37,12 @@ namespace se::ui::systems
                     .WithComponent<components::RectTransformComponent>()
                     .WithComponent<components::WidgetComponent>()
                     .WithVariantComponent<SPARK_CONST_WIDGET_TYPES_WITH_NULLTYPE>(ecs::ComponentMutability::Immutable);
+                float totalChildSize = 0.f;
                 RunChildQuery(entity,
                     declaration,
-                    [this, world, window, &rectTransform](const ecs::SystemUpdateData& updateData)
+                    [this, world, window, &rectTransform, &totalChildSize](const ecs::SystemUpdateData& updateData)
                     {
-                        std::visit([this, world, window, &updateData, &rectTransform](auto&& value)
+                        std::visit([this, world, window, &updateData, &rectTransform, &totalChildSize](auto&& value)
                         {
                             const auto& children = updateData.GetEntities();
                             auto* childTransforms = updateData.GetComponentArray<components::RectTransformComponent>();
@@ -55,7 +56,7 @@ namespace se::ui::systems
                                 auto desiredSize = DesiredSizeCalculator::GetDesiredSize(this, child, &widgets[i], rectTransform, childTransform, &value[i]);
                                 childTransform.maxY = static_cast<int>(childTransform.minY + desiredSize.y / window->GetContentScale());
                                 childTransform.rect = util::CalculateScreenSpaceRect(childTransform, rectTransform);
-
+                                totalChildSize += childTransform.rect.size.y;
                                 if (!childTransform.overridesChildSizes)
                                 {
                                     util::LayoutChildren(world, this, child, rectTransform, childTransform.layer + 1);
@@ -70,6 +71,13 @@ namespace se::ui::systems
 
                         return false;
                     });
+
+                float availableScrollSpaceBottom = std::max(0.f, totalChildSize - rectTransform.rect.size.y);
+                if (availableScrollSpaceBottom > 0.f)
+                {
+                    util::TranslateChildren(entity, this, math::IntVec2(0, -availableScrollSpaceBottom * scrollView.scrollAmount));
+                    scrollView.onScrolled.Broadcast(&rectTransform, scrollView.scrollAmount);
+                }
 
                 rectTransform.needsLayout = false;
             }

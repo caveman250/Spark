@@ -1,0 +1,104 @@
+#include "ComboBoxSystem.h"
+#include "spark.h"
+#include "engine/Application.h"
+#include "engine/math/IntVec2.h"
+#include "engine/profiling/Profiler.h"
+#include "engine/ui/DesiredSizeCalculator.h"
+#include "engine/ui/components/ComboBoxComponent.h"
+#include "engine/ui/components/TextComponent.h"
+#include "engine/ui/components/WidgetComponent.h"
+
+using namespace se;
+using namespace se::ecs::components;
+
+namespace se::ui::systems
+{
+    void ComboBoxSystem::OnUpdate(const ecs::SystemUpdateData& updateData)
+    {
+        PROFILE_SCOPE("ComboBoxSystem::OnUpdate")
+
+        auto world = Application::Get()->GetWorld();
+
+        const auto& entities = updateData.GetEntities();
+        auto* comboBoxes = updateData.GetComponentArray<components::ComboBoxComponent>();
+        auto* transforms = updateData.GetComponentArray<components::RectTransformComponent>();
+        const auto* mouseComps = updateData.GetComponentArray<const components::MouseInputComponent>();
+
+        for (size_t i = 0; i < entities.size(); ++i)
+        {
+            const auto& entity = entities[i];
+            auto& comboBox = comboBoxes[i];
+            auto& transform = transforms[i];
+            const auto& mouseInput = mouseComps[i];
+
+            if (mouseInput.hovered)
+            {
+                for (const auto& mouseEvent: mouseInput.mouseEvents)
+                {
+                    if (mouseEvent.button == input::MouseButton::Left)
+                    {
+                        if (mouseEvent.state == input::KeyState::Up)
+                        {
+                            comboBox.collapsed = !comboBox.collapsed;
+                        }
+                    }
+                }
+            }
+
+            if (comboBox.collapsed != comboBox.lastCollapsed)
+            {
+                comboBox.lastCollapsed = comboBox.collapsed;
+
+                auto declaration = ecs::HeirachyQueryDeclaration()
+                            .WithComponent<components::WidgetComponent>();
+                RunQueryOnChild(comboBox.expandedEntity, declaration,
+                    [&comboBox](const ecs::SystemUpdateData& updateData)
+                    {
+                        auto* widget = updateData.GetComponentArray<components::WidgetComponent>();
+                        widget->visibility = comboBox.collapsed ? Visibility::Collapsed : Visibility::Visible;
+                        widget->updateEnabled = !comboBox.collapsed;
+                        widget->dirty = true;
+                    });
+            }
+
+            if (transform.needsLayout)
+            {
+                auto desiredSizeInfo = util::GetChildrenDesiredSizes(entity, this, transform);
+                for (const auto& [child, desired] : desiredSizeInfo)
+                {
+                    int childlayer = 0;
+                    if (child == comboBox.collapsedEntity)
+                    {
+                        desired.rectTransform->rect.topLeft = transform.rect.topLeft;
+                        desired.rectTransform->rect.size.x = transform.rect.size.x;
+                        desired.rectTransform->rect.size.y = desired.desiredSize.y;
+                        childlayer = desired.rectTransform->layer + 1;
+                    }
+                    else if (child == comboBox.expandedEntity)
+                    {
+                        desired.rectTransform->rect.topLeft = transform.rect.topLeft;
+                        desired.rectTransform->rect.size.x = transform.rect.size.x;
+                        desired.rectTransform->rect.size.y = DesiredSizeCalculator::GetDesiredSize<ecs::NullComponentType>(this, child, *desired.rectTransform, nullptr).y;
+                        childlayer = 0;
+                    }
+                    else
+                    {
+                        SPARK_ASSERT(false, "Unexpected ComboBox child.");
+                    }
+
+                    if (!desired.rectTransform->overridesChildSizes)
+                    {
+                        util::LayoutChildren(world, this, child, *desired.rectTransform, childlayer);
+                        desired.rectTransform->needsLayout = false;
+                    }
+                    else
+                    {
+                        desired.rectTransform->needsLayout = true;
+                    }
+                }
+
+                transform.needsLayout = false;
+            }
+        }
+    }
+}

@@ -63,9 +63,11 @@ namespace se::ui::systems
                 for (const auto& child: world->GetChildren(entity))
                 {
                     auto desiredSizeInfo = childRects.at(child);
-                    desiredSizeInfo.rectTransform->rect.topLeft = verticalBoxTransform.rect.topLeft + math::Vec2 { verticalBox.paddingLeft, currY };
+                    desiredSizeInfo.rectTransform->rect.topLeft = verticalBoxTransform.rect.topLeft + math::Vec2 { verticalBox.paddingLeft * window->GetContentScale(), currY };
                     desiredSizeInfo.rectTransform->rect.size = desiredSizeInfo.desiredSize;
-                    desiredSizeInfo.rectTransform->rect.size.x = verticalBoxTransform.rect.size.x - verticalBox.paddingRight - verticalBox.paddingLeft;
+                    desiredSizeInfo.rectTransform->rect.size.x = verticalBoxTransform.rect.size.x -
+                            verticalBox.paddingRight * window->GetContentScale() -
+                            verticalBox.paddingLeft * window->GetContentScale();
                     currY += desiredSizeInfo.desiredSize.y + verticalBox.spacing;
 
                     desiredSizeInfo.rectTransform->layer = verticalBoxTransform.layer + 1;

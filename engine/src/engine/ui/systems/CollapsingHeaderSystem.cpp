@@ -2,7 +2,6 @@
 #include "CollapsingHeaderSystem.h"
 #include "engine/Application.h"
 #include "engine/profiling/Profiler.h"
-#include "engine/ui/DesiredSizeCalculator.h"
 #include "engine/ui/components/CollapsingHeaderComponent.h"
 #include "engine/ui/components/TextComponent.h"
 #include "engine/ui/components/WidgetComponent.h"
@@ -31,10 +30,6 @@ namespace se::ui::systems
 
             if (collapsingHeader.collapsed != collapsingHeader.lastCollapsed)
             {
-                // transform.maxY =
-                //     DesiredSizeCalculator::GetDesiredSize(this, entity, transform, &collapsingHeader).y /
-                //         window->GetContentScale();
-                // transform.rect.size.y = transform.maxY * window->GetContentScale();
                 collapsingHeader.lastCollapsed = collapsingHeader.collapsed;
                 collapsingHeader.onCollapsed.Broadcast(collapsingHeader.collapsed);
 
@@ -77,9 +72,6 @@ namespace se::ui::systems
                         desired.rectTransform->rect.topLeft = transform.rect.topLeft + math::Vec2(0.f, titleMaxY + 5.f);
                         desired.rectTransform->rect.size.x = transform.rect.size.x;
                         desired.rectTransform->rect.size.y = desired.desiredSize.y;
-                        {
-                            util::GetChildrenDesiredSizes(entity, this, transform);
-                        }
                     }
                     else
                     {

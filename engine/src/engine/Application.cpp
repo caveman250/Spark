@@ -53,6 +53,7 @@
 #include "ecs/components/MeshComponent.h"
 #include "render/components/PointLightComponent.h"
 #include "ui/systems/CollapsingHeaderSystem.h"
+#include "ui/systems/ComboBoxSystem.h"
 #include "ui/systems/WindowSystem.h"
 
 namespace se
@@ -313,6 +314,16 @@ namespace se
                 .WithHeirachyQuery<ui::components::WidgetComponent>()
                 .WithDependency(rootRect);
         auto collapsingHeader = m_World.CreateEngineSystem<ui::systems::CollapsingHeaderSystem>(collapsingHeaderReg);
+
+        ecs::SystemDeclaration comboBoxReg = ecs::SystemDeclaration("ComboBox System")
+                .WithComponent<ui::components::ComboBoxComponent>()
+                .WithComponent<ui::components::RectTransformComponent>()
+                .WithComponent<const ui::components::MouseInputComponent>()
+                .WithHeirachyQuery<ui::components::WidgetComponent>()
+                .WithHeirachyQuerys<SPARK_WIDGET_TYPES_WITH_NULLTYPE>(ecs::ComponentMutability::Immutable)
+                .WithDependency(mouseInput)
+                .WithDependency(rootRect);
+        m_World.CreateEngineSystem<ui::systems::ComboBoxSystem>(comboBoxReg);
 
         // TODO allow application to add dependencies here.
         ecs::SystemDeclaration uiRenderReg = ecs::SystemDeclaration("UIRenderSystem")
