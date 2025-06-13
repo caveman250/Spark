@@ -21,7 +21,9 @@ namespace se::render::metal
         }
 
     private:
+        void PreRender() override;
         void Bind() override;
+        void UnBind() override;
         void Commit() override;
 
         MTLCommandBufferPtr m_CommandBuffer = nullptr;

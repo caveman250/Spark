@@ -70,7 +70,7 @@ namespace se::ui::systems
                             verticalBox.paddingLeft * window->GetContentScale();
                     currY += desiredSizeInfo.desiredSize.y + verticalBox.spacing;
 
-                    desiredSizeInfo.rectTransform->layer = verticalBoxTransform.layer + 1;
+                    desiredSizeInfo.rectTransform->layer = verticalBoxTransform.layer;
 
                     if (!desiredSizeInfo.rectTransform->overridesChildSizes)
                     {
@@ -78,7 +78,7 @@ namespace se::ui::systems
                                              this,
                                              child,
                                              *desiredSizeInfo.rectTransform,
-                                             desiredSizeInfo.rectTransform->layer + 1);
+                                             desiredSizeInfo.rectTransform->layer);
                         desiredSizeInfo.rectTransform->needsLayout = false;
                     }
                     else

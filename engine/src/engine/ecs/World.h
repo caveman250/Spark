@@ -483,7 +483,7 @@ namespace se::ecs
 
     template<typename Func>
     bool World::ChildEach(const Id& entity,
-                          const System* system,
+                          [[maybe_unused]] const System* system,
                           const HeirachyQueryDeclaration& declaration,
                           Func&& func)
     {
@@ -570,7 +570,7 @@ namespace se::ecs
 
     template<typename Func>
     void World::HeirachyQuery(const Id& child,
-        const System* system,
+        [[maybe_unused]] const System* system,
         const HeirachyQueryDeclaration& declaration,
         Func&& func)
     {

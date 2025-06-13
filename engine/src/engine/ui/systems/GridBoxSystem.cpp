@@ -51,7 +51,7 @@ namespace se::ui::systems
 
                     rectTransform->rect = util::CalculateScreenSpaceRect(*rectTransform,
                                                                         gridBoxTransform);
-                    rectTransform->layer = gridBoxTransform.layer + 1;
+                    rectTransform->layer = gridBoxTransform.layer;
 
                     if (!rectTransform->overridesChildSizes)
                     {
@@ -59,7 +59,7 @@ namespace se::ui::systems
                                              this,
                                              child,
                                              *rectTransform,
-                                             rectTransform->layer + 1);
+                                             rectTransform->layer);
                         rectTransform->needsLayout = false;
                     }
                     else

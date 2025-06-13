@@ -12,5 +12,6 @@ namespace se::render
         std::vector<commands::RenderCommand*> renderCommands = {};
         std::shared_ptr<FrameBuffer> frameBuffer = nullptr;
         Material* boundMaterial = {};
+        int layer = 0;
     };
 }

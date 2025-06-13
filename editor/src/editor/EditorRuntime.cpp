@@ -31,7 +31,7 @@ namespace se::editor
     void EditorRuntime::Render()
     {
         auto renderer = render::Renderer::Get<render::Renderer>();
-        m_OffscreenRenderGroup = renderer->AllocRenderGroup();
+        m_OffscreenRenderGroup = renderer->AllocRenderGroup(0);
         renderer->SetFrameBuffer(m_OffscreenRenderGroup, m_FrameBuffer);
 
         renderer->Submit<render::commands::Clear>(m_OffscreenRenderGroup, true, true);

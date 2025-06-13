@@ -72,14 +72,15 @@ namespace se::ui::systems
                         desired.rectTransform->rect.topLeft = transform.rect.topLeft;
                         desired.rectTransform->rect.size.x = transform.rect.size.x;
                         desired.rectTransform->rect.size.y = desired.desiredSize.y;
-                        childlayer = desired.rectTransform->layer + 1;
+                        childlayer = desired.rectTransform->layer;
                     }
                     else if (child == comboBox.expandedEntity)
                     {
                         desired.rectTransform->rect.topLeft = transform.rect.topLeft;
                         desired.rectTransform->rect.size.x = transform.rect.size.x;
                         desired.rectTransform->rect.size.y = DesiredSizeCalculator::GetDesiredSize<ecs::NullComponentType>(this, child, *desired.rectTransform, nullptr).y;
-                        childlayer = 0;
+                        desired.rectTransform->layer = -1;
+                        childlayer = -1;
                     }
                     else
                     {

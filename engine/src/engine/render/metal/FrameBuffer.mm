@@ -18,7 +18,7 @@ namespace se::render
 
 namespace se::render::metal
 {
-    void FrameBuffer::Bind()
+    void FrameBuffer::PreRender()
     {
         auto renderer = Renderer::Get<MetalRenderer>();
         MTLRenderPassDescriptor* desc = [[MTLRenderPassDescriptor alloc] init];
@@ -28,7 +28,7 @@ namespace se::render::metal
         [colorAttachment setTexture:colorTextureResource->GetMetalResource()];
         [colorAttachment setClearColor:MTLClearColorMake(0, 0, 0, 1)];
         [colorAttachment setLoadAction:MTLLoadActionClear];
-        
+
         MTLRenderPassDepthAttachmentDescriptor* depthAttachment = [desc depthAttachment];
         const auto& depthTextureResource = static_pointer_cast<TextureResource>(m_DepthTexture->GetPlatformResource());
         [depthAttachment setTexture:depthTextureResource->GetMetalResource()];
@@ -38,6 +38,14 @@ namespace se::render::metal
         m_RenderCommandEncoder = [m_CommandBuffer renderCommandEncoderWithDescriptor:desc];
         [m_RenderCommandEncoder setCullMode:MTLCullModeBack];
         [m_RenderCommandEncoder setFrontFacingWinding:MTLWindingCounterClockwise];
+    }
+
+    void FrameBuffer::Bind()
+    {
+    }
+
+    void FrameBuffer::UnBind()
+    {
     }
 
     void FrameBuffer::Commit()

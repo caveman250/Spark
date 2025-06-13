@@ -31,7 +31,7 @@ namespace se::ui::systems
             {
                 if (!trans.overridesChildSizes)
                 {
-                    util::LayoutChildren(world, this, entities[i], trans, trans.layer + 1);
+                    util::LayoutChildren(world, this, entities[i], trans, trans.layer);
                 }
                 else
                 {

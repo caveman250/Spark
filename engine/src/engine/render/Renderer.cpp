@@ -41,7 +41,7 @@ namespace se::render
     {
         PROFILE_SCOPE("Renderer::Update")
         m_LightSetup.Reset();
-        m_DefaultRenderGroup = AllocRenderGroup();
+        m_DefaultRenderGroup = AllocRenderGroup(0);
         Submit<commands::Clear>(true, true);
     }
 
@@ -78,14 +78,37 @@ namespace se::render
     void Renderer::ExecuteDrawCommands()
     {
         PROFILE_SCOPE("Renderer::ExecuteDrawCommands")
+        std::set<render::FrameBuffer*> frameBuffers = {};
+        std::ranges::sort(m_RenderGroups, [](const RenderGroup& lhs, const RenderGroup& rhs)
+        {
+            if (lhs.frameBuffer != rhs.frameBuffer)
+            {
+                return lhs.frameBuffer < rhs.frameBuffer;
+            }
+
+            return lhs.layer < rhs.layer;
+        });
+
+        for (const auto& renderGroup : m_RenderGroups)
+        {
+            if (renderGroup.frameBuffer)
+            {
+                frameBuffers.insert(renderGroup.frameBuffer.get());
+            }
+        }
+
+        for (const auto& frameBuffer : frameBuffers)
+        {
+            frameBuffer->PreRender();
+        }
+
         for (int i = static_cast<int>(m_RenderGroups.size()) - 1; i >= 0; --i)
         {
             auto& renderGroup = m_RenderGroups[i];
             m_ActiveRenderGroup = i;
             if (renderGroup.frameBuffer)
             {
-                renderGroup.frameBuffer
-                        ->Bind();
+                renderGroup.frameBuffer->Bind();
             }
 
             for (const auto& renderCmd : renderGroup.renderCommands)
@@ -95,9 +118,13 @@ namespace se::render
 
             if (renderGroup.frameBuffer)
             {
-                renderGroup.frameBuffer
-                        ->Commit();
+                renderGroup.frameBuffer->UnBind();
             }
+        }
+
+        for (const auto& frameBuffer : frameBuffers)
+        {
+            frameBuffer->Commit();
         }
     }
 
@@ -106,9 +133,10 @@ namespace se::render
         m_RenderGroups[group].renderCommands.push_back(renderCommand);
     }
 
-    size_t Renderer::AllocRenderGroup()
+    size_t Renderer::AllocRenderGroup(int layer)
     {
-        m_RenderGroups.emplace_back();
+        auto& renderGroup = m_RenderGroups.emplace_back();
+        renderGroup.layer = layer;
         return m_RenderGroups.size() - 1;
     }
 

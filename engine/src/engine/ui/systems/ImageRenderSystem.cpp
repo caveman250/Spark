@@ -67,7 +67,7 @@ namespace se::ui::systems
 
                 auto command = renderer->AllocRenderCommand<render::commands::SubmitUI>(image.materialInstance, image.vertBuffer,
                                                              image.indexBuffer);
-                renderComp->entityRenderCommands[entity].push_back(command);
+                renderComp->entityRenderCommands[entity].push_back(UIRenderCommand(command, UILayerKey(transform.layer, entity.HasFlag(ecs::IdFlags::Editor))));
             }
         }
     }

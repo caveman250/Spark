@@ -59,7 +59,7 @@ namespace se::ui::systems
                                 totalChildSize += childTransform.rect.size.y;
                                 if (!childTransform.overridesChildSizes)
                                 {
-                                    util::LayoutChildren(world, this, child, rectTransform, childTransform.layer + 1);
+                                    util::LayoutChildren(world, this, child, rectTransform, childTransform.layer);
                                     childTransform.needsLayout = false;
                                 }
                                 else

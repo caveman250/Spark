@@ -80,7 +80,7 @@ namespace se::ui::systems
 
                     if (!desired.rectTransform->overridesChildSizes)
                     {
-                        util::LayoutChildren(world, this, child, *desired.rectTransform, desired.rectTransform->layer + 1);
+                        util::LayoutChildren(world, this, child, *desired.rectTransform, desired.rectTransform->layer);
                         desired.rectTransform->needsLayout = false;
                     }
                     else

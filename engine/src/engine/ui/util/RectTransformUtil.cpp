@@ -133,7 +133,7 @@ namespace se::ui::util
                                       {
                                           if (world->HasComponent<ecs::components::ParentComponent>(children[i]))
                                           {
-                                              LayoutChildren(world, system, children[i], child, depth + 1);
+                                              LayoutChildren(world, system, children[i], child, depth);
                                           }
 
                                           child.needsLayout = false;

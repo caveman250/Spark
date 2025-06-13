@@ -52,7 +52,7 @@ namespace se::render
         const LightSetup& GetLightSetup() const { return m_LightSetup; }
         void AddPointLight(const PointLight& light);
 
-        size_t AllocRenderGroup();
+        size_t AllocRenderGroup(int layer);
         size_t GetDefaultRenderGroup() { return m_DefaultRenderGroup; }
         
         virtual void SetFrameBuffer(size_t group, const std::shared_ptr<FrameBuffer>& fb);

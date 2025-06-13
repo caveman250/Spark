@@ -86,6 +86,6 @@ namespace se::ui::util
         auto command = renderer->AllocRenderCommand<render::commands::SubmitUI>(textComp.materialInstance, textComp.vertBuffer, textComp.indexBuffer);
 
         SPARK_ASSERT(command->GetRenderStage() == render::commands::RenderStage::UI);
-        renderComp->entityRenderCommands[entity].push_back(command);
+        renderComp->entityRenderCommands[entity].push_back(UIRenderCommand(command, UILayerKey(transform.layer, entity.HasFlag(ecs::IdFlags::Editor))));
     }
 }

@@ -36,7 +36,7 @@ namespace se::editor
         void OnEntitiesChanged() const;
 
         size_t GetOffscreenRenderGroup() const { return m_OffscreenRenderGroup; }
-        render::FrameBuffer* GetFrameBuffer() const { return m_FrameBuffer.get(); }
+        const std::shared_ptr<render::FrameBuffer>& GetFrameBuffer() const { return m_FrameBuffer; }
         se::ui::Rect GetViewportRect() const { return m_ViewportWindow->GetViewportScreenspaceRect(); }
 
     private:

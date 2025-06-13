@@ -15,7 +15,9 @@ namespace se::render
         FrameBuffer();
         virtual ~FrameBuffer() = default;
         static std::shared_ptr<FrameBuffer> CreateFrameBuffer();
+        virtual void PreRender() = 0;
         virtual void Bind() = 0;
+        virtual void UnBind() = 0;
         virtual void Commit() = 0;
 
         const std::shared_ptr<asset::Texture>& GetColorTexture() const { return m_ColorTexture; }

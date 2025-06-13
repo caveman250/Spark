@@ -18,7 +18,9 @@ namespace se::render::opengl
     public:
         FrameBuffer();
     private:
+        void PreRender() override {}
         void Bind() override;
+        void UnBind() override;
         void Commit() override;
 
         GLuint m_PlatformResource = GL_INVALID_VALUE;

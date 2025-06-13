@@ -53,7 +53,7 @@ namespace se::ecs
         m_IdMetaMap[packedId] = {name, flags};
         auto emptyArchetype = GetArchetype({}, true);
         SPARK_ASSERT(!m_EntityRecords.contains(packedId));
-        auto result = m_EntityRecords.insert(std::make_pair(packedId, EntityRecord
+        [[maybe_unused]] auto result = m_EntityRecords.insert(std::make_pair(packedId, EntityRecord
                                               {
                                                   .archetype = emptyArchetype,
                                                   .entity_idx = 0 // not valid for null archetype

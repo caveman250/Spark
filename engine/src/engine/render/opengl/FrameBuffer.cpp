@@ -39,12 +39,16 @@ namespace se::render::opengl
         GL_CHECK_ERROR()
     }
 
+    void FrameBuffer::UnBind()
+    {
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        GL_CHECK_ERROR()
+    }
+
     void FrameBuffer::Commit()
     {
         if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
             debug::Log::Error("ERROR::FRAMEBUFFER:: Framebuffer is not complete!");
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
-        GL_CHECK_ERROR()
     }
 }
 

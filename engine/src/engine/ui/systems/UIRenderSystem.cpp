@@ -3,21 +3,37 @@
 
 namespace se::ui::systems
 {
-    void RenderEntity(const ecs::Id& id, singleton_components::UIRenderComponent* renderComp, render::Renderer* renderer, IWindow* window, ecs::World* world)
+    size_t GetGroupForLayer(const UILayerKey& layer,
+                            singleton_components::UIRenderComponent* rendComp)
     {
+        auto renderer = render::Renderer::Get<render::Renderer>();
+        auto it = rendComp->LayerToRenderGroupMap.find(layer);
+        if (it == rendComp->LayerToRenderGroupMap.end())
+        {
+            it = rendComp->LayerToRenderGroupMap.insert(std::make_pair(layer, renderer->AllocRenderGroup(layer.layer))).first;
 #if SPARK_EDITOR
-        auto* editorRuntime = Application::Get()->GetEditorRuntime();
-        bool isEditor = id.HasFlag(ecs::IdFlags::Editor);
-        size_t group = isEditor ? renderer->GetDefaultRenderGroup() : editorRuntime->GetOffscreenRenderGroup();
-#else
-        size_t group = renderer->GetDefaultRenderGroup();
+            if (!layer.editor)
+            {
+                editor::EditorRuntime* editor = Application::Get()->GetEditorRuntime();
+                renderer->SetFrameBuffer(it->second, editor->GetFrameBuffer());
+            }
 #endif
+        }
 
+        return it->second;
+    }
+
+    void RenderEntity(const ecs::Id& id,
+                      singleton_components::UIRenderComponent* renderComp,
+                      render::Renderer* renderer,
+                      IWindow* window,
+                      ecs::World* world)
+    {
         if (renderComp->entityPreRenderCommands.contains(id))
         {
-            for (auto *renderCommand: renderComp->entityPreRenderCommands.at(id))
+            for (const auto& renderCommand: renderComp->entityPreRenderCommands.at(id))
             {
-                renderer->Submit(group, renderCommand);
+                renderer->Submit(GetGroupForLayer(renderCommand.layer, renderComp), renderCommand.renderCmd);
             }
 
             renderComp->entityPreRenderCommands.at(id).clear();
@@ -25,24 +41,24 @@ namespace se::ui::systems
 
         if (renderComp->entityRenderCommands.contains(id))
         {
-            for (auto *renderCommand: renderComp->entityRenderCommands.at(id))
+            for (const auto& renderCommand: renderComp->entityRenderCommands.at(id))
             {
-                renderer->Submit(group, renderCommand);
+                renderer->Submit(GetGroupForLayer(renderCommand.layer, renderComp), renderCommand.renderCmd);
             }
 
             renderComp->entityRenderCommands.at(id).clear();
         }
 
-        for (const auto& child : world->GetChildren(id))
+        for (const auto& child: world->GetChildren(id))
         {
             RenderEntity(child, renderComp, renderer, window, world);
         }
 
         if (renderComp->entityPostRenderCommands.contains(id))
         {
-            for (auto *renderCommand: renderComp->entityPostRenderCommands.at(id))
+            for (const auto& renderCommand: renderComp->entityPostRenderCommands.at(id))
             {
-                renderer->Submit(group, renderCommand);
+                renderer->Submit(GetGroupForLayer(renderCommand.layer, renderComp), renderCommand.renderCmd);
             }
 
             renderComp->entityPostRenderCommands.at(id).clear();
@@ -57,7 +73,17 @@ namespace se::ui::systems
         auto* renderer = render::Renderer::Get<render::Renderer>();
         const auto& entities = updateData.GetEntities();
         auto* renderComp = updateData.GetSingletonComponent<singleton_components::UIRenderComponent>();
-        for (const auto& entity : entities)
+
+        renderComp->LayerToRenderGroupMap.clear();
+#if SPARK_EDITOR
+        auto* editorRuntime = Application::Get()->GetEditorRuntime();
+        renderComp->LayerToRenderGroupMap.insert(std::make_pair(UILayerKey(0), editorRuntime->GetOffscreenRenderGroup()));
+        renderComp->LayerToRenderGroupMap.insert(std::make_pair(UILayerKey(0, true), renderer->GetDefaultRenderGroup()));
+#else
+        renderComp->LayerToRenderGroupMap.insert(std::make_pair(UILayerKey(0), renderer->GetDefaultRenderGroup()));
+#endif
+
+        for (const auto& entity: entities)
         {
             RenderEntity(entity, renderComp, renderer, primaryWindow, world);
         }

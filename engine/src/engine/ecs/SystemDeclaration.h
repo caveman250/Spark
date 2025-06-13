@@ -94,7 +94,7 @@ namespace se::ecs
         template<typename... Ts>
         SystemDeclaration& WithVariantComponent(ComponentMutability mutability)
         {
-            if (!SPARK_VERIFY(variantComponentUsage.type_hash == 0), "Only one variant component supported.")
+            if (!SPARK_VERIFY(variantComponentUsage.type_hash == 0, "Only one variant component supported."))
             {
                 return *this;
             }

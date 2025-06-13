@@ -141,6 +141,15 @@ __builtin_debugtrap();\
 #define PLACEHOLDER(i) std::_Placeholder<i>
 #endif
 
+inline void hash_combine(std::size_t&) { }
+
+template <typename T, typename... Rest>
+inline void hash_combine(std::size_t& seed, const T& v, Rest... rest) {
+    std::hash<T> hasher;
+    seed ^= hasher(v) + 0x9e3779b9 + (seed<<6) + (seed>>2);
+    hash_combine(seed, rest...);
+}
+
 #include "engine/debug/Log.h"
 #include "engine/ecs/ecs_fwd.h"
 #include "engine/reflect/Reflect_fwd.h"

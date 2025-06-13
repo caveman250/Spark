@@ -69,7 +69,7 @@ namespace se::ui::systems
                     desiredSizeInfo.rectTransform->rect.size.y = horizontalBoxTransform.rect.size.y - horizontalBox.paddingBottom - horizontalBox.paddingTop;
                     currX += desiredSizeInfo.desiredSize.x + horizontalBox.spacing;
 
-                    desiredSizeInfo.rectTransform->layer = horizontalBoxTransform.layer + 1;
+                    desiredSizeInfo.rectTransform->layer = horizontalBoxTransform.layer;
 
                     if (!desiredSizeInfo.rectTransform->overridesChildSizes)
                     {
@@ -77,7 +77,7 @@ namespace se::ui::systems
                                              this,
                                              child,
                                              *desiredSizeInfo.rectTransform,
-                                             desiredSizeInfo.rectTransform->layer + 1);
+                                             desiredSizeInfo.rectTransform->layer);
                         desiredSizeInfo.rectTransform->needsLayout = false;
                     }
                     else
