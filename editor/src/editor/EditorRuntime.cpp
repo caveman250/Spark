@@ -1,10 +1,13 @@
 #include "EditorRuntime.h"
 #include "engine/render/Renderer.h"
+#include "../generated/Classes.generated.h"
 
 namespace se::editor
 {
     void EditorRuntime::Init()
     {
+        editor_InitClassReflection();
+
         m_StartupManager.RunStartupTasks();
 
         m_FrameBuffer = render::FrameBuffer::CreateFrameBuffer();

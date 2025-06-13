@@ -18,7 +18,7 @@ namespace se::asset::binary
         return m_DB->GetObjectDataAt(m_Offset);
     }
 
-    void CheckType(Type type, const std::type_index& typeId)
+    void CheckType(Type type, [[maybe_unused]] const std::type_index& typeId)
     {
         switch (type)
         {

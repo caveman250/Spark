@@ -597,43 +597,50 @@ def DefineMember(class_name, name, serialized):
 def WriteClassFiles(classes, base_class_map, template_instantiations):
     output_dir = "../../engine/src/generated/"
 
-    init_members_h_content = "namespace se\n{\nvoid InitClassReflection();\n}"
-    output_path = output_dir + "Classes.generated.h"
-    existing_contents = ""
-    if os.path.isfile(output_path):
-        input_handle = open(output_path, "r")
-        existing_contents = input_handle.read()
-        input_handle.close()
-    if existing_contents != init_members_h_content:
-        print(f"-- -- Classes.generated.h generating...")
-        output_handle = open(output_path, "w+")
-        output_handle.write(init_members_h_content)
-        output_handle.close()
-
-    init_members_cpp_content = "#include \"spark.h\"\n"
+    source_dirs = set()
     for full_name, class_obj in classes.items():
-        if class_obj.is_reflected:
-            init_members_cpp_content += f"#include \"{class_obj.path}\"\n"
-    init_members_cpp_content += "\nnamespace se\n{\nvoid InitClassReflection()\n{\n"
-    for full_name, class_obj in classes.items():
-        if class_obj.is_reflected and not class_obj.is_template:
-            init_members_cpp_content += "    " + full_name + "::InitMembers();\n"
-    for template_instantiation in template_instantiations:
-        template_params_string = ", ".join(template_instantiation.template_types)
-        init_members_cpp_content += f"    {template_instantiation.namespace}::{template_instantiation.class_name}<{template_params_string}>::InitMembers();\n"
-    init_members_cpp_content += "}\n}"
+        source_dirs.add(class_obj.project_src_dir)
 
-    output_path = output_dir + "Classes.generated.cpp"
-    existing_contents = ""
-    if os.path.isfile(output_path):
-        input_handle = open(output_path, "r")
-        existing_contents = input_handle.read()
-        input_handle.close()
-    if existing_contents != init_members_cpp_content:
-        print(f"-- -- Classes.generated.cpp generating...")
-        output_handle = open(output_path, "w+")
-        output_handle.write(init_members_cpp_content)
-        output_handle.close()
+    for src_dir in source_dirs:
+        project_name = src_dir.split('/')[-4]
+        init_members_h_content = f"namespace se\n{{\nvoid {project_name}_InitClassReflection();\n}}"
+        output_path = src_dir + "Classes.generated.h"
+        existing_contents = ""
+        if os.path.isfile(output_path):
+            input_handle = open(output_path, "r")
+            existing_contents = input_handle.read()
+            input_handle.close()
+        if existing_contents != init_members_h_content:
+            print(f"-- -- {src_dir}Classes.generated.h generating...")
+            output_handle = open(output_path, "w+")
+            output_handle.write(init_members_h_content)
+            output_handle.close()
+
+        init_members_cpp_content = "#include \"spark.h\"\n"
+        for full_name, class_obj in classes.items():
+            if class_obj.is_reflected and class_obj.project_src_dir == src_dir:
+                init_members_cpp_content += f"#include \"{class_obj.path}\"\n"
+        init_members_cpp_content += f"\nnamespace se\n{{\nvoid {project_name}_InitClassReflection()\n{{\n"
+        for full_name, class_obj in classes.items():
+            if class_obj.is_reflected and not class_obj.is_template and class_obj.project_src_dir == src_dir:
+                init_members_cpp_content += "    " + full_name + "::InitMembers();\n"
+        for template_instantiation in template_instantiations:
+            if template_instantiation.project_src_dir == src_dir:
+                template_params_string = ", ".join(template_instantiation.template_types)
+                init_members_cpp_content += f"    {template_instantiation.namespace}::{template_instantiation.class_name}<{template_params_string}>::InitMembers();\n"
+        init_members_cpp_content += "}\n}"
+
+        output_path = src_dir + "Classes.generated.cpp"
+        existing_contents = ""
+        if os.path.isfile(output_path):
+            input_handle = open(output_path, "r")
+            existing_contents = input_handle.read()
+            input_handle.close()
+        if existing_contents != init_members_cpp_content:
+            print(f"-- -- {src_dir}Classes.generated.cpp generating...")
+            output_handle = open(output_path, "w+")
+            output_handle.write(init_members_cpp_content)
+            output_handle.close()
 
     for full_name, classobj in classes.items():
         if classobj.is_reflected and not classobj.is_template:

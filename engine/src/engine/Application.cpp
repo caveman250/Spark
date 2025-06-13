@@ -48,7 +48,7 @@
 #include "engine/ui/systems/LastRectSystem.h"
 
 #include "Widgets.generated.h"
-#include "Classes.generated.h"
+#include "generated/Classes.generated.h"
 #include "camera/ActiveCameraComponent.h"
 #include "ecs/components/MeshComponent.h"
 #include "render/components/PointLightComponent.h"
@@ -79,7 +79,7 @@ namespace se
         io::VFS::Get().Mount(std::format("{}/{}", APP_DIR, "built"), "/assets");
 
         RegisterComponents(&m_World);
-        InitClassReflection();
+        engine_InitClassReflection();
 
 #if SPARK_EDITOR
         m_EditorRuntime.Init();

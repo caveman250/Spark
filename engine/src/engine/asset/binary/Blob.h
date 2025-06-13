@@ -15,7 +15,7 @@ namespace se::asset::binary
     private:
         Blob(char* data, Database* db) : m_Data(data), m_DB(db) {}
         char* m_Data;
-        Database* m_DB;
+        [[maybe_unused]] Database* m_DB;
 
         friend class Database;
     };
