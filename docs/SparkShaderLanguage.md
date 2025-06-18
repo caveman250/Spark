@@ -1,5 +1,65 @@
 # Spark Shader Language
 
+- [Spark Shader Language](#spark-shader-language)
+  - [Language Syntax](#language-syntax)
+    - [Shader Declaration](#shader-declaration)
+    - [Ports](#ports)
+      - [Named Ports](#named-ports)
+        - [VertexPos (Vertex Shader only)](#vertexpos-vertex-shader-only)
+        - [VertexUV (Vertex Shader only)](#vertexuv-vertex-shader-only)
+        - [VertexNormal (Vertex Shader only)](#vertexnormal-vertex-shader-only)
+        - [FinalVertexPos (Vertex Shader only)](#finalvertexpos-vertex-shader-only)
+        - [FragmentUV](#fragmentuv)
+        - [FragmentWorldPos (3d only)](#fragmentworldpos-3d-only)
+        - [FragmentNormalCameraSpace (3d only)](#fragmentnormalcameraspace-3d-only)
+        - [EyeDirCameraSpace (3d only)](#eyedircameraspace-3d-only)
+        - [LightDirCameraSpace (3d only)](#lightdircameraspace-3d-only)
+      - [Inputs](#inputs)
+      - [Outputs](#outputs)
+    - [Uniforms](#uniforms)
+    - [Settings](#settings)
+    - [main](#main)
+    - [Expressions](#expressions)
+      - [Operators](#operators)
+      - [Variable Declaration](#variable-declaration)
+      - [Method Calls](#method-calls)
+      - [for loops](#for-loops)
+  - [Types](#types)
+    - [void](#void)
+    - [bool](#bool)
+    - [int](#int)
+    - [float](#float)
+    - [vec2](#vec2)
+      - [Properties](#properties)
+        - [x](#x)
+        - [y](#y)
+    - [vec3](#vec3)
+      - [Properties](#properties-1)
+        - [x](#x-1)
+        - [y](#y-1)
+        - [z](#z)
+    - [vec4](#vec4)
+      - [Properties](#properties-2)
+        - [x](#x-2)
+        - [y](#y-2)
+        - [z](#z-1)
+        - [w](#w)
+    - [mat3](#mat3)
+    - [mat4](#mat4)
+    - [sampler2D](#sampler2d)
+  - [Methods](#methods)
+    - [clamp](#clamp)
+    - [dfdx](#dfdx)
+    - [dfdy](#dfdy)
+    - [dot](#dot)
+    - [length](#length)
+    - [normalize](#normalize)
+    - [pow](#pow)
+    - [reflect](#reflect)
+    - [smoothstep](#smoothstep)
+    - [texture](#texture)
+
+
 ## Language Syntax
 
 ### Shader Declaration
@@ -201,6 +261,22 @@ float val = clamp(val, 0.f, 1.f);
 
 ```
 
+#### for loops
+
+```glsl
+// for (<iterator_declaration>; <for_loop_condition>; <post_condition>)
+// {
+// 	
+// }
+
+eg:
+
+for (int i = 0; i < 5; i += 1)
+{
+	
+}
+```
+
 ## Types
 
 ### void
@@ -288,15 +364,45 @@ The w component of the vector.
 
 ### mat3
 
-TODO
+A 3x3 matrix, consisting of three vec3's. matrices in ssl are column major.
+
+A mat3 literal can be represented with: `mat3()`. By defult a mat3 is constructed with an identity matrix.
+
+You may access the individual columns with the [] operator. As each column is a vec3, you may use it's [] operator to access individual values.
+
+```glsl
+mat3 mat;
+mat[0] = vec3(1.0f, 0.0f, 0.0f);
+mat[1][1] = 1.0f;
+```
 
 ### mat4
 
-TODO
+A 4x4 matrix, consisting of four vec4's. matrices in ssl are column major.
+
+A mat4 literal can be represented with: `mat4()`. By defult a mat4 is constructed with an identity matrix.
+
+You may access the individual columns with the [] operator. As each column is a vec4, you may use it's [] operator to access individual values.
+
+```glsl
+mat4 mat;
+mat[0] = vec4(1.0f, 0.0f, 0.0f, 0.0f);
+mat[1][1] = 1.0f;
+```
 
 ### sampler2D
 
-TODO
+Represents a sampler for a 2d texture. Only supported as a uniform value.
+
+```glsl
+port(FragmentUV) in vec2 inUV;
+uniform sampler2d mySampler;
+
+void main()
+{
+  vec4 colour = texture(mySampler, inUV);
+}
+```
 
 ## Methods
 
