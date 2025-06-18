@@ -1,5 +1,7 @@
 #include "Material.h"
 
+#include "engine/asset/shader/ast/ShaderCompileContext.h"
+
 #if OPENGL_RENDERER
 
 #include "engine/asset/shader/compiler/ShaderCompiler.h"

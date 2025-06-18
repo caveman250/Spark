@@ -1,9 +1,10 @@
-#include "spark.h"
 #include "ButtonSystem.h"
+
+#include "spark.h"
 #include "engine/Application.h"
-#include "engine/input/InputUtil.h"
 #include "engine/profiling/Profiler.h"
 #include "engine/render/MaterialInstance.h"
+#include "engine/ui/components/ImageComponent.h"
 #include "engine/ui/components/MouseInputComponent.h"
 
 using namespace se;

@@ -1,10 +1,10 @@
 #include "Renderer.h"
 
-#include <engine/Application.h>
-
-#include "engine/profiling/Profiler.h"
-#include "metal/MetalRenderer.h"
 #include "FrameBuffer.h"
+#include "engine/Application.h"
+#include "engine/profiling/Profiler.h"
+#include "opengl/OpenGLRenderer.h"
+#include "metal/MetalRenderer.h"
 
 namespace se::render
 {

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "spark.h"
+#include "engine/reflect/Reflect.h"
 #include "engine/ui/Visibility.h"
 
 namespace se::ui::components

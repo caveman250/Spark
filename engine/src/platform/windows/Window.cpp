@@ -1,14 +1,17 @@
 #include "Window.h"
-#include "platform/IWindow.h"
 
 #include <unordered_map>
+#include <GL/glew.h>
+#include <GL/wglew.h>
 
 #include "KeyMap.h"
 #include "engine/Application.h"
 #include "engine/input/InputComponent.h"
 #include "engine/input/Key.h"
-#include "engine/render/Renderer.h"
 #include "engine/input/MouseButton.h"
+#include "engine/render/Renderer.h"
+#include "engine/render/opengl/OpenGLRenderer.h"
+#include "platform/IWindow.h"
 
 #ifndef DWMWA_USE_IMMERSIVE_DARK_MODE
 #define DWMWA_USE_IMMERSIVE_DARK_MODE 20

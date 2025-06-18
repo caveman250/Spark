@@ -45,7 +45,7 @@ namespace se::ui
             auto headerSize = GetDesiredSize<ecs::NullComponentType>(system, context->titleEntity, nullptr, thisRect, titleRectTransform, nullptr);
             auto contentSize = GetDesiredSize<ecs::NullComponentType>(system, context->contentsEntity, nullptr, thisRect, contentsRectTransform, nullptr);
 
-            desiredSize = math::Vec2(std::max(headerSize.x, contentSize.x), headerSize.y + contentSize.y + 5.f);
+            desiredSize = math::Vec2(static_cast<float>(std::max(headerSize.x, contentSize.x)), static_cast<float>(headerSize.y + contentSize.y) + 5.f);
         }
 
         return desiredSize;

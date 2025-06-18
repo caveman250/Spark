@@ -9,6 +9,7 @@
 #include "engine/ui/util/WindowUtil.h"
 #include "engine/render/MaterialInstance.h"
 #include "engine/render/FrameBuffer.h"
+#include "engine/render/render_fwd.h"
 
 namespace se::editor::ui
 {

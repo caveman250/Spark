@@ -20,11 +20,12 @@ namespace se::editor::ui::properties
         NextLine
     };
 
+    std::unordered_map<reflect::Type*, reflect::Type*>& GetPropertyEditorTypes();
+    std::unordered_map<String, reflect::Type*>& GetContainerPropertyEditorTypes();
+
     class PropertyEditor;
     struct PropertyEditorRegister
     {
-        static std::unordered_map<reflect::Type*, reflect::Type*> s_PropertyEditorTypes;
-        static std::unordered_map<String, reflect::Type*> s_ContainerPropertyEditorTypes;
         PropertyEditorRegister(std::function<void()>&& registerFunc)
         {
             registerFunc();
@@ -33,13 +34,13 @@ namespace se::editor::ui::properties
 
 #define DEFINE_PROPERTY_EDITOR(Type, PropertyEditorType, UnqualifiedName)\
     static PropertyEditorRegister SPARK_CAT(PropertyEditor_, SPARK_CAT(UnqualifiedName, _Register))([](){\
-        auto& map = se::editor::ui::properties::PropertyEditorRegister::s_PropertyEditorTypes;\
+        auto& map = se::editor::ui::properties::GetPropertyEditorTypes();\
         map.insert(std::make_pair(reflect::TypeResolver<Type>::get(), reflect::TypeResolver<PropertyEditorType>::get()));\
     });                                                 \
 
 #define DEFINE_CONTAINER_PROPERTY_EDITOR(Type, PropertyEditorType)\
     static PropertyEditorRegister SPARK_CAT(SPARK_CAT(PropertyEditorType, _Register), __COUNTER__)([](){\
-        auto& map = se::editor::ui::properties::PropertyEditorRegister::s_ContainerPropertyEditorTypes;\
+        auto& map = se::editor::ui::properties::GetContainerPropertyEditorTypes();\
         map.insert(std::make_pair(Type, reflect::TypeResolver<PropertyEditorType>::get()));\
     });
 

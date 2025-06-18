@@ -1,6 +1,7 @@
 #pragma once
 
 #include "spark.h"
+#include "engine/math/math.h"
 #include "engine/reflect/Reflect.h"
 
 namespace se::render::components

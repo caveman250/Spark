@@ -1,5 +1,8 @@
 #include "CollapsingHeaderUtil.h"
+
 #include "Widgets.generated.h"
+#include "engine/asset/AssetManager.h"
+#include "engine/ui/components/MouseInputComponent.h"
 #include "engine/ui/components/WidgetComponent.h"
 
 namespace se::ui::util

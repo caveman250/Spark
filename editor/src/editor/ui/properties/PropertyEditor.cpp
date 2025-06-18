@@ -19,8 +19,17 @@ namespace se::ui::components
 
 namespace se::editor::ui::properties
 {
-    std::unordered_map<reflect::Type*, reflect::Type*> PropertyEditorRegister::s_PropertyEditorTypes = {};
-    std::unordered_map<String, reflect::Type*> PropertyEditorRegister::s_ContainerPropertyEditorTypes = {};
+    std::unordered_map<String, reflect::Type*>& GetContainerPropertyEditorTypes()
+    {
+        static std::unordered_map<String, reflect::Type*> s_Instance = { };
+        return s_Instance;
+    }
+
+    std::unordered_map<reflect::Type*, reflect::Type*>& GetPropertyEditorTypes()
+    {
+        static std::unordered_map<reflect::Type*, reflect::Type*> s_Instance = { };
+        return s_Instance;
+    }
 
     void PropertyEditor::ConstructUI(const String& name,
                                      bool constructTitle,
@@ -103,11 +112,11 @@ namespace se::editor::ui::properties
         else if (type->IsContainer())
         {
             auto* container = static_cast<reflect::Type_Container*>(type);
-            editor_type = PropertyEditorRegister::s_ContainerPropertyEditorTypes[container->GetContainerTypeName()];
+            editor_type = GetContainerPropertyEditorTypes()[container->GetContainerTypeName()];
         }
         else
         {
-            editor_type = PropertyEditorRegister::s_PropertyEditorTypes[type];
+            editor_type = GetPropertyEditorTypes()[type];
         }
 
         if (!editor_type)

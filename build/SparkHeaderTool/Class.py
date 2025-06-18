@@ -602,6 +602,8 @@ def WriteClassFiles(classes, base_class_map, template_instantiations):
         source_dirs.add(class_obj.project_src_dir)
 
     for src_dir in source_dirs:
+        if not os.path.exists(src_dir):
+            os.mkdir(src_dir)
         project_name = src_dir.split('/')[-4]
         init_members_h_content = f"namespace se\n{{\nvoid {project_name}_InitClassReflection();\n}}"
         output_path = src_dir + "Classes.generated.h"
@@ -696,8 +698,6 @@ def WriteClassFiles(classes, base_class_map, template_instantiations):
 
             namespace_text = classobj.namespace.replace("::", "_")
             output_path = classobj.project_src_dir + f"{namespace_text}_{classobj.name}.generated.cpp"
-            if not os.path.exists(classobj.project_src_dir):
-                os.mkdir(classobj.project_src_dir)
             existing_contents = ""
             if os.path.isfile(output_path):
                 input_handle = open(output_path, "r")
