@@ -222,13 +222,13 @@ All C style operators are supported, with the exception of ++ and -- as of writi
 
 The available operators are:
 
-- *
+- \*
 - *=
 - /
 - /=
-- +
+- \+
 - +=
-- -
+- \-
 - -=
 - =
 - ==
@@ -403,6 +403,8 @@ void main()
   vec4 colour = texture(mySampler, inUV);
 }
 ```
+
+See [texture](#texture) for more details.
 
 ## Methods
 
