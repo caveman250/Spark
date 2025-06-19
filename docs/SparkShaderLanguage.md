@@ -23,7 +23,8 @@
       - [Operators](#operators)
       - [Variable Declaration](#variable-declaration)
       - [Method Calls](#method-calls)
-      - [for loops](#for-loops)
+      - [If Statements](#if-statements)
+      - [For Loops](#for-loops)
   - [Types](#types)
     - [void](#void)
     - [bool](#bool)
@@ -49,11 +50,32 @@
     - [sampler2D](#sampler2d)
   - [Methods](#methods)
     - [clamp](#clamp)
+      - [Parameters](#parameters)
+        - [val](#val)
+        - [minVal](#minval)
+        - [maxVal](#maxval)
+      - [Description](#description)
     - [dfdx](#dfdx)
+      - [Parameters](#parameters-1)
+        - [val](#val-1)
+      - [Description](#description-1)
     - [dfdy](#dfdy)
+      - [Parameters](#parameters-2)
+        - [val](#val-2)
+      - [Description](#description-2)
     - [dot](#dot)
+      - [Parameters](#parameters-3)
+        - [x](#x-3)
+        - [y](#y-3)
+      - [Description](#description-3)
     - [length](#length)
+      - [Parameters](#parameters-4)
+        - [val](#val-3)
+      - [Description](#description-4)
     - [normalize](#normalize)
+      - [Parameters](#parameters-5)
+        - [val](#val-4)
+      - [Description](#description-5)
     - [pow](#pow)
     - [reflect](#reflect)
     - [smoothstep](#smoothstep)
@@ -258,10 +280,30 @@ Method calls use standard c syntax.
 // eg:
 
 float val = clamp(val, 0.f, 1.f);
-
 ```
 
-#### for loops
+#### If Statements
+
+If statements allow the user to control the execution of code, by branching on a conditional statement.
+
+```glsl
+// if (<condition>)
+// {
+// 	  ...Do things
+// }
+
+eg:
+
+int i = 5;
+if (i < 10)
+{
+	
+}
+```
+
+#### For Loops
+
+For loops allow to user to run a section of code multiple times, based on the user provided condition.
 
 ```glsl
 // for (<iterator_declaration>; <for_loop_condition>; <post_condition>)
@@ -408,31 +450,155 @@ See [texture](#texture) for more details.
 
 ## Methods
 
-TODO
+Spark provides several built in methods outlined below.
 
 ### clamp
 
-TODO
+```glsl
+float clamp(float val, float minVal, float maxVal);
+int clamp(int val, int minVal, int maxVal);
+```
+
+#### Parameters
+
+##### val
+
+The value to clamp.
+
+##### minVal
+
+The lower end of the range into which to clamp val.
+
+##### maxVal
+
+The upper end of the range into which to clamp val. 
+
+#### Description
+
+clamp returns the value of val clamped to the range of minVal to maxVal. eg: 
+```glsl
+clamp(3, 1, 2) == 2
+```
 
 ### dfdx
 
-TODO
+```glsl
+float dfdx(float val);
+```
+
+#### Parameters
+
+##### val
+
+The value from which to take the partial deriviative.
+
+#### Description
+dfdx returns the partial derivative of val, with respect to the window x coordinate.
+
+usage: 
+```glsl
+float some_expression = ...
+float deriviative = dfdx(some_expression);
+```
 
 ### dfdy
 
-TODO
+```glsl
+float dfdy(float val);
+```
+
+#### Parameters
+
+##### val
+
+The value from which to take the partial deriviative.
+
+#### Description
+dfdx returns the partial derivative of val, with respect to the window y coordinate.
+
+usage: 
+```glsl
+float some_expression = ...
+float deriviative = dfdy(some_expression);
+```
 
 ### dot
 
-TODO
+```glsl
+float dot(vec2 x, vec2 y);
+float dot(vec3 x, vec3 y);
+float dot(vec4 x, vec4 y);
+```
+
+#### Parameters
+
+##### x
+
+the lhs vector used to calculate the dot product.
+
+##### y
+
+the rhs vector used to calculate the dot product.
+
+#### Description
+dot returns the dot product of two vectors, x and y.
+
+> [!WARNING]
+> The two vectors must be of the same type. mixing vector types will result in a compile error.
+
+usage: 
+```glsl
+vec2 a = ...
+vec2 b = ...
+float dot = dot(a, b);
+```
 
 ### length
 
-TODO
+```glsl
+float length(vec2 val);
+float length(vec3 val);
+float length(vec4 val);
+```
+
+#### Parameters
+
+##### val
+
+the vector to calculate the length of.
+
+#### Description
+length returns the length (or magnitude) of a vector.
+
+usage: 
+```glsl
+vec2 val = ...
+float len = length(val);
+```
 
 ### normalize
 
-TODO
+```glsl
+float normalize(vec2 val);
+float normalize(vec3 val);
+float normalize(vec4 val);
+```
+
+#### Parameters
+
+##### val
+
+the vector to calculate the normalized value of.
+
+#### Description
+
+normalize returns a vector with the same direction as val, but with a unit length of 1.
+
+usage: 
+```glsl
+vec2 val = ...
+vec2 norm = normalize(val);
+```
 
 ### pow
 
