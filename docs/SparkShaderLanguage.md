@@ -4,6 +4,12 @@
   - [Language Syntax](#language-syntax)
     - [Shader Declaration](#shader-declaration)
     - [Ports](#ports)
+      - [Example 1](#example-1)
+        - [Vertex Shader](#vertex-shader)
+        - [Fragment Shader](#fragment-shader)
+      - [Example 2](#example-2)
+        - [Vertex Shader](#vertex-shader-1)
+        - [Fragment Shader](#fragment-shader-1)
       - [Named Ports](#named-ports)
         - [VertexPos (Vertex Shader only)](#vertexpos-vertex-shader-only)
         - [VertexUV (Vertex Shader only)](#vertexuv-vertex-shader-only)
@@ -77,10 +83,22 @@
         - [val](#val-4)
       - [Description](#description-5)
     - [pow](#pow)
+      - [Parameters](#parameters-6)
+        - [x](#x-4)
+        - [y](#y-4)
+      - [Description](#description-6)
     - [reflect](#reflect)
+      - [Parameters](#parameters-7)
+        - [v](#v)
+        - [n](#n)
+      - [Description](#description-7)
     - [smoothstep](#smoothstep)
+      - [Parameters](#parameters-8)
+        - [x](#x-5)
+        - [y](#y-5)
+        - [t](#t)
+      - [Description](#description-8)
     - [texture](#texture)
-
 
 ## Language Syntax
 
@@ -101,6 +119,74 @@ and can be accessed from one or multiple shader "stages" that comprise a materia
 Several preixisting ports exist, mapping to functionality such as Vertex attributes 
 and output colour. Users are also free to add in their own custom ports, should they need 
 to share data accross multiple shader stages.
+
+#### Example 1
+
+The following example shows a vertex shader passing uv information to a fragment shader, which is then used to sample a texture.
+
+##### Vertex Shader
+
+```glsl
+SSL_VERTEX
+
+port(VertexUV) in vec2 inUV;
+
+port(FragmentUV) out vec2 outUV;
+
+void main()
+{
+    outUV = inUV;
+}
+```
+
+##### Fragment Shader
+
+```glsl
+SSL_FRAGMENT
+
+port(FragmentUV) in vec2 inUV;
+
+port(FragColor) out vec4 color;
+
+uniform sampler2D texture;
+
+void main()
+{
+    color = texture(texture, inUV);
+}
+```
+
+#### Example 2
+
+The following example shows a fragment shader block modifying the colour set by an earlier fragment shader block. Vertex shaders can make use of the same techniques.
+
+##### Vertex Shader
+
+```glsl
+SSL_FRAGMENT
+
+port(FragColor) out vec4 outColor;
+
+void main()
+{
+    outColor = vec4(1.0, 1.0, 1.0, 1.0);
+}
+```
+
+##### Fragment Shader
+
+```glsl
+SSL_FRAGMENT
+
+port(FragColor) in vec4 inColor;
+
+port(FragColor) out vec4 outColor;
+
+void main()
+{
+    outColor = inColor + vec4(1.0, 0, 0, 0);
+}
+```
 
 #### Named Ports
 
@@ -267,8 +353,8 @@ Variables are defined with the following syntax:
 // <var_type> <var_name> = <initial_value>
 // eg:
 
-float val = 1.0f;
-vec3 vecVal = vec3(1.0f, 1.0f, 1.0f);
+float val = 1.0;
+vec3 vecVal = vec3(1.0, 1.0, 1.0);
 ```
 
 #### Method Calls
@@ -414,8 +500,8 @@ You may access the individual columns with the [] operator. As each column is a 
 
 ```glsl
 mat3 mat;
-mat[0] = vec3(1.0f, 0.0f, 0.0f);
-mat[1][1] = 1.0f;
+mat[0] = vec3(1.0, 0.0, 0.0);
+mat[1][1] = 1.0;
 ```
 
 ### mat4
@@ -428,8 +514,8 @@ You may access the individual columns with the [] operator. As each column is a 
 
 ```glsl
 mat4 mat;
-mat[0] = vec4(1.0f, 0.0f, 0.0f, 0.0f);
-mat[1][1] = 1.0f;
+mat[0] = vec4(1.0, 0.0, 0.0, 0.0);
+mat[1][1] = 1.0;
 ```
 
 ### sampler2D
@@ -579,9 +665,9 @@ float len = length(val);
 ### normalize
 
 ```glsl
-float normalize(vec2 val);
-float normalize(vec3 val);
-float normalize(vec4 val);
+vec2 normalize(vec2 val);
+vec3 normalize(vec3 val);
+vec4 normalize(vec4 val);
 ```
 
 #### Parameters
@@ -602,15 +688,92 @@ vec2 norm = normalize(val);
 
 ### pow
 
-TODO
+```glsl
+float pow(float x, float y);
+```
+
+#### Parameters
+
+##### x
+
+The value to be raised to the power of y
+
+##### y
+
+The power to which to raise x
+
+#### Description
+
+pow returns the value of x raised to the power of y
+
+usage: 
+```glsl
+float val = ...
+float powSquared = pow(val, 2);
+```
 
 ### reflect
 
-TODO
+```glsv
+vec2 reflect(vec2 v, vec2 n);
+vec3 reflect(vec3 v, vec3 n);
+vec4 reflect(vec4 v, vec4 n);
+```
+
+#### Parameters
+
+##### v
+
+The direction to reflect
+
+##### n
+
+The normal from which to reflect v
+
+#### Description
+
+reflect returns the reflection direction for the given vector v, and surface normal n. It is expected that n will be a normalised vector.
+
+usage: 
+```glsl
+vec2 dir = ...
+vec2 newDir = reflect(dir, vec2(1, 0));
+```
 
 ### smoothstep
 
-TODO
+```glsv
+vec2 smoothstep(vec2 x, vec2 y, float t);
+vec2 smoothstep(vec2 x, vec2 y, float t);
+vec2 smoothstep(vec2 x, vec2 y, float t);
+float smoothstep(float x, float y, float t);
+```
+
+#### Parameters
+
+##### x
+
+The lower bound value to interpolate from.
+
+##### y
+
+The upper bound value to interpolate to.
+
+##### t
+
+The interpolation amount.
+
+#### Description
+
+smoothstep performs smooth Hermite interpolation between 0 and 1 when x < t < y.
+
+usage: 
+```glsl
+float lowerBound = ...
+float upperBound = ...
+float t = ...
+float opacity = smoothstep(edgeDistance, edgeDistance, t);
+```
 
 ### texture
 
