@@ -714,7 +714,7 @@ float powSquared = pow(val, 2);
 
 ### reflect
 
-```glsv
+```glsl
 vec2 reflect(vec2 v, vec2 n);
 vec3 reflect(vec3 v, vec3 n);
 vec4 reflect(vec4 v, vec4 n);
@@ -742,7 +742,7 @@ vec2 newDir = reflect(dir, vec2(1, 0));
 
 ### smoothstep
 
-```glsv
+```glsl
 vec2 smoothstep(vec2 x, vec2 y, float t);
 vec2 smoothstep(vec2 x, vec2 y, float t);
 vec2 smoothstep(vec2 x, vec2 y, float t);
