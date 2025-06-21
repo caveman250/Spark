@@ -30,9 +30,9 @@
 
 - (void) mtkView:(MTKView*)view drawableSizeWillChange:(CGSize) size
 {
-    if(auto window = se::Application::Get()->GetPrimaryWindow())
+    if (auto window = se::Application::Get()->GetWindow())
     {
-        window->OnResize(size.width, size.height);
+        window->OnResize(size.width / window->GetContentScale(), size.height / window->GetContentScale());
     }
 }
 
@@ -51,7 +51,7 @@
     se::PlatformRunLoop::Get()->Init();
 
     _viewDelegate = [ViewDelegate new];
-    auto window = static_cast<se::mac::Window*>(se::Application::Get()->GetPrimaryWindow());
+    auto window = static_cast<se::mac::Window*>(se::Application::Get()->GetWindow());
     _window = window->GetNativeWindow();
     auto view= [_window contentView];
     [view setDelegate:_viewDelegate];
