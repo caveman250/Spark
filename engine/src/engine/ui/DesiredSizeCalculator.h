@@ -19,7 +19,7 @@ namespace se::ui
                                                 components::RectTransformComponent& thisRect,
                                                 const T*)
         {
-            auto window = Application::Get()->GetPrimaryWindow();
+            auto window = Application::Get()->GetWindow();
             math::IntVec2 rectSize = GetDesiredSizeFromRect(thisRect);
             auto childrenSize = GetChildrenDesiredSize(system, entity, thisRect);
             return math::IntVec2(std::max(std::max(rectSize.x, childrenSize.x), static_cast<int>(thisRect.minWidth * window->GetContentScale())),
@@ -54,7 +54,7 @@ namespace se::ui
         static math::IntVec2 GetDesiredSizeFromRect(const components::RectTransformComponent& transform)
         {
             math::IntVec2 ret = {};
-            auto window = Application::Get()->GetPrimaryWindow();
+            auto window = Application::Get()->GetWindow();
             if (transform.anchors.left == transform.anchors.right)
             {
                 ret.x = static_cast<int>(std::abs(transform.maxX * window->GetContentScale() - transform.minX * window->GetContentScale()) + transform.minX * window->GetContentScale());
@@ -88,7 +88,7 @@ namespace se::ui
                                                     const Rect& parentRect)
         {
             math::IntVec2 ret = {};
-            auto window = Application::Get()->GetPrimaryWindow();
+            auto window = Application::Get()->GetWindow();
             if (transform.anchors.left > 0.5f)
             {
                 ret.x = static_cast<int>((transform.anchors.left * parentRect.size.x) - transform.minX * window->GetContentScale());

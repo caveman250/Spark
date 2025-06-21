@@ -25,7 +25,7 @@ namespace se
         virtual void CreateInitialSystems();
         virtual void Shutdown();
 
-        IWindow* GetPrimaryWindow() const { return m_PrimaryWindow; }
+        IWindow* GetWindow() const { return m_PrimaryWindow; }
         ecs::World* GetWorld() { return &m_World; }
 
 #if SPARK_EDITOR

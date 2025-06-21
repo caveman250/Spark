@@ -17,7 +17,7 @@ namespace se::ui::systems
         PROFILE_SCOPE("GridBoxSystem::OnUpdate")
 
         auto world = Application::Get()->GetWorld();
-        auto window = Application::Get()->GetPrimaryWindow();
+        auto window = Application::Get()->GetWindow();
         const auto& entities = updateData.GetEntities();
         auto* rectTransforms = updateData.GetComponentArray<components::RectTransformComponent>();
         auto* gridBoxes = updateData.GetComponentArray<components::GridBoxComponent>();

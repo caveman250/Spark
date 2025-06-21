@@ -14,7 +14,7 @@ namespace se::editor::util
         math::Vec2 relative = math::Vec2((float)(mouseX - viewportRect.topLeft.x) / viewportRect.size.x,
                                          (float)(mouseY - viewportRect.topLeft.y) / viewportRect.size.y);
 
-        auto window = app->GetPrimaryWindow();
+        auto window = app->GetWindow();
         return relative * math::Vec2(static_cast<float>(window->GetWidth()),
                                      static_cast<float>(window->GetHeight()));
     }

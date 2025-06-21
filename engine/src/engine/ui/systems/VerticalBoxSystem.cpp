@@ -58,7 +58,7 @@ namespace se::ui::systems
                 });
 
                 auto childRects = util::GetChildrenDesiredSizes(entity, this, verticalBoxTransform);
-                auto window = Application::Get()->GetPrimaryWindow();
+                auto window = Application::Get()->GetWindow();
                 float currY = verticalBox.paddingTop * window->GetContentScale();
                 for (const auto& child: world->GetChildren(entity))
                 {

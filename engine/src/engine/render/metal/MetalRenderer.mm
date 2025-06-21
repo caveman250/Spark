@@ -30,7 +30,7 @@ namespace se::render::metal
     {
         auto commandBuffer= [m_CommandQueue commandBuffer];
 
-        auto macWindow = static_cast<se::mac::Window*>(Application::Get()->GetPrimaryWindow());
+        auto macWindow = static_cast<se::mac::Window*>(Application::Get()->GetWindow());
         auto nativeWindow = macWindow->GetNativeWindow();
         auto view = [nativeWindow contentView];
         m_CurrentRenderPassDescriptor = [view currentRenderPassDescriptor];

@@ -53,7 +53,7 @@ namespace se::render::commands
     void PushScissor::Execute()
     {
         auto commandEncoder = Renderer::Get<metal::MetalRenderer>()->GetCurrentCommandEncoder();
-        auto window = Application::Get()->GetPrimaryWindow();
+        auto window = Application::Get()->GetWindow();
         MTLScissorRect scissor;
         scissor.x = std::max(0, m_Rect.topLeft.x);
         scissor.y = std::max(0, m_Rect.topLeft.y);
@@ -64,7 +64,7 @@ namespace se::render::commands
 
     void PopScissor::Execute()
     {
-        auto primaryWindow = Application::Get()->GetPrimaryWindow();
+        auto primaryWindow = Application::Get()->GetWindow();
         auto commandEncoder = Renderer::Get<metal::MetalRenderer>()->GetCurrentCommandEncoder();
         MTLScissorRect scissor;
         scissor.x = 0;

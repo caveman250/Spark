@@ -64,7 +64,7 @@ namespace se::ui::util
             textComp.lastText != text ||
             textComp.lastFontSize != textComp.fontSize)
         {
-            auto window = Application::Get()->GetPrimaryWindow();
+            auto window = Application::Get()->GetWindow();
             asset::StaticMesh mesh = util::CreateTextMesh(transform.rect,
                                                           textComp.font,
                                                           static_cast<int>(textComp.fontSize * window->GetContentScale()),

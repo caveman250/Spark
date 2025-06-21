@@ -17,7 +17,7 @@ namespace se::ui::systems
 
         auto app = Application::Get();
         auto world = app->GetWorld();
-        auto window = app->GetPrimaryWindow();
+        auto window = app->GetWindow();
 
         const auto& entities = updateData.GetEntities();
         auto* scrollViews = updateData.GetComponentArray<components::ScrollViewComponent>();

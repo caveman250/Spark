@@ -6,7 +6,7 @@ namespace se
 {
     void MouseCursorUtil::SetMouseCursor(MouseCursor cursor)
     {
-        mac::Window* window = static_cast<mac::Window*>(Application::Get()->GetPrimaryWindow());
+        mac::Window* window = static_cast<mac::Window*>(Application::Get()->GetWindow());
         NSCursor* selectedCursor = nullptr;
         switch(cursor)
         {

@@ -14,7 +14,7 @@ namespace se::ui::util
                 .WithComponent<const WidgetComponent>()
                 .WithVariantComponent<SPARK_CONST_WIDGET_TYPES_WITH_NULLTYPE>(ecs::ComponentMutability::Immutable);
 
-        auto window = Application::Get()->GetPrimaryWindow();
+        auto window = Application::Get()->GetWindow();
         system->RunChildQuery(entity, dec,
         [rectTransform, &itemSize, system, window](const ecs::SystemUpdateData& updateData)
         {

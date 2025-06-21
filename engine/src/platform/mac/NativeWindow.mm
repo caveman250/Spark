@@ -138,7 +138,7 @@ static std::map<uint32_t, bool> s_ModifierKeyStates = {}; // TODO
 - (void)mouseMoved:(NSEvent*)event
 {
     auto app = se::Application::Get();
-    auto window = app->GetPrimaryWindow();
+    auto window = app->GetWindow();
     auto inputComp = app->GetWorld()->GetSingletonComponent<se::input::InputComponent>();
     NSPoint locationInView = [[self contentView] convertPoint:[event locationInWindow] fromView:nil];
     inputComp->mouseX = locationInView.x * window->GetContentScale();
@@ -148,7 +148,7 @@ static std::map<uint32_t, bool> s_ModifierKeyStates = {}; // TODO
 - (void)mouseDragged:(NSEvent*)event
 {
     auto app = se::Application::Get();
-    auto window = app->GetPrimaryWindow();
+    auto window = app->GetWindow();
     auto inputComp = app->GetWorld()->GetSingletonComponent<se::input::InputComponent>();
 
     if (inputComp->mouseButtonStates[static_cast<int>(se::input::MouseButton::Left)] != se::input::KeyState::Down)

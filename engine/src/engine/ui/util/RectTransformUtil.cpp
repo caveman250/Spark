@@ -13,7 +13,7 @@ namespace se::ui::util
     Rect CalculateScreenSpaceRect(const RectTransformComponent& transform,
                                   const Rect& parentRect)
     {
-        auto window = Application::Get()->GetPrimaryWindow();
+        auto window = Application::Get()->GetWindow();
 
         math::IntVec2 parentBottomRight = parentRect.topLeft + parentRect.size;
         int parentWidth = parentBottomRight.x - parentRect.topLeft.x;

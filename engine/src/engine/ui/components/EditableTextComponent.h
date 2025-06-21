@@ -54,7 +54,7 @@ namespace se::ui
                                                                                                   components::RectTransformComponent& thisRect,
                                                                                                   const components::EditableTextComponent* text)
     {
-        auto window = Application::Get()->GetPrimaryWindow();
+        auto window = Application::Get()->GetWindow();
         auto ret = util::MeasureText(thisRect.rect,
                                          text->font,
                                          static_cast<int>(text->fontSize * window->GetContentScale()),

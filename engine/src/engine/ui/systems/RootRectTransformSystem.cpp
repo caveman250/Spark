@@ -19,7 +19,7 @@ namespace se::ui::systems
         auto world = Application::Get()->GetWorld();
         const auto& entities = updateData.GetEntities();
         auto* transform = updateData.GetComponentArray<components::RectTransformComponent>();
-        auto window = Application::Get()->GetPrimaryWindow();
+        auto window = Application::Get()->GetWindow();
         Rect windowRect = Rect { .topLeft = math::IntVec2(0, 0), .size = math::IntVec2(window->GetWidth(), window->GetHeight()) };
 
         for (size_t i = 0; i < entities.size(); ++i)

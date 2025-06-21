@@ -59,7 +59,7 @@ namespace se::ui::systems
                 });
 
                 auto childRects = util::GetChildrenDesiredSizes(entity, this, horizontalBoxTransform);
-                auto window = Application::Get()->GetPrimaryWindow();
+                auto window = Application::Get()->GetWindow();
                 float currX = horizontalBox.paddingLeft * window->GetContentScale();
                 for (const auto& child: world->GetChildren(entity))
                 {

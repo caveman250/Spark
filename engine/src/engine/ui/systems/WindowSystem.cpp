@@ -19,7 +19,7 @@ namespace se::ui::systems
         const auto& entities = updateData.GetEntities();
         auto* windows = updateData.GetComponentArray<components::WindowComponent>();
         auto* transforms = updateData.GetComponentArray<components::RectTransformComponent>();
-        auto* appWindow = Application::Get()->GetPrimaryWindow();
+        auto* appWindow = Application::Get()->GetWindow();
 
         for (size_t i = 0; i < entities.size(); ++i)
         {

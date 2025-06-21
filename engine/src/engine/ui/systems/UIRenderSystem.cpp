@@ -69,7 +69,7 @@ namespace se::ui::systems
     {
         auto* app = Application::Get();
         auto* world = app->GetWorld();
-        auto* primaryWindow = app->GetPrimaryWindow();
+        auto* primaryWindow = app->GetWindow();
         auto* renderer = render::Renderer::Get<render::Renderer>();
         const auto& entities = updateData.GetEntities();
         auto* renderComp = updateData.GetSingletonComponent<singleton_components::UIRenderComponent>();

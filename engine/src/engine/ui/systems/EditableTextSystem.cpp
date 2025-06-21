@@ -387,7 +387,7 @@ namespace se::ui::systems
 
         auto app = Application::Get();
         auto renderer = render::Renderer::Get<render::Renderer>();
-        auto window = app->GetPrimaryWindow();
+        auto window = app->GetWindow();
         auto windowsSize = math::Vec2(static_cast<float>(window->GetWidth()), static_cast<float>(window->GetHeight()));
 
         const auto& entities = updateData.GetEntities();

@@ -21,7 +21,7 @@ namespace se
     {
         auto app = Application::Get();
         app->Init();
-        m_Window = Application::Get()->GetPrimaryWindow();
+        m_Window = Application::Get()->GetWindow();
     }
 
     void PlatformRunLoop::Shutdown()
