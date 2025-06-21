@@ -5,6 +5,7 @@
 #import "engine/render/metal/MetalRenderer.h"
 #import "platform/PlatformRunLoop.h"
 #import "NativeWindow.h"
+#import "AppDelegate.h"
 
 namespace se
 {
@@ -35,27 +36,28 @@ namespace se::mac
         [m_Window center];
 
         auto renderer = se::render::Renderer::Get<se::render::metal::MetalRenderer>();
-        MTKView* metalView = [[MTKView alloc] initWithFrame:frame device:renderer->GetDevice()];
-        [metalView retain];
+        m_View = [[SparkView alloc] initWithFrame:frame device:renderer->GetDevice()];
+        [m_View retain];
 
-        [metalView setClearColor:MTLClearColorMake(0, 0, 0, 1)];
-        [metalView setColorPixelFormat:MTLPixelFormatBGRA8Unorm];
-        [metalView setDepthStencilPixelFormat:MTLPixelFormatDepth16Unorm];
-        [metalView setClearDepth:1.f];
-        [metalView setDrawableSize:CGSize { static_cast<double>(resX), static_cast<double>(resY) } ];
-        [metalView setPreferredFramesPerSecond: 240];
-        m_ContentScale = [[metalView layer] contentsScale];
+        [m_View createTrackingArea];
+        [m_View setCurrentCursor:[NSCursor arrowCursor]];
 
-        NSRect viewport = [metalView bounds];
-        NSRect backingSize = [metalView convertRectToBacking:viewport];
+        [m_View setClearColor:MTLClearColorMake(0, 0, 0, 1)];
+        [m_View setColorPixelFormat:MTLPixelFormatBGRA8Unorm];
+        [m_View setDepthStencilPixelFormat:MTLPixelFormatDepth16Unorm];
+        [m_View setClearDepth:1.f];
+        [m_View setDrawableSize:CGSize { static_cast<double>(resX), static_cast<double>(resY) } ];
+        [m_View setPreferredFramesPerSecond: 240];
+        m_ContentScale = [[m_View layer] contentsScale];
+
+        NSRect viewport = [m_View bounds];
+        NSRect backingSize = [m_View convertRectToBacking:viewport];
 
         m_ContentScale = backingSize.size.width / viewport.size.width;
-        [[metalView layer] setContentsScale: m_ContentScale];
-        [metalView setDrawableSize: NSSizeToCGSize(backingSize.size)];
+        [[m_View layer] setContentsScale: m_ContentScale];
+        [m_View setDrawableSize: NSSizeToCGSize(backingSize.size)];
 
-        //[metalView addTrackingRect:frame owner:metalView userData:NULL assumeInside:NO];
-
-        [m_Window setContentView:metalView];
+        [m_Window setContentView:m_View];
         [m_Window setTitle:[[NSString alloc] initWithUTF8String:"Spark"]];
         [m_Window makeKeyAndOrderFront:m_Window];
         [m_Window retain];

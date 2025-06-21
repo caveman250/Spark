@@ -123,6 +123,18 @@ static std::map<uint32_t, bool> s_ModifierKeyStates = {}; // TODO
     inputComp->mouseEvents.push_back(mouseEvent);
 }
 
+- (void)mouseEntered:(NSEvent *)event
+{
+    [super mouseEntered:event];
+    [[NSCursor pointingHandCursor] set];
+}
+
+- (void)mouseExited:(NSEvent *)event
+{
+    [super mouseExited:event];
+    [[NSCursor arrowCursor] set];
+}
+
 - (void)mouseMoved:(NSEvent*)event
 {
     auto app = se::Application::Get();

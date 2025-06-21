@@ -18,6 +18,7 @@
 // Classes
 @class MTLRenderPassDescriptor;
 @class NSWindow;
+@class SparkView;
 
 // Protocols
 typedef id<MTLBuffer> MTLBufferPtr;
@@ -32,6 +33,7 @@ typedef id<MTLCommandBuffer> MTLCommandBufferPtr;
 // Classes
 typedef MTLRenderPassDescriptor* MTLRenderPassDescriptorPtr;
 typedef NSWindow* NSWindowPtr;
+typedef SparkView* SparkViewPtr;
 
 #else
 // Protocols
@@ -47,6 +49,7 @@ typedef void* MTLCommandBufferPtr;
 // Classes
 typedef void* MTLRenderPassDescriptorPtr;
 typedef void* NSWindowPtr;
+typedef void* SparkViewPtr;
 #endif
 
 #endif

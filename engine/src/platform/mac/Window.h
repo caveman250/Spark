@@ -15,9 +15,11 @@ namespace se::mac
 
         void Cleanup() override;
 
+        SparkViewPtr GetView() const { return m_View; }
         NSWindowPtr GetNativeWindow() const { return m_Window; }
 
     private:
-        NSWindowPtr m_Window;
+        SparkViewPtr m_View = nullptr;
+        NSWindowPtr m_Window = nullptr;
     };
 }

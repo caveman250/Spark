@@ -9,6 +9,7 @@
 #include "engine/ui/util/EditableTextUtil.h"
 #include "engine/ui/util/TextUtil.h"
 #include "platform/IWindow.h"
+#include "platform/MouseCursorUtil.h"
 
 namespace se::ui::systems
 {
@@ -328,6 +329,8 @@ namespace se::ui::systems
 
             if (mouseInput.hovered)
             {
+                MouseCursorUtil::SetMouseCursor(MouseCursor::IBeam);
+
                 for (const auto& mouseEvent: mouseInput.mouseEvents)
                 {
                     if (mouseEvent.button == input::MouseButton::Left)
@@ -351,6 +354,11 @@ namespace se::ui::systems
             else if (text.inEditMode)
             {
                 util::EndEditingText(this, entity, text, keyInput);
+            }
+
+            if (!mouseInput.hovered && mouseInput.lastHovered)
+            {
+                MouseCursorUtil::SetMouseCursor(MouseCursor::Arrow);
             }
 
             if (text.inEditMode)
