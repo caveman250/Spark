@@ -10,14 +10,19 @@
 
 namespace se::render
 {
-    std::shared_ptr<FrameBuffer> FrameBuffer::CreateFrameBuffer()
+    std::shared_ptr<FrameBuffer> FrameBuffer::CreateFrameBuffer(const math::IntVec2& size)
     {
-        return std::make_shared<metal::FrameBuffer>();
+        return std::make_shared<metal::FrameBuffer>(size);
     }
 }
 
 namespace se::render::metal
 {
+    FrameBuffer::FrameBuffer(const math::IntVec2& size)
+        : render::FrameBuffer(size)
+    {
+    }
+
     void FrameBuffer::PreRender()
     {
         auto renderer = Renderer::Get<MetalRenderer>();

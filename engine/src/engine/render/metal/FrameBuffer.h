@@ -5,6 +5,11 @@
 
 #if METAL_RENDERER
 
+namespace se::math
+{
+    struct IntVec2;
+}
+
 namespace se::asset
 {
     class Texture;
@@ -15,6 +20,7 @@ namespace se::render::metal
     class FrameBuffer : public render::FrameBuffer
     {
     public:
+        FrameBuffer(const math::IntVec2&);
         MTLRenderCommandEncoderPtr GetRenderCommandEncoder() const
         {
             return m_RenderCommandEncoder;

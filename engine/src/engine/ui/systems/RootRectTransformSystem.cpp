@@ -20,10 +20,17 @@ namespace se::ui::systems
         const auto& entities = updateData.GetEntities();
         auto* transform = updateData.GetComponentArray<components::RectTransformComponent>();
         auto window = Application::Get()->GetWindow();
-        Rect windowRect = Rect { .topLeft = math::IntVec2(0, 0), .size = math::IntVec2(window->GetWidth(), window->GetHeight()) };
 
         for (size_t i = 0; i < entities.size(); ++i)
         {
+            const auto& entity = entities[i];
+            Rect windowRect = Rect {
+                .topLeft = math::IntVec2(0, 0),
+                .size = entity.HasFlag(ecs::IdFlags::Editor) ?
+                    math::IntVec2(window->GetWidth(), window->GetHeight()) :
+                    Application::Get()->GetGameViewportSize()
+            };
+
             auto& trans = transform[i];
             trans.lastRect = trans.rect;
             trans.rect = util::CalculateScreenSpaceRect(trans, windowRect);

@@ -24,7 +24,6 @@ namespace se::ui::systems
         auto app = Application::Get();
         auto renderer = render::Renderer::Get<render::Renderer>();
         auto window = app->GetWindow();
-        auto windowsSize = math::Vec2(static_cast<float>(window->GetWidth()), static_cast<float>(window->GetHeight()));
 
         const auto& entities = updateData.GetEntities();
         const auto* widgetComps = updateData.GetComponentArray<const components::WidgetComponent>();
@@ -63,7 +62,11 @@ namespace se::ui::systems
 
                 image.lastRect = transform.rect;
 
-                image.materialInstance->SetUniform("screenSize", asset::shader::ast::AstType::Vec2, 1, &windowsSize);
+                math::Vec2 windowSize = entity.HasFlag(ecs::IdFlags::Editor) ?
+                     math::IntVec2(window->GetWidth(), window->GetHeight()) :
+                     Application::Get()->GetGameViewportSize();
+
+                image.materialInstance->SetUniform("screenSize", asset::shader::ast::AstType::Vec2, 1, &windowSize);
 
                 auto command = renderer->AllocRenderCommand<render::commands::SubmitUI>(image.materialInstance, image.vertBuffer,
                                                              image.indexBuffer);

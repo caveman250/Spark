@@ -16,7 +16,7 @@ namespace se::render::opengl
     class FrameBuffer : public render::FrameBuffer
     {
     public:
-        FrameBuffer();
+        FrameBuffer(const math::IntVec2&);
     private:
         void PreRender() override {}
         void Bind() override;

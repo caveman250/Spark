@@ -219,6 +219,8 @@ namespace se
         ecs::SystemDeclaration windowReg = ecs::SystemDeclaration("Window System")
                 .WithComponent<ui::components::WindowComponent>()
                 .WithComponent<ui::components::RectTransformComponent>()
+                .WithComponent<const ui::components::MouseInputComponent>()
+                .WithSingletonComponent<const input::InputComponent>()
                 .WithDependency(mouseInput);
         m_World.CreateEngineSystem<ui::systems::WindowSystem>(windowReg);
 
@@ -340,6 +342,15 @@ namespace se
 
     void Application::Shutdown()
     {
+    }
+
+    math::IntVec2 Application::GetGameViewportSize()
+    {
+#if SPARK_EDITOR
+        return m_EditorRuntime.GetFrameBuffer()->GetSize() * m_PrimaryWindow->GetContentScale();
+#else
+        return math::IntVec2(m_PrimaryWindow->GetWidth(), m_PrimaryWindow->GetHeight());
+#endif
     }
 
     void Application::Update()

@@ -10,7 +10,7 @@ namespace se::editor
 
         m_StartupManager.RunStartupTasks();
 
-        m_FrameBuffer = render::FrameBuffer::CreateFrameBuffer();
+        m_FrameBuffer = render::FrameBuffer::CreateFrameBuffer({ 1280, 720 });
 
         m_OutlineWindow = new ui::OutlineWindow(this);
         m_OutlineWindow->ConstructUI();

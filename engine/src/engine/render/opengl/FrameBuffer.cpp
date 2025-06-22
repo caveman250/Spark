@@ -7,16 +7,16 @@
 
 namespace se::render
 {
-    std::shared_ptr<FrameBuffer> FrameBuffer::CreateFrameBuffer()
+    std::shared_ptr<FrameBuffer> FrameBuffer::CreateFrameBuffer(const math::IntVec2& size)
     {
-        return std::make_shared<opengl::FrameBuffer>();
+        return std::make_shared<opengl::FrameBuffer>(size);
     }
 }
 
 namespace se::render::opengl
 {
-    FrameBuffer::FrameBuffer()
-        : render::FrameBuffer()
+    FrameBuffer::FrameBuffer(const math::IntVec2& size)
+        : render::FrameBuffer(size)
     {
         glGenFramebuffers(1, &m_PlatformResource);
         glBindFramebuffer(GL_FRAMEBUFFER, m_PlatformResource);

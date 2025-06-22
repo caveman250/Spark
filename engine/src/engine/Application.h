@@ -2,6 +2,7 @@
 
 #include "spark.h"
 #include "engine/ecs/World.h"
+#include "math/IntVec2.h"
 
 #if SPARK_EDITOR
 #include "editor/EditorRuntime.h"
@@ -26,6 +27,7 @@ namespace se
         virtual void Shutdown();
 
         IWindow* GetWindow() const { return m_PrimaryWindow; }
+        math::IntVec2 GetGameViewportSize();
         ecs::World* GetWorld() { return &m_World; }
 
 #if SPARK_EDITOR

@@ -388,7 +388,6 @@ namespace se::ui::systems
         auto app = Application::Get();
         auto renderer = render::Renderer::Get<render::Renderer>();
         auto window = app->GetWindow();
-        auto windowsSize = math::Vec2(static_cast<float>(window->GetWidth()), static_cast<float>(window->GetHeight()));
 
         const auto& entities = updateData.GetEntities();
         auto* widgetComps = updateData.GetComponentArray<components::WidgetComponent>();
@@ -403,11 +402,15 @@ namespace se::ui::systems
             const auto& transform = transformComps[i];
             auto& text = textComps[i];
 
+            auto windowSize = entity.HasFlag(ecs::IdFlags::Editor) ?
+                math::IntVec2(window->GetWidth(), window->GetHeight()) :
+                Application::Get()->GetGameViewportSize();
+
             util::RenderText(entity,
                              widget,
                              transform,
                              text,
-                             windowsSize,
+                             windowSize,
                              renderer,
                              renderComp,
                              text.inEditMode ? text.editText : text.text);
