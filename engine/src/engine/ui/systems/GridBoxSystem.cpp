@@ -30,11 +30,28 @@ namespace se::ui::systems
 
             if (gridBoxTransform.needsLayout)
             {
-                gridBox.dirty = true;
-            }
+                // make sure our anchors are set correctly so that desired size works as expected.
+                auto dec = ecs::HeirachyQueryDeclaration()
+                        .WithComponent<components::RectTransformComponent>();
+                RunChildQuery(entity, dec,
+                [](const ecs::SystemUpdateData& updateData)
+                {
+                    const auto& children = updateData.GetEntities();
+                    auto* rects = updateData.GetComponentArray<components::RectTransformComponent>();
 
-            if (gridBox.dirty)
-            {
+                    for (size_t i = 0; i < children.size(); ++i)
+                    {
+                        auto& rect = rects[i];
+                        rect.anchors = { 0.f, 1.f, 0.f, 0.f };
+                        rect.minY = 0;
+                        rect.maxY = 0;
+                        rect.minX = 0;
+                        rect.maxX = 0;
+                    }
+
+                    return false;
+                });
+
                 auto itemSize = util::GetGridBoxItemSize(entity, this, gridBoxTransform);
                 auto childRects = util::GetChildRectTransforms(entity, this);
 
@@ -77,8 +94,6 @@ namespace se::ui::systems
 
                 gridBoxTransform.rect.size.y = static_cast<int>(cursor.y * window->GetContentScale());
                 gridBoxTransform.maxY = gridBoxTransform.minY + cursor.y;
-
-                gridBox.dirty = false;
             }
 
             gridBoxTransform.needsLayout = false;

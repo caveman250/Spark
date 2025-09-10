@@ -49,7 +49,7 @@ namespace se::ui::util
         if (!world->HasComponent<MouseInputComponent>(entity))
         {
             auto inputComp = world->AddComponent<MouseInputComponent>(entity);
-            inputComp->buttonMask = 0x0;
+            inputComp->buttonMask = std::to_underlying(input::MouseButton::Left);
         }
 
         if (!world->HasComponent<KeyInputComponent>(entity))
@@ -75,7 +75,7 @@ namespace se::ui::util
         titleBarTransform->anchors = { 0.f, 1.f, 0.f, 0.f };
         titleBarTransform->minX = 0;
         titleBarTransform->maxX = 0;
-        titleBarTransform->minY = 0;
+        titleBarTransform->minY = 5 / Application::Get()->GetWindow()->GetContentScale();
         titleBarTransform->maxY = 30;
         world->AddChild(entity, titleBarEntity);
 

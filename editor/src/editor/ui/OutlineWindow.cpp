@@ -50,6 +50,9 @@ namespace se::editor::ui
         m_TreeViewEntity = ::se::ui::util::CreateTreeView(&treeViewComp, &transformComp, true);
         world->AddChild(scrollViewEntity, m_TreeViewEntity);
         transformComp->anchors = { 0.f, 1.f, 0.f, 0.f };
+        transformComp->maxX = 5;
+        transformComp->minX = 5;
+        transformComp->maxY = 5;
 
         m_Valid = true;
 

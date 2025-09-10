@@ -16,6 +16,12 @@ namespace se
             case MouseCursor::IBeam:
                 selectedCursor = [NSCursor IBeamCursor];
                 break;
+            case MouseCursor::ResizeLeftRight:
+                selectedCursor = [NSCursor resizeLeftRightCursor];
+                break;
+            case MouseCursor::ResizeUpDown:
+                selectedCursor = [NSCursor resizeUpDownCursor];
+                break;
         }
 
         [window->GetView() setCurrentCursor:selectedCursor];

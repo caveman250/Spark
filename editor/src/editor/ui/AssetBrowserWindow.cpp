@@ -142,7 +142,7 @@ namespace se::editor::ui
 
         SetActiveFolder("/assets");
 
-        gridBox->dirty = true;
+        gridRect->needsLayout = true;
     }
 
     void AssetBrowserWindow::DestroyUI()
@@ -184,8 +184,8 @@ namespace se::editor::ui
             }
         });
 
-        auto gridBox = world->GetComponent<se::ui::components::GridBoxComponent>(m_GridBoxEntity);
-        gridBox->dirty = true;
+        auto gridBox = world->GetComponent<se::ui::components::RectTransformComponent>(m_GridBoxEntity);
+        gridBox->needsLayout = true;
 
         CreatePathBar(arial);
     }

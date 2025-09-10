@@ -37,11 +37,6 @@ namespace se::ui::systems
 
             input::InputUtil::ProcessMouseEvents(entity, inputComp, [this, entity, &inputReceiver](const input::MouseEvent& mouseEvent)
             {
-                if (TryConsumeEvent(mouseEvent, inputReceiver))
-                {
-                    return true;
-                }
-
                 bool consumed = false;
                 auto declaration = ecs::HeirachyQueryDeclaration()
                         .WithComponent<components::MouseInputComponent>();
@@ -72,6 +67,14 @@ namespace se::ui::systems
 
                     return false;
                 });
+
+                if (!consumed)
+                {
+                    if (TryConsumeEvent(mouseEvent, inputReceiver))
+                    {
+                        return true;
+                    }
+                }
 
                 return consumed;
             });

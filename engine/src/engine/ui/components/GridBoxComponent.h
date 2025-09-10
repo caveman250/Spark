@@ -16,7 +16,6 @@ namespace se::ui::components
         SPARK_WIDGET_COMPONENT()
 
         int spacing = 0;
-        bool dirty = false;
     };
 }
 

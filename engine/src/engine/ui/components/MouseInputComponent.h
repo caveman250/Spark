@@ -20,10 +20,15 @@ namespace se::ui::components
         SPARK_MEMBER()
         int buttonMask = 0xFFFFFFFF;
 
+        std::function<bool()> buttonMaskCond = nullptr;
+
         SPARK_MEMBER()
         int stateMask = static_cast<int>(input::KeyState::Up) | static_cast<int>(input::KeyState::Down);
 
         SPARK_MEMBER()
         bool receivesScrollEvents = false;
+
+        SPARK_MEMBER()
+        bool isMouseDown = false;
     };
 }

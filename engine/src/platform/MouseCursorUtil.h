@@ -8,7 +8,9 @@ namespace se
     enum class MouseCursor
     {
         Arrow,
-        IBeam
+        IBeam,
+        ResizeLeftRight,
+        ResizeUpDown
     };
 
     class MouseCursorUtil

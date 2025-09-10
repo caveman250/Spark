@@ -37,6 +37,7 @@ namespace se::ui::util
         scrollViewTransform->overridesChildSizes = true;
         auto scrollViewMouseEventComp = world->AddComponent<components::MouseInputComponent>(scrollViewEntity);
         scrollViewMouseEventComp->receivesScrollEvents = true;
+        scrollViewMouseEventComp->buttonMask = 0;
 
         scrollBarEntity = world->CreateEntity("Scroll Bar", editorOnly);
         auto scrollBarImage = world->AddComponent<components::ImageComponent>(scrollBarEntity);
