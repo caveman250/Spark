@@ -26,8 +26,6 @@ namespace se::ui::systems
             const auto& rectTransform = transforms[i];
             auto& mouseEventComp = mouseEventComps[i];
 
-            titleBar.pressed &= mouseEventComp.hovered;
-
             mouseEventComp.enabled = std::abs(inputComp->mouseY - rectTransform.rect.topLeft.y) >= 5;
 
             for (const auto& event : mouseEventComp.mouseEvents)
