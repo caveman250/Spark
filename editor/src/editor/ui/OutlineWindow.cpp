@@ -1,16 +1,16 @@
 #include "OutlineWindow.h"
 
-#include <engine/ui/components/RectTransformComponent.h>
-#include <engine/ui/components/ScrollBoxComponent.h>
-#include <engine/ui/components/TextComponent.h>
-#include <engine/ui/components/TitleBarComponent.h>
-#include <engine/ui/components/TreeNodeComponent.h>
-#include <engine/ui/components/TreeViewComponent.h>
-#include <engine/ui/components/WindowComponent.h>
-#include <engine/ui/util/ScrollBoxUtil.h>
-#include <engine/ui/util/TreeViewUtil.h>
-#include <engine/ui/util/WindowUtil.h>
-
+#include "editor/EditorRuntime.h"
+#include "engine/ui/components/RectTransformComponent.h"
+#include "engine/ui/components/ScrollBoxComponent.h"
+#include "engine/ui/components/TextComponent.h"
+#include "engine/ui/components/TitleBarComponent.h"
+#include "engine/ui/components/TreeNodeComponent.h"
+#include "engine/ui/components/TreeViewComponent.h"
+#include "engine/ui/components/WindowComponent.h"
+#include "engine/ui/util/ScrollBoxUtil.h"
+#include "engine/ui/util/TreeViewUtil.h"
+#include "engine/ui/util/WindowUtil.h"
 #include "engine/Application.h"
 
 namespace se::editor::ui
@@ -50,7 +50,7 @@ namespace se::editor::ui
         m_TreeViewEntity = ::se::ui::util::CreateTreeView(&treeViewComp, &transformComp, true);
         world->AddChild(scrollViewEntity, m_TreeViewEntity);
         transformComp->anchors = { 0.f, 1.f, 0.f, 0.f };
-        transformComp->maxX = 5;
+        transformComp->maxX = 15;
         transformComp->minX = 5;
         transformComp->maxY = 5;
 
@@ -110,7 +110,7 @@ namespace se::editor::ui
             se::ui::util::InsertTreeNode(m_TreeViewEntity, treeView, singletonComponentsNode, singletonComponent->GetTypeName(), &treeNodeComp, &textComp, true);
             textComp->text = singletonComponent->GetTypeName();
 
-            std::function<void()> selectedCb = [singletonComponent, this]()
+            std::function<void()> selectedCb = [singletonComponent, this]
             {
                 m_Editor->SelectSingletonComponent(singletonComponent);
             };
