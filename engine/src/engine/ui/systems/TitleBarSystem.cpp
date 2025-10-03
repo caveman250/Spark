@@ -2,6 +2,8 @@
 
 #include "TitleBarSystem.h"
 #include "engine/profiling/Profiler.h"
+#include "engine/ui/components/RectTransformComponent.h"
+#include "engine/ui/components/MouseInputComponent.h"
 
 using namespace se;
 using namespace se::ecs::components;
@@ -14,13 +16,19 @@ namespace se::ui::systems
 
         const auto& entities = updateData.GetEntities();
         auto* titleBars = updateData.GetComponentArray<components::TitleBarComponent>();
-        const auto* mouseEventComps = updateData.GetComponentArray<const components::MouseInputComponent>();
+        const auto* transforms = updateData.GetComponentArray<const components::RectTransformComponent>();
+        auto* mouseEventComps = updateData.GetComponentArray<components::MouseInputComponent>();
         auto* inputComp = updateData.GetSingletonComponent<input::InputComponent>();
 
         for (size_t i = 0; i < entities.size(); ++i)
         {
             auto& titleBar = titleBars[i];
-            auto mouseEventComp = mouseEventComps[i];
+            const auto& rectTransform = transforms[i];
+            auto& mouseEventComp = mouseEventComps[i];
+
+            titleBar.pressed &= mouseEventComp.hovered;
+
+            mouseEventComp.enabled = std::abs(inputComp->mouseY - rectTransform.rect.topLeft.y) >= 5;
 
             for (const auto& event : mouseEventComp.mouseEvents)
             {

@@ -75,7 +75,7 @@ namespace se::ui::util
         titleBarTransform->anchors = { 0.f, 1.f, 0.f, 0.f };
         titleBarTransform->minX = 0;
         titleBarTransform->maxX = 0;
-        titleBarTransform->minY = 5 / Application::Get()->GetWindow()->GetContentScale();
+        titleBarTransform->minY = 0;
         titleBarTransform->maxY = 30;
         world->AddChild(entity, titleBarEntity);
 

@@ -35,6 +35,11 @@ namespace se::ui::systems
                 continue;
             }
 
+            if (!inputReceiver.enabled)
+            {
+                continue;
+            }
+
             input::InputUtil::ProcessMouseEvents(entity, inputComp, [this, entity, &inputReceiver](const input::MouseEvent& mouseEvent)
             {
                 bool consumed = false;
@@ -55,7 +60,7 @@ namespace se::ui::systems
                     {
                         auto& childInputReceiver = childInputComps[j];
 
-                        if (childInputReceiver.hovered)
+                        if (childInputReceiver.hovered && childInputReceiver.enabled)
                         {
                             if (TryConsumeEvent(mouseEvent, childInputReceiver))
                             {

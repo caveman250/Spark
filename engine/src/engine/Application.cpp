@@ -211,7 +211,8 @@ namespace se
 
         ecs::SystemDeclaration titleBarReg = ecs::SystemDeclaration("TitleBarSystem")
                 .WithComponent<ui::components::TitleBarComponent>()
-                .WithComponent<const ui::components::MouseInputComponent>()
+                .WithComponent<ui::components::MouseInputComponent>()
+                .WithComponent<const ui::components::RectTransformComponent>()
                 .WithSingletonComponent<input::InputComponent>()
                 .WithDependency(mouseInput);
         m_World.CreateEngineSystem<ui::systems::TitleBarSystem>(titleBarReg);

@@ -9,6 +9,9 @@ namespace se::ui::components
         SPARK_COMPONENT()
 
         SPARK_MEMBER()
+        bool enabled = true;
+
+        SPARK_MEMBER()
         std::vector<input::MouseEvent> mouseEvents = {};
 
         SPARK_MEMBER()
@@ -19,8 +22,6 @@ namespace se::ui::components
 
         SPARK_MEMBER()
         int buttonMask = 0xFFFFFFFF;
-
-        std::function<bool()> buttonMaskCond = nullptr;
 
         SPARK_MEMBER()
         int stateMask = static_cast<int>(input::KeyState::Up) | static_cast<int>(input::KeyState::Down);
