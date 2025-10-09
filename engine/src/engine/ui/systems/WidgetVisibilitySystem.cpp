@@ -8,6 +8,12 @@ using namespace se::ecs::components;
 
 namespace se::ui::systems
 {
+    ecs::SystemDeclaration WidgetVisibilitySystem::GetSystemDeclaration()
+    {
+        return ecs::SystemDeclaration("WidgetVisibilitySystem")
+                .WithComponent<components::WidgetComponent>();
+    }
+
     void WidgetVisibilitySystem::OnUpdate(const ecs::SystemUpdateData& updateData)
     {
         PROFILE_SCOPE("WidgetVisibilitySystem::OnUpdate")

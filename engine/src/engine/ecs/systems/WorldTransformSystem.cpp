@@ -4,6 +4,7 @@
 #include "engine/ecs/components/MeshComponent.h"
 #include "WorldTransformSystem.h"
 
+#include "RootTransformSystem.h"
 #include "engine/Application.h"
 #include "engine/ecs/components/TransformComponent.h"
 #include "engine/profiling/Profiler.h"
@@ -13,6 +14,14 @@ using namespace se::ecs::components;
 
 namespace se::ecs::systems
 {
+    SystemDeclaration WorldTransformSystem::GetSystemDeclaration()
+    {
+        return SystemDeclaration("WorldTransformSystem")
+                    .WithComponent<TransformComponent>()
+                    .WithComponent<ParentComponent>()
+                    .WithDependency<RootTransformSystem>();
+    }
+
     void WorldTransformSystem::OnUpdate(const SystemUpdateData& updateData)
     {
         PROFILE_SCOPE("WorldTransformSystem::OnUpdate")

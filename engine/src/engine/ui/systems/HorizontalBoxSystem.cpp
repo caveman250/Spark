@@ -1,17 +1,31 @@
 #include "spark.h"
 
 #include "HorizontalBoxSystem.h"
+
 #include "engine/profiling/Profiler.h"
-#include "engine/ui/DesiredSizeCalculator.h"
 #include "engine/ui/components/HorizontalBoxComponent.h"
 #include "engine/ui/components/RectTransformComponent.h"
 #include "engine/ui/util/RectTransformUtil.h"
+#include "Widgets.generated.h"
+#include "RectTransformSystem.h"
+#include "ScrollViewUpdateSystem.h"
 
 using namespace se;
 using namespace se::ecs::components;
 
 namespace se::ui::systems
 {
+    ecs::SystemDeclaration HorizontalBoxSystem::GetSystemDeclaration()
+    {
+        return ecs::SystemDeclaration("Horizontal Box System")
+                .WithComponent<ui::components::HorizontalBoxComponent>()
+                .WithComponent<ui::components::RectTransformComponent>()
+                .WithComponent<const ui::components::WidgetComponent>()
+                .WithDependency<RectTransformSystem>()
+                .WithDependency<ScrollViewUpdateSystem>()
+                .WithHeirachyQuerys<SPARK_WIDGET_TYPES_WITH_NULLTYPE>(ecs::ComponentMutability::Immutable);
+    }
+
     void HorizontalBoxSystem::OnUpdate(const ecs::SystemUpdateData& updateData)
     {
         PROFILE_SCOPE("HorizontalBoxSystem::OnUpdate")

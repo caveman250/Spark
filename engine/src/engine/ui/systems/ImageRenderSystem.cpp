@@ -9,6 +9,7 @@
 #include "engine/render/Renderer.h"
 #include "engine/render/VertexBuffer.h"
 #include "engine/ui/components/ImageComponent.h"
+#include "engine/ui/components/RectTransformComponent.h"
 #include "engine/ui/util/MeshUtil.h"
 #include "platform/IWindow.h"
 
@@ -17,6 +18,15 @@ using namespace se::ecs::components;
 
 namespace se::ui::systems
 {
+    ecs::SystemDeclaration ImageRenderSystem::GetSystemDeclaration()
+    {
+        return ecs::SystemDeclaration("Image Render System")
+                    .WithComponent<const components::RectTransformComponent>()
+                    .WithComponent<components::ImageComponent>()
+                    .WithComponent<const components::WidgetComponent>()
+                    .WithSingletonComponent<singleton_components::UIRenderComponent>();
+    }
+
     void ImageRenderSystem::OnRender(const ecs::SystemUpdateData& updateData)
     {
         PROFILE_SCOPE("ImageRenderSystem::OnRender")

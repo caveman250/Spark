@@ -1,7 +1,16 @@
 #include "TreeNodeSystem.h"
+#include "UIMouseInputSystem.h"
 
 namespace se::ui::systems
 {
+    ecs::SystemDeclaration TreeNodeSystem::GetSystemDeclaration()
+    {
+        return ecs::SystemDeclaration("Tree Node System")
+                    .WithComponent<components::TreeNodeComponent>()
+                    .WithComponent<components::MouseInputComponent>()
+                    .WithDependency<UIMouseInputSystem>();
+    }
+
     void TreeNodeSystem::OnUpdate(const ecs::SystemUpdateData& updateData)
     {
         const auto& entities = updateData.GetEntities();

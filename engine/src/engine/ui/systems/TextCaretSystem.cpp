@@ -11,6 +11,13 @@ using namespace se::ecs::components;
 
 namespace se::ui::systems
 {
+    ecs::SystemDeclaration TextCaretSystem::GetSystemDeclaration()
+    {
+        return ecs::SystemDeclaration("Text Caret System")
+                    .WithComponent<components::TextCaretComponent>()
+                    .WithComponent<components::WidgetComponent>();
+    }
+
     void TextCaretSystem::OnUpdate(const ecs::SystemUpdateData& updateData)
     {
         PROFILE_SCOPE("TextCaretSystem::OnUpdate")

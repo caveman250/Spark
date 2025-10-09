@@ -2,15 +2,28 @@
 
 #include <engine/ui/util/RectTransformUtil.h>
 
+#include "RectTransformSystem.h"
 #include "Widgets.generated.h"
 #include "engine/Application.h"
 #include "engine/profiling/Profiler.h"
+#include "engine/ui/systems/UIMouseInputSystem.h"
 
 using namespace se;
 using namespace se::ecs::components;
 
 namespace se::ui::systems
 {
+    ecs::SystemDeclaration ScrollViewUpdateSystem::GetSystemDeclaration()
+    {
+        return ecs::SystemDeclaration("ScrollViewUpdateSystem")
+                    .WithComponent<components::ScrollViewComponent>()
+                    .WithComponent<components::RectTransformComponent>()
+                    .WithComponent<const components::MouseInputComponent>()
+                    .WithDependency<UIMouseInputSystem>()
+                    .WithDependency<RectTransformSystem>()
+                    .WithHeirachyQuery<components::WidgetComponent>();
+    }
+
     void ScrollViewUpdateSystem::OnUpdate(const ecs::SystemUpdateData& updateData)
     {
         PROFILE_SCOPE("ScrollViewUpdateSystem::OnUpdate")

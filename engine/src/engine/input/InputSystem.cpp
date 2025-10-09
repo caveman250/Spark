@@ -4,6 +4,12 @@
 
 namespace se::input
 {
+    ecs::SystemDeclaration InputSystem::GetSystemDeclaration()
+    {
+        return ecs::SystemDeclaration("Input System")
+            .WithSingletonComponent<InputComponent>();
+    }
+
     void InputSystem::OnUpdate(const ecs::SystemUpdateData &updateData)
     {
         PROFILE_SCOPE("InputSystem::OnUpdate")

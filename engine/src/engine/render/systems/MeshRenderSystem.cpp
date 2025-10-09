@@ -14,6 +14,14 @@ using namespace se::ecs::components;
 
 namespace se::render::systems
 {
+    ecs::SystemDeclaration MeshRenderSystem::GetSystemDeclaration()
+    {
+        return ecs::SystemDeclaration("MeshRenderSystem")
+                    .WithComponent<const TransformComponent>()
+                    .WithComponent<const MeshComponent>()
+                    .WithSingletonComponent<const camera::ActiveCameraComponent>();
+    }
+
     void MeshRenderSystem::OnUpdate(const ecs::SystemUpdateData& updateData)
     {
         const auto& entities = updateData.GetEntities();

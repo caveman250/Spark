@@ -5,12 +5,26 @@
 #include "engine/ui/DesiredSizeCalculator.h"
 #include "engine/ui/components/RectTransformComponent.h"
 #include "engine/ui/util/RectTransformUtil.h"
+#include "engine/ui/systems/RectTransformSystem.h"
+#include "engine/ui/systems/ScrollViewUpdateSystem.h"
+#include "Widgets.generated.h"
 
 using namespace se;
 using namespace se::ecs::components;
 
 namespace se::ui::systems
 {
+    ecs::SystemDeclaration VerticalBoxSystem::GetSystemDeclaration()
+    {
+        return ecs::SystemDeclaration("Vertical Box System")
+                    .WithComponent<ui::components::VerticalBoxComponent>()
+                    .WithComponent<ui::components::RectTransformComponent>()
+                    .WithComponent<const ui::components::WidgetComponent>()
+                    .WithDependency<RectTransformSystem>()
+                    .WithDependency<ScrollViewUpdateSystem>()
+                    .WithHeirachyQuerys<SPARK_WIDGET_TYPES_WITH_NULLTYPE>(ecs::ComponentMutability::Immutable);
+    }
+
     void VerticalBoxSystem::OnUpdate(const ecs::SystemUpdateData& updateData)
     {
         PROFILE_SCOPE("VerticalBoxSystem::OnUpdate")

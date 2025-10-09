@@ -14,6 +14,7 @@ namespace se::ui::systems
     {
         SPARK_SYSTEM()
 
+        static ecs::SystemDeclaration GetSystemDeclaration();
         void OnUpdate(const ecs::SystemUpdateData& updateData) override;
     private:
         int MeasureAndArrange(const ecs::Id& entity,  bool collapsed, int startY);

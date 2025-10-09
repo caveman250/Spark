@@ -11,6 +11,7 @@
 #include "engine/profiling/Profiler.h"
 #include "engine/string/String.h"
 #include "engine/ecs/components/ParentComponent.h"
+#include "SystemUtil.h"
 #include "ecs_fwd.h"
 
 #if SPARK_EDITOR
@@ -29,20 +30,10 @@ namespace se::ecs
 }
 
 template<class C>
-concept EngineSystemConcept = requires(C c)
-{
-    []<typename... Cs>(se::ecs::EngineSystem&)
-    {
-    }(c);
-};
+concept EngineSystemConcept = std::is_base_of_v<se::ecs::EngineSystem, C>;
 
 template<class C>
-concept AppSystemConcept = requires(C c)
-{
-    []<typename... Cs>(se::ecs::AppSystem&)
-    {
-    }(c);
-};
+concept AppSystemConcept = std::is_base_of_v<se::ecs::AppSystem, C>;
 
 template<class Alloc>
 struct std::hash<std::vector<se::ecs::Id, Alloc>>
@@ -144,12 +135,15 @@ namespace se::ecs
 
         std::vector<reflect::ObjectBase*> GetSingletonComponents() const;
 
+        template<typename T>
+        void RegisterSystem();
+
         template<AppSystemConcept T>
-        Id CreateAppSystem(const SystemDeclaration& reg_info);
+        void CreateAppSystem();
         void DestroyAppSystem(const Id& id);
 
         template<EngineSystemConcept T>
-        Id CreateEngineSystem(const SystemDeclaration& reg_info);
+        void CreateEngineSystem();
         void DestroyEngineSystem(const Id& id);
 
         template<typename T>
@@ -253,13 +247,11 @@ namespace se::ecs
                                      const Id& comp);
 
         uint64_t NewSystem();
-        uint64_t RecycleSystem();
 
         static void CreateSystemInternal(std::unordered_map<Id, SystemRecord>& systemMap,
                                          const Id& system,
                                          const SystemDeclaration& pendingSystem);
         static void DestroySystemInternal(std::unordered_map<Id, SystemRecord>& systemMap,
-                                          std::vector<Id>& freeSystems,
                                           const Id& system);
 
         Id NewObserver();
@@ -293,8 +285,7 @@ namespace se::ecs
         static void ProcessPendingSystems(std::vector<std::pair<Id, SystemDeclaration>>& pendingCreations,
                                           std::vector<Id>& pendingDeletions,
                                           std::unordered_map<Id, SystemRecord>& systemRecords,
-                                          std::vector<std::vector<Id>>& systemUpdateGroups,
-                                          std::vector<Id>& freeSystems);
+                                          std::vector<std::vector<Id>>& systemUpdateGroups);
         static void RebuildSystemUpdateGroups(std::vector<std::vector<Id>>& updateGroups,
                                               std::unordered_map<Id, SystemRecord>& systems);
         void ProcessPendingAppSystems();
@@ -320,9 +311,7 @@ namespace se::ecs
         bool m_EntitiesChangedThisFrame = false;
 #endif
         std::vector<uint32_t> m_FreeEntities = { };
-        // TODO name counter collisions with entities
         uint64_t m_SystemCounter = 1;
-        std::vector<Id> m_FreeSystems = { };
         uint64_t m_ArchetypeCounter = 0;
         uint64_t m_ObserverCounter = 1;
         std::vector<Id> m_FreeObservers = { };
@@ -702,50 +691,43 @@ namespace se::ecs
         m_PendingComponentDeletions.push_back(std::make_pair(entity, T::GetComponentId()));
     }
 
-    template<EngineSystemConcept T>
-    Id World::CreateEngineSystem(const SystemDeclaration& reg_info)
-    {
-        auto guard = MaybeLockGuard(m_UpdateMode, &m_SystemMutex);
-        uint64_t system;
-        if (!m_FreeSystems.empty())
-        {
-            system = RecycleSystem();
-        }
-        else
-        {
-            system = NewSystem();
-        }
-        m_IdMetaMap[system] = { reg_info.name, 0 };
-        m_PendingEngineSystemCreations.push_back({ system, reg_info });
-        if (SPARK_VERIFY(!m_EngineSystems.contains(system)))
-        {
-            m_EngineSystems.insert(std::make_pair(system, SystemRecord { reflect::ClassResolver<T>::get(), nullptr }));
-        }
 
-        return system;
+
+    template<EngineSystemConcept T>
+    void World::CreateEngineSystem()
+    {
+        SystemDeclaration systemReg = T::GetSystemDeclaration();
+        auto guard = MaybeLockGuard(m_UpdateMode, &m_SystemMutex);
+        m_PendingEngineSystemCreations.push_back({ T::GetSystemId(), systemReg });
+        if (SPARK_VERIFY(!m_EngineSystems.contains(T::GetSystemId())))
+        {
+            m_EngineSystems.insert(std::make_pair(T::GetSystemId(), SystemRecord { reflect::ClassResolver<T>::get(), nullptr }));
+        }
+    }
+
+    template<typename T>
+    void World::RegisterSystem()
+    {
+        if (T::s_SystemId == static_cast<uint64_t>(0))
+        {
+            uint64_t id = NewSystem();
+            reflect::Type* type = reflect::TypeResolver<T>::get();
+            m_IdMetaMap[id].name = type->name;
+
+            T::s_SystemId = id;
+        }
     }
 
     template<AppSystemConcept T>
-    Id World::CreateAppSystem(const SystemDeclaration& reg_info)
+    void World::CreateAppSystem()
     {
+        SystemDeclaration systemReg = T::GetSystemDeclaration();
         auto guard = MaybeLockGuard(m_UpdateMode, &m_SystemMutex);
-        Id system;
-        if (!m_FreeSystems.empty())
+        m_PendingAppSystemCreations.push_back({ T::GetSystemId(), systemReg });
+        if (SPARK_VERIFY(!m_AppSystems.contains(T::GetSystemId())))
         {
-            system = RecycleSystem();
+            m_AppSystems.insert(std::make_pair(T::GetSystemId(), SystemRecord { reflect::ClassResolver<T>::get(), nullptr }));
         }
-        else
-        {
-            system = NewSystem();
-        }
-        m_IdMetaMap[system] = { reg_info.name, 0 };
-        m_PendingAppSystemCreations.push_back({ system, reg_info });
-        if (SPARK_VERIFY(!m_AppSystems.contains(system)))
-        {
-            m_AppSystems.insert(std::make_pair(system, SystemRecord { reflect::ClassResolver<T>::get(), nullptr }));
-        }
-
-        return system;
     }
 
     template<typename T>

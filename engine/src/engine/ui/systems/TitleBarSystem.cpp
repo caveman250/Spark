@@ -4,12 +4,23 @@
 #include "engine/profiling/Profiler.h"
 #include "engine/ui/components/RectTransformComponent.h"
 #include "engine/ui/components/MouseInputComponent.h"
+#include "engine/ui/systems/UIMouseInputSystem.h"
 
 using namespace se;
 using namespace se::ecs::components;
 
 namespace se::ui::systems
 {
+    ecs::SystemDeclaration TitleBarSystem::GetSystemDeclaration()
+    {
+        return ecs::SystemDeclaration("TitleBarSystem")
+                    .WithComponent<components::TitleBarComponent>()
+                    .WithComponent<components::MouseInputComponent>()
+                    .WithComponent<const components::RectTransformComponent>()
+                    .WithSingletonComponent<input::InputComponent>()
+                    .WithDependency<UIMouseInputSystem>();
+    }
+
     void TitleBarSystem::OnUpdate(const ecs::SystemUpdateData& updateData)
     {
         PROFILE_SCOPE("TitleBarSystem::OnUpdate")

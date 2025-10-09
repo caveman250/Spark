@@ -1,18 +1,36 @@
 #include "EditableTextSystem.h"
 
+#include "UIKeyboardInputSystem.h"
 #include "engine/input/InputComponent.h"
 #include "engine/render/Renderer.h"
 #include "engine/ui/components/KeyInputComponent.h"
 #include "engine/ui/components/MouseInputComponent.h"
 #include "engine/ui/components/WidgetComponent.h"
+#include "engine/ui/components/TextCaretComponent.h"
 #include "engine/ui/singleton_components/UIRenderComponent.h"
 #include "engine/ui/util/EditableTextUtil.h"
 #include "engine/ui/util/TextUtil.h"
 #include "platform/IWindow.h"
 #include "platform/MouseCursorUtil.h"
+#include "UIMouseInputSystem.h"
 
 namespace se::ui::systems
 {
+    ecs::SystemDeclaration EditableTextSystem::GetSystemDeclaration()
+    {
+        return ecs::SystemDeclaration("Editable Text System")
+                    .WithComponent<const components::RectTransformComponent>()
+                    .WithComponent<components::EditableTextComponent>()
+                    .WithComponent<components::WidgetComponent>()
+                    .WithComponent<const components::MouseInputComponent>()
+                    .WithComponent<components::KeyInputComponent>()
+                    .WithSingletonComponent<singleton_components::UIRenderComponent>()
+                    .WithSingletonComponent<const input::InputComponent>()
+                    .WithHeirachyQuery<components::TextCaretComponent>()
+                    .WithDependency<UIMouseInputSystem>()
+                    .WithDependency<UIKeyboardInputSystem>();
+    }
+
     void EditableTextSystem::HandleKey(const ecs::Id& entity,
                                        components::EditableTextComponent& text,
                                        components::KeyInputComponent& keyInput,

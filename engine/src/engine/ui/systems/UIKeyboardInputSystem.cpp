@@ -2,14 +2,27 @@
 
 #include "UIKeyboardInputSystem.h"
 
+#include "ResetKeyInputSystem.h"
 #include "engine/input/InputUtil.h"
 #include "engine/profiling/Profiler.h"
+#include "engine/ui/components/RectTransformComponent.h"
+#include "engine/input/InputComponent.h"
 
 using namespace se;
 using namespace se::ecs::components;
 
 namespace se::ui::systems
 {
+    ecs::SystemDeclaration UIKeyboardInputSystem::GetSystemDeclaration()
+    {
+        return ecs::SystemDeclaration("UIKeyboardInputSystem")
+                    .WithComponent<const components::RectTransformComponent>()
+                    .WithComponent<const RootComponent>()
+                    .WithComponent<components::KeyInputComponent>()
+                    .WithSingletonComponent<input::InputComponent>()
+                    .WithDependency<ResetKeyInputSystem>();
+    }
+
     void UIKeyboardInputSystem::OnUpdate(const ecs::SystemUpdateData& updateData)
     {
         PROFILE_SCOPE("UIKeyboardInputSystem::OnUpdate")

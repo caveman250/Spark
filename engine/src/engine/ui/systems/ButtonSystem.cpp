@@ -1,6 +1,7 @@
 #include "ButtonSystem.h"
 
 #include "spark.h"
+#include "UIMouseInputSystem.h"
 #include "engine/Application.h"
 #include "engine/profiling/Profiler.h"
 #include "engine/render/MaterialInstance.h"
@@ -12,6 +13,15 @@ using namespace se::ecs::components;
 
 namespace se::ui::systems
 {
+    ecs::SystemDeclaration ButtonSystem::GetSystemDeclaration()
+    {
+        return ecs::SystemDeclaration("Button System")
+                    .WithComponent<components::ButtonComponent>()
+                    .WithComponent<components::ImageComponent>()
+                    .WithComponent<const ui::components::MouseInputComponent>()
+                    .WithDependency<UIMouseInputSystem>();
+    }
+
     void ButtonSystem::OnUpdate(const ecs::SystemUpdateData& updateData)
     {
         PROFILE_SCOPE("ButtonSystem::OnUpdate")

@@ -9,6 +9,8 @@ namespace se::input
     {
         SPARK_SYSTEM()
 
+        static ecs::SystemDeclaration GetSystemDeclaration();
+
         void OnUpdate(const ecs::SystemUpdateData &updateData) override;
     };
 }

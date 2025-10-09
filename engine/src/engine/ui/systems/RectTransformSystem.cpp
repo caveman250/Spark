@@ -5,6 +5,7 @@
 
 #include <engine/ui/util/RectTransformUtil.h>
 
+#include "RootRectTransformSystem.h"
 #include "engine/Application.h"
 #include "engine/profiling/Profiler.h"
 
@@ -13,6 +14,13 @@ using namespace se::ecs::components;
 
 namespace se::ui::systems
 {
+    ecs::SystemDeclaration RectTransformSystem::GetSystemDeclaration()
+    {
+        return ecs::SystemDeclaration("RectTransformSystem")
+                    .WithComponent<ui::components::RectTransformComponent>()
+                    .WithDependency<RootRectTransformSystem>();
+    }
+
     void RectTransformSystem::OnUpdate(const ecs::SystemUpdateData& updateData)
     {
         PROFILE_SCOPE("RectTransformSystem::OnUpdate")

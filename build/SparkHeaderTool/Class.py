@@ -588,24 +588,18 @@ def DefineComponentBegin(class_name):
     return f"    " + DefineNonPODType(class_name) + f"    se::ecs::Id {class_name}::s_ComponentId = {{}};\n" + DefineClassBeginCommon(class_name, False)
 
 def DefineSystem(class_name):
-    return DefineClassBegin(class_name) + DefineClassEnd(class_name)
+    return f"    " + DefineNonPODType(class_name) + f"    se::ecs::Id {class_name}::s_SystemId = {{}};\n" + DefineClassBeginCommon(class_name, False) + DefineClassEnd(class_name)
 
 def DefineMember(class_name, name, serialized):
     bool_val = "true" if serialized else "false"
     return f"            {{\"{name}\", se::reflect::TypeResolver<decltype({class_name}::{name})>::get(), [](const void* obj){{ return (void*)&(({class_name}*)obj)->{name}; }},{bool_val}}},\n"
 
-def WriteClassFiles(classes, base_class_map, template_instantiations):
-    output_dir = "../../engine/src/generated/"
-
-    source_dirs = set()
-    for full_name, class_obj in classes.items():
-        source_dirs.add(class_obj.project_src_dir)
-
+def CreateClassInstantiationFiles(source_dirs, classes, template_instantiations):
     for src_dir in source_dirs:
         if not os.path.exists(src_dir):
             os.mkdir(src_dir)
         project_name = src_dir.split('/')[-4]
-        init_members_h_content = f"namespace se\n{{\nvoid {project_name}_InitClassReflection();\n}}"
+        init_members_h_content = f"#pragma once\nnamespace se\n{{\nvoid {project_name}_InitClassReflection();\n}}"
         output_path = src_dir + "Classes.generated.h"
         existing_contents = ""
         if os.path.isfile(output_path):
@@ -643,6 +637,61 @@ def WriteClassFiles(classes, base_class_map, template_instantiations):
             output_handle = open(output_path, "w+")
             output_handle.write(init_members_cpp_content)
             output_handle.close()
+
+def CreateSystemInstantiationFiles(source_dirs, classes):
+    for src_dir in source_dirs:
+        if not os.path.exists(src_dir):
+            os.mkdir(src_dir)
+        project_name = src_dir.split('/')[-4]
+        init_members_h_content = f"#pragma once\nnamespace se\n{{\nvoid {project_name}_InitSystems(ecs::World* world);\n}}"
+        output_path = src_dir + "Systems.generated.h"
+        existing_contents = ""
+        if os.path.isfile(output_path):
+            input_handle = open(output_path, "r")
+            existing_contents = input_handle.read()
+            input_handle.close()
+        if existing_contents != init_members_h_content:
+            print(f"-- -- {src_dir}Systems.generated.h generating...")
+            output_handle = open(output_path, "w+")
+            output_handle.write(init_members_h_content)
+            output_handle.close()
+
+        init_systems_cpp_content = "#include \"spark.h\"\n"
+        for full_name, class_obj in classes.items():
+            if class_obj.is_reflected and class_obj.project_src_dir == src_dir and class_obj.type == ClassType.SYSTEM:
+                init_systems_cpp_content += f"#include \"{class_obj.path}\"\n"
+        init_systems_cpp_content += f"\nnamespace se\n{{\nvoid {project_name}_InitSystems([[maybe_unused]]ecs::World* world)\n{{\n"
+        for full_name, class_obj in classes.items():
+            if class_obj.is_reflected and not class_obj.is_template and class_obj.project_src_dir == src_dir and class_obj.type == ClassType.SYSTEM:
+                init_systems_cpp_content += f"    world->RegisterSystem<{full_name}>();\n"
+        for full_name, class_obj in classes.items():
+            if class_obj.is_reflected and not class_obj.is_template and class_obj.project_src_dir == src_dir and class_obj.type == ClassType.SYSTEM:
+                if src_dir.endswith("engine/src/generated/"):
+                    create_system_method = "CreateEngineSystem"
+                else:
+                    create_system_method = "CreateAppSystem"
+                init_systems_cpp_content += f"    world->{create_system_method}<{full_name}>();\n"
+        init_systems_cpp_content += "}\n}"
+
+        output_path = src_dir + "Systems.generated.cpp"
+        existing_contents = ""
+        if os.path.isfile(output_path):
+            input_handle = open(output_path, "r")
+            existing_contents = input_handle.read()
+            input_handle.close()
+        if existing_contents != init_systems_cpp_content:
+            print(f"-- -- {src_dir}Systems.generated.cpp generating...")
+            output_handle = open(output_path, "w+")
+            output_handle.write(init_systems_cpp_content)
+            output_handle.close()
+
+def WriteClassFiles(classes, base_class_map, template_instantiations):
+    source_dirs = set()
+    for full_name, class_obj in classes.items():
+        source_dirs.add(class_obj.project_src_dir)
+
+    CreateClassInstantiationFiles(source_dirs, classes, template_instantiations)
+    CreateSystemInstantiationFiles(source_dirs, classes)
 
     for full_name, classobj in classes.items():
         if classobj.is_reflected and not classobj.is_template:

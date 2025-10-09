@@ -6,12 +6,25 @@
 #include "engine/ui/components/RectTransformComponent.h"
 #include "engine/ui/util/GridBoxUtil.h"
 #include "Widgets.generated.h"
+#include "RectTransformSystem.h"
+#include "ScrollViewUpdateSystem.h"
 
 using namespace se;
 using namespace se::ecs::components;
 
 namespace se::ui::systems
 {
+    ecs::SystemDeclaration GridBoxSystem::GetSystemDeclaration()
+    {
+        return ecs::SystemDeclaration("Grid Box System")
+                    .WithComponent<components::GridBoxComponent>()
+                    .WithComponent<components::RectTransformComponent>()
+                    .WithHeirachyQuery<const components::WidgetComponent>()
+                    .WithDependency<RectTransformSystem>()
+                    .WithDependency<ScrollViewUpdateSystem>()
+                    .WithHeirachyQuerys<SPARK_WIDGET_TYPES_WITH_NULLTYPE>(ecs::ComponentMutability::Immutable);
+    }
+
     void GridBoxSystem::OnUpdate(const ecs::SystemUpdateData& updateData)
     {
         PROFILE_SCOPE("GridBoxSystem::OnUpdate")

@@ -1,11 +1,25 @@
 #include "TreeViewSystem.h"
 
+#include "RectTransformSystem.h"
+#include "TreeNodeSystem.h"
 #include "engine/ui/components/TreeNodeComponent.h"
 #include "engine/ui/components/RectTransformComponent.h"
 
 namespace se::ui::systems
 {
     constexpr int s_Padding = 2;
+
+    ecs::SystemDeclaration TreeViewSystem::GetSystemDeclaration()
+    {
+        return ecs::SystemDeclaration("TreeViewSystem")
+                    .WithComponent<components::TreeViewComponent>()
+                    .WithComponent<components::RectTransformComponent>()
+                    .WithDependency<RectTransformSystem>()
+                    .WithDependency<TreeNodeSystem>()
+                    .WithHeirachyQuery<const components::TreeNodeComponent>()
+                    .WithHeirachyQuery<components::RectTransformComponent>()
+                    .WithHeirachyQuery<components::WidgetComponent>();
+    }
 
     void TreeViewSystem::OnUpdate(const ecs::SystemUpdateData& updateData)
     {

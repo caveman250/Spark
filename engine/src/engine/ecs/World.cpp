@@ -1,8 +1,8 @@
 #include "World.h"
 
-#include <engine/container_util/MapUtil.h>
+#include "engine/container_util/MapUtil.h"
 
-#include "Signal.h"
+#include "engine/ecs/Signal.h"
 #include "components/ParentComponent.h"
 #include "components/RootComponent.h"
 #include "engine/reflect/Reflect.h"
@@ -550,27 +550,6 @@ namespace se::ecs
     {
         updateGroups.clear();
 
-        std::vector<std::pair<Id, SystemRecord>> sortedSystemRecords = {};
-        std::ranges::for_each(systems, [&sortedSystemRecords](const std::pair<Id, SystemRecord>& kvp)
-        {
-            sortedSystemRecords.push_back(kvp);
-        });
-        std::ranges::sort(sortedSystemRecords,
-                          [](const std::pair<Id, SystemRecord>& a, const std::pair<Id, SystemRecord>& b)
-                          {
-                              bool aDependsOnB = a.second.instance->DependsOn(b.first);
-                              bool bDependsOnA = b.second.instance->DependsOn(a.first);
-                              SPARK_ASSERT((!aDependsOnB && !bDependsOnA) || aDependsOnB != bDependsOnA);
-                              if (aDependsOnB || bDependsOnA)
-                              {
-                                  return !aDependsOnB || bDependsOnA;
-                              }
-                              else
-                              {
-                                  return a.first < b.first;
-                              }
-                          });
-
         std::unordered_map<Id, std::map<Id, ComponentMutability>> usedComponents;
         std::unordered_map<Id, size_t> updateGroupLookup;
         for (const auto& [id, systemRecord]: systems)
@@ -590,9 +569,12 @@ namespace se::ecs
             }
         }
 
-        for (const auto& [id, systemRecord]: sortedSystemRecords)
+        SystemSorter sorter = {};
+        auto sortedSystems = sorter.Sort(systems);
+
+        for (const auto& [id, record] : sortedSystems)
         {
-            if (systemRecord.instance)
+            if (record.instance)
             {
                 bool systemAdded = false;
                 for (size_t i = 0; i < updateGroups.size(); ++i)
@@ -600,7 +582,7 @@ namespace se::ecs
                     auto& updateGroup = updateGroups[i];
 
                     bool blockedOnDependency = false;
-                    for (Id dependency: systemRecord.instance->GetDeclaration().dependencies)
+                    for (Id dependency: record.instance->GetDeclaration().dependencies)
                     {
                         if (SPARK_VERIFY(updateGroupLookup.contains(dependency), "Dependency has not been assigned an update group!")
                             && updateGroupLookup[dependency] >= i)
@@ -919,8 +901,7 @@ namespace se::ecs
     void World::ProcessPendingSystems(std::vector<std::pair<Id, SystemDeclaration>>& pendingCreations,
                                       std::vector<Id>& pendingDeletions,
                                       std::unordered_map<Id, SystemRecord>& systemRecords,
-                                      std::vector<std::vector<Id>>& systemUpdateGroups,
-                                      std::vector<Id>& freeSystems)
+                                      std::vector<std::vector<Id>>& systemUpdateGroups)
     {
         bool shouldRebuildUpdateGroups = !pendingCreations.empty() || !pendingDeletions.empty(); {
             auto safeCopy = pendingCreations;
@@ -936,7 +917,7 @@ namespace se::ecs
             for (Id system: safeCopy)
             {
                 systemRecords.at(system).instance->Shutdown();
-                DestroySystemInternal(systemRecords, freeSystems, system);
+                DestroySystemInternal(systemRecords, system);
             }
         }
 
@@ -949,13 +930,13 @@ namespace se::ecs
     void World::ProcessPendingAppSystems()
     {
         ProcessPendingSystems(m_PendingAppSystemCreations, m_PendingAppSystemDeletions, m_AppSystems,
-                              m_AppSystemUpdateGroups, m_FreeSystems);
+                              m_AppSystemUpdateGroups);
     }
 
     void World::ProcessPendingEngineSystems()
     {
         ProcessPendingSystems(m_PendingEngineSystemCreations, m_PendingEngineSystemDeletions, m_EngineSystems,
-                              m_EngineSystemUpdateGroups, m_FreeSystems);
+                              m_EngineSystemUpdateGroups);
     }
 
     void World::CreateSystemInternal(std::unordered_map<Id, SystemRecord>& systemMap,
@@ -971,7 +952,6 @@ namespace se::ecs
     }
 
     void World::DestroySystemInternal(std::unordered_map<Id, SystemRecord>& systemMap,
-                                      std::vector<Id>& freeSystems,
                                       const Id& system)
     {
         if (SPARK_VERIFY(systemMap.contains(system)))
@@ -979,7 +959,6 @@ namespace se::ecs
             auto& systemRecord = systemMap.at(system);
             delete systemRecord.instance;
             systemMap.erase(system);
-            freeSystems.push_back(system);
         }
     }
 
@@ -1041,14 +1020,6 @@ namespace se::ecs
     uint64_t World::NewSystem()
     {
         return m_SystemCounter++;
-    }
-
-    uint64_t World::RecycleSystem()
-    {
-        const auto id = m_FreeSystems.back();
-        m_FreeSystems.pop_back();
-
-        return id;
     }
 
     void World::ProcessPendingEntityDeletions()

@@ -23,7 +23,6 @@ namespace se
         virtual void Init();
         virtual void CreateInitialSingletonComponents();
         virtual void CreateInitialObservers();
-        virtual void CreateInitialSystems();
         virtual void Shutdown();
 
         IWindow* GetWindow() const { return m_PrimaryWindow; }

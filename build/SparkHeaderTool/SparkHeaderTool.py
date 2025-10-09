@@ -8,7 +8,6 @@ import Class
 import Enum
 import Log
 
-
 def ProcessHeaders():
     components = []
     widgets = []

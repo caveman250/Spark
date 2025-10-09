@@ -3,9 +3,19 @@
 #include "engine/asset/AssetManager.h"
 #include "engine/debug/components/FPSCounterComponent.h"
 #include "engine/ui/components/TextComponent.h"
+#include "engine/ui/systems/RectTransformSystem.h"
 
 namespace se::debug::systems
 {
+    ecs::SystemDeclaration FPSCounterSystem::GetSystemDeclaration()
+    {
+        // TODO INSTANTIATE IN DIST ONLY
+        return ecs::SystemDeclaration("FPS Counter System")
+                    .WithComponent<ui::components::TextComponent>()
+                    .WithComponent<components::FPSCounterComponent>()
+                    .WithDependency<ui::systems::RectTransformSystem>();
+    }
+
     void FPSCounterSystem::OnInit(const ecs::SystemUpdateData&)
     {
         auto world = Application::Get()->GetWorld();

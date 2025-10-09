@@ -1,4 +1,10 @@
 #include "UIRenderSystem.h"
+
+#include "CollapsingHeaderSystem.h"
+#include "EditableTextSystem.h"
+#include "ImageRenderSystem.h"
+#include "ScrollBoxRenderSystem.h"
+#include "TextRenderSystem.h"
 #include "engine/render/Renderer.h"
 
 namespace se::ui::systems
@@ -63,6 +69,19 @@ namespace se::ui::systems
 
             renderComp->entityPostRenderCommands.at(id).clear();
         }
+    }
+
+    ecs::SystemDeclaration UIRenderSystem::GetSystemDeclaration()
+    {
+        return ecs::SystemDeclaration("UI Render System")
+                    .WithComponent<const RootComponent>()
+                    .WithComponent<const components::WidgetComponent>()
+                    .WithSingletonComponent<singleton_components::UIRenderComponent>()
+                    .WithDependency<ImageRenderSystem>()
+                    .WithDependency<TextRenderSystem>()
+                    .WithDependency<EditableTextSystem>()
+                    .WithDependency<ScrollBoxRenderSystem>()
+                    .WithDependency<CollapsingHeaderSystem>();
     }
 
     void UIRenderSystem::OnRender(const ecs::SystemUpdateData& updateData)

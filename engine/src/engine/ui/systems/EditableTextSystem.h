@@ -14,6 +14,8 @@ namespace se::ui::systems
     {
         SPARK_SYSTEM()
 
+        static ecs::SystemDeclaration GetSystemDeclaration();
+
         void OnUpdate(const ecs::SystemUpdateData&) override;
         void OnRender(const ecs::SystemUpdateData&) override;
 

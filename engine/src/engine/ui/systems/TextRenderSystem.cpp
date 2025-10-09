@@ -13,6 +13,15 @@ using namespace se::ecs::components;
 
 namespace se::ui::systems
 {
+    ecs::SystemDeclaration TextRenderSystem::GetSystemDeclaration()
+    {
+        return ecs::SystemDeclaration("Text Render System")
+                    .WithComponent<const components::RectTransformComponent>()
+                    .WithComponent<components::TextComponent>()
+                    .WithComponent<const components::WidgetComponent>()
+                    .WithSingletonComponent<singleton_components::UIRenderComponent>();
+    }
+
     void TextRenderSystem::OnRender(const ecs::SystemUpdateData& updateData)
     {
         PROFILE_SCOPE("TextRenderSystem::OnRender")

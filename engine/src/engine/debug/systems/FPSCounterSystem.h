@@ -7,6 +7,7 @@ namespace se::debug::systems
     {
         SPARK_SYSTEM()
 
+        static ecs::SystemDeclaration GetSystemDeclaration();
         void OnInit(const ecs::SystemUpdateData&) override;
         void OnUpdate(const ecs::SystemUpdateData&) override;
     };

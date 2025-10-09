@@ -13,6 +13,13 @@ using namespace se::ecs::components;
 
 namespace se::ecs::systems
 {
+    SystemDeclaration RootTransformSystem::GetSystemDeclaration()
+    {
+        return ecs::SystemDeclaration("RootTransformSystem")
+                .WithComponent<TransformComponent>()
+                .WithComponent<const RootComponent>();
+    }
+
     void RootTransformSystem::OnUpdate(const SystemUpdateData& updateData)
     {
         PROFILE_SCOPE("RootTransformSystem::OnUpdate")

@@ -2,6 +2,7 @@
 
 #include "UIMouseInputSystem.h"
 
+#include "ResetMouseInputSystem.h"
 #include "engine/input/InputUtil.h"
 #include "engine/profiling/Profiler.h"
 
@@ -10,6 +11,15 @@ using namespace se::ecs::components;
 
 namespace se::ui::systems
 {
+    ecs::SystemDeclaration UIMouseInputSystem::GetSystemDeclaration()
+    {
+        return ecs::SystemDeclaration("UIMouseInputSystem")
+                    .WithComponent<const RootComponent>()
+                    .WithComponent<components::MouseInputComponent>()
+                    .WithSingletonComponent<input::InputComponent>()
+                    .WithDependency<ResetMouseInputSystem>();
+    }
+
     void UIMouseInputSystem::OnUpdate(const ecs::SystemUpdateData& updateData)
     {
         PROFILE_SCOPE("UIMouseInputSystem::OnUpdate")
@@ -77,7 +87,7 @@ namespace se::ui::systems
                 {
                     if (TryConsumeEvent(mouseEvent, inputReceiver))
                     {
-                        return true;
+                        return !entity.HasFlag(ecs::IdFlags::Editor);
                     }
                 }
 

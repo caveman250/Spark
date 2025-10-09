@@ -1,8 +1,10 @@
 #include "WindowSystem.h"
 #include "spark.h"
+#include "UIMouseInputSystem.h"
 #include "engine/Application.h"
 #include "engine/profiling/Profiler.h"
 #include "engine/ui/components/MouseInputComponent.h"
+#include "engine/ui/components/RectTransformComponent.h"
 #include "engine/ui/components/WindowComponent.h"
 #include "platform/IWindow.h"
 #include "platform/MouseCursorUtil.h"
@@ -12,6 +14,16 @@ using namespace se::ecs::components;
 
 namespace se::ui::systems
 {
+    ecs::SystemDeclaration WindowSystem::GetSystemDeclaration()
+    {
+        return ecs::SystemDeclaration("Window System")
+                    .WithComponent<components::WindowComponent>()
+                    .WithComponent<components::RectTransformComponent>()
+                    .WithComponent<const components::MouseInputComponent>()
+                    .WithSingletonComponent<const input::InputComponent>()
+                    .WithDependency<UIMouseInputSystem>();
+    }
+
     void WindowSystem::OnUpdate(const ecs::SystemUpdateData& updateData)
     {
         PROFILE_SCOPE("WindowSystem::OnUpdate")

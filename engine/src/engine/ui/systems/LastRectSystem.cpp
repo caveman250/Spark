@@ -14,6 +14,12 @@ using namespace se::ecs::components;
 
 namespace se::ui::systems
 {
+    ecs::SystemDeclaration LastRectSystem::GetSystemDeclaration()
+    {
+        return ecs::SystemDeclaration("LastRectSystem")
+                    .WithComponent<ui::components::RectTransformComponent>();
+    }
+
     void LastRectSystem::OnUpdate(const ecs::SystemUpdateData& updateData)
     {
         PROFILE_SCOPE("LastRectSystem::OnUpdate")

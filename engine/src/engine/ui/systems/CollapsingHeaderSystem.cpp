@@ -1,10 +1,13 @@
 #include "spark.h"
 #include "CollapsingHeaderSystem.h"
+
+#include "RectTransformSystem.h"
 #include "engine/Application.h"
 #include "engine/profiling/Profiler.h"
 #include "engine/ui/components/CollapsingHeaderComponent.h"
 #include "engine/ui/components/TextComponent.h"
 #include "engine/ui/components/WidgetComponent.h"
+#include "engine/ui/components/MouseInputComponent.h"
 #include "engine/math/IntVec2.h"
 
 using namespace se;
@@ -12,6 +15,16 @@ using namespace se::ecs::components;
 
 namespace se::ui::systems
 {
+    ecs::SystemDeclaration CollapsingHeaderSystem::GetSystemDeclaration()
+    {
+        return ecs::SystemDeclaration("Collapsing Header System")
+                    .WithComponent<components::CollapsingHeaderComponent>()
+                    .WithComponent<components::RectTransformComponent>()
+                    .WithComponent<const components::MouseInputComponent>()
+                    .WithHeirachyQuery<components::WidgetComponent>()
+                    .WithDependency<RectTransformSystem>();
+    }
+
     void CollapsingHeaderSystem::OnUpdate(const ecs::SystemUpdateData& updateData)
     {
         PROFILE_SCOPE("CollapsingHeaderSystem::OxnUpdate")

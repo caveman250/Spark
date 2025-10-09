@@ -2,9 +2,9 @@
 
 namespace se::ecs
 {
-    bool System::DependsOn(Id other) const
+    bool System::DependsOn(const Id& other) const
     {
-        return m_Declaration.dependencies.contains(other);
+        return std::ranges::contains(m_Declaration.dependencies, other);
     }
 
     void System::Init()

@@ -126,9 +126,10 @@ namespace se::ecs
             return *this;
         }
 
-        SystemDeclaration& WithDependency(const Id& system_dependency)
+        template <typename T>
+        SystemDeclaration& WithDependency()
         {
-            dependencies.insert(system_dependency);
+            dependencies.push_back(T::GetSystemId());
             return *this;
         }
 
@@ -137,7 +138,7 @@ namespace se::ecs
         std::vector<ComponentUsage> singletonComponentUsage = { };
         VariantComponentUsage variantComponentUsage = { };
         std::vector<ComponentUsage> childQuerys = { };
-        std::unordered_set<Id> dependencies = { };
+        std::vector<Id> dependencies = { };
     };
 
     struct HeirachyQueryDeclaration

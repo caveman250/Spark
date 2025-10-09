@@ -50,7 +50,7 @@ namespace se::ecs
             Application::Get()->GetWorld()->RecursiveChildEach(entity, this, declaration, func);
         }
 
-        bool DependsOn(Id other) const;
+        bool DependsOn(const Id& other) const;
         const SystemDeclaration& GetDeclaration() const { return m_Declaration; }
 
     private:

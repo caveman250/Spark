@@ -10,6 +10,14 @@ using namespace se::ecs::components;
 
 namespace se::ui::systems
 {
+    ecs::SystemDeclaration ScrollBoxRenderSystem::GetSystemDeclaration()
+    {
+        return ecs::SystemDeclaration("ScrollBox Render System")
+                    .WithComponent<components::ScrollBoxComponent>()
+                    .WithComponent<const components::RectTransformComponent>()
+                    .WithSingletonComponent<singleton_components::UIRenderComponent>();
+    }
+
     void ScrollBoxRenderSystem::OnRender(const ecs::SystemUpdateData& updateData)
     {
         PROFILE_SCOPE("ScrollBoxRenderSystem::OnRender")

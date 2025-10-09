@@ -1,9 +1,12 @@
 #include "spark.h"
 
 #include "RootRectTransformSystem.h"
+
+#include "LastRectSystem.h"
 #include "engine/ui/util/RectTransformUtil.h"
 
 #include "engine/Application.h"
+#include "engine/ecs/components/TransformComponent.h"
 #include "engine/profiling/Profiler.h"
 #include "platform/IWindow.h"
 
@@ -12,6 +15,14 @@ using namespace se::ecs::components;
 
 namespace se::ui::systems
 {
+    ecs::SystemDeclaration RootRectTransformSystem::GetSystemDeclaration()
+    {
+        return ecs::SystemDeclaration("RootRectTransformSystem")
+                    .WithComponent<components::RectTransformComponent>()
+                    .WithComponent<const RootComponent>()
+                    .WithDependency<LastRectSystem>();
+    }
+
     void RootRectTransformSystem::OnUpdate(const ecs::SystemUpdateData& updateData)
     {
         PROFILE_SCOPE("RootRectTransformSystem::OnUpdate")
