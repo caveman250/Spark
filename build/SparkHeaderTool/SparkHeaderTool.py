@@ -84,11 +84,11 @@ def ProcessHeaders():
                         for i in range(0, lineCount):
                             line = lines[i].strip()
                             if line.startswith("SPARK_WIDGET_COMPONENT"):
-                                Widgets.ProcessWidget(widgets, path, class_stack, components)
                                 Class.ProcessClass("SPARK_WIDGET_COMPONENT", line, class_stack)
+                                Widgets.ProcessWidget(widgets, path, class_stack, components)
                             elif line.startswith("SPARK_COMPONENT"):
-                                Components.ProcessComponent(components, path, class_stack)
                                 Class.ProcessClass("SPARK_COMPONENT", line, class_stack)
+                                Components.ProcessComponent(components, path, class_stack)
                             elif line.startswith("SPARK_SINGLETON_COMPONENT"):
                                 Components.ProcessSingletonComponent(components, path, class_stack)
                                 Class.ProcessClass("SPARK_SINGLETON_COMPONENT", line, class_stack)

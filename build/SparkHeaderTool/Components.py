@@ -8,16 +8,22 @@ class ComponentFile:
     path: str
     name: str
     namespace: str
+    dev_only: bool
+    editor_only: bool
 
 def ProcessComponent(components, path, class_stack):
     type = class_stack[-1].name
     namespace = class_stack[-1].namespace
-    components.append(ComponentFile(os.path.abspath(path), type, namespace))
+    dev_only = class_stack[-1].dev_only
+    editor_only = class_stack[-1].editor_only
+    components.append(ComponentFile(os.path.abspath(path), type, namespace, dev_only, editor_only))
 
 def ProcessSingletonComponent(components, path, class_stack):
     type = class_stack[-1].name
     namespace = class_stack[-1].namespace
-    components.append(ComponentFile(os.path.abspath(path), type, namespace))
+    dev_only = class_stack[-1].dev_only
+    editor_only = class_stack[-1].editor_only
+    components.append(ComponentFile(os.path.abspath(path), type, namespace, dev_only, editor_only))
 
 def WriteComponentRegistrationFiles(components):
     output_dir = "../../engine/src/generated/"
@@ -48,7 +54,15 @@ def WriteComponentRegistrationFiles(components):
         if len(component.namespace) > 0:
             name += component.namespace + "::"
         name += component.name
+        if component.dev_only:
+            cpp += "#if WITH_DEV_ONLY_CLASSES\n"
+        if component.editor_only:
+            cpp += "#if WITH_EDITOR_ONLY_CLASSES\n"
         cpp += f"\t\tworld->RegisterComponent<{name}>();\n"
+        if component.editor_only:
+            cpp += "#endif\n"
+        if component.dev_only:
+            cpp += "#endif\n"
     cpp += "\t}\n"
     cpp += "}\n"
     output_path = output_dir + "ComponentRegistration.generated.cpp"

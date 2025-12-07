@@ -6,8 +6,11 @@ import Log
 def ProcessWidget(widget_list, path, class_stack, components):
     type = class_stack[-1].name
     namespace = class_stack[-1].namespace
-    widget_list.append(Components.ComponentFile(os.path.abspath(path), type, namespace))
-    components.append(Components.ComponentFile(os.path.abspath(path), type, namespace))
+    dev_only = class_stack[-1].dev_only
+    editor_only = class_stack[-1].editor_only
+    component = Components.ComponentFile(os.path.abspath(path), type, namespace, dev_only, editor_only)
+    widget_list.append(component)
+    components.append(component)
 
 def IncludeWidgetFiles(widget_list):
     ret = ""

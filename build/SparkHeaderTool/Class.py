@@ -27,6 +27,8 @@ class Class:
     path: str
     namespace: str
     abstract: bool
+    dev_only: bool
+    editor_only: bool
     members: list
     is_reflected: bool
     is_template: bool
@@ -210,7 +212,7 @@ def ProcessNativeClassSecondPass(tag, line, line_before, class_list, class_heira
         class_heirachy_map[GetFullClassName(class_name, namespace_stack)] = FindRealClassType(full_name, class_list, last_namespace_idx, using_namespace_stack)
 
     if len(class_name) > 0:
-        class_stack.append(Class(ClassType.CLASS, class_name, filepath, Namespace.MakeNamespace(namespace_stack), False, [], False, len(template_params) > 0, template_params, source_dir))
+        class_stack.append(Class(ClassType.CLASS, class_name, filepath, Namespace.MakeNamespace(namespace_stack), False, False, False, [], False, len(template_params) > 0, template_params, source_dir))
         class_depth_stack.append(current_scope_depth + 1)
 
 def IsBuiltinPrimitive(type):
@@ -289,6 +291,7 @@ def ProcessClass(tag, line, class_stack):
         if line[i] == ',':
             decorators.append(current_decorator)
             current_decorator = ""
+            continue
 
         if line[i] == ")":
             decorators.append(current_decorator)
@@ -297,6 +300,8 @@ def ProcessClass(tag, line, class_stack):
         current_decorator += line[i]
 
     is_abstract = decorators.count("Abstract") > 0
+    is_dev_only = decorators.count("DevOnly") > 0
+    is_editor_only = decorators.count("EditorOnly") > 0
 
     class_type = ClassType.CLASS
     if tag == "SPARK_CLASS":
@@ -314,6 +319,8 @@ def ProcessClass(tag, line, class_stack):
 
     class_stack[-1].type = class_type
     class_stack[-1].abstract = is_abstract
+    class_stack[-1].dev_only = is_dev_only
+    class_stack[-1].editor_only = is_editor_only
     class_stack[-1].is_reflected = True
 
 
@@ -618,8 +625,16 @@ def CreateClassInstantiationFiles(source_dirs, classes, template_instantiations)
                 init_members_cpp_content += f"#include \"{class_obj.path}\"\n"
         init_members_cpp_content += f"\nnamespace se\n{{\nvoid {project_name}_InitClassReflection()\n{{\n"
         for full_name, class_obj in classes.items():
+            if class_obj.dev_only:
+                init_members_cpp_content += "#if WITH_DEV_ONLY_CLASSES\n"
+            if class_obj.editor_only:
+                init_members_cpp_content += "#if WITH_EDITOR_ONLY_CLASSES\n"
             if class_obj.is_reflected and not class_obj.is_template and class_obj.project_src_dir == src_dir:
                 init_members_cpp_content += "    " + full_name + "::InitMembers();\n"
+            if class_obj.editor_only:
+                init_members_cpp_content += "#endif\n"
+            if class_obj.dev_only:
+                init_members_cpp_content += "#endif\n"
         for template_instantiation in template_instantiations:
             if template_instantiation.project_src_dir == src_dir:
                 template_params_string = ", ".join(template_instantiation.template_types)
@@ -663,14 +678,30 @@ def CreateSystemInstantiationFiles(source_dirs, classes):
         init_systems_cpp_content += f"\nnamespace se\n{{\nvoid {project_name}_InitSystems([[maybe_unused]]ecs::World* world)\n{{\n"
         for full_name, class_obj in classes.items():
             if class_obj.is_reflected and not class_obj.is_template and class_obj.project_src_dir == src_dir and class_obj.type == ClassType.SYSTEM:
+                if class_obj.dev_only:
+                    init_systems_cpp_content += "#if WITH_DEV_ONLY_CLASSES\n"
+                if class_obj.editor_only:
+                    init_systems_cpp_content += "#if WITH_EDITOR_ONLY_CLASSES\n"
                 init_systems_cpp_content += f"    world->RegisterSystem<{full_name}>();\n"
+                if class_obj.editor_only:
+                    init_systems_cpp_content += "#endif\n"
+                if class_obj.dev_only:
+                    init_systems_cpp_content += "#endif\n"
         for full_name, class_obj in classes.items():
             if class_obj.is_reflected and not class_obj.is_template and class_obj.project_src_dir == src_dir and class_obj.type == ClassType.SYSTEM:
                 if src_dir.endswith("engine/src/generated/"):
                     create_system_method = "CreateEngineSystem"
                 else:
                     create_system_method = "CreateAppSystem"
+                if class_obj.dev_only:
+                    init_systems_cpp_content += "#if WITH_DEV_ONLY_CLASSES\n"
+                if class_obj.editor_only:
+                    init_systems_cpp_content += "#if WITH_EDITOR_ONLY_CLASSES\n"
                 init_systems_cpp_content += f"    world->{create_system_method}<{full_name}>();\n"
+                if class_obj.editor_only:
+                    init_systems_cpp_content += "#endif\n"
+                if class_obj.dev_only:
+                    init_systems_cpp_content += "#endif\n"
         init_systems_cpp_content += "}\n}"
 
         output_path = src_dir + "Systems.generated.cpp"
@@ -710,6 +741,12 @@ def WriteClassFiles(classes, base_class_map, template_instantiations):
                 else:
                     break
 
+            if classobj.dev_only:
+                contents += "#if WITH_DEV_ONLY_CLASSES\n"
+
+            if classobj.editor_only:
+                contents += "#if WITH_EDITOR_ONLY_CLASSES\n"
+
             includes.sort()
             for include in includes:
                 contents += f"#include \"{include}\"\n"
@@ -742,8 +779,13 @@ def WriteClassFiles(classes, base_class_map, template_instantiations):
                         current_type = base_class_map[current_type]
                     else:
                         break
-
                 contents += DefineClassEnd(classobj.name)
+
+            if classobj.editor_only:
+                contents += "#endif\n"
+
+            if classobj.dev_only:
+                contents += "#endif\n"
 
             namespace_text = classobj.namespace.replace("::", "_")
             output_path = classobj.project_src_dir + f"{namespace_text}_{classobj.name}.generated.cpp"

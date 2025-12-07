@@ -150,6 +150,9 @@ inline void hash_combine(std::size_t& seed, const T& v, Rest... rest) {
     hash_combine(seed, rest...);
 }
 
+#define WITH_DEV_ONLY_CLASSES !SPARK_DIST
+#define WITH_EDITOR_ONLY_CLASSES SPARK_EDITOR
+
 #include "engine/debug/Log.h"
 #include "engine/ecs/ecs_fwd.h"
 #include "engine/reflect/Reflect_fwd.h"
