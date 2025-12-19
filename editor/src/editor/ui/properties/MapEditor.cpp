@@ -25,7 +25,7 @@ namespace se::editor::ui::properties
         }
     }
 
-    void MapEditor::ConstructUI(const String& name, bool constructTitle, const se::ui::Anchors& anchors, bool collapsed, bool withBackground)
+    void MapEditor::ConstructUI(const std::string& name, bool constructTitle, const se::ui::Anchors& anchors, bool collapsed, bool withBackground)
     {
         PropertyEditor::ConstructUI(name, constructTitle, anchors, collapsed, withBackground);
 
@@ -60,7 +60,7 @@ namespace se::editor::ui::properties
         verticalBox->spacing = 5;
         world->AddChild(listBG, verticalBoxEntity);
 
-        reflect::Type* stringType = reflect::TypeResolver<String>::get();
+        reflect::Type* stringType = reflect::TypeResolver<std::string>::get();
         size_t numElements = m_VectorType->GetNumContainedElements(m_Value);
         if (numElements == 0)
         {
@@ -82,11 +82,11 @@ namespace se::editor::ui::properties
                 void* obj = m_VectorType->GetContainedValueByIndex(m_Value, i);
                 auto containedType = m_VectorType->GetContainedValueType(obj);
 
-                String propName = std::format("{}", i);
+                std::string propName = std::format("{}", i);
                 if (m_VectorType->GetContainedKeyType() == stringType)
                 {
                     const void* value = m_VectorType->GetContainedKeyByIndex(m_Value, i);
-                    propName = *((String*)value);
+                    propName = *((std::string*)value);
                 }
 
                 auto entity = world->CreateEntity(propName, true);

@@ -19,9 +19,9 @@ namespace se::ui::components
 
 namespace se::editor::ui::properties
 {
-    std::unordered_map<String, reflect::Type*>& GetContainerPropertyEditorTypes()
+    std::unordered_map<std::string, reflect::Type*>& GetContainerPropertyEditorTypes()
     {
-        static std::unordered_map<String, reflect::Type*> s_Instance = { };
+        static std::unordered_map<std::string, reflect::Type*> s_Instance = { };
         return s_Instance;
     }
 
@@ -31,7 +31,7 @@ namespace se::editor::ui::properties
         return s_Instance;
     }
 
-    void PropertyEditor::ConstructUI(const String& name,
+    void PropertyEditor::ConstructUI(const std::string& name,
                                      bool constructTitle,
                                      const se::ui::Anchors& anchors,
                                      bool collapsed,
@@ -95,7 +95,7 @@ namespace se::editor::ui::properties
         Application::Get()->GetWorld()->DestroyEntity(m_WidgetId);
     }
 
-    PropertyEditor* CreatePropertyEditor(const String& name,
+    PropertyEditor* CreatePropertyEditor(const std::string& name,
                                          reflect::Type* type,
                                          void* value,
                                          const se::ui::Anchors& anchors,

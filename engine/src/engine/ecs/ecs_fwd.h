@@ -1,11 +1,6 @@
 #pragma once
 #include "engine/bits/FlagUtil.h"
 
-namespace se
-{
-    class String;
-}
-
 namespace se::ecs
 {
     constexpr uint64_t s_InvalidEntity = 0;
@@ -49,7 +44,7 @@ namespace se::ecs
         }
 
         uint64_t id = 0;
-        const String* name = nullptr;
+        const std::string* name = nullptr;
         int32_t* flags = nullptr;
     };
 

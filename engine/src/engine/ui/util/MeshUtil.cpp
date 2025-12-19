@@ -1,7 +1,6 @@
 #include "MeshUtil.h"
 
 #include "engine/asset/font/Font.h"
-#include "engine/string/String.h"
 
 namespace se::ui::util
 {
@@ -33,7 +32,7 @@ namespace se::ui::util
                        const Rect& rect,
                        const std::shared_ptr<asset::Font>& font,
                        int fontSize,
-                       const String& text,
+                       const std::string& text,
                        float scale,
                        bool& didWrap)
     {
@@ -52,7 +51,7 @@ namespace se::ui::util
                 float xCopy = cursorPos.x;
 
                 char nextChar = text[lookAhead];
-                while (nextChar != ' ' && lookAhead < text.Size() - 1)
+                while (nextChar != ' ' && lookAhead < text.size() - 1)
                 {
                     if (nextChar == '\n')
                     {
@@ -108,11 +107,11 @@ namespace se::ui::util
 
     math::Vec2 ApplyKerning(math::Vec2 cursorPos,
                                size_t index,
-                               const String& text,
+                               const std::string& text,
                                const asset::CharData& charData,
                                float scale)
     {
-        if (index < text.Size() - 1)
+        if (index < text.size() - 1)
         {
             char nextChar = text[index + 1];
             if (charData.kerning.contains(nextChar))
@@ -166,7 +165,7 @@ namespace se::ui::util
     asset::StaticMesh CreateTextMesh(const Rect& rect,
                                      const std::shared_ptr<asset::Font>& font,
                                      int fontSize,
-                                     const String& text,
+                                     const std::string& text,
                                      bool applyKerning,
                                      text::WrapMode wrap,
                                      text::Alignment justification)
@@ -177,7 +176,7 @@ namespace se::ui::util
         math::Vec2 cursorPos = { };
         cursorPos.y += font->GetAscent(fontSize);
         size_t lineStart = 0;
-        for (size_t i = 0; i < text.Size(); ++i)
+        for (size_t i = 0; i < text.size(); ++i)
         {
             char c = text[i];
             if (c != '\n')
@@ -241,7 +240,7 @@ namespace se::ui::util
                 }
 
 
-                if (!didWrap && i == text.Size() - 1)
+                if (!didWrap && i == text.size() - 1)
                 {
                     float offset = CalculateJustificationXOffset(justification,
                                                                cursorPos.x,
@@ -256,7 +255,7 @@ namespace se::ui::util
                     }
                 }
             }
-            else if (i == text.Size() - 1)
+            else if (i == text.size() - 1)
             {
                 float offset = CalculateJustificationXOffset(justification,
                                                            cursorPos.x,
@@ -279,17 +278,17 @@ namespace se::ui::util
     math::Vec2 MeasureText(const Rect& bounds,
                               const std::shared_ptr<asset::Font>& font,
                               int fontSize,
-                              const String& text,
+                              const std::string& text,
                               bool applyKerning,
                               text::WrapMode wrap)
     {
-        return MeasureText(bounds, font, fontSize, text, applyKerning, wrap, text.Size());
+        return MeasureText(bounds, font, fontSize, text, applyKerning, wrap, text.size());
     }
 
     math::Vec2 MeasureText(const Rect& bounds,
         const std::shared_ptr<asset::Font>& font,
         int fontSize,
-        const String& text,
+        const std::string& text,
         bool applyKerning,
         text::WrapMode wrap,
         size_t endIndex)
@@ -356,7 +355,7 @@ namespace se::ui::util
         const Rect& bounds,
         const std::shared_ptr<asset::Font>& font,
         int fontSize,
-        const String& text,
+        const std::string& text,
         bool applyKerning,
         text::WrapMode wrap,
         text::Alignment justification)
@@ -366,7 +365,7 @@ namespace se::ui::util
         cursorPos.y += font->GetLineHeight(fontSize);
         size_t lineStart = 0;
         std::vector<Rect> boundingBoxes = {};
-        for (size_t i = 0; i < text.Size(); ++i)
+        for (size_t i = 0; i < text.size(); ++i)
         {
             char c = text[i];
             const auto& charData = font->GetCharData(c);
@@ -439,7 +438,7 @@ namespace se::ui::util
                                                    cursorPos.x,
                                                    bounds);
         float halfFontSize = fontSize * .5f;
-        for (size_t j = lineStart; j < text.Size(); ++j)
+        for (size_t j = lineStart; j < text.size(); ++j)
         {
             const auto& charBounds = boundingBoxes[j];
             if (std::abs(charBounds.topLeft.x + offset - pos.x) < halfFontSize &&
@@ -449,6 +448,6 @@ namespace se::ui::util
             }
         }
 
-        return static_cast<int>(text.Size());
+        return static_cast<int>(text.size());
     }
 }

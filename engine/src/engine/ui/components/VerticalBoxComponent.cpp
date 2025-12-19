@@ -36,7 +36,7 @@ namespace se::ui
                       // undo anchor offsets, as we override those anyway and don't want them to apply recursivly.
                       childDesiredSize -= DesiredSizeCalculator::CalculateAnchorOffsets(transform, thisRect.rect);
                       desiredSize.x = std::max(childDesiredSize.x + static_cast<int>(context->paddingLeft + context->paddingRight), desiredSize.x);
-                      desiredSize.y += childDesiredSize.y + context->spacing;
+                      desiredSize.y += childDesiredSize.y + static_cast<int>(context->spacing);
                   }
               }, updateData.GetVariantComponentArray<SPARK_CONST_WIDGET_TYPES_WITH_NULLTYPE>());
                return false;

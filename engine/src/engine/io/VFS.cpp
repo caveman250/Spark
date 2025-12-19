@@ -17,12 +17,12 @@ namespace se::io
         return *s_Instance;
     }
 
-    void VFS::Mount(const String& fsPath, const String& vfsPath)
+    void VFS::Mount(const std::string& fsPath, const std::string& vfsPath)
     {
         m_Mounts.push_back(VFSMount(fsPath, vfsPath));
     }
 
-    void VFS::Unmount(const String& vfsPath)
+    void VFS::Unmount(const std::string& vfsPath)
     {
         auto it = std::find_if(m_Mounts.begin(), m_Mounts.end(),
                                [&vfsPath](const VFSMount& mount) { return mount.vfsPath == vfsPath; });
@@ -32,12 +32,12 @@ namespace se::io
         }
     }
 
-    String VFS::ReadText(const String& path)
+    std::string VFS::ReadText(const std::string& path)
     {
         auto fsPath = ResolveFSPath(path, false);
         if (!fsPath.has_value())
         {
-            if (!path.StartsWith(".") && !path.StartsWith("/") && path[1] != ':')
+            if (!path.starts_with(".") && !path.starts_with("/") && path[1] != ':')
             {
                 debug::Log::Error("Cannot open file {0}!", path);
                 return "";
@@ -46,8 +46,8 @@ namespace se::io
             fsPath = path;
         }
 
-        String fileContents;
-        std::ifstream fileStream(fsPath.value().Data(), std::ios::in);
+        std::string fileContents;
+        std::ifstream fileStream(fsPath.value().data(), std::ios::in);
         if (fileStream.is_open())
         {
             std::stringstream sstr;
@@ -63,12 +63,12 @@ namespace se::io
         return fileContents;
     }
 
-    char* VFS::ReadBinary(const String& path, size_t& outSize)
+    char* VFS::ReadBinary(const std::string& path, size_t& outSize)
     {
         auto fsPath = ResolveFSPath(path, false);
         if (!fsPath.has_value())
         {
-            if (!path.StartsWith(".") && !path.StartsWith("/") && path[1] != ':')
+            if (!path.starts_with(".") && !path.starts_with("/") && path[1] != ':')
             {
                 debug::Log::Error("Cannot open file {0}!", path);
                 return nullptr;
@@ -78,7 +78,7 @@ namespace se::io
         }
 
         std::ifstream myfile;
-        myfile.open(fsPath.value().Data(), std::ios::binary | std::ios::ate);
+        myfile.open(fsPath.value().data(), std::ios::binary | std::ios::ate);
         SPARK_ASSERT(myfile.is_open());
         std::streamsize size = myfile.tellg();
         myfile.seekg(0, std::ios::beg);
@@ -90,12 +90,12 @@ namespace se::io
         return data;
     }
 
-    void VFS::WriteBinary(const String& path, char* data, size_t size)
+    void VFS::WriteBinary(const std::string& path, char* data, size_t size)
     {
         auto fsPath = ResolveFSPath(path, true);
         if (!fsPath.has_value())
         {
-            if (!path.StartsWith(".") && !path.StartsWith("/") && path[1] != ':')
+            if (!path.starts_with(".") && !path.starts_with("/") && path[1] != ':')
             {
                 debug::Log::Error("Cannot open file {0}!", path);
                 return;
@@ -105,12 +105,12 @@ namespace se::io
         }
 
         std::ofstream myfile;
-        myfile.open(fsPath.value().Data(), std::ios::binary);
+        myfile.open(fsPath.value().data(), std::ios::binary);
         myfile.write(data, size);
         myfile.close();
     }
 
-    std::optional<String> VFS::ResolveFSPath(const String& vfsPath, bool allowMissing)
+    std::optional<std::string> VFS::ResolveFSPath(const std::string& vfsPath, bool allowMissing)
     {
         for (const auto& mount : m_Mounts)
         {
@@ -118,7 +118,7 @@ namespace se::io
             {
                 auto workingDir = std::filesystem::current_path();
                 auto fsPath = GetFSPath(vfsPath, mount);
-                if (std::filesystem::exists(fsPath.Data()))
+                if (std::filesystem::exists(fsPath.data()))
                 {
                     return fsPath;
                 }
@@ -132,7 +132,7 @@ namespace se::io
                 if (IsMount(vfsPath, mount))
                 {
                     auto fsPath = GetFSPath(vfsPath, mount);
-                    std::filesystem::create_directories(fsPath.SubString(0, fsPath.Find('/', true)).Data());
+                    std::filesystem::create_directories(fsPath.substr(0, fsPath.rfind('/')).data());
                     return fsPath;
                 }
             }
@@ -141,19 +141,19 @@ namespace se::io
         return std::nullopt;
     }
 
-    bool VFS::IsMount(const String& path, const VFSMount& mount)
+    bool VFS::IsMount(const std::string& path, const VFSMount& mount)
     {
-        if (!path.StartsWith(mount.vfsPath))
+        if (!path.starts_with(mount.vfsPath))
         {
             return false;
         }
 
-        return mount.vfsPath[mount.vfsPath.Size() - 1] == '/' ||
-            path.Size() == mount.vfsPath.Size() ||
-            path[mount.vfsPath.Size()] == '/';
+        return mount.vfsPath[mount.vfsPath.size() - 1] == '/' ||
+            path.size() == mount.vfsPath.size() ||
+            path[mount.vfsPath.size()] == '/';
     }
 
-    String VFS::GetFSPath(const String& path, const VFSMount& mount)
+    std::string VFS::GetFSPath(const std::string& path, const VFSMount& mount)
     {
         if (path == mount.vfsPath)
         {
@@ -161,16 +161,16 @@ namespace se::io
         }
         else
         {
-            return mount.fsPath + '/' + String(path.Data() + mount.vfsPath.Size() + 1);
+            return mount.fsPath + '/' + std::string(path.data() + mount.vfsPath.size() + 1);
         }
     }
 
-    void VFS::WriteText(const String& path, const String& text)
+    void VFS::WriteText(const std::string& path, const std::string& text)
     {
         auto fsPath = ResolveFSPath(path, true);
         if (!fsPath.has_value())
         {
-            if (!path.StartsWith(".") && !path.StartsWith("/") && path[1] != ':')
+            if (!path.starts_with(".") && !path.starts_with("/") && path[1] != ':')
             {
                 debug::Log::Error("Cannot open file {0}!", path);
                 return;
@@ -180,17 +180,17 @@ namespace se::io
         }
 
         std::ofstream myfile;
-        myfile.open(fsPath.value().Data());
+        myfile.open(fsPath.value().data());
         myfile << text;
         myfile.close();
     }
 
-    bool VFS::Exists(const String& path)
+    bool VFS::Exists(const std::string& path)
     {
         return ResolveFSPath(path, false).has_value();
     }
 
-    void VFS::ForEachFile(const String& dirPath, bool recursive, const std::function<void(const VFSFile&)>& func)
+    void VFS::ForEachFile(const std::string& dirPath, bool recursive, const std::function<void(const VFSFile&)>& func)
     {
         auto fsPath = ResolveFSPath(dirPath, false);
         if (!fsPath.has_value())
@@ -200,7 +200,7 @@ namespace se::io
 
         if (recursive)
         {
-            for (const std::filesystem::directory_entry& file: std::filesystem::recursive_directory_iterator(fsPath.value().Data()))
+            for (const std::filesystem::directory_entry& file: std::filesystem::recursive_directory_iterator(fsPath.value().data()))
             {
                 VFSFile vfsFile = {
                     .fullPath = GetVFSPath(file.path().string()),
@@ -212,7 +212,7 @@ namespace se::io
         }
         else
         {
-            for (const std::filesystem::directory_entry& file: std::filesystem::directory_iterator(fsPath.value().Data()))
+            for (const std::filesystem::directory_entry& file: std::filesystem::directory_iterator(fsPath.value().data()))
             {
                 VFSFile vfsFile = {
                         .fullPath = GetVFSPath(file.path().string()),
@@ -224,19 +224,19 @@ namespace se::io
         }
     }
 
-    String VFS::GetVFSPath(const String& path)
+    std::string VFS::GetVFSPath(const std::string& path)
     {
         for (const auto& mount : m_Mounts)
         {
-            if (path.Contains(mount.fsPath))
+            if (path.contains(mount.fsPath))
             {
-                String temp = path;
-                String dir, fileName;
+                std::string temp = path;
+                std::string dir, fileName;
                 string::util::Split(temp, dir, fileName, '/', true);
 #if SPARK_PLATFORM_WINDOWS
                 FixWindowsPath(temp);
 #endif
-                return mount.vfsPath + String(temp.Data() + mount.fsPath.Size());
+                return mount.vfsPath + std::string(temp.data() + mount.fsPath.size());
             }
         }
 
@@ -244,9 +244,9 @@ namespace se::io
     }
 
 #if SPARK_PLATFORM_WINDOWS
-    void VFS::FixWindowsPath(String& path)
+    void VFS::FixWindowsPath(std::string& path)
     {
-        path.ReplaceAll('\\', '/' );
+        std::replace(path.begin(), path.end(), '\\', '/');
     }
 #endif
 
@@ -259,12 +259,12 @@ namespace se::io
         return system_clock::to_time_t(sctp);
     }
 
-    std::time_t VFS::GetLastModified(const String& path)
+    std::time_t VFS::GetLastModified(const std::string& path)
     {
         auto result = ResolveFSPath(path, false);
         if (result.has_value())
         {
-            std::chrono::time_point<std::chrono::file_clock> timePoint = std::filesystem::last_write_time(result.value().Data());
+            std::chrono::time_point<std::chrono::file_clock> timePoint = std::filesystem::last_write_time(result.value().data());
             return to_time_t(timePoint);
         }
 

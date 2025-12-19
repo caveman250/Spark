@@ -20,7 +20,7 @@ namespace se::editor::ui::properties
 
     public:
         void SetValue(void* value, const reflect::Type* type) override;
-        void ConstructUI(const String& name, bool constructTitle, const se::ui::Anchors& anchors, bool collapsed, bool withBackground) override;
+        void ConstructUI(const std::string& name, bool constructTitle, const se::ui::Anchors& anchors, bool collapsed, bool withBackground) override;
         void Update() override;
 
     private:
@@ -28,7 +28,6 @@ namespace se::editor::ui::properties
         ecs::Id m_Label;
     };
 
-    SPARK_INSTANTIATE_TEMPLATE(StringEditor, String);
     SPARK_INSTANTIATE_TEMPLATE(StringEditor, std::string);
 
     template <typename S>
@@ -38,7 +37,7 @@ namespace se::editor::ui::properties
     }
 
     template <typename S>
-    void StringEditor<S>::ConstructUI(const String& name, bool constructTitle, const se::ui::Anchors& anchors, bool collapsed, bool withBackground)
+    void StringEditor<S>::ConstructUI(const std::string& name, bool constructTitle, const se::ui::Anchors& anchors, bool collapsed, bool withBackground)
     {
         PropertyEditor::ConstructUI(name, constructTitle, anchors, collapsed, withBackground);
 
@@ -55,7 +54,7 @@ namespace se::editor::ui::properties
         auto bgTransform = world->AddComponent<RectTransformComponent>(bg);
         bgTransform->anchors = { .left = constructTitle ? 0.35f : 0.f, .right = 1.f, .top = 0.f, .bottom = 0.f };
         bgTransform->minY = 0;
-        bgTransform->maxY = static_cast<int>(ariel->GetLineHeight(fontSize) + padding + borderSize * 2 + 0.5f);
+        bgTransform->maxY = ariel->GetLineHeight(fontSize) + padding + borderSize * 2 + 0.5f;
 
         world->AddComponent<WidgetComponent>(bg);
         auto image = world->AddComponent<ImageComponent>(bg);
@@ -87,9 +86,9 @@ namespace se::editor::ui::properties
         EditableTextComponent* editableText = nullptr;
         m_Label = se::ui::util::CreateEditableText(world, ariel, fontSize, &editableText);
         editableText->text = std::format("{}", *m_Value);
-        std::function cb = [this](String newVal)
+        std::function cb = [this](std::string newVal)
         {
-            *m_Value = newVal.Data();
+            *m_Value = newVal.data();
         };
         editableText->onComitted.Subscribe(std::move(cb));
 

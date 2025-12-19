@@ -18,7 +18,7 @@ namespace se::ui::util
                          WindowComponent** window,
                          TitleBarComponent** titleBar,
                          ecs::Id& childArea,
-                         const String& title,
+                         const std::string& title,
                          std::function<void()> onClose,
                          bool editorOnly)
     {

@@ -25,7 +25,7 @@ namespace se::asset::shader
     {
     public:
         static std::optional<Shader> CompileShader(const std::string& filePath);
-        static std::vector<std::pair<String, ast::Variable>> GatherUsedUniforms(const std::vector<std::shared_ptr<Shader>>& shaderAssets);
+        static std::vector<std::pair<std::string, ast::Variable>> GatherUsedUniforms(const std::vector<std::shared_ptr<Shader>>& shaderAssets);
         static std::optional<std::string> GeneratePlatformShader(const std::vector<std::shared_ptr<Shader>>& shaderAssets,
                                                                     const ShaderSettings& settings,
                                                                     const render::VertexBuffer& vb,
@@ -33,19 +33,19 @@ namespace se::asset::shader
 
         static bool ResolveSettings(Shader& shader, const ShaderSettings& settings);
         template <typename T>
-        static void ReplaceSettingReferenceWithConstant(Shader& shader, ast::ASTNode* node, const String& settingName, T constantValue);
+        static void ReplaceSettingReferenceWithConstant(Shader& shader, ast::ASTNode* node, const std::string& settingName, T constantValue);
         static std::string AstToGlsl(Shader& ast, ast::ShaderCompileContext& context);
         static std::string AstToMtl(Shader& ast, ast::ShaderCompileContext& context);
     };
 
     template<typename T>
-    void ShaderCompiler::ReplaceSettingReferenceWithConstant(Shader& shader, ast::ASTNode* node, const String& settingName, T constantValue)
+    void ShaderCompiler::ReplaceSettingReferenceWithConstant(Shader& shader, ast::ASTNode* node, const std::string& settingName, T constantValue)
     {
         static auto referenceType = reflect::TypeResolver<ast::VariableReferenceNode>::get();
         if (node->GetReflectType() == referenceType)
         {
             auto referenceNode = static_cast<ast::VariableReferenceNode*>(node);
-            if (strcmp(referenceNode->GetName().c_str(), settingName.Data()) == 0)
+            if (strcmp(referenceNode->GetName().c_str(), settingName.data()) == 0)
             {
                 auto parent = node->m_Parent;
                 auto it = std::ranges::find_if(parent->m_Children, [node](const auto& child){ return child.get() == node; });

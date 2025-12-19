@@ -18,7 +18,7 @@ namespace se::editor::ui::properties
         }
     }
 
-    void SharedPtrEditor::ConstructUI(const String& name, bool constructTitle, const se::ui::Anchors& anchors, bool collapsed, bool withBackground)
+    void SharedPtrEditor::ConstructUI(const std::string& name, bool constructTitle, const se::ui::Anchors& anchors, bool collapsed, bool withBackground)
     {
         auto containedType = m_Type->GetContainedValueType(m_Value);
         m_WrappedEditor = CreatePropertyEditor(name,

@@ -118,41 +118,4 @@ return &typeDesc;\
         static Type_Id typeDesc;
         return &typeDesc;
     }
-
-    struct Type_String : Type
-    {
-        Type_String() : Type{"String", sizeof(String), asset::binary::Type::String }
-        {
-
-        }
-
-        void Serialize(const void* obj, asset::binary::Object& parentObj, const std::string& fieldName) const override
-        {
-            if (!fieldName.empty())
-                parentObj.Set(fieldName, std::string(((String*)obj)->Data()));
-            else
-                parentObj.Set("val", std::string(((String*)obj)->Data()));
-        }
-
-        void Deserialize(void* obj, asset::binary::Object& parentObj, const std::string& fieldName) const override
-        {
-            if (!fieldName.empty())
-                *(String*)obj = parentObj.Get<std::string>(fieldName);
-            else
-                *(String*)obj = parentObj.Get<std::string>("val");
-        }
-
-        asset::binary::StructLayout GetStructLayout(const void*) const override
-        {
-            asset::binary::StructLayout structLayout = {{ asset::binary::CreateFixedString32("val"), asset::binary::Type::Uint64 }};
-            return structLayout;
-        }
-    };
-
-    template <>
-    Type* getPrimitiveDescriptor<String>()
-    {
-        static Type_String typeDesc;
-        return &typeDesc;
-    }
 }

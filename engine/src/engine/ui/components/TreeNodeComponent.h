@@ -3,7 +3,6 @@
 #include "spark.h"
 #include "engine/asset/font/Font.h"
 #include "engine/ecs/Signal.h"
-#include "engine/string/String.h"
 
 namespace se::ui::components
 {
@@ -13,7 +12,7 @@ namespace se::ui::components
 
         bool collapsed = false;
         ecs::Signal<bool> onCollapsedStateChange = {};
-        String text = "";
+        std::string text = "";
         ecs::Signal<> onSelected = {};
         std::shared_ptr<asset::Font> font = nullptr;
         int fontSize = 16;

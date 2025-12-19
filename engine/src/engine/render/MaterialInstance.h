@@ -24,13 +24,13 @@ namespace se::render
         virtual void DestroyPlatformResources();
 
         template <typename T>
-        void SetUniform(const String& name, asset::shader::ast::AstType type, int count, const T* value);
+        void SetUniform(const std::string& name, asset::shader::ast::AstType type, int count, const T* value);
 
         template <typename T>
-        const T* GetUniform(const String& name);
+        const T* GetUniform(const std::string& name);
     protected:
         MaterialInstance(const std::shared_ptr<Material>& material);
-        virtual void SetUniformInternal(const String& name, asset::shader::ast::AstType type, int count, const void* value) = 0;
+        virtual void SetUniformInternal(const std::string& name, asset::shader::ast::AstType type, int count, const void* value) = 0;
 
         const std::shared_ptr<Material> m_Material = nullptr;
         UniformStorage m_UniformStorage = {};
@@ -40,13 +40,13 @@ namespace se::render
     };
 
     template <typename T>
-    void MaterialInstance::SetUniform(const String& name, asset::shader::ast::AstType type, int count, const T* value)
+    void MaterialInstance::SetUniform(const std::string& name, asset::shader::ast::AstType type, int count, const T* value)
     {
         m_UniformStorage.SetValue(name, type, count, value);
     }
 
     template<typename T>
-    const T* MaterialInstance::GetUniform(const String& name)
+    const T* MaterialInstance::GetUniform(const std::string& name)
     {
         return m_UniformStorage.GetValue<T>(name);
     }

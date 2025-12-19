@@ -7,7 +7,6 @@
 #include "engine/render/VertexBuffer.h"
 #include "engine/render/IndexBuffer.h"
 #include "engine/render/MaterialInstance.h"
-#include "engine/string/String.h"
 #include "engine/ui/util/MeshUtil.h"
 #include "engine/ui/util/RectTransformUtil.h"
 #include "engine/ui/text/Alignment.h"
@@ -31,7 +30,7 @@ namespace se::ui::components
         int fontSize = 0;
 
         SPARK_MEMBER(Serialized)
-        String text = {};
+        std::string text = {};
 
         SPARK_MEMBER(Serialized)
         text::Alignment alignment = text::Alignment::Left;
@@ -44,7 +43,7 @@ namespace se::ui::components
         std::shared_ptr<render::VertexBuffer> vertBuffer = {};
         std::shared_ptr<render::IndexBuffer> indexBuffer = {};
         int lastFontSize = {};
-        String lastText = {};
+        std::string lastText = {};
     };
 }
 

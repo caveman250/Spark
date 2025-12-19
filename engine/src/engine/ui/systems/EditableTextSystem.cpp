@@ -39,195 +39,195 @@ namespace se::ui::systems
         switch (key)
         {
             case input::Key::Space:
-                text.editText.Insert(text.caretPosition, ' ');
+                text.editText.insert(text.caretPosition, 1, ' ');
                 util::MoveCaret(text, 1);
                 break;
             case input::Key::Apostrophe:
-                text.editText.Insert(text.caretPosition, '\'');
+                text.editText.insert(text.caretPosition, 1, '\'');
                 util::MoveCaret(text, 1);
                 break;
             case input::Key::Comma:
-                text.editText.Insert(text.caretPosition, ',');
+                text.editText.insert(text.caretPosition, 1, ',');
                 util::MoveCaret(text, 1);
                 break;
             case input::Key::Minus:
-                text.editText.Insert(text.caretPosition, '-');
+                text.editText.insert(text.caretPosition, 1, '-');
                 util::MoveCaret(text, 1);
                 break;
             case input::Key::Period:
-                text.editText.Insert(text.caretPosition, '.');
+                text.editText.insert(text.caretPosition, 1, '.');
                 util::MoveCaret(text, 1);
                 break;
             case input::Key::ForwardSlash:
-                text.editText.Insert(text.caretPosition, '/');
+                text.editText.insert(text.caretPosition, 1, '/');
                 util::MoveCaret(text, 1);
                 break;
             case input::Key::Key0:
-                text.editText.Insert(text.caretPosition, '0');
+                text.editText.insert(text.caretPosition, 1, '0');
                 util::MoveCaret(text, 1);
                 break;
             case input::Key::Key1:
-                text.editText.Insert(text.caretPosition, '1');
+                text.editText.insert(text.caretPosition, 1, '1');
                 util::MoveCaret(text, 1);
                 break;
             case input::Key::Key2:
-                text.editText.Insert(text.caretPosition, '2');
+                text.editText.insert(text.caretPosition, 1, '2');
                 util::MoveCaret(text, 1);
                 break;
             case input::Key::Key3:
-                text.editText.Insert(text.caretPosition, '3');
+                text.editText.insert(text.caretPosition, 1, '3');
                 util::MoveCaret(text, 1);
                 break;
             case input::Key::Key4:
-                text.editText.Insert(text.caretPosition, '4');
+                text.editText.insert(text.caretPosition, 1, '4');
                 util::MoveCaret(text, 1);
                 break;
             case input::Key::Key5:
-                text.editText.Insert(text.caretPosition, '5');
+                text.editText.insert(text.caretPosition, 1, '5');
                 util::MoveCaret(text, 1);
                 break;
             case input::Key::Key6:
-                text.editText.Insert(text.caretPosition, '6');
+                text.editText.insert(text.caretPosition, 1, '6');
                 util::MoveCaret(text, 1);
                 break;
             case input::Key::Key7:
-                text.editText.Insert(text.caretPosition, '7');
+                text.editText.insert(text.caretPosition, 1, '7');
                 util::MoveCaret(text, 1);
                 break;
             case input::Key::Key8:
-                text.editText.Insert(text.caretPosition, '8');
+                text.editText.insert(text.caretPosition, 1, '8');
                 util::MoveCaret(text, 1);
                 break;
             case input::Key::Key9:
-                text.editText.Insert(text.caretPosition, '9');
+                text.editText.insert(text.caretPosition, 1, '9');
                 util::MoveCaret(text, 1);
                 break;
             case input::Key::Semicolon:
-                text.editText.Insert(text.caretPosition, ';');
+                text.editText.insert(text.caretPosition, 1, ';');
                 util::MoveCaret(text, 1);
                 break;
             case input::Key::Equal:
-                text.editText.Insert(text.caretPosition, '=');
+                text.editText.insert(text.caretPosition, 1, '=');
                 util::MoveCaret(text, 1);
                 break;
             case input::Key::A:
-                text.editText.Insert(text.caretPosition, 'a');
+                text.editText.insert(text.caretPosition, 1, 'a');
                 util::MoveCaret(text, 1);
                 break;
             case input::Key::B:
-                text.editText.Insert(text.caretPosition, 'b');
+                text.editText.insert(text.caretPosition, 1, 'b');
                 util::MoveCaret(text, 1);
                 break;
             case input::Key::C:
-                text.editText.Insert(text.caretPosition, 'c');
+                text.editText.insert(text.caretPosition, 1, 'c');
                 util::MoveCaret(text, 1);
                 break;
             case input::Key::D:
-                text.editText.Insert(text.caretPosition, 'd');
+                text.editText.insert(text.caretPosition, 1, 'd');
                 util::MoveCaret(text, 1);
                 break;
             case input::Key::E:
-                text.editText.Insert(text.caretPosition, 'e');
+                text.editText.insert(text.caretPosition, 1, 'e');
                 util::MoveCaret(text, 1);
                 break;
             case input::Key::F:
-                text.editText.Insert(text.caretPosition, 'f');
+                text.editText.insert(text.caretPosition, 1, 'f');
                 util::MoveCaret(text, 1);
                 break;
             case input::Key::G:
-                text.editText.Insert(text.caretPosition, 'g');
+                text.editText.insert(text.caretPosition, 1, 'g');
                 util::MoveCaret(text, 1);
                 break;
             case input::Key::H:
-                text.editText.Insert(text.caretPosition, 'h');
+                text.editText.insert(text.caretPosition, 1, 'h');
                 util::MoveCaret(text, 1);
                 break;
             case input::Key::I:
-                text.editText.Insert(text.caretPosition, 'i');
+                text.editText.insert(text.caretPosition, 1, 'i');
                 util::MoveCaret(text, 1);
                 break;
             case input::Key::J:
-                text.editText.Insert(text.caretPosition, 'j');
+                text.editText.insert(text.caretPosition, 1, 'j');
                 util::MoveCaret(text, 1);
                 break;
             case input::Key::K:
-                text.editText.Insert(text.caretPosition, 'k');
+                text.editText.insert(text.caretPosition, 1, 'k');
                 util::MoveCaret(text, 1);
                 break;
             case input::Key::L:
-                text.editText.Insert(text.caretPosition, 'l');
+                text.editText.insert(text.caretPosition, 1, 'l');
                 util::MoveCaret(text, 1);
                 break;
             case input::Key::M:
-                text.editText.Insert(text.caretPosition, 'm');
+                text.editText.insert(text.caretPosition, 1, 'm');
                 util::MoveCaret(text, 1);
                 break;
             case input::Key::N:
-                text.editText.Insert(text.caretPosition, 'n');
+                text.editText.insert(text.caretPosition, 1, 'n');
                 util::MoveCaret(text, 1);
                 break;
             case input::Key::O:
-                text.editText.Insert(text.caretPosition, 'o');
+                text.editText.insert(text.caretPosition, 1, 'o');
                 util::MoveCaret(text, 1);
                 break;
             case input::Key::P:
-                text.editText.Insert(text.caretPosition, 'p');
+                text.editText.insert(text.caretPosition, 1, 'p');
                 util::MoveCaret(text, 1);
                 break;
             case input::Key::Q:
-                text.editText.Insert(text.caretPosition, 'q');
+                text.editText.insert(text.caretPosition, 1, 'q');
                 util::MoveCaret(text, 1);
                 break;
             case input::Key::R:
-                text.editText.Insert(text.caretPosition, 'r');
+                text.editText.insert(text.caretPosition, 1, 'r');
                 util::MoveCaret(text, 1);
                 break;
             case input::Key::S:
-                text.editText.Insert(text.caretPosition, 's');
+                text.editText.insert(text.caretPosition, 1, 's');
                 util::MoveCaret(text, 1);
                 break;
             case input::Key::T:
-                text.editText.Insert(text.caretPosition, 't');
+                text.editText.insert(text.caretPosition, 1, 't');
                 util::MoveCaret(text, 1);
                 break;
             case input::Key::U:
-                text.editText.Insert(text.caretPosition, 'u');
+                text.editText.insert(text.caretPosition, 1, 'u');
                 util::MoveCaret(text, 1);
                 break;
             case input::Key::V:
-                text.editText.Insert(text.caretPosition, 'v');
+                text.editText.insert(text.caretPosition, 1, 'v');
                 util::MoveCaret(text, 1);
                 break;
             case input::Key::W:
-                text.editText.Insert(text.caretPosition, 'w');
+                text.editText.insert(text.caretPosition, 1, 'w');
                 util::MoveCaret(text, 1);
                 break;
             case input::Key::X:
-                text.editText.Insert(text.caretPosition, 'x');
+                text.editText.insert(text.caretPosition, 1, 'x');
                 util::MoveCaret(text, 1);
                 break;
             case input::Key::Y:
-                text.editText.Insert(text.caretPosition, 'y');
+                text.editText.insert(text.caretPosition, 1, 'y');
                 util::MoveCaret(text, 1);
                 break;
             case input::Key::Z:
-                text.editText.Insert(text.caretPosition, 'z');
+                text.editText.insert(text.caretPosition, 1, 'z');
                 util::MoveCaret(text, 1);
                 break;
             case input::Key::LeftBracket:
-                text.editText.Insert(text.caretPosition, '[');
+                text.editText.insert(text.caretPosition, 1, '[');
                 util::MoveCaret(text, 1);
                 break;
             case input::Key::Backslash:
-                text.editText.Insert(text.caretPosition, '\\');
+                text.editText.insert(text.caretPosition, 1, '\\');
                 util::MoveCaret(text, 1);
                 break;
             case input::Key::RightBracket:
-                text.editText.Insert(text.caretPosition, ']');
+                text.editText.insert(text.caretPosition, 1, ']');
                 util::MoveCaret(text, 1);
                 break;
             case input::Key::GraveAccent:
-                text.editText.Insert(text.caretPosition, '`');
+                text.editText.insert(text.caretPosition, 1, '`');
                 util::MoveCaret(text, 1);
                 break;
             case input::Key::World2:
@@ -240,19 +240,19 @@ namespace se::ui::systems
                 util::EndEditingText(this, entity, text, keyInput);
                 break;
             case input::Key::Tab:
-                text.editText.Insert(text.caretPosition, "    ");
+                text.editText.insert(text.caretPosition, "    ");
                 break;
             case input::Key::Backspace:
                 if (text.caretPosition > 0)
                 {
-                    text.editText.Erase(text.caretPosition - 1);
+                    text.editText.erase(text.caretPosition - 1);
                     util::MoveCaret(text, -1);
                 }
                 break;
             case input::Key::Delete:
-                if (text.caretPosition < static_cast<int>(text.editText.Size()))
+                if (text.caretPosition < static_cast<int>(text.editText.size()))
                 {
-                    text.editText.Erase(text.caretPosition);
+                    text.editText.erase(text.caretPosition);
                 }
                 break;
             case input::Key::Right:

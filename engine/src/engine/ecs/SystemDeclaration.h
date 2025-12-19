@@ -1,7 +1,6 @@
 #pragma once
 
 #include "spark.h"
-#include "engine/string/String.h"
 
 namespace se::ecs
 {
@@ -50,7 +49,7 @@ namespace se::ecs
     {
         SystemDeclaration() = default;
 
-        SystemDeclaration(const String& _name)
+        SystemDeclaration(const std::string& _name)
             : name(_name)
         {
         }
@@ -133,7 +132,7 @@ namespace se::ecs
             return *this;
         }
 
-        String name = { };
+        std::string name = { };
         std::vector<ComponentUsage> componentUsage = { };
         std::vector<ComponentUsage> singletonComponentUsage = { };
         VariantComponentUsage variantComponentUsage = { };

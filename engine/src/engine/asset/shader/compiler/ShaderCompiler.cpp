@@ -34,9 +34,9 @@ namespace se::asset::shader
         return std::get<Shader>(result);
     }
 
-    std::vector<std::pair<String, ast::Variable>> ShaderCompiler::GatherUsedUniforms(const std::vector<std::shared_ptr<Shader>>& shaderAssets)
+    std::vector<std::pair<std::string, ast::Variable>> ShaderCompiler::GatherUsedUniforms(const std::vector<std::shared_ptr<Shader>>& shaderAssets)
     {
-        std::vector<std::pair<String, ast::Variable>> ret;
+        std::vector<std::pair<std::string, ast::Variable>> ret;
 
         for (const auto& shader : shaderAssets)
         {
@@ -113,15 +113,15 @@ namespace se::asset::shader
     {
         for (const auto& [name, type] : shader.GetSettingVariables())
         {
-            if (!SPARK_VERIFY(settings.HasDefinition(name.Data())))
+            if (!SPARK_VERIFY(settings.HasDefinition(name.data())))
             {
                 return false;
             }
 
-            auto replacementText = settings.GetSettingText(name.Data());
+            auto replacementText = settings.GetSettingText(name.data());
             for (const auto& node : shader.GetNodes())
             {
-                auto value = settings.GetSettingValue(name.Data());
+                auto value = settings.GetSettingValue(name.data());
                 std::visit([&shader, node, name](auto&& arg)
                 {
                     using T = std::decay_t<decltype(arg)>;

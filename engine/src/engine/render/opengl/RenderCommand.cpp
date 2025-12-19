@@ -52,7 +52,7 @@ namespace se::render::commands
 
     void PushScissor::Execute()
     {
-        auto primaryWindow = Application::Get()->GetPrimaryWindow();
+        auto primaryWindow = Application::Get()->GetWindow();
         glEnable(GL_SCISSOR_TEST);
         GL_CHECK_ERROR()
         glScissor(m_Rect.topLeft.x,

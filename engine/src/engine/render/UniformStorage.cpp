@@ -1,6 +1,5 @@
 #include "UniformStorage.h"
 #include "MaterialInstance.h"
-#include "engine/string/String.h"
 
 namespace se
 {

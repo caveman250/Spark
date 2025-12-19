@@ -10,6 +10,6 @@ namespace se::asset
     {
         SPARK_CLASS()
 
-        String m_Path = {};
+        std::string m_Path = {};
     };
 }

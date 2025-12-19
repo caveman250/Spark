@@ -151,7 +151,7 @@ namespace se::ui::util
             auto textButton = world->AddComponent<ButtonComponent>(textButtonEntity);
             textButton->onReleased.Subscribe([params, ret, i, world, collapsedText, option]()
             {
-                params.onItemSelected(i);
+                params.onItemSelected(static_cast<int>(i));
                 auto comboBox = world->GetComponent<ComboBoxComponent>(ret.id);
                 comboBox->collapsed = !comboBox->collapsed;
 
@@ -178,7 +178,7 @@ namespace se::ui::util
         ret.rectTransform = world->AddComponent<RectTransformComponent>(ret.id);
         ret.rectTransform->anchors = { .left = 0.f, .right = 1.f, .top = 0.f, .bottom = 0.f };
         ret.rectTransform->minY = 0;
-        ret.rectTransform->maxY = static_cast<int>(arial->GetLineHeight(params.fontSize) + padding + borderSize * 2 + 0.5f);
+        ret.rectTransform->maxY = arial->GetLineHeight(params.fontSize) + padding + borderSize * 2 + 0.5f;
         ret.rectTransform->overridesChildSizes = true;
         world->AddComponent<WidgetComponent>(ret.id);
         ret.comboBox = world->AddComponent<ComboBoxComponent>(ret.id);

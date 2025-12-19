@@ -19,12 +19,12 @@ namespace se::asset
         }
     }
 
-    void Shader::RemoveInputPort(const String &varName)
+    void Shader::RemoveInputPort(const std::string &varName)
     {
         m_InputPorts.erase(varName);
     }
 
-    void Shader::RemoveOutputPort(const String &varName)
+    void Shader::RemoveOutputPort(const std::string &varName)
     {
         m_OutputPorts.erase(varName);
     }
@@ -141,7 +141,7 @@ namespace se::asset
         return *this;
     }
 
-    bool Shader::FindVariable(const String &name, shader::ast::AstType &type) const
+    bool Shader::FindVariable(const std::string &name, shader::ast::AstType &type) const
     {
         for (int i = static_cast<int>(m_ScopeStack.size()) - 1; i > -1; --i)
         {
@@ -197,7 +197,7 @@ namespace se::asset
         return false;
     }
 
-    const std::shared_ptr<shader::ast::InputPortNode>& Shader::FindInputPort(const String &name) const
+    const std::shared_ptr<shader::ast::InputPortNode>& Shader::FindInputPort(const std::string &name) const
     {
         if (m_InputPorts.contains(name))
         {
@@ -208,7 +208,7 @@ namespace se::asset
         return nullRet;
     }
 
-    const std::shared_ptr<shader::ast::InputPortNode>&  Shader::FindInputPortByPortName(const String &portName) const
+    const std::shared_ptr<shader::ast::InputPortNode>&  Shader::FindInputPortByPortName(const std::string &portName) const
     {
         for (const auto &[varName, port]: m_InputPorts)
         {
@@ -222,7 +222,7 @@ namespace se::asset
         return nullRet;
     }
 
-    const std::shared_ptr<shader::ast::OutputPortNode>& Shader::FindOutputPort(const String &name) const
+    const std::shared_ptr<shader::ast::OutputPortNode>& Shader::FindOutputPort(const std::string &name) const
     {
         if (m_OutputPorts.contains(name))
         {
@@ -233,7 +233,7 @@ namespace se::asset
         return nullRet;
     }
 
-    const std::shared_ptr<shader::ast::OutputPortNode>& Shader::FindOutputPortByPortName(const String &portName) const
+    const std::shared_ptr<shader::ast::OutputPortNode>& Shader::FindOutputPortByPortName(const std::string &portName) const
     {
         for (const auto &[varName, port]: m_OutputPorts)
         {
@@ -247,7 +247,7 @@ namespace se::asset
         return nullRet;
     }
 
-    const std::shared_ptr<shader::ast::InputNode>& Shader::FindInput(const String &name) const
+    const std::shared_ptr<shader::ast::InputNode>& Shader::FindInput(const std::string &name) const
     {
         if (m_Inputs.contains(name))
         {
@@ -258,7 +258,7 @@ namespace se::asset
         return nullRet;
     }
 
-    const std::shared_ptr<shader::ast::OutputNode>& Shader::FindOutput(const String &name) const
+    const std::shared_ptr<shader::ast::OutputNode>& Shader::FindOutput(const std::string &name) const
     {
         if (m_Outputs.contains(name))
         {
@@ -269,7 +269,7 @@ namespace se::asset
         return nullRet;
     }
 
-    bool Shader::RecordVariableForScope(const String &name, const shader::ast::Variable& var, String &outError)
+    bool Shader::RecordVariableForScope(const std::string &name, const shader::ast::Variable& var, std::string &outError)
     {
         if (m_GlobalVariables.contains(name))
         {
@@ -308,7 +308,7 @@ namespace se::asset
         return true;
     }
 
-    bool Shader::AddUniform(const String& name, const shader::ast::Variable& var, String& outError)
+    bool Shader::AddUniform(const std::string& name, const shader::ast::Variable& var, std::string& outError)
     {
         if (m_GlobalVariables.contains(name))
         {
@@ -332,7 +332,7 @@ namespace se::asset
         return true;
     }
 
-    bool Shader::HasUniform(const String& name) const
+    bool Shader::HasUniform(const std::string& name) const
     {
         if (m_Inputs.contains(name))
         {
@@ -342,7 +342,7 @@ namespace se::asset
         return false;
     }
 
-    bool Shader::AddSetting(const String& name, const shader::ast::Variable& var, String& outError)
+    bool Shader::AddSetting(const std::string& name, const shader::ast::Variable& var, std::string& outError)
     {
         if (m_GlobalVariables.contains(name))
         {
@@ -371,7 +371,7 @@ namespace se::asset
         m_AstNodes.insert(m_AstNodes.begin() + at, std::shared_ptr<shader::ast::ASTNode>((shader::ast::ASTNode*)node->GetReflectType()->heap_copy_constructor(node.get())));
     }
 
-    bool Shader::HasUniform(const String& name, const shader::ast::Variable& var)
+    bool Shader::HasUniform(const std::string& name, const shader::ast::Variable& var)
     {
         for (const auto& [uniformName, uniformVar] : m_Uniforms)
         {
@@ -384,7 +384,7 @@ namespace se::asset
         return false;
     }
 
-    bool Shader::HasSetting(const String& name, const shader::ast::Variable& var)
+    bool Shader::HasSetting(const std::string& name, const shader::ast::Variable& var)
     {
         for (const auto& [settingName, settingVar] : m_Settings)
         {

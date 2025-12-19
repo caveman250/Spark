@@ -24,7 +24,7 @@ namespace se::ui::util
     struct ComboBoxParams
     {
         int fontSize = 14;
-        std::vector<String> options = {};
+        std::vector<std::string> options = {};
         std::function<void(int)> onItemSelected = nullptr;
         int selectedIndex = 0;
         bool editorOnly = false;

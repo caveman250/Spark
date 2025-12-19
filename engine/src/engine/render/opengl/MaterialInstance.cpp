@@ -129,7 +129,7 @@ namespace se::render::opengl
         }
     }
 
-    void MaterialInstance::SetUniformInternal(const String &name,
+    void MaterialInstance::SetUniformInternal(const std::string &name,
                                               asset::shader::ast::AstType type,
                                               int count,
                                               const void *value)
@@ -145,7 +145,7 @@ namespace se::render::opengl
         GLuint uniformLoc = {};
         if (type != asset::shader::ast::AstType::Sampler2D)
         {
-            uniformLoc = glGetUniformLocation(m_CompiledProgram, name.Data());
+            uniformLoc = glGetUniformLocation(m_CompiledProgram, name.data());
             GL_CHECK_ERROR()
         }
 

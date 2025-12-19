@@ -57,7 +57,7 @@ namespace se::debug::systems
             }
             average /= components::FPSCounterComponent::s_NumFramesToBuffer;
 
-            text.text = std::format("{:.0f}", average);
+            text.text = std::format("{:.0f}", std::max(1.f, average));
         }
 
     }

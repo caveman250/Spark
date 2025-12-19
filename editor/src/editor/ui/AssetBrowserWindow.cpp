@@ -150,7 +150,7 @@ namespace se::editor::ui
 
     }
 
-    void AssetBrowserWindow::SetActiveFolder(const String &activeFolder)
+    void AssetBrowserWindow::SetActiveFolder(const std::string &activeFolder)
     {
         m_ActiveFolder = activeFolder;
 
@@ -194,13 +194,13 @@ namespace se::editor::ui
     {
         auto world = Application::Get()->GetWorld();
 
-        String cumulativePath = {};
-        String lhs, rhs;
-        String path = m_ActiveFolder;
+        std::string cumulativePath = {};
+        std::string lhs, rhs;
+        std::string path = m_ActiveFolder;
         while (string::util::Split(path, lhs, rhs, '/', false))
         {
             path = rhs;
-            if (lhs.Size() == 0 && rhs.Size() > 0)
+            if (lhs.size() == 0 && rhs.size() > 0)
             {
                 continue;
             }
@@ -231,8 +231,8 @@ namespace se::editor::ui
     }
 
     void AssetBrowserWindow::CreatePathItem(ecs::World* world,
-                        const String& name,
-                        const String& path,
+                        const std::string& name,
+                        const std::string& path,
                         const std::shared_ptr<asset::Font>& font)
     {
         ecs::Id buttonEntity = world->CreateEntity("Button", true);
@@ -266,7 +266,7 @@ namespace se::editor::ui
                                                const io::VFSFile& file,
                                                const std::shared_ptr<asset::Font>& font)
     {
-        if (file.fileName.Size() == 0)
+        if (file.fileName.size() == 0)
         {
             return ecs::s_InvalidEntity;
         }
@@ -293,9 +293,9 @@ namespace se::editor::ui
             {
                 auto app = Application::Get();
                 EditorRuntime* runtime = app->GetEditorRuntime();
-                auto db = asset::binary::Database::Load(file.fullPath.Data(), true);
+                auto db = asset::binary::Database::Load(file.fullPath.data(), true);
 
-                std::shared_ptr<asset::Asset> asset = asset::AssetManager::Get()->GetAsset(file.fullPath.Data(),
+                std::shared_ptr<asset::Asset> asset = asset::AssetManager::Get()->GetAsset(file.fullPath.data(),
                                                                                            se::reflect::TypeFromString(db->GetRoot().GetStruct().GetName()));
                 runtime->SelectAsset(asset);
             }

@@ -74,10 +74,10 @@ namespace se::ui::systems
                     auto* rectTransform = childRects.at(child);
 
                     rectTransform->anchors = {0.f, 0.f, 0.f, 0.f};
-                    rectTransform->minX = cursor.x;
-                    rectTransform->minY = cursor.y;
-                    rectTransform->maxX = cursor.x + itemSize.x;
-                    rectTransform->maxY = cursor.y + itemSize.y;
+                    rectTransform->minX = static_cast<float>(cursor.x);
+                    rectTransform->minY = static_cast<float>(cursor.y);
+                    rectTransform->maxX = static_cast<float>(cursor.x + itemSize.x);
+                    rectTransform->maxY = static_cast<float>(cursor.y + itemSize.y);
 
                     rectTransform->rect = util::CalculateScreenSpaceRect(*rectTransform,
                                                                         gridBoxTransform);

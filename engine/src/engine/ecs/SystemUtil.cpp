@@ -35,12 +35,12 @@ namespace se::ecs
             systemList.push_back(kvp);
         });
 
-        for (size_t i = 0; i < systemList.size(); ++i)
+        for (int i = 0; i < systemList.size(); ++i)
         {
             indices[systemList[i].first] = AddVertex(i);
         }
 
-        for (size_t i = 0; i < systemList.size(); ++i)
+        for (int i = 0; i < systemList.size(); ++i)
         {
             for (size_t j = 0; j < systemList[i].second.instance->GetDeclaration().dependencies.size(); j++)
             {

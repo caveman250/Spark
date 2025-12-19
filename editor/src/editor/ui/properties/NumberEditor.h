@@ -24,7 +24,7 @@ namespace se::editor::ui::properties
 
     public:
         void SetValue(void* value, const reflect::Type* type) override;
-        void ConstructUI(const String& name, bool constructTitle, const se::ui::Anchors& anchors, bool collapsed, bool withBackground) override;
+        void ConstructUI(const std::string& name, bool constructTitle, const se::ui::Anchors& anchors, bool collapsed, bool withBackground) override;
         void Update() override;
 
     private:
@@ -51,7 +51,7 @@ namespace se::editor::ui::properties
     }
 
     template <Number N>
-    void NumberEditor<N>::ConstructUI(const String& name, bool constructTitle, const se::ui::Anchors& anchors, bool collapsed, bool withBackground)
+    void NumberEditor<N>::ConstructUI(const std::string& name, bool constructTitle, const se::ui::Anchors& anchors, bool collapsed, bool withBackground)
     {
         PropertyEditor::ConstructUI(name, constructTitle, anchors, collapsed, withBackground);
 
@@ -68,7 +68,7 @@ namespace se::editor::ui::properties
         auto bgTransform = world->AddComponent<RectTransformComponent>(bg);
         bgTransform->anchors = { .left = constructTitle ? 0.35f : 0.f, .right = 1.f, .top = 0.f, .bottom = 0.f };
         bgTransform->minY = 0;
-        bgTransform->maxY = static_cast<int>(ariel->GetLineHeight(fontSize) + padding + borderSize * 2 + 0.5f);
+        bgTransform->maxY = ariel->GetLineHeight(fontSize) + padding + borderSize * 2 + 0.5f;
 
         world->AddComponent<WidgetComponent>(bg);
         auto image = world->AddComponent<ImageComponent>(bg);
@@ -100,82 +100,82 @@ namespace se::editor::ui::properties
         EditableTextComponent* editableText = nullptr;
         m_Label = se::ui::util::CreateEditableText(world, ariel, fontSize, &editableText);
         editableText->text = std::format("{}", *m_Value);
-        std::function cb = [this](String newVal)
+        std::function cb = [this](std::string newVal)
         {
             N i;
             if constexpr (std::is_same_v<N, char>)
             {
-                if (SSCANF(newVal.Data(), "%c", &i, 1) == 1)
+                if (SSCANF(newVal.data(), "%c", &i, 1) == 1)
                 {
                     *m_Value = i;
                 }
             }
             else if constexpr (std::is_same_v<N, int8_t>)
             {
-                if (SSCANF(newVal.Data(), "%" PRIi8, &i) == 1)
+                if (SSCANF(newVal.data(), "%" PRIi8, &i) == 1)
                 {
                     *m_Value = i;
                 }
             }
             else if constexpr (std::is_same_v<N, uint8_t>)
             {
-                if (SSCANF(newVal.Data(), "%" PRIu8, &i) == 1)
+                if (SSCANF(newVal.data(), "%" PRIu8, &i) == 1)
                 {
                     *m_Value = i;
                 }
             }
             else if constexpr (std::is_same_v<N, int16_t>)
             {
-                if (SSCANF(newVal.Data(), "%" PRIi16, &i) == 1)
+                if (SSCANF(newVal.data(), "%" PRIi16, &i) == 1)
                 {
                     *m_Value = i;
                 }
             }
             else if constexpr (std::is_same_v<N, uint16_t>)
             {
-                if (SSCANF(newVal.Data(), "%" PRIu16, &i) == 1)
+                if (SSCANF(newVal.data(), "%" PRIu16, &i) == 1)
                 {
                     *m_Value = i;
                 }
             }
             else if constexpr (std::is_same_v<N, int32_t>)
             {
-                if (SSCANF(newVal.Data(), "%" PRIi32, &i) == 1)
+                if (SSCANF(newVal.data(), "%" PRIi32, &i) == 1)
                 {
                     *m_Value = i;
                 }
             }
             else if constexpr (std::is_same_v<N, uint32_t>)
             {
-                if (SSCANF(newVal.Data(), "%" PRIu32, &i) == 1)
+                if (SSCANF(newVal.data(), "%" PRIu32, &i) == 1)
                 {
                     *m_Value = i;
                 }
             }
             else if constexpr (std::is_same_v<N, int64_t>)
             {
-                if (SSCANF(newVal.Data(), "%" PRIi64, &i) == 1)
+                if (SSCANF(newVal.data(), "%" PRIi64, &i) == 1)
                 {
                     *m_Value = i;
                 }
             }
             else if constexpr (std::is_same_v<N, uint64_t>)
             {
-                if (SSCANF(newVal.Data(), "%" PRIu64, &i) == 1)
+                if (SSCANF(newVal.data(), "%" PRIu64, &i) == 1)
                 {
                     *m_Value = i;
                 }
             }
             else if constexpr (std::is_same_v<N, float>)
             {
-                if (SSCANF(newVal.Data(), "%f", &i) == 1)
+                if (SSCANF(newVal.data(), "%f", &i) == 1)
                 {
                     *m_Value = i;
                 }
             }
             else if constexpr (std::is_same_v<N, double>)
             {
-                if (SSCANF(newVal.Data(), "%lf", &i) == 1)
+                if (SSCANF(newVal.data(), "%lf", &i) == 1)
                 {
                     *m_Value = i;
                 }

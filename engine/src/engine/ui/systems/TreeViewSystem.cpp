@@ -34,7 +34,7 @@ namespace se::ui::systems
             if (treeView.dirty)
             {
                 int maxY = MeasureAndArrange(entities[i], false, 0);
-                rectTransform.maxY = maxY;
+                rectTransform.maxY = static_cast<float>(maxY);
                 rectTransform.needsLayout = true;
                 treeView.dirty = false;
             }
@@ -58,9 +58,9 @@ namespace se::ui::systems
                 widget.visibility = collapsed ? Visibility::Hidden : Visibility::Visible; // TODO should be collapsed instead of Hidden.
 
                 auto& childTransform = rectTransforms[j];
-                childTransform.minY = currentY;
+                childTransform.minY = static_cast<float>(currentY);
                 childTransform.minX = 6;
-                childTransform.maxY = currentY + 18;
+                childTransform.maxY = static_cast<float>(currentY + 18);
                 childTransform.anchors.right = 1.f;
                 childTransform.needsLayout = true;
 

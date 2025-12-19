@@ -29,7 +29,6 @@ namespace se::ui::util
         static std::shared_ptr<render::Material> titleBGMaterial = nullptr;
         if (!titleBGMaterial)
         {
-            auto assetManager = asset::AssetManager::Get();
             auto vert = assetManager->GetAsset<asset::Shader>("/engine_assets/shaders/ui.sass");
             auto frag = assetManager->GetAsset<asset::Shader>("/engine_assets/shaders/flat_color.sass");
             titleBGMaterial = render::Material::CreateMaterial({ vert }, { frag });

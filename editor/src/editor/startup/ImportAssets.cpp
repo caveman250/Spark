@@ -21,18 +21,18 @@ namespace se::editor::startup
     {
         io::VFS::Get().ForEachFile(dir, true, [dir, outputDir](const io::VFSFile& file)
         {
-            if (se::asset::builder::AssetBuilder::IsRelevantFile(file.fullPath.Data()))
+            if (se::asset::builder::AssetBuilder::IsRelevantFile(file.fullPath.data()))
             {
-                auto meta = asset::meta::MetaData::GetMetaDataForAsset(file.fullPath.Data());
+                auto meta = asset::meta::MetaData::GetMetaDataForAsset(file.fullPath.data());
 
-                std::string outputPathBase = file.fullPath.Data();
+                std::string outputPathBase = file.fullPath.data();
                 outputPathBase.replace(0, dir.length(), outputDir);
                 auto extensionIt = outputPathBase.find_last_of(".");
                 outputPathBase.replace(extensionIt, outputPathBase.length() - extensionIt, ".sass");
 
-                if (se::asset::builder::AssetBuilder::IsOutOfDate(file.fullPath.Data(), meta.value(), outputPathBase))
+                if (se::asset::builder::AssetBuilder::IsOutOfDate(file.fullPath.data(), meta.value(), outputPathBase))
                 {
-                    for (const auto& builtAsset : se::asset::builder::AssetBuilder::ProcessAsset(file.fullPath.Data(), outputPathBase, meta.value()))
+                    for (const auto& builtAsset : se::asset::builder::AssetBuilder::ProcessAsset(file.fullPath.data(), outputPathBase, meta.value()))
                     {
                         if (!builtAsset.fileNameSuffix.empty())
                         {

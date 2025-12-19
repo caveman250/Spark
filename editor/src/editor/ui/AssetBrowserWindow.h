@@ -2,7 +2,6 @@
 
 #include "ToolWindow.h"
 #include "engine/ecs/ecs_fwd.h"
-#include "engine/string/String.h"
 
 namespace se::ecs
 {
@@ -31,11 +30,11 @@ namespace se::editor::ui
         void DestroyUI() override;
 
     private:
-        void SetActiveFolder(const String& activeFolder);
+        void SetActiveFolder(const std::string& activeFolder);
         void CreatePathBar(const std::shared_ptr<asset::Font>& font);
         void CreatePathItem(ecs::World* world,
-                            const String& name,
-                            const String& path,
+                            const std::string& name,
+                            const std::string& path,
                             const std::shared_ptr<asset::Font>& font);
         ecs::Id CreateFileItem(ecs::World* world,
                                asset::AssetManager* assetManager,
@@ -46,7 +45,7 @@ namespace se::editor::ui
         ecs::Id m_GridBoxEntity = ecs::s_InvalidEntity;
         ecs::Id m_PathBarBox = ecs::s_InvalidEntity;
         std::vector<ecs::Id> m_PathBarItems = {};
-        String m_ActiveFolder = "/assets";
+        std::string m_ActiveFolder = "/assets";
         std::shared_ptr<asset::Texture> m_FileTexture = nullptr;
         std::shared_ptr<asset::Texture> m_FolderTexture = nullptr;
     };

@@ -14,7 +14,7 @@ namespace se::editor::ui::properties
         m_Value = static_cast<asset::StaticMesh*>(value);
     }
 
-    void StaticMeshEditor::ConstructUI(const String& name, bool constructTitle, const se::ui::Anchors& anchors, bool collapsed, bool withBackground)
+    void StaticMeshEditor::ConstructUI(const std::string& name, bool constructTitle, const se::ui::Anchors& anchors, bool collapsed, bool withBackground)
     {
         PropertyEditor::ConstructUI(name, constructTitle, anchors, collapsed, withBackground);
 

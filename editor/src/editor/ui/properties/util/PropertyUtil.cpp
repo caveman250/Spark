@@ -19,7 +19,7 @@ namespace se::editor::ui::properties::util
         auto transform = world->AddComponent<se::ui::components::RectTransformComponent>(textEntity);
         transform->minX = 5;
         transform->maxX = 5;
-        transform->minY = minY;
+        transform->minY = static_cast<float>(minY);
         transform->anchors = { leftAnchor, 1.f, 0.f, 0.f };
         world->AddComponent<se::ui::components::WidgetComponent>(textEntity);
 

@@ -62,8 +62,8 @@ namespace se::ui::util
             auto rect = Application::Get()->GetWorld()->GetComponent<components::RectTransformComponent>(scrollBarEntity);
             float availableSize = scrollRect->rect.size.y - 25.f - 5.f * 2.f;
 
-            rect->minY = static_cast<int>(5 + availableSize * scrollAmount);
-            rect->maxY = static_cast<int>(rect->minY + 25);
+            rect->minY = 5 + availableSize * scrollAmount;
+            rect->maxY = rect->minY + 25;
             rect->needsLayout = true;
 
             rect->rect.topLeft.y = static_cast<int>(scrollRect->rect.topLeft.y + 5 + availableSize * scrollAmount);

@@ -15,7 +15,7 @@ namespace se::editor::ui::properties
         m_Value = static_cast<asset::shader::ast::MainNode*>(value);
     }
 
-    void MainNodeEditor::ConstructUI(const String& name, bool constructTitle, const se::ui::Anchors& anchors, bool collapsed, bool withBackground)
+    void MainNodeEditor::ConstructUI(const std::string& name, bool constructTitle, const se::ui::Anchors& anchors, bool collapsed, bool withBackground)
     {
         PropertyEditor::ConstructUI(name, constructTitle, anchors, collapsed, withBackground);
 

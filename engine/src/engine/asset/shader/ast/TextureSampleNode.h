@@ -24,6 +24,6 @@ namespace se::asset::shader::ast
         std::string m_UVVariableName = {};
 
         // only used during shader generation
-        String m_TempSamplerName = {};
+        std::string m_TempSamplerName = {};
     };
 }

@@ -48,7 +48,7 @@ namespace se::ui::util
             math::IntVec2 offset = GetCaretPosition(pos, *editText, *textRect);
 
             auto* caretRect = world->GetComponent<RectTransformComponent>(caretEntity);
-            caretRect->minX = offset.x;
+            caretRect->minX = static_cast<float>(offset.x);
             caretRect->maxX = caretRect->minX + 2;
             caretRect->rect = CalculateScreenSpaceRect(*caretRect, *textRect);
         };
@@ -138,7 +138,7 @@ namespace se::ui::util
                      int pos)
     {
         int oldPos = textComp.caretPosition;
-        textComp.caretPosition = std::clamp<int>(pos, 0, (int)textComp.editText.Size());
+        textComp.caretPosition = std::clamp<int>(pos, 0, (int)textComp.editText.size());
         if (textComp.caretPosition != oldPos)
         {
             textComp.onCaretMoved.Broadcast(textComp.caretPosition);

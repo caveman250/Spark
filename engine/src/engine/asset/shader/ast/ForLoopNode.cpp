@@ -97,10 +97,10 @@ namespace se::asset::shader::ast
 
     ShaderValue EvaluateForLoopInitialIteratorValue(const std::vector<std::shared_ptr<ASTNode>>& expression)
     {
-        String variableName = nullptr;
+        std::string variableName = {};
         for (const auto& node : expression)
         {
-            if (variableName.Size() == 0)
+            if (variableName.size() == 0)
             {
                 if (VariableDeclarationNode* decNode = dynamic_cast<VariableDeclarationNode*>(node.get()))
                 {
@@ -110,11 +110,11 @@ namespace se::asset::shader::ast
 
             if (BinaryExpressionNode* binaryExpression = dynamic_cast<BinaryExpressionNode*>(node.get()))
             {
-                SPARK_ASSERT(variableName.Size() > 0);
+                SPARK_ASSERT(variableName.size() > 0);
                 // we expect the lhs to be variableName
                 [[maybe_unused]] VariableReferenceNode* refNode = dynamic_cast<VariableReferenceNode*>(binaryExpression->m_Children[0].get());
                 SPARK_ASSERT(refNode);
-                SPARK_ASSERT(strcmp(refNode->GetName().c_str(), variableName.Data()) == 0);
+                SPARK_ASSERT(strcmp(refNode->GetName().c_str(), variableName.data()) == 0);
 
                 // TODO support for more complex expressions (also parser should catch this)
                 ConstantNodeBase* constantNode = dynamic_cast<ConstantNodeBase*>(binaryExpression->m_Children[1].get());
@@ -132,13 +132,13 @@ namespace se::asset::shader::ast
     struct ForLoopExpression
     {
         OperatorType opType;
-        String lhs;
+        std::string lhs;
         ShaderValue rhs;
     };
 
     ForLoopExpression EvaluateForLoopCondition(const std::shared_ptr<ASTNode>& expression)
     {
-        String variableName = nullptr;
+        std::string variableName = {};
         SPARK_ASSERT(expression->GetReflectType() == reflect::TypeResolver<BinaryExpressionNode>::get());
         auto* binaryExpression = static_cast<BinaryExpressionNode*>(expression.get());
         VariableReferenceNode* refNode = dynamic_cast<VariableReferenceNode*>(binaryExpression->m_Children[0].get());
@@ -193,7 +193,7 @@ namespace se::asset::shader::ast
 
         for (int i = initialVal; i < comp; i += loopIt)
         {
-            context.tempRenames = std::map<std::string, std::string>{ { condition.lhs.Data(), std::to_string(i) } };
+            context.tempRenames = std::map<std::string, std::string>{ { condition.lhs.data(), std::to_string(i) } };
             outShader += "{\n";
             for (const auto& child : m_Children)
             {

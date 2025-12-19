@@ -30,8 +30,8 @@ namespace se::render
 
         const RenderState& GetRenderState() const { return m_RenderState; }
 
-        const std::map<String, asset::shader::ast::Variable>& GetVertUniforms() const { return m_VertUniforms; }
-        const std::map<String, asset::shader::ast::Variable>& GetFragUniforms() const { return m_FragUniforms; }
+        const std::map<std::string, asset::shader::ast::Variable>& GetVertUniforms() const { return m_VertUniforms; }
+        const std::map<std::string, asset::shader::ast::Variable>& GetFragUniforms() const { return m_FragUniforms; }
 
     protected:
         virtual void ApplyDepthStencil(DepthCompare comp, StencilFunc src, uint32_t writeMask, uint32_t readMask) = 0;
@@ -46,7 +46,7 @@ namespace se::render
         LightSetup m_CachedLightSetup;
         bool m_PlatformResourcesCreated = false;
 
-        std::map<String, asset::shader::ast::Variable> m_VertUniforms;
-        std::map<String, asset::shader::ast::Variable> m_FragUniforms;
+        std::map<std::string, asset::shader::ast::Variable> m_VertUniforms;
+        std::map<std::string, asset::shader::ast::Variable> m_FragUniforms;
     };
 }

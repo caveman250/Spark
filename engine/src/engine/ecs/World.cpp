@@ -17,7 +17,7 @@
 
 namespace se::ecs
 {
-    Id World::CreateEntity(const String& name, bool editorOnly)
+    Id World::CreateEntity(const std::string& name, bool editorOnly)
     {
         auto guard = MaybeLockGuard(m_UpdateMode, &m_EntityMutex);
         uint32_t entityId;
@@ -508,7 +508,7 @@ namespace se::ecs
                 nlohmann::ordered_json json;
                 auto dbJson = db->ToJson();
                 json["id"] = child.id;
-                json["name"] = child.name->Data();
+                json["name"] = child.name->data();
                 json["rect"] = dbJson["root"];
                 RecurseWidgetChildren(world, child, json);
                 parentJson["children"].push_back(json);
@@ -535,7 +535,7 @@ namespace se::ecs
                 nlohmann::ordered_json json;
                 auto dbJson = db->ToJson();
                 json["id"] = entity.id;
-                json["name"] = entity.name->Data();
+                json["name"] = entity.name->data();
                 json["rect"] = dbJson["root"];
                 RecurseWidgetChildren(this, entity, json);
                 result["root_widgets"].push_back(json);
@@ -653,7 +653,7 @@ namespace se::ecs
         }
     }
 
-    const String* World::GetName(uint64_t id) const
+    const std::string* World::GetName(uint64_t id) const
     {
         if (id == s_InvalidEntity || !m_IdMetaMap.contains(id))
         {

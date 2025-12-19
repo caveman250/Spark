@@ -80,8 +80,8 @@ namespace se::ui::systems
                     auto desiredSizeInfo = childRects.at(child);
                     desiredSizeInfo.rectTransform->rect.topLeft = horizontalBoxTransform.rect.topLeft + math::Vec2 { currX, horizontalBox.paddingTop };
                     desiredSizeInfo.rectTransform->rect.size = desiredSizeInfo.desiredSize;
-                    desiredSizeInfo.rectTransform->rect.size.y = horizontalBoxTransform.rect.size.y - horizontalBox.paddingBottom - horizontalBox.paddingTop;
-                    currX += desiredSizeInfo.desiredSize.x + horizontalBox.spacing;
+                    desiredSizeInfo.rectTransform->rect.size.y = horizontalBoxTransform.rect.size.y - static_cast<int>(horizontalBox.paddingBottom - horizontalBox.paddingTop);
+                    currX += static_cast<float>(desiredSizeInfo.desiredSize.x) + horizontalBox.spacing;
 
                     desiredSizeInfo.rectTransform->layer = horizontalBoxTransform.layer;
 
@@ -100,7 +100,7 @@ namespace se::ui::systems
                     }
                 }
 
-                horizontalBoxTransform.rect.size.x = currX + horizontalBox.paddingRight * window->GetContentScale();
+                horizontalBoxTransform.rect.size.x = static_cast<int>(currX + horizontalBox.paddingRight * window->GetContentScale());
                 horizontalBoxTransform.maxX = horizontalBoxTransform.minX + currX / window->GetContentScale() + horizontalBox.paddingRight;
 
                 horizontalBoxTransform.needsLayout = false;

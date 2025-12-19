@@ -7,7 +7,6 @@
 #include "engine/render/VertexBuffer.h"
 #include "engine/render/IndexBuffer.h"
 #include "engine/render/MaterialInstance.h"
-#include "engine/string/String.h"
 #include "engine/ui/util/MeshUtil.h"
 
 namespace se::ui::systems
@@ -24,15 +23,15 @@ namespace se::ui::components
         // text
         std::shared_ptr<asset::Font> font = { };
         int fontSize = 0;
-        String text = { };
+        std::string text = { };
         text::Alignment alignment = text::Alignment::Left;
         text::WrapMode wrap = text::WrapMode::None;
 
         // edit mode
         bool inEditMode = false;
-        String editText = { };
+        std::string editText = { };
         int caretPosition = 0;
-        ecs::Signal<String> onComitted = {};
+        ecs::Signal<std::string> onComitted = {};
         ecs::Signal<int> onCaretMoved = {};
 
         // internal
@@ -40,7 +39,7 @@ namespace se::ui::components
         std::shared_ptr<render::VertexBuffer> vertBuffer = { };
         std::shared_ptr<render::IndexBuffer> indexBuffer = { };
         int lastFontSize = { };
-        String lastText = { };
+        std::string lastText = { };
     };
 }
 

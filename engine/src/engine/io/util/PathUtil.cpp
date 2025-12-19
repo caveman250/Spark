@@ -1,15 +1,14 @@
 #include "PathUtil.h"
 #include "engine/string/util/StringUtil.h"
-#include "engine/string/String.h"
 
 namespace se::io::util
 {
-    void SplitPath(const String& path,
-                   String& dir,
-                   String& file,
-                   String& extension)
+    void SplitPath(const std::string& path,
+                   std::string& dir,
+                   std::string& file,
+                   std::string& extension)
     {
-        String pathMinusExtension = {};
+        std::string pathMinusExtension = {};
         if (!string::util::Split(path, pathMinusExtension, extension, '.', true))
         {
             if (!string::util::Split(path, dir, file, '/', true))

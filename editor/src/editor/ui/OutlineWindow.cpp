@@ -98,7 +98,7 @@ namespace se::editor::ui
         {
             se::ui::components::TreeNodeComponent* treeNodeComp = nullptr;
             se::ui::components::TextComponent* textComp = nullptr;
-            se::String name = "Singleton Components";
+            std::string name = "Singleton Components";
             singletonComponentsNode = se::ui::util::InsertTreeNode(m_TreeViewEntity, treeView, m_TreeViewEntity, name, &treeNodeComp, &textComp, true);
             textComp->text = name;
         }

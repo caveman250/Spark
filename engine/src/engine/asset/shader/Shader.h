@@ -9,7 +9,6 @@
 #include "ast/Variable.h"
 #include "engine/asset/Asset.h"
 #include "engine/reflect/Reflect.h"
-#include "engine/string/String.h"
 
 namespace se::asset::shader::compiler
 {
@@ -38,7 +37,7 @@ namespace se::asset
         AstScope(const std::shared_ptr<shader::ast::ASTNode>& node) : m_Node(node) {}
         std::shared_ptr<shader::ast::ASTNode> m_Node;
 
-        std::map<String, shader::ast::Variable> m_Variables;
+        std::map<std::string, shader::ast::Variable> m_Variables;
     };
 
     SPARK_ENUM()
@@ -56,21 +55,21 @@ namespace se::asset
         Shader(const Shader& rhs);
         Shader& operator=(const Shader& rhs);
 
-        bool FindVariable(const String& name, shader::ast::AstType& type) const;
-        const std::map<String, std::shared_ptr<shader::ast::InputNode>>& GetInputs() const { return m_Inputs; }
-        const std::map<String, std::shared_ptr<shader::ast::OutputNode>>& GetOutputs() const { return m_Outputs; }
-        const std::map<String, std::shared_ptr<shader::ast::InputPortNode>>& GetInputPorts() const { return m_InputPorts; }
-        const std::map<String, std::shared_ptr<shader::ast::OutputPortNode>>& GetOutputPorts() const { return m_OutputPorts; }
+        bool FindVariable(const std::string& name, shader::ast::AstType& type) const;
+        const std::map<std::string, std::shared_ptr<shader::ast::InputNode>>& GetInputs() const { return m_Inputs; }
+        const std::map<std::string, std::shared_ptr<shader::ast::OutputNode>>& GetOutputs() const { return m_Outputs; }
+        const std::map<std::string, std::shared_ptr<shader::ast::InputPortNode>>& GetInputPorts() const { return m_InputPorts; }
+        const std::map<std::string, std::shared_ptr<shader::ast::OutputPortNode>>& GetOutputPorts() const { return m_OutputPorts; }
         const std::vector<std::shared_ptr<shader::ast::ASTNode>>& GetNodes() const { return m_AstNodes; }
-        std::map<String, shader::ast::Variable>& GetGlobalVariables() { return m_GlobalVariables; }
-        const std::map<String, shader::ast::Variable>& GetUniformVariables() const { return m_Uniforms; }
-        const std::map<String, shader::ast::Variable>& GetSettingVariables() const { return m_Settings; }
+        std::map<std::string, shader::ast::Variable>& GetGlobalVariables() { return m_GlobalVariables; }
+        const std::map<std::string, shader::ast::Variable>& GetUniformVariables() const { return m_Uniforms; }
+        const std::map<std::string, shader::ast::Variable>& GetSettingVariables() const { return m_Settings; }
         std::vector<AstScope>& GetScopeStack() { return m_ScopeStack; }
 
         void AddInputPort(const std::shared_ptr<shader::ast::InputPortNode>& node);
         void AddOutputPort(const std::shared_ptr<shader::ast::OutputPortNode>& node);
-        void RemoveInputPort(const String& varName);
-        void RemoveOutputPort(const String& varName);
+        void RemoveInputPort(const std::string& varName);
+        void RemoveOutputPort(const std::string& varName);
         void AddInput(const std::shared_ptr<shader::ast::InputNode>& node);
         void AddOutput(const std::shared_ptr<shader::ast::OutputNode>& node);
 
@@ -85,20 +84,20 @@ namespace se::asset
 
         std::pair<uint32_t, std::shared_ptr<shader::ast::MainNode>> FindMain() const;
 
-        const std::shared_ptr<shader::ast::InputPortNode>& FindInputPort(const String& name) const;
-        const std::shared_ptr<shader::ast::InputPortNode>& FindInputPortByPortName(const String& portName) const;
-        const std::shared_ptr<shader::ast::OutputPortNode>& FindOutputPort(const String& name) const;
-        const std::shared_ptr<shader::ast::OutputPortNode>& FindOutputPortByPortName(const String& portName) const;
-        const std::shared_ptr<shader::ast::InputNode>& FindInput(const String& name) const;
-        const std::shared_ptr<shader::ast::OutputNode>& FindOutput(const String& name) const;
-        bool RecordVariableForScope(const String& name, const shader::ast::Variable& var, String& outError);
-        bool AddUniform(const String& name, const shader::ast::Variable& var, String& outError);
-        bool HasUniform(const String& name) const;
-        bool AddSetting(const String& name, const shader::ast::Variable& var, String& outError);
+        const std::shared_ptr<shader::ast::InputPortNode>& FindInputPort(const std::string& name) const;
+        const std::shared_ptr<shader::ast::InputPortNode>& FindInputPortByPortName(const std::string& portName) const;
+        const std::shared_ptr<shader::ast::OutputPortNode>& FindOutputPort(const std::string& name) const;
+        const std::shared_ptr<shader::ast::OutputPortNode>& FindOutputPortByPortName(const std::string& portName) const;
+        const std::shared_ptr<shader::ast::InputNode>& FindInput(const std::string& name) const;
+        const std::shared_ptr<shader::ast::OutputNode>& FindOutput(const std::string& name) const;
+        bool RecordVariableForScope(const std::string& name, const shader::ast::Variable& var, std::string& outError);
+        bool AddUniform(const std::string& name, const shader::ast::Variable& var, std::string& outError);
+        bool HasUniform(const std::string& name) const;
+        bool AddSetting(const std::string& name, const shader::ast::Variable& var, std::string& outError);
 
         void InsertNode(size_t at, const std::shared_ptr<shader::ast::ASTNode>& node);
-        bool HasUniform(const String& name, const shader::ast::Variable& type);
-        bool HasSetting(const String& name, const shader::ast::Variable& type);
+        bool HasUniform(const std::string& name, const shader::ast::Variable& type);
+        bool HasSetting(const std::string& name, const shader::ast::Variable& type);
 
         void SetType(ShaderType type) { m_Type = type; }
         ShaderType GetType() const { return m_Type; }
@@ -111,16 +110,16 @@ namespace se::asset
         bool m_MainDeclared = false;
 
         SPARK_MEMBER(Serialized)
-        std::map<String, std::shared_ptr<shader::ast::InputPortNode>> m_InputPorts;
+        std::map<std::string, std::shared_ptr<shader::ast::InputPortNode>> m_InputPorts;
 
         SPARK_MEMBER(Serialized)
-        std::map<String, std::shared_ptr<shader::ast::OutputPortNode>> m_OutputPorts;
+        std::map<std::string, std::shared_ptr<shader::ast::OutputPortNode>> m_OutputPorts;
 
         SPARK_MEMBER()
-        std::map<String, std::shared_ptr<shader::ast::InputNode>> m_Inputs;
+        std::map<std::string, std::shared_ptr<shader::ast::InputNode>> m_Inputs;
 
         SPARK_MEMBER()
-        std::map<String, std::shared_ptr<shader::ast::OutputNode>> m_Outputs;
+        std::map<std::string, std::shared_ptr<shader::ast::OutputNode>> m_Outputs;
 
         SPARK_MEMBER(Serialized)
         std::vector<std::shared_ptr<shader::ast::ASTNode>> m_AstNodes;
@@ -128,13 +127,13 @@ namespace se::asset
         std::vector<AstScope> m_ScopeStack;
 
         SPARK_MEMBER(Serialized)
-        std::map<String, shader::ast::Variable> m_Uniforms;
+        std::map<std::string, shader::ast::Variable> m_Uniforms;
 
         SPARK_MEMBER(Serialized)
-        std::map<String, shader::ast::Variable> m_GlobalVariables;
+        std::map<std::string, shader::ast::Variable> m_GlobalVariables;
 
         SPARK_MEMBER(Serialized)
-        std::map<String, shader::ast::Variable> m_Settings;
+        std::map<std::string, shader::ast::Variable> m_Settings;
 
         friend class shader::ShaderCompiler;
     };

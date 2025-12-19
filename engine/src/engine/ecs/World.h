@@ -9,7 +9,6 @@
 #include "SystemDeclaration.h"
 #include "SystemUpdateData.h"
 #include "engine/profiling/Profiler.h"
-#include "engine/string/String.h"
 #include "engine/ecs/components/ParentComponent.h"
 #include "SystemUtil.h"
 #include "ecs_fwd.h"
@@ -102,7 +101,7 @@ namespace se::ecs
 
         void DumpWidgetHeirachy();
 
-        Id CreateEntity(const String& name,
+        Id CreateEntity(const std::string& name,
                         bool editorOnly = false);
         void DestroyEntity(const Id& entity);
         std::vector<Id> GetEntities() const;
@@ -161,7 +160,7 @@ namespace se::ecs
         Id CreateObserver();
         void DestroyObserver(const Id& id);
 
-        const String* GetName(uint64_t id) const;
+        const std::string* GetName(uint64_t id) const;
         int32_t* GetFlags(uint64_t id);
 
     private:
@@ -339,7 +338,7 @@ namespace se::ecs
 
         struct IdMetaData
         {
-            String name;
+            std::string name;
             int32_t flags;
         };
 

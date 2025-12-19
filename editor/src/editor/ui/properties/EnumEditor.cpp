@@ -16,7 +16,7 @@ namespace se::editor::ui::properties
         m_EnumType = static_cast<const reflect::Enum*>(type);
     }
 
-    void EnumEditor::ConstructUI(const String& name, bool constructTitle, const se::ui::Anchors& anchors, bool collapsed, bool withBackground)
+    void EnumEditor::ConstructUI(const std::string& name, bool constructTitle, const se::ui::Anchors& anchors, bool collapsed, bool withBackground)
     {
        PropertyEditor::ConstructUI(name, constructTitle, anchors, collapsed, withBackground);
 

@@ -17,6 +17,6 @@ namespace se::asset::shader::ast
     void VertexPositionOutputNode::ToMtl(ShaderCompileContext& context, string::ArenaString& outShader) const
     {
         outShader.append("out.");
-        outShader.append(context.vertexPositionOutputName.Data());
+        outShader.append(context.vertexPositionOutputName.data());
     }
 }

@@ -1,21 +1,20 @@
 #include "StringUtil.h"
-#include "engine/string/String.h"
 
 namespace se::string::util
 {
-    bool Split(const String &string,
-                                       String &lhs,
-                                       String &rhs,
+    bool Split(const std::string &string,
+                                       std::string &lhs,
+                                       std::string &rhs,
                                        char deliminator,
                                        bool fromEnd)
     {
-        size_t i = string.Find(deliminator, fromEnd);
-        if (i != String::InvalidPos)
+        size_t i = fromEnd ? string.rfind(deliminator) : string.find(deliminator);
+        if (i != std::string::npos)
         {
-            lhs = string.SubString(0, i);
-            if (i < string.Size() - 1)
+            lhs = string.substr(0, i);
+            if (i < string.size() - 1)
             {
-                rhs = string.SubString(i + 1, string.Size());
+                rhs = string.substr(i + 1, string.size());
             }
             else
             {

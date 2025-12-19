@@ -4,5 +4,5 @@
 
 namespace se::io::util
 {
-    void SplitPath(const String& path, String& dir, String& file, String& extension);
+    void SplitPath(const std::string& path, std::string& dir, std::string& file, std::string& extension);
 }

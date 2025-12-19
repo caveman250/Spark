@@ -23,9 +23,9 @@ namespace se::ui::util
                     const math::Vec2& windowSize,
                     render::Renderer* renderer,
                     singleton_components::UIRenderComponent* renderComp,
-                    const String& text)
+                    const std::string& text)
     {
-        if (widget.visibility != Visibility::Visible || widget.parentVisibility != Visibility::Visible || text.Size() == 0)
+        if (widget.visibility != Visibility::Visible || widget.parentVisibility != Visibility::Visible || text.size() == 0)
         {
             return;
         }

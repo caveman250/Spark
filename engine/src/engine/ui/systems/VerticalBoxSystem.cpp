@@ -80,8 +80,8 @@ namespace se::ui::systems
                     desiredSizeInfo.rectTransform->rect.topLeft = verticalBoxTransform.rect.topLeft + math::Vec2 { verticalBox.paddingLeft * window->GetContentScale(), currY };
                     desiredSizeInfo.rectTransform->rect.size = desiredSizeInfo.desiredSize;
                     desiredSizeInfo.rectTransform->rect.size.x = verticalBoxTransform.rect.size.x -
-                            verticalBox.paddingRight * window->GetContentScale() -
-                            verticalBox.paddingLeft * window->GetContentScale();
+                            static_cast<int>(verticalBox.paddingRight * window->GetContentScale()) -
+                            static_cast<int>(verticalBox.paddingLeft * window->GetContentScale());
                     currY += desiredSizeInfo.desiredSize.y + verticalBox.spacing;
 
                     desiredSizeInfo.rectTransform->layer = verticalBoxTransform.layer;
@@ -101,7 +101,7 @@ namespace se::ui::systems
                     }
                 }
 
-                verticalBoxTransform.rect.size.y = currY + verticalBox.paddingBottom * window->GetContentScale();
+                verticalBoxTransform.rect.size.y = static_cast<int>(currY + verticalBox.paddingBottom * window->GetContentScale());
                 verticalBoxTransform.maxY = verticalBoxTransform.minY + currY / window->GetContentScale() + verticalBox.paddingBottom;
 
                 verticalBoxTransform.needsLayout = false;

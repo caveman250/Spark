@@ -9,7 +9,7 @@ namespace se::io
         auto fsPath = VFS::Get().ResolveFSPath(path, true);
         if (fsPath.has_value())
         {
-            m_Stream.open(fsPath.value().Data(), binary ? std::ios::binary | std::ios::out : std::ios::out);
+            m_Stream.open(fsPath.value().data(), binary ? std::ios::binary | std::ios::out : std::ios::out);
         }
         else
         {

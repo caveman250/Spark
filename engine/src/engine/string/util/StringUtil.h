@@ -4,9 +4,9 @@
 
 namespace se::string::util
 {
-    bool Split(const String &string,
-                     String &lhs,
-                     String &rhs,
+    bool Split(const std::string &string,
+                     std::string &lhs,
+                     std::string &rhs,
                      char deliminator,
                      bool fromEnd);
 }
