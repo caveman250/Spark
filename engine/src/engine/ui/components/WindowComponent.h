@@ -30,6 +30,9 @@ namespace se::ui::components
         bool isResizing = false;
 
         SPARK_MEMBER()
+        bool docked = false;
+
+        SPARK_MEMBER()
         WindowResizeDirection resizeDirection = WindowResizeDirection::Up;
     };
 }

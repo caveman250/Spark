@@ -22,6 +22,8 @@ namespace se::editor::ui
         void DestroyUI() override;
         void RebuildOutline() const;
 
+        ecs::Id GetWindow() const { return m_Window; }
+
     private:
         void AddEntityUI(ecs::World* world, const ecs::Id& entity, const ecs::Id& parent, se::ui::components::TreeViewComponent* treeView) const;
 

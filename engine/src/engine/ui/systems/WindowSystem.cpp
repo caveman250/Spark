@@ -56,7 +56,7 @@ namespace se::ui::systems
                 window.isResizing &= inputComp->mouseButtonStates[static_cast<int>(input::MouseButton::Left)] == input::KeyState::Down;
             }
 
-            if (!window.isResizing)
+            if (!window.isResizing && !window.docked)
             {
                 if (input.hovered)
                 {
@@ -131,7 +131,7 @@ namespace se::ui::systems
 
             if (window.pendingDeltaX != 0 || window.pendingDeltaY != 0)
             {
-                if (!window.isResizing)
+                if (!window.isResizing && !window.docked)
                 {
                     float invContentScale = 1.f / appWindow->GetContentScale();
                     transform.minX += window.pendingDeltaX * invContentScale;

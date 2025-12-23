@@ -16,6 +16,8 @@ namespace se::editor::ui
 
         const se::ui::Rect& GetViewportScreenspaceRect() const { return m_ViewportRect; }
 
+        const ecs::Id& GetWindow() const { return m_Window; }
+
     private:
         bool m_Valid = false;
         ecs::Id m_Window;

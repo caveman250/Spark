@@ -29,6 +29,8 @@ namespace se::editor::ui
         void ConstructUI() override;
         void DestroyUI() override;
 
+        const ecs::Id& GetWindow() const { return m_Window; }
+
     private:
         void SetActiveFolder(const std::string& activeFolder);
         void CreatePathBar(const std::shared_ptr<asset::Font>& font);

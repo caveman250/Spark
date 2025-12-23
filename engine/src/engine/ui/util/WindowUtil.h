@@ -17,5 +17,5 @@ namespace se::ui::util
                          ecs::Id& childArea,
                          const std::string& title,
                          std::function<void()> onClose,
-                         bool editorOnly);
+                         const bool editorOnly);
 }

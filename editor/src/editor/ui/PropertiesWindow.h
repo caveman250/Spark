@@ -29,6 +29,8 @@ namespace se::editor::ui
         void DestroyUI() override;
 
         void RebuildProperties();
+
+        const ecs::Id& GetWindow() const { return m_Window; }
     private:
         void AddEntityProperties(const ecs::Id& entity,
                                  ecs::World* world,
