@@ -30,7 +30,7 @@ namespace se::ui::systems
                     .WithDependency<RectTransformSystem>();
     }
 
-    constexpr int s_Padding = 4;
+    constexpr int s_Padding = 6;
 
     bool IsHoveringSlider(const input::InputComponent* inputComp,
                             const components::RectTransformComponent& splitViewTransform,
@@ -132,13 +132,19 @@ namespace se::ui::systems
             auto& input = inputComps[i];
             auto& splitViewTransform = transforms[i];
 
+            if (splitView.isResizing && inputComp->mouseButtonStates[static_cast<int>(input::MouseButton::Left)] != input::KeyState::Down)
+            {
+                splitView.isResizing = false;
+            }
+
             if (input.hovered)
             {
                 for (const auto& mouseEvent : input.mouseEvents)
                 {
-                    if (mouseEvent.button == input::MouseButton::Left)
+                    if (mouseEvent.button == input::MouseButton::Left &&
+                        mouseEvent.state == input::KeyState::Down)
                     {
-                        splitView.isResizing = mouseEvent.state == input::KeyState::Down;
+                        splitView.isResizing = true;
                     }
                 }
 
