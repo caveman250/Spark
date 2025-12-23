@@ -21,6 +21,8 @@ namespace se::ui::components
         ecs::Id entity2 = {};
         float sliderPos = .5f;
         float lastSliderPos = {};
+        bool isResizing = false;
+        bool isShowingResizeCursor = false;
         SplitViewDirection dir = SplitViewDirection::Horizontal;
     };
 }

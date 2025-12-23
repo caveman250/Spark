@@ -25,7 +25,6 @@ namespace se::editor
         splitViewComp->sliderPos = sliderVal;
         world->AddComponent<se::ui::components::WidgetComponent>(splitView);
         auto mouseInput = world->AddComponent<se::ui::components::MouseInputComponent>(splitView);
-        mouseInput->buttonMask = 0;
         auto keyInput = world->AddComponent<se::ui::components::KeyInputComponent>(splitView);
         keyInput->keyMask = input::Key::Unknown;
 
