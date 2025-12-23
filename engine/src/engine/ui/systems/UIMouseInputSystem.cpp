@@ -50,17 +50,24 @@ namespace se::ui::systems
                 continue;
             }
 
+            enum class ConsumedState
+            {
+                Consumed,
+                ConsumedByEditor,
+                NotConsumed
+            };
+
             input::InputUtil::ProcessMouseEvents(entity, inputComp, [this, entity, &inputReceiver](const input::MouseEvent& mouseEvent)
             {
-                bool consumed = false;
+                ConsumedState consumedState = ConsumedState::NotConsumed;
                 auto declaration = ecs::HeirachyQueryDeclaration()
                         .WithComponent<components::MouseInputComponent>();
                 RunRecursiveChildQuery(entity, declaration,
-                [this, &consumed, mouseEvent](const ecs::SystemUpdateData& updateData)
+                [this, &consumedState, mouseEvent](const ecs::SystemUpdateData& updateData)
                 {
-                    if (consumed)
+                    if (consumedState != ConsumedState::NotConsumed)
                     {
-                        return true;
+                        return consumedState == ConsumedState::Consumed;
                     }
 
                     const auto& children = updateData.GetEntities();
@@ -68,14 +75,16 @@ namespace se::ui::systems
 
                     for (size_t j = 0; j < children.size(); ++j)
                     {
+                        const auto& child = children[j];
                         auto& childInputReceiver = childInputComps[j];
 
                         if (childInputReceiver.hovered && childInputReceiver.enabled)
                         {
                             if (TryConsumeEvent(mouseEvent, childInputReceiver))
                             {
-                                consumed = true;
-                                return true;
+                                bool isEditorWidget = child.HasFlag(ecs::IdFlags::Editor);
+                                consumedState = isEditorWidget ? ConsumedState::ConsumedByEditor : ConsumedState::Consumed;
+                                return !isEditorWidget;
                             }
                         }
                     }
@@ -83,7 +92,7 @@ namespace se::ui::systems
                     return false;
                 });
 
-                if (!consumed)
+                if (consumedState == ConsumedState::NotConsumed)
                 {
                     if (TryConsumeEvent(mouseEvent, inputReceiver))
                     {
@@ -91,7 +100,7 @@ namespace se::ui::systems
                     }
                 }
 
-                return consumed;
+                return consumedState == ConsumedState::Consumed;
             });
         }
     }
