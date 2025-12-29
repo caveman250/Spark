@@ -5,7 +5,7 @@
 #include "ImageRenderSystem.h"
 
 #include "engine/Application.h"
-#include "engine/profiling/Profiler.h"
+#include <easy/profiler.h>
 #include "engine/render/Renderer.h"
 #include "engine/render/VertexBuffer.h"
 #include "engine/ui/components/ImageComponent.h"
@@ -29,7 +29,7 @@ namespace se::ui::systems
 
     void ImageRenderSystem::OnRender(const ecs::SystemUpdateData& updateData)
     {
-        PROFILE_SCOPE("ImageRenderSystem::OnRender")
+        EASY_BLOCK("ImageRenderSystem::OnRender");
 
         auto app = Application::Get();
         auto renderer = render::Renderer::Get<render::Renderer>();

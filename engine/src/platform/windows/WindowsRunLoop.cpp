@@ -6,7 +6,7 @@
 
 #include "Window.h"
 #include "engine/Application.h"
-#include "engine/profiling/Profiler.h"
+#include <easy/profiler.h>
 #include "engine/render/Renderer.h"
 #include "platform/IWindow.h"
 
@@ -41,9 +41,9 @@ namespace se::windows
     void WindowsRunLoop::Update()
     {
         Window* window = static_cast<Window*>(m_Window);
-        PROFILE_SCOPE("WindowsRunLoop::Update")
+        EASY_BLOCK("WindowsRunLoop::Update");
         {
-            PROFILE_SCOPE("Process Messages")
+            EASY_BLOCK("Process Messages")
             MSG msg;
             while (PeekMessage(&msg, window->GetHWND(), 0, 0, PM_REMOVE))
             {

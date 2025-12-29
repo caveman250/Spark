@@ -5,7 +5,7 @@
 #include "RectTransformSystem.h"
 #include "Widgets.generated.h"
 #include "engine/Application.h"
-#include "engine/profiling/Profiler.h"
+#include <easy/profiler.h>
 #include "engine/ui/systems/UIMouseInputSystem.h"
 
 using namespace se;
@@ -26,7 +26,7 @@ namespace se::ui::systems
 
     void ScrollViewUpdateSystem::OnUpdate(const ecs::SystemUpdateData& updateData)
     {
-        PROFILE_SCOPE("ScrollViewUpdateSystem::OnUpdate")
+        EASY_BLOCK("ScrollViewUpdateSystem::OnUpdate");
 
         auto app = Application::Get();
         auto world = app->GetWorld();

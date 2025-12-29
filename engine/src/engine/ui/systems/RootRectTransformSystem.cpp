@@ -7,7 +7,7 @@
 
 #include "engine/Application.h"
 #include "engine/ecs/components/TransformComponent.h"
-#include "engine/profiling/Profiler.h"
+#include <easy/profiler.h>
 #include "platform/IWindow.h"
 
 using namespace se;
@@ -25,7 +25,7 @@ namespace se::ui::systems
 
     void RootRectTransformSystem::OnUpdate(const ecs::SystemUpdateData& updateData)
     {
-        PROFILE_SCOPE("RootRectTransformSystem::OnUpdate")
+        EASY_BLOCK("RootRectTransformSystem::OnUpdate");
 
         auto world = Application::Get()->GetWorld();
         const auto& entities = updateData.GetEntities();

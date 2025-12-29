@@ -5,7 +5,6 @@
 #include "platform/IWindow.h"
 #include "render/Renderer.h"
 #include "io/VFS.h"
-#include "profiling/Profiler.h"
 #include "ui/components/TreeNodeComponent.h"
 #include "ui/observers/ButtonObserver.h"
 #include "ui/observers/RectTransformObserver.h"
@@ -36,9 +35,6 @@ namespace se
 
     void Application::Init()
     {
-        PROFILE_BEGIN_FRAME()
-        PROFILE_BEGIN_THREAD()
-
         render::Renderer::Create();
         m_PrimaryWindow = IWindow::CreatePlatformWindow(1280, 720);
         m_TimeLastFrame = std::chrono::system_clock::now();
@@ -93,7 +89,7 @@ namespace se
 
     void Application::Update()
     {
-        PROFILE_SCOPE("Application::Update")
+        EASY_BLOCK("Application::Update");
         const auto now = std::chrono::system_clock::now();
         std::chrono::duration<float> elapsed_seconds = now - m_TimeLastFrame;
         m_DeltaTime = elapsed_seconds.count();
@@ -108,7 +104,7 @@ namespace se
 
     void Application::Render()
     {
-        PROFILE_SCOPE("Application::Render")
+        EASY_BLOCK("Application::Render");
 
 #if SPARK_EDITOR
         m_EditorRuntime.Render();

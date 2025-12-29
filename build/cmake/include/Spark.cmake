@@ -100,7 +100,7 @@ function(setup_source_files target unity_conf_dir is_library)
 
     if (${is_library})
         message(STATUS "Adding library: ${target}\n")
-        add_library(${target} ${TARGET_SOURCE})
+        add_library(${target} STATIC ${TARGET_SOURCE})
     else()
         message(STATUS "Adding executable: ${target}\n")
         add_executable(${target} ${TARGET_SOURCE})

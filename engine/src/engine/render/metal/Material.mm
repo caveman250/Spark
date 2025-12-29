@@ -47,7 +47,7 @@ namespace se::render::metal
 
     void Material::CreatePlatformResources(const render::VertexBuffer& vb)
     {
-        PROFILE_SCOPE("Material::CreatePlatformResources")
+        EASY_FUNCTION();
         asset::shader::ast::ShaderCompileContext context = {
             nullptr, nullptr, nullptr, asset::shader::ast::NameGenerator::GetName(), {}, {}
         };

@@ -3,7 +3,7 @@
 
 #include "RectTransformSystem.h"
 #include "engine/Application.h"
-#include "engine/profiling/Profiler.h"
+#include <easy/profiler.h>
 #include "engine/ui/components/CollapsingHeaderComponent.h"
 #include "engine/ui/components/TextComponent.h"
 #include "engine/ui/components/WidgetComponent.h"
@@ -27,7 +27,7 @@ namespace se::ui::systems
 
     void CollapsingHeaderSystem::OnUpdate(const ecs::SystemUpdateData& updateData)
     {
-        PROFILE_SCOPE("CollapsingHeaderSystem::OxnUpdate")
+        EASY_BLOCK("CollapsingHeaderSystem::OxnUpdate");
 
         auto world = Application::Get()->GetWorld();
 

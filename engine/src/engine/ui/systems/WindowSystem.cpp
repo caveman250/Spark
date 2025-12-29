@@ -2,7 +2,7 @@
 #include "spark.h"
 #include "UIMouseInputSystem.h"
 #include "engine/Application.h"
-#include "engine/profiling/Profiler.h"
+#include <easy/profiler.h>
 #include "engine/ui/components/MouseInputComponent.h"
 #include "engine/ui/components/RectTransformComponent.h"
 #include "engine/ui/components/WindowComponent.h"
@@ -26,7 +26,7 @@ namespace se::ui::systems
 
     void WindowSystem::OnUpdate(const ecs::SystemUpdateData& updateData)
     {
-        PROFILE_SCOPE("WindowSystem::OnUpdate")
+        EASY_BLOCK("WindowSystem::OnUpdate");
 
         const auto& entities = updateData.GetEntities();
         auto* windows = updateData.GetComponentArray<components::WindowComponent>();

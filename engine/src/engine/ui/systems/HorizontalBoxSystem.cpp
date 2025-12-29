@@ -2,7 +2,7 @@
 
 #include "HorizontalBoxSystem.h"
 
-#include "engine/profiling/Profiler.h"
+#include <easy/profiler.h>
 #include "engine/ui/components/HorizontalBoxComponent.h"
 #include "engine/ui/components/RectTransformComponent.h"
 #include "engine/ui/util/RectTransformUtil.h"
@@ -28,7 +28,7 @@ namespace se::ui::systems
 
     void HorizontalBoxSystem::OnUpdate(const ecs::SystemUpdateData& updateData)
     {
-        PROFILE_SCOPE("HorizontalBoxSystem::OnUpdate")
+        EASY_BLOCK("HorizontalBoxSystem::OnUpdate");
 
         auto world = Application::Get()->GetWorld();
         const auto& entities = updateData.GetEntities();

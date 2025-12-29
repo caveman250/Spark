@@ -1,7 +1,7 @@
 #include "PlatformRunLoop.h"
 #include "engine/Application.h"
 #include "engine/input/InputComponent.h"
-#include "engine/profiling/Profiler.h"
+#include <easy/profiler.h>
 #include "engine/render/Renderer.h"
 
 namespace se
@@ -28,11 +28,14 @@ namespace se
     {
         auto app = Application::Get();
         app->Shutdown();
+#if SPARK_ENABLE_PROFILING
+        profiler::dumpBlocksToFile(std::format("{}/save/profile.prof", APP_DIR).c_str());
+#endif
     }
 
     void PlatformRunLoop::Update()
     {
-        PROFILE_SCOPE("PlatformRunLoop::Update")
+        EASY_BLOCK("PlatformRunLoop::Update");
         Application* app = Application::Get();
 
         render::Renderer::Get<render::Renderer>()->Update();

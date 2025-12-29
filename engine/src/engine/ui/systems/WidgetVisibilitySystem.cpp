@@ -1,7 +1,7 @@
 #include "spark.h"
 
 #include "WidgetVisibilitySystem.h"
-#include "engine/profiling/Profiler.h"
+#include <easy/profiler.h>
 
 using namespace se;
 using namespace se::ecs::components;
@@ -16,7 +16,7 @@ namespace se::ui::systems
 
     void WidgetVisibilitySystem::OnUpdate(const ecs::SystemUpdateData& updateData)
     {
-        PROFILE_SCOPE("WidgetVisibilitySystem::OnUpdate")
+        EASY_BLOCK("WidgetVisibilitySystem::OnUpdate");
 
         const auto& entities = updateData.GetEntities();
         auto* widgets = updateData.GetComponentArray<components::WidgetComponent>();

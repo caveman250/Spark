@@ -67,7 +67,7 @@ namespace se::render::metal
 
     void MaterialInstance::CreatePlatformResources()
     {
-        PROFILE_SCOPE("MaterialInstance::CreatePlatformResources")
+        EASY_FUNCTION();
 
         auto vertUniforms = m_Material->GetVertUniforms();
         for (const auto& [name, uniform] : vertUniforms)

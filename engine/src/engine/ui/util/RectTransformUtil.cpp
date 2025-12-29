@@ -115,6 +115,7 @@ namespace se::ui::util
                         const RectTransformComponent& parentRect,
                         int depth)
     {
+        EASY_BLOCK("se::ui::util::LayoutChildren");
         auto declaration = ecs::HeirachyQueryDeclaration()
                 .WithComponent<RectTransformComponent>();
         system->RunChildQuery(entity, declaration,

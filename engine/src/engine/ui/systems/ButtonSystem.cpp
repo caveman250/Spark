@@ -3,7 +3,7 @@
 #include "spark.h"
 #include "UIMouseInputSystem.h"
 #include "engine/Application.h"
-#include "engine/profiling/Profiler.h"
+#include <easy/profiler.h>
 #include "engine/render/MaterialInstance.h"
 #include "engine/ui/components/ImageComponent.h"
 #include "engine/ui/components/MouseInputComponent.h"
@@ -24,7 +24,7 @@ namespace se::ui::systems
 
     void ButtonSystem::OnUpdate(const ecs::SystemUpdateData& updateData)
     {
-        PROFILE_SCOPE("ButtonSystem::OnUpdate")
+        EASY_BLOCK("ButtonSystem::OnUpdate");
 
         const auto& entities = updateData.GetEntities();
         auto* buttons = updateData.GetComponentArray<components::ButtonComponent>();

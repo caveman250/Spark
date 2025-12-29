@@ -1,7 +1,7 @@
 #include "spark.h"
 
 #include "VerticalBoxSystem.h"
-#include "engine/profiling/Profiler.h"
+#include <easy/profiler.h>
 #include "engine/ui/DesiredSizeCalculator.h"
 #include "engine/ui/components/RectTransformComponent.h"
 #include "engine/ui/util/RectTransformUtil.h"
@@ -27,7 +27,7 @@ namespace se::ui::systems
 
     void VerticalBoxSystem::OnUpdate(const ecs::SystemUpdateData& updateData)
     {
-        PROFILE_SCOPE("VerticalBoxSystem::OnUpdate")
+        EASY_BLOCK("VerticalBoxSystem::OnUpdate");
 
         auto world = Application::Get()->GetWorld();
         const auto& entities = updateData.GetEntities();

@@ -23,8 +23,6 @@
 
 - (void) drawInMTKView:(MTKView *)view
 {
-    PROFILE_BEGIN_FRAME()
-    PROFILE_BEGIN_THREAD()
     se::PlatformRunLoop::Get()->Update();
 }
 
@@ -63,6 +61,11 @@
 - (BOOL)applicationShouldTerminateAfterLastWindowClosed:(NSApplication *)sender
 {
     return YES;
+}
+
+- (void) applicationWillTerminate:(NSNotification *)aNotification
+{
+  se::PlatformRunLoop::Get()->Shutdown();
 }
 
 @end

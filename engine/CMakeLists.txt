@@ -16,6 +16,10 @@ target_precompile_headers(Spark PUBLIC $<$<COMPILE_LANGUAGE:CXX>:spark.h>)
 
 ###### Linker ######
 target_link_libraries(Spark OpenFBX bc7enc)
+if (NOT ${DIST_BUILD})
+    target_link_libraries(Spark easy_profiler)
+endif()
+
 if (WIN32)
     target_link_libraries(Spark Dwmapi)
 endif()

@@ -1,6 +1,6 @@
 #include "ScrollBoxRenderSystem.h"
 
-#include "engine/profiling/Profiler.h"
+#include <easy/profiler.h>
 #include "engine/render/Renderer.h"
 #include "engine/render/RenderCommand.h"
 #include "engine/ui/singleton_components/UIRenderComponent.h"
@@ -20,7 +20,7 @@ namespace se::ui::systems
 
     void ScrollBoxRenderSystem::OnRender(const ecs::SystemUpdateData& updateData)
     {
-        PROFILE_SCOPE("ScrollBoxRenderSystem::OnRender")
+        EASY_BLOCK("ScrollBoxRenderSystem::OnRender");
 
         auto renderer = render::Renderer::Get<render::Renderer>();
 

@@ -3,7 +3,7 @@
 #include "ResetKeyInputSystem.h"
 
 #include "engine/input/InputSystem.h"
-#include "engine/profiling/Profiler.h"
+#include <easy/profiler.h>
 #include "engine/ui/components/KeyInputComponent.h"
 
 using namespace se;
@@ -20,7 +20,7 @@ namespace se::ui::systems
 
     void ResetKeyInputSystem::OnUpdate(const ecs::SystemUpdateData& updateData)
     {
-        PROFILE_SCOPE("ResetKeyInputSystem::OnUpdate")
+        EASY_BLOCK("ResetKeyInputSystem::OnUpdate");
 
         const auto& entities = updateData.GetEntities();
         auto* receivesInputComps = updateData.GetComponentArray<components::KeyInputComponent>();

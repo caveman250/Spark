@@ -28,6 +28,7 @@ namespace se::render::metal
 
     void MetalRenderer::Render()
     {
+        EASY_BLOCK("MetalRenderer::Render");
         auto commandBuffer= [m_CommandQueue commandBuffer];
 
         auto macWindow = static_cast<se::mac::Window*>(Application::Get()->GetWindow());

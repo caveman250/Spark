@@ -2,7 +2,7 @@
 
 #include "Widgets.generated.h"
 #include "engine/Application.h"
-#include "engine/profiling/Profiler.h"
+#include <easy/profiler.h>
 #include "engine/ui/components/TextCaretComponent.h"
 #include "engine/ui/components/WidgetComponent.h"
 
@@ -20,7 +20,7 @@ namespace se::ui::systems
 
     void TextCaretSystem::OnUpdate(const ecs::SystemUpdateData& updateData)
     {
-        PROFILE_SCOPE("TextCaretSystem::OnUpdate")
+        EASY_BLOCK("TextCaretSystem::OnUpdate");
 
         auto app = Application::Get();
 

@@ -2,7 +2,7 @@
 
 #include "FrameBuffer.h"
 #include "engine/Application.h"
-#include "engine/profiling/Profiler.h"
+#include <easy/profiler.h>
 #include "opengl/OpenGLRenderer.h"
 #include "metal/MetalRenderer.h"
 
@@ -39,7 +39,7 @@ namespace se::render
 
     void Renderer::Update()
     {
-        PROFILE_SCOPE("Renderer::Update")
+        EASY_BLOCK("Renderer::Update");
         m_LightSetup.Reset();
         m_DefaultRenderGroup = AllocRenderGroup(0);
         Submit<commands::Clear>(true, true);
@@ -47,7 +47,7 @@ namespace se::render
 
     void Renderer::Render()
     {
-        PROFILE_SCOPE("Renderer::Render")
+        EASY_BLOCK("Renderer::Render");
         SortDrawCommands();
         ExecuteDrawCommands();
     }
@@ -59,8 +59,8 @@ namespace se::render
     }
 
     void Renderer::SortDrawCommands()
-    PROFILE_SCOPE("Renderer::SortDrawCommands")
     {
+        EASY_FUNCTION();
         for (auto &group: m_RenderGroups)
         {
             std::ranges::stable_sort(group.renderCommands,[](const auto &lhs, const auto &rhs)
@@ -77,7 +77,7 @@ namespace se::render
 
     void Renderer::ExecuteDrawCommands()
     {
-        PROFILE_SCOPE("Renderer::ExecuteDrawCommands")
+        EASY_FUNCTION();
         std::set<render::FrameBuffer*> frameBuffers = {};
         std::ranges::sort(m_RenderGroups, [](const RenderGroup& lhs, const RenderGroup& rhs)
         {

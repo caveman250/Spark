@@ -4,7 +4,7 @@
 
 #include "ResetKeyInputSystem.h"
 #include "engine/input/InputUtil.h"
-#include "engine/profiling/Profiler.h"
+#include <easy/profiler.h>
 #include "engine/ui/components/RectTransformComponent.h"
 #include "engine/input/InputComponent.h"
 
@@ -25,7 +25,7 @@ namespace se::ui::systems
 
     void UIKeyboardInputSystem::OnUpdate(const ecs::SystemUpdateData& updateData)
     {
-        PROFILE_SCOPE("UIKeyboardInputSystem::OnUpdate")
+        EASY_BLOCK("UIKeyboardInputSystem::OnUpdate");
 
         const auto& entities = updateData.GetEntities();
         const auto* rectTransforms = updateData.GetComponentArray<const components::RectTransformComponent>();

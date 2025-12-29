@@ -1,6 +1,6 @@
 #include "InputSystem.h"
 
-#include "engine/profiling/Profiler.h"
+#include <easy/profiler.h>
 
 namespace se::input
 {
@@ -12,7 +12,7 @@ namespace se::input
 
     void InputSystem::OnUpdate(const ecs::SystemUpdateData &updateData)
     {
-        PROFILE_SCOPE("InputSystem::OnUpdate")
+        EASY_BLOCK("InputSystem::OnUpdate");
 
         auto* inputComp = updateData.GetSingletonComponent<InputComponent>();
 

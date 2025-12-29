@@ -28,6 +28,8 @@
 
 #include "json.hpp"
 
+#define SPARK_ENABLE_PROFILING 1
+
 #if SPARK_PLATFORM_WINDOWS
 #include "windows.h"
 #include "windowsx.h"

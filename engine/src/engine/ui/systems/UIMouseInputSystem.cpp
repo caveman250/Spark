@@ -4,7 +4,7 @@
 
 #include "ResetMouseInputSystem.h"
 #include "engine/input/InputUtil.h"
-#include "engine/profiling/Profiler.h"
+#include <easy/profiler.h>
 
 using namespace se;
 using namespace se::ecs::components;
@@ -22,7 +22,7 @@ namespace se::ui::systems
 
     void UIMouseInputSystem::OnUpdate(const ecs::SystemUpdateData& updateData)
     {
-        PROFILE_SCOPE("UIMouseInputSystem::OnUpdate")
+        EASY_BLOCK("UIMouseInputSystem::OnUpdate");
 
         const auto& entities = updateData.GetEntities();
         auto* inputComp = updateData.GetSingletonComponent<input::InputComponent>();

@@ -3,7 +3,7 @@
 #include "TextRenderSystem.h"
 
 #include "engine/Application.h"
-#include "engine/profiling/Profiler.h"
+#include <easy/profiler.h>
 #include "engine/render/Renderer.h"
 #include "engine/ui/util/TextUtil.h"
 #include "platform/IWindow.h"
@@ -24,7 +24,7 @@ namespace se::ui::systems
 
     void TextRenderSystem::OnRender(const ecs::SystemUpdateData& updateData)
     {
-        PROFILE_SCOPE("TextRenderSystem::OnRender")
+        EASY_BLOCK("TextRenderSystem::OnRender");
 
         auto app = Application::Get();
         auto window = app->GetWindow();

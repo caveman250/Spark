@@ -7,6 +7,7 @@ set(MESSAGE_QUIET ON)
 
 add_subdirectory_with_folder("Third Party" third_party/bc7enc_rdo)
 add_subdirectory_with_folder("Third Party" third_party/OpenFBX-365f52c)
+add_subdirectory_with_folder("Third Party" third_party/easy_profiler-2.1.0)
 
 if (${PLATFORM} MATCHES Windows)
     include(windows/WindowsThirdParty)

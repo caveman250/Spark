@@ -7,7 +7,7 @@
 #include <engine/ui/util/RectTransformUtil.h>
 
 #include "engine/Application.h"
-#include "engine/profiling/Profiler.h"
+#include <easy/profiler.h>
 
 using namespace se;
 using namespace se::ecs::components;
@@ -22,7 +22,7 @@ namespace se::ui::systems
 
     void LastRectSystem::OnUpdate(const ecs::SystemUpdateData& updateData)
     {
-        PROFILE_SCOPE("LastRectSystem::OnUpdate")
+        EASY_BLOCK("LastRectSystem::OnUpdate");
 
         const auto& entities = updateData.GetEntities();
         auto* transform = updateData.GetComponentArray<components::RectTransformComponent>();

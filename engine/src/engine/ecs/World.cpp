@@ -7,7 +7,7 @@
 #include "components/RootComponent.h"
 #include "engine/reflect/Reflect.h"
 #include "engine/ecs/System.h"
-#include "engine/profiling/Profiler.h"
+#include <easy/profiler.h>
 #include "engine/render/Renderer.h"
 #include "engine/bits/FlagUtil.h"
 #include "engine/io/VFS.h"
@@ -407,13 +407,13 @@ namespace se::ecs
 
     void World::Update()
     {
-        PROFILE_SCOPE("World::Update")
+        EASY_FUNCTION();
         ProcessAllPending();
         m_Running = true;
 
         RunOnAllEngineSystems([this](const Id& systemId)
         {
-            PROFILE_BEGIN_THREAD()
+            EASY_BLOCK(systemId.name->c_str());
             if (auto* system = m_EngineSystems[systemId].instance)
             {
                 system->Update();
@@ -422,7 +422,7 @@ namespace se::ecs
 
         RunOnAllAppSystems([this](auto&& systemId)
         {
-            PROFILE_BEGIN_THREAD()
+            EASY_BLOCK(systemId.name->c_str());
             if (auto* system = m_AppSystems[systemId].instance)
             {
                 system->Update();
@@ -433,6 +433,7 @@ namespace se::ecs
 
         for (auto* signal: m_PendingSignals)
         {
+            EASY_BLOCK("Execute Signals");
             signal->Execute();
         }
         m_PendingSignals.clear();
@@ -455,6 +456,7 @@ namespace se::ecs
 
         RunOnAllEngineSystems([this](auto&& systemId)
         {
+            EASY_BLOCK(systemId.name->c_str());
             if (auto* system = m_EngineSystems[systemId].instance)
             {
                 system->Render();
@@ -463,6 +465,7 @@ namespace se::ecs
 
         RunOnAllAppSystems([this](auto&& systemId)
         {
+            EASY_BLOCK(systemId.name->c_str());
             if (auto* system = m_AppSystems[systemId].instance)
             {
                 system->Render();
@@ -767,7 +770,7 @@ namespace se::ecs
     void World::RunOnAllSystems(const std::function<void(const Id&)>& func,
                                 const std::vector<std::vector<Id>>& systemUpdateGroups, bool parallel, bool processPending)
     {
-        PROFILE_SCOPE("World::RunOnAllSystems")
+        EASY_BLOCK("World::RunOnAllSystems");
         for (const auto& updateGroup: systemUpdateGroups)
         {
             m_UpdateMode = parallel && updateGroup.size() > 1 ? UpdateMode::MultiThreaded : UpdateMode::SingleThreaded;
@@ -863,7 +866,7 @@ namespace se::ecs
 
     void World::ProcessPendingComponents()
     {
-        PROFILE_SCOPE("World::ProcessPendingComponents")
+        EASY_BLOCK("World::ProcessPendingComponents");
         auto creationsCopy = m_PendingComponentCreations;
         m_PendingComponentCreations.clear();
         for (const auto& pendingComp: creationsCopy)
@@ -893,7 +896,7 @@ namespace se::ecs
 
     void World::ProcessPendingSystems()
     {
-        PROFILE_SCOPE("World::ProcessPendingSystems")
+        EASY_BLOCK("World::ProcessPendingSystems");
         ProcessPendingEngineSystems();
         ProcessPendingAppSystems();
     }
@@ -1024,7 +1027,7 @@ namespace se::ecs
 
     void World::ProcessPendingEntityDeletions()
     {
-        PROFILE_SCOPE("World::ProcessPendingEntityDeletions")
+        EASY_FUNCTION();
         auto safeCopy = m_PendingEntityDeletions;
         m_PendingEntityDeletions.clear();
         for (const Id& entity: safeCopy)

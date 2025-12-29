@@ -7,7 +7,7 @@
 #include "WorldTransformSystem.h"
 #include "engine/Application.h"
 #include "engine/ecs/components/TransformComponent.h"
-#include "engine/profiling/Profiler.h"
+#include <easy/profiler.h>
 
 using namespace se;
 using namespace se::ecs::components;
@@ -23,7 +23,7 @@ namespace se::ecs::systems
 
     void TransformSystem::OnUpdate(const SystemUpdateData& updateData)
     {
-        PROFILE_SCOPE("TransformSystem::OnUpdate")
+        EASY_BLOCK("TransformSystem::OnUpdate");
 
         const auto& entities = updateData.GetEntities();
         auto* transform = updateData.GetComponentArray<TransformComponent>();

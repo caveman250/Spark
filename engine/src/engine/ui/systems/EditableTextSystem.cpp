@@ -401,7 +401,7 @@ namespace se::ui::systems
 
     void EditableTextSystem::OnRender(const ecs::SystemUpdateData& updateData)
     {
-        PROFILE_SCOPE("EditableTextSystem::OnRender")
+        EASY_BLOCK("EditableTextSystem::OnRender");
 
         auto app = Application::Get();
         auto renderer = render::Renderer::Get<render::Renderer>();

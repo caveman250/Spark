@@ -4,7 +4,7 @@
 #include "spark.h"
 #include "engine/Application.h"
 #include "engine/math/IntVec2.h"
-#include "engine/profiling/Profiler.h"
+#include <easy/profiler.h>
 #include "engine/ui/DesiredSizeCalculator.h"
 #include "engine/ui/components/ComboBoxComponent.h"
 #include "engine/ui/components/TextComponent.h"
@@ -32,7 +32,7 @@ namespace se::ui::systems
 
     void ComboBoxSystem::OnUpdate(const ecs::SystemUpdateData& updateData)
     {
-        PROFILE_SCOPE("ComboBoxSystem::OnUpdate")
+        EASY_BLOCK("ComboBoxSystem::OnUpdate");
 
         auto world = Application::Get()->GetWorld();
 

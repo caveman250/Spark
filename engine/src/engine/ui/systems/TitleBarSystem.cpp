@@ -1,7 +1,7 @@
 #include "spark.h"
 
 #include "TitleBarSystem.h"
-#include "engine/profiling/Profiler.h"
+#include <easy/profiler.h>
 #include "engine/ui/components/RectTransformComponent.h"
 #include "engine/ui/components/MouseInputComponent.h"
 #include "engine/ui/systems/UIMouseInputSystem.h"
@@ -23,7 +23,7 @@ namespace se::ui::systems
 
     void TitleBarSystem::OnUpdate(const ecs::SystemUpdateData& updateData)
     {
-        PROFILE_SCOPE("TitleBarSystem::OnUpdate")
+        EASY_BLOCK("TitleBarSystem::OnUpdate");
 
         const auto& entities = updateData.GetEntities();
         auto* titleBars = updateData.GetComponentArray<components::TitleBarComponent>();

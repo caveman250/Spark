@@ -6,7 +6,7 @@
 #include "RectTransformSystem.h"
 #include "engine/Application.h"
 #include "engine/input/InputComponent.h"
-#include "engine/profiling/Profiler.h"
+#include <easy/profiler.h>
 #include "engine/ui/components/SplitViewComponent.h"
 #include "engine/ui/components/TextComponent.h"
 #include "engine/ui/components/WidgetComponent.h"
@@ -115,7 +115,7 @@ namespace se::ui::systems
 
     void SplitViewSystem::OnUpdate(const ecs::SystemUpdateData& updateData)
     {
-        PROFILE_SCOPE("SplitViewSystem::OnUpdate")
+        EASY_BLOCK("SplitViewSystem::OnUpdate");
 
         auto world = Application::Get()->GetWorld();
 

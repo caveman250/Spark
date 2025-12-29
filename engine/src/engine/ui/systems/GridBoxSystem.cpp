@@ -1,7 +1,7 @@
 #include "spark.h"
 
 #include "GridBoxSystem.h"
-#include "engine/profiling/Profiler.h"
+#include <easy/profiler.h>
 #include "engine/ui/DesiredSizeCalculator.h"
 #include "engine/ui/components/RectTransformComponent.h"
 #include "engine/ui/util/GridBoxUtil.h"
@@ -27,7 +27,7 @@ namespace se::ui::systems
 
     void GridBoxSystem::OnUpdate(const ecs::SystemUpdateData& updateData)
     {
-        PROFILE_SCOPE("GridBoxSystem::OnUpdate")
+        EASY_BLOCK("GridBoxSystem::OnUpdate");
 
         auto world = Application::Get()->GetWorld();
         auto window = Application::Get()->GetWindow();

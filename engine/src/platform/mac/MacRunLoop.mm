@@ -3,7 +3,7 @@
 #include "platform/PlatformRunLoop.h"
 
 #include "engine/Application.h"
-#include "engine/profiling/Profiler.h"
+#include <easy/profiler.h>
 #include "engine/render/Renderer.h"
 #include "platform/mac/Window.h"
 #import <AppKit/AppKit.h>
@@ -36,7 +36,7 @@ namespace se::mac
 
     void MacRunLoop::Update()
     {
-        PROFILE_SCOPE("MacRunLoop::Update")
+        EASY_BLOCK("MacRunLoop::Update");
 
         if (m_Window->ShouldClose())
         {

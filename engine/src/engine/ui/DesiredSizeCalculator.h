@@ -19,6 +19,7 @@ namespace se::ui
                                                 components::RectTransformComponent& thisRect,
                                                 const T*)
         {
+            EASY_FUNCTION();
             auto window = Application::Get()->GetWindow();
             math::IntVec2 rectSize = GetDesiredSizeFromRect(thisRect);
             auto childrenSize = GetChildrenDesiredSize(system, entity, thisRect);
@@ -34,6 +35,7 @@ namespace se::ui
                                                 components::RectTransformComponent& thisRect,
                                                 const T* context)
         {
+            EASY_FUNCTION();
             if (widget && widget->visibility == Visibility::Collapsed)
             {
                 return {};

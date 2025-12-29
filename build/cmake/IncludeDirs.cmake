@@ -4,7 +4,7 @@ include_directories(${ENGINE_DIR}/third_party/bc7enc_rdo)
 include_directories(${ENGINE_DIR}/third_party/stb-ae721c5)
 include_directories(${ENGINE_DIR}/third_party/nlohmann_json-3.13.3)
 include_directories(${ENGINE_DIR}/third_party/OpenFBX-365f52c)
-
+include_directories(${ENGINE_DIR}/third_party/easy_profiler-2.1.0/easy_profiler_core/include)
 if (${PLATFORM} MATCHES Windows)
     include(windows/WindowsIncludeDirs)
 elseif (${PLATFORM} MATCHES Linux)

@@ -4,7 +4,7 @@
 
 #include "engine/input/InputSystem.h"
 #include "engine/input/InputUtil.h"
-#include "engine/profiling/Profiler.h"
+#include <easy/profiler.h>
 #include "engine/ui/components/RectTransformComponent.h"
 #include "engine/ui/components/MouseInputComponent.h"
 #include "engine/ui/components/WidgetComponent.h"
@@ -30,7 +30,7 @@ namespace se::ui::systems
 
     void ResetMouseInputSystem::OnUpdate(const ecs::SystemUpdateData& updateData)
     {
-        PROFILE_SCOPE("ResetMouseInputSystem::OnUpdate")
+        EASY_BLOCK("ResetMouseInputSystem::OnUpdate");
 
         const auto& entities = updateData.GetEntities();
         const auto* rectTransforms = updateData.GetComponentArray<const components::RectTransformComponent>();

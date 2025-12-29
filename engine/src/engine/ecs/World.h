@@ -8,7 +8,7 @@
 #include "Observer.h"
 #include "SystemDeclaration.h"
 #include "SystemUpdateData.h"
-#include "engine/profiling/Profiler.h"
+#include <easy/profiler.h>
 #include "engine/ecs/components/ParentComponent.h"
 #include "SystemUtil.h"
 #include "ecs_fwd.h"
@@ -428,16 +428,22 @@ namespace se::ecs
                      Func&& func,
                      bool force)
     {
-        PROFILE_SCOPE("World::Each")
+        EASY_BLOCK("World::Each");
+
+        EASY_BLOCK("Collect Archetypes");
         std::set<Archetype*> archetypes = { };
         CollectArchetypes(components, archetypes);
+        EASY_END_BLOCK
 
+        EASY_BLOCK("Collect Singletons");
         SystemUpdateData updateData = { };
         for (const auto& compUsage: singletonComponents)
         {
             updateData.AddSingletonComponent(compUsage.id, m_SingletonComponents.at(compUsage.id), compUsage.mutability);
         }
+        EASY_END_BLOCK
 
+        EASY_BLOCK("Run on Archetypes");
         for (auto* archetype: archetypes)
         {
             if (!archetype->entities.empty())
@@ -454,7 +460,9 @@ namespace se::ecs
                 func(updateData);
             }
         }
+        EASY_END_BLOCK
 
+        EASY_BLOCK("Run on empty");
         bool hasStaticComps = !singletonComponents.empty();
         if (archetypes.empty() && (force || hasStaticComps))
         {
@@ -467,6 +475,7 @@ namespace se::ecs
             }
             func(updateData);
         }
+        EASY_END_BLOCK
     }
 
     template<typename Func>
@@ -475,7 +484,7 @@ namespace se::ecs
                           const HeirachyQueryDeclaration& declaration,
                           Func&& func)
     {
-        PROFILE_SCOPE("World::ChildEach");
+        EASY_BLOCK("World::ChildEach");;
 
         if (!HasComponent<components::ParentComponent>(entity))
         {
@@ -628,7 +637,7 @@ namespace se::ecs
                                    const HeirachyQueryDeclaration& declaration,
                                    Func&& func)
     {
-        PROFILE_SCOPE("World::RecursiveChildEach");
+        EASY_BLOCK("World::RecursiveChildEach");
 
         if (RecurseChildren(entity, system, declaration, func))
         {

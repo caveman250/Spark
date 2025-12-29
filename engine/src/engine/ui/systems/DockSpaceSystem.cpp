@@ -1,5 +1,5 @@
 #include "DockSpaceSystem.h"
-#include "engine/profiling/Profiler.h"
+#include <easy/profiler.h>
 #include "engine/ui/components/TextComponent.h"
 #include "engine/ui/components/WidgetComponent.h"
 
@@ -15,7 +15,7 @@ namespace se::ui::systems
 
     void DockSpaceSystem::OnUpdate(const ecs::SystemUpdateData&)
     {
-        PROFILE_SCOPE("DockSpaceSystem::OnUpdate")
+        EASY_BLOCK("DockSpaceSystem::OnUpdate");
 
 
     }
