@@ -1,8 +1,8 @@
 import os
 from dataclasses import dataclass
 from enum import Enum
-import Log
-import Namespace
+from src import Log
+from src import Namespace
 
 
 @dataclass

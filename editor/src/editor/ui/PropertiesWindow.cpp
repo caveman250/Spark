@@ -136,7 +136,7 @@ namespace se::editor::ui
             world->AddChild(m_ScrollBoxContent, textEntity);
         }
 
-        for (auto component: selectedEntityRecord.archetype->type)
+        for (auto component : selectedEntityRecord.archetype->typeVector)
         {
             const auto &compRecord = world->m_ComponentRecords[component];
             auto compInstance = world->GetComponent(entity, component);

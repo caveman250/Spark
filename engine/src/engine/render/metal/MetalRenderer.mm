@@ -31,20 +31,28 @@ namespace se::render::metal
         EASY_BLOCK("MetalRenderer::Render");
         auto commandBuffer= [m_CommandQueue commandBuffer];
 
+
         auto macWindow = static_cast<se::mac::Window*>(Application::Get()->GetWindow());
         auto nativeWindow = macWindow->GetNativeWindow();
         auto view = [nativeWindow contentView];
+        EASY_BLOCK("Create Command Encoder");
         m_CurrentRenderPassDescriptor = [view currentRenderPassDescriptor];
         m_CommandEncoder = [commandBuffer renderCommandEncoderWithDescriptor:m_CurrentRenderPassDescriptor];
+        EASY_END_BLOCK;
+
+        EASY_BLOCK("Set Render State");
         [m_CommandEncoder setCullMode:MTLCullModeBack];
         [m_CommandEncoder setFrontFacingWinding:MTLWindingCounterClockwise];
+        EASY_END_BLOCK;
 
         Renderer::Render();
 
+        EASY_BLOCK("End Encoding");
         [m_CommandEncoder endEncoding];
         [commandBuffer presentDrawable:[view currentDrawable]];
         [commandBuffer commit];
         m_CachedRenderState = {};
+        EASY_END_BLOCK;
     }
 
     MTLRenderCommandEncoderPtr MetalRenderer::GetCurrentCommandEncoder() const

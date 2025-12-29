@@ -14,7 +14,7 @@
 #include "engine/ui/observers/TreeNodeObserver.h"
 #include "engine/ui/observers/ImageObserver.h"
 #include "engine/ui/observers/TextObserver.h"
-#include "ComponentRegistration.generated.h"
+#include "Components.generated.h"
 #include "ui/observers/EditableTextObserver.h"
 
 #include "Widgets.generated.h"

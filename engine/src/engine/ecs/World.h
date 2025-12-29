@@ -310,6 +310,7 @@ namespace se::ecs
         bool m_EntitiesChangedThisFrame = false;
 #endif
         std::vector<uint32_t> m_FreeEntities = { };
+        uint32_t m_ComponentCounter = 0;
         uint64_t m_SystemCounter = 1;
         uint64_t m_ArchetypeCounter = 0;
         uint64_t m_ObserverCounter = 1;
@@ -389,15 +390,7 @@ namespace se::ecs
     {
         if (T::s_ComponentId == static_cast<uint64_t>(0))
         {
-            uint64_t id;
-            if (!m_FreeEntities.empty())
-            {
-                id = bits::Pack64(RecycleEntity(), 0);
-            }
-            else
-            {
-                id = bits::Pack64(NewEntity(), 0);
-            }
+            uint64_t id = m_ComponentCounter++;
 
             reflect::Type* type = reflect::TypeResolver<T>::get();
             m_IdMetaMap[id].name = type->name;

@@ -49,11 +49,10 @@ namespace se::ecs
         }
 #endif
 
-        uint64_t packedId = bits::Pack64(entityId, 0);
-        m_IdMetaMap[packedId] = {name, flags};
+        m_IdMetaMap[entityId] = {name, flags};
         auto emptyArchetype = GetArchetype({}, true);
-        SPARK_ASSERT(!m_EntityRecords.contains(packedId));
-        [[maybe_unused]] auto result = m_EntityRecords.insert(std::make_pair(packedId, EntityRecord
+        SPARK_ASSERT(!m_EntityRecords.contains(entityId));
+        [[maybe_unused]] auto result = m_EntityRecords.insert(std::make_pair(entityId, EntityRecord
                                               {
                                                   .archetype = emptyArchetype,
                                                   .entity_idx = 0 // not valid for null archetype
@@ -61,11 +60,11 @@ namespace se::ecs
 
         SPARK_ASSERT(result.second);
 
-        AddComponent<components::RootComponent>(packedId);
-        [[maybe_unused]] auto& record = m_EntityRecords.at(packedId);
+        AddComponent<components::RootComponent>(entityId);
+        [[maybe_unused]] auto& record = m_EntityRecords.at(entityId);
         SPARK_ASSERT(record.archetype);
 
-        return packedId;
+        return entityId;
     }
 
     void World::DestroyEngineSystem(const Id& id)
@@ -149,7 +148,7 @@ namespace se::ecs
             DestroyEntityInternal(child);
         }
 
-        safeCopy = record.archetype->type;
+        safeCopy = record.archetype->typeVector;
         for (const auto& comp: safeCopy)
         {
             RemoveComponentInternal(entity, comp);
@@ -201,16 +200,26 @@ namespace se::ecs
 
     void World::CreateArchetype(const Type& type)
     {
+        TypeVector typeVector = {};
+        for (size_t i = 0; i < NumComponents; ++i)
+        {
+            if (type.test(i))
+            {
+                typeVector.push_back(i);
+            }
+        }
+
         Archetype archetype = {
             .id = m_ArchetypeCounter++,
             .type = type,
+            .typeVector = typeVector,
             .entities = {},
             .components = {},
             .edges = {}
         };
 
-        archetype.components.reserve(type.size());
-        for (const auto& compType: type)
+        archetype.components.reserve(typeVector.size());
+        for (const auto& compType : typeVector)
         {
             SPARK_ASSERT(compType.name != nullptr);
             auto& compInfo = m_ComponentRecords[compType];
@@ -220,9 +229,9 @@ namespace se::ecs
         m_Archetypes.insert(std::make_pair(archetype.id, archetype));
         m_ArchetypeTypeLookup.insert(std::make_pair(type, archetype.id));
 
-        for (size_t i = 0; i < type.size(); ++i)
+        for (size_t i = 0; i < typeVector.size(); ++i)
         {
-            auto& compInfo = m_ComponentRecords[type[i]];
+            auto& compInfo = m_ComponentRecords[typeVector[i]];
             compInfo.archetypeRecords.insert(std::make_pair(archetype.id, i));
         }
     }
@@ -233,7 +242,7 @@ namespace se::ecs
         std::vector<std::pair<Id, uint8_t*>> compData;
         for (size_t i = 0; i < archetype->components.size(); ++i)
         {
-            Id id = archetype->type[i];
+            Id id = archetype->typeVector[i];
             uint8_t* data = archetype->components[i].GetComponent(entityIdx);
 
             compData.emplace_back(std::make_pair(id, data));
@@ -258,9 +267,9 @@ namespace se::ecs
         // add missing components
         for (size_t i = 0; i < nextArchetype->components.size(); ++i)
         {
-            if (!componentsAccountedFor.contains(nextArchetype->type[i]))
+            if (!componentsAccountedFor.contains(nextArchetype->typeVector[i]))
             {
-                auto compInfo = m_ComponentRecords[nextArchetype->type[i]];
+                auto compInfo = m_ComponentRecords[nextArchetype->typeVector[i]];
                 std::vector<uint8_t> tempCompData(compInfo.type->size);
                 nextArchetype->components[i].AddComponent(tempCompData.data());
             }
@@ -284,7 +293,7 @@ namespace se::ecs
         std::erase(archetype->entities, entity);
         nextArchetype->entities.push_back(entity);
 
-        if (archetype->entities.empty() && !archetype->type.empty())
+        if (archetype->entities.empty() && !archetype->typeVector.empty())
         {
             for (auto& otherArchetype: m_Archetypes | std::views::values)
             {
@@ -304,7 +313,7 @@ namespace se::ecs
 
             for (size_t i = 0; i < archetype->type.size(); ++i)
             {
-                auto& compInfo = m_ComponentRecords[archetype->type[i]];
+                auto& compInfo = m_ComponentRecords[archetype->typeVector[i]];
                 compInfo.archetypeRecords.erase(archetype->id);
             }
 
@@ -337,17 +346,16 @@ namespace se::ecs
             if (add)
             {
                 auto addType = archetype->type;
-                if (!std::ranges::contains(addType, component))
+                if (!addType.test(component))
                 {
-                    addType.push_back(component);
+                    addType.set(component);
                 }
                 edge.add = GetArchetype(addType, createIfMissing);
             }
             else
             {
                 auto removeType = archetype->type;
-                auto [first, last] = std::ranges::remove(removeType, component);
-                removeType.erase(first, last);
+                removeType.set(component, false);
                 edge.remove = GetArchetype(removeType, createIfMissing);
             }
         }
@@ -679,6 +687,12 @@ namespace se::ecs
     void World::CollectArchetypes(const std::vector<ComponentUsage>& components,
                            std::set<Archetype*>& archetypes)
     {
+        Type type = {};
+        for (const auto& comp: components)
+        {
+            type.set(comp.id);
+        }
+
         for (const auto& compId: components)
         {
             if (m_ComponentRecords.contains(compId.id))
@@ -692,13 +706,7 @@ namespace se::ecs
                         continue;
                     }
 
-                    bool containsAll = true;
-                    for (auto comp : components)
-                    {
-                        containsAll &= std::ranges::contains(archetype.type, comp.id);
-                    }
-
-                    if (!containsAll)
+                    if (!(type & ~archetype.type).none())
                     {
                         continue;
                     }
@@ -718,6 +726,12 @@ namespace se::ecs
             components.push_back(variantUsage);
         }
 
+        Type type = {};
+        for (const auto& comp: components)
+        {
+            type.set(comp.id);
+        }
+
         for (const auto& compId: components)
         {
             if (m_ComponentRecords.contains(compId.id))
@@ -732,13 +746,7 @@ namespace se::ecs
                         continue;
                     }
 
-                    bool containsAll = true;
-                    for (auto comp : components)
-                    {
-                        containsAll &= std::ranges::contains(archetype.type, comp.id);
-                    }
-
-                    if (!containsAll)
+                    if (!(type & ~archetype.type).none())
                     {
                         continue;
                     }

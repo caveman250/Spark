@@ -1,12 +1,12 @@
 import os
 import sys
 
-import Widgets
-import Components
-import Namespace
-import Class
-import Enum
-import Log
+from src import Widgets
+from src import Components
+from src import Namespace
+from src import Class
+from src import Enum
+from src import Log
 
 def ProcessHeaders():
     components = []
@@ -158,7 +158,7 @@ def ProcessHeaders():
                                     current_scope_depth -= 1
 
     Widgets.WriteWidgetHeader(widgets)
-    Components.WriteComponentRegistrationFiles(components)
+    Components.WriteComponentsFile(components)
     Class.WriteClassFiles(finalised_reflected_classes, class_heirachy_map, template_instantiations)
     Enum.WriteEnumFiles(enum_list)
     Log.Msg("Pass 2: Done.")

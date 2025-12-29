@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-import Namespace
+from src import Namespace
 import os
 
 @dataclass

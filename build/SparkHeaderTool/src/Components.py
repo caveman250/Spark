@@ -1,7 +1,7 @@
 from dataclasses import dataclass
-import Namespace
+from src import Namespace
 import os
-import Log
+from src import Log
 
 @dataclass
 class ComponentFile:
@@ -25,11 +25,11 @@ def ProcessSingletonComponent(components, path, class_stack):
     editor_only = class_stack[-1].editor_only
     components.append(ComponentFile(os.path.abspath(path), type, namespace, dev_only, editor_only))
 
-def WriteComponentRegistrationFiles(components):
+def WriteComponentsFile(components):
     output_dir = "../../engine/src/generated/"
 
-    header = "#pragma once\n\nnamespace se::ecs\n{\n\tclass World;\n\tvoid RegisterComponents(World* world);\n}"
-    output_path = output_dir + "ComponentRegistration.generated.h"
+    header = f"#pragma once\n\nnamespace se::ecs\n{{\n\tstatic constexpr size_t NumComponents = {len(components)};\n\tclass World;\n\tvoid RegisterComponents(World* world);\n}}"
+    output_path = output_dir + "Components.generated.h"
     if not os.path.exists(output_dir):
         os.mkdir(output_dir)
 
@@ -39,12 +39,12 @@ def WriteComponentRegistrationFiles(components):
         existing_contents = input_handle.read()
         input_handle.close()
     if existing_contents != header:
-        Log.Msg("ComponentRegistration.generated.h generating...")
+        Log.Msg("Components.generated.h generating...")
         output_handle = open(output_path, "w+")
         output_handle.write(header)
         output_handle.close()
 
-    cpp = "#include \"ComponentRegistration.generated.h\"\n#include \"spark.h\"\n#include \"engine/reflect/Reflect.h\"\n"
+    cpp = "#include \"Components.generated.h\"\n#include \"spark.h\"\n#include \"engine/reflect/Reflect.h\"\n"
     for i in range(len(components)):
         cpp += "#include \"" + components[i].path + "\"\n"
     cpp += "\nnamespace se::ecs\n{\n\t"
@@ -65,7 +65,7 @@ def WriteComponentRegistrationFiles(components):
             cpp += "#endif\n"
     cpp += "\t}\n"
     cpp += "}\n"
-    output_path = output_dir + "ComponentRegistration.generated.cpp"
+    output_path = output_dir + "Components.generated.cpp"
     if not os.path.exists(output_dir):
         os.mkdir(output_dir)
 
@@ -75,7 +75,7 @@ def WriteComponentRegistrationFiles(components):
         existing_contents = input_handle.read()
         input_handle.close()
     if existing_contents != cpp:
-        Log.Msg("ComponentRegistration.generated.cpp generating...")
+        Log.Msg("Components.generated.cpp generating...")
         output_handle = open(output_path, "w+")
         output_handle.write(cpp)
         output_handle.close()

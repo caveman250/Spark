@@ -1,7 +1,7 @@
-import Namespace
-import Components
+from src import Namespace
+from src import Components
 import os
-import Log
+from src import Log
 
 def ProcessWidget(widget_list, path, class_stack, components):
     type = class_stack[-1].name
