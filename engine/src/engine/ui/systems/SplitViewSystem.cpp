@@ -26,7 +26,6 @@ namespace se::ui::systems
                     .WithComponent<components::RectTransformComponent>()
                     .WithComponent<const components::MouseInputComponent>()
                     .WithSingletonComponent<const input::InputComponent>()
-                    .WithHeirachyQuery<components::WidgetComponent>()
                     .WithDependency<RectTransformSystem>();
     }
 
@@ -198,15 +197,13 @@ namespace se::ui::systems
             if (splitViewTransform.needsLayout)
             {
                 auto dec = ecs::HeirachyQueryDeclaration()
-                    .WithComponent<components::RectTransformComponent>()
-                    .WithComponent<const components::WidgetComponent>();
+                    .WithComponent<components::RectTransformComponent>();
 
                 RunChildQuery(entity, dec,
                 [this, world, splitView, splitViewTransform](const ecs::SystemUpdateData &updateData)
                 {
                     const auto &children = updateData.GetEntities();
                     auto *rectTransforms = updateData.GetComponentArray<components::RectTransformComponent>();
-                    auto *widgets = updateData.GetComponentArray<const components::WidgetComponent>();
 
                     for (size_t i = 0; i < children.size(); ++i)
                     {

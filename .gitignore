@@ -3,3 +3,5 @@ editor/built
 *.generated.h
 *.generated.cpp
 *.generated.mm
+*.unity.cpp
+*.unity.mm
