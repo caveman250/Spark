@@ -14,15 +14,14 @@ namespace se::ui::observers
     void ButtonObserver::OnAdded(const ecs::Id& entity, components::ButtonComponent *component)
     {
         auto world = Application::Get()->GetWorld();
-        auto* assetManager = asset::AssetManager::Get();
 
         if (!world->HasComponent<components::ImageComponent>(entity))
         {
             auto image = world->AddComponent<components::ImageComponent>(entity);
 
-            auto vert = assetManager->GetAsset<asset::Shader>("/engine_assets/shaders/ui.sass");
-            auto frag = assetManager->GetAsset<asset::Shader>("/engine_assets/shaders/alpha_texture.sass");
-            static auto material = render::Material::CreateMaterial({vert}, {frag});
+            static auto material = std::make_shared<render::Material>(
+                std::vector{ asset::AssetReference<asset::Shader>("/engine_assets/shaders/ui.sass") },
+                std::vector{ asset::AssetReference<asset::Shader>("/engine_assets/shaders/alpha_texture.sass") });
             auto rs = render::RenderState();
             rs.srcBlend = render::BlendMode::SrcAlpha;
             rs.dstBlend = render::BlendMode::OneMinusSrcAlpha;

@@ -29,9 +29,9 @@ namespace se::ui::util
         static std::shared_ptr<render::Material> titleBGMaterial = nullptr;
         if (!titleBGMaterial)
         {
-            auto vert = assetManager->GetAsset<asset::Shader>("/engine_assets/shaders/ui.sass");
-            auto frag = assetManager->GetAsset<asset::Shader>("/engine_assets/shaders/flat_color.sass");
-            titleBGMaterial = render::Material::CreateMaterial({ vert }, { frag });
+            titleBGMaterial = std::make_shared<render::Material>(
+                std::vector{ asset::AssetReference<asset::Shader>("/engine_assets/shaders/ui.sass") },
+                std::vector{ asset::AssetReference<asset::Shader>("/engine_assets/shaders/flat_color.sass") });
             titleBGMaterial->GetShaderSettings().SetSetting("color_setting", math::Vec3(.24f, .24f, .24f));
         }
 
@@ -66,12 +66,12 @@ namespace se::ui::util
         rect->maxY = 12;
         world->AddComponent<WidgetComponent>(titleIndicator);
         auto indicatorImage = world->AddComponent<ImageComponent>(titleIndicator);
-        auto vert = assetManager->GetAsset<asset::Shader>("/engine_assets/shaders/ui.sass");
-        auto frag = assetManager->GetAsset<asset::Shader>("/engine_assets/shaders/alpha_texture.sass");
         static std::shared_ptr<render::Material> material = nullptr;
         if (!material)
         {
-            material = render::Material::CreateMaterial({ vert }, { frag });
+            material = std::make_shared<render::Material>(
+                std::vector{ asset::AssetReference<asset::Shader>("/engine_assets/shaders/ui.sass") },
+                std::vector{ asset::AssetReference<asset::Shader>("/engine_assets/shaders/alpha_texture.sass") });
             auto rs = render::RenderState();
             rs.srcBlend = render::BlendMode::SrcAlpha;
             rs.dstBlend = render::BlendMode::OneMinusSrcAlpha;

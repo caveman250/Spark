@@ -729,7 +729,7 @@ namespace se::reflect
     {
         if (SPARK_VERIFY(obj))
         {
-            auto* typed = static_cast<std::map<T, Y>*>(obj);
+            auto* typed = static_cast<std::unordered_map<T, Y>*>(obj);
             auto it = typed->begin();
             std::advance(it, i);
             if constexpr (std::is_pointer_v<T>)

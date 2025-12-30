@@ -3,6 +3,8 @@
 #include "spark.h"
 #include "StaticMesh.h"
 #include "engine/asset/Asset.h"
+#include "engine/render/Material.h"
+#include "engine/asset/AssetReference.h"
 
 namespace ofbx
 {
@@ -17,9 +19,13 @@ namespace se::asset
 
         static std::shared_ptr<Model> FromFBX(ofbx::IScene* fbxScene);
 
-        const StaticMesh& GetMesh(size_t i) { return m_Meshes[i]; }
+        const StaticMesh& GetMesh() { return m_Mesh; }
+        const std::shared_ptr<render::Material>& GetMaterial() { return m_Material.GetAsset(); }
     private:
         SPARK_MEMBER(Serialized)
-        std::vector<StaticMesh> m_Meshes;
+        StaticMesh m_Mesh;
+
+        SPARK_MEMBER(Serialized)
+        asset::AssetReference<render::Material> m_Material;
     };
 }

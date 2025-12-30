@@ -42,14 +42,29 @@ enum class StencilFunc
         None
     };
 
-    struct RenderState
+    struct RenderState : reflect::ObjectBase
     {
+        SPARK_CLASS()
+
+        SPARK_MEMBER(Serialized)
         DepthCompare depthComp = DepthCompare::None;
+
+        SPARK_MEMBER(Serialized)
         BlendMode srcBlend = BlendMode::One;
+
+        SPARK_MEMBER(Serialized)
         BlendMode dstBlend = BlendMode::Zero;
+
+        SPARK_MEMBER(Serialized)
         uint32_t stencilWriteMask = 0x00;
+
+        SPARK_MEMBER(Serialized)
         StencilFunc stencilFunc = StencilFunc::None;
+
+        SPARK_MEMBER(Serialized)
         uint32_t stencilReadMask = 0x00;
+
+        SPARK_MEMBER(Serialized)
         bool lit = false;
     };
 

@@ -60,13 +60,12 @@ namespace se::editor::ui
         imageTransform->minAspectRatio = 1.778f;
         world->AddComponent<se::ui::components::WidgetComponent>(m_Viewport);
         auto imageComp = world->AddComponent<se::ui::components::ImageComponent>(m_Viewport);
-        auto assetManager = asset::AssetManager::Get();
-        auto vert = assetManager->GetAsset<asset::Shader>("/engine_assets/shaders/ui.sass");
-        auto frag = assetManager->GetAsset<asset::Shader>("/engine_assets/shaders/framebuffer_texture.sass");
         static std::shared_ptr<render::Material> material = nullptr;
         if (!material)
         {
-            material = render::Material::CreateMaterial({vert}, {frag});
+            material = std::make_shared<render::Material>(
+                std::vector{ asset::AssetReference<asset::Shader>("/engine_assets/shaders/ui.sass") },
+                std::vector{ asset::AssetReference<asset::Shader>("/engine_assets/shaders/framebuffer_texture.sass") });
 #if OPENGL_RENDERER
             material->GetShaderSettings().SetSetting("ymod", -1.f);
 #else

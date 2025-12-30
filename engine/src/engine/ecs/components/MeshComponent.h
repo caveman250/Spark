@@ -1,6 +1,7 @@
 #pragma once
 
 #include "spark.h"
+#include "engine/asset/AssetReference.h"
 #include "engine/reflect/Reflect.h"
 #include "engine/asset/mesh/Model.h"
 
@@ -19,9 +20,15 @@ namespace se::ecs::components
 
         MeshComponent() = default;
 
+        SPARK_MEMBER(Serialized)
+        asset::AssetReference<asset::Model> model = {};
+
+        SPARK_MEMBER(Serialized)
+        asset::AssetReference<render::Material> material = {};
+
+        // Runtime
         std::shared_ptr<render::MaterialInstance> materialInstance = {};
         std::shared_ptr<render::VertexBuffer> vertBuffer = {};
         std::shared_ptr<render::IndexBuffer> indexBuffer = {};
-        std::shared_ptr<asset::Model> model = {};
     };
 }

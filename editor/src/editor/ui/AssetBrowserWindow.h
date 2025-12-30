@@ -39,7 +39,6 @@ namespace se::editor::ui
                             const std::string& path,
                             const std::shared_ptr<asset::Font>& font);
         ecs::Id CreateFileItem(ecs::World* world,
-                               asset::AssetManager* assetManager,
                                const io::VFSFile& name,
                                const std::shared_ptr<asset::Font>& font);
 

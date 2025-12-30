@@ -2,6 +2,7 @@
 
 #include "spark.h"
 #include "engine/asset/shader/ast/Types.h"
+#include "engine/reflect/Reflect.h"
 
 namespace se::render
 {
@@ -17,6 +18,7 @@ namespace se::render
         virtual void SetValue(const void* val, int count) = 0;
 
         asset::shader::ast::AstType type;
+
         int valueCount;
     };
 

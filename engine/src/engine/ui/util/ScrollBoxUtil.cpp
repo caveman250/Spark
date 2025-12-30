@@ -22,7 +22,6 @@ namespace se::ui::util
                             bool editorOnly)
     {
         auto world = Application::Get()->GetWorld();
-        auto assetManager = asset::AssetManager::Get();
 
         auto scrollBoxEntity = world->CreateEntity("ScrollBox", editorOnly);
         *outScrollBox = world->AddComponent<components::ScrollBoxComponent>(scrollBoxEntity);
@@ -41,12 +40,12 @@ namespace se::ui::util
 
         scrollBarEntity = world->CreateEntity("Scroll Bar", editorOnly);
         auto scrollBarImage = world->AddComponent<components::ImageComponent>(scrollBarEntity);
-        auto vert = assetManager->GetAsset<asset::Shader>("/engine_assets/shaders/ui.sass");
-        auto frag = assetManager->GetAsset<asset::Shader>("/engine_assets/shaders/flat_color.sass");
         static std::shared_ptr<render::Material> material = nullptr;
         if (!material)
         {
-            material = render::Material::CreateMaterial({vert}, {frag});
+            material = std::make_shared<render::Material>(
+                std::vector{ asset::AssetReference<asset::Shader>("/engine_assets/shaders/ui.sass") },
+                std::vector{ asset::AssetReference<asset::Shader>("/engine_assets/shaders/flat_color.sass") });
             material->GetShaderSettings().SetSetting("color_setting", math::Vec3(0.8f, 0.8f, 0.8f));
         }
         scrollBarImage->materialInstance = render::MaterialInstance::CreateMaterialInstance(material);

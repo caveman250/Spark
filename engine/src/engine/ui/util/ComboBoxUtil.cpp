@@ -20,12 +20,12 @@ namespace se::ui::util
         bgTransform->anchors = { .left = 0.f, .right = 1.f, .top = 0.f, .bottom = 1.f };
         world->AddComponent<WidgetComponent>(ret.comboBox->collapsedEntity);
         auto image = world->AddComponent<ImageComponent>(ret.comboBox->collapsedEntity);
-        auto vert = assetManager->GetAsset<asset::Shader>("/engine_assets/shaders/ui.sass");
-        auto flat_color = assetManager->GetAsset<asset::Shader>("/engine_assets/shaders/flat_color.sass");
         static std::shared_ptr<render::Material> bgMaterial = nullptr;
         if (!bgMaterial)
         {
-            bgMaterial = render::Material::CreateMaterial({vert}, {flat_color});
+            bgMaterial = std::make_shared<render::Material>(
+                std::vector{ asset::AssetReference<asset::Shader>("/engine_assets/shaders/ui.sass") },
+                std::vector{ asset::AssetReference<asset::Shader>("/engine_assets/shaders/flat_color.sass") });
             bgMaterial->GetShaderSettings().SetSetting("color_setting", math::Vec3(0.6f, 0.6f, 0.6f));
         }
         image->materialInstance = render::MaterialInstance::CreateMaterialInstance(bgMaterial);
@@ -35,7 +35,9 @@ namespace se::ui::util
         static std::shared_ptr<render::Material> innerMaterial = nullptr;
         if (!innerMaterial)
         {
-            innerMaterial = render::Material::CreateMaterial({vert}, {flat_color});
+            innerMaterial = std::make_shared<render::Material>(
+                std::vector{ asset::AssetReference<asset::Shader>("/engine_assets/shaders/ui.sass") },
+                std::vector{ asset::AssetReference<asset::Shader>("/engine_assets/shaders/flat_color.sass") });
             innerMaterial->GetShaderSettings().SetSetting("color_setting", math::Vec3(0.2f, 0.2f, 0.2f));
         }
         innerImage->materialInstance = render::MaterialInstance::CreateMaterialInstance(innerMaterial);
@@ -65,11 +67,12 @@ namespace se::ui::util
         indicatorRect->maxY = 12;
         world->AddComponent<WidgetComponent>(titleIndicator);
         auto indicatorImage = world->AddComponent<ImageComponent>(titleIndicator);
-        auto alpha_texture = assetManager->GetAsset<asset::Shader>("/engine_assets/shaders/alpha_texture.sass");
         static std::shared_ptr<render::Material> indicatorMaterial = nullptr;
         if (!indicatorMaterial)
         {
-            indicatorMaterial = render::Material::CreateMaterial({ vert }, { alpha_texture });
+            indicatorMaterial = std::make_shared<render::Material>(
+                std::vector{ asset::AssetReference<asset::Shader>("/engine_assets/shaders/ui.sass") },
+                std::vector{ asset::AssetReference<asset::Shader>("/engine_assets/shaders/alpha_texture.sass") });
             auto rs = render::RenderState();
             rs.srcBlend = render::BlendMode::SrcAlpha;
             rs.dstBlend = render::BlendMode::OneMinusSrcAlpha;
@@ -97,12 +100,12 @@ namespace se::ui::util
         bgTransform->anchors = { .left = 0.f, .right = 1.f, .top = 0.f, .bottom = 0.f };
         world->AddComponent<WidgetComponent>(ret.comboBox->expandedEntity);
         auto image = world->AddComponent<ImageComponent>(ret.comboBox->expandedEntity);
-        auto vert = assetManager->GetAsset<asset::Shader>("/engine_assets/shaders/ui.sass");
-        auto flat_color = assetManager->GetAsset<asset::Shader>("/engine_assets/shaders/flat_color.sass");
         static std::shared_ptr<render::Material> bgMaterial = nullptr;
         if (!bgMaterial)
         {
-            bgMaterial = render::Material::CreateMaterial({vert}, {flat_color});
+            bgMaterial = std::make_shared<render::Material>(
+                std::vector{ asset::AssetReference<asset::Shader>("/engine_assets/shaders/ui.sass") },
+                std::vector{ asset::AssetReference<asset::Shader>("/engine_assets/shaders/flat_color.sass") });
             bgMaterial->GetShaderSettings().SetSetting("color_setting", math::Vec3(0.6f, 0.6f, 0.6f));
         }
         image->materialInstance = render::MaterialInstance::CreateMaterialInstance(bgMaterial);
@@ -112,7 +115,9 @@ namespace se::ui::util
         static std::shared_ptr<render::Material> innerMaterial = nullptr;
         if (!innerMaterial)
         {
-            innerMaterial = render::Material::CreateMaterial({vert}, {flat_color});
+            innerMaterial = std::make_shared<render::Material>(
+                std::vector{ asset::AssetReference<asset::Shader>("/engine_assets/shaders/ui.sass") },
+                std::vector{ asset::AssetReference<asset::Shader>("/engine_assets/shaders/flat_color.sass") });
             innerMaterial->GetShaderSettings().SetSetting("color_setting", math::Vec3(0.2f, 0.2f, 0.2f));
         }
         innerImage->materialInstance = render::MaterialInstance::CreateMaterialInstance(innerMaterial);

@@ -59,9 +59,9 @@ namespace se::editor::ui
         static std::shared_ptr<render::Material> bgMaterial = nullptr;
         if (!bgMaterial)
         {
-            auto vert = assetManager->GetAsset<asset::Shader>("/engine_assets/shaders/ui.sass");
-            auto frag = assetManager->GetAsset<asset::Shader>("/engine_assets/shaders/flat_color.sass");
-            bgMaterial = render::Material::CreateMaterial({vert}, {frag});
+            bgMaterial = std::make_shared<render::Material>(
+                std::vector{ asset::AssetReference<asset::Shader>("/engine_assets/shaders/ui.sass") },
+                std::vector{ asset::AssetReference<asset::Shader>("/engine_assets/shaders/flat_color.sass") });
             bgMaterial->GetShaderSettings().SetSetting("color_setting", math::Vec3(.25f, .25f, .25f));
         }
 
@@ -170,14 +170,14 @@ namespace se::editor::ui
         m_PathBarItems.clear();
 
         auto& vfs = io::VFS::Get();
-        vfs.ForEachFile(m_ActiveFolder, false, [this, world, assetManager, &arial](const io::VFSFile& file)
+        vfs.ForEachFile(m_ActiveFolder, false, [this, world, &arial](const io::VFSFile& file)
         {
             if (file.extension == "json")
             {
                 return;
             }
 
-            auto fileEntity = CreateFileItem(world, assetManager, file, arial);
+            auto fileEntity = CreateFileItem(world, file, arial);
             if (fileEntity != ecs::s_InvalidEntity)
             {
                 world->AddChild(m_GridBoxEntity, fileEntity);
@@ -262,7 +262,6 @@ namespace se::editor::ui
     }
 
     ecs::Id AssetBrowserWindow::CreateFileItem(ecs::World* world,
-                                               asset::AssetManager* assetManager,
                                                const io::VFSFile& file,
                                                const std::shared_ptr<asset::Font>& font)
     {
@@ -312,10 +311,9 @@ namespace se::editor::ui
         static std::shared_ptr<render::Material> material = nullptr;
         if (!material)
         {
-            auto vert = assetManager->GetAsset<asset::Shader>("/engine_assets/shaders/ui.sass");
-            auto frag = assetManager->GetAsset<asset::Shader>("/engine_assets/shaders/alpha_texture.sass");
-
-            material = render::Material::CreateMaterial({vert}, {frag});
+            material = std::make_shared<render::Material>(
+                std::vector{ asset::AssetReference<asset::Shader>("/engine_assets/shaders/ui.sass") },
+                std::vector{ asset::AssetReference<asset::Shader>("/engine_assets/shaders/alpha_texture.sass") });
             auto rs = render::RenderState();
             rs.srcBlend = render::BlendMode::SrcAlpha;
             rs.dstBlend = render::BlendMode::OneMinusSrcAlpha;

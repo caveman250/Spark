@@ -72,12 +72,13 @@ namespace se::editor::ui::properties
 
         world->AddComponent<WidgetComponent>(bg);
         auto image = world->AddComponent<ImageComponent>(bg);
-        auto vert = assetManager->GetAsset<asset::Shader>("/engine_assets/shaders/ui.sass");
-        auto frag = assetManager->GetAsset<asset::Shader>("/engine_assets/shaders/flat_color.sass");
+
         static std::shared_ptr<render::Material> material = nullptr;
         if (!material)
         {
-            material = render::Material::CreateMaterial({vert}, {frag});
+            material = std::make_shared<render::Material>(
+                std::vector{ asset::AssetReference<asset::Shader>("/engine_assets/shaders/ui.sass") },
+                std::vector{ asset::AssetReference<asset::Shader>("/engine_assets/shaders/flat_color.sass") });
             material->GetShaderSettings().SetSetting("color_setting", math::Vec3(0.6f, 0.6f, 0.6f));
         }
         image->materialInstance = render::MaterialInstance::CreateMaterialInstance(material);
@@ -88,7 +89,9 @@ namespace se::editor::ui::properties
         static std::shared_ptr<render::Material> innerMaterial = nullptr;
         if (!innerMaterial)
         {
-            innerMaterial = render::Material::CreateMaterial({vert}, {frag});
+            innerMaterial = std::make_shared<render::Material>(
+                std::vector{ asset::AssetReference<asset::Shader>("/engine_assets/shaders/ui.sass") },
+                std::vector{ asset::AssetReference<asset::Shader>("/engine_assets/shaders/flat_color.sass") });
             innerMaterial->GetShaderSettings().SetSetting("color_setting", math::Vec3(0.2f, 0.2f, 0.2f));
         }
         innerImage->materialInstance = render::MaterialInstance::CreateMaterialInstance(innerMaterial);

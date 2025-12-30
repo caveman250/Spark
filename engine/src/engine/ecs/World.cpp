@@ -163,7 +163,7 @@ namespace se::ecs
 
         std::erase(record.archetype->entities, entity);
         m_EntityRecords.erase(entity);
-        m_FreeEntities.push_back(bits::UnpackA64(entity));
+        m_FreeEntities.push_back(entity);
     }
 
     bool World::HasComponent(const Id& entity, const Id& component)

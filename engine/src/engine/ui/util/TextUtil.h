@@ -32,14 +32,12 @@ namespace se::ui::util
 
         if (!textComp.materialInstance)
         {
-            auto assetManager = asset::AssetManager::Get();
-            auto vert = assetManager->GetAsset<asset::Shader>("/engine_assets/shaders/ui.sass");
-            auto frag = assetManager->GetAsset<asset::Shader>("/engine_assets/shaders/text.sass");
-
             static std::shared_ptr<render::Material> textMaterial = nullptr;
             if (!textMaterial)
             {
-                textMaterial = render::Material::CreateMaterial({ vert }, { frag });
+                textMaterial = std::make_shared<render::Material>(
+                std::vector{ asset::AssetReference<asset::Shader>("/engine_assets/shaders/ui.sass") },
+                std::vector{ asset::AssetReference<asset::Shader>("/engine_assets/shaders/text.sass") });
 
                 render::RenderState rs;
                 rs.srcBlend = render::BlendMode::SrcAlpha;

@@ -96,12 +96,12 @@ namespace se::ui::util
         };
         button->onPressed.Subscribe(std::move(statusIconCallback));
 
-        auto vert = assetManager->GetAsset<asset::Shader>("/engine_assets/shaders/ui.sass");
-        auto frag = assetManager->GetAsset<asset::Shader>("/engine_assets/shaders/alpha_texture.sass");
         static std::shared_ptr<render::Material> material = nullptr;
         if (!material)
         {
-            material = render::Material::CreateMaterial({vert}, {frag});
+            material = std::make_shared<render::Material>(
+                std::vector{ asset::AssetReference<asset::Shader>("/engine_assets/shaders/ui.sass") },
+                std::vector{ asset::AssetReference<asset::Shader>("/engine_assets/shaders/alpha_texture.sass") });
             auto rs = render::RenderState();
             rs.srcBlend = render::BlendMode::SrcAlpha;
             rs.dstBlend = render::BlendMode::OneMinusSrcAlpha;

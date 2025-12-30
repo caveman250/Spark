@@ -29,14 +29,13 @@ namespace se::editor::ui::properties
         PropertyEditor::ConstructUI(name, constructTitle, anchors, collapsed, withBackground);
 
         auto world = Application::Get()->GetWorld();
-        auto assetManager = asset::AssetManager::Get();
 
         static std::shared_ptr<render::Material> bgMaterial = nullptr;
         if (!bgMaterial)
         {
-            auto vert = assetManager->GetAsset<asset::Shader>("/engine_assets/shaders/ui.sass");
-            auto frag = assetManager->GetAsset<asset::Shader>("/engine_assets/shaders/flat_color.sass");
-            bgMaterial = render::Material::CreateMaterial({vert}, {frag});
+            bgMaterial = std::make_shared<render::Material>(
+                std::vector{ asset::AssetReference<asset::Shader>("/engine_assets/shaders/ui.sass") },
+                std::vector{ asset::AssetReference<asset::Shader>("/engine_assets/shaders/flat_color.sass") });
             bgMaterial->GetShaderSettings().SetSetting("color_setting", math::Vec3(0.27f, 0.27f, 0.27f));
         }
 

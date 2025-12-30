@@ -16,7 +16,8 @@ std::mutex cv_m;
 int g_i = 0;
 
 int OBJECTS = 500;
-int MODELLING_STEPS = 1500;
+int
+MODELLING_STEPS = 1500;
 int RENDER_STEPS = 1500;
 int RESOURCE_LOADING_COUNT = 50;
 

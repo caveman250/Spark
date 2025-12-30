@@ -22,7 +22,8 @@ namespace se::asset
 
             for (int partition_idx = 0; partition_idx < geom.getPartitionCount(); ++partition_idx)
             {
-                StaticMesh& staticMesh = ret->m_Meshes.emplace_back();
+                SPARK_ASSERT(partition_idx == 0); // TODO multiple meshes
+                StaticMesh& staticMesh = ret->m_Mesh;
                 const ofbx::GeometryPartition& partition = geom.getPartition(partition_idx);
                 for (int polygon_idx = 0; polygon_idx < partition.polygon_count; ++polygon_idx)
                 {

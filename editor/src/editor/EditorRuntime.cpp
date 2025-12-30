@@ -47,10 +47,9 @@ namespace se::editor
         static std::shared_ptr<render::Material> bgMaterial = nullptr;
         if (!bgMaterial)
         {
-            auto assetManager = asset::AssetManager::Get();
-            auto vert = assetManager->GetAsset<asset::Shader>("/engine_assets/shaders/ui.sass");
-            auto frag = assetManager->GetAsset<asset::Shader>("/engine_assets/shaders/flat_color.sass");
-            bgMaterial = render::Material::CreateMaterial({vert}, {frag});
+            bgMaterial = std::make_shared<render::Material>(
+                std::vector{ asset::AssetReference<asset::Shader>("/engine_assets/shaders/ui.sass") },
+                std::vector{ asset::AssetReference<asset::Shader>("/engine_assets/shaders/flat_color.sass") });
             bgMaterial->GetShaderSettings().SetSetting("color_setting", math::Vec3(.15f, .15f, .15f));
         }
         auto sliderImage = world->AddComponent<se::ui::components::ImageComponent>(splitViewComp->sliderEntity);
