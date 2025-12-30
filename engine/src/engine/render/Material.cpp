@@ -105,6 +105,11 @@ namespace se::render
         return m_ShaderSettings;
     }
 
+    const UniformStorage& Material::GetUniformDefaults()
+    {
+        return m_UniformDefaults;
+    }
+
     Material:: Material(const std::vector<asset::AssetReference<asset::Shader>>& vertShaders,
                         const std::vector<asset::AssetReference<asset::Shader>>& fragShaders)
         : m_VertShaders(vertShaders)

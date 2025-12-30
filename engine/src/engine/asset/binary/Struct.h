@@ -9,8 +9,8 @@ namespace se::asset::binary
 
 namespace se::asset::binary
 {
-    constexpr uint32_t s_StructHeaderSize = sizeof(uint32_t) + 32; // numFields (uint32_t) name (FixedString32)
-    constexpr uint32_t s_StructRowSize = 32 + sizeof(Type); // FixedString32 + Type
+    constexpr uint32_t s_StructHeaderSize = sizeof(uint32_t) + 64; // numFields (uint32_t) name (FixedString64)
+    constexpr uint32_t s_StructRowSize = 64 + sizeof(Type); // FixedString64 + Type
 
     class Struct
     {

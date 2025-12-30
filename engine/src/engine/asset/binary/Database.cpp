@@ -44,26 +44,25 @@ namespace se::asset::binary
         }
     }
 
-    void Database::CreateStructData(const std::string& name, const std::vector<std::pair<FixedString32, Type>>& structLayout, void* createAt)
+    void Database::CreateStructData(const std::string& name, const std::vector<std::pair<FixedString64, Type>>& structLayout, void* createAt)
     {
         char* structData = static_cast<char*>(createAt);
 
         size_t structSize = structLayout.size();
         std::memcpy(structData, &structSize, sizeof(uint32_t));
-        FixedString32 fixedName = CreateFixedString32(name.c_str());
-        std::memcpy(structData + sizeof(uint32_t), &fixedName, 32);
+        FixedString64 fixedName = CreateFixedString64(name.c_str());
+        std::memcpy(structData + sizeof(uint32_t), &fixedName, 64);
         uint32_t offset = s_StructHeaderSize;
 
-        uint32_t rowSize = sizeof(Type) + 32;
         for (const auto& [fieldName, type] : structLayout)
         {
-            std::memcpy(structData + offset, &fieldName, 32);
-            std::memcpy(structData + offset + 32, &type, sizeof(Type));
-            offset += rowSize;
+            std::memcpy(structData + offset, &fieldName, 64);
+            std::memcpy(structData + offset + 64, &type, sizeof(Type));
+            offset += s_StructRowSize;
         }
     }
 
-    uint32_t Database::CalcStructDefinitionDataSize(const std::vector<std::pair<FixedString32, Type>>& structLayout)
+    uint32_t Database::CalcStructDefinitionDataSize(const std::vector<std::pair<FixedString64, Type>>& structLayout)
     {
         return s_StructRowSize * static_cast<uint32_t>(structLayout.size()) + s_StructHeaderSize;
     }
@@ -421,8 +420,8 @@ namespace se::asset::binary
         }
 
         static StructLayout structLayout = {
-            { CreateFixedString32("valid"), Type::Bool },
-            { CreateFixedString32("offset"), Type::Uint32 }
+            { CreateFixedString64("valid"), Type::Bool },
+            { CreateFixedString64("offset"), Type::Uint32 }
         };
 
         auto structIndex = GetOrCreateStruct("Internal_ArrayItem", structLayout);

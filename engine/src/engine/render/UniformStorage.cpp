@@ -21,4 +21,19 @@ namespace se
 
         m_Stale = false;
     }
+
+    void render::UniformStorage::ApplyTo(UniformStorage& other) const
+    {
+        for (const auto& [name, value] : m_Storage)
+        {
+            if (other.m_Storage.contains(name))
+            {
+                other.m_Storage.at(name)->SetValue(value->GetValue(), value->valueCount);
+            }
+            else
+            {
+                other.m_Storage.insert(std::make_pair(name, value->Copy()));
+            }
+        }
+    }
 }

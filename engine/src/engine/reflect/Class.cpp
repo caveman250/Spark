@@ -45,7 +45,7 @@ namespace se::reflect
         {
             if (member.serialized)
             {
-                structLayout.push_back( { asset::binary::CreateFixedString32(member.name), member.type->GetBinaryType() });
+                structLayout.push_back( { asset::binary::CreateFixedString64(member.name), member.type->GetBinaryType() });
             }
         }
         return structLayout;
@@ -91,7 +91,7 @@ namespace se::reflect
             auto& member = members[i];
             if (member.serialized)
             {
-                if (member.type->RequiresExplicitInstantiationWithinClass())
+                if (member.type->RequiresExplicitInstantiation())
                 {
                     auto binaryObj = thisObj.Get<asset::binary::Object>(member.name);
                     std::string typeName = binaryObj.GetStruct().GetName();

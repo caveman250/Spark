@@ -44,8 +44,8 @@ namespace se::asset::binary
     private:
         explicit Database(bool readOnly);
 
-        static void CreateStructData(const std::string& name, const std::vector<std::pair<FixedString32, Type>>& structLayout, void* createAt);
-        static uint32_t CalcStructDefinitionDataSize(const std::vector<std::pair<FixedString32, Type>>& structLayout);
+        static void CreateStructData(const std::string& name, const std::vector<std::pair<FixedString64, Type>>& structLayout, void* createAt);
+        static uint32_t CalcStructDefinitionDataSize(const std::vector<std::pair<FixedString64, Type>>& structLayout);
 
         uint32_t GetStructsDataSize();
         void SetStructsDataSize(uint32_t dataSize);

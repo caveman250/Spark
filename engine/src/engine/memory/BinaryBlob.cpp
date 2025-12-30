@@ -6,7 +6,7 @@ namespace se::reflect
 {
     asset::binary::StructLayout BinaryBlob::GetStructLayout(const void*) const
     {
-        asset::binary::StructLayout structLayout = {{ asset::binary::CreateFixedString32("val"), asset::binary::Type::Blob }};
+        asset::binary::StructLayout structLayout = {{ asset::binary::CreateFixedString64("val"), asset::binary::Type::Blob }};
         return structLayout;
     }
 

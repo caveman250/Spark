@@ -32,7 +32,7 @@ namespace se::reflect
             : Type_Container(name, size, binaryType)
         {}
 
-        bool RequiresExplicitInstantiationWithinClass() const override
+        bool RequiresExplicitInstantiation() const override
         {
             return true;
         }
@@ -270,11 +270,11 @@ namespace se::reflect
                 auto structIndex = db->GetOrCreateStruct(objBase->GetTypeName(), structLayout);
                 auto binaryObj = db->CreateObject(structIndex);
                 parentObj.Set(fieldName, binaryObj);
-                objBase->Serialize(typed, binaryObj, {});
+                objBase->Serialize(*typed, binaryObj, {});
             }
             else // parent is this
             {
-                objBase->Serialize(typed, parentObj, {});
+                objBase->Serialize(*typed, parentObj, {});
             }
         }
     }
@@ -334,7 +334,7 @@ namespace se::reflect
     template <typename T> struct is_shared_ptr : std::false_type {};
     template <typename T> struct is_shared_ptr<std::shared_ptr<T>> : std::true_type {};
     template <typename T> concept SharedPtr = is_shared_ptr<T>::value;
-    template <typename T> concept NotSharedPtr = !is_shared_ptr<T>::value;
+    template <typename T> concept RawPtr = std::is_pointer_v<T>;
 
     template<SharedPtr T>
     T InstantiateContainerObj(const std::string& type)
@@ -344,7 +344,15 @@ namespace se::reflect
         return obj;
     }
 
-    template<NotSharedPtr T>
+    template<RawPtr T>
+    T InstantiateContainerObj(const std::string& type)
+    {
+        const Type* reflect = TypeFromString(type);
+        T obj = static_cast<T>(reflect->heap_constructor());
+        return obj;
+    }
+
+    template<typename T>
     T InstantiateContainerObj(const std::string&)
     {
         T obj = {};
@@ -433,7 +441,7 @@ namespace se::reflect
     asset::binary::StructLayout Type_StdVector<T>::GetStructLayout(const void*) const
     {
         asset::binary::StructLayout structLayout = {
-            {asset::binary::CreateFixedString32("val"), GetBinaryType()}
+            {asset::binary::CreateFixedString64("val"), GetBinaryType()}
         };
         return structLayout;
     }
@@ -512,7 +520,7 @@ namespace se::reflect
         asset::binary::StructLayout GetStructLayout(const void*) const override
         {
             asset::binary::StructLayout structLayout = {
-                {asset::binary::CreateFixedString32("val"), GetBinaryType() }
+                {asset::binary::CreateFixedString64("val"), GetBinaryType() }
             };
             return structLayout;
         }
@@ -609,8 +617,8 @@ namespace se::reflect
         auto db = parentObj.GetDatabase();
 
         asset::binary::StructLayout structLayout = {
-            {asset::binary::CreateFixedString32("key"), keyType->GetBinaryType() },
-            {asset::binary::CreateFixedString32("value"), itemType->GetBinaryType() }
+            {asset::binary::CreateFixedString64("key"), keyType->GetBinaryType() },
+            {asset::binary::CreateFixedString64("value"), itemType->GetBinaryType() }
         };
         std::map<T, Y>* map = (std::map<T, Y>*)obj;
         auto array = db->CreateArray(db->GetOrCreateStruct(
@@ -661,7 +669,7 @@ namespace se::reflect
     asset::binary::StructLayout Type_StdMap<T, Y>::GetStructLayout(const void*) const
     {
         asset::binary::StructLayout structLayout = {
-            {asset::binary::CreateFixedString32("val"), asset::binary::Type::Array}
+            {asset::binary::CreateFixedString64("val"), asset::binary::Type::Array}
         };
         return structLayout;
     }
@@ -765,8 +773,8 @@ namespace se::reflect
         auto db = parentObj.GetDatabase();
 
         asset::binary::StructLayout structLayout = {
-            {asset::binary::CreateFixedString32("key"), keyType->GetBinaryType() },
-            {asset::binary::CreateFixedString32("value"), itemType->GetBinaryType() }
+            {asset::binary::CreateFixedString64("key"), keyType->GetBinaryType() },
+            {asset::binary::CreateFixedString64("value"), itemType->GetBinaryType() }
         };
         std::unordered_map<T, Y>* map = (std::unordered_map<T, Y>*)obj;
         auto array = db->CreateArray(db->GetOrCreateStruct(
@@ -817,7 +825,7 @@ namespace se::reflect
     asset::binary::StructLayout Type_StdUnorderedMap<T, Y>::GetStructLayout(const void*) const
     {
         asset::binary::StructLayout structLayout = {
-            {asset::binary::CreateFixedString32("val"), asset::binary::Type::Array}
+            {asset::binary::CreateFixedString64("val"), asset::binary::Type::Array}
         };
         return structLayout;
     }

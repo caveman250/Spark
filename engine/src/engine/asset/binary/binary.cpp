@@ -2,11 +2,11 @@
 
 namespace se::asset::binary
 {
-    FixedString32 CreateFixedString32(const char* c)
+    FixedString64 CreateFixedString64(const char* c)
     {
-        SPARK_ASSERT(strlen(c) <= 32);
+        SPARK_ASSERT(strlen(c) <= 64);
 
-        FixedString32 newStr {0};
+        FixedString64 newStr {0};
         std::memcpy(newStr.data(), c, strlen(c));
 
         return newStr;

@@ -83,11 +83,12 @@ namespace se::asset::binary
                 return sizeof(math::Vec3);
             case Type::Vec4:
                 return sizeof(math::Vec4);
-            case Type::Object:
             case Type::String:
+                return sizeof(uint64_t);
+            case Type::Object:
             case Type::Blob:
             case Type::Array:
-        case Type::PolymorphicArray:
+            case Type::PolymorphicArray:
                 return sizeof(uint32_t); //offset of object data
             default:
                 SPARK_ASSERT(false);

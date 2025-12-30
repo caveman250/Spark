@@ -26,7 +26,7 @@ namespace se::asset::binary
 
     Type Struct::GetFieldType(uint32_t fieldIndex) const
     {
-        uint32_t offset = s_StructHeaderSize + (s_StructRowSize * fieldIndex) + 32;
+        uint32_t offset = s_StructHeaderSize + (s_StructRowSize * fieldIndex) + 64;
         Type* name = reinterpret_cast<Type*>(GetData() + offset);
         return *name;
     }

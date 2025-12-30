@@ -58,7 +58,7 @@ namespace se::reflect
 
     asset::binary::StructLayout Enum::GetStructLayout(const void*) const
     {
-        asset::binary::StructLayout structLayout = {{ asset::binary::CreateFixedString32("val"), asset::binary::Type::String }};
+        asset::binary::StructLayout structLayout = {{ asset::binary::CreateFixedString64("val"), asset::binary::Type::String }};
         return structLayout;
     }
 

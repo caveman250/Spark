@@ -5,7 +5,7 @@
 
 namespace se::asset::binary
 {
-    typedef std::array<char, 32> FixedString32;
-    typedef std::vector<std::pair<FixedString32, Type>> StructLayout;
-    FixedString32 CreateFixedString32(const char* c);
+    typedef std::array<char, 64> FixedString64;
+    typedef std::vector<std::pair<FixedString64, Type>> StructLayout;
+    FixedString64 CreateFixedString64(const char* c);
 }

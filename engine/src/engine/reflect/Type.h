@@ -31,7 +31,7 @@ namespace se::reflect
         virtual bool IsEnum() const { return false; }
         virtual bool IsClass() const { return false; }
         virtual void* Instantiate(const std::string&, void*) const { return nullptr; }
-        virtual bool RequiresExplicitInstantiationWithinClass() const { return false; }
+        virtual bool RequiresExplicitInstantiation() const { return false; }
 
         virtual void Serialize(const void* obj, asset::binary::Object& parentObj, const std::string& fieldName) const = 0;
         virtual void Deserialize(void* obj, asset::binary::Object& parentObj, const std::string& fieldName) const = 0;

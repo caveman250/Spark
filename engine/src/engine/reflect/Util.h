@@ -27,7 +27,17 @@ namespace se::reflect
         return obj;
     }
 
-    template<NotSharedPtr T>
+    template<RawPtr T>
+    T DeserialiseType(const std::shared_ptr<asset::binary::Database>& db)
+    {
+        auto root = db->GetRoot();
+        const Type* reflect = Type_StdSharedPtr<std::decay_t<T>>::GetSerialisedType(root, {});
+        T obj = reflect->heap_constructor();
+        reflect->Deserialize(obj.get(), root, {});
+        return obj;
+    }
+
+    template<typename T>
     T DeserialiseType(const std::shared_ptr<asset::binary::Database>& db)
     {
         T obj;
@@ -37,7 +47,7 @@ namespace se::reflect
         return obj;
     }
 
-    template<NotSharedPtr T>
+    template<typename T>
     void DeserialiseType(const std::shared_ptr<asset::binary::Database>& db, T& obj)
     {
         const Type* reflect = TypeResolver<T>::get();

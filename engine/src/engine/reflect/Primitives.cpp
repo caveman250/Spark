@@ -23,7 +23,7 @@ else\
 }\
 asset::binary::StructLayout GetStructLayout(const void*) const override\
 {\
-    asset::binary::StructLayout structLayout = {{ asset::binary::CreateFixedString32("val"), binaryType }};\
+    asset::binary::StructLayout structLayout = {{ asset::binary::CreateFixedString64("val"), binaryType }};\
     return structLayout;\
 }\
 };\
@@ -70,7 +70,7 @@ return &typeDesc;\
 
         asset::binary::StructLayout GetStructLayout(const void*) const override
         {
-            asset::binary::StructLayout structLayout = {{ asset::binary::CreateFixedString32("val"), asset::binary::Type::Invalid }};
+            asset::binary::StructLayout structLayout = {{ asset::binary::CreateFixedString64("val"), asset::binary::Type::Invalid }};
             return structLayout;
         }
     };
@@ -107,7 +107,7 @@ return &typeDesc;\
 
         asset::binary::StructLayout GetStructLayout(const void*) const override
         {
-            asset::binary::StructLayout structLayout = {{ asset::binary::CreateFixedString32("val"), asset::binary::Type::Uint64 }};
+            asset::binary::StructLayout structLayout = {{ asset::binary::CreateFixedString64("val"), asset::binary::Type::Uint64 }};
             return structLayout;
         }
     };

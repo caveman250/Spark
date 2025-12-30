@@ -48,7 +48,7 @@ namespace se::render
     MaterialInstance::MaterialInstance(const std::shared_ptr<Material>& material)
         : m_Material(material)
     {
-
+        material->GetUniformDefaults().ApplyTo(m_UniformStorage);
     }
 }
 

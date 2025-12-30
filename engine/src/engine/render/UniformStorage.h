@@ -18,6 +18,7 @@ namespace se::render
         virtual ~UniformValueBase() = default;
         virtual const void* GetValue() const = 0;
         virtual void SetValue(const void* val, int count) = 0;
+        virtual UniformValueBase* Copy() = 0;
 
         SPARK_MEMBER(Serialized)
         asset::shader::ast::AstType type;
@@ -32,9 +33,10 @@ namespace se::render
         SPARK_CLASS_TEMPLATED()
         const void* GetValue() const override { return static_cast<const void*>(value.data()); }
         void SetValue(const void* val, int count) override;
+        UniformValueBase* Copy() override;
 
         SPARK_MEMBER(Serialized)
-        std::vector<T> value;
+        std::vector<T> value = {};
     };
 
     SPARK_INSTANTIATE_TEMPLATE(UniformValue, int)
@@ -51,13 +53,13 @@ namespace se::render
         SPARK_CLASS()
     public:
         ~UniformStorage();
-
         template <typename T>
         void SetValue(const std::string& name, asset::shader::ast::AstType type, int count, const T* value);
         template<typename T>
         const T* GetValue(const std::string& name);
         void Apply(MaterialInstance* material);
         bool IsStale() const { return m_Stale; }
+        void ApplyTo(UniformStorage& other) const;
     private:
         SPARK_MEMBER(Serialized)
         std::map<std::string, UniformValueBase*> m_Storage;
@@ -77,6 +79,12 @@ namespace se::render
             value.push_back(typedVal[i]);
             valueCount = count;
         }
+    }
+
+    template<typename T>
+    UniformValueBase* UniformValue<T>::Copy()
+    {
+        return new UniformValue(*this);
     }
 
     template <typename T>
