@@ -7,6 +7,7 @@
 
 namespace se::editor::ui::properties
 {
+    DEFINE_CONTAINER_PROPERTY_EDITOR("*", SharedPtrEditor)
     DEFINE_CONTAINER_PROPERTY_EDITOR("std::shared_ptr<>", SharedPtrEditor)
 
     void SharedPtrEditor::SetValue(void* value, const reflect::Type* type)

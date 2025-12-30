@@ -52,16 +52,11 @@ def GetFullClassName(class_name, namespace_stack):
             return class_name
 
     local_namespace = ""
-    end_index = 0
-    if '<' in class_name:
-        for i in range(0, len(class_name)):
-            if class_name[i] == '<':
-                break
-            end_index += 1
-    else:
-        end_index = len(class_name)
+    str_minus_templates = RemoveTemplateParams(class_name)
 
-    str_minus_templates = class_name[0:end_index]
+    if str_minus_templates.startswith("std::"):
+        return str_minus_templates
+
     local_namespace = str_minus_templates.rsplit("::", 1)
 
     namespace = Namespace.MakeNamespace(namespace_stack)
@@ -112,7 +107,31 @@ def RemoveTemplateParams(type):
         copy += type[end_remove + 1: len(type)]
         return copy
     return type
+
+def GetTemplateTypes(type):
+    num_open_template_params = 0
+    template_types = []
+    current_template_type = ""
+    for i in range(0, len(type)):
+        if type[i] == ' ':
+            continue
+        if type[i] == '<':
+            num_open_template_params += 1
+        elif type[i] == '>':
+            num_open_template_params -= 1
+            if num_open_template_params == 0:
+                template_types.append(current_template_type)
+                current_template_type = ""
+            continue
+        elif num_open_template_params > 0:
+            current_template_type += type[i]
+
+    return template_types
+
 def FindRealClassType(type, class_list, end_of_file_namespace_index, using_namespace_stack):
+    if type.startswith("std::"):
+        return type
+
     while class_list.count(type) == 0:
         type = RemoveNamespaceAtIndex(type, end_of_file_namespace_index)
         type = RemoveTemplateParams(type)
@@ -252,17 +271,19 @@ def ProcessInstantiateTemplate(line, template_instantiations, namespace_stack, f
             if line[i] == '<':
                 num_open_template_params += 1
             elif line[i] == '>':
+                current_template_type += line[i]
                 num_open_template_params -= 1
                 if num_open_template_params == 0:
                     template_types.append(current_template_type)
                     current_template_type = ""
+                continue
 
             if line[i] == ',' and num_open_template_params == 0:
                 template_types.append(current_template_type)
                 current_template_type = ""
             elif line[i] == ')':
-                template_types.append(current_template_type)
-                current_template_type = ""
+                if len(current_template_type) > 0:
+                    template_types.append(current_template_type)
                 break
             else:
                 current_template_type += line[i]
@@ -271,9 +292,25 @@ def ProcessInstantiateTemplate(line, template_instantiations, namespace_stack, f
         template_type = template_types[i]
         if not IsBuiltinPrimitive(template_type):
             last_namespace_idx = CountNamespaces(Namespace.MakeNamespace(namespace_stack)) - 1
+            template_suffix = ""
+            if '<' in template_type:
+                for j in range(0, len(template_type)):
+                    if template_type[j] == '<':
+                        template_suffix = template_type[j + 1:-1]
+                        break
+            if (len(template_suffix) > 0):
+                inner_template_types = template_suffix.split(',')
+                template_suffix = "<"
+                for k in range(0, len(inner_template_types)):
+                    inner_template_type = GetFullClassName(inner_template_types[k], namespace_stack)
+                    inner_template_type = FindRealClassType(inner_template_type, class_list, last_namespace_idx, using_namespace_stack)
+                    template_suffix += inner_template_type
+                    if k < len(inner_template_types) - 1:
+                        template_suffix += ","
+                template_suffix += ">"
             template_type = GetFullClassName(template_type, namespace_stack)
             template_type = FindRealClassType(template_type, class_list, last_namespace_idx, using_namespace_stack)
-            template_types[i] = template_type
+            template_types[i] = template_type + template_suffix
 
     template_instantiations.append(TemplateInstantiation(Namespace.MakeNamespace(namespace_stack), class_name, template_types, filepath, source_dir))
 
@@ -379,7 +416,14 @@ def ProcessMember(line, next_line, class_stack, namespace_stack, class_list, usi
             continue
         currentDecorator += line[i]
 
+    next_line = next_line.strip()
+
     start_index = 0
+    if next_line.startswith("mutable"):
+        start_index += len("mutable")
+    if next_line.startswith("const"):
+        start_index += len("const")
+
     end_index = len(next_line)
     num_open_template_params = 0
     has_begun_type = False
@@ -853,9 +897,15 @@ def WriteClassFiles(classes, base_class_map, template_instantiations):
 
             includes = list()
             for template_type in template_instantiation.template_types:
-                if template_type in classes:
-                    if includes.count(classes[template_type].path) == 0:
-                        includes.append(classes[template_type].path)
+                template_pure_type = RemoveTemplateParams(template_type)
+                if template_pure_type in classes:
+                    if includes.count(classes[template_pure_type].path) == 0:
+                        includes.append(classes[template_pure_type].path)
+                template_params = GetTemplateTypes(template_type)
+                for template_param in template_params:
+                    if template_param in classes:
+                        if includes.count(classes[template_param].path) == 0:
+                            includes.append(classes[template_param].path)
 
             for include in includes:
                 contents += f"#include \"{include}\"\n"

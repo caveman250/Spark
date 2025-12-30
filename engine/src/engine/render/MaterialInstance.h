@@ -12,8 +12,9 @@ namespace se::render
     class VertexBuffer;
     class Material;
 
-    class MaterialInstance
+    class MaterialInstance : public reflect::ObjectBase
     {
+        SPARK_CLASS(Abstract)
     public:
         static std::shared_ptr<MaterialInstance> CreateMaterialInstance(const std::shared_ptr<Material>& material);
 
@@ -33,7 +34,11 @@ namespace se::render
         virtual void SetUniformInternal(const std::string& name, asset::shader::ast::AstType type, int count, const void* value) = 0;
 
         const std::shared_ptr<Material> m_Material = nullptr;
+
+        SPARK_MEMBER(Serialized)
         UniformStorage m_UniformStorage = {};
+
+        SPARK_MEMBER()
         bool m_PlatformResourcesCreated = false;
 
         friend class UniformStorage;

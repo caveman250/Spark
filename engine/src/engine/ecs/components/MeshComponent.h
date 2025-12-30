@@ -27,7 +27,9 @@ namespace se::ecs::components
         asset::AssetReference<render::Material> material = {};
 
         // Runtime
+        SPARK_MEMBER()
         std::shared_ptr<render::MaterialInstance> materialInstance = {};
+
         std::shared_ptr<render::VertexBuffer> vertBuffer = {};
         std::shared_ptr<render::IndexBuffer> indexBuffer = {};
     };

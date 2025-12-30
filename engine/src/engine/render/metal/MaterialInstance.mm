@@ -148,6 +148,28 @@ namespace se::render::metal
             }
             break;
         }
+        case asset::shader::ast::AstType::Sampler2DReference:
+        {
+            SPARK_ASSERT(count == 1, "Setting arrays of texture uniforms not supported.");
+            const asset::AssetReference<asset::Texture>* textureRef = static_cast<const asset::AssetReference<asset::Texture>*>(value);
+            if (!textureRef)
+            {
+                return;
+            }
+
+            auto texture = textureRef->GetAsset();
+            const auto& platformResource = texture->GetPlatformResource();
+            auto it = std::ranges::find_if(m_Textures, [name](const auto& kvp){ return kvp.first == name; });
+            if (it != m_Textures.end())
+            {
+                it->second = platformResource;
+            }
+            else
+            {
+                m_Textures.push_back(std::make_pair(name, platformResource));
+            }
+            break;
+        }
         case asset::shader::ast::AstType::Invalid:
         {
             debug::Log::Error("MaterialInstance::SetUniform - Unhandled uniform type {}", asset::shader::ast::TypeUtil::TypeToMtl(type));

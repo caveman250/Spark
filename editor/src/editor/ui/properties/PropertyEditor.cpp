@@ -145,6 +145,6 @@ namespace se::editor::ui::properties
                                          bool withBackground,
                                          bool constructTitle)
     {
-        return CreatePropertyEditor(member.name, member.type, member.get(classInstance), anchors, collapsed, withBackground, constructTitle);
+        return CreatePropertyEditor(member.name, member.type, classInstance ? member.get(classInstance) : nullptr, anchors, collapsed, withBackground, constructTitle);
     }
 }

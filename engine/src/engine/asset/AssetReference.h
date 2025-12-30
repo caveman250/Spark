@@ -3,23 +3,9 @@
 #include "AssetManager.h"
 #include "spark.h"
 #include "engine/reflect/Reflect.h"
-// #include "font/Font.h"
-// #include "mesh/Model.h"
-// #include "shader/Shader.h"
-// #include "texture/Texture.h"
-
-namespace se::render
-{
-    class Material;
-}
 
 namespace se::asset
 {
-    class Font;
-    class Model;
-    class Shader;
-    class Texture;
-
     template <typename T>
     class AssetReference : public reflect::ObjectBase
     {
@@ -29,14 +15,13 @@ namespace se::asset
         AssetReference(const std::string& path);
         bool IsSet() const { return !m_AssetPath.empty(); }
         bool Loaded() const { return m_Instance.get(); }
-        const std::shared_ptr<T>& GetAsset();
+        const std::shared_ptr<T>& GetAsset() const;
 
     private:
         SPARK_MEMBER(Serialized)
         std::string m_AssetPath = {};
 
-        SPARK_MEMBER()
-        std::shared_ptr<T> m_Instance = nullptr;
+        mutable std::shared_ptr<T> m_Instance = nullptr;
     };
 
     SPARK_INSTANTIATE_TEMPLATE(AssetReference, Font);
@@ -52,7 +37,7 @@ namespace se::asset
     }
 
     template<typename T>
-    const std::shared_ptr<T>& AssetReference<T>::GetAsset()
+    const std::shared_ptr<T>& AssetReference<T>::GetAsset() const
     {
         if (!m_Instance)
         {

@@ -2,6 +2,8 @@
 
 #include "ToolWindow.h"
 #include "engine/ecs/ecs_fwd.h"
+#include "engine/asset/AssetReference.h"
+#include "engine/asset/texture/Texture.h"
 
 namespace se::ecs
 {
@@ -11,7 +13,6 @@ namespace se::ecs
 namespace se::asset
 {
     class AssetManager;
-    class Texture;
     class Font;
 }
 
@@ -47,7 +48,7 @@ namespace se::editor::ui
         ecs::Id m_PathBarBox = ecs::s_InvalidEntity;
         std::vector<ecs::Id> m_PathBarItems = {};
         std::string m_ActiveFolder = "/assets";
-        std::shared_ptr<asset::Texture> m_FileTexture = nullptr;
-        std::shared_ptr<asset::Texture> m_FolderTexture = nullptr;
+        asset::AssetReference<asset::Texture> m_FileTexture = asset::AssetReference<asset::Texture>("/engine_assets/textures/default_file.sass");
+        asset::AssetReference<asset::Texture> m_FolderTexture = asset::AssetReference<asset::Texture>("/engine_assets/textures/default_folder.sass");
     };
 }

@@ -28,10 +28,19 @@ namespace se::editor::ui::properties
 
         auto bg = world->CreateEntity("Bool Editor", true);
         auto bgTransform = world->AddComponent<RectTransformComponent>(bg);
-        bgTransform->anchors = { .left = constructTitle ? 0.35f : 0.f, .right = 0.35f, .top = 0.f, .bottom = 0.f };
         bgTransform->minY = 0;
         bgTransform->maxY = 24;
-        bgTransform->maxX = 24;
+        if (constructTitle)
+        {
+            bgTransform->anchors = { .left = 1.f, .right = 1.f, .top = 0.f, .bottom = 0.f };
+            bgTransform->minX = 24;
+        }
+        else
+        {
+            bgTransform->anchors = { .left = 0.f, .right = 0.f, .top = 0.f, .bottom = 0.f };
+            bgTransform->maxX = 24;
+        }
+
         world->AddComponent<WidgetComponent>(bg);
         world->AddChild(m_Content, bg);
 

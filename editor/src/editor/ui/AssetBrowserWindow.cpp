@@ -137,9 +137,6 @@ namespace se::editor::ui
         world->AddComponent<se::ui::components::WidgetComponent>(m_GridBoxEntity);
         world->AddChild(scrollViewEntity, m_GridBoxEntity);
 
-        m_FileTexture = assetManager->GetAsset<asset::Texture>("/engine_assets/textures/default_file.sass");
-        m_FolderTexture = assetManager->GetAsset<asset::Texture>("/engine_assets/textures/default_folder.sass");
-
         SetActiveFolder("/assets");
 
         gridRect->needsLayout = true;
@@ -323,11 +320,11 @@ namespace se::editor::ui
 
         if (file.isDirectory)
         {
-            image->materialInstance->SetUniform("Texture", asset::shader::ast::AstType::Sampler2D, 1, &m_FolderTexture);
+            image->materialInstance->SetUniform("Texture", asset::shader::ast::AstType::Sampler2DReference, 1, &m_FolderTexture);
         }
         else
         {
-            image->materialInstance->SetUniform("Texture", asset::shader::ast::AstType::Sampler2D, 1, &m_FileTexture);
+            image->materialInstance->SetUniform("Texture", asset::shader::ast::AstType::Sampler2DReference, 1, &m_FileTexture);
         }
 
         world->AddChild(fileEntity, imageEntity);

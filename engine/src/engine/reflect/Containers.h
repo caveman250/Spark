@@ -26,9 +26,9 @@ namespace se::reflect
         virtual size_t GetNumContainedElements(void*) const = 0;
     };
 
-    struct Type_StdSharedPtrBase : Type_Container
+    struct Type_PtrBase : Type_Container
     {
-        Type_StdSharedPtrBase(const std::string& name, size_t size, asset::binary::Type binaryType)
+        Type_PtrBase(const std::string& name, size_t size, asset::binary::Type binaryType)
             : Type_Container(name, size, binaryType)
         {}
 
@@ -39,10 +39,10 @@ namespace se::reflect
     };
 
     template<typename T>
-    struct Type_StdSharedPtr : Type_StdSharedPtrBase
+    struct Type_StdSharedPtr : Type_PtrBase
     {
         Type_StdSharedPtr(T*)
-            : Type_StdSharedPtrBase{"std::shared_ptr<>", sizeof(std::shared_ptr<T>), asset::binary::Type::Bool /* GetBinaryType will reirect to contained type */ }
+            : Type_PtrBase{"std::shared_ptr<>", sizeof(std::shared_ptr<T>), asset::binary::Type::Bool /* GetBinaryType will reirect to contained type */ }
         {
         }
 
@@ -166,18 +166,167 @@ namespace se::reflect
         {
             auto* typed = static_cast<const std::shared_ptr<T>*>(obj);
             auto* objBase = static_cast<ObjectBase*>(typed->get());
-            return objBase->GetReflectType();
+            if (objBase)
+            {
+                return objBase->GetReflectType();
+            }
         }
         return TypeResolver<T>::get();
     }
 
     template <typename T>
-    class TypeResolver<std::shared_ptr<T>>
+    struct TypeResolver<std::shared_ptr<T>>
     {
     public:
         static Type* get()
         {
             static Type_StdSharedPtr<T> typeDesc{(T*)nullptr};
+            return &typeDesc;
+        }
+    };
+
+    template<typename T>
+    struct Type_RawPtr : Type_PtrBase
+    {
+        Type_RawPtr(T*)
+            : Type_PtrBase{"*", sizeof(T*), asset::binary::Type::Bool /* GetBinaryType will reirect to contained type */ }
+        {
+        }
+
+        std::string GetTypeName(const void*) const override;
+        asset::binary::Type GetBinaryType() const override { return TypeResolver<T>::get()->GetBinaryType(); }
+
+        static Type* GetSerialisedType(asset::binary::Object& parentObj, const std::string& fieldName);
+        void Serialize(const void* obj, asset::binary::Object& parentObj, const std::string& fieldName) const override;
+        void Deserialize(void* obj, asset::binary::Object& parentObj, const std::string& fieldName) const override;
+        asset::binary::StructLayout GetStructLayout(const void*) const override;
+        bool IsPolymorphic() const override { return true; }
+        bool IsContainer() const override { return true; }
+        std::string GetContainerTypeName() const override { return "*"; }
+        Type* GetContainedValueType(const void* obj) const override;
+
+        void* GetContainedValue(void* obj) const override
+        {
+            if (SPARK_VERIFY(obj))
+            {
+                return *static_cast<T**>(obj);
+            }
+
+            return nullptr;
+        }
+
+        size_t GetNumContainedElements(void*) const override
+        {
+            return 1;
+        }
+
+        void* Instantiate(const std::string& type, void* obj) const override
+        {
+            const Type* reflect = TypeFromString(type);
+            *static_cast<T**>(obj) = static_cast<T*>(reflect->heap_constructor());
+            return obj;
+        }
+    };
+
+    template <typename T>
+    std::string Type_RawPtr<T>::GetTypeName(const void* obj) const
+    {
+        if (obj)
+        {
+            static_assert(!T::s_IsPOD, "Pointer (Polymorphic) serialisation not supported for POD types.");
+            auto* typed = static_cast<T* const*>(obj);
+            auto* objBase = static_cast<ObjectBase*>(*typed);
+            if (SPARK_VERIFY(objBase))
+            {
+                return objBase->GetTypeName();
+            }
+
+            return "";
+        }
+
+        return std::string("std::shared_ptr<") + TypeResolver<T>::get()->GetTypeName(nullptr) + ">";
+    }
+
+    template <typename T>
+    Type* Type_RawPtr<T>::GetSerialisedType(asset::binary::Object& parentObj, const std::string& fieldName)
+    {
+        asset::binary::Object thisObj = fieldName.empty() ? parentObj : parentObj.Get<asset::binary::Object>(fieldName);
+        auto typeName = thisObj.GetStruct().GetName();
+        return TypeFromString(typeName);
+    }
+
+    template <typename T>
+    void Type_RawPtr<T>::Serialize(const void* obj, asset::binary::Object& parentObj, const std::string& fieldName) const
+    {
+        static_assert(!T::s_IsPOD, "Pointer (Polymorphic) serialisation not supported for POD types.");
+        auto* typed = static_cast<T* const*>(obj);
+        auto* objBase = static_cast<ObjectBase*>(*typed);
+        if (SPARK_VERIFY(objBase))
+        {
+            if (!fieldName.empty()) // parent is an object
+            {
+                asset::binary::StructLayout structLayout = GetStructLayout(obj);
+                auto db = parentObj.GetDatabase();
+                auto structIndex = db->GetOrCreateStruct(objBase->GetTypeName(), structLayout);
+                auto binaryObj = db->CreateObject(structIndex);
+                parentObj.Set(fieldName, binaryObj);
+                objBase->Serialize(typed, binaryObj, {});
+            }
+            else // parent is this
+            {
+                objBase->Serialize(typed, parentObj, {});
+            }
+        }
+    }
+
+    template <typename T>
+    void Type_RawPtr<T>::Deserialize(void* obj, asset::binary::Object& parentObj, const std::string& fieldName) const
+    {
+        static_assert(!T::s_IsPOD, "Pointer (Polymorphic) serialisation not supported for POD types.");
+        auto* typed = static_cast<T* const*>(obj);
+        auto* objBase = static_cast<ObjectBase*>(*typed);
+        if (SPARK_VERIFY(objBase))
+        {
+            objBase->Deserialize(*typed, parentObj, fieldName);
+        }
+    }
+
+    template <typename T>
+    asset::binary::StructLayout Type_RawPtr<T>::GetStructLayout(const void* obj) const
+    {
+        static_assert(!T::s_IsPOD, "Pointer (Polymorphic) serialisation not supported for POD types.");
+        auto* typed = static_cast<T* const*>(obj);
+        auto* objBase = static_cast<ObjectBase*>(*typed);
+        if (SPARK_VERIFY(objBase))
+        {
+            return objBase->GetStructLayout(obj);
+        }
+
+        return {};
+    }
+
+    template<typename T>
+    Type* Type_RawPtr<T>::GetContainedValueType(const void* obj) const
+    {
+        if (obj)
+        {
+            auto* typed = static_cast<T* const*>(obj);
+            auto* objBase = static_cast<ObjectBase*>(*typed);
+            if (objBase)
+            {
+                return objBase->GetReflectType();
+            }
+        }
+        return TypeResolver<T>::get();
+    }
+
+    template <typename T>
+    struct TypeResolver<T*>
+    {
+    public:
+        static Type* get()
+        {
+            static Type_RawPtr<T> typeDesc{static_cast<T*>(nullptr)};
             return &typeDesc;
         }
     };
@@ -296,14 +445,7 @@ namespace se::reflect
         if (SPARK_VERIFY(obj))
         {
             auto* typed = static_cast<std::vector<T>*>(obj);
-            if constexpr (std::is_pointer_v<T>)
-            {
-                return typed->at(i);
-            }
-            else
-            {
-                return &typed->at(i);
-            }
+            return &typed->at(i);
         }
 
         return nullptr;
@@ -311,7 +453,7 @@ namespace se::reflect
 
 
     template <typename T>
-    class TypeResolver<std::vector<T>>
+    struct TypeResolver<std::vector<T>>
     {
     public:
         static Type* get()
@@ -392,21 +534,14 @@ namespace se::reflect
         if (SPARK_VERIFY(obj))
         {
             auto* typed = static_cast<std::array<T, Size>*>(obj);
-            if constexpr (std::is_pointer_v<T>)
-            {
-                return typed->at(i);
-            }
-            else
-            {
-                return &typed->at(i);
-            }
+            return &typed->at(i);
         }
 
         return nullptr;
     }
 
     template <typename T, size_t Size>
-    class TypeResolver<std::array<T, Size>>
+    struct TypeResolver<std::array<T, Size>>
     {
     public:
         static Type* get()
@@ -540,14 +675,7 @@ namespace se::reflect
             auto* typed = static_cast<std::map<T, Y>*>(obj);
             auto it = typed->begin();
             std::advance(it, i);
-            if constexpr (std::is_pointer_v<Y>)
-            {
-                return it->second;
-            }
-            else
-            {
-                return &it->second;
-            }
+            return &it->second;
         }
 
         return nullptr;
@@ -562,21 +690,14 @@ namespace se::reflect
             auto* typed = static_cast<std::map<T, Y>*>(obj);
             auto it = typed->begin();
             std::advance(it, i);
-            if constexpr (std::is_pointer_v<T>)
-            {
-                return it->first;
-            }
-            else
-            {
-                return &it->first;
-            }
+            return &it->first;
         }
 
         return nullptr;
     }
 
     template <typename T, typename Y>
-    class TypeResolver<std::map<T, Y>>
+    struct TypeResolver<std::map<T, Y>>
     {
     public:
         static Type* get()
@@ -710,14 +831,7 @@ namespace se::reflect
             auto* typed = static_cast<std::unordered_map<T, Y>*>(obj);
             auto it = typed->begin();
             std::advance(it, i);
-            if constexpr (std::is_pointer_v<Y>)
-            {
-                return it->second;
-            }
-            else
-            {
-                return &(it->second);
-            }
+            return &(it->second);
         }
 
         return nullptr;
@@ -732,21 +846,14 @@ namespace se::reflect
             auto* typed = static_cast<std::unordered_map<T, Y>*>(obj);
             auto it = typed->begin();
             std::advance(it, i);
-            if constexpr (std::is_pointer_v<T>)
-            {
-                return it->first;
-            }
-            else
-            {
-                return &it->first;
-            }
+            return &it->first;
         }
 
         return nullptr;
     }
 
     template <typename T, typename Y>
-    class TypeResolver<std::unordered_map<T, Y>>
+    struct TypeResolver<std::unordered_map<T, Y>>
     {
     public:
         static Type* get()

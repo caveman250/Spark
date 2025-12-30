@@ -14,6 +14,7 @@ namespace se::asset::shader::ast
         Mat4,
         Void,
         Sampler2D,
+        Sampler2DReference,
         Bool,
         Invalid
     };

@@ -11,28 +11,44 @@ namespace se::render
 
 namespace se::render
 {
-    struct UniformValueBase
+    struct UniformValueBase : reflect::ObjectBase
     {
+        SPARK_CLASS(Abstract)
+
         virtual ~UniformValueBase() = default;
         virtual const void* GetValue() const = 0;
         virtual void SetValue(const void* val, int count) = 0;
 
+        SPARK_MEMBER(Serialized)
         asset::shader::ast::AstType type;
 
+        SPARK_MEMBER(Serialized)
         int valueCount;
     };
 
     template <typename T>
     struct UniformValue : UniformValueBase
     {
+        SPARK_CLASS_TEMPLATED()
         const void* GetValue() const override { return static_cast<const void*>(value.data()); }
         void SetValue(const void* val, int count) override;
 
+        SPARK_MEMBER(Serialized)
         std::vector<T> value;
     };
 
-    class UniformStorage
+    SPARK_INSTANTIATE_TEMPLATE(UniformValue, int)
+    SPARK_INSTANTIATE_TEMPLATE(UniformValue, float)
+    SPARK_INSTANTIATE_TEMPLATE(UniformValue, math::Vec2)
+    SPARK_INSTANTIATE_TEMPLATE(UniformValue, math::Vec3)
+    SPARK_INSTANTIATE_TEMPLATE(UniformValue, math::Mat3)
+    SPARK_INSTANTIATE_TEMPLATE(UniformValue, math::Mat4)
+    SPARK_INSTANTIATE_TEMPLATE(UniformValue, asset::AssetReference<asset::Texture>)
+    SPARK_INSTANTIATE_TEMPLATE(UniformValue, std::shared_ptr<asset::Texture>)
+
+    class UniformStorage : public reflect::ObjectBase
     {
+        SPARK_CLASS()
     public:
         ~UniformStorage();
 
@@ -43,7 +59,10 @@ namespace se::render
         void Apply(MaterialInstance* material);
         bool IsStale() const { return m_Stale; }
     private:
+        SPARK_MEMBER(Serialized)
         std::map<std::string, UniformValueBase*> m_Storage;
+
+        SPARK_MEMBER()
         bool m_Stale = false;
     };
 
@@ -65,8 +84,8 @@ namespace se::render
     {
         if (m_Storage.contains(name))
         {
-            auto* oldVal = static_cast<const T*>(m_Storage.at(name)->GetValue());
-            if (memcmp(value, oldVal, sizeof(T) * count) != 0)
+            const void* oldVal = m_Storage.at(name)->GetValue();
+            if (memcmp(static_cast<const void*>(value), oldVal, sizeof(T) * count) != 0)
             {
                 m_Storage.at(name)->SetValue(value, count);
                 m_Stale = true;
@@ -93,3 +112,5 @@ namespace se::render
         return nullptr;
     }
 }
+
+#include "se_render_UniformValue.generated.h"
