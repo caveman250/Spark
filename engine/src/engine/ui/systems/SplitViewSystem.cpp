@@ -40,14 +40,14 @@ namespace se::ui::systems
             case components::SplitViewDirection::Vertical:
             {
                 float entity1Height = splitViewTransform.rect.size.y * splitView.sliderPos;
-                float sliderTop = splitViewTransform.rect.topLeft.y + entity1Height;
+                float sliderTop = splitViewTransform.rect.topLeft.y + entity1Height - s_Padding;
                 return inputComp->mouseY > sliderTop &&
                     inputComp->mouseY < sliderTop + s_Padding * 2;
             }
             case components::SplitViewDirection::Horizontal:
             {
                 float entity1Width = splitViewTransform.rect.size.x * splitView.sliderPos;
-                float sliderLeft = splitViewTransform.rect.topLeft.x + entity1Width;
+                float sliderLeft = splitViewTransform.rect.topLeft.x + entity1Width - s_Padding;
                 return inputComp->mouseX > sliderLeft &&
                     inputComp->mouseX < sliderLeft + s_Padding * 2;
             }
