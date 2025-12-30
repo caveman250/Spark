@@ -54,7 +54,7 @@ namespace se::editor::ui::properties
             m_Content = world->CreateEntity("Vector Editor Vertical Box", true);
             auto contentRect = world->AddComponent<RectTransformComponent>(m_Content);
             contentRect->anchors = { .left = 0.f, .right = 1.f, .top = 0.f, .bottom = 0.f };
-            contentRect->minX = 10;
+            contentRect->minX = 5;
             contentRect->overridesChildSizes = true;
             world->AddComponent<WidgetComponent>(m_Content);
             auto verticalBox = world->AddComponent<VerticalBoxComponent>(m_Content);

@@ -91,33 +91,20 @@ namespace se::editor::ui::properties
                 auto entity = world->CreateEntity(propName, true);
                 auto rect = world->AddComponent<RectTransformComponent>(entity);
                 rect->anchors = { .left = 0.f, .right = 1.f, .top = 0.f, .bottom = 0.f };
-                rect->minX = 5;
+                rect->minX = 2;
                 rect->maxX = 15;
                 world->AddComponent<WidgetComponent>(entity);
 
-                auto titleEntity = world->CreateEntity("Title", true);
-                auto titleText = world->AddComponent<TextComponent>(titleEntity);
-                titleText->font = asset::AssetManager::Get()->GetAsset<asset::Font>("/engine_assets/fonts/Arial.sass");
-                titleText->fontSize = 14;
-                titleText->text = propName;
-                titleText->wrap = se::ui::text::WrapMode::Char;
-                auto titleRect = world->AddComponent<RectTransformComponent>(titleEntity);
-                titleRect->anchors = {.left = 0.f, .right = 0.3f, .top = 0.f, .bottom = 0.f};
-                titleRect->minX = 2;
-                titleRect->minY = 1;
-                titleRect->maxY = 22;
-                world->AddChild(entity, titleEntity);
-
-                auto propertyEditor = CreatePropertyEditor(containedType->GetTypeName(m_VectorType->GetContainedValueByIndex(m_Value, i)),
+                auto propertyEditor = CreatePropertyEditor(propName + "    (" + containedType->GetTypeName(m_VectorType->GetContainedValueByIndex(m_Value, i)) + ")",
                                                            containedType,
                                                            obj,
-                                                           se::ui::Anchors(0.35f, 1.f, 0.f, 0.f),
+                                                           se::ui::Anchors(0.f, 1.f, 0.f, 0.f),
                                                            true,
                                                            false,
                                                            true);
                 if (!propertyEditor)
                 {
-                    auto text = properties::util::CreateMissingPropertyEditorText(containedType, .35f, 0);
+                    auto text = properties::util::CreateMissingPropertyEditorText(containedType, 0.f, 0);
                     world->AddChild(entity, text);
                 }
                 else
