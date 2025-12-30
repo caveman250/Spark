@@ -68,3 +68,16 @@ struct std::formatter<se::math::Vec3>
         return std::format_to(ctx.out(), "vec3({}, {}, {})", obj.x, obj.y, obj.z);
     }
 };
+
+template <>
+struct std::hash<se::math::Vec3>
+{
+    std::size_t operator()(const se::math::Vec3& vec) const
+    {
+        size_t hashX = std::hash<float>()(vec.x);
+        size_t hashY = std::hash<float>()(vec.y);
+        size_t hashZ = std::hash<float>()(vec.z);
+
+        return hashX ^ (hashY << 1) ^ (hashZ << 2);
+    }
+};

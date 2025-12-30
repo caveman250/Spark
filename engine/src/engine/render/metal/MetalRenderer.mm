@@ -31,7 +31,6 @@ namespace se::render::metal
         EASY_BLOCK("MetalRenderer::Render");
         auto commandBuffer= [m_CommandQueue commandBuffer];
 
-
         auto macWindow = static_cast<se::mac::Window*>(Application::Get()->GetWindow());
         auto nativeWindow = macWindow->GetNativeWindow();
         auto view = [nativeWindow contentView];

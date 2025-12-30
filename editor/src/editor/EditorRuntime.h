@@ -38,6 +38,7 @@ namespace se::editor
         size_t GetOffscreenRenderGroup() const { return m_OffscreenRenderGroup; }
         const std::shared_ptr<render::FrameBuffer>& GetFrameBuffer() const { return m_FrameBuffer; }
         se::ui::Rect GetViewportRect() const { return m_ViewportWindow->GetViewportScreenspaceRect(); }
+        void OnViewportSizeChanged(int x, int y);
 
     private:
         startup::StartupManager m_StartupManager;

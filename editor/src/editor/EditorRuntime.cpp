@@ -72,7 +72,7 @@ namespace se::editor
 
         m_StartupManager.RunStartupTasks();
 
-        m_FrameBuffer = render::FrameBuffer::CreateFrameBuffer({ 1280, 720 });
+        OnViewportSizeChanged(1280, 720);
 
         m_OutlineWindow = new ui::OutlineWindow(this);
         m_OutlineWindow->ConstructUI();
@@ -80,7 +80,10 @@ namespace se::editor
         m_PropertiesWindow = new ui::PropertiesWindow(this);
         m_PropertiesWindow->ConstructUI();
 
-        m_ViewportWindow = new ui::ViewportWindow(this);
+        m_ViewportWindow = new ui::ViewportWindow(this, [this](int x, int y)
+        {
+            OnViewportSizeChanged(x, y);
+        });
         m_ViewportWindow->ConstructUI();
 
         m_AssetBrowserWindow = new ui::AssetBrowserWindow(this);
@@ -150,6 +153,15 @@ namespace se::editor
     void EditorRuntime::OnEntitiesChanged() const
     {
         m_OutlineWindow->RebuildOutline();
+    }
+
+    void EditorRuntime::OnViewportSizeChanged(int x, int y)
+    {
+        if (m_FrameBuffer)
+        {
+            m_FrameBuffer.reset();
+        }
+        m_FrameBuffer = render::FrameBuffer::CreateFrameBuffer({ x, y });
     }
 
     const std::shared_ptr<asset::Asset>& EditorRuntime::GetSelectedAsset() const

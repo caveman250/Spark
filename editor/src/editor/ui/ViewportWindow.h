@@ -9,7 +9,10 @@ namespace se::editor::ui
     class ViewportWindow : public ToolWindow
     {
     public:
-        ViewportWindow(EditorRuntime* editor) : ToolWindow(editor) {}
+        ViewportWindow(EditorRuntime* editor, const std::function<void(int, int)>& onViewportSizeChanged)
+            : ToolWindow(editor)
+            , m_OnViewportSizeChanged (onViewportSizeChanged)
+        {}
         void Update() override;
         void ConstructUI() override;
         void DestroyUI() override;
@@ -20,8 +23,9 @@ namespace se::editor::ui
 
     private:
         bool m_Valid = false;
-        ecs::Id m_Window;
-        ecs::Id m_Viewport;
-        se::ui::Rect m_ViewportRect;
+        ecs::Id m_Window = {};
+        ecs::Id m_Viewport = {};
+        se::ui::Rect m_ViewportRect = {};
+        std::function<void(int, int)> m_OnViewportSizeChanged = nullptr;
     };
 }

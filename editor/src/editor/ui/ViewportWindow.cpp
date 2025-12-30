@@ -23,6 +23,21 @@ namespace se::editor::ui
 
         auto world = Application::Get()->GetWorld();
         se::ui::components::RectTransformComponent* viewportRect = world->GetComponent<se::ui::components::RectTransformComponent>(m_Viewport);
+
+        // awaiting layout.
+        if (viewportRect->rect.size.x < 0 || viewportRect->rect.size.y < 0)
+        {
+            return;
+        }
+
+        if (viewportRect->rect != m_ViewportRect)
+        {
+            m_OnViewportSizeChanged(viewportRect->rect.size.x, viewportRect->rect.size.y);
+            auto app = Application::Get();
+            const auto& viewportTexture = app->GetEditorRuntime()->GetFrameBuffer()->GetColorTexture();
+            auto imageComp = world->GetComponent<se::ui::components::ImageComponent>(m_Viewport);
+            imageComp->materialInstance->SetUniform("Texture", asset::shader::ast::AstType::Sampler2D, 1, &viewportTexture);
+        }
         m_ViewportRect = viewportRect->rect;
     }
 
@@ -52,12 +67,6 @@ namespace se::editor::ui
         m_Viewport = world->CreateEntity("Viewport Image", true);
         auto imageTransform = world->AddComponent<se::ui::components::RectTransformComponent>(m_Viewport);
         imageTransform->anchors = { .left = 0.f, .right = 1.f, .top = 0.f, .bottom = 1.f };
-        imageTransform->minY = 5;
-        imageTransform->maxY = 5;
-        imageTransform->minX = 5;
-        imageTransform->maxX = 5;
-        imageTransform->maxAspectRatio = 1.778f; // 16:9
-        imageTransform->minAspectRatio = 1.778f;
         world->AddComponent<se::ui::components::WidgetComponent>(m_Viewport);
         auto imageComp = world->AddComponent<se::ui::components::ImageComponent>(m_Viewport);
         static std::shared_ptr<render::Material> material = nullptr;
