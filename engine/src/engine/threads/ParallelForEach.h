@@ -8,7 +8,7 @@
 namespace se::threads
 {
     template <typename T>
-    static void ParallelForEach(const std::vector<T>& items, const std::function<void(const T&)> func)
+    static void ParallelForEach(const std::vector<T>& items, const std::function<void(const T&)>& func)
     {
 #if SPARK_PLATFORM_MAC
         dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0);
