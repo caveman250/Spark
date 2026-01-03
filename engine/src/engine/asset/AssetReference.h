@@ -13,9 +13,13 @@ namespace se::asset
 
         AssetReference() = default;
         AssetReference(const std::string& path);
+        AssetReference(const char* path);
         bool IsSet() const { return !m_AssetPath.empty(); }
         bool Loaded() const { return m_Instance.get(); }
         const std::shared_ptr<T>& GetAsset() const;
+
+        void operator=(const std::string& path);
+        void operator=(const char* path);
 
     private:
         SPARK_MEMBER(Serialized)
@@ -37,6 +41,13 @@ namespace se::asset
     }
 
     template<typename T>
+    AssetReference<T>::AssetReference(const char* path)
+         : m_AssetPath(path)
+    {
+
+    }
+
+    template<typename T>
     const std::shared_ptr<T>& AssetReference<T>::GetAsset() const
     {
         if (!m_Instance)
@@ -46,6 +57,18 @@ namespace se::asset
         }
 
         return m_Instance;
+    }
+
+    template<typename T>
+    void AssetReference<T>::operator=(const std::string& path)
+    {
+        *this = AssetReference(path);
+    }
+
+    template<typename T>
+    void AssetReference<T>::operator=(const char* path)
+    {
+        *this = AssetReference(path);
     }
 
     template <typename T>

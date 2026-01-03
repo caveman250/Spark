@@ -19,9 +19,9 @@ namespace se::ui::components
         bool pressed = false;
         bool hovered = false;
 
-        std::shared_ptr<asset::Texture> image = nullptr;
-        std::shared_ptr<asset::Texture> pressedImage = nullptr;
-        std::shared_ptr<asset::Texture> hoveredImage = nullptr;
+        asset::AssetReference<asset::Texture> image = {};
+        asset::AssetReference<asset::Texture> pressedImage = {};
+        asset::AssetReference<asset::Texture> hoveredImage = {};
 
         ecs::Signal<> onPressed;
         ecs::Signal<> onReleased;

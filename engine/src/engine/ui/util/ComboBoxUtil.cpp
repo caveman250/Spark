@@ -78,10 +78,10 @@ namespace se::ui::util
             rs.dstBlend = render::BlendMode::OneMinusSrcAlpha;
             indicatorMaterial->SetRenderState(rs);
         }
-        static auto expanded_indicator_texture = assetManager->Get()->GetAsset<asset::Texture>("/engine_assets/textures/tree_node_indicator_expanded.sass");
+        static asset::AssetReference<asset::Texture> expanded_indicator_texture = "/engine_assets/textures/tree_node_indicator_expanded.sass";
         indicatorImage->materialInstance = render::MaterialInstance::CreateMaterialInstance(indicatorMaterial);
         indicatorImage->materialInstance->SetUniform("Texture",
-                                                     asset::shader::ast::AstType::Sampler2D,
+                                                     asset::shader::ast::AstType::Sampler2DReference,
                                                      1,
                                                      &expanded_indicator_texture);
         world->AddChild(innerImageEntity, titleIndicator);

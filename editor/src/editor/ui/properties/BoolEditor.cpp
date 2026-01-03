@@ -47,8 +47,8 @@ namespace se::editor::ui::properties
         m_RectTransform->maxY = bgTransform->maxY + 2;
         m_Tickbox = world->CreateEntity("Border", true);
         auto button = world->AddComponent<ButtonComponent>(m_Tickbox);
-        m_CheckedTexture = assetManager->GetAsset<asset::Texture>("/engine_assets/textures/checkbox_checked.sass");
-        m_UncheckedTexture = assetManager->GetAsset<asset::Texture>("/engine_assets/textures/checkbox_unchecked.sass");
+        m_CheckedTexture = "/engine_assets/textures/checkbox_checked.sass";
+        m_UncheckedTexture = "/engine_assets/textures/checkbox_unchecked.sass";
         button->image = *m_Value == true ? m_CheckedTexture : m_UncheckedTexture;
         button->pressedImage = *m_Value == true ? m_CheckedTexture : m_UncheckedTexture;
         button->hoveredImage = *m_Value == true ? m_CheckedTexture : m_UncheckedTexture;
@@ -75,7 +75,7 @@ namespace se::editor::ui::properties
 
             if (auto image = Application::Get()->GetWorld()->GetComponent<ImageComponent>(m_Tickbox))
             {
-                image->materialInstance->SetUniform("Texture", asset::shader::ast::AstType::Sampler2D, 1, &texture);
+                image->materialInstance->SetUniform("Texture", asset::shader::ast::AstType::Sampler2DReference, 1, &texture);
             }
             m_LastValue = *m_Value;
         }

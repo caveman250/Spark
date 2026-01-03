@@ -28,7 +28,7 @@ namespace se::ui::observers
             material->SetRenderState(rs);
 
             image->materialInstance = render::MaterialInstance::CreateMaterialInstance(material);
-            image->materialInstance->SetUniform("Texture", asset::shader::ast::AstType::Sampler2D, 1, &component->image);
+            image->materialInstance->SetUniform("Texture", asset::shader::ast::AstType::Sampler2DReference, 1, &component->image);
         }
 
         if (!world->HasComponent<components::MouseInputComponent>(entity))

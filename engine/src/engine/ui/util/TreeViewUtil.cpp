@@ -1,16 +1,19 @@
 #include "TreeViewUtil.h"
 
-#include <engine/ui/components/ButtonComponent.h>
-
 #include "engine/Application.h"
 #include "engine/asset/AssetManager.h"
+#include "engine/asset/AssetReference.h"
+#include "engine/asset/shader/Shader.h"
+#include "engine/render/Material.h"
+#include "engine/render/RenderState.h"
+#include "engine/ui/components/ButtonComponent.h"
+#include "engine/ui/components/ImageComponent.h"
+#include "engine/ui/components/MouseInputComponent.h"
+#include "engine/ui/components/RectTransformComponent.h"
 #include "engine/ui/components/TextComponent.h"
 #include "engine/ui/components/TreeNodeComponent.h"
 #include "engine/ui/components/TreeViewComponent.h"
-#include "engine/ui/components/RectTransformComponent.h"
 #include "engine/ui/components/WidgetComponent.h"
-#include "engine/ui/components/MouseInputComponent.h"
-#include "engine/ui/components/ImageComponent.h"
 
 namespace se::ui::util
 {
@@ -66,8 +69,8 @@ namespace se::ui::util
         world->AddComponent<WidgetComponent>(textEntity);
         world->AddChild(entity, textEntity);
 
-        static auto expanded_indicator_texture = assetManager->Get()->GetAsset<asset::Texture>("/engine_assets/textures/tree_node_indicator_expanded.sass");
-        static auto collapsed_indicator_texture = assetManager->Get()->GetAsset<asset::Texture>("/engine_assets/textures/tree_node_indicator_collapsed.sass");
+        static asset::AssetReference<asset::Texture> expanded_indicator_texture = "/engine_assets/textures/tree_node_indicator_expanded.sass";
+        static asset::AssetReference<asset::Texture> collapsed_indicator_texture = "/engine_assets/textures/tree_node_indicator_collapsed.sass";
 
         auto statusIcon = world->CreateEntity("Status Icon", editorOnly);
         auto rect = world->AddComponent<RectTransformComponent>(statusIcon);
@@ -109,7 +112,7 @@ namespace se::ui::util
         }
 
         image->materialInstance = render::MaterialInstance::CreateMaterialInstance(material);
-        image->materialInstance->SetUniform("Texture", asset::shader::ast::AstType::Sampler2D, 1, &expanded_indicator_texture);
+        image->materialInstance->SetUniform("Texture", asset::shader::ast::AstType::Sampler2DReference, 1, &expanded_indicator_texture);
 
         world->AddComponent<MouseInputComponent>(statusIcon);
 
@@ -118,11 +121,11 @@ namespace se::ui::util
             auto image = Application::Get()->GetWorld()->GetComponent<ImageComponent>(statusIcon);
             if (collapsed)
             {
-                image->materialInstance->SetUniform("Texture", asset::shader::ast::AstType::Sampler2D, 1, &collapsed_indicator_texture);
+                image->materialInstance->SetUniform("Texture", asset::shader::ast::AstType::Sampler2DReference, 1, &collapsed_indicator_texture);
             }
             else
             {
-                image->materialInstance->SetUniform("Texture", asset::shader::ast::AstType::Sampler2D, 1, &expanded_indicator_texture);
+                image->materialInstance->SetUniform("Texture", asset::shader::ast::AstType::Sampler2DReference, 1, &expanded_indicator_texture);
             }
         };
         (*outTreeNode)->onCollapsedStateChange.Subscribe(std::move(collapsedImageCb));

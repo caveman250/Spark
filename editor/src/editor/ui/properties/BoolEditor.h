@@ -1,6 +1,7 @@
 #pragma once
 
 #include "PropertyEditor.h"
+#include "engine/asset/AssetReference.h"
 #include "engine/math/math.h"
 
 namespace se::asset
@@ -22,7 +23,7 @@ namespace se::editor::ui::properties
         bool* m_Value = nullptr;
         bool m_LastValue = false;
         ecs::Id m_Tickbox = {};
-        std::shared_ptr<asset::Texture> m_CheckedTexture = nullptr;
-        std::shared_ptr<asset::Texture> m_UncheckedTexture = nullptr;
+        asset::AssetReference<asset::Texture> m_CheckedTexture = {};
+        asset::AssetReference<asset::Texture> m_UncheckedTexture = {};
     };
 }

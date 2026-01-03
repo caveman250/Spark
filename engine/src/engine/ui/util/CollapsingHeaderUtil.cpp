@@ -54,8 +54,8 @@ namespace se::ui::util
         world->AddComponent<WidgetComponent>(titleContainer);
         world->AddChild(title, titleContainer);
 
-        static auto expanded_indicator_texture = assetManager->Get()->GetAsset<asset::Texture>("/engine_assets/textures/tree_node_indicator_expanded.sass");
-        static auto collapsed_indicator_texture = assetManager->Get()->GetAsset<asset::Texture>("/engine_assets/textures/tree_node_indicator_collapsed.sass");
+        static asset::AssetReference<asset::Texture> expanded_indicator_texture = "/engine_assets/textures/tree_node_indicator_expanded.sass";
+        static asset::AssetReference<asset::Texture> collapsed_indicator_texture = "/engine_assets/textures/tree_node_indicator_collapsed.sass";
 
         ecs::Id titleIndicator = world->CreateEntity("Collapsing Header Title Indicator", editorOnly);
         rect = world->AddComponent<RectTransformComponent>(titleIndicator);
@@ -79,7 +79,7 @@ namespace se::ui::util
         }
         indicatorImage->materialInstance = render::MaterialInstance::CreateMaterialInstance(material);
         indicatorImage->materialInstance->SetUniform("Texture",
-                                                     asset::shader::ast::AstType::Sampler2D,
+                                                     asset::shader::ast::AstType::Sampler2DReference,
                                                      1,
                                                      collapsed ? &collapsed_indicator_texture : &expanded_indicator_texture);
         world->AddChild(title, titleIndicator);
@@ -98,7 +98,7 @@ namespace se::ui::util
 
             ImageComponent* image = world->GetComponent<ImageComponent>(titleIndicator);
             image->materialInstance->SetUniform("Texture",
-                                                asset::shader::ast::AstType::Sampler2D,
+                                                asset::shader::ast::AstType::Sampler2DReference,
                                                 1,
                                                 collapsingHeader->collapsed ? &collapsed_indicator_texture : &expanded_indicator_texture);
         });
