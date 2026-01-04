@@ -48,7 +48,7 @@ namespace se::editor::ui
 
         se::ui::components::RectTransformComponent* transformComp = nullptr;
         se::ui::components::TreeViewComponent* treeViewComp = nullptr;
-        m_TreeViewEntity = ::se::ui::util::CreateTreeView(&treeViewComp, &transformComp, true);
+        m_TreeViewEntity = ::se::ui::util::CreateTreeView(&treeViewComp, &transformComp, editor->GetEditorScene());
         world->AddChild(scrollViewEntity, m_TreeViewEntity);
         transformComp->anchors = { 0.f, 1.f, 0.f, 0.f };
         transformComp->maxX = 15;

@@ -82,7 +82,7 @@ namespace se::ecs
 
         Id LoadScene(const std::string& path);
         void UnloadScene(const Id& scene);
-        void SaveScene(const std::string& path);
+        void SaveScene(const Id& scene, const std::string& path);
 
         Id CreateEntity(const std::string& name);
         Id CreateEntity(const Id& scene,
@@ -232,8 +232,6 @@ namespace se::ecs
         void RemoveComponentInternal(const Id& entity,
                                      const Id& comp);
 
-        uint64_t NewSystem();
-
         static void CreateSystemInternal(std::unordered_map<Id, SystemRecord>& systemMap,
                                          const Id& system,
                                          const SystemDeclaration& pendingSystem);
@@ -298,8 +296,6 @@ namespace se::ecs
         bool m_EntitiesChangedThisFrame = false;
 #endif
         std::vector<uint64_t> m_FreeEntities = { };
-        uint32_t m_ComponentCounter = 0;
-        uint64_t m_SystemCounter = 1;
         uint64_t m_ArchetypeCounter = 0;
         uint64_t m_ObserverCounter = 1;
         std::vector<Id> m_FreeObservers = { };
@@ -380,7 +376,15 @@ namespace se::ecs
     {
         if (T::s_ComponentId == static_cast<uint64_t>(0))
         {
-            uint64_t id = m_ComponentCounter++;
+            uint64_t id;
+            if (!m_FreeEntities.empty())
+            {
+                id = RecycleEntity();
+            }
+            else
+            {
+                id = NewEntity();
+            }
 
             reflect::Type* type = reflect::TypeResolver<T>::get();
             m_IdMetaMap[id].name = type->name;
@@ -700,7 +704,15 @@ namespace se::ecs
     {
         if (T::s_SystemId == static_cast<uint64_t>(0))
         {
-            uint64_t id = NewSystem();
+            uint64_t id;
+            if (!m_FreeEntities.empty())
+            {
+                id = RecycleEntity();
+            }
+            else
+            {
+                id = NewEntity();
+            }
             reflect::Type* type = reflect::TypeResolver<T>::get();
             m_IdMetaMap[id].name = type->name;
 

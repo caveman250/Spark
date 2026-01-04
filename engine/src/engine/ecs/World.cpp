@@ -2,6 +2,8 @@
 
 
 #include <easy/profiler.h>
+
+#include "SceneSaveData.h"
 #include "components/ParentComponent.h"
 #include "components/RootComponent.h"
 #include "engine/bits/FlagUtil.h"
@@ -27,7 +29,6 @@ namespace se::ecs
     {
         auto guard = MaybeLockGuard(m_UpdateMode, &m_EntityMutex);
         uint64_t entityId;
-
         if (!m_FreeEntities.empty())
         {
             entityId = RecycleEntity();
@@ -217,7 +218,7 @@ namespace se::ecs
         {
             if (type.test(i))
             {
-                typeVector.push_back(i);
+                typeVector.push_back(i + 1);
             }
         }
 
@@ -358,16 +359,16 @@ namespace se::ecs
             if (add)
             {
                 auto addType = archetype->type;
-                if (!addType.test(component))
+                if (!addType.test(component - 1))
                 {
-                    addType.set(component);
+                    addType.set(component - 1);
                 }
                 edge.add = GetArchetype(addType, createIfMissing);
             }
             else
             {
                 auto removeType = archetype->type;
-                removeType.set(component, false);
+                removeType.set(component - 1, false);
                 edge.remove = GetArchetype(removeType, createIfMissing);
             }
         }
@@ -542,8 +543,44 @@ namespace se::ecs
         }
     }
 
-    void World::SaveScene(const std::string& path)
+    void World::SaveScene(const Id& scene, const std::string& path)
     {
+        auto it = m_SceneRecords.find(scene);
+        if (!SPARK_VERIFY(it != m_SceneRecords.end()))
+        {
+            return;
+        }
+
+        auto db = asset::binary::Database::Create(false);
+        auto type = reflect::TypeResolver<SceneSaveData>::get();
+        db->SetRootStruct(db->GetOrCreateStruct(type->GetTypeName(nullptr), type->GetStructLayout(nullptr)));
+
+        SceneSaveData saveData = {};
+
+        for (const Id& entity : it->second.entities)
+        {
+            SceneEntityData entityData = {};
+            entityData.entity = entity;
+            entityData.name = *entity.name;
+            entityData.flags = *entity.flags;
+            entityData.children = GetChildren(entity);
+
+            EntityRecord& record = m_EntityRecords.at(entity);
+            Archetype* archetype = record.archetype;
+            for (const Id& compType : archetype->typeVector)
+            {
+                auto* compData = GetComponent(entity, compType);
+                entityData.components.push_back(static_cast<reflect::ObjectBase*>(compData));
+            }
+
+            saveData.entities.push_back(entityData);
+        }
+
+        auto root = db->GetRoot();
+        type->Serialize(&saveData, root, {});
+
+        auto json = db->ToJson();
+        io::VFS::Get().WriteText("/assets/test/scene.json", json.dump(4));
     }
 
     void RecurseWidgetChildren(World* world, const Id& entity, nlohmann::ordered_json& parentJson)
@@ -709,7 +746,7 @@ namespace se::ecs
         Type type = {};
         for (const auto& comp: components)
         {
-            type.set(comp.id);
+            type.set(comp.id - 1);
         }
 
         for (const auto& compId: components)
@@ -748,7 +785,7 @@ namespace se::ecs
         Type type = {};
         for (const auto& comp: components)
         {
-            type.set(comp.id);
+            type.set(comp.id - 1);
         }
 
         for (const auto& compId: components)
@@ -1045,11 +1082,6 @@ namespace se::ecs
         record.entity_idx = MoveEntity(entity, archetype, record.entity_idx, next_archetype);
         record.archetype = next_archetype;
         SPARK_ASSERT(record.archetype);
-    }
-
-    uint64_t World::NewSystem()
-    {
-        return m_SystemCounter++;
     }
 
     void World::ProcessPendingEntityDeletions()
