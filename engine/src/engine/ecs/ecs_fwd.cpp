@@ -36,4 +36,14 @@ namespace se::ecs
         scene = rhs.scene;
         return *this;
     }
+
+    bool IsEditorEntity(const Id& entity)
+    {
+#if SPARK_EDITOR
+        auto editor = Application::Get()->GetEditorRuntime();
+        return *entity.scene == editor->GetEditorScene();
+#else
+        return false;
+#endif
+    }
 }

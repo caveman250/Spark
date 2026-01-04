@@ -28,7 +28,9 @@ namespace se::editor::ui::properties
     {
         PropertyEditor::ConstructUI(name, constructTitle, anchors, collapsed, withBackground);
 
-        auto world = Application::Get()->GetWorld();
+        auto app = Application::Get();
+        auto world = app->GetWorld();
+        auto editor = app->GetEditorRuntime();
 
         static std::shared_ptr<render::Material> bgMaterial = nullptr;
         if (!bgMaterial)
@@ -39,7 +41,7 @@ namespace se::editor::ui::properties
             bgMaterial->GetShaderSettings().SetSetting("color_setting", math::Vec3(0.27f, 0.27f, 0.27f));
         }
 
-        auto listBG = world->CreateEntity("Vector Editor BG", true);
+        auto listBG = world->CreateEntity(editor->GetEditorScene(), "Vector Editor BG");
         auto* listRect = world->AddComponent<RectTransformComponent>(listBG);
         world->AddComponent<WidgetComponent>(listBG);
         listRect->anchors = { 0.f, 1.f, 0.f, 0.f };
@@ -49,7 +51,7 @@ namespace se::editor::ui::properties
         listBGImage->materialInstance = render::MaterialInstance::CreateMaterialInstance(bgMaterial);
         world->AddChild(m_Content, listBG);
 
-        ecs::Id verticalBoxEntity = world->CreateEntity("Vector Editor Vertical Box", true);
+        ecs::Id verticalBoxEntity = world->CreateEntity(editor->GetEditorScene(), "Vector Editor Vertical Box");
         auto* verticalBoxRect = world->AddComponent<RectTransformComponent>(verticalBoxEntity);
         verticalBoxRect->anchors = { .left = 0.f, .right = 1.f, .top = 0.f, .bottom = 0.f };
         verticalBoxRect->overridesChildSizes = true;
@@ -61,7 +63,7 @@ namespace se::editor::ui::properties
         size_t numElements = m_VectorType->GetNumContainedElements(m_Value);
         if (numElements == 0)
         {
-            auto textEntity = world->CreateEntity("Title", true);
+            auto textEntity = world->CreateEntity(editor->GetEditorScene(), "Title");
             world->AddComponent<WidgetComponent>(textEntity);
             auto text = world->AddComponent<TextComponent>(textEntity);
             text->font = asset::AssetManager::Get()->GetAsset<asset::Font>("/engine_assets/fonts/Arial.sass");
@@ -82,7 +84,7 @@ namespace se::editor::ui::properties
                 auto containedType = m_VectorType->GetContainedValueType(obj);
 
                 auto propName = std::format("{}", i);
-                auto entity = world->CreateEntity(propName, true);
+                auto entity = world->CreateEntity(editor->GetEditorScene(), propName);
                 auto rect = world->AddComponent<RectTransformComponent>(entity);
                 rect->anchors = { .left = 0.f, .right = 1.f, .top = 0.f, .bottom = 0.f };
                 rect->minX = 2;

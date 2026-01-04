@@ -82,11 +82,9 @@ namespace se::ecs
 
         void DumpWidgetHeirachy();
 
-        Id CreateEntity(const std::string& name,
-                        bool editorOnly = false);
-        Id CreateEntity(SceneId scene,
-                        const std::string& name,
-                        bool editorOnly = false);
+        Id CreateEntity(const std::string& name);
+        Id CreateEntity(const Id& scene,
+                        const std::string& name);
         void DestroyEntity(const Id& entity);
         std::vector<Id> GetEntities() const;
         std::vector<Id> GetRootEntities();

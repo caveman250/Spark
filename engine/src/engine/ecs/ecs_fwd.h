@@ -7,8 +7,7 @@ namespace se::ecs
 
     enum class IdFlags : uint32_t
     {
-        None = 0,
-        Editor = 1,
+        None = 0
     };
 
     struct Id
@@ -33,6 +32,11 @@ namespace se::ecs
             return id == rhs;
         }
 
+        bool operator != (const uint64_t& rhs) const
+        {
+            return id != rhs;
+        }
+
         bool HasFlag(IdFlags flag) const
         {
             if (!flags)
@@ -53,6 +57,8 @@ namespace se::ecs
     {
         static Id GetComponentId() { return s_InvalidEntity; }
     };
+
+    bool IsEditorEntity(const Id& entity);
 }
 
 template <>

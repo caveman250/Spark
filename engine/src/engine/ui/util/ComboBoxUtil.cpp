@@ -15,7 +15,7 @@ namespace se::ui::util
         auto assetManager = asset::AssetManager::Get();
         auto arial = assetManager->GetAsset<asset::Font>("/engine_assets/fonts/Arial.sass");
 
-        ret.comboBox->collapsedEntity = world->CreateEntity("ComboBox Collapsed", params.editorOnly);
+        ret.comboBox->collapsedEntity = world->CreateEntity(params.scene, "ComboBox Collapsed");
         auto bgTransform = world->AddComponent<RectTransformComponent>(ret.comboBox->collapsedEntity);
         bgTransform->anchors = { .left = 0.f, .right = 1.f, .top = 0.f, .bottom = 1.f };
         world->AddComponent<WidgetComponent>(ret.comboBox->collapsedEntity);
@@ -30,7 +30,7 @@ namespace se::ui::util
         }
         image->materialInstance = render::MaterialInstance::CreateMaterialInstance(bgMaterial);
 
-        auto innerImageEntity = world->CreateEntity("Border", params.editorOnly);
+        auto innerImageEntity = world->CreateEntity(params.scene, "Border");
         auto innerImage = world->AddComponent<ImageComponent>(innerImageEntity);
         static std::shared_ptr<render::Material> innerMaterial = nullptr;
         if (!innerMaterial)
@@ -46,7 +46,7 @@ namespace se::ui::util
         innerTransform->minX = innerTransform->maxX = innerTransform->minY = innerTransform->maxY = borderSize;
         world->AddChild(ret.comboBox->collapsedEntity, innerImageEntity);
 
-        collapsedText = world->CreateEntity("Label", params.editorOnly);
+        collapsedText = world->CreateEntity(params.scene, "Label");
         auto text = world->AddComponent<TextComponent>(collapsedText);
         text->font = asset::AssetManager::Get()->GetAsset<asset::Font>("/engine_assets/fonts/Arial.sass");
         text->fontSize = params.fontSize;
@@ -58,7 +58,7 @@ namespace se::ui::util
         labelRect->minY = textYOffset;
         world->AddChild(innerImageEntity, collapsedText);
 
-        ecs::Id titleIndicator = world->CreateEntity("Collapsing Header Title Indicator", params.editorOnly);
+        ecs::Id titleIndicator = world->CreateEntity(params.scene, "Collapsing Header Title Indicator");
         auto indicatorRect = world->AddComponent<RectTransformComponent>(titleIndicator);
         indicatorRect->anchors = { .left = 1.f, .right = 1.f, .top = 0.f, .bottom = 0.f };
         indicatorRect->minX = 12;
@@ -95,7 +95,7 @@ namespace se::ui::util
         auto assetManager = asset::AssetManager::Get();
         auto arial = assetManager->GetAsset<asset::Font>("/engine_assets/fonts/Arial.sass");
 
-        ret.comboBox->expandedEntity = world->CreateEntity("ComboBox Expanded", params.editorOnly);
+        ret.comboBox->expandedEntity = world->CreateEntity(params.scene, "ComboBox Expanded");
         auto bgTransform = world->AddComponent<RectTransformComponent>(ret.comboBox->expandedEntity);
         bgTransform->anchors = { .left = 0.f, .right = 1.f, .top = 0.f, .bottom = 0.f };
         world->AddComponent<WidgetComponent>(ret.comboBox->expandedEntity);
@@ -110,7 +110,7 @@ namespace se::ui::util
         }
         image->materialInstance = render::MaterialInstance::CreateMaterialInstance(bgMaterial);
 
-        auto innerImageEntity = world->CreateEntity("Border", params.editorOnly);
+        auto innerImageEntity = world->CreateEntity(params.scene, "Border");
         auto innerImage = world->AddComponent<ImageComponent>(innerImageEntity);
         static std::shared_ptr<render::Material> innerMaterial = nullptr;
         if (!innerMaterial)
@@ -126,7 +126,7 @@ namespace se::ui::util
         innerTransform->minX = innerTransform->maxX = innerTransform->minY = innerTransform->maxY = borderSize;
         world->AddChild(ret.comboBox->expandedEntity, innerImageEntity);
 
-        auto verticalBoxEntity = world->CreateEntity("Vertical Box", params.editorOnly);
+        auto verticalBoxEntity = world->CreateEntity(params.scene, "Vertical Box");
         auto verticalBoxTransform = world->AddComponent<RectTransformComponent>(verticalBoxEntity);
         verticalBoxTransform->anchors = { .left = 0.f, .right = 1.f, .top = 0.f, .bottom = 0.f };
         verticalBoxTransform->overridesChildSizes = true;
@@ -141,7 +141,7 @@ namespace se::ui::util
         {
             const auto& option = params.options[i];
 
-            auto textEntity = world->CreateEntity("Label", params.editorOnly);
+            auto textEntity = world->CreateEntity(params.scene, "Label");
             auto text = world->AddComponent<TextComponent>(textEntity);
             text->font = asset::AssetManager::Get()->GetAsset<asset::Font>("/engine_assets/fonts/Arial.sass");
             text->fontSize = params.fontSize;
@@ -150,7 +150,7 @@ namespace se::ui::util
             world->AddComponent<WidgetComponent>(textEntity);
             world->AddChild(verticalBoxEntity, textEntity);
 
-            auto textButtonEntity = world->CreateEntity("Button", params.editorOnly);
+            auto textButtonEntity = world->CreateEntity(params.scene, "Button");
             auto buttonRect = world->AddComponent<RectTransformComponent>(textButtonEntity);
             buttonRect->anchors = { .left = 0.f, .right = 1.f, .top = 0.f, .bottom = 1.f };
             auto textButton = world->AddComponent<ButtonComponent>(textButtonEntity);
@@ -179,7 +179,7 @@ namespace se::ui::util
         auto assetManager = asset::AssetManager::Get();
         auto arial = assetManager->GetAsset<asset::Font>("/engine_assets/fonts/Arial.sass");
 
-        ret.id = world->CreateEntity("ComboBox", params.editorOnly);
+        ret.id = world->CreateEntity(params.scene, "ComboBox");
         ret.rectTransform = world->AddComponent<RectTransformComponent>(ret.id);
         ret.rectTransform->anchors = { .left = 0.f, .right = 1.f, .top = 0.f, .bottom = 0.f };
         ret.rectTransform->minY = 0;

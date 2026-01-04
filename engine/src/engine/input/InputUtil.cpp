@@ -3,6 +3,7 @@
 #include "InputComponent.h"
 
 #if SPARK_EDITOR
+#include "engine/Application.h"
 #include "editor/util/ViewportUtil.h"
 #endif
 
@@ -11,7 +12,8 @@ namespace se::input
     void InputUtil::ProcessMouseEvents([[maybe_unused]] const ecs::Id& entity, InputComponent *input, const std::function<bool(const MouseEvent &)> &func)
     {
 #if SPARK_EDITOR
-        if (!entity.HasFlag(ecs::IdFlags::Editor) &&
+        auto editor = Application::Get()->GetEditorRuntime();
+        if (*entity.scene != editor->GetEditorScene() &&
             !editor::util::PosWithinViewport(input->mouseX, input->mouseY))
         {
             return;
@@ -34,7 +36,8 @@ namespace se::input
     void InputUtil::ProcessKeyEvents([[maybe_unused]] const ecs::Id& entity, InputComponent *input, const std::function<bool(const KeyEvent &)> &func)
     {
 #if SPARK_EDITOR
-        if (!entity.HasFlag(ecs::IdFlags::Editor) &&
+        auto editor = Application::Get()->GetEditorRuntime();
+        if (*entity.scene != editor->GetEditorScene() &&
             !editor::util::PosWithinViewport(input->mouseX, input->mouseY))
         {
             return;

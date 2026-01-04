@@ -19,6 +19,7 @@ namespace se::editor::ui
     {
         auto app = Application::Get();
         auto world = app->GetWorld();
+        auto editor = app->GetEditorRuntime();
 
         se::ui::components::RectTransformComponent* windowTransform;
         se::ui::components::WindowComponent* windowComp;
@@ -30,7 +31,7 @@ namespace se::editor::ui
             childArea,
             "Outline",
             [this](){ DestroyUI(); },
-            true);
+            editor->GetEditorScene());
         windowTransform->anchors = { 0.f, 0.f, 0.f, 0.f };
         windowTransform->minX = 20;
         windowTransform->maxX = 300;
@@ -42,7 +43,7 @@ namespace se::editor::ui
         se::ui::components::RectTransformComponent* scrollBoxTransform = nullptr;
         ecs::Id scrollViewEntity;
         ecs::Id scrollBar;
-        auto scrollBoxEntity = ::se::ui::util::CreateScrollBox(&scrollBox, scrollViewEntity, &scrollView, &scrollBoxTransform, scrollBar, true);
+        auto scrollBoxEntity = ::se::ui::util::CreateScrollBox(&scrollBox, scrollViewEntity, &scrollView, &scrollBoxTransform, scrollBar, editor->GetEditorScene());
         world->AddChild(childArea, scrollBoxEntity);
 
         se::ui::components::RectTransformComponent* transformComp = nullptr;
@@ -71,7 +72,10 @@ namespace se::editor::ui
             return;
         }
 
-        auto world = Application::Get()->GetWorld();
+        auto app = Application::Get();
+        auto world = app->GetWorld();
+        auto editor = app->GetEditorRuntime();
+
         for (const auto& child : world->GetChildren(m_TreeViewEntity))
         {
             world->DestroyEntity(child);
@@ -81,7 +85,7 @@ namespace se::editor::ui
 
         for (const auto& entity : world->GetRootEntities())
         {
-            if (entity.HasFlag(ecs::IdFlags::Editor))
+            if (*entity.scene == editor->GetEditorScene())
             {
                 continue;
             }
@@ -99,7 +103,7 @@ namespace se::editor::ui
             se::ui::components::TreeNodeComponent* treeNodeComp = nullptr;
             se::ui::components::TextComponent* textComp = nullptr;
             std::string name = "Singleton Components";
-            singletonComponentsNode = se::ui::util::InsertTreeNode(m_TreeViewEntity, treeView, m_TreeViewEntity, name, &treeNodeComp, &textComp, true);
+            singletonComponentsNode = se::ui::util::InsertTreeNode(m_TreeViewEntity, treeView, m_TreeViewEntity, name, &treeNodeComp, &textComp, editor->GetEditorScene());
             textComp->text = name;
         }
 
@@ -107,7 +111,7 @@ namespace se::editor::ui
         {
             se::ui::components::TreeNodeComponent* treeNodeComp = nullptr;
             se::ui::components::TextComponent* textComp = nullptr;
-            se::ui::util::InsertTreeNode(m_TreeViewEntity, treeView, singletonComponentsNode, singletonComponent->GetTypeName(), &treeNodeComp, &textComp, true);
+            se::ui::util::InsertTreeNode(m_TreeViewEntity, treeView, singletonComponentsNode, singletonComponent->GetTypeName(), &treeNodeComp, &textComp, editor->GetEditorScene());
             textComp->text = singletonComponent->GetTypeName();
 
             std::function<void()> selectedCb = [singletonComponent, this]
@@ -120,10 +124,11 @@ namespace se::editor::ui
 
     void OutlineWindow::AddEntityUI(ecs::World* world, const ecs::Id& entity, const ecs::Id& parent, se::ui::components::TreeViewComponent* treeView) const
     {
+        auto editor = Application::Get()->GetEditorRuntime();
         se::ui::components::TreeNodeComponent* treeNodeComp = nullptr;
         se::ui::components::TextComponent* textComp = nullptr;
 
-        auto treeNode = se::ui::util::InsertTreeNode(m_TreeViewEntity, treeView, parent, *entity.name, &treeNodeComp, &textComp, true);
+        auto treeNode = se::ui::util::InsertTreeNode(m_TreeViewEntity, treeView, parent, *entity.name, &treeNodeComp, &textComp, editor->GetEditorScene());
         textComp->text = *entity.name;
 
         std::function<void()> selectedCb = [entity, this]()

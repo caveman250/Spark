@@ -60,7 +60,7 @@ namespace se::ui::systems
             }
 
 #if SPARK_EDITOR
-            if (!entities[i].HasFlag(ecs::IdFlags::Editor))
+            if (!ecs::IsEditorEntity(entities[i]))
             {
                 auto adjustedMousePos = editor::util::ScreenSpaceToGameViewportSpace(inputComp->mouseX, inputComp->mouseY);
                 inputReceiver.hovered = transform.rect.Contains(adjustedMousePos);

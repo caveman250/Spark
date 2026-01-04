@@ -20,7 +20,9 @@ namespace se::editor::ui::properties
     {
        PropertyEditor::ConstructUI(name, constructTitle, anchors, collapsed, withBackground);
 
-        auto world = Application::Get()->GetWorld();
+        auto app = Application::Get();
+        auto world = app->GetWorld();
+        auto editor = app->GetEditorRuntime();
         auto assetManager = asset::AssetManager::Get();
         auto ariel = assetManager->GetAsset<asset::Font>("/engine_assets/fonts/Arial.sass");
 
@@ -30,7 +32,7 @@ namespace se::editor::ui::properties
             .options = { },
             .onItemSelected = [this](int item) { *m_Value = item; },
             .selectedIndex = *m_Value,
-            .editorOnly = true,
+            .scene = editor->GetEditorScene(),
         };
         for (const auto& value : m_EnumType->values)
         {

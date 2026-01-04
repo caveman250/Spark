@@ -22,11 +22,13 @@ namespace se::editor::ui::properties
     {
        PropertyEditor::ConstructUI(name, constructTitle, anchors, collapsed, withBackground);
 
-        auto world = Application::Get()->GetWorld();
+        auto app = Application::Get();
+        auto world = app->GetWorld();
+        auto editor = app->GetEditorRuntime();
         auto assetManager = asset::AssetManager::Get();
         auto ariel = assetManager->GetAsset<asset::Font>("/engine_assets/fonts/Arial.sass");
 
-        auto bg = world->CreateEntity("Bool Editor", true);
+        auto bg = world->CreateEntity(editor->GetEditorScene(), "Bool Editor");
         auto bgTransform = world->AddComponent<RectTransformComponent>(bg);
         bgTransform->minY = 0;
         bgTransform->maxY = 24;
@@ -45,7 +47,7 @@ namespace se::editor::ui::properties
         world->AddChild(m_Content, bg);
 
         m_RectTransform->maxY = bgTransform->maxY + 2;
-        m_Tickbox = world->CreateEntity("Border", true);
+        m_Tickbox = world->CreateEntity(editor->GetEditorScene(), "Border");
         auto button = world->AddComponent<ButtonComponent>(m_Tickbox);
         m_CheckedTexture = "/engine_assets/textures/checkbox_checked.sass";
         m_UncheckedTexture = "/engine_assets/textures/checkbox_unchecked.sass";

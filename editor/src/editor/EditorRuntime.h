@@ -27,7 +27,8 @@ namespace se::editor
         void Render();
         void Shutdown();
 
-        ecs::Id GetSelectedEntity() const;
+        const ecs::Id& GetEditorScene() const;
+        const ecs::Id& GetSelectedEntity() const;
         void SelectEntity(const ecs::Id& id);
         reflect::ObjectBase* GetSelectedSingletonComponent() const;
         void SelectSingletonComponent(reflect::ObjectBase* comp);
@@ -47,6 +48,8 @@ namespace se::editor
         ui::PropertiesWindow* m_PropertiesWindow = nullptr;
         ui::ViewportWindow* m_ViewportWindow = nullptr;
         ui::AssetBrowserWindow* m_AssetBrowserWindow = nullptr;
+
+        ecs::Id m_EditorScene = ecs::s_InvalidEntity;
 
         ecs::Id m_SelectedEntity = ecs::s_InvalidEntity;
         reflect::ObjectBase* m_SelectedSingletonComp = nullptr;

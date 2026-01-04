@@ -8,8 +8,10 @@ namespace se::editor::ui::properties::util
 {
     ecs::Id CreateMissingPropertyEditorText(reflect::Type* type, float leftAnchor, int minY)
     {
-        auto world = Application::Get()->GetWorld();
-        auto textEntity = world->CreateEntity("MissingPropertyEditorText", true);
+        auto app = Application::Get();
+        auto editor = app->GetEditorRuntime();
+        auto world = app->GetWorld();
+        auto textEntity = world->CreateEntity(editor->GetEditorScene(), "MissingPropertyEditorText");
         auto text = world->AddComponent<se::ui::components::TextComponent>(textEntity);
         text->font = asset::AssetManager::Get()->GetAsset<asset::Font>("/engine_assets/fonts/Arial.sass");
         text->fontSize = 14;

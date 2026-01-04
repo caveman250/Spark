@@ -27,7 +27,7 @@ namespace se::ui::util
         std::vector<std::string> options = {};
         std::function<void(int)> onItemSelected = nullptr;
         int selectedIndex = 0;
-        bool editorOnly = false;
+        ecs::Id scene = false;
     };
 
     NewComboBox CreateComboBox(ComboBoxParams& params);

@@ -20,5 +20,5 @@ namespace se::ui::util
                                    components::CollapsingHeaderComponent** collapsingHeader,
                                    bool collapsed,
                                    bool withBackground,
-                                   bool editorOnly);
+                                   const ecs::Id& scene);
 }

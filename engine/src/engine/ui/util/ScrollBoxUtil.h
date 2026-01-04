@@ -14,5 +14,5 @@ namespace se::ui::util
                             components::ScrollViewComponent** outScrollView,
                             components::RectTransformComponent** outTransform,
                             ecs::Id& scrollBarEntity,
-                            bool editorOnly);
+                            const ecs::Id& scene);
 }

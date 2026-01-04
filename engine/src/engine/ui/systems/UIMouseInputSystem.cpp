@@ -82,7 +82,7 @@ namespace se::ui::systems
                         {
                             if (TryConsumeEvent(mouseEvent, childInputReceiver))
                             {
-                                bool isEditorWidget = child.HasFlag(ecs::IdFlags::Editor);
+                                bool isEditorWidget = ecs::IsEditorEntity(child);
                                 consumedState = isEditorWidget ? ConsumedState::ConsumedByEditor : ConsumedState::Consumed;
                                 return !isEditorWidget;
                             }
@@ -96,7 +96,7 @@ namespace se::ui::systems
                 {
                     if (TryConsumeEvent(mouseEvent, inputReceiver))
                     {
-                        return !entity.HasFlag(ecs::IdFlags::Editor);
+                        return !ecs::IsEditorEntity(entity);
                     }
                 }
 

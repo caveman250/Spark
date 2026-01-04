@@ -37,7 +37,7 @@ namespace se::ui::systems
             const auto& entity = entities[i];
             Rect windowRect = Rect {
                 .topLeft = math::IntVec2(0, 0),
-                .size = entity.HasFlag(ecs::IdFlags::Editor) ?
+                .size = ecs::IsEditorEntity(entity) ?
                     math::IntVec2(window->GetWidth(), window->GetHeight()) :
                     Application::Get()->GetGameViewportSize()
             };

@@ -34,9 +34,11 @@ namespace se::editor::ui::properties
         {
             PropertyEditor::ConstructUI(name, constructTitle, anchors, collapsed, withBackground);
 
-            auto world = Application::Get()->GetWorld();
+            auto app = Application::Get();
+            auto world = app->GetWorld();
+            auto editor = app->GetEditorRuntime();
 
-            auto entity = world->CreateEntity(name, true);
+            auto entity = world->CreateEntity(editor->GetEditorScene(), name);
             auto rect = world->AddComponent<RectTransformComponent>(entity);
             rect->anchors = { .left = 0.f, .right = 1.f, .top = 0.f, .bottom = 0.f };
             rect->minX = 5;

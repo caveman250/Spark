@@ -16,11 +16,13 @@ namespace se::ui::util
                                EditableTextComponent** text)
 
     {
-        auto ret = world->CreateEntity("Label", true);
+        auto editor = Application::Get()->GetEditorRuntime();
+
+        auto ret = world->CreateEntity(editor->GetEditorScene(), "Label");
         (*text) = world->AddComponent<EditableTextComponent>(ret);
         (*text)->font = font;
         (*text)->fontSize = fontSize;
-        auto caretEntity = world->CreateEntity("Caret", true);
+        auto caretEntity = world->CreateEntity(editor->GetEditorScene(), "Caret");
         auto caretRect = world->AddComponent<RectTransformComponent>(caretEntity);
         caretRect->anchors = { 0.f, 0.f, 0.f, 1.f };
         caretRect->minY = 1;

@@ -32,8 +32,8 @@ namespace se::ui::systems
         {
             const auto& entity = entities[i];
             const auto& rect = rectTransforms[i];
-            renderComp->entityPreRenderCommands[entity].push_back(UIRenderCommand(renderer->AllocRenderCommand<render::commands::PushScissor>(rect.rect), UILayerKey(rect.layer, entity.HasFlag(ecs::IdFlags::Editor))));
-            renderComp->entityPostRenderCommands[entity].push_back(UIRenderCommand(renderer->AllocRenderCommand<render::commands::PopScissor>(), UILayerKey(rect.layer, entity.HasFlag(ecs::IdFlags::Editor))));
+            renderComp->entityPreRenderCommands[entity].push_back(UIRenderCommand(renderer->AllocRenderCommand<render::commands::PushScissor>(rect.rect), UILayerKey(rect.layer, ecs::IsEditorEntity(entity))));
+            renderComp->entityPostRenderCommands[entity].push_back(UIRenderCommand(renderer->AllocRenderCommand<render::commands::PopScissor>(), UILayerKey(rect.layer, ecs::IsEditorEntity(entity))));
         }
     }
 }

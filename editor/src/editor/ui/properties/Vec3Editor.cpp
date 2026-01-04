@@ -16,9 +16,11 @@ namespace se::editor::ui::properties
     {
         PropertyEditor::ConstructUI(name, constructTitle, anchors, collapsed, withBackground);
 
-        auto world = Application::Get()->GetWorld();
+        auto app = Application::Get();
+        auto world = app->GetWorld();
+        auto editor = app->GetEditorRuntime();
 
-        auto box = world->CreateEntity("Vect3 Editor Box", true);
+        auto box = world->CreateEntity(editor->GetEditorScene(), "Vect3 Editor Box");
         auto* boxRect = world->AddComponent<se::ui::components::RectTransformComponent>(box);
         world->AddComponent<WidgetComponent>(box);
         boxRect->anchors = { constructTitle ? 0.35f : 0.f, 1.f, 0.f, 1.f };

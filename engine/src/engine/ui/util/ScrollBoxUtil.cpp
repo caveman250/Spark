@@ -19,16 +19,16 @@ namespace se::ui::util
                             components::ScrollViewComponent** outScrollView,
                             components::RectTransformComponent** outTransform,
                             ecs::Id& scrollBarEntity,
-                            bool editorOnly)
+                            const ecs::Id& scene)
     {
         auto world = Application::Get()->GetWorld();
 
-        auto scrollBoxEntity = world->CreateEntity("ScrollBox", editorOnly);
+        auto scrollBoxEntity = world->CreateEntity(scene, "ScrollBox");
         *outScrollBox = world->AddComponent<components::ScrollBoxComponent>(scrollBoxEntity);
         *outTransform = world->AddComponent<components::RectTransformComponent>(scrollBoxEntity);
         (*outTransform)->anchors = { .left = 0.f, .right = 1.f, .top = 0.f, .bottom = 1.f };
 
-        scrollViewEntity = world->CreateEntity("ScrollView", editorOnly);
+        scrollViewEntity = world->CreateEntity(scene, "ScrollView");
         world->AddComponent<components::WidgetComponent>(scrollViewEntity);
         *outScrollView = world->AddComponent<components::ScrollViewComponent>(scrollViewEntity);
         auto scrollViewTransform = world->AddComponent<components::RectTransformComponent>(scrollViewEntity);
@@ -38,7 +38,7 @@ namespace se::ui::util
         scrollViewMouseEventComp->receivesScrollEvents = true;
         scrollViewMouseEventComp->buttonMask = 0;
 
-        scrollBarEntity = world->CreateEntity("Scroll Bar", editorOnly);
+        scrollBarEntity = world->CreateEntity(scene, "Scroll Bar");
         auto scrollBarImage = world->AddComponent<components::ImageComponent>(scrollBarEntity);
         static std::shared_ptr<render::Material> material = nullptr;
         if (!material)

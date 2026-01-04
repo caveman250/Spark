@@ -19,9 +19,11 @@ namespace se::editor::ui::properties
     {
         PropertyEditor::ConstructUI(name, constructTitle, anchors, collapsed, withBackground);
 
-        auto world = Application::Get()->GetWorld();
+        auto app = Application::Get();
+        auto world = app->GetWorld();
+        auto editor = app->GetEditorRuntime();
 
-        auto textEntity = world->CreateEntity("MainNodeEditor Text", true);
+        auto textEntity = world->CreateEntity(editor->GetEditorScene(), "MainNodeEditor Text");
         auto* textRect = world->AddComponent<se::ui::components::RectTransformComponent>(textEntity);
         textRect->anchors = { 0.f, 1.f, 0.f, 0.f };
         auto text = world->AddComponent<TextComponent>(textEntity);

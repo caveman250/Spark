@@ -38,7 +38,10 @@ namespace se::editor::ui::properties
                                      bool withBackground)
     {
         constexpr int titleFontSize = 14;
-        auto world = Application::Get()->GetWorld();
+        auto app = Application::Get();
+        auto world = app->GetWorld();
+        auto editor = app->GetEditorRuntime();
+
         auto ariel = asset::AssetManager::Get()->GetAsset<asset::Font>("/engine_assets/fonts/Arial.sass");
         m_Name = name;
 
@@ -47,11 +50,11 @@ namespace se::editor::ui::properties
         {
             ecs::Id contentsEntity;
             CollapsingHeaderComponent* collapsingHeader = nullptr;
-            m_WidgetId = se::ui::util::CreateCollapsingHeader(world, titleContainer, contentsEntity, &collapsingHeader, collapsed, withBackground, true);
+            m_WidgetId = se::ui::util::CreateCollapsingHeader(world, titleContainer, contentsEntity, &collapsingHeader, collapsed, withBackground, editor->GetEditorScene());
             m_RectTransform = world->GetComponent<RectTransformComponent>(m_WidgetId);
             m_RectTransform->anchors = anchors;
 
-            m_Content = world->CreateEntity("Vector Editor Vertical Box", true);
+            m_Content = world->CreateEntity(editor->GetEditorScene(), "Vector Editor Vertical Box");
             auto contentRect = world->AddComponent<RectTransformComponent>(m_Content);
             contentRect->anchors = { .left = 0.f, .right = 1.f, .top = 0.f, .bottom = 0.f };
             contentRect->minX = 5;
@@ -63,7 +66,7 @@ namespace se::editor::ui::properties
         }
         else
         {
-            m_WidgetId = world->CreateEntity(name, true);
+            m_WidgetId = world->CreateEntity(editor->GetEditorScene(), name);
             m_RectTransform = world->AddComponent<RectTransformComponent>(m_WidgetId);
             m_RectTransform->anchors = anchors;
             world->AddComponent<WidgetComponent>(m_WidgetId);
@@ -73,7 +76,7 @@ namespace se::editor::ui::properties
 
         if (constructTitle)
         {
-            auto titleEntity = world->CreateEntity("Property Title", true);
+            auto titleEntity = world->CreateEntity(editor->GetEditorScene(), "Property Title");
             auto titleText = world->AddComponent<TextComponent>(titleEntity);
             titleText->font = ariel;
             titleText->fontSize = titleFontSize;

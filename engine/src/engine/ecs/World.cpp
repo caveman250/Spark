@@ -17,14 +17,13 @@
 
 namespace se::ecs
 {
-    Id World::CreateEntity(const std::string& name, bool editorOnly)
+    Id World::CreateEntity(const std::string& name)
     {
-        return CreateEntity(m_DefaultScene, name, editorOnly);
+        return CreateEntity(m_DefaultScene, name);
     }
 
-    Id World::CreateEntity(SceneId scene,
-        const std::string& name,
-        bool editorOnly)
+    Id World::CreateEntity(const Id& scene,
+        const std::string& name)
     {
         auto guard = MaybeLockGuard(m_UpdateMode, &m_EntityMutex);
         uint64_t entityId;
@@ -44,18 +43,7 @@ namespace se::ecs
             return s_InvalidEntity;
         }
 
-        int32_t flags = 0;
-        if (editorOnly)
-        {
-            bits::SetFlag(flags, IdFlags::Editor);
-        }
-#if SPARK_EDITOR
-        else
-        {
-            m_EntitiesChangedThisFrame = true;
-        }
-#endif
-
+        int32_t flags = 0; // TODO remove?
         m_IdMetaMap[entityId] = { name, flags, scene };
         auto emptyArchetype = GetArchetype({}, true);
         SPARK_ASSERT(!m_EntityRecords.contains(entityId));
@@ -71,6 +59,14 @@ namespace se::ecs
         AddComponent<components::RootComponent>(entityId);
         [[maybe_unused]] auto& record = m_EntityRecords.at(entityId);
         SPARK_ASSERT(record.archetype);
+
+#if SPARK_EDITOR
+        auto editorRuntime = Application::Get()->GetEditorRuntime();
+        if (scene != editorRuntime->GetEditorScene().id)
+        {
+            m_EntitiesChangedThisFrame = true;
+        }
+#endif
 
         return entityId;
     }
@@ -141,8 +137,9 @@ namespace se::ecs
         }
 
 #if SPARK_EDITOR
-        auto entityFlags = m_IdMetaMap[entity].flags;
-        if (!bits::GetFlag<IdFlags>(entityFlags, IdFlags::Editor))
+        auto editorRuntime = Application::Get()->GetEditorRuntime();
+        const auto& scene = m_IdMetaMap[entity].scene;
+        if (scene != editorRuntime->GetEditorScene())
         {
             m_EntitiesChangedThisFrame = true;
         }

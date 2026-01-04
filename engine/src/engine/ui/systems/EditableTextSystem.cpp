@@ -420,7 +420,7 @@ namespace se::ui::systems
             const auto& transform = transformComps[i];
             auto& text = textComps[i];
 
-            auto windowSize = entity.HasFlag(ecs::IdFlags::Editor) ?
+            auto windowSize = ecs::IsEditorEntity(entity) ?
                 math::IntVec2(window->GetWidth(), window->GetHeight()) :
                 Application::Get()->GetGameViewportSize();
 

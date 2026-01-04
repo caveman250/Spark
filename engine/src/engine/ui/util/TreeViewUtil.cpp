@@ -17,11 +17,11 @@
 
 namespace se::ui::util
 {
-    ecs::Id CreateTreeView(TreeViewComponent** outTreeView, RectTransformComponent** outTransform, bool editorOnly)
+    ecs::Id CreateTreeView(TreeViewComponent** outTreeView, RectTransformComponent** outTransform, const ecs::Id& scene)
     {
         auto world = Application::Get()->GetWorld();
 
-        auto entity = world->CreateEntity("Tree View", editorOnly);
+        auto entity = world->CreateEntity(scene, "Tree View");
         *outTreeView = world->AddComponent<TreeViewComponent>(entity);
         *outTransform = world->AddComponent<RectTransformComponent>(entity);
         world->AddComponent<WidgetComponent>(entity);
@@ -34,14 +34,14 @@ namespace se::ui::util
         const std::string& name,
         TreeNodeComponent** outTreeNode,
         TextComponent** outText,
-        bool editorOnly)
+        const ecs::Id& scene)
     {
         auto world = Application::Get()->GetWorld();
         auto assetManager = asset::AssetManager::Get();
 
         treeView->dirty = true;
 
-        auto entity = world->CreateEntity(name, editorOnly);
+        auto entity = world->CreateEntity(scene, name);
         world->AddChild(parentNode, entity);
 
         *outTreeNode = world->AddComponent<TreeNodeComponent>(entity);
@@ -56,7 +56,7 @@ namespace se::ui::util
         world->AddComponent<WidgetComponent>(entity);
         world->AddComponent<MouseInputComponent>(entity);
 
-        auto textEntity = world->CreateEntity("Text", editorOnly);
+        auto textEntity = world->CreateEntity(scene, "Text");
         *outText = world->AddComponent<TextComponent>(textEntity);
         (*outText)->font = assetManager->GetAsset<asset::Font>("/engine_assets/fonts/Arial.sass");
         (*outText)->fontSize = 14;
@@ -72,7 +72,7 @@ namespace se::ui::util
         static asset::AssetReference<asset::Texture> expanded_indicator_texture = "/engine_assets/textures/tree_node_indicator_expanded.sass";
         static asset::AssetReference<asset::Texture> collapsed_indicator_texture = "/engine_assets/textures/tree_node_indicator_collapsed.sass";
 
-        auto statusIcon = world->CreateEntity("Status Icon", editorOnly);
+        auto statusIcon = world->CreateEntity(scene, "Status Icon");
         auto rect = world->AddComponent<RectTransformComponent>(statusIcon);
         rect->anchors = { .left = 0.f, .right = 0.f, .top = 0.f, .bottom = 1.f };
         rect->minX = 2;

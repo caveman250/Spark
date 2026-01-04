@@ -22,7 +22,9 @@ namespace se::editor::ui::properties
     {
         PropertyEditor::ConstructUI(name, constructTitle, anchors, collapsed, withBackground);
 
-        auto world = Application::Get()->GetWorld();
+        auto app = Application::Get();
+        auto world = app->GetWorld();
+        auto editor = app->GetEditorRuntime();
 
         int numSerialisedMembers = 0;
         for (const auto &member: m_Type->members)
@@ -48,7 +50,7 @@ namespace se::editor::ui::properties
 
         if (numSerialisedMembers == 0)
         {
-            auto textEntity = world->CreateEntity("Text", true);
+            auto textEntity = world->CreateEntity(editor->GetEditorScene(), "Text");
             auto text = world->AddComponent<TextComponent>(textEntity);
             text->font = asset::AssetManager::Get()->GetAsset<asset::Font>("/engine_assets/fonts/Arial.sass");
             text->fontSize = 14;

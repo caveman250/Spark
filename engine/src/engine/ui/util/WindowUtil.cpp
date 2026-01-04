@@ -20,12 +20,12 @@ namespace se::ui::util
                          ecs::Id& childArea,
                          const std::string& title,
                          std::function<void()> onClose,
-                         const bool editorOnly)
+                         const ecs::Id& scene)
     {
         auto world = Application::Get()->GetWorld();
         auto* assetManager = asset::AssetManager::Get();
 
-        ecs::Id entity = world->CreateEntity("Window", editorOnly);
+        ecs::Id entity = world->CreateEntity(scene, "Window");
         *transform = world->AddComponent<RectTransformComponent>(entity);
         *window = world->AddComponent<WindowComponent>(entity);
 
@@ -58,7 +58,7 @@ namespace se::ui::util
             inputComp->keyMask = static_cast<input::Key>(0x0);
         }
 
-        auto titleBarEntity = world->CreateEntity("TitleBar", editorOnly);
+        auto titleBarEntity = world->CreateEntity(scene, "TitleBar");
         *titleBar = world->AddComponent<TitleBarComponent>(titleBarEntity);
         std::function moveCb = [entity](float dX, float dY)
         {
@@ -75,7 +75,7 @@ namespace se::ui::util
         titleBarTransform->maxY = 30;
         world->AddChild(entity, titleBarEntity);
 
-        ecs::Id titleBarTextEntity = world->CreateEntity("TitleBarText", true);
+        ecs::Id titleBarTextEntity = world->CreateEntity(scene, "TitleBarText");
         auto titleBarText = world->AddComponent<TextComponent>(titleBarTextEntity);
         titleBarText->font = assetManager->GetAsset<asset::Font>("/engine_assets/fonts/Arial.sass");
         titleBarText->fontSize = 18;
@@ -87,7 +87,7 @@ namespace se::ui::util
         world->AddComponent<WidgetComponent>(titleBarTextEntity);
         world->AddChild(titleBarEntity, titleBarTextEntity);
 
-        auto buttonEntity = world->CreateEntity("Close Button", editorOnly);
+        auto buttonEntity = world->CreateEntity(scene, "Close Button");
         auto buttonComp = world->AddComponent<ButtonComponent>(buttonEntity);
         buttonComp->image = "/engine_assets/textures/close_button_idle.sass";
         buttonComp->pressedImage = "/engine_assets/textures/close_button_pressed.sass";
@@ -107,7 +107,7 @@ namespace se::ui::util
 
         world->AddChild(titleBarEntity, buttonEntity);
 
-        childArea = world->CreateEntity("Content", editorOnly);
+        childArea = world->CreateEntity(scene, "Content");
         auto childAreaTransform = world->AddComponent<RectTransformComponent>(childArea);
         childAreaTransform->anchors = { 0.f, 1.f, 0.f, 1.f };
         childAreaTransform->minX = 0;

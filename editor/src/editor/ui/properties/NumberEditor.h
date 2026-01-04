@@ -60,11 +60,13 @@ namespace se::editor::ui::properties
         constexpr int textYOffset = padding / 2;
         constexpr int borderSize = 2;
 
-        auto world = Application::Get()->GetWorld();
+        auto app = Application::Get();
+        auto world = app->GetWorld();
+        auto editor = app->GetEditorRuntime();
         auto assetManager = asset::AssetManager::Get();
         auto ariel = assetManager->GetAsset<asset::Font>("/engine_assets/fonts/Arial.sass");
 
-        auto bg = world->CreateEntity("Int Editor", true);
+        auto bg = world->CreateEntity(editor->GetEditorScene(), "Int Editor");
         auto bgTransform = world->AddComponent<RectTransformComponent>(bg);
         bgTransform->anchors = { .left = constructTitle ? 0.35f : 0.f, .right = 1.f, .top = 0.f, .bottom = 0.f };
         bgTransform->minY = 0;
@@ -84,7 +86,7 @@ namespace se::editor::ui::properties
         image->materialInstance = render::MaterialInstance::CreateMaterialInstance(material);
         world->AddChild(m_Content, bg);
 
-        auto innerImageEntity = world->CreateEntity("Border", true);
+        auto innerImageEntity = world->CreateEntity(editor->GetEditorScene(), "Border");
         auto innerImage = world->AddComponent<ImageComponent>(innerImageEntity);
         static std::shared_ptr<render::Material> innerMaterial = nullptr;
         if (!innerMaterial)

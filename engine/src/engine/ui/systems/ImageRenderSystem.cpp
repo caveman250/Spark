@@ -72,7 +72,7 @@ namespace se::ui::systems
 
                 image.lastRect = transform.rect;
 
-                math::Vec2 windowSize = entity.HasFlag(ecs::IdFlags::Editor) ?
+                math::Vec2 windowSize = ecs::IsEditorEntity(entity) ?
                      math::IntVec2(window->GetWidth(), window->GetHeight()) :
                      Application::Get()->GetGameViewportSize();
 
@@ -80,7 +80,7 @@ namespace se::ui::systems
 
                 auto command = renderer->AllocRenderCommand<render::commands::SubmitUI>(image.materialInstance, image.vertBuffer,
                                                              image.indexBuffer);
-                renderComp->entityRenderCommands[entity].push_back(UIRenderCommand(command, UILayerKey(transform.layer, entity.HasFlag(ecs::IdFlags::Editor))));
+                renderComp->entityRenderCommands[entity].push_back(UIRenderCommand(command, UILayerKey(transform.layer, ecs::IsEditorEntity(entity))));
             }
         }
     }

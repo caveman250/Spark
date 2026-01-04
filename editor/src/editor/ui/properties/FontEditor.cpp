@@ -18,10 +18,12 @@ namespace se::editor::ui::properties
     {
         PropertyEditor::ConstructUI(name, constructTitle, anchors, collapsed, withBackground);
 
-        auto world = Application::Get()->GetWorld();
+        auto app = Application::Get();
+        auto world = app->GetWorld();
+        auto editor = app->GetEditorRuntime();
 
         {
-            auto textEntity = world->CreateEntity("FontEditor Text", true);
+            auto textEntity = world->CreateEntity(editor->GetEditorScene(), "FontEditor Text");
             auto* textRect = world->AddComponent<RectTransformComponent>(textEntity);
             textRect->anchors = { 0.f, 1.f, 0.f, 0.f };
             auto text = world->AddComponent<TextComponent>(textEntity);
@@ -39,7 +41,7 @@ namespace se::editor::ui::properties
         }
 
         {
-            auto textEntity = world->CreateEntity("Text", true);
+            auto textEntity = world->CreateEntity(editor->GetEditorScene(), "Text");
             auto* textRect = world->AddComponent<RectTransformComponent>(textEntity);
             textRect->anchors = { 0.f, 1.f, 0.f, 0.f };
             auto text = world->AddComponent<TextComponent>(textEntity);
@@ -50,7 +52,7 @@ namespace se::editor::ui::properties
         }
 
         {
-            auto textEntity = world->CreateEntity("Text", true);
+            auto textEntity = world->CreateEntity(editor->GetEditorScene(), "Text");
             auto* textRect = world->AddComponent<RectTransformComponent>(textEntity);
             textRect->anchors = { 0.f, 1.f, 0.f, 0.f };
             auto text = world->AddComponent<TextComponent>(textEntity);
@@ -61,7 +63,7 @@ namespace se::editor::ui::properties
         }
 
         {
-            auto textEntity = world->CreateEntity("Text", true);
+            auto textEntity = world->CreateEntity(editor->GetEditorScene(), "Text");
             auto* textRect = world->AddComponent<RectTransformComponent>(textEntity);
             textRect->anchors = { 0.f, 1.f, 0.f, 0.f };
             auto text = world->AddComponent<TextComponent>(textEntity);
@@ -72,7 +74,7 @@ namespace se::editor::ui::properties
         }
 
         {
-            auto textEntity = world->CreateEntity("Text", true);
+            auto textEntity = world->CreateEntity(editor->GetEditorScene(), "Text");
             auto* textRect = world->AddComponent<RectTransformComponent>(textEntity);
             textRect->anchors = { 0.f, 1.f, 0.f, 0.f };
             auto text = world->AddComponent<TextComponent>(textEntity);

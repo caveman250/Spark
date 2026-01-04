@@ -34,6 +34,7 @@ namespace se::editor::ui
     {
         auto app = Application::Get();
         auto world = app->GetWorld();
+        auto editor = app->GetEditorRuntime();
 
         se::ui::components::RectTransformComponent *windowTransform;
         se::ui::components::WindowComponent *windowComp;
@@ -46,7 +47,7 @@ namespace se::editor::ui
                                                 "Properties",
                                                 [this]()
                                                 { DestroyUI(); },
-                                                true);
+                                                editor->GetEditorScene());
         windowTransform->anchors = {0.f, 0.f, 0.f, 0.f};
         windowTransform->minX = 860;
         windowTransform->maxX = 1260;
@@ -58,7 +59,7 @@ namespace se::editor::ui
         se::ui::components::ScrollBoxComponent *scrollBox = nullptr;
         se::ui::components::ScrollViewComponent *scrollView = nullptr;
         se::ui::components::RectTransformComponent *scrollBoxTransform = nullptr;
-        auto scrollBoxEntity = ::se::ui::util::CreateScrollBox(&scrollBox, scrollViewEntity, &scrollView, &scrollBoxTransform, scrollBarEntity, true);
+        auto scrollBoxEntity = ::se::ui::util::CreateScrollBox(&scrollBox, scrollViewEntity, &scrollView, &scrollBoxTransform, scrollBarEntity, editor->GetEditorScene());
         world->AddChild(contentArea, scrollBoxEntity);
 
         m_ScrollBoxContent = world->CreateEntity("Vertical Box");
@@ -124,9 +125,11 @@ namespace se::editor::ui
                                                ecs::World* world,
                                                const std::shared_ptr<asset::Font>& font)
     {
+        auto editor = Application::Get()->GetEditorRuntime();
+
         const auto &selectedEntityRecord = world->m_EntityRecords.at(entity);
         {
-            auto textEntity = world->CreateEntity("Text", true);
+            auto textEntity = world->CreateEntity(editor->GetEditorScene(), "Text");
             auto text = world->AddComponent<se::ui::components::TextComponent>(textEntity);
             text->font = font;
             text->fontSize = 18;
@@ -174,9 +177,11 @@ namespace se::editor::ui
                                               ecs::World* world,
                                               const std::shared_ptr<asset::Font>& font)
     {
+        auto editor = Application::Get()->GetEditorRuntime();
+
         auto reflectClass = static_cast<reflect::Class *>(asset->GetReflectType());
 
-        auto filePathEntity = world->CreateEntity("File Path", true);
+        auto filePathEntity = world->CreateEntity(editor->GetEditorScene(), "File Path");
         auto filePathText = world->AddComponent<se::ui::components::TextComponent>(filePathEntity);
         filePathText->font = font;
         filePathText->fontSize = 12;

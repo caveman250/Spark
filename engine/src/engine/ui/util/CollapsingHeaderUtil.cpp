@@ -13,9 +13,9 @@ namespace se::ui::util
                                    CollapsingHeaderComponent** collapsingHeader,
                                    bool collapsed,
                                    bool withBackground,
-                                   bool editorOnly)
+                                   const ecs::Id& scene)
     {
-        auto entity = world->CreateEntity("Collapsing Header", editorOnly);
+        auto entity = world->CreateEntity(scene, "Collapsing Header");
         auto rect = world->AddComponent<RectTransformComponent>(entity);
         rect->overridesChildSizes = true;
         rect->anchors = { .left = 0.f, .right = 1.f, .top = 0.f, .bottom = 0.f };
@@ -33,7 +33,7 @@ namespace se::ui::util
             titleBGMaterial->GetShaderSettings().SetSetting("color_setting", math::Vec3(.24f, .24f, .24f));
         }
 
-        ecs::Id title = world->CreateEntity("Collapsing Header Title", editorOnly);
+        ecs::Id title = world->CreateEntity(scene, "Collapsing Header Title");
         rect = world->AddComponent<RectTransformComponent>(title);
         rect->anchors = { .left = 0.f, .right = 1.f, .top = 0.f, .bottom = 0.f };
         world->AddComponent<WidgetComponent>(title);
@@ -45,7 +45,7 @@ namespace se::ui::util
         world->AddChild(entity, title);
         (*collapsingHeader)->titleEntity = title;
 
-        titleContainer = world->CreateEntity("Collapsing Header Title Contents", editorOnly);
+        titleContainer = world->CreateEntity(scene, "Collapsing Header Title Contents");
         rect = world->AddComponent<RectTransformComponent>(titleContainer);
         rect->anchors = { .left = 0.f, .right = 1.f, .top = 0.f, .bottom = 0.f };
         rect->minX = 12;
@@ -55,7 +55,7 @@ namespace se::ui::util
         static asset::AssetReference<asset::Texture> expanded_indicator_texture = "/engine_assets/textures/tree_node_indicator_expanded.sass";
         static asset::AssetReference<asset::Texture> collapsed_indicator_texture = "/engine_assets/textures/tree_node_indicator_collapsed.sass";
 
-        ecs::Id titleIndicator = world->CreateEntity("Collapsing Header Title Indicator", editorOnly);
+        ecs::Id titleIndicator = world->CreateEntity(scene, "Collapsing Header Title Indicator");
         rect = world->AddComponent<RectTransformComponent>(titleIndicator);
         rect->anchors = { .left = 0.f, .right = 0.f, .top = 0.f, .bottom = 0.f };
         rect->minX = 0;
@@ -82,7 +82,7 @@ namespace se::ui::util
                                                      collapsed ? &collapsed_indicator_texture : &expanded_indicator_texture);
         world->AddChild(title, titleIndicator);
 
-        auto titleButtonEntity = world->CreateEntity("Collapsing Header Title Button", editorOnly);
+        auto titleButtonEntity = world->CreateEntity(scene, "Collapsing Header Title Button");
         ButtonComponent* titleButton = world->AddComponent<ButtonComponent>(titleButtonEntity);
         RectTransformComponent* titleButtonRect = world->AddComponent<RectTransformComponent>(titleButtonEntity);
         titleButtonRect->anchors = { .left = 0.f, .right = 1.f, .top = 0.f, .bottom = 1.f };
@@ -101,7 +101,7 @@ namespace se::ui::util
                                                 collapsingHeader->collapsed ? &collapsed_indicator_texture : &expanded_indicator_texture);
         });
 
-        contents = world->CreateEntity("Collapsing Header Contents", editorOnly);
+        contents = world->CreateEntity(scene, "Collapsing Header Contents");
         rect = world->AddComponent<RectTransformComponent>(contents);
         rect->anchors = { .left = 0.f, .right = 1.f, .top = 0.f, .bottom = 0.f };
         world->AddComponent<WidgetComponent>(contents);

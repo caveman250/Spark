@@ -11,12 +11,12 @@ namespace se::ui::components
 
 namespace se::ui::util
 {
-    ecs::Id CreateTreeView(components::TreeViewComponent** outTreeView, components::RectTransformComponent** outTransform, bool editorOnly);
+    ecs::Id CreateTreeView(components::TreeViewComponent** outTreeView, components::RectTransformComponent** outTransform, const ecs::Id& scene);
     ecs::Id InsertTreeNode(const ecs::Id& treeViewEntity,
         components::TreeViewComponent* treeView,
         const ecs::Id& parentNode,
         const std::string& name,
         components::TreeNodeComponent** outTreeNode,
         components::TextComponent** outText,
-        bool editorOnly);
+        const ecs::Id& scene);
 }

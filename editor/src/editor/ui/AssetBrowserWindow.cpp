@@ -26,6 +26,7 @@ namespace se::editor::ui
     {
         auto app = Application::Get();
         auto world = app->GetWorld();
+        auto editor = app->GetEditorRuntime();
         auto assetManager = se::asset::AssetManager::Get();
 
         se::ui::components::RectTransformComponent *windowTransform;
@@ -39,14 +40,14 @@ namespace se::editor::ui
                                                 "Asset Browser",
                                                 [this]()
                                                 { DestroyUI(); },
-                                                true);
+                                                editor->GetEditorScene());
         windowTransform->anchors = {0.f, 0.f, 0.f, 0.f};
         windowTransform->minX = 20;
         windowTransform->maxX = 850;
         windowTransform->minY = 390;
         windowTransform->maxY = 700;
 
-        ecs::Id verticalBoxEntity = world->CreateEntity("AssetBrowser Container", true);
+        ecs::Id verticalBoxEntity = world->CreateEntity(editor->GetEditorScene(), "AssetBrowser Container");
         auto* verticalBoxRect = world->AddComponent<se::ui::components::RectTransformComponent>(verticalBoxEntity);
         verticalBoxRect->anchors = { .left = 0.f, .right = 1.f, .top = 0.f, .bottom = 1.f };
         verticalBoxRect->minX = 5;
@@ -65,7 +66,7 @@ namespace se::editor::ui
             bgMaterial->GetShaderSettings().SetSetting("color_setting", math::Vec3(.25f, .25f, .25f));
         }
 
-        auto treeViewBG = world->CreateEntity("Grid Box BG", true);
+        auto treeViewBG = world->CreateEntity(editor->GetEditorScene(), "Grid Box BG");
         auto* treeViewRect = world->AddComponent<se::ui::components::RectTransformComponent>(treeViewBG);
         treeViewRect->anchors = { 0.f, 0.f, 0.f, 1.f };
         treeViewRect->maxX = 195;
@@ -75,7 +76,7 @@ namespace se::editor::ui
 
         se::ui::components::RectTransformComponent* transformComp = nullptr;
         se::ui::components::TreeViewComponent* treeViewComp = nullptr;
-        auto treeView = ::se::ui::util::CreateTreeView(&treeViewComp, &transformComp, true);
+        auto treeView = ::se::ui::util::CreateTreeView(&treeViewComp, &transformComp, editor->GetEditorScene());
         transformComp->anchors = { 0.f, 1.f, 0.f, 1.f };
         world->AddChild(treeViewBG, treeView);
 
@@ -83,7 +84,7 @@ namespace se::editor::ui
         {
             se::ui::components::TreeNodeComponent* treeNodeComp = nullptr;
             se::ui::components::TextComponent* textComp = nullptr;
-            se::ui::util::InsertTreeNode(treeView, treeViewComp, treeView, mount.vfsPath, &treeNodeComp, &textComp, true);
+            se::ui::util::InsertTreeNode(treeView, treeViewComp, treeView, mount.vfsPath, &treeNodeComp, &textComp, editor->GetEditorScene());
             textComp->text = mount.vfsPath;
             treeNodeComp->onSelected.Subscribe([this, &mount]()
             {
@@ -91,7 +92,7 @@ namespace se::editor::ui
             });
         }
 
-        auto pathBarBG = world->CreateEntity("Path Bar BG", true);
+        auto pathBarBG = world->CreateEntity(editor->GetEditorScene(), "Path Bar BG");
         auto* pathBarBGRect = world->AddComponent<se::ui::components::RectTransformComponent>(pathBarBG);
         pathBarBGRect->anchors = { 0.f, 1.f, 0.f, 0.f };
         pathBarBGRect->maxY = 30;
@@ -101,7 +102,7 @@ namespace se::editor::ui
         world->AddChild(verticalBoxEntity, pathBarBG);
 
         auto arial = assetManager->GetAsset<asset::Font>("/engine_assets/fonts/Arial.sass");
-        m_PathBarBox = world->CreateEntity("Path Bar", true);
+        m_PathBarBox = world->CreateEntity(editor->GetEditorScene(), "Path Bar");
         auto pathBarRect = world->AddComponent<se::ui::components::RectTransformComponent>(m_PathBarBox);
         pathBarRect->anchors = { 0.f, 1.f, 0.f, 1.f };
         pathBarRect->minX = 5;
@@ -111,7 +112,7 @@ namespace se::editor::ui
         horBox->spacing = 5;
         world->AddChild(pathBarBG, m_PathBarBox);
 
-        auto gridBG = world->CreateEntity("Grid Box BG", true);
+        auto gridBG = world->CreateEntity(editor->GetEditorScene(), "Grid Box BG");
         auto* gridBGRect = world->AddComponent<se::ui::components::RectTransformComponent>(gridBG);
         gridBGRect->anchors = { .left = 0.f, .right = 1.f, .top = 0.f, .bottom = 1.f };
         gridBGRect->minY = 35;
@@ -125,10 +126,10 @@ namespace se::editor::ui
         se::ui::components::ScrollBoxComponent *scrollBox = nullptr;
         se::ui::components::ScrollViewComponent *scrollView = nullptr;
         se::ui::components::RectTransformComponent *scrollBoxTransform = nullptr;
-        auto scrollBoxEntity = ::se::ui::util::CreateScrollBox(&scrollBox, scrollViewEntity, &scrollView, &scrollBoxTransform, scrollBarEntity, true);
+        auto scrollBoxEntity = ::se::ui::util::CreateScrollBox(&scrollBox, scrollViewEntity, &scrollView, &scrollBoxTransform, scrollBarEntity, editor->GetEditorScene());
         world->AddChild(gridBG, scrollBoxEntity);
 
-        m_GridBoxEntity = world->CreateEntity("Grid Box", true);
+        m_GridBoxEntity = world->CreateEntity(editor->GetEditorScene(), "Grid Box");
         auto* gridRect = world->AddComponent<se::ui::components::RectTransformComponent>(m_GridBoxEntity);
         gridRect->overridesChildSizes = true;
         gridRect->anchors = { .left = 0.f, .right = 1.f, .top = 0.f, .bottom = 1.f };
@@ -189,7 +190,9 @@ namespace se::editor::ui
 
     void AssetBrowserWindow::CreatePathBar(const std::shared_ptr<asset::Font>& font)
     {
-        auto world = Application::Get()->GetWorld();
+        auto app = Application::Get();
+        auto world = app->GetWorld();
+        auto editor = app->GetEditorRuntime();
 
         std::string cumulativePath = {};
         std::string lhs, rhs;
@@ -205,7 +208,7 @@ namespace se::editor::ui
             cumulativePath += lhs;
             CreatePathItem(world, lhs, cumulativePath, font);
 
-            auto separatorEntity = world->CreateEntity("Separator", true);
+            auto separatorEntity = world->CreateEntity(editor->GetEditorScene(), "Separator");
             auto separatorText = world->AddComponent<se::ui::components::TextComponent>(separatorEntity);
             separatorText->font = font;
             separatorText->fontSize = 18;
@@ -232,7 +235,10 @@ namespace se::editor::ui
                         const std::string& path,
                         const std::shared_ptr<asset::Font>& font)
     {
-        ecs::Id buttonEntity = world->CreateEntity("Button", true);
+        auto app = Application::Get();
+        auto editor = app->GetEditorRuntime();
+
+        ecs::Id buttonEntity = world->CreateEntity(editor->GetEditorScene(), "Button");
         auto buttonRect = world->AddComponent<se::ui::components::RectTransformComponent>(buttonEntity);
         buttonRect->anchors = { .left = 0.f, .right = 1.f, .top = 0.f, .bottom = 1.f };
         auto buttonWidget = world->AddComponent<se::ui::components::WidgetComponent>(buttonEntity);
@@ -243,7 +249,7 @@ namespace se::editor::ui
                                          SetActiveFolder(path);
                                      });
 
-        auto labelEntity = world->CreateEntity("Text", true);
+        auto labelEntity = world->CreateEntity(editor->GetEditorScene(), "Text");
         auto labelText = world->AddComponent<se::ui::components::TextComponent>(labelEntity);
         labelText->font = font;
         labelText->fontSize = 18;
@@ -262,18 +268,21 @@ namespace se::editor::ui
                                                const io::VFSFile& file,
                                                const std::shared_ptr<asset::Font>& font)
     {
+        auto app = Application::Get();
+        auto editor = app->GetEditorRuntime();
+
         if (file.fileName.size() == 0)
         {
             return ecs::s_InvalidEntity;
         }
 
-        ecs::Id fileEntity = world->CreateEntity("File", true);
+        ecs::Id fileEntity = world->CreateEntity(editor->GetEditorScene(), "File");
         auto rect = world->AddComponent<se::ui::components::RectTransformComponent>(fileEntity);
         rect->minWidth = 100;
         rect->minHeight = 100;
         world->AddComponent<se::ui::components::WidgetComponent>(fileEntity);
 
-        ecs::Id buttonEntity = world->CreateEntity("Button", true);
+        ecs::Id buttonEntity = world->CreateEntity(editor->GetEditorScene(), "Button");
         auto buttonRect = world->AddComponent<se::ui::components::RectTransformComponent>(buttonEntity);
         buttonRect->anchors = { .left = 0.f, .right = 1.f, .top = 0.f, .bottom = 1.f };
         auto buttonWidget = world->AddComponent<se::ui::components::WidgetComponent>(buttonEntity);
@@ -298,7 +307,7 @@ namespace se::editor::ui
         });
         world->AddChild(fileEntity, buttonEntity);
 
-        ecs::Id imageEntity = world->CreateEntity("Image", true);
+        ecs::Id imageEntity = world->CreateEntity(editor->GetEditorScene(), "Image");
         auto imageRect = world->AddComponent<se::ui::components::RectTransformComponent>(imageEntity);
         imageRect->anchors = { .left = 0.f, .right = 1.f, .top = 0.f, .bottom = 1.f };
         imageRect->maxY = 20;
@@ -329,7 +338,7 @@ namespace se::editor::ui
 
         world->AddChild(fileEntity, imageEntity);
 
-        auto labelEntity = world->CreateEntity("Text", true);
+        auto labelEntity = world->CreateEntity(editor->GetEditorScene(), "Text");
         auto labelText = world->AddComponent<se::ui::components::TextComponent>(labelEntity);
         labelText->font = font;
         labelText->fontSize = 14;

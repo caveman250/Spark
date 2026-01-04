@@ -13,13 +13,14 @@
 
 namespace se::editor
 {
-    ecs::Id AddSplitView(const ecs::Id& window1,
+    ecs::Id AddSplitView(const ecs::Id& scene,
+        const ecs::Id& window1,
         const ecs::Id& window2,
         const se::ui::components::SplitViewDirection dir,
         const float sliderVal)
     {
         auto world = Application::Get()->GetWorld();
-        ecs::Id splitView = world->CreateEntity("SplitView", true);
+        ecs::Id splitView = world->CreateEntity(scene, "SplitView");
         auto splitViewComp = world->AddComponent<se::ui::components::SplitViewComponent>(splitView);
         splitViewComp->dir = dir;
         splitViewComp->sliderPos = sliderVal;
@@ -41,7 +42,7 @@ namespace se::editor
             window->docked = true;
         }
 
-        splitViewComp->sliderEntity = world->CreateEntity("Slider", true);
+        splitViewComp->sliderEntity = world->CreateEntity(scene, "Slider");
         world->AddComponent<se::ui::components::RectTransformComponent>(splitViewComp->sliderEntity);
         world->AddComponent<se::ui::components::WidgetComponent>(splitViewComp->sliderEntity);
         static std::shared_ptr<render::Material> bgMaterial = nullptr;
@@ -74,6 +75,9 @@ namespace se::editor
 
         OnViewportSizeChanged(1280, 720);
 
+        auto world = Application::Get()->GetWorld();
+        m_EditorScene = world->CreateScene("Editor");
+
         m_OutlineWindow = new ui::OutlineWindow(this);
         m_OutlineWindow->ConstructUI();
 
@@ -89,17 +93,20 @@ namespace se::editor
         m_AssetBrowserWindow = new ui::AssetBrowserWindow(this);
         m_AssetBrowserWindow->ConstructUI();
 
-        ecs::Id splitView1 = AddSplitView(m_OutlineWindow->GetWindow(),
+        ecs::Id splitView1 = AddSplitView(m_EditorScene,
+            m_OutlineWindow->GetWindow(),
             m_ViewportWindow->GetWindow(),
             se::ui::components::SplitViewDirection::Horizontal,
             0.3f);
 
-         ecs::Id splitView2 = AddSplitView(splitView1,
+         ecs::Id splitView2 = AddSplitView(m_EditorScene,
+             splitView1,
              m_AssetBrowserWindow->GetWindow(),
              se::ui::components::SplitViewDirection::Vertical,
              0.6f);
 
-         AddSplitView(splitView2,
+         AddSplitView(m_EditorScene,
+             splitView2,
              m_PropertiesWindow->GetWindow(),
              se::ui::components::SplitViewDirection::Horizontal,
              0.7f);
@@ -124,7 +131,12 @@ namespace se::editor
     {
     }
 
-    ecs::Id EditorRuntime::GetSelectedEntity() const
+    const ecs::Id& EditorRuntime::GetEditorScene() const
+    {
+        return m_EditorScene;
+    }
+
+    const ecs::Id& EditorRuntime::GetSelectedEntity() const
     {
         return m_SelectedEntity;
     }

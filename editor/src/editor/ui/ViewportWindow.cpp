@@ -45,6 +45,7 @@ namespace se::editor::ui
     {
         auto app = Application::Get();
         auto world = app->GetWorld();
+        auto editor = app->GetEditorRuntime();
 
         se::ui::components::RectTransformComponent *windowTransform;
         se::ui::components::WindowComponent *windowComp;
@@ -57,14 +58,14 @@ namespace se::editor::ui
                                                 "Viewport",
                                                 [this]()
                                                 { DestroyUI(); },
-                                                true);
+                                                editor->GetEditorScene());
         windowTransform->anchors = {0.f, 0.f, 0.f, 0.f};
         windowTransform->minX = 310;
         windowTransform->maxX = 850;
         windowTransform->minY = 20;
         windowTransform->maxY = 380;
 
-        m_Viewport = world->CreateEntity("Viewport Image", true);
+        m_Viewport = world->CreateEntity(editor->GetEditorScene(), "Viewport Image");
         auto imageTransform = world->AddComponent<se::ui::components::RectTransformComponent>(m_Viewport);
         imageTransform->anchors = { .left = 0.f, .right = 1.f, .top = 0.f, .bottom = 1.f };
         world->AddComponent<se::ui::components::WidgetComponent>(m_Viewport);
