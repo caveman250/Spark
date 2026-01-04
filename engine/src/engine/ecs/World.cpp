@@ -580,7 +580,7 @@ namespace se::ecs
         type->Serialize(&saveData, root, {});
 
         auto json = db->ToJson();
-        io::VFS::Get().WriteText("/assets/test/scene.json", json.dump(4));
+        io::VFS::Get().WriteText(path, json.dump(4));
     }
 
     void RecurseWidgetChildren(World* world, const Id& entity, nlohmann::ordered_json& parentJson)
