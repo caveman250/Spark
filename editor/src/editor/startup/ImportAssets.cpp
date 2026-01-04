@@ -13,8 +13,10 @@ namespace se::editor::startup
         ProcessDir("/source_assets", "/assets");
         ProcessDir("/engine_source_assets", "/engine_assets");
 
+#if !SPARK_EDITOR
         io::VFS::Get().Unmount("/source_assets");
         io::VFS::Get().Unmount("/engine_source_assets");
+#endif
     }
 
     void ImportAssets::ProcessDir(const std::string& dir, const std::string& outputDir) const
