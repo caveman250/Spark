@@ -10,8 +10,11 @@
 #include "SystemUpdateData.h"
 #include <easy/profiler.h>
 #include "engine/ecs/components/ParentComponent.h"
-#include "SystemUtil.h"
 #include "ecs_fwd.h"
+#include "EntityRecord.h"
+#include "ComponentRecord.h"
+#include "SceneRecord.h"
+#include "SystemRecord.h"
 
 #if SPARK_EDITOR
 #include "editor/ui/PropertiesWindow.h"
@@ -58,28 +61,6 @@ namespace se::ecs
     class SignalActionBuilder;
     class BaseSignal;
 
-    struct EntityRecord
-    {
-        Archetype* archetype;
-        size_t entity_idx; // index/row of entity in component data
-        Id parent = s_InvalidEntity;
-        std::vector<Id> children = { };
-    };
-
-    typedef size_t ArchetypeComponentKey; // index of the Component for the given archetype
-    using ComponentArchetypeRecord = std::unordered_map<Id, ArchetypeComponentKey>; // Component Keys for each archetype that contains the component
-    struct ComponentRecord
-    {
-        reflect::Class* type;
-        ComponentArchetypeRecord archetypeRecords;
-    };
-
-    struct SystemRecord
-    {
-        reflect::Class* type = nullptr;
-        System* instance = nullptr;
-    };
-
     class World
     {
 #if SPARK_EDITOR
@@ -102,6 +83,9 @@ namespace se::ecs
         void DumpWidgetHeirachy();
 
         Id CreateEntity(const std::string& name,
+                        bool editorOnly = false);
+        Id CreateEntity(SceneId scene,
+                        const std::string& name,
                         bool editorOnly = false);
         void DestroyEntity(const Id& entity);
         std::vector<Id> GetEntities() const;
@@ -160,8 +144,11 @@ namespace se::ecs
         Id CreateObserver();
         void DestroyObserver(const Id& id);
 
+        Id CreateScene(const std::string& name);
+
         const std::string* GetName(uint64_t id) const;
         int32_t* GetFlags(uint64_t id);
+        const Id* GetScene(uint64_t id) const;
 
     private:
         bool IsRunning() const { return m_Running; }
@@ -198,15 +185,15 @@ namespace se::ecs
 
         template<typename Func>
         void HeirachyQuery(const Id& child,
-                       const System* system,
-                       const HeirachyQueryDeclaration& declaration,
-                       Func&& func);
+                           const System* system,
+                           const HeirachyQueryDeclaration& declaration,
+                           Func&& func);
 
         template<typename Func>
         void ParentQuery(const Id& entity,
-               const System* system,
-               const HeirachyQueryDeclaration& declaration,
-               Func&& func);
+                         const System* system,
+                         const HeirachyQueryDeclaration& declaration,
+                         Func&& func);
 
         template<typename Func>
         bool RecursiveChildEach(const Id& entity,
@@ -221,7 +208,7 @@ namespace se::ecs
                              Func&& func);
 
         static bool ValidateHeirachyQuery(const System* system,
-                                       const HeirachyQueryDeclaration& declaration);
+                                          const HeirachyQueryDeclaration& declaration);
 
         void RunOnAllSystems(const std::function<void(const Id&)>& func,
                              const std::vector<std::vector<Id>>& systems,
@@ -261,8 +248,8 @@ namespace se::ecs
         void* GetComponent(const Id& entity,
                            const Id& component);
 
-        uint32_t NewEntity();
-        uint32_t RecycleEntity();
+        uint64_t NewEntity();
+        uint64_t RecycleEntity();
         void DestroyEntityInternal(const Id& entity);
         size_t MoveEntity(const Id& entity,
                           Archetype* archetype,
@@ -299,22 +286,24 @@ namespace se::ecs
         std::unordered_map<Id, Archetype> m_Archetypes = { };
         std::unordered_map<Type, Id> m_ArchetypeTypeLookup = { };
         std::unordered_map<Id, EntityRecord> m_EntityRecords = { };
+        std::unordered_map<Id, SceneRecord> m_SceneRecords = { };
         std::unordered_map<Id, ComponentRecord> m_ComponentRecords = { };
         std::unordered_map<Id, reflect::ObjectBase*> m_SingletonComponents = { };
         std::unordered_map<Id, SystemRecord> m_AppSystems = { };
         std::unordered_map<Id, SystemRecord> m_EngineSystems = { };
         std::unordered_map<Id, std::unordered_map<Id, std::shared_ptr<BaseObserver>>> m_Observers;
 
-        uint32_t m_EntityCounter = 1;
+        uint64_t m_EntityCounter = 1;
 #if SPARK_EDITOR
         bool m_EntitiesChangedThisFrame = false;
 #endif
-        std::vector<uint32_t> m_FreeEntities = { };
+        std::vector<uint64_t> m_FreeEntities = { };
         uint32_t m_ComponentCounter = 0;
         uint64_t m_SystemCounter = 1;
         uint64_t m_ArchetypeCounter = 0;
         uint64_t m_ObserverCounter = 1;
         std::vector<Id> m_FreeObservers = { };
+        Id m_DefaultScene = s_InvalidEntity;
 
         std::vector<std::vector<Id>> m_AppSystemUpdateGroups = { };
         std::vector<std::vector<Id>> m_EngineSystemUpdateGroups = { };
@@ -339,8 +328,9 @@ namespace se::ecs
 
         struct IdMetaData
         {
-            std::string name;
-            int32_t flags;
+            std::string name = {};
+            int32_t flags = {};
+            Id scene = {};
         };
 
         std::unordered_map<uint64_t, IdMetaData> m_IdMetaMap;
@@ -511,7 +501,7 @@ namespace se::ecs
             updateData.AddSingletonComponent(compUsage.id, m_SingletonComponents.at(compUsage.id), compUsage.mutability);
         }
 
-        for (const auto& child : GetChildren(entity))
+        for (const auto& child: GetChildren(entity))
         {
             updateData.ClearEntityData();
             std::vector entities = { child };
@@ -560,9 +550,9 @@ namespace se::ecs
 
     template<typename Func>
     void World::HeirachyQuery(const Id& child,
-        [[maybe_unused]] const System* system,
-        const HeirachyQueryDeclaration& declaration,
-        Func&& func)
+                              [[maybe_unused]] const System* system,
+                              const HeirachyQueryDeclaration& declaration,
+                              Func&& func)
     {
 #if !SPARK_DIST
         if (!ValidateHeirachyQuery(system, declaration))
@@ -577,23 +567,23 @@ namespace se::ecs
             updateData.AddSingletonComponent(compUsage.id, m_SingletonComponents.at(compUsage.id), compUsage.mutability);
         }
         updateData.SetEntities({ child });
-        for (const auto& comp : declaration.componentUsage)
+        for (const auto& comp: declaration.componentUsage)
         {
             updateData.AddComponentArray(comp.id,
-                GetComponent(child, comp.id),
-                comp.mutability);
+                                         GetComponent(child, comp.id),
+                                         comp.mutability);
         }
 
         bool didFindVariant = declaration.variantComponentUsage.components.empty();
         if (!didFindVariant)
         {
-            for (const auto& comp : declaration.variantComponentUsage.components)
+            for (const auto& comp: declaration.variantComponentUsage.components)
             {
                 if (HasComponent(child, comp))
                 {
                     updateData.AddComponentArray(comp,
-                        GetComponent(comp, child),
-                        declaration.variantComponentUsage.mutability);
+                                                 GetComponent(comp, child),
+                                                 declaration.variantComponentUsage.mutability);
                     didFindVariant = true;
                     break;
                 }
@@ -602,8 +592,8 @@ namespace se::ecs
         if (!didFindVariant)
         {
             updateData.AddComponentArray(s_InvalidEntity,
-                    nullptr,
-                    ComponentMutability::Immutable);
+                                         nullptr,
+                                         ComponentMutability::Immutable);
         }
 
         func(updateData);
@@ -611,9 +601,9 @@ namespace se::ecs
 
     template<typename Func>
     void World::ParentQuery(const Id& entity,
-        const System* system,
-        const HeirachyQueryDeclaration& declaration,
-        Func&& func)
+                            const System* system,
+                            const HeirachyQueryDeclaration& declaration,
+                            Func&& func)
     {
         Id parent = GetParent(entity);
         if (parent == s_InvalidEntity)
@@ -691,7 +681,6 @@ namespace se::ecs
         }
         m_PendingComponentDeletions.push_back(std::make_pair(entity, T::GetComponentId()));
     }
-
 
 
     template<EngineSystemConcept T>

@@ -15,8 +15,6 @@ namespace se::ui::util
                                    bool withBackground,
                                    bool editorOnly)
     {
-        auto assetManager = asset::AssetManager::Get();
-
         auto entity = world->CreateEntity("Collapsing Header", editorOnly);
         auto rect = world->AddComponent<RectTransformComponent>(entity);
         rect->overridesChildSizes = true;

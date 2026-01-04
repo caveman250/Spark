@@ -1,17 +1,17 @@
 #include "World.h"
 
-#include "engine/container_util/MapUtil.h"
 
-#include "engine/ecs/Signal.h"
+#include <easy/profiler.h>
 #include "components/ParentComponent.h"
 #include "components/RootComponent.h"
-#include "engine/reflect/Reflect.h"
-#include "engine/ecs/System.h"
-#include <easy/profiler.h>
-#include "engine/render/Renderer.h"
 #include "engine/bits/FlagUtil.h"
+#include "engine/container_util/MapUtil.h"
+#include "engine/ecs/Signal.h"
+#include "engine/ecs/System.h"
 #include "engine/io/VFS.h"
+#include "engine/reflect/Reflect.h"
 #include "engine/reflect/Util.h"
+#include "engine/render/Renderer.h"
 #include "engine/threads/ParallelForEach.h"
 #include "engine/ui/components/RectTransformComponent.h"
 
@@ -19,8 +19,15 @@ namespace se::ecs
 {
     Id World::CreateEntity(const std::string& name, bool editorOnly)
     {
+        return CreateEntity(m_DefaultScene, name, editorOnly);
+    }
+
+    Id World::CreateEntity(SceneId scene,
+        const std::string& name,
+        bool editorOnly)
+    {
         auto guard = MaybeLockGuard(m_UpdateMode, &m_EntityMutex);
-        uint32_t entityId;
+        uint64_t entityId;
 
         if (!m_FreeEntities.empty())
         {
@@ -40,7 +47,7 @@ namespace se::ecs
         int32_t flags = 0;
         if (editorOnly)
         {
-            bits::SetFlag<IdFlags>(flags, IdFlags::Editor);
+            bits::SetFlag(flags, IdFlags::Editor);
         }
 #if SPARK_EDITOR
         else
@@ -49,7 +56,7 @@ namespace se::ecs
         }
 #endif
 
-        m_IdMetaMap[entityId] = {name, flags};
+        m_IdMetaMap[entityId] = { name, flags, scene };
         auto emptyArchetype = GetArchetype({}, true);
         SPARK_ASSERT(!m_EntityRecords.contains(entityId));
         [[maybe_unused]] auto result = m_EntityRecords.insert(std::make_pair(entityId, EntityRecord
@@ -57,6 +64,7 @@ namespace se::ecs
                                                   .archetype = emptyArchetype,
                                                   .entity_idx = 0 // not valid for null archetype
                                               }));
+        m_SceneRecords.at(scene).entities.push_back(entityId);
 
         SPARK_ASSERT(result.second);
 
@@ -84,12 +92,12 @@ namespace se::ecs
         m_PendingAppSystemDeletions.push_back(id);
     }
 
-    uint32_t World::NewEntity()
+    uint64_t World::NewEntity()
     {
         return m_EntityCounter++;
     };
 
-    uint32_t World::RecycleEntity()
+    uint64_t World::RecycleEntity()
     {
         const auto entity = m_FreeEntities.back();
         m_FreeEntities.pop_back();
@@ -161,6 +169,9 @@ namespace se::ecs
             std::erase(childrenRecord, entity);
         }
 
+        auto& sceneRecord = m_SceneRecords.at(*entity.scene);
+        auto [first, last] = std::ranges::remove(sceneRecord.entities, entity);
+        sceneRecord.entities.erase(first, last);
         std::erase(record.archetype->entities, entity);
         m_EntityRecords.erase(entity);
         m_FreeEntities.push_back(entity);
@@ -684,8 +695,18 @@ namespace se::ecs
         return &m_IdMetaMap.at(id).flags;
     }
 
+    const Id* World::GetScene(uint64_t id) const
+    {
+        if (id == s_InvalidEntity || !m_IdMetaMap.contains(id))
+        {
+            return nullptr;
+        }
+
+        return &m_IdMetaMap.at(id).scene;
+    }
+
     void World::CollectArchetypes(const std::vector<ComponentUsage>& components,
-                           std::set<Archetype*>& archetypes)
+                                  std::set<Archetype*>& archetypes)
     {
         Type type = {};
         for (const auto& comp: components)
@@ -1056,6 +1077,35 @@ namespace se::ecs
             const auto [first, last] = std::ranges::remove(m_PendingSignals, signal);
             m_PendingSignals.erase(first, last);
         }
+    }
+
+    Id World::CreateScene(const std::string& name)
+    {
+        uint64_t sceneId;
+        if (!m_FreeEntities.empty())
+        {
+            sceneId = RecycleEntity();
+        }
+        else
+        {
+            sceneId = NewEntity();
+        }
+
+        if (sceneId == s_InvalidEntity)
+        {
+            SPARK_ASSERT(false, "Max number of scenes reached.");
+            return s_InvalidEntity;
+        }
+
+        if (m_DefaultScene == s_InvalidEntity)
+        {
+            m_DefaultScene = sceneId;
+        }
+
+        m_IdMetaMap[sceneId] = { name, 0, 0 };
+        m_SceneRecords[sceneId] = { };
+
+        return sceneId;
     }
 
     const std::vector<Id>& World::GetChildren(const Id& entity) const

@@ -7,6 +7,7 @@ namespace se::ecs
         : id(_id)
         , name(Application::Get()->GetWorld() ? Application::Get()->GetWorld()->GetName(id) : nullptr)
         , flags(Application::Get()->GetWorld() ? Application::Get()->GetWorld()->GetFlags(id) : nullptr)
+        , scene(Application::Get()->GetWorld() ? Application::Get()->GetWorld()->GetScene(id) : nullptr)
     {
     }
 
@@ -14,6 +15,7 @@ namespace se::ecs
         : id(_id.id)
         , name(_id.name)
         , flags(_id.flags)
+        , scene(_id.scene)
     {
 
     }
@@ -22,6 +24,7 @@ namespace se::ecs
         : id(_id.id)
         , name(_id.name)
         , flags(_id.flags)
+        , scene(_id.scene)
     {
     }
 
@@ -30,6 +33,7 @@ namespace se::ecs
         id = rhs.id;
         name = rhs.name;
         flags = rhs.flags;
+        scene = rhs.scene;
         return *this;
     }
 }

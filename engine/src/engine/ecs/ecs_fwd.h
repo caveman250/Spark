@@ -46,6 +46,7 @@ namespace se::ecs
         uint64_t id = 0;
         const std::string* name = nullptr;
         int32_t* flags = nullptr;
+        const Id* scene = nullptr;
     };
 
     struct NullComponentType

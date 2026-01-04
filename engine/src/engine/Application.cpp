@@ -42,6 +42,8 @@ namespace se
         io::VFS::Get().Mount(std::format("{}/{}", ENGINE_DIR, "built"), "/engine_assets");
         io::VFS::Get().Mount(std::format("{}/{}", APP_DIR, "built"), "/assets");
 
+        m_World.CreateScene("Default");
+
         RegisterComponents(&m_World);
         engine_InitClassReflection();
 
