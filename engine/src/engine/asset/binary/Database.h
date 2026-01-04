@@ -13,6 +13,7 @@ namespace se::asset::binary
     public:
         static std::shared_ptr<Database> Create(bool readOnly);
         ~Database();
+        [[nodiscard]] uint32_t GetStruct(const std::string& name);
         [[nodiscard]] uint32_t GetOrCreateStruct(const std::string& name, const StructLayout& structLayout);
         std::string GetStructName(uint32_t structIndex);
         char* GetStructData(uint32_t structIndex);
@@ -40,6 +41,7 @@ namespace se::asset::binary
         static std::shared_ptr<Database> Load(const std::string& path, bool readOnly);
         void Save(const std::string& path);
         nlohmann::ordered_json ToJson();
+        static std::shared_ptr<Database> FromJson(const nlohmann::ordered_json& json);
 
     private:
         explicit Database(bool readOnly);

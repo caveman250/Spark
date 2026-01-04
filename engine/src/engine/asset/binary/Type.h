@@ -27,5 +27,6 @@ namespace se::asset::binary
     };
 
     std::string TypeToString(Type type);
+    Type TypeFromString(const std::string& type);
     uint32_t GetTypeSize(Type type);
 }

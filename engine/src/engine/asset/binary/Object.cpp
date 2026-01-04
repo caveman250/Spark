@@ -319,4 +319,143 @@ namespace se::asset::binary
 
         return ret;
     }
+
+    void Object::FromJson(const nlohmann::json& json)
+    {
+        auto objStruct = GetStruct();
+        auto fieldCount = objStruct.GetFieldCount();
+        for (uint32_t i = 0; i < fieldCount; ++i)
+        {
+            auto fieldName = objStruct.GetFieldName(i);
+            auto fieldType = objStruct.GetFieldType(i);
+
+            switch (fieldType)
+            {
+            case Type::Bool:
+                Set<bool>(fieldName, json[fieldName]);
+                break;
+            case Type::Int8:
+                Set<int8_t>(fieldName, json[fieldName]);
+                break;
+            case Type::Uint8:
+                Set<uint8_t>(fieldName, json[fieldName]);
+                break;
+            case Type::Int16:
+                Set<int16_t>(fieldName, json[fieldName]);
+                break;
+            case Type::Uint16:
+                Set<uint16_t>(fieldName, json[fieldName]);
+                break;
+            case Type::Int32:
+                Set<int32_t>(fieldName, json[fieldName]);
+                break;
+            case Type::Uint32:
+                Set<uint32_t>(fieldName, json[fieldName]);
+                break;
+            case Type::Int64:
+                Set<int64_t>(fieldName, json[fieldName]);
+                break;
+            case Type::Uint64:
+                Set<uint64_t>(fieldName, json[fieldName]);
+                break;
+            case Type::Float:
+                Set<float>(fieldName, json[fieldName]);
+                break;
+            case Type::Double:
+                Set<double>(fieldName, json[fieldName]);
+                break;
+            case Type::Vec2:
+            {
+                const auto vecJson = json[fieldName];
+                Set<math::Vec2>(fieldName, math::Vec2(vecJson["x"], vecJson["y"]));
+                break;
+            }
+            case Type::Vec3:
+            {
+                const auto vecJson = json[fieldName];
+                Set<math::Vec3>(fieldName, math::Vec3(vecJson["x"], vecJson["y"], vecJson["z"]));
+                break;
+            }
+            case Type::Vec4:
+            {
+                const auto vecJson = json[fieldName];
+                Set<math::Vec4>(fieldName, math::Vec4(vecJson["x"], vecJson["y"], vecJson["z"], vecJson["w"]));
+                break;
+            }
+            case Type::Object:
+            {
+                const auto& db = GetDatabase();
+                const std::string& structName = json[fieldName].items().begin().key();
+                uint32_t structIndex = db->GetStruct(structName);
+                Object obj = GetDatabase()->CreateObject(structIndex);
+                obj.FromJson(json[fieldName][structName]);
+                Set<Object>(fieldName, obj);
+                break;
+            }
+            case Type::String:
+                Set<std::string>(fieldName, json[fieldName]);
+                break;
+            case Type::Blob:
+            {
+                const auto& array = json[fieldName];
+                char* temp = new char[array.size()];
+                for (int i = 0; i < array.size(); ++i)
+                {
+                    int lol = array[i];
+                    temp[i] = static_cast<char>(lol);
+                }
+                const auto& db = GetDatabase();
+                Set<Blob>(fieldName, db->CreateBlob(temp, array.size()));
+                delete[] temp;
+            }
+            case Type::Array:
+            {
+                const auto& array = json[fieldName];
+                const auto& db = GetDatabase();
+                if (array.size() > 0)
+                {
+                    const std::string& structName = array[0].items().begin().key();
+                    uint32_t structIndex = db->GetStruct(structName);
+                    Array arrayObj = GetDatabase()->CreateArray(structIndex, array.size());
+                    for (size_t i = 0; i < array.size(); ++i)
+                    {
+                        nlohmann::ordered_json itemJson = array[i];
+                        arrayObj.Get(i).FromJson(itemJson[structName]);
+                    }
+
+                    Set<Array>(fieldName, arrayObj);
+                }
+                else
+                {
+                    uint32_t structIndex = db->GetOrCreateStruct("EmptyStruct", {});
+                    Array arrayObj = GetDatabase()->CreateArray(structIndex, 0);
+                    Set<Array>(fieldName, arrayObj);
+                }
+                break;
+            }
+            case Type::PolymorphicArray:
+            {
+                const auto& array = json[fieldName];
+                const auto& db = GetDatabase();
+
+                PolymorphicArray arrayObj = GetDatabase()->CreatePolymorphicArray(array.size());
+                for (size_t i = 0; i < array.size(); ++i)
+                {
+                    nlohmann::ordered_json itemJson = array[i];
+                    const std::string& structName = array[i].items().begin().key();
+                    uint32_t structIndex = db->GetStruct(structName);
+                    Object obj = db->CreateObject(structIndex);
+                    obj.FromJson(itemJson[structName]);
+                    arrayObj.Set(i, obj);
+                }
+
+                Set<PolymorphicArray>(fieldName, arrayObj);
+                break;
+            }
+            case Type::Invalid:
+                SPARK_ASSERT(false);
+                break;
+            }
+        }
+    }
 }

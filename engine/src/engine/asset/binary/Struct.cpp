@@ -2,6 +2,7 @@
 
 #include "Database.h"
 #include "Object.h"
+#include "engine/reflect/Containers.h"
 
 namespace se::asset::binary
 {
@@ -45,6 +46,20 @@ namespace se::asset::binary
         }
 
         return offset;
+    }
+
+    void Struct::FromJson(Database* db,
+        const nlohmann::json& json)
+    {
+        auto first_item = json.items().begin();
+        const auto& name = first_item.key();
+        const auto& layoutJson = first_item.value();
+        StructLayout layout = {};
+        for (const auto& item : layoutJson.items())
+        {
+            layout.push_back(std::make_pair(CreateFixedString64(item.key().c_str()), TypeFromString(item.value())));
+        }
+        std::ignore = db->GetOrCreateStruct(name, layout);
     }
 
     nlohmann::json Struct::ToJson() const

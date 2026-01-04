@@ -25,6 +25,7 @@ namespace se::asset::binary
         uint32_t CalcObjectSize() const;
         uint32_t GetFieldOffset(uint32_t fieldIndex) const;
 
+        static void FromJson(Database* db, const nlohmann::json& json);
         nlohmann::json ToJson() const;
 
     private:

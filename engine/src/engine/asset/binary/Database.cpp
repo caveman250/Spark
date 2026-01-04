@@ -44,6 +44,16 @@ namespace se::asset::binary
         }
     }
 
+    uint32_t Database::GetStruct(const std::string& name)
+    {
+        if (SPARK_VERIFY(m_StructCache.contains(name)))
+        {
+            return m_StructCache.at(name);
+        }
+
+        return std::numeric_limits<uint32_t>::max();
+    }
+
     void Database::CreateStructData(const std::string& name, const std::vector<std::pair<FixedString64, Type>>& structLayout, void* createAt)
     {
         char* structData = static_cast<char*>(createAt);
@@ -244,6 +254,25 @@ namespace se::asset::binary
         ret["root"] = GetRoot().ToJson();
 
         return ret;
+    }
+
+    std::shared_ptr<Database> Database::FromJson(const nlohmann::ordered_json& json)
+    {
+        std::shared_ptr<Database> db = Create(false);
+        const auto& structs = json["structs"];
+        for (const auto& jsonStruct : structs)
+        {
+            Struct::FromJson(db.get(), jsonStruct);
+        }
+
+        const auto& rootJson = json["root"];
+        const auto& firstValue = rootJson.items().begin();
+        const auto& rootStructName = firstValue.key();
+        uint32_t rootStructIndex = db->m_StructCache[rootStructName];
+        db->SetRootStruct(rootStructIndex);
+        db->GetRoot().FromJson(rootJson[rootStructName]);
+
+        return db;
     }
 
     std::shared_ptr<Database> Database::Load(const std::string& path, bool readOnly)

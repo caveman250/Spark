@@ -51,6 +51,89 @@ namespace se::asset::binary
         }
     }
 
+    Type TypeFromString(const std::string& type)
+    {
+        if (type == "bool")
+        {
+            return Type::Bool;
+        }
+        if (type == "Int8")
+        {
+            return Type::Int8;
+        }
+        if (type == "Uint8")
+        {
+            return Type::Uint8;
+        }
+        if (type == "Int16")
+        {
+            return Type::Int16;
+        }
+        if (type == "Uint16")
+        {
+            return Type::Uint16;
+        }
+        if (type == "Int32")
+        {
+            return Type::Int32;
+        }
+        if (type == "Uint32")
+        {
+            return Type::Uint32;
+        }
+        if (type == "Int64")
+        {
+            return Type::Int64;
+        }
+        if (type == "Uint64")
+        {
+            return Type::Uint64;
+        }
+        if (type == "Float")
+        {
+            return Type::Float;
+        }
+        if (type == "Double")
+        {
+            return Type::Double;
+        }
+        if (type == "Vec2")
+        {
+            return Type::Vec2;
+        }
+        if (type == "Vec3")
+        {
+            return Type::Vec3;
+        }
+        if (type == "Vec4")
+        {
+            return Type::Vec4;
+        }
+        if (type == "Object")
+        {
+            return Type::Object;
+        }
+        if (type == "String")
+        {
+            return Type::String;
+        }
+        if (type == "Blob")
+        {
+            return Type::Blob;
+        }
+        if (type == "Array")
+        {
+            return Type::Array;
+        }
+        if (type == "PolymorphicArray")
+        {
+            return Type::PolymorphicArray;
+        }
+
+        SPARK_ASSERT(false);
+        return Type::Invalid;
+    }
+
     uint32_t GetTypeSize(Type type)
     {
         switch (type)
