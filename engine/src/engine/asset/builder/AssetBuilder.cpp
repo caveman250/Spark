@@ -5,16 +5,18 @@
 #include "TextureBlueprint.h"
 #include "FBXBlueprint.h"
 #include "FontBlueprint.h"
+#include "JsonBlueprint.h"
 #include "ShaderBlueprint.h"
 
 namespace se::asset::builder
 {
-    std::array<std::unique_ptr<Blueprint>, 4> s_AssetBlueprints =
+    std::array<std::unique_ptr<Blueprint>, 5> s_AssetBlueprints =
     {
         std::make_unique<TextureBlueprint>(),
         std::make_unique<FBXBlueprint>(),
         std::make_unique<ShaderBlueprint>(),
-        std::make_unique<FontBlueprint>()
+        std::make_unique<FontBlueprint>(),
+        std::make_unique<JsonBlueprint>()
     };
 
     std::vector<BuiltAsset> AssetBuilder::ProcessAsset(const std::string& assetPath, const std::string& outputPath, meta::MetaData& meta)
