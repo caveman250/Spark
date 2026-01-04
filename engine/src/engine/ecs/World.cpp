@@ -138,6 +138,10 @@ namespace se::ecs
 
 #if SPARK_EDITOR
         auto editorRuntime = Application::Get()->GetEditorRuntime();
+        if (entity == editorRuntime->GetSelectedEntity())
+        {
+            editorRuntime->SelectEntity(s_InvalidEntity);
+        }
         const auto& scene = m_IdMetaMap[entity].scene;
         if (scene != editorRuntime->GetEditorScene())
         {
@@ -516,6 +520,32 @@ namespace se::ecs
         ProcessAllPending();
     }
 
+    Id World::LoadScene(const std::string& path)
+    {
+        return s_InvalidEntity;
+    }
+
+    void World::UnloadScene(const Id& scene)
+    {
+        auto it = m_SceneRecords.find(scene);
+        if (!SPARK_VERIFY(it != m_SceneRecords.end()))
+        {
+            return;
+        }
+
+        for (const Id& entity : it->second.entities)
+        {
+            if (HasComponent<components::RootComponent>(entity))
+            {
+                DestroyEntity(entity);
+            }
+        }
+    }
+
+    void World::SaveScene(const std::string& path)
+    {
+    }
+
     void RecurseWidgetChildren(World* world, const Id& entity, nlohmann::ordered_json& parentJson)
     {
         for (const auto& child: world->GetChildren(entity))
@@ -533,35 +563,6 @@ namespace se::ecs
                 parentJson["children"].push_back(json);
             }
         }
-    }
-
-    void World::DumpWidgetHeirachy()
-    {
-        nlohmann::ordered_json result;
-
-        std::vector<ComponentUsage> usage = {};
-        usage.push_back(ComponentUsage(components::RootComponent::GetComponentId(), ComponentMutability::Immutable));
-        usage.push_back(ComponentUsage(ui::components::RectTransformComponent::GetComponentId(), ComponentMutability::Immutable));
-        Each(usage, {}, [this, &result](const SystemUpdateData& updateData)
-        {
-            const auto& entities = updateData.GetEntities();
-            const auto* rectTransforms = updateData.GetComponentArray<const ui::components::RectTransformComponent>();
-
-            for (size_t i = 0; i < entities.size(); ++i)
-            {
-                const auto& entity = entities[i];
-                auto db = reflect::SerialiseType<ui::components::RectTransformComponent>(rectTransforms + i);
-                nlohmann::ordered_json json;
-                auto dbJson = db->ToJson();
-                json["id"] = entity.id;
-                json["name"] = entity.name->data();
-                json["rect"] = dbJson["root"];
-                RecurseWidgetChildren(this, entity, json);
-                result["root_widgets"].push_back(json);
-            }
-        }, false);
-
-        io::VFS::Get().WriteText("/Users/ouchqt/widgets.json", result.dump(4));
     }
 
     void World::RebuildSystemUpdateGroups(std::vector<std::vector<Id>>& updateGroups,

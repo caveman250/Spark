@@ -80,7 +80,9 @@ namespace se::ecs
         void Render();
         void Shutdown();
 
-        void DumpWidgetHeirachy();
+        Id LoadScene(const std::string& path);
+        void UnloadScene(const Id& scene);
+        void SaveScene(const std::string& path);
 
         Id CreateEntity(const std::string& name);
         Id CreateEntity(const Id& scene,

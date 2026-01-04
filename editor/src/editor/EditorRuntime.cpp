@@ -114,6 +114,17 @@ namespace se::editor
 
     void EditorRuntime::Update()
     {
+        if (m_SelectedEntity != m_LastSelectedEntity ||
+            m_SelectedAsset != m_LastSelectedAsset ||
+            m_SelectedSingletonComp != m_LastSelectedSingletonComp)
+        {
+            m_LastSelectedEntity = m_SelectedEntity;
+            m_LastSelectedAsset = m_SelectedAsset;
+            m_LastSelectedSingletonComp = m_SelectedSingletonComp;
+
+            m_PropertiesWindow->RebuildProperties();
+        }
+
         m_PropertiesWindow->Update();
         m_ViewportWindow->Update();
     }
@@ -146,7 +157,6 @@ namespace se::editor
         m_SelectedEntity = id;
         m_SelectedSingletonComp = nullptr;
         m_SelectedAsset = nullptr;
-        m_PropertiesWindow->RebuildProperties();
     }
 
     reflect::ObjectBase* EditorRuntime::GetSelectedSingletonComponent() const
@@ -159,7 +169,6 @@ namespace se::editor
         m_SelectedEntity = ecs::s_InvalidEntity;
         m_SelectedSingletonComp = comp;
         m_SelectedAsset = nullptr;
-        m_PropertiesWindow->RebuildProperties();
     }
 
     void EditorRuntime::OnEntitiesChanged() const
@@ -186,6 +195,5 @@ namespace se::editor
         m_SelectedEntity = ecs::s_InvalidEntity;
         m_SelectedSingletonComp = nullptr;
         m_SelectedAsset = asset;
-        m_PropertiesWindow->RebuildProperties();
     }
 }

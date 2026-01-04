@@ -51,9 +51,12 @@ namespace se::editor
 
         ecs::Id m_EditorScene = ecs::s_InvalidEntity;
 
+        ecs::Id m_LastSelectedEntity = ecs::s_InvalidEntity;
         ecs::Id m_SelectedEntity = ecs::s_InvalidEntity;
         reflect::ObjectBase* m_SelectedSingletonComp = nullptr;
+        reflect::ObjectBase* m_LastSelectedSingletonComp = nullptr;
         std::shared_ptr<asset::Asset> m_SelectedAsset = nullptr;
+        std::shared_ptr<asset::Asset> m_LastSelectedAsset = nullptr;
 
         size_t m_OffscreenRenderGroup = 0;
         std::shared_ptr<render::FrameBuffer> m_FrameBuffer = nullptr;
