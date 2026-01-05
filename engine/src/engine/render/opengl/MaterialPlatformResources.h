@@ -2,9 +2,10 @@
 
 #include "spark.h"
 #include "engine/render/MaterialPlatformResources.h"
-#include "GL/glew.h"
 
 #if OPENGL_RENDERER
+
+#include "GL/glew.h"
 
 namespace se::render::opengl
 {

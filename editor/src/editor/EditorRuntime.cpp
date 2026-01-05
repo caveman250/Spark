@@ -86,7 +86,7 @@ namespace se::editor
 
         m_ViewportWindow = new ui::ViewportWindow(this, [this](int x, int y)
         {
-            //OnViewportSizeChanged(x, y);
+            OnViewportSizeChanged(x, y);
         });
         m_ViewportWindow->ConstructUI();
 
