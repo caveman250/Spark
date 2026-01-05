@@ -36,6 +36,7 @@ namespace se::ui::systems
                                        components::KeyInputComponent& keyInput,
                                        input::Key key)
     {
+#if SPARK_EDITOR
         switch (key)
         {
             case input::Key::Space:
@@ -326,10 +327,12 @@ namespace se::ui::systems
             case input::Key::Unknown:
                 break;
         }
+#endif
     }
 
     void EditableTextSystem::OnUpdate(const ecs::SystemUpdateData& updateData)
     {
+#if SPARK_EDITOR
         const auto& entities = updateData.GetEntities();
         auto* textComps = updateData.GetComponentArray<components::EditableTextComponent>();
         const auto* transformComps = updateData.GetComponentArray<const components::RectTransformComponent>();
@@ -397,10 +400,12 @@ namespace se::ui::systems
                 }
             }
         }
+#endif
     }
 
     void EditableTextSystem::OnRender(const ecs::SystemUpdateData& updateData)
     {
+#if SPARK_EDITOR
         EASY_BLOCK("EditableTextSystem::OnRender");
 
         auto app = Application::Get();
@@ -433,5 +438,6 @@ namespace se::ui::systems
                              renderComp,
                              text.inEditMode ? text.editText : text.text);
         }
+#endif
     }
 }

@@ -24,6 +24,7 @@ namespace se::ui::components
 
 namespace se::ui::util
 {
+#if SPARK_EDITOR
     ecs::Id CreateEditableText(ecs::World* world,
                                const std::shared_ptr<asset::Font>& font,
                                int fontSize,
@@ -52,4 +53,5 @@ namespace se::ui::util
 
     void SetCaretPos(EditableTextComponent& textComp,
                      int pos);
+#endif
 }

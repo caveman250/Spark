@@ -3,7 +3,8 @@
 #include "spark.h"
 #include "engine/asset/texture/Texture.h"
 #include "engine/ecs/Signal.h"
-#include "engine/reflect/Object.h"
+#include "engine/ecs/Component.h"
+#include "engine/asset/AssetReference.h"
 
 namespace se::ui::systems
 {
