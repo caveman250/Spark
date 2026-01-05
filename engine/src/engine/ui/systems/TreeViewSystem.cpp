@@ -7,8 +7,6 @@
 
 namespace se::ui::systems
 {
-    constexpr int s_Padding = 2;
-
     ecs::SystemDeclaration TreeViewSystem::GetSystemDeclaration()
     {
         return ecs::SystemDeclaration("TreeViewSystem")

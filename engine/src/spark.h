@@ -24,7 +24,7 @@
 #include <cfloat>
 #include <mutex>
 #include <variant>
-#include <variant>
+#include <bitset>
 
 #include "json.hpp"
 

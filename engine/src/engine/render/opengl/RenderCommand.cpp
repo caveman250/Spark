@@ -52,6 +52,11 @@ namespace se::render::commands
 
     void PushScissor::Execute()
     {
+        if (m_Rect.size.x <= 0 || m_Rect.size.y <= 0)
+        {
+            return;
+        }
+
         auto primaryWindow = Application::Get()->GetWindow();
         glEnable(GL_SCISSOR_TEST);
         GL_CHECK_ERROR()

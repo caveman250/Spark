@@ -324,7 +324,7 @@ namespace se::ecs
                 }
             }
 
-            for (size_t i = 0; i < archetype->type.size(); ++i)
+            for (size_t i = 0; i < archetype->typeVector.size(); ++i)
             {
                 auto& compInfo = m_ComponentRecords[archetype->typeVector[i]];
                 compInfo.archetypeRecords.erase(archetype->id);

@@ -2,7 +2,7 @@
 
 #include "spark.h"
 #include "engine/math/math.h"
-#include "engine/reflect/Reflect.h"
+#include "engine/ecs/Component.h"
 
 namespace se::render::components
 {

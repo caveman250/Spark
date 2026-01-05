@@ -404,13 +404,13 @@ namespace se::asset::binary
             {
                 const auto& array = json[fieldName];
                 char* temp = new char[array.size()];
-                for (int i = 0; i < array.size(); ++i)
+                for (int j = 0; j < array.size(); ++j)
                 {
-                    int lol = array[i];
-                    temp[i] = static_cast<char>(lol);
+                    int lol = array[j];
+                    temp[j] = static_cast<char>(lol);
                 }
                 const auto& db = GetDatabase();
-                Set<Blob>(fieldName, db->CreateBlob(temp, array.size()));
+                Set<Blob>(fieldName, db->CreateBlob(temp, static_cast<uint32_t>(array.size())));
                 delete[] temp;
             }
             case Type::Array:
@@ -421,10 +421,10 @@ namespace se::asset::binary
                 const std::string& structName = array["struct"];
                 uint32_t structIndex = db->GetStruct(structName);
                 Array arrayObj = GetDatabase()->CreateArray(structIndex, arrayContents.size());
-                for (size_t i = 0; i < arrayContents.size(); ++i)
+                for (size_t j = 0; j < arrayContents.size(); ++j)
                 {
-                    nlohmann::ordered_json itemJson = arrayContents[i];
-                    arrayObj.Get(i).FromJson(itemJson[structName]);
+                    nlohmann::ordered_json itemJson = arrayContents[j];
+                    arrayObj.Get(j).FromJson(itemJson[structName]);
                 }
 
                 Set<Array>(fieldName, arrayObj);
@@ -436,14 +436,14 @@ namespace se::asset::binary
                 const auto& db = GetDatabase();
 
                 PolymorphicArray arrayObj = GetDatabase()->CreatePolymorphicArray(array.size());
-                for (size_t i = 0; i < array.size(); ++i)
+                for (size_t j = 0; j < array.size(); ++j)
                 {
-                    nlohmann::ordered_json itemJson = array[i];
-                    const std::string& structName = array[i].items().begin().key();
+                    nlohmann::ordered_json itemJson = array[j];
+                    const std::string& structName = array[j].items().begin().key();
                     uint32_t structIndex = db->GetStruct(structName);
                     Object obj = db->CreateObject(structIndex);
                     obj.FromJson(itemJson[structName]);
-                    arrayObj.Set(i, obj);
+                    arrayObj.Set(j, obj);
                 }
 
                 Set<PolymorphicArray>(fieldName, arrayObj);

@@ -4,6 +4,7 @@
 #include "engine/asset/AssetReference.h"
 #include "engine/reflect/Reflect.h"
 #include "engine/asset/mesh/Model.h"
+#include "engine/render/MaterialInstance.h"
 #include "engine/ecs/Component.h"
 
 namespace se::render
@@ -15,7 +16,7 @@ namespace se::render
 
 namespace se::ecs::components
 {
-    struct MeshComponent : ecs::Component
+    struct MeshComponent : Component
     {
         SPARK_COMPONENT()
 

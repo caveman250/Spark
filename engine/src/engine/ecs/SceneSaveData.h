@@ -1,6 +1,7 @@
 #pragma once 
 
 #include "spark.h"
+#include "engine/asset/Asset.h"
 
 namespace se::ecs 
 {

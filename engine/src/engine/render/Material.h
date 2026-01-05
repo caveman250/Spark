@@ -33,8 +33,8 @@ namespace se::render
         virtual void DestroyPlatformResources();
         void SetRenderState(const RenderState& state);
         ShaderSettings& GetShaderSettings();
-
         const RenderState& GetRenderState() const { return m_RenderState; }
+        const std::shared_ptr<MaterialPlatformResources>& GetPlatformResources() const { return m_PlatformResources; }
 
         template <typename T>
         void SetUniform(const std::string& name, asset::shader::ast::AstType type, int count, const T* value);

@@ -3,7 +3,7 @@
 #include "KeyEvent.h"
 #include "MouseEvent.h"
 #include "spark.h"
-#include "engine/reflect/Reflect.h"
+#include "engine/ecs/Component.h"
 
 namespace se::input
 {

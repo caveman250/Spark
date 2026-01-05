@@ -136,7 +136,7 @@ namespace se::asset::shader
                     else if constexpr (std::is_same_v<T, math::Vec4>)
                         ReplaceSettingReferenceWithConstant(shader, node.get(), name, arg);
                     else
-                        static_assert(false, "Unhandled Shader Setting Value type!");
+                        SPARK_ASSERT(false, "Unhandled Shader Setting Value type!");
                 }, value);
             }
 

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "engine/ecs/Component.h"
 #include "engine/math/Mat4.h"
 #include "engine/math/Mat3.h"
 

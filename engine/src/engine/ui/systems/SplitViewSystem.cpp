@@ -67,21 +67,21 @@ namespace se::ui::systems
         {
             rectTransform.rect.topLeft = splitViewTransform.rect.topLeft;
             rectTransform.rect.size.x = splitViewTransform.rect.size.x;
-            rectTransform.rect.size.y = splitViewTransform.rect.size.y * splitView.sliderPos - s_Padding;
+            rectTransform.rect.size.y = static_cast<int>(splitViewTransform.rect.size.y * splitView.sliderPos - s_Padding);
         }
         else if (child == splitView.sliderEntity)
         {
             auto entity1Height = splitViewTransform.rect.size.y * splitView.sliderPos;
-            rectTransform.rect.topLeft = splitViewTransform.rect.topLeft + math::IntVec2(0, entity1Height - s_Padding);
+            rectTransform.rect.topLeft = splitViewTransform.rect.topLeft + math::IntVec2(0, static_cast<int>(entity1Height - s_Padding));
             rectTransform.rect.size.x = splitViewTransform.rect.size.x;
             rectTransform.rect.size.y = s_Padding * 2;
         }
         else if (child == splitView.entity2)
         {
             auto entity1Height = splitViewTransform.rect.size.y * splitView.sliderPos;
-            rectTransform.rect.topLeft = splitViewTransform.rect.topLeft + math::IntVec2(0, entity1Height + s_Padding);
+            rectTransform.rect.topLeft = splitViewTransform.rect.topLeft + math::IntVec2(0, static_cast<int>(entity1Height + s_Padding));
             rectTransform.rect.size.x = splitViewTransform.rect.size.x;
-            rectTransform.rect.size.y = splitViewTransform.rect.size.y - entity1Height;
+            rectTransform.rect.size.y = splitViewTransform.rect.size.y - static_cast<int>(entity1Height);
         }
     }
 
@@ -93,21 +93,21 @@ namespace se::ui::systems
         if (child == splitView.entity1)
         {
             rectTransform.rect.topLeft = splitViewTransform.rect.topLeft;
-            rectTransform.rect.size.x = splitViewTransform.rect.size.x * splitView.sliderPos - s_Padding;
+            rectTransform.rect.size.x = static_cast<int>(splitViewTransform.rect.size.x * splitView.sliderPos - s_Padding);
             rectTransform.rect.size.y = splitViewTransform.rect.size.y;
         }
         else if (child == splitView.sliderEntity)
         {
             auto entity1Width = splitViewTransform.rect.size.x * splitView.sliderPos;
-            rectTransform.rect.topLeft = splitViewTransform.rect.topLeft + math::IntVec2(entity1Width - s_Padding, 0);
+            rectTransform.rect.topLeft = splitViewTransform.rect.topLeft + math::IntVec2(static_cast<int>(entity1Width - s_Padding), 0);
             rectTransform.rect.size.x = s_Padding * 2;
             rectTransform.rect.size.y = splitViewTransform.rect.size.y;
         }
         else if (child == splitView.entity2)
         {
             auto entity1Width = splitViewTransform.rect.size.x * splitView.sliderPos;
-            rectTransform.rect.topLeft = splitViewTransform.rect.topLeft + math::IntVec2(entity1Width + s_Padding, 0);
-            rectTransform.rect.size.x = splitViewTransform.rect.size.x - entity1Width;
+            rectTransform.rect.topLeft = splitViewTransform.rect.topLeft + math::IntVec2(static_cast<int>(entity1Width + s_Padding), 0);
+            rectTransform.rect.size.x = static_cast<int>(splitViewTransform.rect.size.x - entity1Width);
             rectTransform.rect.size.y = splitViewTransform.rect.size.y;
         }
     }

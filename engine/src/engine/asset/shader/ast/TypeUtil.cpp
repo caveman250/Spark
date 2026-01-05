@@ -26,6 +26,8 @@ namespace se::asset::shader::ast
                 return "void";
             case AstType::Sampler2D:
                 return "sampler2D";
+            case AstType::Sampler2DReference:
+                return "sampler2D";
             case AstType::Bool:
                 return "bool";
             default:

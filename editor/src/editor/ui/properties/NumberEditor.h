@@ -187,7 +187,7 @@ namespace se::editor::ui::properties
             }
             else
             {
-                static_assert(false);
+                SPARK_ASSERT(false);
             }
         };
         editableText->onComitted.Subscribe(std::move(cb));

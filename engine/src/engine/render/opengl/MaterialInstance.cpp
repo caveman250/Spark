@@ -1,6 +1,9 @@
 #include "MaterialInstance.h"
 
-#include "Material.h"
+#include "engine/render/Material.h"
+#include "MaterialPlatformResources.h"
+#include "engine/asset/shader/ast/TypeUtil.h"
+#include "engine/render/Material.h"
 
 #if OPENGL_RENDERER
 
@@ -24,9 +27,6 @@ namespace se::render::opengl
     void MaterialInstance::Bind(const VertexBuffer& vb)
     {
         render::MaterialInstance::Bind(vb);
-
-        glUseProgram(m_CompiledProgram);
-        GL_CHECK_ERROR()
 
         for (size_t i = 0; i < m_Textures.size(); ++i)
         {
@@ -84,36 +84,6 @@ namespace se::render::opengl
 
     void MaterialInstance::CreatePlatformResources()
     {
-        auto material = static_cast<Material*>(m_Material.get());
-
-        m_CompiledProgram = glCreateProgram();
-        glAttachShader(m_CompiledProgram, material->GetVertexShader());
-        GL_CHECK_ERROR()
-        glAttachShader(m_CompiledProgram, material->GetFragmentShader());
-        GL_CHECK_ERROR()
-        glLinkProgram(m_CompiledProgram);
-        GL_CHECK_ERROR()
-
-        // Check the program
-        GLint Result = GL_FALSE;
-        int InfoLogLength;
-        glGetProgramiv(m_CompiledProgram, GL_LINK_STATUS, &Result);
-        GL_CHECK_ERROR()
-        glGetProgramiv(m_CompiledProgram, GL_INFO_LOG_LENGTH, &InfoLogLength);
-        GL_CHECK_ERROR()
-        if (InfoLogLength > 0)
-        {
-            std::vector<char> ProgramErrorMessage(InfoLogLength + 1);
-            glGetProgramInfoLog(m_CompiledProgram, InfoLogLength, NULL, &ProgramErrorMessage[0]);
-            GL_CHECK_ERROR()
-            debug::Log::Error("{0}", &ProgramErrorMessage[0]);
-        }
-
-        glDetachShader(m_CompiledProgram, material->GetVertexShader());
-        GL_CHECK_ERROR()
-        glDetachShader(m_CompiledProgram, material->GetFragmentShader());
-        GL_CHECK_ERROR()
-
         render::MaterialInstance::CreatePlatformResources();
     }
 
@@ -121,12 +91,7 @@ namespace se::render::opengl
     {
         render::MaterialInstance::DestroyPlatformResources();
 
-        if (m_CompiledProgram != GL_INVALID_VALUE)
-        {
-            glDeleteProgram(m_CompiledProgram);
-            GL_CHECK_ERROR()
-            m_CompiledProgram = GL_INVALID_VALUE;
-        }
+
     }
 
     void MaterialInstance::SetUniformInternal(const std::string &name,
@@ -139,13 +104,15 @@ namespace se::render::opengl
             return;
         }
 
+        auto platformResources = std::static_pointer_cast<opengl::MaterialPlatformResources>(m_Material->GetPlatformResources());
 
-        glUseProgram(m_CompiledProgram);
+
+        glUseProgram(platformResources->GetProgramID());
         GL_CHECK_ERROR()
         GLuint uniformLoc = {};
         if (type != asset::shader::ast::AstType::Sampler2D)
         {
-            uniformLoc = glGetUniformLocation(m_CompiledProgram, name.data());
+            uniformLoc = glGetUniformLocation(platformResources->GetProgramID(), name.data());
             GL_CHECK_ERROR()
         }
 
@@ -184,6 +151,22 @@ namespace se::render::opengl
                 SPARK_ASSERT(count == 1, "Setting arrays of texture uniforms not supported.");
                 const auto& texture = *reinterpret_cast<const std::shared_ptr<asset::Texture>*>(value);
                 const auto& platformResource = texture->GetPlatformResource();
+                auto it = std::ranges::find_if(m_Textures, [name](const auto& kvp){ return kvp.first == name; });
+                if (it != m_Textures.end())
+                {
+                    it->second = platformResource;
+                }
+                else
+                {
+                    m_Textures.push_back(std::make_pair(name, platformResource));
+                }
+                break;
+            }
+            case asset::shader::ast::AstType::Sampler2DReference:
+            {
+                SPARK_ASSERT(count == 1, "Setting arrays of texture uniforms not supported.");
+                const auto* texture = reinterpret_cast<const asset::AssetReference<asset::Texture>*>(value);
+                const auto& platformResource = texture->GetAsset()->GetPlatformResource();
                 auto it = std::ranges::find_if(m_Textures, [name](const auto& kvp){ return kvp.first == name; });
                 if (it != m_Textures.end())
                 {

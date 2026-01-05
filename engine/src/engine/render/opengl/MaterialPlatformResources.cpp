@@ -1,71 +1,41 @@
-#include "Material.h"
-
-#include "engine/asset/shader/ast/ShaderCompileContext.h"
+#include "MaterialPlatformResources.h"
 
 #if OPENGL_RENDERER
 
-#include "engine/asset/shader/compiler/ShaderCompiler.h"
-#include "engine/asset/shader/ast/Types.h"
-#include "engine/asset/shader/ast/TypeUtil.h"
-#include "TextureResource.h"
-
 namespace se::render
 {
-    std::shared_ptr<Material> Material::CreateMaterial(const std::vector<std::shared_ptr<asset::Shader>>& vertShaders,
-                                                        const std::vector<std::shared_ptr<asset::Shader>>& fragShaders)
-    {
-        return std::make_shared<opengl::Material>(vertShaders, fragShaders);
-    }
+	std::shared_ptr<MaterialPlatformResources> Material::CreateMaterialPlatformResources()
+	{
+		return std::make_shared<opengl::MaterialPlatformResources>();
+	}
 }
 
 namespace se::render::opengl
 {
-    Material::Material(const std::vector<std::shared_ptr<asset::Shader>>& vertShaders,
-                        const std::vector<std::shared_ptr<asset::Shader>>& fragShaders)
-        : render::Material(vertShaders, fragShaders)
+    void MaterialPlatformResources::Bind()
     {
+        glUseProgram(m_CompiledProgram);
+        GL_CHECK_ERROR()
     }
 
-    void Material::Bind(const render::VertexBuffer& vb)
+    void MaterialPlatformResources::CreatePlatformResources(const std::string& vert,
+                                                            const std::string& frag,
+                                                            const RenderState& rs)
     {
-        render::Material::Bind(vb);
-        // nothing to do
-    }
-
-    void Material::CreatePlatformResources(const render::VertexBuffer& vb)
-    {
-        SPARK_ASSERT(m_VertexShader == GL_INVALID_VALUE && m_FragmentShader == GL_INVALID_VALUE);
-
-        asset::shader::ast::ShaderCompileContext context;
-
-        std::optional<std::string> vert = asset::shader::ShaderCompiler::GeneratePlatformShader(m_VertShaders, m_ShaderSettings, vb, context);
-        std::optional<std::string> frag = asset::shader::ShaderCompiler::GeneratePlatformShader(m_FragShaders, m_ShaderSettings, vb, context);
-
-        if (!vert.has_value() || !frag.has_value())
-        {
-            return;
-        }
-        else
-        {
-            //debug::Log::Info("Result Vert Shader:\n {}", vert.value());
-            debug::Log::Info("Result Frag Shader:\n {}", frag.value());
-        }
-
-        // Create the shaders
         m_VertexShader = glCreateShader(GL_VERTEX_SHADER);
         GL_CHECK_ERROR()
         m_FragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
         GL_CHECK_ERROR()
 
-        char const *VertexSourcePointer = vert.value().c_str();
+        char const *VertexSourcePointer = vert.c_str();
         glShaderSource(m_VertexShader, 1, &VertexSourcePointer, NULL);
         GL_CHECK_ERROR()
         glCompileShader(m_VertexShader);
         GL_CHECK_ERROR()
 
-        GLint Result = GL_FALSE;
+        GLint result = GL_FALSE;
         int InfoLogLength;
-        glGetShaderiv(m_VertexShader, GL_COMPILE_STATUS, &Result);
+        glGetShaderiv(m_VertexShader, GL_COMPILE_STATUS, &result);
         GL_CHECK_ERROR()
         glGetShaderiv(m_VertexShader, GL_INFO_LOG_LENGTH, &InfoLogLength);
         GL_CHECK_ERROR()
@@ -78,13 +48,13 @@ namespace se::render::opengl
         }
 
         // Compile Fragment Shader
-        char const *FragmentSourcePointer = frag.value().c_str();
+        char const *FragmentSourcePointer = frag.c_str();
         glShaderSource(m_FragmentShader, 1, &FragmentSourcePointer, NULL);
         GL_CHECK_ERROR()
         glCompileShader(m_FragmentShader);
         GL_CHECK_ERROR()
 
-        glGetShaderiv(m_FragmentShader, GL_COMPILE_STATUS, &Result);
+        glGetShaderiv(m_FragmentShader, GL_COMPILE_STATUS, &result);
         GL_CHECK_ERROR()
         glGetShaderiv(m_FragmentShader, GL_INFO_LOG_LENGTH, &InfoLogLength);
         GL_CHECK_ERROR()
@@ -96,10 +66,34 @@ namespace se::render::opengl
             debug::Log::Error("{0}", &FragmentShaderErrorMessage[0]);
         }
 
-        render::Material::CreatePlatformResources(vb);
+        m_CompiledProgram = glCreateProgram();
+        glAttachShader(m_CompiledProgram, m_VertexShader);
+        GL_CHECK_ERROR()
+        glAttachShader(m_CompiledProgram, m_FragmentShader);
+        GL_CHECK_ERROR()
+        glLinkProgram(m_CompiledProgram);
+        GL_CHECK_ERROR()
+
+        // Check the program
+        glGetProgramiv(m_CompiledProgram, GL_LINK_STATUS, &result);
+        GL_CHECK_ERROR()
+        glGetProgramiv(m_CompiledProgram, GL_INFO_LOG_LENGTH, &InfoLogLength);
+        GL_CHECK_ERROR()
+        if (InfoLogLength > 0)
+        {
+            std::vector<char> ProgramErrorMessage(InfoLogLength + 1);
+            glGetProgramInfoLog(m_CompiledProgram, InfoLogLength, NULL, &ProgramErrorMessage[0]);
+            GL_CHECK_ERROR()
+            debug::Log::Error("{0}", &ProgramErrorMessage[0]);
+        }
+
+        glDetachShader(m_CompiledProgram, m_VertexShader);
+        GL_CHECK_ERROR()
+        glDetachShader(m_CompiledProgram, m_FragmentShader);
+        GL_CHECK_ERROR()
     }
 
-    void Material::DestroyPlatformResources()
+    void MaterialPlatformResources::DestroyPlatformResources()
     {
         if (m_VertexShader != GL_INVALID_VALUE)
         {
@@ -115,12 +109,17 @@ namespace se::render::opengl
             m_FragmentShader = GL_INVALID_VALUE;
         }
 
-        render::Material::DestroyPlatformResources();
+        if (m_CompiledProgram != GL_INVALID_VALUE)
+        {
+            glDeleteProgram(m_CompiledProgram);
+            GL_CHECK_ERROR()
+            m_CompiledProgram = GL_INVALID_VALUE;
+        }
     }
 
-    void Material::ApplyDepthStencil(DepthCompare comp, StencilFunc src, uint32_t writeMask, uint32_t readMask)
+    void MaterialPlatformResources::ApplyDepthStencil(const RenderState& rs)
     {
-        if (comp == DepthCompare::None)
+         if (rs.depthComp == DepthCompare::None)
         {
             glDisable(GL_DEPTH_TEST);
             GL_CHECK_ERROR()
@@ -131,9 +130,9 @@ namespace se::render::opengl
             GL_CHECK_ERROR()
         }
 
-        if (comp != DepthCompare::None)
+        if (rs.depthComp != DepthCompare::None)
         {
-            switch (comp)
+            switch (rs.depthComp)
             {
                 case DepthCompare::Less:
                     glDepthFunc(GL_LESS);
@@ -163,7 +162,7 @@ namespace se::render::opengl
             GL_CHECK_ERROR()
         }
 
-        if (!writeMask && src == StencilFunc::None)
+        if (!rs.stencilWriteMask && rs.stencilFunc == StencilFunc::None)
         {
             glDisable(GL_STENCIL_TEST);
             GL_CHECK_ERROR()
@@ -172,30 +171,30 @@ namespace se::render::opengl
 
         glEnable(GL_STENCIL_TEST);
         GL_CHECK_ERROR()
-        glStencilMask(writeMask);
+        glStencilMask(rs.stencilWriteMask);
         GL_CHECK_ERROR()
-        if (src != StencilFunc::None)
+        if (rs.stencilFunc != StencilFunc::None)
         {
-            switch (src)
+            switch (rs.stencilFunc)
             {
                 case StencilFunc::Less:
-                    glStencilFunc(GL_LESS, 1, readMask);
+                    glStencilFunc(GL_LESS, 1, rs.stencilReadMask);
                     GL_CHECK_ERROR()
                     break;
                 case StencilFunc::LessEqual:
-                    glStencilFunc(GL_LEQUAL, 1, readMask);
+                    glStencilFunc(GL_LEQUAL, 1, rs.stencilReadMask);
                     GL_CHECK_ERROR()
                     break;
                 case StencilFunc::Equal:
-                    glStencilFunc(GL_EQUAL, 1, readMask);
+                    glStencilFunc(GL_EQUAL, 1, rs.stencilReadMask);
                     GL_CHECK_ERROR()
                     break;
                 case StencilFunc::Greater:
-                    glStencilFunc(GL_GREATER, 1, readMask);
+                    glStencilFunc(GL_GREATER, 1, rs.stencilReadMask);
                     GL_CHECK_ERROR()
                     break;
                 case StencilFunc::GreaterEqual:
-                    glStencilFunc(GL_GEQUAL, 1, readMask);
+                    glStencilFunc(GL_GEQUAL, 1, rs.stencilReadMask);
                     GL_CHECK_ERROR()
                     break;
                 case StencilFunc::None:
@@ -236,9 +235,10 @@ namespace se::render::opengl
         }
     }
 
-    void Material::ApplyBlendMode(BlendMode src, BlendMode dst)
+    void MaterialPlatformResources::ApplyBlendMode(BlendMode src,
+        BlendMode dest)
     {
-        if (src == BlendMode::None || dst == BlendMode::None)
+        if (src == BlendMode::None || dest == BlendMode::None)
         {
             glDisable(GL_BLEND);
             GL_CHECK_ERROR()
@@ -250,7 +250,7 @@ namespace se::render::opengl
             GL_CHECK_ERROR()
         }
 
-        glBlendFunc(BlendModeToGLBlendMode(src), BlendModeToGLBlendMode(dst));
+        glBlendFunc(BlendModeToGLBlendMode(src), BlendModeToGLBlendMode(dest));
         GL_CHECK_ERROR()
     }
 }

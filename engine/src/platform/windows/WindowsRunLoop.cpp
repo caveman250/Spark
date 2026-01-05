@@ -33,8 +33,6 @@ namespace se::windows
         while (!ShouldExit())
         {
             Update();
-            PROFILE_BEGIN_FRAME()
-            PROFILE_BEGIN_THREAD()
         }
     }
 
