@@ -523,7 +523,47 @@ namespace se::ecs
 
     Id World::LoadScene(const std::string& path)
     {
-        return s_InvalidEntity;
+        auto db = asset::binary::Database::Load(path, true);
+        auto type = reflect::TypeResolver<SceneSaveData>::get();
+        SceneSaveData obj = {};
+        auto root = db->GetRoot();
+        type->Deserialize(&obj, root, {});
+
+        // TODO Save scene name
+        auto scene = CreateScene("Scene");
+
+        std::unordered_map<uint64_t, Id> idRemap = {};
+        for (const auto& entity : obj.m_Entities)
+        {
+            auto newId = CreateEntity(scene, entity.name);
+            idRemap[entity.entity] = newId;
+            auto& meta = m_IdMetaMap[newId];
+            meta.flags = entity.flags;
+
+            for (auto* component : entity.components)
+            {
+                if (component->GetStaticComponentId() != components::RootComponent::GetComponentId()) // Already added by CreateEntity.
+                {
+                    auto* reflect = component->GetReflectType();
+                    void* tempData = m_TempStore.AllocUninitialized<Component>(reflect->size);
+                    reflect->inplace_copy_constructor(tempData, component);
+                    m_PendingComponentCreations.emplace_back(PendingComponent { .entity = newId, .comp = component->GetStaticComponentId(), .tempData = tempData });
+                }
+
+                delete component;
+            }
+        }
+
+        for (const auto& entity : obj.m_Entities)
+        {
+            const auto& remappedEntity = idRemap[entity.entity];
+            for (auto child : entity.children)
+            {
+                AddChild(remappedEntity, idRemap[child]);
+            }
+        }
+
+        return scene;
     }
 
     void World::UnloadScene(const Id& scene)
@@ -554,7 +594,6 @@ namespace se::ecs
         auto db = asset::binary::Database::Create(false);
         auto type = reflect::TypeResolver<SceneSaveData>::get();
         db->SetRootStruct(db->GetOrCreateStruct(type->GetTypeName(nullptr), type->GetStructLayout(nullptr)));
-
         SceneSaveData saveData = {};
 
         for (const Id& entity : it->second.entities)
@@ -563,17 +602,20 @@ namespace se::ecs
             entityData.entity = entity;
             entityData.name = *entity.name;
             entityData.flags = *entity.flags;
-            entityData.children = GetChildren(entity);
+            for (const auto& child : GetChildren(entity))
+            {
+                entityData.children.push_back(child.id);
+            }
 
             EntityRecord& record = m_EntityRecords.at(entity);
             Archetype* archetype = record.archetype;
             for (const Id& compType : archetype->typeVector)
             {
                 auto* compData = GetComponent(entity, compType);
-                entityData.components.push_back(static_cast<reflect::ObjectBase*>(compData));
+                entityData.components.push_back(static_cast<Component*>(compData));
             }
 
-            saveData.entities.push_back(entityData);
+            saveData.m_Entities.push_back(entityData);
         }
 
         auto root = db->GetRoot();
@@ -1056,7 +1098,14 @@ namespace se::ecs
         record.archetype = next_archetype;
         SPARK_ASSERT(record.archetype);
         void* compData = GetComponent(pendingComp.entity, pendingComp.comp);
-        m_ComponentRecords[pendingComp.comp].type->inplace_copy_constructor(compData, pendingComp.tempData);
+        if (pendingComp.tempData)
+        {
+            m_ComponentRecords[pendingComp.comp].type->inplace_copy_constructor(compData, pendingComp.tempData);
+        }
+        else
+        {
+            m_ComponentRecords[pendingComp.comp].type->inplace_constructor(compData);
+        }
     }
 
     void World::RemoveComponentInternal(const Id& entity, const Id& comp)

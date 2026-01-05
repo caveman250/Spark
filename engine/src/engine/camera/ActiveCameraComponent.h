@@ -5,7 +5,7 @@
 
 namespace se::camera
 {
-    struct ActiveCameraComponent : reflect::ObjectBase
+    struct ActiveCameraComponent : ecs::Component
     {
         SPARK_SINGLETON_COMPONENT();
 

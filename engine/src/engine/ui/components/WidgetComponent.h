@@ -1,12 +1,12 @@
 #pragma once
 
 #include "spark.h"
-#include "engine/reflect/Reflect.h"
+#include "engine/ecs/Component.h"
 #include "engine/ui/Visibility.h"
 
 namespace se::ui::components
 {
-    struct WidgetComponent : reflect::ObjectBase
+    struct WidgetComponent : ecs::Component
     {
         SPARK_COMPONENT()
 

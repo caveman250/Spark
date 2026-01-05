@@ -6,7 +6,7 @@
 
 namespace se::ecs::components
 {
-    struct TransformComponent : reflect::ObjectBase
+    struct TransformComponent : ecs::Component
     {
         SPARK_COMPONENT()
 

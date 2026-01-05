@@ -5,7 +5,7 @@
 namespace se::ui::components
 {
     struct RectTransformComponent;
-    struct ScrollViewComponent : reflect::ObjectBase
+    struct ScrollViewComponent : ecs::Component
     {
         SPARK_WIDGET_COMPONENT()
 

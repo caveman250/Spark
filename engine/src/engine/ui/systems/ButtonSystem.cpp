@@ -54,6 +54,20 @@ namespace se::ui::systems
 
             button.hovered = !button.pressed && mouseEventComp.hovered;
 
+            if (!image.materialInstance)
+            {
+                static auto material = std::make_shared<render::Material>(
+                std::vector{ asset::AssetReference<asset::Shader>("/engine_assets/shaders/ui.sass") },
+                std::vector{ asset::AssetReference<asset::Shader>("/engine_assets/shaders/alpha_texture.sass") });
+                auto rs = render::RenderState();
+                rs.srcBlend = render::BlendMode::SrcAlpha;
+                rs.dstBlend = render::BlendMode::OneMinusSrcAlpha;
+                material->SetRenderState(rs);
+
+                image.materialInstance = render::MaterialInstance::CreateMaterialInstance(material);
+                image.materialInstance->SetUniform("Texture", asset::shader::ast::AstType::Sampler2DReference, 1, &button.image);
+            }
+
             if (button.hovered && !button.lastHovered)
             {
                 image.materialInstance->SetUniform("Texture", asset::shader::ast::AstType::Sampler2DReference, 1, &button.hoveredImage);

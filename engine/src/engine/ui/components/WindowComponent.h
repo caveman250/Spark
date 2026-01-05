@@ -13,7 +13,7 @@ namespace se::ui::components
         Right
     };
 
-    struct WindowComponent : reflect::ObjectBase
+    struct WindowComponent : ecs::Component
     {
         SPARK_WIDGET_COMPONENT()
 

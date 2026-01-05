@@ -6,7 +6,7 @@
 
 namespace se::ui::components
 {
-    struct TreeNodeComponent : reflect::ObjectBase
+    struct TreeNodeComponent : ecs::Component
     {
         SPARK_WIDGET_COMPONENT()
 

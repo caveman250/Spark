@@ -16,7 +16,7 @@ namespace se::ui::systems
 
 namespace se::ui::components
 {
-    struct EditableTextComponent : reflect::ObjectBase
+    struct EditableTextComponent : ecs::Component
     {
         SPARK_WIDGET_COMPONENT()
 

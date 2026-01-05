@@ -2,7 +2,7 @@
 
 namespace se::debug::components
 {
-    struct FPSCounterComponent : reflect::ObjectBase
+    struct FPSCounterComponent : ecs::Component
     {
         SPARK_COMPONENT()
 

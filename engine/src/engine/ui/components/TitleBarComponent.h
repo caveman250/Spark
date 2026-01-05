@@ -12,7 +12,7 @@ namespace se::ui::systems
 
 namespace se::ui::components
 {
-    struct TitleBarComponent : reflect::ObjectBase
+    struct TitleBarComponent : ecs::Component
     {
         SPARK_WIDGET_COMPONENT()
 

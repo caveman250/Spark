@@ -12,15 +12,20 @@ namespace se::ui::systems
 
 namespace se::ui::components
 {
-    struct ButtonComponent : reflect::ObjectBase
+    struct ButtonComponent : ecs::Component
     {
         SPARK_WIDGET_COMPONENT()
 
         bool pressed = false;
         bool hovered = false;
 
+        SPARK_MEMBER(Serialized)
         asset::AssetReference<asset::Texture> image = {};
+
+        SPARK_MEMBER(Serialized)
         asset::AssetReference<asset::Texture> pressedImage = {};
+
+        SPARK_MEMBER(Serialized)
         asset::AssetReference<asset::Texture> hoveredImage = {};
 
         ecs::Signal<> onPressed;

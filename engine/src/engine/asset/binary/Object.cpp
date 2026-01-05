@@ -287,13 +287,18 @@ namespace se::asset::binary
                 }
             case Type::Array:
                 {
-                    nlohmann::ordered_json arrayJson = {};
                     auto array = Get<Array>(fieldName);
+                    nlohmann::ordered_json arrayJson = {};
+                    arrayJson["struct"] = array.GetStruct().GetName();
+
+                    nlohmann::ordered_json arrayContentsJson = {};
+
                     for (size_t j = 0; j < array.GetCount(); ++j)
                     {
                         nlohmann::ordered_json itemJson = array.Get(j).ToJson();
-                        arrayJson.push_back(itemJson);
+                        arrayContentsJson.push_back(itemJson);
                     }
+                    arrayJson["contents"] = arrayContentsJson;
                     obj[fieldName] = arrayJson;
                     break;
                 }
@@ -320,7 +325,7 @@ namespace se::asset::binary
         return ret;
     }
 
-    void Object::FromJson(const nlohmann::json& json)
+    void Object::FromJson(const nlohmann::ordered_json& json)
     {
         auto objStruct = GetStruct();
         auto fieldCount = objStruct.GetFieldCount();
@@ -411,26 +416,18 @@ namespace se::asset::binary
             case Type::Array:
             {
                 const auto& array = json[fieldName];
+                const auto& arrayContents = array["contents"];
                 const auto& db = GetDatabase();
-                if (array.size() > 0)
+                const std::string& structName = array["struct"];
+                uint32_t structIndex = db->GetStruct(structName);
+                Array arrayObj = GetDatabase()->CreateArray(structIndex, arrayContents.size());
+                for (size_t i = 0; i < arrayContents.size(); ++i)
                 {
-                    const std::string& structName = array[0].items().begin().key();
-                    uint32_t structIndex = db->GetStruct(structName);
-                    Array arrayObj = GetDatabase()->CreateArray(structIndex, array.size());
-                    for (size_t i = 0; i < array.size(); ++i)
-                    {
-                        nlohmann::ordered_json itemJson = array[i];
-                        arrayObj.Get(i).FromJson(itemJson[structName]);
-                    }
+                    nlohmann::ordered_json itemJson = arrayContents[i];
+                    arrayObj.Get(i).FromJson(itemJson[structName]);
+                }
 
-                    Set<Array>(fieldName, arrayObj);
-                }
-                else
-                {
-                    uint32_t structIndex = db->GetOrCreateStruct("EmptyStruct", {});
-                    Array arrayObj = GetDatabase()->CreateArray(structIndex, 0);
-                    Set<Array>(fieldName, arrayObj);
-                }
+                Set<Array>(fieldName, arrayObj);
                 break;
             }
             case Type::PolymorphicArray:

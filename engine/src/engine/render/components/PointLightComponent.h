@@ -6,7 +6,7 @@
 
 namespace se::render::components
 {
-    class PointLightComponent : public reflect::ObjectBase
+    struct PointLightComponent : ecs::Component
     {
         SPARK_COMPONENT()
 

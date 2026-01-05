@@ -40,7 +40,7 @@ namespace se::asset::binary
         uint32_t GetOffset() const { return m_Offset; }
 
         nlohmann::ordered_json ToJson() const;
-        void FromJson(const nlohmann::json& json);
+        void FromJson(const nlohmann::ordered_json& json);
 
     private:
         Object(uint32_t offset, Database* database, const Struct& objStruct);

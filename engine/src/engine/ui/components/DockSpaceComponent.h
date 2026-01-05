@@ -11,7 +11,7 @@ namespace se::ui::components
         LeftRight
     };
 
-    struct DockSpaceComponent : reflect::ObjectBase
+    struct DockSpaceComponent : ecs::Component
     {
         SPARK_WIDGET_COMPONENT()
 

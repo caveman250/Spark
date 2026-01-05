@@ -11,7 +11,7 @@ namespace se::ecs
 
 namespace se::ui::components
 {
-    struct GridBoxComponent : reflect::ObjectBase
+    struct GridBoxComponent : ecs::Component
     {
         SPARK_WIDGET_COMPONENT()
 

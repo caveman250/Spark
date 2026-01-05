@@ -563,6 +563,13 @@ def DefineClassBegin(class_name):
     return f"    " + DefineNonPODType(class_name) + DefineClassBeginCommon(class_name, False)
 
 def DefineTemplateClassBegin(class_name, template_types, template_params):
+    create_name = f"s_Reflection->name = \"{class_name}<\";\n"
+    template_types_list = template_types.split(',')
+    for i in range(0, len(template_types_list)):
+        create_name += f"            s_Reflection->name += se::reflect::TypeResolver<{template_types_list[i]}>::get()->name;\n"
+        if i < len(template_types_list) - 1:
+            create_name += "             s_Reflection->name += \", \";\n"
+    create_name += "            s_Reflection->name += \">\";\n"
     return f"""    template <{template_params}>
     size_t {class_name}<{template_types}>::s_StaticId = typeid({class_name}<{template_types}>).hash_code();
     template <{template_params}>
@@ -598,8 +605,8 @@ def DefineTemplateClassBegin(class_name, template_types, template_params):
         {{
             s_Reflection = new se::reflect::TemplatedClass<{template_types}>();
             static_assert(std::is_convertible<{class_name}<{template_types}>*, se::reflect::ObjectBase*>::value, "Reflectable types must inherit from reflect::ObjectBase");
-            s_Reflection->name = \"{class_name}\";
-            se::reflect::TypeLookup::GetTypeMap()[s_Reflection->GetTypeName(nullptr)] = s_Reflection;
+            {create_name}
+            se::reflect::TypeLookup::GetTypeMap()[s_Reflection->name] = s_Reflection;
             s_Reflection->size = sizeof({class_name}<{template_types}>); 
             s_Reflection->heap_constructor = []{{ return new {class_name}<{template_types}>(); }}; 
             s_Reflection->inplace_constructor = [](void* mem){{ return new(mem) {class_name}<{template_types}>(); }}; 

@@ -5,7 +5,7 @@
 
 namespace se::ui::components
 {
-    struct TreeViewComponent : reflect::ObjectBase
+    struct TreeViewComponent : ecs::Component
     {
         SPARK_WIDGET_COMPONENT()
 

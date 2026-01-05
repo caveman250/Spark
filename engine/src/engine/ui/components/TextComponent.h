@@ -20,7 +20,7 @@ namespace se::ui::systems
 
 namespace se::ui::components
 {
-    struct TextComponent : reflect::ObjectBase
+    struct TextComponent : ecs::Component
     {
         SPARK_WIDGET_COMPONENT()
 

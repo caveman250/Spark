@@ -9,7 +9,7 @@
 
 namespace se::ui::components
 {
-    struct ImageComponent : reflect::ObjectBase
+    struct ImageComponent : ecs::Component
     {
         SPARK_WIDGET_COMPONENT()
 

@@ -13,10 +13,8 @@ namespace se::editor::startup
         ProcessDir("/source_assets", "/assets");
         ProcessDir("/engine_source_assets", "/engine_assets");
 
-#if !SPARK_EDITOR
         io::VFS::Get().Unmount("/source_assets");
         io::VFS::Get().Unmount("/engine_source_assets");
-#endif
     }
 
     void ImportAssets::ProcessDir(const std::string& dir, const std::string& outputDir) const
@@ -43,17 +41,17 @@ namespace se::editor::startup
                             outputPath.insert(extensionIt, builtAsset.fileNameSuffix);
                             builtAsset.db->Save(outputPath);
 
-                            //std::string jsonPth = outputPath;
-                            //jsonPth = jsonPth.replace(jsonPth.length() - 5, 5, ".json");
-                            //io::VFS::Get().WriteText(jsonPth, builtAsset.db->ToJson().dump(4));
+                            std::string jsonPth = outputPath;
+                            jsonPth = jsonPth.replace(jsonPth.length() - 5, 5, ".json");
+                            io::VFS::Get().WriteText(jsonPth, builtAsset.db->ToJson().dump(4));
                         }
                         else
                         {
                             builtAsset.db->Save(outputPathBase);
 
-                            //std::string jsonPth = outputPathBase;
-                            //jsonPth = jsonPth.replace(jsonPth.length() - 5, 5, ".json");
-                            //io::VFS::Get().WriteText(jsonPth, builtAsset.db->ToJson().dump(4));
+                            std::string jsonPth = outputPathBase;
+                            jsonPth = jsonPth.replace(jsonPth.length() - 5, 5, ".json");
+                            io::VFS::Get().WriteText(jsonPth, builtAsset.db->ToJson().dump(4));
                         }
                     }
                 }

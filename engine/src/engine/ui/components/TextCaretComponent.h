@@ -1,8 +1,10 @@
 #pragma once
 
+#include "engine/ecs/Component.h"
+
 namespace se::ui::components
 {
-    struct TextCaretComponent : reflect::ObjectBase
+    struct TextCaretComponent : ecs::Component
     {
         SPARK_COMPONENT()
 

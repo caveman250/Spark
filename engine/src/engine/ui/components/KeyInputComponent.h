@@ -3,7 +3,7 @@
 
 namespace se::ui::components
 {
-    struct KeyInputComponent : reflect::ObjectBase
+    struct KeyInputComponent : ecs::Component
     {
         SPARK_COMPONENT()
 

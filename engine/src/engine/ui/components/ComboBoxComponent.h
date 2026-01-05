@@ -5,7 +5,7 @@
 
 namespace se::ui::components
 {
-    struct ComboBoxComponent : reflect::ObjectBase
+    struct ComboBoxComponent : ecs::Component
     {
         SPARK_WIDGET_COMPONENT()
 

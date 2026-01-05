@@ -4,7 +4,7 @@
 
 namespace se::ui::components
 {
-    struct MouseInputComponent : reflect::ObjectBase
+    struct MouseInputComponent : ecs::Component
     {
         SPARK_COMPONENT()
 
@@ -20,13 +20,13 @@ namespace se::ui::components
         SPARK_MEMBER()
         bool lastHovered = false;
 
-        SPARK_MEMBER()
+        SPARK_MEMBER(Serialized)
         int buttonMask = 0xFFFFFFFF;
 
-        SPARK_MEMBER()
+        SPARK_MEMBER(Serialized)
         int stateMask = static_cast<int>(input::KeyState::Up) | static_cast<int>(input::KeyState::Down);
 
-        SPARK_MEMBER()
+        SPARK_MEMBER(Serialized)
         bool receivesScrollEvents = false;
 
         SPARK_MEMBER()

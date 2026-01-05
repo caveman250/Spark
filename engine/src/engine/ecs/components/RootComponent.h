@@ -1,11 +1,11 @@
 #pragma once
 
 #include "spark.h"
-#include "engine/reflect/Reflect.h"
+#include "engine/ecs/Component.h"
 
 namespace se::ecs::components
 {
-    struct RootComponent : reflect::ObjectBase
+    struct RootComponent : ecs::Component
     {
         SPARK_COMPONENT()
     };

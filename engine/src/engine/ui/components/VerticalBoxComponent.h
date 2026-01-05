@@ -1,7 +1,7 @@
 #pragma once
 
 #include "spark.h"
-#include "engine/reflect/Reflect.h"
+#include "engine/ecs/Component.h"
 #include "engine/math/math.h"
 
 namespace se::ecs
@@ -11,7 +11,7 @@ namespace se::ecs
 
 namespace se::ui::components
 {
-    struct VerticalBoxComponent : reflect::ObjectBase
+    struct VerticalBoxComponent : ecs::Component
     {
         SPARK_WIDGET_COMPONENT()
 

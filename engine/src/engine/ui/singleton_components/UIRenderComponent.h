@@ -59,7 +59,7 @@ struct std::hash<se::ui::UILayerKey>
 
 namespace se::ui::singleton_components
 {
-    struct UIRenderComponent : reflect::ObjectBase
+    struct UIRenderComponent : ecs::Component
     {
         SPARK_SINGLETON_COMPONENT()
 

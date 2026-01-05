@@ -9,7 +9,7 @@ namespace se::ecs
         SPARK_CLASS()
 
         SPARK_MEMBER(Serialized)
-        Id entity = {};
+        uint64_t entity = {};
 
         SPARK_MEMBER(Serialized)
         std::string name = {};
@@ -18,17 +18,17 @@ namespace se::ecs
         int32_t flags = {};
 
         SPARK_MEMBER(Serialized)
-        std::vector<Id> children = {};
+        std::vector<uint64_t> children = {};
 
         SPARK_MEMBER(Serialized)
-        std::vector<ObjectBase*> components = {};
+        std::vector<Component*> components = {};
     };
 
-    struct SceneSaveData : reflect::ObjectBase
+    class SceneSaveData : public asset::Asset
     {
         SPARK_CLASS()
 
         SPARK_MEMBER(Serialized)
-        std::vector<SceneEntityData> entities = {};
+        std::vector<SceneEntityData> m_Entities = {};
     };
 }

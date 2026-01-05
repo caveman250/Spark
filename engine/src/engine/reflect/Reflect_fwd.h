@@ -26,19 +26,22 @@
     SPARK_CLASS()     \
     static se::ecs::Id s_ComponentId;\
     static se::ecs::Id GetComponentId() { SPARK_ASSERT(s_ComponentId != static_cast<uint64_t>(0), "GetComponentId called before RegisterComponent"); return s_ComponentId; } \
-    static constexpr bool IsSingletonComponent() { return false; }
+    static constexpr bool IsSingletonComponent() { return false; }\
+    se::ecs::Id GetStaticComponentId() const override { return s_ComponentId; }
 
 #define SPARK_WIDGET_COMPONENT(...) \
     SPARK_CLASS()     \
     static se::ecs::Id s_ComponentId;\
     static se::ecs::Id GetComponentId() { SPARK_ASSERT(s_ComponentId != static_cast<uint64_t>(0), "GetComponentId called before RegisterComponent"); return s_ComponentId; } \
-    static constexpr bool IsSingletonComponent() { return false; }
+    static constexpr bool IsSingletonComponent() { return false; }\
+    se::ecs::Id GetStaticComponentId() const override { return s_ComponentId; }
 
 #define SPARK_SINGLETON_COMPONENT(...) \
     SPARK_CLASS()     \
     static se::ecs::Id s_ComponentId;\
     static se::ecs::Id GetComponentId() { return s_ComponentId; } \
-    static constexpr bool IsSingletonComponent() { return true; }
+    static constexpr bool IsSingletonComponent() { return true; }\
+    se::ecs::Id GetStaticComponentId() const override { return s_ComponentId; }
 
 #define SPARK_SYSTEM(...) \
     SPARK_CLASS()\

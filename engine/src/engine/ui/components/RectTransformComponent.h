@@ -8,7 +8,7 @@
 
 namespace se::ui::components
 {
-    struct RectTransformComponent : reflect::ObjectBase
+    struct RectTransformComponent : ecs::Component
     {
         SPARK_COMPONENT()
 

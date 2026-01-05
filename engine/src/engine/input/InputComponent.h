@@ -7,7 +7,7 @@
 
 namespace se::input
 {
-    struct InputComponent : reflect::ObjectBase
+    struct InputComponent : ecs::Component
     {
         SPARK_SINGLETON_COMPONENT()
 

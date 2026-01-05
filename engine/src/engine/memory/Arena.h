@@ -31,6 +31,9 @@ namespace se::memory
         ~Arena();
         template <typename T, typename... Args>
         T* Alloc(Args &&... args);
+        // useful for allocating via a base class. Does not call new
+        template<typename BaseClass>
+        void* AllocUninitialized(size_t size);
         template <typename T>
         T* Alloc(size_t n);
         void Reset();
@@ -65,6 +68,28 @@ namespace se::memory
         m_ObjectRecordsBegin = record;
 
         return new (item) T(std::forward<Args>(args)...);
+    }
+
+    template<typename BaseClass>
+    void* Arena::AllocUninitialized(size_t size)
+    {
+        if (!SPARK_VERIFY(m_Current + size < m_Capacity))
+        {
+            return nullptr;
+        }
+
+        char* item = m_Arena + m_Current;
+        m_Current += size;
+
+        char* recordMemory = m_Arena + m_Current;
+        ObjectRecordTemplated<BaseClass>* record = new (recordMemory) ObjectRecordTemplated<BaseClass>();
+        m_Current += sizeof(ObjectRecord);
+        record->next = m_ObjectRecordsBegin;
+        record->objects_begin = item;
+        record->objects_count = 1;
+        m_ObjectRecordsBegin = record;
+
+        return item;
     }
 
     template <typename T>

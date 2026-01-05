@@ -12,7 +12,7 @@ namespace se::ui::components
         Horizontal
     };
 
-    struct SplitViewComponent : reflect::ObjectBase
+    struct SplitViewComponent : ecs::Component
     {
         SPARK_WIDGET_COMPONENT()
 

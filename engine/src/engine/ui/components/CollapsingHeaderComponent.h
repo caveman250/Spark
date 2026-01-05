@@ -5,7 +5,7 @@
 
 namespace se::ui::components
 {
-    struct CollapsingHeaderComponent : reflect::ObjectBase
+    struct CollapsingHeaderComponent : ecs::Component
     {
         SPARK_WIDGET_COMPONENT()
 
