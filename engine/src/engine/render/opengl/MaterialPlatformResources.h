@@ -18,7 +18,8 @@ namespace se::render::opengl
             const RenderState& rs) override;
         void DestroyPlatformResources() override;
 
-        GLuint GetProgramID() { return m_CompiledProgram; }
+        GLuint GetVertShader() { return m_VertexShader; }
+        GLuint GetFragShader() { return m_FragmentShader; }
 
     private:
         void ApplyDepthStencil(const RenderState& rs) override;
@@ -26,7 +27,6 @@ namespace se::render::opengl
 
         GLuint m_VertexShader = GL_INVALID_VALUE;
         GLuint m_FragmentShader = GL_INVALID_VALUE;
-        GLuint m_CompiledProgram = GL_INVALID_VALUE;
     };
 }
 

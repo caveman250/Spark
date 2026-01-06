@@ -1,7 +1,7 @@
 #include "OpenGLRenderer.h"
 #if OPENGL_RENDERER
 #include "GL_fwd.h"
-
+#include "engine/Application.h"
 #include "engine/render/RenderCommand.h"
 #include "platform/IWindow.h"
 
@@ -53,6 +53,9 @@ namespace se::render::opengl
 
     void OpenGLRenderer::Render()
     {
+        auto window = Application::Get()->GetWindow();
+        glViewport(0, 0, window->GetWidth(), window->GetHeight());
+
         Renderer::Render();
         glFlush();
         GL_CHECK_ERROR()

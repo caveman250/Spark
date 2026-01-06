@@ -1,7 +1,9 @@
 #include "FrameBuffer.h"
 
+#include "engine/Application.h"
 #include "engine/asset/texture/Texture.h"
 #include "engine/render/opengl/TextureResource.h"
+#include "platform/IWindow.h"
 
 #if OPENGL_RENDERER
 
@@ -39,12 +41,17 @@ namespace se::render::opengl
     {
         glBindFramebuffer(GL_FRAMEBUFFER, m_PlatformResource);
         GL_CHECK_ERROR()
+
+        glViewport(0, 0, m_Size.x, m_Size.y);
     }
 
     void FrameBuffer::UnBind()
     {
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
         GL_CHECK_ERROR()
+
+        auto window = Application::Get()->GetWindow();
+        glViewport(0, 0, window->GetWidth(), window->GetHeight());
     }
 
     void FrameBuffer::Commit()

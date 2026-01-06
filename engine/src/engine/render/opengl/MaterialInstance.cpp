@@ -28,6 +28,9 @@ namespace se::render::opengl
     {
         render::MaterialInstance::Bind(vb);
 
+        glUseProgram(m_CompiledProgram);
+        GL_CHECK_ERROR()
+
         for (size_t i = 0; i < m_Textures.size(); ++i)
         {
             switch (i)
@@ -85,13 +88,48 @@ namespace se::render::opengl
     void MaterialInstance::CreatePlatformResources()
     {
         render::MaterialInstance::CreatePlatformResources();
+
+        MaterialPlatformResources* materialResources = static_cast<MaterialPlatformResources*>(m_Material->GetPlatformResources().get());
+
+        m_CompiledProgram = glCreateProgram();
+        glAttachShader(m_CompiledProgram, materialResources->GetVertShader());
+        GL_CHECK_ERROR()
+        glAttachShader(m_CompiledProgram, materialResources->GetFragShader());
+        GL_CHECK_ERROR()
+        glLinkProgram(m_CompiledProgram);
+        GL_CHECK_ERROR()
+
+        // Check the program
+        GLint result = GL_FALSE;
+        int InfoLogLength;
+        glGetProgramiv(m_CompiledProgram, GL_LINK_STATUS, &result);
+        GL_CHECK_ERROR()
+        glGetProgramiv(m_CompiledProgram, GL_INFO_LOG_LENGTH, &InfoLogLength);
+        GL_CHECK_ERROR()
+        if (InfoLogLength > 0)
+        {
+            std::vector<char> ProgramErrorMessage(InfoLogLength + 1);
+            glGetProgramInfoLog(m_CompiledProgram, InfoLogLength, NULL, &ProgramErrorMessage[0]);
+            GL_CHECK_ERROR()
+            debug::Log::Error("{0}", &ProgramErrorMessage[0]);
+        }
+
+        glDetachShader(m_CompiledProgram, materialResources->GetVertShader());
+        GL_CHECK_ERROR()
+        glDetachShader(m_CompiledProgram, materialResources->GetFragShader());
+        GL_CHECK_ERROR()
     }
 
     void MaterialInstance::DestroyPlatformResources()
     {
         render::MaterialInstance::DestroyPlatformResources();
 
-
+        if (m_CompiledProgram != GL_INVALID_VALUE)
+        {
+            glDeleteProgram(m_CompiledProgram);
+            GL_CHECK_ERROR()
+            m_CompiledProgram = GL_INVALID_VALUE;
+        }
     }
 
     void MaterialInstance::SetUniformInternal(const std::string &name,
@@ -107,12 +145,12 @@ namespace se::render::opengl
         auto platformResources = std::static_pointer_cast<opengl::MaterialPlatformResources>(m_Material->GetPlatformResources());
 
 
-        glUseProgram(platformResources->GetProgramID());
+        glUseProgram(m_CompiledProgram);
         GL_CHECK_ERROR()
         GLuint uniformLoc = {};
         if (type != asset::shader::ast::AstType::Sampler2D)
         {
-            uniformLoc = glGetUniformLocation(platformResources->GetProgramID(), name.data());
+            uniformLoc = glGetUniformLocation(m_CompiledProgram, name.data());
             GL_CHECK_ERROR()
         }
 

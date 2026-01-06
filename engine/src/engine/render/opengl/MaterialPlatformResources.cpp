@@ -14,8 +14,7 @@ namespace se::render::opengl
 {
     void MaterialPlatformResources::Bind()
     {
-        glUseProgram(m_CompiledProgram);
-        GL_CHECK_ERROR()
+
     }
 
     void MaterialPlatformResources::CreatePlatformResources(const std::string& vert,
@@ -65,32 +64,6 @@ namespace se::render::opengl
             GL_CHECK_ERROR()
             debug::Log::Error("{0}", &FragmentShaderErrorMessage[0]);
         }
-
-        m_CompiledProgram = glCreateProgram();
-        glAttachShader(m_CompiledProgram, m_VertexShader);
-        GL_CHECK_ERROR()
-        glAttachShader(m_CompiledProgram, m_FragmentShader);
-        GL_CHECK_ERROR()
-        glLinkProgram(m_CompiledProgram);
-        GL_CHECK_ERROR()
-
-        // Check the program
-        glGetProgramiv(m_CompiledProgram, GL_LINK_STATUS, &result);
-        GL_CHECK_ERROR()
-        glGetProgramiv(m_CompiledProgram, GL_INFO_LOG_LENGTH, &InfoLogLength);
-        GL_CHECK_ERROR()
-        if (InfoLogLength > 0)
-        {
-            std::vector<char> ProgramErrorMessage(InfoLogLength + 1);
-            glGetProgramInfoLog(m_CompiledProgram, InfoLogLength, NULL, &ProgramErrorMessage[0]);
-            GL_CHECK_ERROR()
-            debug::Log::Error("{0}", &ProgramErrorMessage[0]);
-        }
-
-        glDetachShader(m_CompiledProgram, m_VertexShader);
-        GL_CHECK_ERROR()
-        glDetachShader(m_CompiledProgram, m_FragmentShader);
-        GL_CHECK_ERROR()
     }
 
     void MaterialPlatformResources::DestroyPlatformResources()
@@ -107,13 +80,6 @@ namespace se::render::opengl
             glDeleteShader(m_FragmentShader);
             GL_CHECK_ERROR()
             m_FragmentShader = GL_INVALID_VALUE;
-        }
-
-        if (m_CompiledProgram != GL_INVALID_VALUE)
-        {
-            glDeleteProgram(m_CompiledProgram);
-            GL_CHECK_ERROR()
-            m_CompiledProgram = GL_INVALID_VALUE;
         }
     }
 

@@ -14,7 +14,7 @@ namespace se::render::opengl
         void CreatePlatformResources() override;
         void DestroyPlatformResources() override;
 
-
+        GLuint GetProgramID() { return m_CompiledProgram; }
 
     private:
         void SetUniformInternal(const std::string& name,
@@ -23,7 +23,7 @@ namespace se::render::opengl
                                 const void* value) override;
 
         std::vector<std::pair<std::string, std::shared_ptr<render::TextureResource>>> m_Textures;
-
+        GLuint m_CompiledProgram = GL_INVALID_VALUE;
     };
 }
 
