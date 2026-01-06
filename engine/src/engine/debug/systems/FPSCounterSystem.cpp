@@ -55,7 +55,8 @@ namespace se::debug::systems
             {
                 average += fpsCounter.fpsBuffer[j];
             }
-            average /= components::FPSCounterComponent::s_NumFramesToBuffer;
+            constexpr float reciprocal = 1.f / components::FPSCounterComponent::s_NumFramesToBuffer;
+            average *= reciprocal;
 
             text.text = std::format("{:.0f}", std::max(1.f, average));
         }
