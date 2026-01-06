@@ -11,6 +11,12 @@ class Member:
     serialized: bool
     full_type_name: str
 
+@dataclass
+class Function:
+    name: str
+    full_type_name: str
+    arg_types: list
+
 ClassType = Enum('ClassType',
                  [('CLASS', 1),
                            ('COMPONENT', 2),
@@ -30,6 +36,7 @@ class Class:
     dev_only: bool
     editor_only: bool
     members: list
+    functions: list
     is_reflected: bool
     is_template: bool
     template_params: list
@@ -231,7 +238,7 @@ def ProcessNativeClassSecondPass(tag, line, line_before, class_list, class_heira
         class_heirachy_map[GetFullClassName(class_name, namespace_stack)] = FindRealClassType(full_name, class_list, last_namespace_idx, using_namespace_stack)
 
     if len(class_name) > 0:
-        class_stack.append(Class(ClassType.CLASS, class_name, filepath, Namespace.MakeNamespace(namespace_stack), False, False, False, [], False, len(template_params) > 0, template_params, source_dir))
+        class_stack.append(Class(ClassType.CLASS, class_name, filepath, Namespace.MakeNamespace(namespace_stack), False, False, False, [], [], False, len(template_params) > 0, template_params, source_dir))
         class_depth_stack.append(current_scope_depth + 1)
 
 def IsBuiltinPrimitive(type):
@@ -398,6 +405,74 @@ def ProcessTemplateClass(line, lines, class_stack, file_path):
 
     return True
 
+def GetMethodOrVariableType(line, namespace_stack, class_list, using_namespace_stack):
+    line = line.strip()
+
+    start_index = 0
+    if line.startswith("mutable"):
+        start_index += len("mutable")
+    if line.startswith("const"):
+        start_index += len("const")
+
+    end_index = len(line)
+    num_open_template_params = 0
+    has_begun_type = False
+    has_begun_name = False
+    type = ""
+    name = ""
+    for i in range(start_index, end_index):
+        if has_begun_name:
+            if line[i] == ' ' or line[i] == ';' or line[i] == '(':
+                break
+            name += line[i]
+            continue
+        elif not has_begun_type:
+            if line[i] != ' ':
+                has_begun_type = True
+
+        if has_begun_type:
+            if line[i] == ' ' and num_open_template_params == 0:
+                has_begun_name = True
+            else:
+                type += line[i]
+
+        if not has_begun_name:
+            if line[i] == '<':
+                num_open_template_params += 1
+            elif line[i] == '>':
+                num_open_template_params -= 1
+
+    last_namespace_idx = CountNamespaces(Namespace.MakeNamespace(namespace_stack)) - 1
+    member_full_type = GetFullClassName(type, namespace_stack)
+    member_full_type = FindRealClassType(member_full_type, class_list, last_namespace_idx, using_namespace_stack)
+    return name, member_full_type
+
+def GetFunctionArgTypes(line, namespace_stack, class_list, using_namespace_stack):
+    ret = list()
+    last_namespace_idx = CountNamespaces(Namespace.MakeNamespace(namespace_stack)) - 1
+    line = line.strip()
+
+    start_index = 0
+    end_index = 0
+    for i in range(0, len(line)):
+        if line[i] == "(":
+            start_index = i + 1
+        elif line[i] == ")":
+            end_index = i - 1
+            break
+
+    # so fragile, TODO multiline
+    args = line[start_index:end_index]
+    if len(args) > 0:
+        arg_list = args.split(', ')
+        for arg in arg_list:
+            type = arg.split(' ')[0]
+            full_type = GetFullClassName(type, namespace_stack)
+            full_type = FindRealClassType(full_type, class_list, last_namespace_idx, using_namespace_stack)
+            ret.append(full_type)
+
+
+    return ret
 
 def ProcessMember(line, next_line, class_stack, namespace_stack, class_list, using_namespace_stack):
     start_index = len("SPARK_MEMBER") + 1
@@ -416,48 +491,32 @@ def ProcessMember(line, next_line, class_stack, namespace_stack, class_list, usi
             continue
         currentDecorator += line[i]
 
-    next_line = next_line.strip()
-
-    start_index = 0
-    if next_line.startswith("mutable"):
-        start_index += len("mutable")
-    if next_line.startswith("const"):
-        start_index += len("const")
-
-    end_index = len(next_line)
-    num_open_template_params = 0
-    has_begun_type = False
-    has_begun_name = False
-    type = ""
-    name = ""
-    for i in range(start_index, end_index):
-        if has_begun_name:
-            if next_line[i] == ' ' or next_line[i] == ';':
-                break
-            name += next_line[i]
-            continue
-        elif not has_begun_type:
-            if next_line[i] != ' ':
-                has_begun_type = True
-
-        if has_begun_type:
-            if next_line[i] == ' ' and num_open_template_params == 0:
-                has_begun_name = True
-            else:
-                type += next_line[i]
-
-        if not has_begun_name:
-            if next_line[i] == '<':
-                num_open_template_params += 1
-            elif next_line[i] == '>':
-                num_open_template_params -= 1
-
-    last_namespace_idx = CountNamespaces(Namespace.MakeNamespace(namespace_stack)) - 1
-    member_full_type = GetFullClassName(type, namespace_stack)
-    member_full_type = FindRealClassType(member_full_type, class_list, last_namespace_idx, using_namespace_stack)
+    name, member_type = GetMethodOrVariableType(next_line, namespace_stack, class_list, using_namespace_stack)
 
     serialized = decorators.count("Serialized") > 0
-    class_stack[-1].members.append(Member(name, serialized, member_full_type))
+    class_stack[-1].members.append(Member(name, serialized, member_type))
+
+def ProcessFunction(line, next_line, class_stack, namespace_stack, class_list, using_namespace_stack):
+    start_index = len("SPARK_FUNCTION") + 1
+    end_index = len(line)
+    currentDecorator = ""
+    decorators = []
+
+    for i in range(start_index, end_index):
+        if line[i] == ")":
+            if len(currentDecorator) > 0:
+                decorators.append(currentDecorator)
+            break
+        if line[i] == ",":
+            decorators.append(currentDecorator)
+            currentDecorator = ""
+            continue
+        currentDecorator += line[i]
+
+    name, function_type = GetMethodOrVariableType(next_line, namespace_stack, class_list, using_namespace_stack)
+    arg_types = GetFunctionArgTypes(next_line, namespace_stack, class_list, using_namespace_stack)
+
+    class_stack[-1].functions.append(Function(name, function_type, arg_types))
 
 def GetFullnameFromClassObject(class_obj: Class):
     if len(class_obj.namespace) > 0:
@@ -466,29 +525,34 @@ def GetFullnameFromClassObject(class_obj: Class):
 
 def DefineNonPODType(class_name):
     return f"""static_assert(std::is_convertible<{class_name}*, se::reflect::ObjectBase*>::value, "Reflectable types must inherit from reflect::ObjectBase");
-size_t {class_name}::s_StaticId = typeid({class_name}).hash_code();\n"""
+    size_t {class_name}::s_StaticId = typeid({class_name}).hash_code();\n"""
 
 def DefineAbstractClassBegin(class_name):
-    return DefineNonPODType(class_name) + f"""reflect::Type* {class_name}::GetReflectType() const
+    return DefineNonPODType(class_name) + f"""\n    reflect::Type* {class_name}::GetReflectType() const
     {{
         return reflect::TypeResolver<{class_name}>::get();
     }}
+    
     void {class_name}::Serialize(const void* obj, asset::binary::Object& parentObj, const std::string& fieldName)
     {{
         reflect::TypeResolver<{class_name}>::get()->Serialize(obj, parentObj, fieldName);
     }}
+    
     void {class_name}::Deserialize(void* obj, asset::binary::Object& parentObj, const std::string& fieldName)
     {{
         reflect::TypeResolver<{class_name}>::get()->Deserialize(obj, parentObj, fieldName);
     }}
+    
     asset::binary::StructLayout {class_name}::GetStructLayout(const void*) const
     {{
         return reflect::TypeResolver<{class_name}>::get()->GetStructLayout(nullptr);
     }}
+    
     std::string {class_name}::GetTypeName() const
     {{
         return reflect::TypeResolver<{class_name}>::get()->GetTypeName(nullptr);
     }}
+    
     se::reflect::Class* {class_name}::GetReflection()
     {{
         static se::reflect::Class* s_Reflection = nullptr;
@@ -506,35 +570,35 @@ def DefineAbstractClassBegin(class_name):
             s_Reflection->members = {{}};
         }}
         return s_Reflection;
-    }}
-    void {class_name}::InitMembers()
-    {{
-        GetReflection()->members =
-        {{"""
+    }}\n"""
 
 def DefineClassBeginCommon(class_name, is_pod):
     ret = ""
     if not is_pod:
-        ret += f"""    reflect::Type* {class_name}::GetReflectType() const
+        ret += f"""\n    reflect::Type* {class_name}::GetReflectType() const
     {{
         return reflect::TypeResolver<{class_name}>::get();
     }}
+    
     void {class_name}::Serialize(const void* obj, asset::binary::Object& parentObj, const std::string& fieldName)
     {{
         reflect::TypeResolver<{class_name}>::get()->Serialize(obj, parentObj, fieldName);
     }}
+    
     void {class_name}::Deserialize(void* obj, asset::binary::Object& parentObj, const std::string& fieldName)
     {{
         reflect::TypeResolver<{class_name}>::get()->Deserialize(obj, parentObj, fieldName);
     }}
+    
     asset::binary::StructLayout {class_name}::GetStructLayout(const void*) const
     {{
         return reflect::TypeResolver<{class_name}>::get()->GetStructLayout(nullptr);
     }}
+    
     std::string {class_name}::GetTypeName() const
     {{
         return reflect::TypeResolver<{class_name}>::get()->GetTypeName(nullptr);
-    }}\n"""
+    }}\n\n"""
     ret += f"""    se::reflect::Class* {class_name}::GetReflection() 
     {{
         static se::reflect::Class* s_Reflection = nullptr;
@@ -552,12 +616,25 @@ def DefineClassBeginCommon(class_name, is_pod):
             s_Reflection->members = {{}};
         }}
         return s_Reflection;
-    }}
-    void {class_name}::InitMembers()
-    {{
-        GetReflection()->members = 
-        {{\n"""
+    }}\n"""
     return ret
+
+def BeginMembers(class_name):
+    return f"""\n    void {class_name}::InitMembers()
+    {{
+        GetReflection()->members =
+        {{\n"""
+
+def EndMembers():
+    return "        };\n"
+
+def BeginFunctions():
+    return """        GetReflection()->functions =
+        {\n"""
+
+def EndFunctions():
+    return "        };\n    }\n\n"
+
 
 def DefineClassBegin(class_name):
     return f"    " + DefineNonPODType(class_name) + DefineClassBeginCommon(class_name, False)
@@ -572,31 +649,37 @@ def DefineTemplateClassBegin(class_name, template_types, template_params):
     create_name += "            s_Reflection->name += \">\";\n"
     return f"""    template <{template_params}>
     size_t {class_name}<{template_types}>::s_StaticId = typeid({class_name}<{template_types}>).hash_code();
+    
     template <{template_params}>
     reflect::Type* {class_name}<{template_types}>::GetReflectType() const
     {{
         return reflect::TypeResolver<{class_name}<{template_types}>>::get();
     }}
+    
     template <{template_params}>
     void {class_name}<{template_types}>::Serialize(const void* obj, asset::binary::Object& parentObj, const std::string& fieldName) 
     {{
         reflect::TypeResolver<{class_name}<{template_types}>>::get()->Serialize(obj, parentObj, fieldName); 
     }}
+    
     template <{template_params}>
     void {class_name}<{template_types}>::Deserialize(void* obj, asset::binary::Object& parentObj, const std::string& fieldName) 
     {{
         reflect::TypeResolver<{class_name}<{template_types}>>::get()->Deserialize(obj, parentObj, fieldName); 
     }}
+    
     template <{template_params}>
     asset::binary::StructLayout {class_name}<{template_types}>::GetStructLayout(const void*) const 
     {{
         return reflect::TypeResolver<{class_name}<{template_types}>>::get()->GetStructLayout(nullptr); 
     }}
+    
     template <{template_params}>
     std::string {class_name}<{template_types}>::GetTypeName() const 
     {{
         return reflect::TypeResolver<{class_name}<{template_types}>>::get()->GetTypeName(nullptr); 
     }}
+    
     template <{template_params}>
     se::reflect::Class* {class_name}<{template_types}>::GetReflection()
     {{
@@ -617,24 +700,13 @@ def DefineTemplateClassBegin(class_name, template_types, template_params):
         }} 
         return s_Reflection; 
     }}
-    template <{template_params}> 
-    void {class_name}<{template_types}>::InitMembers() 
-    {{
-        GetReflection()->members = 
-        {{\n"""
-
-def DefineTemplateMember(type, name, template_types, serialized):
-    serialized_str = "true" if serialized else "false"
-    return f"            {{\"{name}\", se::reflect::TypeResolver<decltype({name})>::get(), [](const void* obj){{ return (void*)&(({type}<{template_types}>*)obj)->{name}; }}, {serialized_str}}},\n"
+    
+    template <{template_params}>\n"""
 
 def DefineTemplateClassEnd():
-    return """        };
-    }
-}"""
+    return "\n}"
 def DefineClassEnd(class_name):
-    return f"""        }};
-    }}
-    
+    return f"""
     static auto SPARK_CAT({class_name}Reflection, __COUNTER__) = {class_name}::GetReflection();
 }}
 """
@@ -645,12 +717,38 @@ def DefinePODClassBegin(class_name):
 def DefineComponentBegin(class_name):
     return f"    " + DefineNonPODType(class_name) + f"    se::ecs::Id {class_name}::s_ComponentId = {{}};\n" + DefineClassBeginCommon(class_name, False)
 
-def DefineSystem(class_name):
-    return f"    " + DefineNonPODType(class_name) + f"    se::ecs::Id {class_name}::s_SystemId = {{}};\n" + DefineClassBeginCommon(class_name, False) + DefineClassEnd(class_name)
+def DefineSystemBegin(class_name):
+    return f"    " + DefineNonPODType(class_name) + f"    se::ecs::Id {class_name}::s_SystemId = {{}};\n" + DefineClassBeginCommon(class_name, False)
 
 def DefineMember(class_name, name, serialized):
     bool_val = "true" if serialized else "false"
     return f"            {{\"{name}\", se::reflect::TypeResolver<decltype({class_name}::{name})>::get(), [](const void* obj){{ return (void*)&(({class_name}*)obj)->{name}; }},{bool_val}}},\n"
+
+def DefineFunction(class_name, name):
+    return f"""            {{ 
+                \"{name}\", 
+                se::reflect::TypeResolver<se::reflect::function_traits<decltype(&{class_name}::{name})>::return_type>::get(), 
+                se::reflect::MakeFunctionArgTypesArray(se::reflect::function_traits<decltype(&{class_name}::{name})>::args_type()),
+                &{class_name}::{name}
+            }},\n"""
+
+def WriteInvokeMethod(class_name, functions):
+    ret =  f"""    void {class_name}::Invoke([[maybe_unused]] const std::string& name, [[maybe_unused]] const std::vector<std::any>& args)
+    {{\n"""
+
+    for function in functions:
+        ret += f"""        if (name == "{function.name}")
+        {{
+            {function.name}("""
+        for i in range(0, len(function.arg_types)):
+            ret += f"std::any_cast<{function.arg_types[i]}>(args[{i}])"
+            if i < len(function.arg_types) - 1:
+                ret += ", "
+        ret += ");\n        }\n"
+
+    ret += "    }\n"
+    return ret
+
 
 def CreateClassInstantiationFiles(source_dirs, classes, template_instantiations):
     for src_dir in source_dirs:
@@ -767,6 +865,199 @@ def CreateSystemInstantiationFiles(source_dirs, classes):
             output_handle.write(init_systems_cpp_content)
             output_handle.close()
 
+def DefineClass(classobj, full_name, classes, base_class_map):
+    contents = f"#include \"spark.h\"\n#include \"engine/reflect/Reflect.h\"\n#include \"{classobj.path}\"\n"
+
+    includes = []
+    current_type = full_name
+    while current_type in classes:
+        class_obj = classes[current_type]
+        for member in class_obj.members:
+            if member.full_type_name in classes:
+                if includes.count(classes[member.full_type_name].path) == 0:
+                    includes.append(classes[member.full_type_name].path)
+        if current_type in base_class_map:
+            current_type = base_class_map[current_type]
+        else:
+            break
+
+    if classobj.dev_only:
+        contents += "#if WITH_DEV_ONLY_CLASSES\n"
+
+    if classobj.editor_only:
+        contents += "#if WITH_EDITOR_ONLY_CLASSES\n"
+
+    includes.sort()
+    for include in includes:
+        contents += f"#include \"{include}\"\n"
+
+    contents += f"\nnamespace {classobj.namespace}\n{{\n"
+
+    if classobj.type == ClassType.CLASS:
+        if classobj.abstract:
+            contents += DefineAbstractClassBegin(classobj.name)
+        else:
+            contents += DefineClassBegin(classobj.name)
+    elif classobj.type == ClassType.SYSTEM:
+        contents += DefineSystemBegin(classobj.name)
+    elif classobj.type == ClassType.POD_CLASS:
+        contents += DefinePODClassBegin(classobj.name)
+    elif classobj.type ==  ClassType.COMPONENT:
+        contents += DefineComponentBegin(classobj.name)
+    elif classobj.type == ClassType.WIDGET_COMPONENT:
+        contents += DefineComponentBegin(classobj.name)
+    elif classobj.type == ClassType.SINGLETON_COMPONENT:
+        contents += DefineComponentBegin(classobj.name)
+
+    contents += BeginMembers(classobj.name)
+    current_type = full_name
+    while current_type in classes:
+        class_obj = classes[current_type]
+        for member in class_obj.members:
+            contents += DefineMember(classobj.name, member.name, member.serialized)
+        if current_type in base_class_map:
+            current_type = base_class_map[current_type]
+        else:
+            break
+    contents += EndMembers()
+
+    contents += BeginFunctions()
+    current_type = full_name
+    while current_type in classes:
+        class_obj = classes[current_type]
+        for func in class_obj.functions:
+            contents += DefineFunction(classobj.name, func.name)
+        if current_type in base_class_map:
+            current_type = base_class_map[current_type]
+        else:
+            break
+    contents += EndFunctions()
+
+    if classobj.type != ClassType.POD_CLASS:
+        contents += WriteInvokeMethod(classobj.name, classobj.functions)
+
+    contents += DefineClassEnd(classobj.name)
+
+    if classobj.editor_only:
+        contents += "#endif\n"
+
+    if classobj.dev_only:
+        contents += "#endif\n"
+
+    namespace_text = classobj.namespace.replace("::", "_")
+    output_path = classobj.project_src_dir + f"{namespace_text}_{classobj.name}.generated.cpp"
+    existing_contents = ""
+    if os.path.isfile(output_path):
+        input_handle = open(output_path, "r")
+        existing_contents = input_handle.read()
+        input_handle.close()
+    if existing_contents != contents:
+        print(f"-- -- {namespace_text}_{classobj.name}.generated.cpp generating...")
+        output_handle = open(output_path, "w+")
+        output_handle.write(contents)
+        output_handle.close()
+
+def DefineTemplateClass(classobj, full_name, classes, base_class_map):
+    contents = f"#pragma once\n\nnamespace {classobj.namespace}\n{{\n"
+
+    template_params = ",".join(classobj.template_params)
+    template_types = ""
+    for i in range(0, len(classobj.template_params)):
+        template_types += classobj.template_params[i].split(" ", 1)[1]
+        if i < len(classobj.template_params) - 1:
+            template_types += ","
+
+    contents += DefineTemplateClassBegin(classobj.name, template_types, template_params)
+
+    contents += BeginMembers(f"{classobj.name}<{template_types}>")
+    current_type = full_name
+    while current_type in classes:
+        class_obj = classes[current_type]
+        for member in class_obj.members:
+            contents += DefineMember(f"{classobj.name}<{template_types}>", member.name, member.serialized)
+        if current_type in base_class_map:
+            current_type = base_class_map[current_type]
+        else:
+            break
+    contents += EndMembers()
+
+    contents += BeginFunctions()
+    current_type = full_name
+    while current_type in classes:
+        class_obj = classes[current_type]
+        for func in class_obj.functions:
+            contents += DefineFunction(f"{classobj.name}<{template_types}>", func.name)
+        if current_type in base_class_map:
+            current_type = base_class_map[current_type]
+        else:
+            break
+    contents += EndFunctions()
+
+    contents += f"    template<{template_params}>\n"
+    contents += WriteInvokeMethod(f"{classobj.name}<{template_types}>", classobj.functions)
+
+    contents += DefineTemplateClassEnd()
+
+    namespace_text = classobj.namespace.replace("::", "_")
+    output_path = classobj.project_src_dir + f"{namespace_text}_{classobj.name}.generated.h"
+    if not os.path.exists(classobj.project_src_dir):
+        os.mkdir(classobj.project_src_dir)
+    existing_contents = ""
+    if os.path.isfile(output_path):
+        input_handle = open(output_path, "r")
+        existing_contents = input_handle.read()
+        input_handle.close()
+    if existing_contents != contents:
+        print(f"-- -- {namespace_text}_{classobj.name}.generated.h generating...")
+        output_handle = open(output_path, "w+")
+        output_handle.write(contents)
+        output_handle.close()
+
+def WriteTemplateInstantiations(template_instantiations, classes):
+    instantiation_files = dict()
+    for template_instantiation in template_instantiations:
+        namespace_text = template_instantiation.namespace.replace("::", "_")
+        output_file = f"{namespace_text}_{template_instantiation.class_name}.generated.cpp"
+        full_output_path = template_instantiation.project_src_dir + output_file
+        contents = ""
+        if full_output_path in instantiation_files:
+            contents += instantiation_files[full_output_path]
+        else:
+            contents += f"#include \"spark.h\"\n#include \"engine/reflect/Reflect.h\"\n#include \"{template_instantiation.filepath}\"\n"
+
+        includes = list()
+        for template_type in template_instantiation.template_types:
+            template_pure_type = RemoveTemplateParams(template_type)
+            if template_pure_type in classes:
+                if includes.count(classes[template_pure_type].path) == 0:
+                    includes.append(classes[template_pure_type].path)
+            template_params = GetTemplateTypes(template_type)
+            for template_param in template_params:
+                if template_param in classes:
+                    if includes.count(classes[template_param].path) == 0:
+                        includes.append(classes[template_param].path)
+
+        for include in includes:
+            contents += f"#include \"{include}\"\n"
+
+        template_types_str = ",".join(template_instantiation.template_types)
+        contents += f"static auto SPARK_CAT({template_instantiation.class_name}Reflection, __COUNTER__) = {template_instantiation.namespace}::{template_instantiation.class_name}<{template_types_str}>::GetReflection();\n"
+        instantiation_files[full_output_path] = contents
+
+    for path, contents in instantiation_files.items():
+        output_path = path
+        existing_contents = ""
+        if os.path.isfile(output_path):
+            input_handle = open(output_path, "r")
+            existing_contents = input_handle.read()
+            input_handle.close()
+        if existing_contents != contents:
+            filename = path.rsplit("/", 1)[1]
+            Log.Msg(f"{filename} generating...")
+            output_handle = open(output_path, "w+")
+            output_handle.write(contents)
+            output_handle.close()
+
 def WriteClassFiles(classes, base_class_map, template_instantiations):
     source_dirs = set()
     for full_name, class_obj in classes.items():
@@ -776,161 +1067,10 @@ def WriteClassFiles(classes, base_class_map, template_instantiations):
     CreateSystemInstantiationFiles(source_dirs, classes)
 
     for full_name, classobj in classes.items():
-        if classobj.is_reflected and not classobj.is_template:
-            contents = f"#include \"spark.h\"\n#include \"engine/reflect/Reflect.h\"\n#include \"{classobj.path}\"\n"
-
-            includes = []
-            current_type = full_name
-            while current_type in classes:
-                class_obj = classes[current_type]
-                for member in class_obj.members:
-                    if member.full_type_name in classes:
-                        if includes.count(classes[member.full_type_name].path) == 0:
-                            includes.append(classes[member.full_type_name].path)
-                if current_type in base_class_map:
-                    current_type = base_class_map[current_type]
-                else:
-                    break
-
-            if classobj.dev_only:
-                contents += "#if WITH_DEV_ONLY_CLASSES\n"
-
-            if classobj.editor_only:
-                contents += "#if WITH_EDITOR_ONLY_CLASSES\n"
-
-            includes.sort()
-            for include in includes:
-                contents += f"#include \"{include}\"\n"
-
-            contents += f"\nnamespace {classobj.namespace}\n{{\n"
-
-            if classobj.type == ClassType.CLASS:
-                if classobj.abstract:
-                    contents += DefineAbstractClassBegin(classobj.name)
-                else:
-                    contents += DefineClassBegin(classobj.name)
-            elif classobj.type == ClassType.SYSTEM:
-                contents += DefineSystem(classobj.name)
-            elif classobj.type == ClassType.POD_CLASS:
-                contents += DefinePODClassBegin(classobj.name)
-            elif classobj.type ==  ClassType.COMPONENT:
-                contents += DefineComponentBegin(classobj.name)
-            elif classobj.type == ClassType.WIDGET_COMPONENT:
-                contents += DefineComponentBegin(classobj.name)
-            elif classobj.type == ClassType.SINGLETON_COMPONENT:
-                contents += DefineComponentBegin(classobj.name)
-
-            if classobj.type != ClassType.SYSTEM:
-                current_type = full_name
-                while current_type in classes:
-                    class_obj = classes[current_type]
-                    for member in class_obj.members:
-                        contents += DefineMember(classobj.name, member.name, member.serialized)
-                    if current_type in base_class_map:
-                        current_type = base_class_map[current_type]
-                    else:
-                        break
-                contents += DefineClassEnd(classobj.name)
-
-            if classobj.editor_only:
-                contents += "#endif\n"
-
-            if classobj.dev_only:
-                contents += "#endif\n"
-
-            namespace_text = classobj.namespace.replace("::", "_")
-            output_path = classobj.project_src_dir + f"{namespace_text}_{classobj.name}.generated.cpp"
-            existing_contents = ""
-            if os.path.isfile(output_path):
-                input_handle = open(output_path, "r")
-                existing_contents = input_handle.read()
-                input_handle.close()
-            if existing_contents != contents:
-                print(f"-- -- {namespace_text}_{classobj.name}.generated.cpp generating...")
-                output_handle = open(output_path, "w+")
-                output_handle.write(contents)
-                output_handle.close()
-
-        for full_name, classobj in classes.items():
-            if classobj.is_reflected and classobj.is_template:
-                contents = f"#pragma once\n\nnamespace {classobj.namespace}\n{{\n"
-
-                template_params = ",".join(classobj.template_params)
-                template_types = ""
-                for i in range(0, len(classobj.template_params)):
-                    template_types += classobj.template_params[i].split(" ", 1)[1]
-                    if i < len(classobj.template_params) - 1:
-                        template_types += ","
-
-                contents += DefineTemplateClassBegin(classobj.name, template_types, template_params)
-
-                current_type = full_name
-                while current_type in classes:
-                    class_obj = classes[current_type]
-                    for member in class_obj.members:
-                        contents += DefineTemplateMember(classobj.name, member.name, template_types, member.serialized)
-                    if current_type in base_class_map:
-                        current_type = base_class_map[current_type]
-                    else:
-                        break
-
-                contents += DefineTemplateClassEnd()
-
-                namespace_text = classobj.namespace.replace("::", "_")
-                output_path = classobj.project_src_dir + f"{namespace_text}_{classobj.name}.generated.h"
-                if not os.path.exists(classobj.project_src_dir):
-                    os.mkdir(classobj.project_src_dir)
-                existing_contents = ""
-                if os.path.isfile(output_path):
-                    input_handle = open(output_path, "r")
-                    existing_contents = input_handle.read()
-                    input_handle.close()
-                if existing_contents != contents:
-                    print(f"-- -- {namespace_text}_{classobj.name}.generated.h generating...")
-                    output_handle = open(output_path, "w+")
-                    output_handle.write(contents)
-                    output_handle.close()
-
-        instantiation_files = dict()
-        for template_instantiation in template_instantiations:
-            namespace_text = template_instantiation.namespace.replace("::", "_")
-            output_file = f"{namespace_text}_{template_instantiation.class_name}.generated.cpp"
-            full_output_path = template_instantiation.project_src_dir + output_file
-            contents = ""
-            if full_output_path in instantiation_files:
-                contents += instantiation_files[full_output_path]
+        if classobj.is_reflected:
+            if classobj.is_template:
+                DefineTemplateClass(classobj, full_name, classes, base_class_map)
             else:
-                contents += f"#include \"spark.h\"\n#include \"engine/reflect/Reflect.h\"\n#include \"{template_instantiation.filepath}\"\n"
+                DefineClass(classobj, full_name, classes, base_class_map)
 
-            includes = list()
-            for template_type in template_instantiation.template_types:
-                template_pure_type = RemoveTemplateParams(template_type)
-                if template_pure_type in classes:
-                    if includes.count(classes[template_pure_type].path) == 0:
-                        includes.append(classes[template_pure_type].path)
-                template_params = GetTemplateTypes(template_type)
-                for template_param in template_params:
-                    if template_param in classes:
-                        if includes.count(classes[template_param].path) == 0:
-                            includes.append(classes[template_param].path)
-
-            for include in includes:
-                contents += f"#include \"{include}\"\n"
-
-            template_types_str = ",".join(template_instantiation.template_types)
-            contents += f"static auto SPARK_CAT({template_instantiation.class_name}Reflection, __COUNTER__) = {template_instantiation.namespace}::{template_instantiation.class_name}<{template_types_str}>::GetReflection();\n"
-            instantiation_files[full_output_path] = contents
-
-        for path, contents in instantiation_files.items():
-            output_path = path
-            existing_contents = ""
-            if os.path.isfile(output_path):
-                input_handle = open(output_path, "r")
-                existing_contents = input_handle.read()
-                input_handle.close()
-            if existing_contents != contents:
-                filename = path.rsplit("/", 1)[1]
-                Log.Msg(f"{filename} generating...")
-                output_handle = open(output_path, "w+")
-                output_handle.write(contents)
-                output_handle.close()
+    WriteTemplateInstantiations(template_instantiations, classes)

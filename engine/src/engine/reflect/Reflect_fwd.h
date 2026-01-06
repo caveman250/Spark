@@ -8,7 +8,7 @@
     static size_t s_StaticId;                         \
     static constexpr bool s_IsPOD = true;\
     static ::se::reflect::Class* GetReflection(); \
-    static void InitMembers();
+    static void InitMembers();\
 
 #define SPARK_CLASS(...) \
     public:               \
@@ -19,6 +19,7 @@
     virtual void Deserialize(void* obj, asset::binary::Object& parentObj, const std::string& fieldName) override;\
     virtual asset::binary::StructLayout GetStructLayout(const void*) const override;\
     virtual std::string GetTypeName() const override;\
+    virtual void Invoke(const std::string&, const std::vector<std::any>&) override;\
     static se::reflect::Class* GetReflection(); \
     static void InitMembers();
 
@@ -57,23 +58,28 @@
     virtual void Deserialize(void* obj, asset::binary::Object& parentObj, const std::string& fieldName) override;\
     virtual asset::binary::StructLayout GetStructLayout(const void*) const override;\
     virtual std::string GetTypeName() const override;\
+    virtual void Invoke(const std::string&, const std::vector<std::any>&) override; \
     static se::reflect::Class* GetReflection(); \
     static void InitMembers();
 
     template <typename T>
-    std::enable_if_t<std::is_default_constructible_v<T>, void> CreateDefaultConstructorMethods(se::reflect::Class* typeDesc)
+    concept DefaultConstructible = std::is_default_constructible_v<T>;
+
+    template <DefaultConstructible T>
+    void CreateDefaultConstructorMethods(se::reflect::Class* typeDesc)
     {
         typeDesc->heap_constructor = [typeDesc]{ return typeDesc->has_default_constructor ? new T() : nullptr; };        \
         typeDesc->inplace_constructor = [typeDesc](void* mem){ return typeDesc->has_default_constructor ? new(mem) T() : nullptr; }; \
     }
 
     template <typename T>
-    std::enable_if_t<!std::is_default_constructible_v<T>, void> CreateDefaultConstructorMethods(se::reflect::Class*)
+    void CreateDefaultConstructorMethods(se::reflect::Class*)
     {
         // ...
     }
 
 // Header tool tags
 #define SPARK_MEMBER(...)
+#define SPARK_FUNCTION(...)
 #define SPARK_INSTANTIATE_TEMPLATE(...)
 #define SPARK_ENUM(...)

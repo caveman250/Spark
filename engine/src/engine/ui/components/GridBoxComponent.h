@@ -1,7 +1,7 @@
 #pragma once
 
 #include "spark.h"
-#include "engine/reflect/Reflect.h"
+#include "engine/ecs/Component.h"
 #include "engine/math/math.h"
 
 namespace se::ecs

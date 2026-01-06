@@ -2,6 +2,7 @@
 
 #include "spark.h"
 #include "engine/ui/Rect.h"
+#include "engine/ecs/Component.h"
 
 namespace se::ui::components
 {

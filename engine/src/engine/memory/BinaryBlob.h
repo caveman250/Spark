@@ -28,6 +28,7 @@ namespace se::memory
         void Deserialize(void* obj, asset::binary::Object& parentObj, const std::string& fieldName) override;
         asset::binary::StructLayout GetStructLayout(const void* obj) const override;
         std::string GetTypeName() const override;
+        void Invoke(const std::string&, const std::vector<std::any>&) override {}
 
         BinaryBlob();
         BinaryBlob(void* data, size_t size);

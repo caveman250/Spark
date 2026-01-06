@@ -404,7 +404,7 @@ namespace se::asset::binary
             {
                 const auto& array = json[fieldName];
                 char* temp = new char[array.size()];
-                for (int j = 0; j < array.size(); ++j)
+                for (size_t j = 0; j < array.size(); ++j)
                 {
                     int lol = array[j];
                     temp[j] = static_cast<char>(lol);

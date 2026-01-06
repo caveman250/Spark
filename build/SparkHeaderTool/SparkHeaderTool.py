@@ -107,6 +107,8 @@ def ProcessHeaders():
                                 Class.ProcessClass("SPARK_SYSTEM", line, class_stack)
                             elif line.startswith("SPARK_MEMBER") and i < lineCount - 1:
                                 Class.ProcessMember(line, lines[i + 1], class_stack, namespace_stack, class_list, using_namespace_stack)
+                            elif line.startswith("SPARK_FUNCTION") and i < lineCount - 1:
+                                Class.ProcessFunction(line, lines[i + 1], class_stack, namespace_stack, class_list, using_namespace_stack)
                             elif line.startswith("class "):
                                 Class.ProcessNativeClassSecondPass("class",
                                                                    line,

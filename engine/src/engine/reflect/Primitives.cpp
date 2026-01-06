@@ -51,6 +51,37 @@ return &typeDesc;\
     using namespace std;
     DEFINE_PRIMITIVE(string, asset::binary::Type::String)
 
+    struct Type_Void : Type
+    {
+        Type_Void() : Type{"void", 0, asset::binary::Type::Invalid }
+        {
+
+        }
+
+        void Serialize(const void* , asset::binary::Object& , const std::string& ) const override
+        {
+            SPARK_ASSERT(false, "Unimplemented");
+        }
+
+        void Deserialize(void* , asset::binary::Object& , const std::string& ) const override
+        {
+            SPARK_ASSERT(false, "Unimplemented");
+        }
+
+        asset::binary::StructLayout GetStructLayout(const void*) const override
+        {
+            asset::binary::StructLayout structLayout = {{ asset::binary::CreateFixedString64("val"), asset::binary::Type::Invalid }};
+            return structLayout;
+        }
+    };
+
+    template <>
+    Type* getPrimitiveDescriptor<void>()
+    {
+        static Type_Void typeDesc;
+        return &typeDesc;
+    }
+
     struct Type_ObjectBase : Type
     {
         Type_ObjectBase() : Type{"ObjectBase", sizeof(ObjectBase), asset::binary::Type::Invalid }

@@ -13,7 +13,16 @@ namespace se::reflect
             bool serialized;
         };
 
+        struct Function
+        {
+            const char* name = nullptr;
+            Type* return_type = nullptr;
+            std::vector<Type*> argument_types = {};
+            std::any func_ptr = nullptr;
+        };
+
         std::vector<Member> members;
+        std::vector<Function> functions = {};
 
         Class();
 

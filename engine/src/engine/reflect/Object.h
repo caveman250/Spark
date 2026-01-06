@@ -17,5 +17,6 @@ namespace se::reflect
         virtual void Deserialize(void* obj, asset::binary::Object& parentObj, const std::string& fieldName) = 0;
         virtual asset::binary::StructLayout GetStructLayout(const void*) const = 0;
         virtual std::string GetTypeName() const = 0;
+        virtual void Invoke(const std::string& name, const std::vector<std::any>& args) = 0;
     };
 }
