@@ -74,7 +74,9 @@ namespace se::windows
         PlatformRunLoop::Update();
 
         render::Renderer::Get<render::Renderer>()->Render();
+        EASY_BLOCK("SwapBuffers");
         SwapBuffers(window->GetHDC());
+        EASY_END_BLOCK
 
         render::Renderer::Get<render::Renderer>()->EndFrame();
     }
