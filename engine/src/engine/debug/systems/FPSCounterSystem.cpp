@@ -25,6 +25,7 @@ namespace se::debug::systems
         auto text = world->AddComponent<ui::components::TextComponent>(fpsCounterEntity);
         text->font = assetManager->GetAsset<asset::Font>("/engine_assets/fonts/Arial.sass");
         text->fontSize = 24;
+        text->alignment = ui::text::Alignment::Right;
         auto rect = world->AddComponent<ui::components::RectTransformComponent>(fpsCounterEntity);
         rect->anchors = { 1.f, 1.f, 0.f, 0.f };
         rect->minX = 60;
