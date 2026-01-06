@@ -6,12 +6,9 @@ namespace se
 {
     void MouseCursorUtil::SetMouseCursor(MouseCursor cursor)
     {
-        HCURSOR hCursor;
+        HCURSOR hCursor = nullptr;
         switch(cursor)
         {
-            case MouseCursor::Arrow:
-                hCursor = nullptr;
-                break;
             case MouseCursor::IBeam:
                 hCursor = LoadCursor(NULL, IDC_IBEAM);
                 break;

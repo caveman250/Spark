@@ -150,6 +150,12 @@ function(setup_target_common target is_library unity_conf_dir)
     if (NOT ${is_library} AND ${PLATFORM} MATCHES Mac)
         set_target_properties(${target} PROPERTIES MACOSX_BUNDLE TRUE)
     endif()
+    if (NOT ${is_library} AND ${PLATFORM} MATCHES Windows)
+        add_custom_command(TARGET ${target} POST_BUILD
+                COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_RUNTIME_DLLS:${target}> $<TARGET_FILE_DIR:${target}>
+                COMMAND_EXPAND_LISTS
+        )
+    endif()
 endfunction()
 
 function(setup_spark_target target is_library unity_conf_dir)

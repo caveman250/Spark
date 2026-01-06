@@ -76,7 +76,7 @@ namespace se::ui::systems
             auto entity1Height = splitViewTransform.rect.size.y * splitView.sliderPos;
             rectTransform.rect.topLeft = splitViewTransform.rect.topLeft + math::IntVec2(0, static_cast<int>(entity1Height - padding));
             rectTransform.rect.size.x = splitViewTransform.rect.size.x;
-            rectTransform.rect.size.y = padding * 2;
+            rectTransform.rect.size.y = static_cast<int>(padding * 2);
         }
         else if (child == splitView.entity2)
         {
