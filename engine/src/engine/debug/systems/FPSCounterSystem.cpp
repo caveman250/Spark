@@ -27,7 +27,7 @@ namespace se::debug::systems
         text->fontSize = 24;
         auto rect = world->AddComponent<ui::components::RectTransformComponent>(fpsCounterEntity);
         rect->anchors = { 1.f, 1.f, 0.f, 0.f };
-        rect->minX = 50;
+        rect->minX = 60;
         rect->maxY = 50;
         world->AddComponent<components::FPSCounterComponent>(fpsCounterEntity);
     }
@@ -43,10 +43,10 @@ namespace se::debug::systems
             auto& text = textComps[i];
             auto& fpsCounter = fpsCounters[i];
 
-            uint64_t timeThisFrame = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+            uint64_t timeThisFrame = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
             uint64_t delta = timeThisFrame - fpsCounter.timeLastFrame;
             fpsCounter.timeLastFrame = timeThisFrame;
-            constexpr float s_MillisecondsToSeconds = 1000.f;
+            constexpr float s_MillisecondsToSeconds = 1000000.f;
             fpsCounter.fpsBuffer[fpsCounter.currentFrameIndex] = static_cast<uint64_t>(s_MillisecondsToSeconds / delta);
             fpsCounter.currentFrameIndex = (fpsCounter.currentFrameIndex + 1) % components::FPSCounterComponent::s_NumFramesToBuffer;
 
