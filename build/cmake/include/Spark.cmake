@@ -142,19 +142,25 @@ function(setup_target_common target is_library unity_conf_dir)
 
     # make sure cmake is reloaded before each build to run header tool and pick up new files.
     # note: disabled in multi config as it breaks vs and xcode.
-    if(NOT CMAKE_CONFIGURATION_TYPES)
-        add_dependencies(${target} ${REGEN_CMAKE_TARGET})
-    endif()
 
-    #xcode gets weird about executables that arent bundles
+    add_dependencies(${target} ${REGEN_CMAKE_TARGET})
+
+    # xcode gets weird about executables that arent bundles
     if (NOT ${is_library} AND ${PLATFORM} MATCHES Mac)
         set_target_properties(${target} PROPERTIES MACOSX_BUNDLE TRUE)
     endif()
+
+    # Make sure dependant dlls are copied to outp[ut folder for windows builds.
     if (NOT ${is_library} AND ${PLATFORM} MATCHES Windows)
         add_custom_command(TARGET ${target} POST_BUILD
                 COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_RUNTIME_DLLS:${target}> $<TARGET_FILE_DIR:${target}>
                 COMMAND_EXPAND_LISTS
         )
+    endif()
+
+    # Make sure we can actually debug windows builds.
+    if (${PLATFORM} MATCHES Windows)
+        target_compile_options(${target} PRIVATE /Zi)
     endif()
 endfunction()
 
