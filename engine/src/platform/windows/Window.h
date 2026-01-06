@@ -16,6 +16,8 @@ namespace se::windows
         HWND GetHWND() { return m_Hwnd; }
         HDC GetHDC() { return m_Hdc; }
         HGLRC GetHGLRC() { return m_Gglrc; }
+        void SetCursor(HCURSOR cursor);
+        HCURSOR GetCursor() const { return m_Cursor; }
         input::InputComponent& GetTempInputComponent();
 
     private:
@@ -26,6 +28,7 @@ namespace se::windows
         HWND m_Hwnd = {};
         HDC m_Hdc = {};
         HGLRC m_Gglrc = {};
+        HCURSOR m_Cursor = {};
         input::InputComponent m_TempInputComponent;
     };
 

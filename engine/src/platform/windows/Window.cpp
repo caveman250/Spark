@@ -72,6 +72,14 @@ namespace se::windows
 
         switch (message)
         {
+            case WM_SETCURSOR:
+            {
+                if (HCURSOR cursor = window->GetCursor())
+                {
+                    SetCursor(window->GetCursor());
+                    return true;
+                }
+            }
             case WM_PAINT:
             {
                 break;
@@ -321,6 +329,11 @@ namespace se::windows
         ReleaseDC(m_Hwnd, GetHDC());
         DestroyWindow(m_Hwnd);
         s_WindowInstances.erase(m_Hwnd);
+    }
+
+    void Window::SetCursor(HCURSOR cursor)
+    {
+        m_Cursor = cursor;
     }
 
     input::InputComponent& Window::GetTempInputComponent()

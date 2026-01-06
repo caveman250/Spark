@@ -6,19 +6,24 @@ namespace se
 {
     void MouseCursorUtil::SetMouseCursor(MouseCursor cursor)
     {
-        //mac::Window* window = static_cast<mac::Window*>(Application::Get()->GetWindow());
-        //NSCursor* selectedCursor = nullptr;
-        //switch(cursor)
-        //{
-        //    case MouseCursor::Arrow:
-        //        selectedCursor = [NSCursor arrowCursor];
-        //    break;
-        //    case MouseCursor::IBeam:
-        //        selectedCursor = [NSCursor IBeamCursor];
-        //    break;
-        //}
-//
-        //[window->GetView() setCurrentCursor:selectedCursor];
-        //[selectedCursor set];
+        HCURSOR hCursor;
+        switch(cursor)
+        {
+            case MouseCursor::Arrow:
+                hCursor = nullptr;
+                break;
+            case MouseCursor::IBeam:
+                hCursor = LoadCursor(NULL, IDC_IBEAM);
+                break;
+            case MouseCursor::ResizeLeftRight:
+                hCursor = LoadCursor(NULL, IDC_SIZEWE);
+                break;
+            case MouseCursor::ResizeUpDown:
+                hCursor = LoadCursor(NULL, IDC_SIZENS);
+                break;
+        }
+
+        auto window = static_cast<windows::Window*>(Application::Get()->GetWindow());
+        window->SetCursor(hCursor);
     }
 }
