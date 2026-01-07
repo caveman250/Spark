@@ -92,24 +92,25 @@ namespace se::ui::systems
                             const components::RectTransformComponent& splitViewTransform,
                             const components::SplitViewComponent& splitView)
     {
+        float padding = s_Padding * Application::Get()->GetWindow()->GetContentScale();
         if (child == splitView.entity1)
         {
             rectTransform.rect.topLeft = splitViewTransform.rect.topLeft;
-            rectTransform.rect.size.x = static_cast<int>(splitViewTransform.rect.size.x * splitView.sliderPos - s_Padding);
+            rectTransform.rect.size.x = static_cast<int>(splitViewTransform.rect.size.x * splitView.sliderPos - padding);
             rectTransform.rect.size.y = splitViewTransform.rect.size.y;
         }
         else if (child == splitView.sliderEntity)
         {
             auto entity1Width = splitViewTransform.rect.size.x * splitView.sliderPos;
-            rectTransform.rect.topLeft = splitViewTransform.rect.topLeft + math::IntVec2(static_cast<int>(entity1Width - s_Padding), 0);
-            rectTransform.rect.size.x = s_Padding * 2;
+            rectTransform.rect.topLeft = splitViewTransform.rect.topLeft + math::IntVec2(static_cast<int>(entity1Width - padding), 0);
+            rectTransform.rect.size.x = padding * 2;
             rectTransform.rect.size.y = splitViewTransform.rect.size.y;
         }
         else if (child == splitView.entity2)
         {
             auto entity1Width = splitViewTransform.rect.size.x * splitView.sliderPos;
-            rectTransform.rect.topLeft = splitViewTransform.rect.topLeft + math::IntVec2(static_cast<int>(entity1Width + s_Padding), 0);
-            rectTransform.rect.size.x = static_cast<int>(splitViewTransform.rect.size.x - entity1Width - s_Padding);
+            rectTransform.rect.topLeft = splitViewTransform.rect.topLeft + math::IntVec2(static_cast<int>(entity1Width + padding), 0);
+            rectTransform.rect.size.x = static_cast<int>(splitViewTransform.rect.size.x - entity1Width - padding);
             rectTransform.rect.size.y = splitViewTransform.rect.size.y;
         }
     }
