@@ -116,6 +116,8 @@ namespace se::ecs
         template<typename T>
         T* GetSingletonComponent();
 
+        System* GetAppSystem(const Id& systemId);
+
         std::vector<reflect::ObjectBase*> GetSingletonComponents() const;
 
         template<typename T>

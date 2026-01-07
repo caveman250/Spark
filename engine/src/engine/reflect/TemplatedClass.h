@@ -9,12 +9,12 @@ namespace se::reflect
     template <typename T>
     struct TemplatedClass : Class
     {
-        TemplatedClass();
+        TemplatedClass() = default;
     };
 
-    template <typename T>
-    TemplatedClass<T>::TemplatedClass()
-        : Class()
+    template <typename... Ts>
+    struct VariadicTemplatedClass : Class
     {
-    }
+        VariadicTemplatedClass() = default;
+    };
 }

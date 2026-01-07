@@ -29,8 +29,10 @@ namespace se::ui::components
         SPARK_MEMBER(Serialized)
         asset::AssetReference<asset::Texture> hoveredImage = {};
 
-        ecs::Signal<> onPressed;
-        ecs::Signal<> onReleased;
+        SPARK_MEMBER(Serialized)
+        ecs::Signal<> onPressed = {};
+
+        ecs::Signal<> onReleased = {};
 
     private:
         bool lastPressed = false;

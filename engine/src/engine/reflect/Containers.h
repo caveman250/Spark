@@ -209,7 +209,10 @@ namespace se::reflect
         {
             if (SPARK_VERIFY(obj))
             {
-                return *static_cast<T**>(obj);
+                using MutableT = std::remove_const_t<T>;
+                T* constT = *static_cast<T**>(obj);
+                MutableT* mutableT = const_cast<MutableT*>(constT);
+                return static_cast<void*>(mutableT);
             }
 
             return nullptr;
@@ -235,7 +238,7 @@ namespace se::reflect
         {
             static_assert(!T::s_IsPOD, "Pointer (Polymorphic) serialisation not supported for POD types.");
             auto* typed = static_cast<T* const*>(obj);
-            auto* objBase = static_cast<ObjectBase*>(*typed);
+            auto* objBase = static_cast<const ObjectBase*>(*typed);
             if (SPARK_VERIFY(objBase))
             {
                 return objBase->GetTypeName();
@@ -260,21 +263,22 @@ namespace se::reflect
     {
         static_assert(!T::s_IsPOD, "Pointer (Polymorphic) serialisation not supported for POD types.");
         auto* typed = static_cast<T* const*>(obj);
-        auto* objBase = static_cast<ObjectBase*>(*typed);
-        if (SPARK_VERIFY(objBase))
+        auto* constObj = static_cast<const ObjectBase*>(*typed);
+        auto* mutableObj = const_cast<ObjectBase*>(constObj);
+        if (SPARK_VERIFY(mutableObj))
         {
             if (!fieldName.empty()) // parent is an object
             {
                 asset::binary::StructLayout structLayout = GetStructLayout(obj);
                 auto db = parentObj.GetDatabase();
-                auto structIndex = db->GetOrCreateStruct(objBase->GetTypeName(), structLayout);
+                auto structIndex = db->GetOrCreateStruct(mutableObj->GetTypeName(), structLayout);
                 auto binaryObj = db->CreateObject(structIndex);
                 parentObj.Set(fieldName, binaryObj);
-                objBase->Serialize(*typed, binaryObj, {});
+                mutableObj->Serialize(*typed, binaryObj, {});
             }
             else // parent is this
             {
-                objBase->Serialize(*typed, parentObj, {});
+                mutableObj->Serialize(*typed, parentObj, {});
             }
         }
     }
@@ -284,10 +288,11 @@ namespace se::reflect
     {
         static_assert(!T::s_IsPOD, "Pointer (Polymorphic) serialisation not supported for POD types.");
         auto* typed = static_cast<T* const*>(obj);
-        auto* objBase = static_cast<ObjectBase*>(*typed);
-        if (SPARK_VERIFY(objBase))
+        auto* constObj = static_cast<const ObjectBase*>(*typed);
+        auto* mutableObj = const_cast<ObjectBase*>(constObj);
+        if (SPARK_VERIFY(mutableObj))
         {
-            objBase->Deserialize(*typed, parentObj, fieldName);
+            mutableObj->Deserialize(mutableObj, parentObj, fieldName);
         }
     }
 
@@ -296,10 +301,11 @@ namespace se::reflect
     {
         static_assert(!T::s_IsPOD, "Pointer (Polymorphic) serialisation not supported for POD types.");
         auto* typed = static_cast<T* const*>(obj);
-        auto* objBase = static_cast<ObjectBase*>(*typed);
-        if (SPARK_VERIFY(objBase))
+        auto* constObj = static_cast<const ObjectBase*>(*typed);
+        auto* mutableObj = const_cast<ObjectBase*>(constObj);
+        if (SPARK_VERIFY(mutableObj))
         {
-            return objBase->GetStructLayout(obj);
+            return mutableObj->GetStructLayout(obj);
         }
 
         return {};
@@ -311,7 +317,7 @@ namespace se::reflect
         if (obj)
         {
             auto* typed = static_cast<T* const*>(obj);
-            auto* objBase = static_cast<ObjectBase*>(*typed);
+            auto* objBase = static_cast<const ObjectBase*>(*typed);
             if (objBase)
             {
                 return objBase->GetReflectType();

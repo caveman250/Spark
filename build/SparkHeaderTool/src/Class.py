@@ -640,14 +640,36 @@ def DefineClassBegin(class_name):
     return f"    " + DefineNonPODType(class_name) + DefineClassBeginCommon(class_name, False)
 
 def DefineTemplateClassBegin(class_name, template_types, template_params):
+    is_variadic = False
+    reflect_type = ""
+    if template_types.endswith("..."):
+        reflect_type = "se::reflect::VariadicTemplatedClass"
+        is_variadic = True
+    else:
+        reflect_type = "se::reflect::TemplatedClass"
+
     create_name = f"s_Reflection->name = \"{class_name}<\";\n"
     template_types_list = template_types.split(',')
-    for i in range(0, len(template_types_list)):
-        create_name += f"            s_Reflection->name += se::reflect::TypeResolver<{template_types_list[i]}>::get()->name;\n"
-        if i < len(template_types_list) - 1:
-            create_name += "             s_Reflection->name += \", \";\n"
+    if is_variadic:
+        template_type = template_types[0:-3]
+        create_name += f"            (CollectName<{template_type}>(s_Reflection->name), ...);\n"
+    else:
+        for i in range(0, len(template_types_list)):
+            create_name += f"            s_Reflection->name += se::reflect::TypeResolver<{template_types_list[i]}>::get()->name;\n"
+            if i < len(template_types_list) - 1:
+                create_name += "             s_Reflection->name += \", \";\n"
     create_name += "            s_Reflection->name += \">\";\n"
-    return f"""    template <{template_params}>
+
+    ret = ""
+    if is_variadic:
+        ret += """    template<typename Cs>
+    void CollectName(std::string& name)
+    {
+        name += se::reflect::TypeResolver<Cs>::get()->name;
+        name += ", ";
+    }\n\n"""
+
+    ret += f"""    template <{template_params}>
     size_t {class_name}<{template_types}>::s_StaticId = typeid({class_name}<{template_types}>).hash_code();
     
     template <{template_params}>
@@ -683,10 +705,10 @@ def DefineTemplateClassBegin(class_name, template_types, template_params):
     template <{template_params}>
     se::reflect::Class* {class_name}<{template_types}>::GetReflection()
     {{
-        static se::reflect::TemplatedClass<{template_types}>* s_Reflection = nullptr;
+        static {reflect_type}<{template_types}>* s_Reflection = nullptr;
         if (!s_Reflection)
         {{
-            s_Reflection = new se::reflect::TemplatedClass<{template_types}>();
+            s_Reflection = new {reflect_type}<{template_types}>();
             static_assert(std::is_convertible<{class_name}<{template_types}>*, se::reflect::ObjectBase*>::value, "Reflectable types must inherit from reflect::ObjectBase");
             {create_name}
             se::reflect::TypeLookup::GetTypeMap()[s_Reflection->name] = s_Reflection;
@@ -702,6 +724,7 @@ def DefineTemplateClassBegin(class_name, template_types, template_params):
     }}
     
     template <{template_params}>\n"""
+    return ret
 
 def DefineTemplateClassEnd():
     return "\n}"
@@ -718,7 +741,52 @@ def DefineComponentBegin(class_name):
     return f"    " + DefineNonPODType(class_name) + f"    se::ecs::Id {class_name}::s_ComponentId = {{}};\n" + DefineClassBeginCommon(class_name, False)
 
 def DefineSystemBegin(class_name):
-    return f"    " + DefineNonPODType(class_name) + f"    se::ecs::Id {class_name}::s_SystemId = {{}};\n" + DefineClassBeginCommon(class_name, False)
+    ret = f"    " + DefineNonPODType(class_name) + f"    se::ecs::Id {class_name}::s_SystemId = {{}};\n"
+    ret += f"""\n    reflect::Type* {class_name}::GetReflectType() const
+    {{
+        return reflect::TypeResolver<{class_name}>::get();
+    }}
+    
+    void {class_name}::Serialize(const void* obj, asset::binary::Object& parentObj, const std::string& fieldName)
+    {{
+        reflect::TypeResolver<{class_name}>::get()->Serialize(obj, parentObj, fieldName);
+    }}
+    
+    void {class_name}::Deserialize(void* obj, asset::binary::Object& parentObj, const std::string& fieldName)
+    {{
+        reflect::TypeResolver<{class_name}>::get()->Deserialize(obj, parentObj, fieldName);
+    }}
+    
+    asset::binary::StructLayout {class_name}::GetStructLayout(const void*) const
+    {{
+        return reflect::TypeResolver<{class_name}>::get()->GetStructLayout(nullptr);
+    }}
+    
+    std::string {class_name}::GetTypeName() const
+    {{
+        return reflect::TypeResolver<{class_name}>::get()->GetTypeName(nullptr);
+    }}
+    
+    se::reflect::Class* {class_name}::GetReflection() 
+    {{
+        static se::reflect::System* s_Reflection = nullptr;
+        if (!s_Reflection)
+        {{
+            s_Reflection = new se::reflect::System();
+            se::reflect::TypeLookup::GetTypeMap()["{class_name}"] = s_Reflection;
+            s_Reflection->name = "{class_name}"; 
+            s_Reflection->size = sizeof({class_name});                           
+            s_Reflection->has_default_constructor = std::is_default_constructible<{class_name}>::value; 
+            CreateDefaultConstructorMethods<{class_name}>(s_Reflection);
+            s_Reflection->heap_copy_constructor = [](void* other){{ return new {class_name}(*reinterpret_cast<{class_name}*>(other)); }}; 
+            s_Reflection->inplace_copy_constructor = [](void* mem, void* other){{ return new(mem) {class_name}(*reinterpret_cast<{class_name}*>(other)); }};
+            s_Reflection->destructor = [](void* data){{ reinterpret_cast<{class_name}*>(data)->~{class_name}(); }};
+            s_Reflection->GetStaticId = [](){{ return {class_name}::GetSystemId(); }};
+            s_Reflection->members = {{}};
+        }}
+        return s_Reflection;
+    }}\n"""
+    return ret
 
 def DefineMember(class_name, name, serialized):
     bool_val = "true" if serialized else "false"
@@ -963,7 +1031,11 @@ def DefineTemplateClass(classobj, full_name, classes, base_class_map):
     template_params = ",".join(classobj.template_params)
     template_types = ""
     for i in range(0, len(classobj.template_params)):
-        template_types += classobj.template_params[i].split(" ", 1)[1]
+        split = classobj.template_params[i].split(" ", 1)
+        param = split[0]
+        template_types += split[1]
+        if param.endswith("..."):
+            template_types+= "..."
         if i < len(classobj.template_params) - 1:
             template_types += ","
 

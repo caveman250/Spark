@@ -86,7 +86,9 @@ namespace se::editor
 
         m_ViewportWindow = new ui::ViewportWindow(this, [this](int x, int y)
         {
-            OnViewportSizeChanged(x, y);
+            auto window = Application::Get()->GetWindow();
+            const float reciprocal = 1.f / window->GetContentScale();
+            OnViewportSizeChanged(x * reciprocal, y * reciprocal);
         });
         m_ViewportWindow->ConstructUI();
 

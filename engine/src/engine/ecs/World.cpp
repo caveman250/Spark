@@ -78,6 +78,17 @@ namespace se::ecs
         m_PendingEngineSystemDeletions.push_back(id);
     }
 
+    System* World::GetAppSystem(const Id& systemId)
+    {
+        const auto it = m_AppSystems.find(systemId);
+        if (it != m_AppSystems.end())
+        {
+            return it->second.instance;
+        }
+
+        return nullptr;
+    }
+
     std::vector<reflect::ObjectBase*> World::GetSingletonComponents() const
     {
         return util::ToValueArray<reflect::ObjectBase*>(m_SingletonComponents);
