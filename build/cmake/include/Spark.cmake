@@ -143,7 +143,9 @@ function(setup_target_common target is_library unity_conf_dir)
     # make sure cmake is reloaded before each build to run header tool and pick up new files.
     # note: disabled in multi config as it breaks vs and xcode.
 
-    add_dependencies(${target} ${REGEN_CMAKE_TARGET})
+    if (NOT CMAKE_GENERATOR MATCHES "Xcode")
+        add_dependencies(${target} ${REGEN_CMAKE_TARGET})
+    endif()
 
     # xcode gets weird about executables that arent bundles
     if (NOT ${is_library} AND ${PLATFORM} MATCHES Mac)

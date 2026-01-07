@@ -52,6 +52,11 @@ namespace se::render::commands
 
     void PushScissor::Execute()
     {
+        if (m_Rect.size.x < 0 || m_Rect.size.y < 0)
+        {
+            return;
+        }
+        
         auto commandEncoder = Renderer::Get<metal::MetalRenderer>()->GetCurrentCommandEncoder();
         auto window = Application::Get()->GetWindow();
         MTLScissorRect scissor;

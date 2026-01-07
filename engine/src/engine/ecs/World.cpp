@@ -493,7 +493,7 @@ namespace se::ecs
             {
                 system->Render();
             }
-        }, m_EngineSystemRenderGroups, false, false);
+        }, m_EngineSystemRenderGroups, true, false);
 
         RunOnAllSystems([this](auto&& systemId)
         {
@@ -502,7 +502,7 @@ namespace se::ecs
             {
                 system->Render();
             }
-        }, m_AppSystemRenderGroups, false, false);
+        }, m_AppSystemRenderGroups, true, false);
 
         m_Running = false;
     }

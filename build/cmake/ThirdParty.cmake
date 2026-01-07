@@ -37,6 +37,8 @@ set_target_properties(OpenFBX PROPERTIES EXCLUDE_FROM_ALL TRUE)
 set_target_properties(easy_profiler PROPERTIES EXCLUDE_FROM_ALL TRUE)
 
 #make them wait for cmake regen so we dont get permission denied errors under ninja
-add_dependencies(easy_profiler ${REGEN_CMAKE_TARGET})
-add_dependencies(bc7enc ${REGEN_CMAKE_TARGET})
-add_dependencies(OpenFBX ${REGEN_CMAKE_TARGET})
+if (NOT CMAKE_GENERATOR MATCHES "Xcode")
+    add_dependencies(easy_profiler ${REGEN_CMAKE_TARGET})
+    add_dependencies(bc7enc ${REGEN_CMAKE_TARGET})
+    add_dependencies(OpenFBX ${REGEN_CMAKE_TARGET})
+endif()

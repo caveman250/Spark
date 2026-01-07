@@ -130,18 +130,24 @@ namespace se::render
 
     void Renderer::Submit(size_t group, commands::RenderCommand *renderCommand)
     {
+        m_RenderCommandMutex.Lock();
         m_RenderGroups[group].renderCommands.push_back(renderCommand);
+        m_RenderCommandMutex.Unlock();
     }
 
     size_t Renderer::AllocRenderGroup(int layer)
     {
+        m_RenderGroupMutex.Lock();
         auto& renderGroup = m_RenderGroups.emplace_back();
+        m_RenderGroupMutex.Unlock();
         renderGroup.layer = layer;
         return m_RenderGroups.size() - 1;
     }
 
     void Renderer::SetFrameBuffer(size_t group, const std::shared_ptr<FrameBuffer>& fb)
     {
+        m_RenderGroupMutex.Lock();
         m_RenderGroups[group].frameBuffer = fb;
+        m_RenderGroupMutex.Unlock();
     }
 }

@@ -6,6 +6,7 @@
 #include "RenderState.h"
 #include "spark.h"
 #include "RenderGroup.h"
+#include "engine/threads/SpinLock.h"
 
 namespace se::render
 {
@@ -54,7 +55,7 @@ namespace se::render
 
         size_t AllocRenderGroup(int layer);
         size_t GetDefaultRenderGroup() { return m_DefaultRenderGroup; }
-        
+
         virtual void SetFrameBuffer(size_t group, const std::shared_ptr<FrameBuffer>& fb);
 
         void Update();
@@ -62,7 +63,7 @@ namespace se::render
         virtual void Render();
         virtual void EndFrame();
     protected:
-        
+
         void SortDrawCommands();
         void ExecuteDrawCommands();
 
@@ -75,13 +76,19 @@ namespace se::render
         size_t m_DefaultRenderGroup = 0;
         size_t m_ActiveRenderGroup = 0;
 
+        threads::SpinLock m_RenderGroupMutex = {};
+        threads::SpinLock m_RenderCommandMutex = {};
+
         static Renderer* s_Renderer;
     };
 
     template<ARenderCommand T, typename... Args>
     T* Renderer::AllocRenderCommand(Args &&... args)
     {
-        return m_RenderCommandsArena.Alloc<T>(std::forward<Args>(args)...);
+        m_RenderCommandMutex.Lock();
+        T* ret = m_RenderCommandsArena.Alloc<T>(std::forward<Args>(args)...);
+        m_RenderCommandMutex.Unlock();
+        return ret;
     }
 
     template<ARenderCommand T, typename... Args>
