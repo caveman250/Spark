@@ -52,6 +52,8 @@ namespace se::ecs
 
         bool DependsOn(const Id& other) const;
         const SystemDeclaration& GetDeclaration() const { return m_Declaration; }
+        virtual bool ImplementsUpdateMethod() const { return false; }
+        virtual bool ImplementsRenderMethod() const { return false; }
 
     private:
         void Init();

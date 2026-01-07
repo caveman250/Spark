@@ -216,12 +216,6 @@ namespace se::ecs
                              const std::vector<std::vector<Id>>& systems,
                              bool parallel,
                              bool processPending);
-        void RunOnAllAppSystems(const std::function<void(const Id&)>& func,
-                                bool parallel,
-                                bool processPending);
-        void RunOnAllEngineSystems(const std::function<void(const Id&)>& func,
-                                   bool parallel,
-                                   bool processPending);
 
         struct PendingComponent
         {
@@ -271,9 +265,11 @@ namespace se::ecs
         static void ProcessPendingSystems(std::vector<std::pair<Id, SystemDeclaration>>& pendingCreations,
                                           std::vector<Id>& pendingDeletions,
                                           std::unordered_map<Id, SystemRecord>& systemRecords,
-                                          std::vector<std::vector<Id>>& systemUpdateGroups);
+                                          std::vector<std::vector<Id>>& systemUpdateGroups,
+                                          std::vector<std::vector<Id>>& systemRenderGroups);
         static void RebuildSystemUpdateGroups(std::vector<std::vector<Id>>& updateGroups,
-                                              std::unordered_map<Id, SystemRecord>& systems);
+                                              std::unordered_map<Id, SystemRecord>& systems,
+                                              std::function<bool(System*)>&& predicate);
         void ProcessPendingAppSystems();
         void ProcessPendingEngineSystems();
         void ProcessPendingEntityDeletions();
@@ -304,7 +300,9 @@ namespace se::ecs
         Id m_DefaultScene = s_InvalidEntity;
 
         std::vector<std::vector<Id>> m_AppSystemUpdateGroups = { };
+        std::vector<std::vector<Id>> m_AppSystemRenderGroups = { };
         std::vector<std::vector<Id>> m_EngineSystemUpdateGroups = { };
+        std::vector<std::vector<Id>> m_EngineSystemRenderGroups = { };
         UpdateMode m_UpdateMode = UpdateMode::SingleThreaded;
         std::mutex m_EntityMutex = { };
         std::mutex m_ComponentMutex = { };

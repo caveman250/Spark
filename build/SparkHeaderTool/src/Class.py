@@ -767,6 +767,16 @@ def DefineSystemBegin(class_name):
         return reflect::TypeResolver<{class_name}>::get()->GetTypeName(nullptr);
     }}
     
+    bool {class_name}::ImplementsUpdateMethod() const
+    {{
+        return !std::is_same_v<decltype(&System::OnUpdate), decltype(&{class_name}::OnUpdate)>;
+    }}
+    
+    bool {class_name}::ImplementsRenderMethod() const
+    {{
+         return !std::is_same_v<decltype(&System::OnRender), decltype(&{class_name}::OnRender)>;
+    }}
+    
     se::reflect::Class* {class_name}::GetReflection() 
     {{
         static se::reflect::System* s_Reflection = nullptr;

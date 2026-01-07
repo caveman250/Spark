@@ -47,7 +47,9 @@
 #define SPARK_SYSTEM(...) \
     SPARK_CLASS()\
     static se::ecs::Id s_SystemId;\
-    static se::ecs::Id GetSystemId() { SPARK_ASSERT(s_SystemId != static_cast<uint64_t>(0), "GetSystemId called before RegisterSystem"); return s_SystemId; }
+    static se::ecs::Id GetSystemId() { SPARK_ASSERT(s_SystemId != static_cast<uint64_t>(0), "GetSystemId called before RegisterSystem"); return s_SystemId; }\
+    bool ImplementsUpdateMethod() const override;\
+    bool ImplementsRenderMethod() const override;
 
 #define SPARK_CLASS_TEMPLATED(...) \
     public:               \

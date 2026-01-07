@@ -443,23 +443,23 @@ namespace se::ecs
         ProcessAllPending();
         m_Running = true;
 
-        RunOnAllEngineSystems([this](const Id& systemId)
+        RunOnAllSystems([this](const Id& systemId)
         {
             EASY_BLOCK(systemId.name->c_str());
             if (auto* system = m_EngineSystems[systemId].instance)
             {
                 system->Update();
             }
-        }, true, true);
+        }, m_EngineSystemUpdateGroups, true, true);
 
-        RunOnAllAppSystems([this](auto&& systemId)
+        RunOnAllSystems([this](auto&& systemId)
         {
             EASY_BLOCK(systemId.name->c_str());
             if (auto* system = m_AppSystems[systemId].instance)
             {
                 system->Update();
             }
-        }, true, true);
+        }, m_AppSystemUpdateGroups, true, true);
 
         m_Running = false;
 
@@ -486,23 +486,23 @@ namespace se::ecs
     {
         m_Running = true;
 
-        RunOnAllEngineSystems([this](auto&& systemId)
+        RunOnAllSystems([this](auto&& systemId)
         {
             EASY_BLOCK(systemId.name->c_str());
             if (auto* system = m_EngineSystems[systemId].instance)
             {
                 system->Render();
             }
-        }, false, false);
+        }, m_EngineSystemRenderGroups, false, false);
 
-        RunOnAllAppSystems([this](auto&& systemId)
+        RunOnAllSystems([this](auto&& systemId)
         {
             EASY_BLOCK(systemId.name->c_str());
             if (auto* system = m_AppSystems[systemId].instance)
             {
                 system->Render();
             }
-        }, false, false);
+        }, m_AppSystemRenderGroups, false, false);
 
         m_Running = false;
     }
@@ -511,21 +511,37 @@ namespace se::ecs
     {
         m_Running = true;
 
-        RunOnAllEngineSystems([this](auto&& systemId)
+        RunOnAllSystems([this](auto&& systemId)
         {
             if (auto* system = m_EngineSystems[systemId].instance)
             {
                 system->Shutdown();
             }
-        }, true, true);
+        }, m_EngineSystemUpdateGroups, true, true);
 
-        RunOnAllAppSystems([this](auto&& systemId)
+        RunOnAllSystems([this](auto&& systemId)
+        {
+            if (auto* system = m_AppSystems[systemId].instance)
+            {
+                system->Shutdown();
+            }
+        }, m_AppSystemUpdateGroups, true, true);
+
+        RunOnAllSystems([this](auto&& systemId)
         {
             if (auto* system = m_EngineSystems[systemId].instance)
             {
                 system->Shutdown();
             }
-        }, true, true);
+        }, m_EngineSystemRenderGroups, true, true);
+
+        RunOnAllSystems([this](auto&& systemId)
+        {
+            if (auto* system = m_AppSystems[systemId].instance)
+            {
+                system->Shutdown();
+            }
+        }, m_AppSystemRenderGroups, true, true);
 
         m_Running = false;
 
@@ -656,7 +672,8 @@ namespace se::ecs
     }
 
     void World::RebuildSystemUpdateGroups(std::vector<std::vector<Id>>& updateGroups,
-                                          std::unordered_map<Id, SystemRecord>& systems)
+                                          std::unordered_map<Id, SystemRecord>& systems,
+                                          std::function<bool(System*)>&& predicate)
     {
         updateGroups.clear();
 
@@ -666,15 +683,18 @@ namespace se::ecs
         {
             if (systemRecord.instance)
             {
-                auto& map = usedComponents.insert(std::make_pair(id, std::map<Id, ComponentMutability>())).first->second;
-                // TODO not taking variant components into account here
-                for (const auto& usedComp : systemRecord.instance->GetDeclaration().componentUsage)
+                if (predicate(systemRecord.instance))
                 {
-                    map[usedComp.id] = usedComp.mutability;
-                }
-                for (const auto& usedComp : systemRecord.instance->GetDeclaration().singletonComponentUsage)
-                {
-                    map[usedComp.id] = usedComp.mutability;
+                    auto& map = usedComponents.insert(std::make_pair(id, std::map<Id, ComponentMutability>())).first->second;
+                    // TODO not taking variant components into account here
+                    for (const auto& usedComp : systemRecord.instance->GetDeclaration().componentUsage)
+                    {
+                        map[usedComp.id] = usedComp.mutability;
+                    }
+                    for (const auto& usedComp : systemRecord.instance->GetDeclaration().singletonComponentUsage)
+                    {
+                        map[usedComp.id] = usedComp.mutability;
+                    }
                 }
             }
         }
@@ -684,7 +704,7 @@ namespace se::ecs
 
         for (const auto& [id, record] : sortedSystems)
         {
-            if (record.instance)
+            if (record.instance && predicate(record.instance))
             {
                 bool systemAdded = false;
                 for (size_t i = 0; i < updateGroups.size(); ++i)
@@ -694,7 +714,7 @@ namespace se::ecs
                     bool blockedOnDependency = false;
                     for (Id dependency: record.instance->GetDeclaration().dependencies)
                     {
-                        if (SPARK_VERIFY(updateGroupLookup.contains(dependency), "Dependency has not been assigned an update group!")
+                        if (SPARK_VERIFY(updateGroupLookup.contains(dependency) || !predicate(systems[dependency].instance), "Dependency has not been assigned an update group!")
                             && updateGroupLookup[dependency] >= i)
                         {
                             blockedOnDependency = true;
@@ -908,16 +928,6 @@ namespace se::ecs
         }
     }
 
-    void World::RunOnAllAppSystems(const std::function<void(const Id&)>& func, bool parallel, bool processPending)
-    {
-        RunOnAllSystems(func, m_AppSystemUpdateGroups, parallel, processPending);
-    }
-
-    void World::RunOnAllEngineSystems(const std::function<void(const Id&)>& func, bool parallel, bool processPending)
-    {
-        RunOnAllSystems(func, m_EngineSystemUpdateGroups, parallel, processPending);
-    }
-
     void World::DestroyEntity(const Id& entity)
     {
         auto guard = MaybeLockGuard(m_UpdateMode, &m_EntityMutex);
@@ -1021,7 +1031,8 @@ namespace se::ecs
     void World::ProcessPendingSystems(std::vector<std::pair<Id, SystemDeclaration>>& pendingCreations,
                                       std::vector<Id>& pendingDeletions,
                                       std::unordered_map<Id, SystemRecord>& systemRecords,
-                                      std::vector<std::vector<Id>>& systemUpdateGroups)
+                                      std::vector<std::vector<Id>>& systemUpdateGroups,
+                                      std::vector<std::vector<Id>>& systemRenderGroups)
     {
         bool shouldRebuildUpdateGroups = !pendingCreations.empty() || !pendingDeletions.empty(); {
             auto safeCopy = pendingCreations;
@@ -1043,20 +1054,21 @@ namespace se::ecs
 
         if (shouldRebuildUpdateGroups)
         {
-            RebuildSystemUpdateGroups(systemUpdateGroups, systemRecords);
+            RebuildSystemUpdateGroups(systemUpdateGroups, systemRecords, [](System* system){ return system->ImplementsUpdateMethod(); });
+            RebuildSystemUpdateGroups(systemRenderGroups, systemRecords, [](System* system){ return system->ImplementsRenderMethod(); });
         }
     }
 
     void World::ProcessPendingAppSystems()
     {
         ProcessPendingSystems(m_PendingAppSystemCreations, m_PendingAppSystemDeletions, m_AppSystems,
-                              m_AppSystemUpdateGroups);
+                              m_AppSystemUpdateGroups, m_AppSystemRenderGroups);
     }
 
     void World::ProcessPendingEngineSystems()
     {
         ProcessPendingSystems(m_PendingEngineSystemCreations, m_PendingEngineSystemDeletions, m_EngineSystems,
-                              m_EngineSystemUpdateGroups);
+                              m_EngineSystemUpdateGroups, m_EngineSystemRenderGroups);
     }
 
     void World::CreateSystemInternal(std::unordered_map<Id, SystemRecord>& systemMap,
