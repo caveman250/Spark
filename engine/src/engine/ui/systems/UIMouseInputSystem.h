@@ -17,6 +17,7 @@ namespace se::ui::systems
     public:
         static ecs::SystemDeclaration GetSystemDeclaration();
         void OnUpdate(const ecs::SystemUpdateData& updateData) override;
+        ecs::UpdateMode GetUpdateMode() const override { return ecs::UpdateMode::SingleThreaded; }
 
     private:
         bool TryConsumeEvent(const input::MouseEvent& keyEvent, components::MouseInputComponent& inputReceiver);

@@ -33,8 +33,10 @@ namespace se::render
 
     void Renderer::AddPointLight(const PointLight &light)
     {
+        m_LightsMutex.Lock();
         m_LightSetup.pointLights
                 .push_back(light);
+        m_LightsMutex.Unlock();
     }
 
     void Renderer::Update()

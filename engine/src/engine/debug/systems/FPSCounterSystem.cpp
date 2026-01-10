@@ -4,6 +4,7 @@
 
 #include "engine/asset/AssetManager.h"
 #include "engine/debug/components/FPSCounterComponent.h"
+#include "engine/ecs/util/SystemUtil.h"
 #include "engine/ui/components/TextComponent.h"
 #include "engine/ui/systems/RectTransformSystem.h"
 
@@ -35,11 +36,11 @@ namespace se::debug::systems
 
     void FPSCounterSystem::OnUpdate(const ecs::SystemUpdateData& systemUpdateData)
     {
-        const auto& entities = systemUpdateData.GetEntities();
         auto* textComps = systemUpdateData.GetComponentArray<ui::components::TextComponent>();
         auto* fpsCounters = systemUpdateData.GetComponentArray<components::FPSCounterComponent>();
 
-        for (size_t i = 0; i < entities.size(); ++i)
+        ecs::util::ForEachEntity(this, systemUpdateData,
+        [textComps, fpsCounters] (size_t i)
         {
             auto& text = textComps[i];
             auto& fpsCounter = fpsCounters[i];
@@ -60,8 +61,7 @@ namespace se::debug::systems
             average *= reciprocal;
 
             text.text = std::format("{:.0f}", std::max(1.f, average));
-        }
-
+        });
     }
 }
 

@@ -8,6 +8,8 @@
 #include "engine/ecs/components/TransformComponent.h"
 #include <easy/profiler.h>
 
+#include "engine/ecs/util/SystemUtil.h"
+
 using namespace se;
 using namespace se::ecs::components;
 
@@ -24,13 +26,12 @@ namespace se::ecs::systems
     {
         EASY_BLOCK("RootTransformSystem::OnUpdate");
 
-        const auto& entities = updateData.GetEntities();
         auto* transform = updateData.GetComponentArray<TransformComponent>();
 
-        for (size_t i = 0; i < entities.size(); ++i)
+        util::ForEachEntity(this, updateData, [transform](size_t i)
         {
             auto& trans = transform[i];
             trans.worldTransform = trans.transform;
-        }
+        });
     }
 }

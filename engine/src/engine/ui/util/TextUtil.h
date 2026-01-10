@@ -90,6 +90,8 @@ namespace se::ui::util
 #else
         constexpr bool isEditorEntity = false;
 #endif
+        renderComp->mutex.lock();
         renderComp->entityRenderCommands[entity].push_back(UIRenderCommand(command, UILayerKey(transform.layer, isEditorEntity)));
+        renderComp->mutex.unlock();
     }
 }

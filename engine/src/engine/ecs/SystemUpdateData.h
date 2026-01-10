@@ -8,6 +8,7 @@ namespace se::ecs
     {
         void* componentArray = nullptr;
         ComponentMutability mutability = {};
+        bool registered = false;
     };
 
     struct SystemUpdateSingletonComponentData
@@ -44,25 +45,36 @@ namespace se::ecs
         template <typename T>
         T* GetComponentArray() const
         {
+            auto it = m_ComponentArrays.find(T::GetComponentId());
 #if !SPARK_DIST
-            if (!SPARK_VERIFY(m_ComponentArrays.contains(T::GetComponentId()),
+            if (!SPARK_VERIFY(it != m_ComponentArrays.end(),
                               "SystemUpdateData::GetComponentArray - Component of type {} was not registered for by calling system.", T::GetComponentId().id))
             {
                 return nullptr;
             }
-#endif
-            const SystemUpdateEntityComponentData& entityComponentData = m_ComponentArrays.at(T::GetComponentId());
-            if (!SPARK_VERIFY((entityComponentData.mutability == ComponentMutability::Immutable) == std::is_const_v<T>,
-                    "SystemUpdateData::GetComponentArray - Component of type {} mutability mismatch", T::GetComponentId().id))
+
+            if (!SPARK_VERIFY(it->second.registered,
+                  "SystemUpdateData::GetComponentArray - Component of type {} was not registered for by calling system.", T::GetComponentId().id))
             {
                 return nullptr;
             }
-            return static_cast<T*>(m_ComponentArrays.at(T::GetComponentId()).componentArray);
+
+            if (!SPARK_VERIFY((it->second.mutability == ComponentMutability::Immutable) == std::is_const_v<T>,
+                "SystemUpdateData::GetComponentArray - Component of type {} mutability mismatch", T::GetComponentId().id))
+            {
+                return nullptr;
+            }
+#endif
+            return static_cast<T*>(it->second.componentArray);
         }
 
         void ClearEntityData()
         {
-            m_ComponentArrays.clear();
+            for (auto& compData : m_ComponentArrays | std::views::values)
+            {
+                compData.registered = false;
+            }
+
             m_VariantComponentData = {};
             m_Entities = nullptr;
         }
@@ -128,8 +140,16 @@ namespace se::ecs
 
         void AddComponentArray(const Id& component, void* compArray, ComponentMutability mutability)
         {
-            m_ComponentArrays.insert(
-                    std::make_pair(component, SystemUpdateEntityComponentData(compArray, mutability)));
+            auto it = m_ComponentArrays.find(component);
+            if (it == m_ComponentArrays.end())
+            {
+                m_ComponentArrays.emplace(std::make_pair(component, SystemUpdateEntityComponentData(compArray, mutability, true)));
+            }
+            else
+            {
+                it->second.componentArray = compArray;
+                it->second.registered = true;
+            }
         }
 
         void AddSingletonComponent(const Id& id, void* compArray, ComponentMutability mutability)

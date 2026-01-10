@@ -5,7 +5,7 @@
 #import "engine/render/metal/TextureResource.h"
 #import "MetalRenderer.h"
 #include "engine/render/FrameBuffer.h"
-
+#import <easy/profiler.h>
 #import <Metal/Metal.h>
 
 namespace se::render
@@ -25,6 +25,7 @@ namespace se::render::metal
 
     void FrameBuffer::PreRender()
     {
+      	EASY_BLOCK("FrameBuffer::PreRender");
         auto renderer = Renderer::Get<MetalRenderer>();
         MTLRenderPassDescriptor* desc = [[MTLRenderPassDescriptor alloc] init];
 

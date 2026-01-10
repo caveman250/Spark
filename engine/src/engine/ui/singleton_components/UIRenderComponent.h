@@ -68,5 +68,7 @@ namespace se::ui::singleton_components
         std::unordered_map<ecs::Id, std::vector<UIRenderCommand>> entityPostRenderCommands = {};
 
         std::unordered_map<UILayerKey, size_t> LayerToRenderGroupMap = {};
+
+        std::mutex mutex = {};
     };
 }

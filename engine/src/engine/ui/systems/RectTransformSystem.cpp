@@ -21,6 +21,11 @@ namespace se::ui::systems
                     .WithDependency<RootRectTransformSystem>();
     }
 
+    ecs::UpdateMode RectTransformSystem::GetUpdateMode() const
+    {
+        return ecs::UpdateMode::SingleThreaded;
+    }
+
     void RectTransformSystem::OnUpdate(const ecs::SystemUpdateData& updateData)
     {
         EASY_BLOCK("RectTransformSystem::OnUpdate");
@@ -29,7 +34,8 @@ namespace se::ui::systems
         const auto& entities = updateData.GetEntities();
         auto* transform = updateData.GetComponentArray<components::RectTransformComponent>();
 
-        for (size_t i = 0; i < entities.size(); ++i)
+        ecs::util::ForEachEntity(this, updateData,
+        [this, world, entities, transform](size_t i)
         {
             const auto& entity = entities[i];
             auto& trans = transform[i];
@@ -42,6 +48,6 @@ namespace se::ui::systems
                     trans.needsLayout = false;
                 }
             }
-        }
+        });
     }
 }

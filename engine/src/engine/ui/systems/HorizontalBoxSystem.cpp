@@ -36,7 +36,8 @@ namespace se::ui::systems
         auto* horizontalBoxes = updateData.GetComponentArray<components::HorizontalBoxComponent>();
         const auto* widgets = updateData.GetComponentArray<const components::WidgetComponent>();
 
-        for (size_t i = 0; i < entities.size(); ++i)
+        ecs::util::ForEachEntity(this, updateData,
+        [this, world, entities, rectTransforms, horizontalBoxes, widgets](size_t i)
         {
             const auto& entity = entities[i];
             auto& horizontalBoxTransform = rectTransforms[i];
@@ -45,7 +46,7 @@ namespace se::ui::systems
 
             if (!widget.updateEnabled || !widget.parentUpdateEnabled)
             {
-                continue;
+                return;
             }
 
             if (horizontalBoxTransform.needsLayout)
@@ -105,6 +106,6 @@ namespace se::ui::systems
 
                 horizontalBoxTransform.needsLayout = false;
             }
-        }
+        });
     }
 }

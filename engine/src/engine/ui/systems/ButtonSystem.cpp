@@ -26,12 +26,12 @@ namespace se::ui::systems
     {
         EASY_BLOCK("ButtonSystem::OnUpdate");
 
-        const auto& entities = updateData.GetEntities();
         auto* buttons = updateData.GetComponentArray<components::ButtonComponent>();
         auto* images = updateData.GetComponentArray<components::ImageComponent>();
         const auto* mouseEventComps = updateData.GetComponentArray<const components::MouseInputComponent>();
 
-        for (size_t i = 0; i < entities.size(); ++i)
+        ecs::util::ForEachEntity(this, updateData,
+        [buttons, images, mouseEventComps](size_t i)
         {
             auto& button = buttons[i];
             auto& image = images[i];
@@ -92,6 +92,6 @@ namespace se::ui::systems
 
             button.lastHovered = button.hovered;
             button.lastPressed = button.pressed;
-        }
+        });
     }
 }

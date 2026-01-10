@@ -41,7 +41,8 @@ namespace se::ui::systems
         auto* transforms = updateData.GetComponentArray<components::RectTransformComponent>();
         const auto* mouseComps = updateData.GetComponentArray<const components::MouseInputComponent>();
 
-        for (size_t i = 0; i < entities.size(); ++i)
+        ecs::util::ForEachEntity(this, updateData,
+        [this, world, entities, comboBoxes, transforms, mouseComps](size_t i)
         {
             const auto& entity = entities[i];
             auto& comboBox = comboBoxes[i];
@@ -117,6 +118,6 @@ namespace se::ui::systems
 
                 transform.needsLayout = false;
             }
-        }
+        });
     }
 }

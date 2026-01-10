@@ -8,6 +8,7 @@
 #include "engine/ui/systems/RectTransformSystem.h"
 #include "engine/ui/systems/ScrollViewUpdateSystem.h"
 #include "Widgets.generated.h"
+#include "engine/ecs/util/SystemUtil.h"
 
 using namespace se;
 using namespace se::ecs::components;
@@ -35,7 +36,8 @@ namespace se::ui::systems
         auto* verticalBoxes = updateData.GetComponentArray<components::VerticalBoxComponent>();
         const auto* widgets = updateData.GetComponentArray<const components::WidgetComponent>();
 
-        for (size_t i = 0; i < entities.size(); ++i)
+        ecs::util::ForEachEntity(this, updateData,
+        [this, world, entities, rectTransforms, verticalBoxes, widgets](size_t i)
         {
             const auto& entity = entities[i];
             auto& verticalBoxTransform = rectTransforms[i];
@@ -44,7 +46,7 @@ namespace se::ui::systems
 
             if (!widget.updateEnabled || !widget.parentUpdateEnabled)
             {
-                continue;
+                return;
             }
 
             if (verticalBoxTransform.needsLayout)
@@ -106,6 +108,6 @@ namespace se::ui::systems
 
                 verticalBoxTransform.needsLayout = false;
             }
-        }
+        });
     }
 }

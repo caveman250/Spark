@@ -1,20 +1,20 @@
 #pragma once
 
-#include "engine/memory/Arena.h"
-#include "Archetype.h"
-#include "engine/reflect/TypeResolver.h"
-#include "UpdateMode.h"
-#include "MaybeLockGuard.h"
-#include "Observer.h"
-#include "SystemDeclaration.h"
-#include "SystemUpdateData.h"
 #include <easy/profiler.h>
-#include "engine/ecs/components/ParentComponent.h"
+#include "Archetype.h"
+#include "ComponentRecord.h"
 #include "ecs_fwd.h"
 #include "EntityRecord.h"
-#include "ComponentRecord.h"
+#include "Observer.h"
 #include "SceneRecord.h"
+#include "SystemDeclaration.h"
 #include "SystemRecord.h"
+#include "SystemUpdateData.h"
+#include "UpdateMode.h"
+#include "engine/ecs/components/ParentComponent.h"
+#include "engine/memory/Arena.h"
+#include "engine/reflect/TypeResolver.h"
+#include "engine/threads/ParallelForEach.h"
 
 #if SPARK_EDITOR
 #include "editor/ui/PropertiesWindow.h"
@@ -159,6 +159,7 @@ namespace se::ecs
         void Each(const std::vector<ComponentUsage>& components,
                   const std::vector<ComponentUsage>& singletonComponents,
                   Func&& func,
+                  UpdateMode mode,
                   bool force);
 
         void CollectArchetypes(const std::vector<ComponentUsage>& components,
@@ -303,11 +304,11 @@ namespace se::ecs
         std::vector<std::vector<Id>> m_AppSystemRenderGroups = { };
         std::vector<std::vector<Id>> m_EngineSystemUpdateGroups = { };
         std::vector<std::vector<Id>> m_EngineSystemRenderGroups = { };
-        UpdateMode m_UpdateMode = UpdateMode::SingleThreaded;
         std::mutex m_EntityMutex = { };
         std::mutex m_ComponentMutex = { };
         std::mutex m_SystemMutex = { };
         std::mutex m_ObserverMutex = { };
+        std::mutex m_SignalMutex = { };
 
         std::vector<Id> m_PendingEntityDeletions = { };
         std::vector<PendingComponent> m_PendingComponentCreations = { };
@@ -344,7 +345,7 @@ namespace se::ecs
         static_assert(std::is_base_of_v<BaseObserver, T>, "Observers must inherit from BaseObserver");
         static_assert(std::is_base_of_v<Observer<Y>, T>, "Observers must inherit from Observer<Y>");
 
-        auto guard = MaybeLockGuard(m_UpdateMode, &m_ObserverMutex);
+        auto guard = std::lock_guard(m_ObserverMutex);
 
         Id observer;
         if (!m_FreeObservers.empty())
@@ -413,6 +414,7 @@ namespace se::ecs
     void World::Each(const std::vector<ComponentUsage>& components,
                      const std::vector<ComponentUsage>& singletonComponents,
                      Func&& func,
+                     UpdateMode mode,
                      bool force)
     {
         EASY_BLOCK("World::Each");
@@ -431,21 +433,34 @@ namespace se::ecs
         EASY_END_BLOCK
 
         EASY_BLOCK("Run on Archetypes");
-        for (auto* archetype: archetypes)
+        auto runOnArchetype = [this, components, func, &updateData](Archetype* archetype) mutable
         {
+            auto updateDataCopy = updateData;
             if (!archetype->entities.empty())
             {
-                updateData.ClearEntityData();
-                updateData.SetEntities(archetype->entities);
+                updateDataCopy.ClearEntityData();
+                updateDataCopy.SetEntities(archetype->entities);
                 for (const auto& compUsage: components)
                 {
                     const auto& compInfo = m_ComponentRecords[compUsage.id];
                     const ArchetypeComponentKey& key = compInfo.archetypeRecords.at(archetype->id);
-                    updateData.AddComponentArray(compUsage.id, archetype->components.at(key).Data(), compUsage.mutability);
+                    updateDataCopy.AddComponentArray(compUsage.id, archetype->components.at(key).Data(), compUsage.mutability);
                 }
 
-                func(updateData);
+                func(updateDataCopy);
             }
+        };
+        switch (mode)
+        {
+            case UpdateMode::SingleThreaded:
+                for (Archetype* archetype : archetypes)
+                {
+                    runOnArchetype(archetype);
+                }
+                break;
+            case UpdateMode::MultiThreaded:
+                threads::ParallelForEach(archetypes, runOnArchetype);
+                break;
         }
         EASY_END_BLOCK
 
@@ -662,7 +677,7 @@ namespace se::ecs
     template<typename T>
     T* World::AddComponent(const Id& entity)
     {
-        auto guard = MaybeLockGuard(m_UpdateMode, &m_ComponentMutex);
+        auto guard = std::lock_guard(m_ComponentMutex);
 
         if (!SPARK_VERIFY(!HasComponent<T>(entity)))
         {
@@ -678,7 +693,7 @@ namespace se::ecs
     template<typename T>
     void World::RemoveComponent(const Id& entity)
     {
-        auto guard = MaybeLockGuard(m_UpdateMode, &m_ComponentMutex);
+        auto guard = std::lock_guard(m_ComponentMutex);
         if (!SPARK_VERIFY(HasComponent<T>(entity)))
         {
             return;
@@ -691,7 +706,7 @@ namespace se::ecs
     void World::CreateEngineSystem()
     {
         SystemDeclaration systemReg = T::GetSystemDeclaration();
-        auto guard = MaybeLockGuard(m_UpdateMode, &m_SystemMutex);
+        auto guard = std::lock_guard(m_SystemMutex);
         m_PendingEngineSystemCreations.push_back({ T::GetSystemId(), systemReg });
         if (SPARK_VERIFY(!m_EngineSystems.contains(T::GetSystemId())))
         {
@@ -724,7 +739,7 @@ namespace se::ecs
     void World::CreateAppSystem()
     {
         SystemDeclaration systemReg = T::GetSystemDeclaration();
-        auto guard = MaybeLockGuard(m_UpdateMode, &m_SystemMutex);
+        auto guard = std::lock_guard(m_SystemMutex);
         m_PendingAppSystemCreations.push_back({ T::GetSystemId(), systemReg });
         if (SPARK_VERIFY(!m_AppSystems.contains(T::GetSystemId())))
         {
@@ -735,7 +750,7 @@ namespace se::ecs
     template<typename T>
     T* World::AddSingletonComponent()
     {
-        auto guard = MaybeLockGuard(m_UpdateMode, &m_ComponentMutex);
+        auto guard = std::lock_guard(m_ComponentMutex);
 
         if (!SPARK_VERIFY(!m_SingletonComponents.contains(T::GetComponentId())))
         {
@@ -749,7 +764,7 @@ namespace se::ecs
     template<typename T>
     void World::RemoveSingletonComponent()
     {
-        auto guard = MaybeLockGuard(m_UpdateMode, &m_ComponentMutex);
+        auto guard = std::lock_guard(m_ComponentMutex);
 
         if (!SPARK_VERIFY(m_SingletonComponents.contains(T::GetComponentId())))
         {

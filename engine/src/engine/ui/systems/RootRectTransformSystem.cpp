@@ -32,7 +32,8 @@ namespace se::ui::systems
         auto* transform = updateData.GetComponentArray<components::RectTransformComponent>();
         auto window = Application::Get()->GetWindow();
 
-        for (size_t i = 0; i < entities.size(); ++i)
+        ecs::util::ForEachEntity(this, updateData,
+        [this, world, entities, transform, window](size_t i)
         {
             const auto& entity = entities[i];
             Rect windowRect = Rect {
@@ -56,6 +57,6 @@ namespace se::ui::systems
                     trans.needsLayout = true;
                 }
             }
-        }
+        });
     }
 }

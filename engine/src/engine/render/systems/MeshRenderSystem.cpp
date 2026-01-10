@@ -9,6 +9,7 @@
 #include "engine/render/MaterialInstance.h"
 #include "engine/render/Renderer.h"
 #include "engine/asset/mesh/Model.h"
+#include "engine/ecs/util/SystemUtil.h"
 #include "engine/render/VertexBuffer.h"
 
 using namespace se;
@@ -30,7 +31,8 @@ namespace se::render::systems
         auto* meshes = updateData.GetComponentArray<MeshComponent>();
         const auto* transforms = updateData.GetComponentArray<const TransformComponent>();
         const auto* camera = updateData.GetSingletonComponent<const camera::ActiveCameraComponent>();
-        for (size_t i = 0; i < entities.size(); ++i)
+
+        ecs::util::ForEachEntity(this, updateData, [meshes, transforms, camera](size_t i)
         {
             auto& mesh = meshes[i];
             if (!mesh.model.Loaded())
@@ -61,14 +63,13 @@ namespace se::render::systems
                 material->SetUniform("view", asset::shader::ast::AstType::Mat4, 1, &camera->view);
                 material->SetUniform("proj", asset::shader::ast::AstType::Mat4, 1, &camera->proj);
             }
-        }
+        });
     }
 
     void MeshRenderSystem::OnRender(const ecs::SystemUpdateData& updateData)
     {
         auto renderer = Renderer::Get<Renderer>();
 
-        const auto& entities = updateData.GetEntities();
         const auto* meshes = updateData.GetComponentArray<MeshComponent>();
 
 #if SPARK_EDITOR
@@ -77,13 +78,13 @@ namespace se::render::systems
         size_t renderGroup = renderer->GetDefaultRenderGroup();
 #endif
 
-        for (size_t i = 0; i < entities.size(); ++i)
+        ecs::util::ForEachEntity(this, updateData, [meshes, renderer, renderGroup](size_t i)
         {
             const auto& meshComp = meshes[i];
             if (meshComp.materialInstance && meshComp.vertBuffer && meshComp.indexBuffer)
             {
                 renderer->Submit<commands::SubmitGeo>(renderGroup, meshComp.materialInstance, meshComp.vertBuffer, meshComp.indexBuffer);
             }
-        }
+        });
     }
 }

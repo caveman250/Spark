@@ -38,7 +38,8 @@ namespace se::ui::systems
         auto* receivesInputComps = updateData.GetComponentArray<components::MouseInputComponent>();
         auto* inputComp = updateData.GetSingletonComponent<input::InputComponent>();
 
-        for (size_t i = 0; i < entities.size(); ++i)
+        ecs::util::ForEachEntity(this, updateData,
+        [entities, rectTransforms, widgets, receivesInputComps, inputComp](size_t i)
         {
             const auto& transform = rectTransforms[i];
             const auto& widget = widgets[i];
@@ -48,7 +49,7 @@ namespace se::ui::systems
             if (inputComp->mouseDeltaX == 0 &&
                 inputComp->mouseDeltaY == 0)
             {
-                continue;
+                return;
             }
 
             inputReceiver.lastHovered = inputReceiver.hovered;
@@ -56,7 +57,7 @@ namespace se::ui::systems
             if (!widget.updateEnabled || !widget.parentUpdateEnabled)
             {
                 inputReceiver.hovered = false;
-                continue;
+                return;
             }
 
 #if SPARK_EDITOR
@@ -70,7 +71,6 @@ namespace se::ui::systems
             {
                 inputReceiver.hovered = transform.rect.Contains(math::IntVec2(inputComp->mouseX, inputComp->mouseY));
             }
-
-        }
+        });
     }
 }

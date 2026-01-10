@@ -3,6 +3,8 @@
 #include "Widgets.generated.h"
 #include "engine/Application.h"
 #include <easy/profiler.h>
+
+#include "engine/ecs/util/SystemUtil.h"
 #include "engine/ui/components/TextCaretComponent.h"
 #include "engine/ui/components/WidgetComponent.h"
 
@@ -28,7 +30,8 @@ namespace se::ui::systems
         auto* textCarets = updateData.GetComponentArray<components::TextCaretComponent>();
         auto* widgets = updateData.GetComponentArray<components::WidgetComponent>();
 
-        for (size_t i = 0; i < entities.size(); ++i)
+        ecs::util::ForEachEntity(this, updateData,
+         [this, app, textCarets, widgets](size_t i)
         {
             auto& textCaret = textCarets[i];
             auto& widget = widgets[i];
@@ -36,7 +39,7 @@ namespace se::ui::systems
             if (!textCaret.active)
             {
                 widget.visibility = Visibility::Collapsed;
-                continue;
+                return;
             }
 
             textCaret.currentStateTime += app->GetDeltaTime();
@@ -45,6 +48,6 @@ namespace se::ui::systems
                 widget.visibility = widget.visibility == Visibility::Visible ? Visibility::Collapsed : Visibility::Visible;
                 textCaret.currentStateTime = 0.f;
             }
-        }
+        });
     }
 }

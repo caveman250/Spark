@@ -15,14 +15,14 @@ namespace se::render::systems
 
     void PointLightSystem::OnUpdate(const ecs::SystemUpdateData& updateData)
     {
-        const auto& entities = updateData.GetEntities();
         const auto* transforms = updateData.GetComponentArray<const ecs::components::TransformComponent>();
         const auto* pointLights = updateData.GetComponentArray<const components::PointLightComponent>();
         auto* renderer = Renderer::Get<Renderer>();
 
-        for (size_t i = 0; i < entities.size(); ++i)
+        ecs::util::ForEachEntity(this, updateData,
+        [transforms, pointLights, renderer](size_t i)
         {
             renderer->AddPointLight( PointLight{ transforms[i].pos, pointLights[i].color });
-        }
+        });
     }
 }

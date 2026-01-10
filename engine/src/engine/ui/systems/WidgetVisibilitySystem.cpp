@@ -3,6 +3,8 @@
 #include "WidgetVisibilitySystem.h"
 #include <easy/profiler.h>
 
+#include "engine/ecs/util/SystemUtil.h"
+
 using namespace se;
 using namespace se::ecs::components;
 
@@ -20,15 +22,15 @@ namespace se::ui::systems
 
         const auto& entities = updateData.GetEntities();
         auto* widgets = updateData.GetComponentArray<components::WidgetComponent>();
-
-        for (size_t i = 0; i < entities.size(); ++i)
+        ecs::util::ForEachEntity(this, updateData,
+        [this, entities, widgets](size_t i)
         {
             auto& widget = widgets[i];
             if (widget.dirty)
             {
                 UpdateWidgetVisibility(entities[i], widget);
             }
-        }
+        });
     }
 
     void WidgetVisibilitySystem::UpdateWidgetVisibility(const ecs::Id& entity,

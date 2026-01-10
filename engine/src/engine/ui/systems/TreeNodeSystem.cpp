@@ -17,7 +17,8 @@ namespace se::ui::systems
         auto* treeNodes = updateData.GetComponentArray<components::TreeNodeComponent>();
         auto* mouseEventComps = updateData.GetComponentArray<components::MouseInputComponent>();
 
-        for (size_t i = 0; i < entities.size(); ++i)
+        ecs::util::ForEachEntity(this, updateData,
+        [this, treeNodes, mouseEventComps](size_t i)
         {
             auto& treeNode = treeNodes[i];
             auto& eventComp = mouseEventComps[i];
@@ -32,6 +33,6 @@ namespace se::ui::systems
                     }
                 }
             }
-        }
+        });
     }
 }

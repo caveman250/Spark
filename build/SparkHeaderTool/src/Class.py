@@ -572,7 +572,14 @@ def DefineAbstractClassBegin(class_name):
         return s_Reflection;
     }}\n"""
 
-def DefineClassBeginCommon(class_name, is_pod):
+def DefineClassBeginCommon(class_name, is_pod, is_copyable):
+    copy_constructors = ""
+    if is_copyable:
+        copy_constructors = f"""            s_Reflection->heap_copy_constructor = [](void* other){{ return new {class_name}(*reinterpret_cast<{class_name}*>(other)); }}; 
+            s_Reflection->inplace_copy_constructor = [](void* mem, void* other){{ return new(mem) {class_name}(*reinterpret_cast<{class_name}*>(other)); }};"""
+    else:
+        copy_constructors = f"""            s_Reflection->heap_copy_constructor = nullptr; 
+            s_Reflection->inplace_copy_constructor = nullptr;"""
     ret = ""
     if not is_pod:
         ret += f"""\n    reflect::Type* {class_name}::GetReflectType() const
@@ -610,8 +617,7 @@ def DefineClassBeginCommon(class_name, is_pod):
             s_Reflection->size = sizeof({class_name});                           
             s_Reflection->has_default_constructor = std::is_default_constructible<{class_name}>::value; 
             CreateDefaultConstructorMethods<{class_name}>(s_Reflection);
-            s_Reflection->heap_copy_constructor = [](void* other){{ return new {class_name}(*reinterpret_cast<{class_name}*>(other)); }}; 
-            s_Reflection->inplace_copy_constructor = [](void* mem, void* other){{ return new(mem) {class_name}(*reinterpret_cast<{class_name}*>(other)); }};
+            {copy_constructors}
             s_Reflection->destructor = [](void* data){{ reinterpret_cast<{class_name}*>(data)->~{class_name}(); }};
             s_Reflection->members = {{}};
         }}
@@ -637,7 +643,7 @@ def EndFunctions():
 
 
 def DefineClassBegin(class_name):
-    return f"    " + DefineNonPODType(class_name) + DefineClassBeginCommon(class_name, False)
+    return f"    " + DefineNonPODType(class_name) + DefineClassBeginCommon(class_name, False, True)
 
 def DefineTemplateClassBegin(class_name, template_types, template_params):
     is_variadic = False
@@ -735,10 +741,10 @@ def DefineClassEnd(class_name):
 """
 
 def DefinePODClassBegin(class_name):
-    return f"    size_t {class_name}::s_StaticId = typeid({class_name}).hash_code();\n" + DefineClassBeginCommon(class_name, True)
+    return f"    size_t {class_name}::s_StaticId = typeid({class_name}).hash_code();\n" + DefineClassBeginCommon(class_name, True, True)
 
-def DefineComponentBegin(class_name):
-    return f"    " + DefineNonPODType(class_name) + f"    se::ecs::Id {class_name}::s_ComponentId = {{}};\n" + DefineClassBeginCommon(class_name, False)
+def DefineComponentBegin(class_name, is_copyable):
+    return f"    " + DefineNonPODType(class_name) + f"    se::ecs::Id {class_name}::s_ComponentId = {{}};\n" + DefineClassBeginCommon(class_name, False, is_copyable)
 
 def DefineSystemBegin(class_name):
     ret = f"    " + DefineNonPODType(class_name) + f"    se::ecs::Id {class_name}::s_SystemId = {{}};\n"
@@ -981,11 +987,11 @@ def DefineClass(classobj, full_name, classes, base_class_map):
     elif classobj.type == ClassType.POD_CLASS:
         contents += DefinePODClassBegin(classobj.name)
     elif classobj.type ==  ClassType.COMPONENT:
-        contents += DefineComponentBegin(classobj.name)
+        contents += DefineComponentBegin(classobj.name, True)
     elif classobj.type == ClassType.WIDGET_COMPONENT:
-        contents += DefineComponentBegin(classobj.name)
+        contents += DefineComponentBegin(classobj.name, True)
     elif classobj.type == ClassType.SINGLETON_COMPONENT:
-        contents += DefineComponentBegin(classobj.name)
+        contents += DefineComponentBegin(classobj.name, False)
 
     contents += BeginMembers(classobj.name)
     current_type = full_name

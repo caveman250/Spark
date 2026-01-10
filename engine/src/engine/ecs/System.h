@@ -2,6 +2,7 @@
 
 #include "World.h"
 #include "engine/Application.h"
+#include "SystemUtil.h"
 
 namespace se
 {
@@ -19,11 +20,12 @@ namespace se::ecs
         virtual void OnUpdate(const SystemUpdateData&) {}
         virtual void OnRender(const SystemUpdateData&) {}
         virtual void OnShutdown(const SystemUpdateData&) {}
+        virtual UpdateMode GetUpdateMode() const { return UpdateMode::MultiThreaded; }
 
         template<typename Func>
         void RunQuery(Func&& func, bool force)
         {
-            Application::Get()->GetWorld()->Each(m_Declaration.componentUsage, m_Declaration.singletonComponentUsage, func, force);
+            Application::Get()->GetWorld()->Each(m_Declaration.componentUsage, m_Declaration.singletonComponentUsage, func, GetUpdateMode(), force);
         }
 
         template<typename Func>

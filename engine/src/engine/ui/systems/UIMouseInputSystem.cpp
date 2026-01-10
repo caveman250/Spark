@@ -6,6 +6,8 @@
 #include "engine/input/InputUtil.h"
 #include <easy/profiler.h>
 
+#include "engine/ecs/util/SystemUtil.h"
+
 using namespace se;
 using namespace se::ecs::components;
 
@@ -35,19 +37,20 @@ namespace se::ui::systems
             return;
         }
 
-        for (size_t i = 0; i < entities.size(); ++i)
+        ecs::util::ForEachEntity(this, updateData,
+        [this, entities, inputComp, receivesInputComps](size_t i)
         {
             auto entity = entities[i];
             auto& inputReceiver = receivesInputComps[i];
 
             if (!inputReceiver.hovered)
             {
-                continue;
+                return;
             }
 
             if (!inputReceiver.enabled)
             {
-                continue;
+                return;
             }
 
             enum class ConsumedState
@@ -102,7 +105,7 @@ namespace se::ui::systems
 
                 return consumedState == ConsumedState::Consumed;
             });
-        }
+        });
     }
 
     bool UIMouseInputSystem::TryConsumeEvent(const input::MouseEvent& mouseEvent, components::MouseInputComponent& inputReceiver)

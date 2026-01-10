@@ -1,8 +1,8 @@
 #include "WindowSystem.h"
+#include <easy/profiler.h>
 #include "spark.h"
 #include "UIMouseInputSystem.h"
 #include "engine/Application.h"
-#include <easy/profiler.h>
 #include "engine/ui/components/MouseInputComponent.h"
 #include "engine/ui/components/RectTransformComponent.h"
 #include "engine/ui/components/WindowComponent.h"
@@ -35,7 +35,8 @@ namespace se::ui::systems
         const auto* inputComp = updateData.GetSingletonComponent<const input::InputComponent>();
         auto* appWindow = Application::Get()->GetWindow();
 
-        for (size_t i = 0; i < entities.size(); ++i)
+        ecs::util::ForEachEntity(this, updateData,
+        [this, entities, windows, transforms, inputComps, inputComp, appWindow](size_t i)
         {
             auto& window = windows[i];
             auto& transform = transforms[i];
@@ -147,6 +148,6 @@ namespace se::ui::systems
                 window.pendingDeltaX = 0;
                 window.pendingDeltaY = 0;
             }
-        }
+        });
     }
 }

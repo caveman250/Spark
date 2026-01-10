@@ -9,6 +9,8 @@
 #include "engine/ui/components/WidgetComponent.h"
 #include "engine/ui/components/MouseInputComponent.h"
 #include "engine/math/IntVec2.h"
+#include "engine/threads/ParallelForEach.h"
+#include "engine/ecs/util/SystemUtil.h"
 
 using namespace se;
 using namespace se::ecs::components;
@@ -27,83 +29,84 @@ namespace se::ui::systems
 
     void CollapsingHeaderSystem::OnUpdate(const ecs::SystemUpdateData& updateData)
     {
-        EASY_BLOCK("CollapsingHeaderSystem::OxnUpdate");
-
-        auto world = Application::Get()->GetWorld();
+        EASY_BLOCK("CollapsingHeaderSystem::OnUpdate");
 
         const auto& entities = updateData.GetEntities();
         auto* collapsingHeaders = updateData.GetComponentArray<components::CollapsingHeaderComponent>();
         auto* transforms = updateData.GetComponentArray<components::RectTransformComponent>();
 
-        for (size_t i = 0; i < entities.size(); ++i)
-        {
-            const auto& entity = entities[i];
-            auto& collapsingHeader = collapsingHeaders[i];
-            auto& transform = transforms[i];
-
-            if (collapsingHeader.collapsed != collapsingHeader.lastCollapsed)
+        ecs::util::ForEachEntity(this, updateData,
+            [this, entities, collapsingHeaders, transforms](size_t i)
             {
-                collapsingHeader.lastCollapsed = collapsingHeader.collapsed;
-                collapsingHeader.onCollapsed.Broadcast(collapsingHeader.collapsed);
+                const auto& entity = entities[i];
+                auto& collapsingHeader = collapsingHeaders[i];
+                auto& transform = transforms[i];
 
-                auto declaration = ecs::HeirachyQueryDeclaration()
-                            .WithComponent<components::WidgetComponent>();
-                RunQueryOnChild(collapsingHeader.contentsEntity, declaration,
-                    [&collapsingHeader](const ecs::SystemUpdateData& updateData)
-                    {
-                        auto* widget = updateData.GetComponentArray<components::WidgetComponent>();
-                        widget->visibility = collapsingHeader.collapsed ? Visibility::Collapsed : Visibility::Visible;
-                        widget->updateEnabled = !collapsingHeader.collapsed;
-                        widget->dirty = true;
-                    });
-
-                util::InvalidateParent(entity, this);
-                continue;
-            }
-
-            if (transform.needsLayout)
-            {
-                auto desiredSizeInfo = util::GetChildrenDesiredSizes(entity, this, transform);
-                for (const auto& [child, desired] : desiredSizeInfo)
+                if (collapsingHeader.collapsed != collapsingHeader.lastCollapsed)
                 {
-                    if (child == collapsingHeader.contentsEntity && collapsingHeader.collapsed)
-                    {
-                        continue;
-                    }
+                    collapsingHeader.lastCollapsed = collapsingHeader.collapsed;
+                    collapsingHeader.onCollapsed.Broadcast(collapsingHeader.collapsed);
 
-                    if (child == collapsingHeader.titleEntity)
-                    {
-                        desired.rectTransform->rect.topLeft = transform.rect.topLeft;
-                        desired.rectTransform->rect.size.x = transform.rect.size.x;
-                        desired.rectTransform->rect.size.y = desired.desiredSize.y;
-                    }
-                    else if (child == collapsingHeader.contentsEntity)
-                    {
-                        const auto& titleDesired = desiredSizeInfo[collapsingHeader.titleEntity];
-                        int titleMaxY = titleDesired.desiredSize.y;
+                    auto declaration = ecs::HeirachyQueryDeclaration()
+                                .WithComponent<components::WidgetComponent>();
+                    RunQueryOnChild(collapsingHeader.contentsEntity, declaration,
+                        [&collapsingHeader](const ecs::SystemUpdateData& updateData)
+                        {
+                            auto* widget = updateData.GetComponentArray<components::WidgetComponent>();
+                            widget->visibility = collapsingHeader.collapsed ? Visibility::Collapsed : Visibility::Visible;
+                            widget->updateEnabled = !collapsingHeader.collapsed;
+                            widget->dirty = true;
+                        });
 
-                        desired.rectTransform->rect.topLeft = transform.rect.topLeft + math::Vec2(0.f, titleMaxY + 5.f);
-                        desired.rectTransform->rect.size.x = transform.rect.size.x;
-                        desired.rectTransform->rect.size.y = desired.desiredSize.y;
-                    }
-                    else
-                    {
-                        SPARK_ASSERT(false, "Unexpected CollapsingHeader child.");
-                    }
-
-                    if (!desired.rectTransform->overridesChildSizes)
-                    {
-                        util::LayoutChildren(world, this, child, *desired.rectTransform, desired.rectTransform->layer);
-                        desired.rectTransform->needsLayout = false;
-                    }
-                    else
-                    {
-                        desired.rectTransform->needsLayout = true;
-                    }
+                    util::InvalidateParent(entity, this);
+                    return;
                 }
 
-                transform.needsLayout = false;
+                if (transform.needsLayout)
+                {
+                    auto desiredSizeInfo = util::GetChildrenDesiredSizes(entity, this, transform);
+                    for (const auto& [child, desired] : desiredSizeInfo)
+                    {
+                        if (child == collapsingHeader.contentsEntity && collapsingHeader.collapsed)
+                        {
+                            continue;
+                        }
+
+                        if (child == collapsingHeader.titleEntity)
+                        {
+                            desired.rectTransform->rect.topLeft = transform.rect.topLeft;
+                            desired.rectTransform->rect.size.x = transform.rect.size.x;
+                            desired.rectTransform->rect.size.y = desired.desiredSize.y;
+                        }
+                        else if (child == collapsingHeader.contentsEntity)
+                        {
+                            const auto& titleDesired = desiredSizeInfo[collapsingHeader.titleEntity];
+                            int titleMaxY = titleDesired.desiredSize.y;
+
+                            desired.rectTransform->rect.topLeft = transform.rect.topLeft + math::Vec2(0.f, titleMaxY + 5.f);
+                            desired.rectTransform->rect.size.x = transform.rect.size.x;
+                            desired.rectTransform->rect.size.y = desired.desiredSize.y;
+                        }
+                        else
+                        {
+                            SPARK_ASSERT(false, "Unexpected CollapsingHeader child.");
+                        }
+
+                        if (!desired.rectTransform->overridesChildSizes)
+                        {
+                            auto world = Application::Get()->GetWorld();
+                            util::LayoutChildren(world, this, child, *desired.rectTransform, desired.rectTransform->layer);
+                            desired.rectTransform->needsLayout = false;
+                        }
+                        else
+                        {
+                            desired.rectTransform->needsLayout = true;
+                        }
+                    }
+
+                    transform.needsLayout = false;
+                }
             }
-        }
+        );
     }
 }

@@ -25,7 +25,8 @@ namespace se::ui::systems
         auto* treeViews = updateData.GetComponentArray<components::TreeViewComponent>();
         auto* rectTransforms = updateData.GetComponentArray<components::RectTransformComponent>();
 
-        for (size_t i = 0; i < entities.size(); ++i)
+        ecs::util::ForEachEntity(this, updateData,
+        [this, entities, treeViews, rectTransforms](size_t i)
         {
             auto& treeView = treeViews[i];
             auto& rectTransform = rectTransforms[i];
@@ -36,7 +37,7 @@ namespace se::ui::systems
                 rectTransform.needsLayout = true;
                 treeView.dirty = false;
             }
-        }
+        });
     }
 
     int TreeViewSystem::MeasureAndArrange(const ecs::Id& entity, bool collapsed, int startY)

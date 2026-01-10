@@ -14,7 +14,6 @@
 #include "engine/reflect/Reflect.h"
 #include "engine/reflect/Util.h"
 #include "engine/render/Renderer.h"
-#include "engine/threads/ParallelForEach.h"
 #include "engine/ui/components/RectTransformComponent.h"
 
 namespace se::ecs
@@ -27,7 +26,7 @@ namespace se::ecs
     Id World::CreateEntity(const Id& scene,
         const std::string& name)
     {
-        auto guard = MaybeLockGuard(m_UpdateMode, &m_EntityMutex);
+        auto guard = std::lock_guard(m_EntityMutex);
         uint64_t entityId;
         if (!m_FreeEntities.empty())
         {
@@ -74,7 +73,7 @@ namespace se::ecs
 
     void World::DestroyEngineSystem(const Id& id)
     {
-        auto guard = MaybeLockGuard(m_UpdateMode, &m_SystemMutex);
+        auto guard = std::lock_guard(m_SystemMutex);
         m_PendingEngineSystemDeletions.push_back(id);
     }
 
@@ -96,7 +95,7 @@ namespace se::ecs
 
     void World::DestroyAppSystem(const Id& id)
     {
-        auto guard = MaybeLockGuard(m_UpdateMode, &m_SystemMutex);
+        auto guard = std::lock_guard(m_SystemMutex);
         m_PendingAppSystemDeletions.push_back(id);
     }
 
@@ -772,7 +771,7 @@ namespace se::ecs
 
     void World::DestroyObserver(const Id& id)
     {
-        auto guard = MaybeLockGuard(m_UpdateMode, &m_ObserverMutex);
+        auto guard = std::lock_guard(m_ObserverMutex);
         for (auto& kvp: m_Observers | std::views::values)
         {
             if (kvp.contains(id))
@@ -910,8 +909,7 @@ namespace se::ecs
         EASY_BLOCK("World::RunOnAllSystems");
         for (const auto& updateGroup: systemUpdateGroups)
         {
-            m_UpdateMode = parallel && updateGroup.size() > 1 ? UpdateMode::MultiThreaded : UpdateMode::SingleThreaded;
-            if (m_UpdateMode == UpdateMode::MultiThreaded)
+            if (parallel && updateGroup.size() > 1)
             {
                 threads::ParallelForEach(updateGroup, func);
             }
@@ -930,7 +928,7 @@ namespace se::ecs
 
     void World::DestroyEntity(const Id& entity)
     {
-        auto guard = MaybeLockGuard(m_UpdateMode, &m_EntityMutex);
+        auto guard = std::lock_guard(m_EntityMutex);
         SPARK_ASSERT(!std::ranges::contains(m_PendingEntityDeletions, entity));
         m_PendingEntityDeletions.push_back(entity);
     }
@@ -942,7 +940,7 @@ namespace se::ecs
 
     std::vector<Id> World::GetRootEntities()
     {
-        std::vector<Id> ret;
+        std::vector<Id> ret = {};
         Each({ ComponentUsage(components::RootComponent::GetComponentId(), ComponentMutability::Immutable) },
              {},
             [&ret](const SystemUpdateData& updateData)
@@ -950,7 +948,7 @@ namespace se::ecs
                 const auto& entities = updateData.GetEntities();
                 ret.reserve(ret.size() + entities.size());
                 ret.insert(ret.end(), entities.begin(), entities.end());
-            }, false);
+            }, UpdateMode::SingleThreaded, false);
 
         return ret;
     }
@@ -1169,6 +1167,7 @@ namespace se::ecs
 
     void World::AddPendingSignal(BaseSignal* signal)
     {
+        auto lock = std::lock_guard(m_SignalMutex);
         m_PendingSignals.push_back(signal);
     }
 

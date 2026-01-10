@@ -6,13 +6,13 @@
 
 namespace se::ui::systems
 {
-    class UIRenderSystem
-: public ecs::EngineSystem
+    class UIRenderSystem : public ecs::EngineSystem
     {
         SPARK_SYSTEM()
 
     public:
         static ecs::SystemDeclaration GetSystemDeclaration();
+        ecs::UpdateMode GetUpdateMode() const override;
         void OnRender(const ecs::SystemUpdateData& updateData) override;
 
     };

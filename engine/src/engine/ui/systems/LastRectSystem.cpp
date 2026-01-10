@@ -9,6 +9,8 @@
 #include "engine/Application.h"
 #include <easy/profiler.h>
 
+#include "engine/ecs/util/SystemUtil.h"
+
 using namespace se;
 using namespace se::ecs::components;
 
@@ -24,16 +26,15 @@ namespace se::ui::systems
     {
         EASY_BLOCK("LastRectSystem::OnUpdate");
 
-        const auto& entities = updateData.GetEntities();
         auto* transform = updateData.GetComponentArray<components::RectTransformComponent>();
-
-        for (size_t i = 0; i < entities.size(); ++i)
+        ecs::util::ForEachEntity(this, updateData,
+        [transform](size_t i)
         {
             auto& trans = transform[i];
             if (!trans.needsLayout) // some layout optimisations rely on a position delta.
             {
                 trans.lastRect = trans.rect;
             }
-        }
+        });
     }
 }

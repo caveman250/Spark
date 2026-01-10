@@ -22,13 +22,13 @@ namespace se::ui::systems
     {
         EASY_BLOCK("ResetKeyInputSystem::OnUpdate");
 
-        const auto& entities = updateData.GetEntities();
         auto* receivesInputComps = updateData.GetComponentArray<components::KeyInputComponent>();
 
-        for (size_t i = 0; i < entities.size(); ++i)
+        ecs::util::ForEachEntity(this, updateData,
+        [receivesInputComps](size_t i)
         {
             auto& inputReceiver = receivesInputComps[i];
             inputReceiver.keyEvents.clear();
-        }
+        });
     }
 }

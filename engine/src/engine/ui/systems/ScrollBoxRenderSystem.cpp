@@ -28,12 +28,15 @@ namespace se::ui::systems
         const auto* rectTransforms = updateData.GetComponentArray<const components::RectTransformComponent>();
         auto* renderComp = updateData.GetSingletonComponent<singleton_components::UIRenderComponent>();
 
-        for (size_t i = 0; i < entities.size(); ++i)
+        ecs::util::ForEachEntity(this, updateData,
+        [renderer, entities, rectTransforms, renderComp](size_t i)
         {
             const auto& entity = entities[i];
             const auto& rect = rectTransforms[i];
+            renderComp->mutex.lock();
             renderComp->entityPreRenderCommands[entity].push_back(UIRenderCommand(renderer->AllocRenderCommand<render::commands::PushScissor>(rect.rect), UILayerKey(rect.layer, ecs::IsEditorEntity(entity))));
             renderComp->entityPostRenderCommands[entity].push_back(UIRenderCommand(renderer->AllocRenderCommand<render::commands::PopScissor>(), UILayerKey(rect.layer, ecs::IsEditorEntity(entity))));
-        }
+            renderComp->mutex.unlock();
+        });
     }
 }

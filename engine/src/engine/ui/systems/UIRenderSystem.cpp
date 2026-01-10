@@ -84,6 +84,11 @@ namespace se::ui::systems
                     .WithDependency<CollapsingHeaderSystem>();
     }
 
+    ecs::UpdateMode UIRenderSystem::GetUpdateMode() const
+    {
+        return ecs::UpdateMode::SingleThreaded;
+    }
+
     void UIRenderSystem::OnRender(const ecs::SystemUpdateData& updateData)
     {
         auto* app = Application::Get();

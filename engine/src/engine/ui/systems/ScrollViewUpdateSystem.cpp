@@ -37,7 +37,8 @@ namespace se::ui::systems
         auto* rectTransforms = updateData.GetComponentArray<components::RectTransformComponent>();
         const auto* mouseComps = updateData.GetComponentArray<const components::MouseInputComponent>();
 
-        for (size_t i = 0; i < entities.size(); ++i)
+        ecs::util::ForEachEntity(this, updateData,
+        [this, world, window, entities, scrollViews, rectTransforms, mouseComps](size_t i)
         {
             const auto& entity = entities[i];
             auto& scrollView = scrollViews[i];
@@ -154,6 +155,6 @@ namespace se::ui::systems
                     }
                 }
             }
-        }
+        });
     }
 }

@@ -78,6 +78,7 @@ namespace se::render
 
         threads::SpinLock m_RenderGroupMutex = {};
         threads::SpinLock m_RenderCommandMutex = {};
+        threads::SpinLock m_LightsMutex = {};
 
         static Renderer* s_Renderer;
     };

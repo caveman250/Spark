@@ -25,13 +25,13 @@ namespace se::ui::systems
     {
         EASY_BLOCK("TitleBarSystem::OnUpdate");
 
-        const auto& entities = updateData.GetEntities();
         auto* titleBars = updateData.GetComponentArray<components::TitleBarComponent>();
         const auto* transforms = updateData.GetComponentArray<const components::RectTransformComponent>();
         auto* mouseEventComps = updateData.GetComponentArray<components::MouseInputComponent>();
         auto* inputComp = updateData.GetSingletonComponent<input::InputComponent>();
 
-        for (size_t i = 0; i < entities.size(); ++i)
+        ecs::util::ForEachEntity(this, updateData,
+        [titleBars, transforms, mouseEventComps, inputComp](size_t i)
         {
             auto& titleBar = titleBars[i];
             const auto& rectTransform = transforms[i];
@@ -60,6 +60,6 @@ namespace se::ui::systems
             }
 
             titleBar.lastPressed = titleBar.pressed;
-        }
+        });
     }
 }

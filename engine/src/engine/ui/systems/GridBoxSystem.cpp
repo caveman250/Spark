@@ -35,7 +35,8 @@ namespace se::ui::systems
         auto* rectTransforms = updateData.GetComponentArray<components::RectTransformComponent>();
         auto* gridBoxes = updateData.GetComponentArray<components::GridBoxComponent>();
 
-        for (size_t i = 0; i < entities.size(); ++i)
+        ecs::util::ForEachEntity(this, updateData,
+        [this, world, window, entities, rectTransforms, gridBoxes](size_t i)
         {
             const auto& entity = entities[i];
             auto& gridBoxTransform = rectTransforms[i];
@@ -110,6 +111,6 @@ namespace se::ui::systems
             }
 
             gridBoxTransform.needsLayout = false;
-        }
+        });
     }
 }

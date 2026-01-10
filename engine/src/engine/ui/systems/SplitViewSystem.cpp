@@ -127,7 +127,8 @@ namespace se::ui::systems
         auto* transforms = updateData.GetComponentArray<components::RectTransformComponent>();
         const auto* inputComps = updateData.GetComponentArray<const components::MouseInputComponent>();
 
-        for (size_t i = 0; i < entities.size(); ++i)
+        ecs::util::ForEachEntity(this, updateData,
+        [this, world, entities, inputComp, splitViews, transforms, inputComps](size_t i)
         {
             const auto& entity = entities[i];
             auto& splitView = splitViews[i];
@@ -242,6 +243,6 @@ namespace se::ui::systems
 
                 splitViewTransform.needsLayout = false;
             }
-        }
+        });
     }
 }
