@@ -13,12 +13,11 @@ namespace se::ui::systems
 
     void TreeNodeSystem::OnUpdate(const ecs::SystemUpdateData& updateData)
     {
-        const auto& entities = updateData.GetEntities();
         auto* treeNodes = updateData.GetComponentArray<components::TreeNodeComponent>();
         auto* mouseEventComps = updateData.GetComponentArray<components::MouseInputComponent>();
 
         ecs::util::ForEachEntity(this, updateData,
-        [this, treeNodes, mouseEventComps](size_t i)
+        [treeNodes, mouseEventComps](size_t i)
         {
             auto& treeNode = treeNodes[i];
             auto& eventComp = mouseEventComps[i];

@@ -231,24 +231,35 @@ namespace se::ui::util
 
     void InvalidateParent(const ecs::Id& entity, ecs::System* system)
     {
+        EASY_BLOCK("InvalidateParent");
         auto world = Application::Get()->GetWorld();
         auto currentEntity = entity;
         auto dec = ecs::HeirachyQueryDeclaration()
             .WithComponent<RectTransformComponent>();
-        auto func = [](const ecs::SystemUpdateData& updateData)
+
+        auto rootFunc = [](const ecs::SystemUpdateData& updateData)
         {
             auto rectTransform = updateData.GetComponentArray<RectTransformComponent>();
             rectTransform->needsLayout = true;
         };
 
-        ecs::Id lastEntity = currentEntity;
+        auto func = [](const ecs::SystemUpdateData& updateData)
+        {
+            auto rectTransform = updateData.GetComponentArray<RectTransformComponent>();
+            rectTransform->desiredSize = {};
+            rectTransform->cachedParentSize = {};
+        };
+
+        auto lastEntity = currentEntity;
         while (currentEntity != ecs::s_InvalidEntity)
         {
             auto parent = world->GetParent(currentEntity);
             if (parent == ecs::s_InvalidEntity)
             {
-                system->RunQueryOnParent(lastEntity, dec, func);
+                system->RunQueryOnParent(lastEntity, dec, rootFunc);
+                break;
             }
+            system->RunQueryOnParent(currentEntity, dec, func);
             lastEntity = currentEntity;
             currentEntity = parent;
         }

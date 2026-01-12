@@ -226,7 +226,6 @@ namespace se::ui::systems
                                 SPARK_ASSERT(false);
                         }
 
-
                         if (!rectTransform.overridesChildSizes)
                         {
                             util::LayoutChildren(world, this, child, rectTransform, rectTransform.layer);

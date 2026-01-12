@@ -45,8 +45,11 @@ namespace se::ui::components
         SPARK_MEMBER()
         Rect lastRect = {};
 
-        SPARK_MEMBER(Serialized)
+        SPARK_MEMBER()
         math::Vec2 desiredSize = {};
+
+        SPARK_MEMBER()
+        Rect cachedParentSize = {};
 
         SPARK_MEMBER()
         bool overridesChildSizes = false;

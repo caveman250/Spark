@@ -41,6 +41,14 @@ namespace se::ui
                 return {};
             }
 
+            if (!thisRect.needsLayout &&
+                thisRect.desiredSize.x > 0 &&
+                thisRect.desiredSize.y > 0 &&
+                thisRect.cachedParentSize == parentRect.rect)
+            {
+                return thisRect.desiredSize;
+            }
+
             if (thisRect.rect.size.x == 0 && thisRect.rect.size.y == 0)
             {
                 // need to calculate rect for children to calculate their desired size.
@@ -50,6 +58,7 @@ namespace se::ui
             auto anchorOffsets = CalculateAnchorOffsets(thisRect, parentRect.rect);
             auto desired = GetDesiredSize(system, entity, thisRect, context);
             thisRect.desiredSize = anchorOffsets + desired;
+            thisRect.cachedParentSize = parentRect.rect;
             return anchorOffsets + desired;
         }
 

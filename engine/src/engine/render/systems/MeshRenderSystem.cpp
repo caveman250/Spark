@@ -27,7 +27,6 @@ namespace se::render::systems
 
     void MeshRenderSystem::OnUpdate(const ecs::SystemUpdateData& updateData)
     {
-        const auto& entities = updateData.GetEntities();
         auto* meshes = updateData.GetComponentArray<MeshComponent>();
         const auto* transforms = updateData.GetComponentArray<const TransformComponent>();
         const auto* camera = updateData.GetSingletonComponent<const camera::ActiveCameraComponent>();

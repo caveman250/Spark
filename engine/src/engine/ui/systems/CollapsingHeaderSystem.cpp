@@ -46,6 +46,8 @@ namespace se::ui::systems
                 {
                     collapsingHeader.lastCollapsed = collapsingHeader.collapsed;
                     collapsingHeader.onCollapsed.Broadcast(collapsingHeader.collapsed);
+                    transform.desiredSize = {};
+                    transform.cachedParentSize = {};
 
                     auto declaration = ecs::HeirachyQueryDeclaration()
                                 .WithComponent<components::WidgetComponent>();

@@ -26,12 +26,11 @@ namespace se::ui::systems
 
         auto app = Application::Get();
 
-        const auto& entities = updateData.GetEntities();
         auto* textCarets = updateData.GetComponentArray<components::TextCaretComponent>();
         auto* widgets = updateData.GetComponentArray<components::WidgetComponent>();
 
         ecs::util::ForEachEntity(this, updateData,
-         [this, app, textCarets, widgets](size_t i)
+         [app, textCarets, widgets](size_t i)
         {
             auto& textCaret = textCarets[i];
             auto& widget = widgets[i];
