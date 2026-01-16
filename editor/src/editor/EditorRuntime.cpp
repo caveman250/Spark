@@ -32,7 +32,6 @@ namespace se::editor
         auto rect = world->AddComponent<se::ui::components::RectTransformComponent>(splitView);
         rect->anchors = { .left = 0.f, .right = 1.f, .top = 0.f, .bottom = 1.f };
         rect->needsLayout = true;
-        rect->overridesChildSizes = true;
 
         world->AddChild(splitView, window1);
         splitViewComp->entity1 = window1;

@@ -41,7 +41,7 @@ namespace se::ecs
     struct VariantComponentUsage
     {
         size_t type_hash = 0;
-        std::set<Id> components;
+        std::vector<Id> components;
         ComponentMutability mutability;
     };
 
@@ -85,9 +85,9 @@ namespace se::ecs
         }
 
         template<typename T>
-        void CollectVariantComponentIds(std::set<Id> components)
+        void CollectVariantComponentIds(std::vector<Id>& components)
         {
-            components.insert(T::GetComponentId());
+            components.emplace_back(T::GetComponentId());
         }
 
         template<typename... Ts>
@@ -97,7 +97,7 @@ namespace se::ecs
             {
                 return *this;
             }
-            std::set<Id> components;
+            std::vector<Id> components;
             (CollectVariantComponentIds<Ts>(components), ...);
             variantComponentUsage = VariantComponentUsage(typeid(std::variant<Ts*...>).hash_code(), components, mutability);
             return *this;
@@ -173,9 +173,9 @@ namespace se::ecs
         }
 
         template<typename T>
-        void CollectVariantComponentIds(std::set<Id>& components)
+        void CollectVariantComponentIds(std::vector<Id>& components)
         {
-            components.insert(T::GetComponentId());
+            components.emplace_back(T::GetComponentId());
         }
 
         template<typename... Ts>
@@ -185,7 +185,7 @@ namespace se::ecs
             {
                 return *this;
             }
-            std::set<Id> components;
+            std::vector<Id> components;
             (CollectVariantComponentIds<Ts>(components), ...);
             variantComponentUsage = VariantComponentUsage(typeid(std::variant<Ts*...>).hash_code(), components, mutability);
             return *this;

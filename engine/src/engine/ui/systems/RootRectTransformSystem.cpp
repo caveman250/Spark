@@ -9,6 +9,7 @@
 #include "engine/ecs/components/TransformComponent.h"
 #include <easy/profiler.h>
 #include "platform/IWindow.h"
+#include "Widgets.generated.h"
 
 using namespace se;
 using namespace se::ecs::components;
@@ -18,9 +19,10 @@ namespace se::ui::systems
     ecs::SystemDeclaration RootRectTransformSystem::GetSystemDeclaration()
     {
         return ecs::SystemDeclaration("RootRectTransformSystem")
-                    .WithComponent<components::RectTransformComponent>()
-                    .WithComponent<const RootComponent>()
-                    .WithDependency<LastRectSystem>();
+                .WithComponent<components::RectTransformComponent>()
+                .WithComponent<const RootComponent>()
+                .WithVariantComponent<SPARK_CONST_WIDGET_TYPES_WITH_NULLTYPE>(ecs::ComponentMutability::Immutable)
+                .WithDependency<LastRectSystem>();
     }
 
     void RootRectTransformSystem::OnUpdate(const ecs::SystemUpdateData& updateData)
@@ -32,31 +34,33 @@ namespace se::ui::systems
         auto* transform = updateData.GetComponentArray<components::RectTransformComponent>();
         auto window = Application::Get()->GetWindow();
 
-        ecs::util::ForEachEntity(this, updateData,
-        [this, world, entities, transform, window](size_t i)
+        std::visit([this, updateData, entities, world, transform, window](auto&& value)
         {
-            const auto& entity = entities[i];
-            Rect windowRect = Rect {
-                .topLeft = math::IntVec2(0, 0),
-                .size = ecs::IsEditorEntity(entity) ?
-                    math::IntVec2(window->GetWidth(), window->GetHeight()) :
-                    Application::Get()->GetGameViewportSize()
-            };
+            ecs::util::ForEachEntity(this, updateData,
+                                     [this, entities, world, transform, window, value](size_t i)
+                                     {
+                                         const auto& entity = entities[i];
+                                         Rect windowRect = Rect {
+                                             .topLeft = math::IntVec2(0, 0),
+                                             .size = ecs::IsEditorEntity(entity) ? math::IntVec2(window->GetWidth(), window->GetHeight()) : Application::Get()->GetGameViewportSize()
+                                         };
 
-            auto& trans = transform[i];
-            trans.lastRect = trans.rect;
-            trans.rect = util::CalculateScreenSpaceRect(trans, windowRect);
-            if (trans.rect != trans.lastRect)
-            {
-                if (!trans.overridesChildSizes)
-                {
-                    util::LayoutChildren(world, this, entities[i], trans, trans.layer);
-                }
-                else
-                {
-                    trans.needsLayout = true;
-                }
-            }
-        });
+                                         auto& trans = transform[i];
+                                         trans.lastRect = trans.rect;
+                                         trans.rect = util::CalculateScreenSpaceRect(trans, windowRect);
+                                         if (trans.needsLayout || trans.rect != trans.lastRect)
+                                         {
+                                             if (!trans.overridesChildSizes)
+                                             {
+                                                 Layout::LayoutWidgetChildren(world, this, entities[i], trans, value + i);
+                                                 trans.needsLayout = false;
+                                             }
+                                             else
+                                             {
+                                                 trans.needsLayout = true;
+                                             }
+                                         }
+                                     });
+        }, updateData.GetVariantComponentArray<SPARK_CONST_WIDGET_TYPES_WITH_NULLTYPE>());
     }
 }

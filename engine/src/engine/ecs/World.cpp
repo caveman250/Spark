@@ -1,6 +1,7 @@
 #include "World.h"
 
 
+#include <Widgets.generated.h>
 #include <easy/profiler.h>
 
 #include "SceneSaveData.h"
@@ -813,7 +814,8 @@ namespace se::ecs
     }
 
     void World::CollectArchetypes(const std::vector<ComponentUsage>& components,
-                                  std::set<Archetype*>& archetypes)
+                                    const VariantComponentUsage& variantComponent,
+                                    std::vector<QueryArchetype>& archetypes)
     {
         Type type = {};
         for (const auto& comp: components)
@@ -821,65 +823,45 @@ namespace se::ecs
             type.set(comp.id - 1);
         }
 
-        for (const auto& compId: components)
+        auto comps = variantComponent.components;
+        if (comps.empty())
         {
-            if (m_ComponentRecords.contains(compId.id))
+            comps.emplace_back(NullComponentType::GetComponentId());
+        }
+        for (const auto& variantUsage : comps)
+        {
+            Type type_copy = type;
+            if (variantUsage != s_InvalidEntity)
             {
-                auto& compRecord = m_ComponentRecords.at(compId.id);
-                for (const auto& archetypeId: compRecord.archetypeRecords | std::views::keys)
-                {
-                    auto& archetype = m_Archetypes.at(archetypeId);
-                    if (archetypes.contains(&archetype))
-                    {
-                        continue;
-                    }
-
-                    if (!(type & ~archetype.type).none())
-                    {
-                        continue;
-                    }
-
-                    archetypes.insert(&archetype);
-                }
+                type_copy.set(variantUsage - 1);
             }
-        }
-    }
 
-    void World::CollectArchetypesWithVariant(std::vector<ComponentUsage> components,
-                                      const ComponentUsage& variantUsage,
-                                      std::set<VariantQueryArchetype>& archetypes)
-    {
-        if (variantUsage.id != s_InvalidEntity)
-        {
-            components.push_back(variantUsage);
-        }
-
-        Type type = {};
-        for (const auto& comp: components)
-        {
-            type.set(comp.id - 1);
-        }
-
-        for (const auto& compId: components)
-        {
-            if (m_ComponentRecords.contains(compId.id))
+            for (const auto& compId: components)
             {
-                auto& compRecord = m_ComponentRecords.at(compId.id);
-                for (const auto& archetypeId: compRecord.archetypeRecords | std::views::keys)
+                if (m_ComponentRecords.contains(compId.id))
                 {
-                    auto& archetype = m_Archetypes.at(archetypeId);
-                    auto it = std::ranges::find_if(archetypes, [&archetype](const VariantQueryArchetype& other){ return other.archetype == &archetype; });
-                    if (it != archetypes.end())
+                    auto& compRecord = m_ComponentRecords.at(compId.id);
+                    for (const auto& archetypeId: compRecord.archetypeRecords | std::views::keys)
                     {
-                        continue;
-                    }
+                        auto& archetype = m_Archetypes.at(archetypeId);
 
-                    if (!(type & ~archetype.type).none())
-                    {
-                        continue;
-                    }
+                        if (!(type_copy & ~archetype.type).none())
+                        {
+                            continue;
+                        }
 
-                    archetypes.insert(VariantQueryArchetype(&archetype, variantUsage));
+                        auto it = std::ranges::find_if(archetypes, [archetype](const QueryArchetype& queryType)
+                        {
+                            return queryType.archetype->id == archetype.id;
+                        });
+
+                        if (it != archetypes.end())
+                        {
+                            continue;
+                        }
+
+                        archetypes.emplace_back(QueryArchetype{ &archetype, variantUsage });
+                    }
                 }
             }
         }
@@ -942,6 +924,7 @@ namespace se::ecs
     {
         std::vector<Id> ret = {};
         Each({ ComponentUsage(components::RootComponent::GetComponentId(), ComponentMutability::Immutable) },
+            {},
              {},
             [&ret](const SystemUpdateData& updateData)
             {

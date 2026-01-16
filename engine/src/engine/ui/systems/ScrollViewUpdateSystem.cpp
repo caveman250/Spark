@@ -7,6 +7,8 @@
 #include "engine/Application.h"
 #include <easy/profiler.h>
 #include "engine/ui/systems/UIMouseInputSystem.h"
+#include "engine/ui/components/GridBoxComponent.h"
+#include "engine/ui/components/ScrollBoxComponent.h"
 
 using namespace se;
 using namespace se::ecs::components;

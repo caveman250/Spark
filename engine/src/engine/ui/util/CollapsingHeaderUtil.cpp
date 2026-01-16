@@ -2,6 +2,8 @@
 
 #include "Widgets.generated.h"
 #include "engine/asset/AssetManager.h"
+#include "engine/ui/components/ButtonComponent.h"
+#include "engine/ui/components/CollapsingHeaderComponent.h"
 #include "engine/ui/components/MouseInputComponent.h"
 #include "engine/ui/components/WidgetComponent.h"
 
@@ -83,18 +85,18 @@ namespace se::ui::util
         world->AddChild(title, titleIndicator);
 
         auto titleButtonEntity = world->CreateEntity(scene, "Collapsing Header Title Button");
-        ButtonComponent* titleButton = world->AddComponent<ButtonComponent>(titleButtonEntity);
-        RectTransformComponent* titleButtonRect = world->AddComponent<RectTransformComponent>(titleButtonEntity);
+        components::ButtonComponent* titleButton = world->AddComponent<components::ButtonComponent>(titleButtonEntity);
+        components::RectTransformComponent* titleButtonRect = world->AddComponent<components::RectTransformComponent>(titleButtonEntity);
         titleButtonRect->anchors = { .left = 0.f, .right = 1.f, .top = 0.f, .bottom = 1.f };
-        auto titleButtonWidget = world->AddComponent<WidgetComponent>(titleButtonEntity);
+        auto titleButtonWidget = world->AddComponent<components::WidgetComponent>(titleButtonEntity);
         titleButtonWidget->visibility = Visibility::Hidden;
         world->AddChild(title, titleButtonEntity);
         titleButton->onReleased.Subscribe([world, entity, titleIndicator]()
         {
-            CollapsingHeaderComponent* collapsingHeader = world->GetComponent<CollapsingHeaderComponent>(entity);
+            components::CollapsingHeaderComponent* collapsingHeader = world->GetComponent<components::CollapsingHeaderComponent>(entity);
             collapsingHeader->collapsed = !collapsingHeader->collapsed;
 
-            ImageComponent* image = world->GetComponent<ImageComponent>(titleIndicator);
+            components::ImageComponent* image = world->GetComponent<components::ImageComponent>(titleIndicator);
             image->materialInstance->SetUniform("Texture",
                                                 asset::shader::ast::AstType::Sampler2DReference,
                                                 1,
@@ -102,9 +104,9 @@ namespace se::ui::util
         });
 
         contents = world->CreateEntity(scene, "Collapsing Header Contents");
-        rect = world->AddComponent<RectTransformComponent>(contents);
+        rect = world->AddComponent<components::RectTransformComponent>(contents);
         rect->anchors = { .left = 0.f, .right = 1.f, .top = 0.f, .bottom = 0.f };
-        world->AddComponent<WidgetComponent>(contents);
+        world->AddComponent<components::WidgetComponent>(contents);
         world->AddChild(entity, contents);
         (*collapsingHeader)->contentsEntity = contents;
 
