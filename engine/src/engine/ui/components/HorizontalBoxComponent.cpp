@@ -51,6 +51,7 @@ namespace se::ui
                                                                           ecs::System* system,
                                                                           const ecs::Id& entity,
                                                                           components::RectTransformComponent& horizontalBoxTransform,
+                                                                          int layer,
                                                                           components::HorizontalBoxComponent* horizontalBox)
     {
         auto dec = ecs::HeirachyQueryDeclaration()
@@ -59,7 +60,7 @@ namespace se::ui
         std::unordered_map<ecs::Id, util::ChildDesiredSizeInfo> childRects = { };
 
         util::ForEachWidgetChild(entity, system, dec,
-         [world, system, horizontalBoxTransform, horizontalBox, &childRects](const ecs::SystemUpdateData& updateData,
+         [system, horizontalBoxTransform, &childRects](const ecs::SystemUpdateData& updateData,
                                                         auto&& widgetComps)
          {
              const auto& children = updateData.GetEntities();
@@ -102,7 +103,7 @@ namespace se::ui
         dec = ecs::HeirachyQueryDeclaration()
             .WithComponent<components::RectTransformComponent>();
         util::ForEachWidgetChild(entity, system, dec,
-         [world, system](const ecs::SystemUpdateData& updateData,
+         [world, system, layer](const ecs::SystemUpdateData& updateData,
                                                         auto&& widgetComps)
          {
              const auto& children = updateData.GetEntities();
@@ -112,19 +113,13 @@ namespace se::ui
              {
                  const auto& child = children[i];
                  auto& rect = rects[i];
-                 if (!rect.overridesChildSizes)
-                 {
-                     LayoutWidgetChildren(world,
-                                          system,
-                                          child,
-                                          rect,
-                                          &widgetComps[i]);
-                     rect.needsLayout = false;
-                 }
-                 else
-                 {
-                     rect.needsLayout = true;
-                 }
+                 LayoutWidgetChildren(world,
+                                         system,
+                                         child,
+                                         rect,
+                                         layer,
+                                         &widgetComps[i]);
+                 rect.needsLayout = false;
              }
 
              return false;

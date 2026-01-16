@@ -50,6 +50,7 @@ namespace se::ui
                                                      ecs::System* system,
                                                      const ecs::Id& entity,
                                                      components::RectTransformComponent& verticalBoxTransform,
+                                                     int layer,
                                                      components::VerticalBoxComponent* verticalBox)
     {
         auto dec = ecs::HeirachyQueryDeclaration()
@@ -58,26 +59,21 @@ namespace se::ui
         std::unordered_map<ecs::Id, util::ChildDesiredSizeInfo> childRects = { };
 
         util::ForEachWidgetChild(entity, system, dec,
-         [world, system, verticalBoxTransform, verticalBox, &childRects](const ecs::SystemUpdateData& updateData,
-                                                        auto&& widgetComps)
+         [system, verticalBoxTransform, &childRects](const ecs::SystemUpdateData& updateData,
+                                                        auto&& widgetComp)
          {
-             const auto& children = updateData.GetEntities();
-             auto* rects = updateData.GetComponentArray<components::RectTransformComponent>();
-             auto* widgets = updateData.GetComponentArray<components::WidgetComponent>();
+             const auto& child = updateData.GetEntity();
+             auto* rect = updateData.GetComponentArray<components::RectTransformComponent>();
+             auto* widget = updateData.GetComponentArray<components::WidgetComponent>();
 
-             for (size_t i = 0; i < children.size(); ++i)
-             {
-                 const auto& child = children[i];
-                 auto& rect = rects[i];
-                 rect.anchors = { 0.f, 1.f, 0.f, 0.f };
-                 rect.minY = 0;
-                 rect.maxY = 0;
-                 rect.minX = 0;
-                 rect.maxX = 0;
+             rect->anchors = { 0.f, 1.f, 0.f, 0.f };
+             rect->minY = 0;
+             rect->maxY = 0;
+             rect->minX = 0;
+             rect->maxX = 0;
 
-                 math::IntVec2 childDesiredSize = DesiredSizeCalculator::GetDesiredSize(system, child, &widgets[i], verticalBoxTransform, rect, &widgetComps[i]);
-                 childRects[child] = util::ChildDesiredSizeInfo(&rect, childDesiredSize);
-             }
+             math::IntVec2 childDesiredSize = DesiredSizeCalculator::GetDesiredSize(system, child, widget, verticalBoxTransform, *rect, widgetComp);
+             childRects[child] = util::ChildDesiredSizeInfo(rect, childDesiredSize);
 
              return false;
          });
@@ -101,30 +97,23 @@ namespace se::ui
         dec = ecs::HeirachyQueryDeclaration()
             .WithComponent<components::RectTransformComponent>();
         util::ForEachWidgetChild(entity, system, dec,
-         [world, system](const ecs::SystemUpdateData& updateData,
-                                                        auto&& widgetComps)
+         [world, system, layer](const ecs::SystemUpdateData& updateData,
+                                                        auto&& widgetComp)
          {
-             const auto& children = updateData.GetEntities();
-             auto* rects = updateData.GetComponentArray<components::RectTransformComponent>();
+             const auto& child = updateData.GetEntity();
+             auto* rect = updateData.GetComponentArray<components::RectTransformComponent>();
 
-             for (size_t i = 0; i < children.size(); ++i)
+             if (strcmp(child.name->c_str(), "anchors") == 0)
              {
-                 const auto& child = children[i];
-                 auto& rect = rects[i];
-                 if (!rect.overridesChildSizes)
-                 {
-                     LayoutWidgetChildren(world,
-                                          system,
-                                          child,
-                                          rect,
-                                          &widgetComps[i]);
-                     rect.needsLayout = false;
-                 }
-                 else
-                 {
-                     rect.needsLayout = true;
-                 }
+                 int lol = 1;
              }
+             LayoutWidgetChildren(world,
+                                      system,
+                                      child,
+                                      *rect,
+                                      layer,
+                                      widgetComp);
+             rect->needsLayout = false;
 
              return false;
          });

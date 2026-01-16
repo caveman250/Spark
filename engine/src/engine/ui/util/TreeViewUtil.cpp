@@ -29,7 +29,7 @@ namespace se::ui::util
     }
 
     ecs::Id InsertTreeNode(const ecs::Id& treeViewEntity,
-       TreeViewComponent* treeView,
+       RectTransformComponent* treeViewRect,
         const ecs::Id& parentNode,
         const std::string& name,
         TreeNodeComponent** outTreeNode,
@@ -39,7 +39,7 @@ namespace se::ui::util
         auto world = Application::Get()->GetWorld();
         auto assetManager = asset::AssetManager::Get();
 
-        treeView->dirty = true;
+        treeViewRect->needsLayout = true;
 
         auto entity = world->CreateEntity(scene, name);
         world->AddChild(parentNode, entity);

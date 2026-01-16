@@ -49,11 +49,8 @@ namespace se::ui::systems
 
                 if (trans.needsLayout && world->HasComponent<ParentComponent>(entity))
                 {
-                    if (!trans.overridesChildSizes)
-                    {
-                        Layout::LayoutWidgetChildren(world, this, entities[i], trans, value + i);
-                        trans.needsLayout = false;
-                    }
+                    Layout::LayoutWidgetChildren(world, this, entities[i], trans, trans.layer, value + i);
+                    trans.needsLayout = false;
                 }
             });
         }, updateData.GetVariantComponentArray<SPARK_CONST_WIDGET_TYPES_WITH_NULLTYPE>());

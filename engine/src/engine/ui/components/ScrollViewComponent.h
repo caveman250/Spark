@@ -22,5 +22,6 @@ namespace se::ui
                                                          ecs::System* system,
                                                          const ecs::Id& entity,
                                                          components::RectTransformComponent& rectTransform,
+                                                         int layer,
                                                          components::ScrollViewComponent* treeView);
 }

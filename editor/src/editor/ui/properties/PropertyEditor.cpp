@@ -50,11 +50,11 @@ namespace se::editor::ui::properties
         {
             ecs::Id contentsEntity;
             CollapsingHeaderComponent* collapsingHeader = nullptr;
-            m_WidgetId = se::ui::util::CreateCollapsingHeader(world, titleContainer, contentsEntity, &collapsingHeader, collapsed, withBackground, editor->GetEditorScene());
+            m_WidgetId = se::ui::util::CreateCollapsingHeader(world, m_Name, titleContainer, contentsEntity, &collapsingHeader, collapsed, withBackground, editor->GetEditorScene());
             m_RectTransform = world->GetComponent<RectTransformComponent>(m_WidgetId);
             m_RectTransform->anchors = anchors;
 
-            m_Content = world->CreateEntity(editor->GetEditorScene(), "Vector Editor Vertical Box");
+            m_Content = world->CreateEntity(editor->GetEditorScene(), std::format("Property Content ({})", name));
             auto contentRect = world->AddComponent<RectTransformComponent>(m_Content);
             contentRect->anchors = { .left = 0.f, .right = 1.f, .top = 0.f, .bottom = 0.f };
             contentRect->minX = 5;
@@ -75,7 +75,7 @@ namespace se::editor::ui::properties
 
         if (constructTitle)
         {
-            auto titleEntity = world->CreateEntity(editor->GetEditorScene(), "Property Title");
+            auto titleEntity = world->CreateEntity(editor->GetEditorScene(), std::format("Property Title ({})", name));
             auto titleText = world->AddComponent<TextComponent>(titleEntity);
             titleText->font = ariel;
             titleText->fontSize = titleFontSize;

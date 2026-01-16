@@ -6,34 +6,32 @@ namespace se::ui
     void Layout::DoLayoutChildren(ecs::World* world,
                                      ecs::System* system,
                                      const ecs::Id& entity,
+                                     int layer,
                                      components::RectTransformComponent& thisRect)
     {
         auto dec = ecs::HeirachyQueryDeclaration()
                 .WithComponent<components::RectTransformComponent>()
                 .WithVariantComponent<SPARK_WIDGET_TYPES_WITH_NULLTYPE>(ecs::ComponentMutability::Mutable);
         system->RunChildQuery(entity, dec,
-          [world, system, &thisRect, entity](const ecs::SystemUpdateData& updateData)
+          [world, system, &thisRect, entity, layer](const ecs::SystemUpdateData& updateData)
           {
-              std::visit([world, system, updateData, thisRect, entity](auto&& value)
+              std::visit([world, system, updateData, thisRect, entity, layer](auto&& value)
               {
-                  const auto& entities = updateData.GetEntities();
-                  auto transforms = updateData.GetComponentArray<components::RectTransformComponent>();
+                  const auto& child = updateData.GetEntity();
+                  auto transform = updateData.GetComponentArray<components::RectTransformComponent>();
 
-                  for (size_t i = 0; i < entities.size(); ++i)
+                  if constexpr (std::is_same_v<components::TextComponent*, std::decay_t<decltype(value)>>)
                   {
-                      auto& transform = transforms[i];
-                      transform.rect = util::CalculateScreenSpaceRect(transform, thisRect);
-                      transform.layer = thisRect.layer + 1;
-                      if (!transform.overridesChildSizes)
+                      if (strcmp(value->text.c_str(), "anchors") == 0)
                       {
-                          LayoutWidgetChildren(world, system, entities[i], transforms[i], value);
-                          transform.needsLayout = false;
-                      }
-                      else
-                      {
-                          transform.needsLayout = true;
+                          int lol = 1;
                       }
                   }
+
+                  transform->rect = util::CalculateScreenSpaceRect(*transform, thisRect);
+                  transform->layer = layer;
+                  LayoutWidgetChildren(world, system, child, *transform, layer, value);
+                  transform->needsLayout = false;
               }, updateData.GetVariantComponentArray<SPARK_WIDGET_TYPES_WITH_NULLTYPE>());
 
               return false;

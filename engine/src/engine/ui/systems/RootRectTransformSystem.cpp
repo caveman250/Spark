@@ -52,15 +52,8 @@ namespace se::ui::systems
                                          trans.rect = util::CalculateScreenSpaceRect(trans, windowRect);
                                          if (trans.needsLayout || trans.rect != trans.lastRect)
                                          {
-                                             if (!trans.overridesChildSizes)
-                                             {
-                                                 Layout::LayoutWidgetChildren(world, this, entities[i], trans, value + i);
-                                                 trans.needsLayout = false;
-                                             }
-                                             else
-                                             {
-                                                 trans.needsLayout = true;
-                                             }
+                                             Layout::LayoutWidgetChildren(world, this, entities[i], trans, trans.layer, value + i);
+                                             trans.needsLayout = false;
                                          }
                                      });
         }, updateData.GetVariantComponentArray<SPARK_WIDGET_TYPES_WITH_NULLTYPE>());

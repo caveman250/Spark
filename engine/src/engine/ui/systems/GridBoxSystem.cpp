@@ -84,19 +84,19 @@ namespace se::ui::systems
                                                                         gridBoxTransform);
                     rectTransform->layer = gridBoxTransform.layer;
 
-                    if (!rectTransform->overridesChildSizes)
-                    {
-                        util::LayoutChildren(world,
-                                             this,
-                                             child,
-                                             *rectTransform,
-                                             rectTransform->layer);
-                        rectTransform->needsLayout = false;
-                    }
-                    else
-                    {
-                        rectTransform->needsLayout = true;
-                    }
+                    // if (!rectTransform->overridesChildSizes)
+                    // {
+                    //     // util::LayoutChildren(world,
+                    //     //                      this,
+                    //     //                      child,
+                    //     //                      *rectTransform,
+                    //     //                      rectTransform->layer);
+                    //     rectTransform->needsLayout = false;
+                    // }
+                    // else
+                    // {
+                    //     rectTransform->needsLayout = true;
+                    // }
 
                     cursor.x += itemSize.x + gridBox.spacing;
                     if (cursor.x + itemSize.x + gridBox.spacing > gridBoxTransform.rect.size.x / window->GetContentScale())

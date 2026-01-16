@@ -2,6 +2,7 @@
 #include "engine/ecs/Signal.h"
 #include "engine/reflect/Reflect.h"
 #include "engine/ui/DesiredSizeCalculator.h"
+#include "engine/ui/Layout.h"
 
 namespace se::ui::components
 {
@@ -21,33 +22,16 @@ namespace se::ui::components
 namespace se::ui
 {
     template <>
-    inline math::IntVec2 DesiredSizeCalculator::GetDesiredSize<components::CollapsingHeaderComponent>(ecs::System* system,
+    math::IntVec2 DesiredSizeCalculator::GetDesiredSize<components::CollapsingHeaderComponent>(ecs::System* system,
                                                                                                  const ecs::Id&,
                                                                                                  components::RectTransformComponent& thisRect,
-                                                                                                 const components::CollapsingHeaderComponent* context)
-    {
-        math::Vec2 desiredSize = {};
-        // make a fake rect transform for the title since we cant access the real component here
-        components::RectTransformComponent titleRectTransform = {};
-        titleRectTransform.anchors = { .left = 0.f, .right = 1.f, .top = 0.f, .bottom = 0.f };
-        titleRectTransform.rect = util::CalculateScreenSpaceRect(titleRectTransform, thisRect);
-        if (context->collapsed)
-        {
-            desiredSize = GetDesiredSize<ecs::NullComponentType>(system, context->titleEntity, nullptr, thisRect, titleRectTransform, nullptr);
-        }
-        else
-        {
-            // make a fake rect transform for the title since we cant access the real component here
-            components::RectTransformComponent contentsRectTransform = {};
-            contentsRectTransform.anchors = { .left = 0.f, .right = 1.f, .top = 0.f, .bottom = 0.f };
-            contentsRectTransform.rect = util::CalculateScreenSpaceRect(contentsRectTransform, thisRect);
+                                                                                                 const components::CollapsingHeaderComponent* context);
 
-            auto headerSize = GetDesiredSize<ecs::NullComponentType>(system, context->titleEntity, nullptr, thisRect, titleRectTransform, nullptr);
-            auto contentSize = GetDesiredSize<ecs::NullComponentType>(system, context->contentsEntity, nullptr, thisRect, contentsRectTransform, nullptr);
-
-            desiredSize = math::Vec2(static_cast<float>(std::max(headerSize.x, contentSize.x)), static_cast<float>(headerSize.y + contentSize.y) + 5.f);
-        }
-
-        return desiredSize;
-    }
+    template <>
+    void Layout::LayoutWidgetChildren<components::CollapsingHeaderComponent>(ecs::World* world,
+                                     ecs::System* system,
+                                     const ecs::Id& entity,
+                                     components::RectTransformComponent& comboBoxRect,
+                                     int layer,
+                                     components::CollapsingHeaderComponent* comboBox);
 }

@@ -46,5 +46,6 @@ namespace se::ui
                                                          ecs::System*,
                                                          const ecs::Id&,
                                                          components::RectTransformComponent&,
+                                                         int layer,
                                                          components::HorizontalBoxComponent*);
 }

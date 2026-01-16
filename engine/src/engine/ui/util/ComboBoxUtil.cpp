@@ -183,7 +183,6 @@ namespace se::ui::util
         ret.rectTransform->anchors = { .left = 0.f, .right = 1.f, .top = 0.f, .bottom = 0.f };
         ret.rectTransform->minY = 0;
         ret.rectTransform->maxY = arial->GetLineHeight(params.fontSize) + padding + borderSize * 2 + 0.5f;
-        ret.rectTransform->overridesChildSizes = true;
         world->AddComponent<WidgetComponent>(ret.id);
         ret.comboBox = world->AddComponent<ComboBoxComponent>(ret.id);
         world->AddComponent<MouseInputComponent>(ret.id);

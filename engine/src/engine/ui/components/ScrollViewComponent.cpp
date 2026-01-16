@@ -9,6 +9,7 @@ namespace se::ui
                                                                        ecs::System* system,
                                                                        const ecs::Id& entity,
                                                                        components::RectTransformComponent& rectTransform,
+                                                                       int layer,
                                                                        components::ScrollViewComponent* scrollView)
     {
         auto window = Application::Get()->GetWindow();
@@ -17,7 +18,7 @@ namespace se::ui
                 .WithComponent<components::WidgetComponent>();
         float totalChildSize = 0.f;
         util::ForEachWidgetChild(entity, system, declaration,
-        [system, world, window, &rectTransform, &totalChildSize](const ecs::SystemUpdateData& updateData, auto&& widgetComps)
+        [system, world, window, &rectTransform, &totalChildSize, layer](const ecs::SystemUpdateData& updateData, auto&& widgetComps)
         {
             const auto& children = updateData.GetEntities();
             auto* childTransforms = updateData.GetComponentArray<components::RectTransformComponent>();
@@ -32,15 +33,8 @@ namespace se::ui
                 childTransform.maxY = childTransform.minY + desiredSize.y / window->GetContentScale();
                 childTransform.rect = util::CalculateScreenSpaceRect(childTransform, rectTransform);
                 totalChildSize += childTransform.rect.size.y;
-                if (!childTransform.overridesChildSizes)
-                {
-                    LayoutWidgetChildren(world, system, child, rectTransform, &widgetComps[i]);
-                    childTransform.needsLayout = false;
-                }
-                else
-                {
-                    childTransform.needsLayout = true;
-                }
+                LayoutWidgetChildren(world, system, child, rectTransform, layer, &widgetComps[i]);
+                childTransform.needsLayout = false;
             }
 
             return false;

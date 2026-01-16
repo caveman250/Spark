@@ -4,6 +4,11 @@
 #include "spark.h"
 #include "engine/ecs/System.h"
 
+namespace se::ui::components
+{
+    struct TextComponent;
+}
+
 namespace se::ui
 {
     class Layout
@@ -11,6 +16,7 @@ namespace se::ui
         static void DoLayoutChildren(ecs::World* world,
                                          ecs::System* system,
                                          const ecs::Id& entity,
+                                         int layer,
                                          components::RectTransformComponent& thisRect);
 
     public:
@@ -19,10 +25,11 @@ namespace se::ui
                                          ecs::System* system,
                                          const ecs::Id& entity,
                                          components::RectTransformComponent& thisRect,
-                                         T*)
+                                         int layer,
+                                         T* t)
         {
             EASY_FUNCTION();
-            DoLayoutChildren(world, system, entity, thisRect);
+            DoLayoutChildren(world, system, entity, layer, thisRect);
         }
     };
 }

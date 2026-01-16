@@ -15,6 +15,7 @@ namespace se::ecs
 namespace se::ui::util
 {
     ecs::Id CreateCollapsingHeader(ecs::World* world,
+                                   const std::string& name,
                                    ecs::Id& titleContainer,
                                    ecs::Id& contents,
                                    components::CollapsingHeaderComponent** collapsingHeader,

@@ -91,6 +91,7 @@ namespace se::ui
         ecs::System* system,
         const ecs::Id& entity,
         components::RectTransformComponent& splitViewTransform,
+        int layer,
         components::SplitViewComponent* splitView)
     {
         if (splitViewTransform.needsLayout)
@@ -99,7 +100,7 @@ namespace se::ui
                     .WithComponent<components::RectTransformComponent>();
 
             util::ForEachWidgetChild(entity, system, dec,
-                                     [system, world, splitView, splitViewTransform](const ecs::SystemUpdateData& updateData, auto&& widgetComps)
+                                     [system, world, splitView, splitViewTransform, layer](const ecs::SystemUpdateData& updateData, auto&& widgetComps)
                                      {
                                          const auto& children = updateData.GetEntities();
                                          auto* rectTransforms = updateData.GetComponentArray<components::RectTransformComponent>();
@@ -121,17 +122,10 @@ namespace se::ui
                                                      SPARK_ASSERT(false);
                                              }
 
-                                             rectTransform.layer = splitViewTransform.layer + 1;
+                                             rectTransform.layer = splitViewTransform.layer;
 
-                                             if (!rectTransform.overridesChildSizes)
-                                             {
-                                                 LayoutWidgetChildren(world, system, child, rectTransform, widgetComps + i);
-                                                 rectTransform.needsLayout = false;
-                                             }
-                                             else
-                                             {
-                                                 rectTransform.needsLayout = true;
-                                             }
+                                             LayoutWidgetChildren(world, system, child, rectTransform, layer, widgetComps + i);
+                                             rectTransform.needsLayout = false;
                                          }
 
                                          return false;

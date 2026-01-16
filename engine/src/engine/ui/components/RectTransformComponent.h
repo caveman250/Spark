@@ -52,9 +52,6 @@ namespace se::ui::components
         Rect cachedParentSize = {};
 
         SPARK_MEMBER()
-        bool overridesChildSizes = false;
-
-        SPARK_MEMBER()
         int layer = 0;
 
         SPARK_MEMBER()

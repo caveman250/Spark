@@ -4,63 +4,64 @@
 
 namespace se::ui
 {
-    int MeasureAndArrange(const ecs::Id& entity,
+    int MeasureAndArrange(ecs::World* world,
+        const ecs::Id& entity,
         ecs::System* system,
         components::RectTransformComponent& parentRect,
         bool collapsed,
         int startY)
     {
+        auto dec = ecs::HeirachyQueryDeclaration()
+            .WithComponent<components::RectTransformComponent>()
+            .WithComponent<components::WidgetComponent>();
         int currentY = startY;
-        auto func = [collapsed, &currentY, system, parentRect](const ecs::SystemUpdateData& updateData)
+        util::ForEachWidgetChild(entity, system, dec,
+        [world, collapsed, &currentY, system, parentRect](const ecs::SystemUpdateData& updateData, auto&& widgetComp)
         {
             auto window = Application::Get()->GetWindow();
-            const auto& children = updateData.GetEntities();
-            auto* widgets = updateData.GetComponentArray<components::WidgetComponent>();
-            auto* rectTransforms = updateData.GetComponentArray<components::RectTransformComponent>();
-            const auto* treeNodes = updateData.GetComponentArray<const components::TreeNodeComponent>();
+            const auto& child = updateData.GetEntity();
+            auto* widget = updateData.GetComponentArray<components::WidgetComponent>();
+            auto* rectTransform = updateData.GetComponentArray<components::RectTransformComponent>();
 
-            for (size_t j = 0; j < children.size(); ++j)
+            using Type = std::decay_t<decltype(widgetComp)>;
+            if constexpr (std::is_same_v<Type, components::TreeNodeComponent*>)
             {
-                auto& widget = widgets[j];
-                widget.dirty = (widget.visibility == Visibility::Hidden) != collapsed;
-                widget.visibility = collapsed ? Visibility::Hidden : Visibility::Visible; // TODO should be collapsed instead of Hidden.
+                widget->dirty = (widget->visibility == Visibility::Hidden) != collapsed;
+                widget->visibility = collapsed ? Visibility::Hidden : Visibility::Visible; // TODO should be collapsed instead of Hidden.
 
-                auto& childTransform = rectTransforms[j];
-                childTransform.rect.topLeft.y = currentY * window->GetContentScale();
-                childTransform.rect.topLeft.x = 6 * window->GetContentScale();
-                childTransform.rect.size.y = childTransform.rect.topLeft.y + 18 * window->GetContentScale();
-                childTransform.rect.size.x = parentRect.rect.size.x;
-                childTransform.needsLayout = false;
+                rectTransform->rect.topLeft.y = currentY * window->GetContentScale();
+                rectTransform->rect.topLeft.x = 6 * window->GetContentScale();
+                rectTransform->rect.size.y = rectTransform->rect.topLeft.y + 18 * window->GetContentScale();
+                rectTransform->rect.size.x = parentRect.rect.size.x;
+                rectTransform->layer = parentRect.layer;
+                rectTransform->needsLayout = false;
 
-                const auto& treeNode = treeNodes[j];
-                currentY += MeasureAndArrange(children[j], system, childTransform, collapsed || treeNode.collapsed, 18);
+                currentY += MeasureAndArrange(world, child, system, *rectTransform, collapsed || widgetComp->collapsed, 18);
+            }
+            else
+            {
+                rectTransform->rect = util::CalculateScreenSpaceRect(*rectTransform, parentRect);
+                rectTransform->layer = parentRect.layer;
+                Layout::LayoutWidgetChildren(world, system, child, *rectTransform, parentRect.layer, widgetComp);
             }
 
             return false;
-        };
-
-        auto declaration = ecs::HeirachyQueryDeclaration()
-            .WithComponent<const components::TreeNodeComponent>()
-            .WithComponent<components::RectTransformComponent>()
-            .WithComponent<components::WidgetComponent>();
-        system->RunChildQuery(entity, declaration, func);
+        });
 
         return collapsed ? 18 : currentY;
     }
 
     template<>
-    void Layout::LayoutWidgetChildren<components::TreeViewComponent>(ecs::World*,
+    void Layout::LayoutWidgetChildren<components::TreeViewComponent>(ecs::World* world,
                                                              ecs::System* system,
                                                              const ecs::Id& entity,
                                                              components::RectTransformComponent& rectTransform,
+                                                             [[maybe_unused]] int layer,
                                                              components::TreeViewComponent* treeView)
     {
-        if (treeView->dirty)
-        {
-            int maxY = MeasureAndArrange(entity, system, rectTransform, false, 0);
-            rectTransform.maxY = static_cast<float>(maxY);
-            rectTransform.needsLayout = false;
-            treeView->dirty = false;
-        };
+        int maxY = MeasureAndArrange(world, entity, system, rectTransform, false, 0);
+        rectTransform.maxY = static_cast<float>(maxY);
+        rectTransform.needsLayout = false;
+        treeView->dirty = false;
     }
 }

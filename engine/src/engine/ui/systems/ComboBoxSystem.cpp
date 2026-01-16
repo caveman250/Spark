@@ -78,46 +78,6 @@ namespace se::ui::systems
                         widget->dirty = true;
                     });
             }
-
-            if (transform.needsLayout)
-            {
-                auto desiredSizeInfo = util::GetChildrenDesiredSizes(entity, this, transform);
-                for (const auto& [child, desired] : desiredSizeInfo)
-                {
-                    int childlayer = 0;
-                    if (child == comboBox.collapsedEntity)
-                    {
-                        desired.rectTransform->rect.topLeft = transform.rect.topLeft;
-                        desired.rectTransform->rect.size.x = transform.rect.size.x;
-                        desired.rectTransform->rect.size.y = desired.desiredSize.y;
-                        childlayer = desired.rectTransform->layer;
-                    }
-                    else if (child == comboBox.expandedEntity)
-                    {
-                        desired.rectTransform->rect.topLeft = transform.rect.topLeft;
-                        desired.rectTransform->rect.size.x = transform.rect.size.x;
-                        desired.rectTransform->rect.size.y = DesiredSizeCalculator::GetDesiredSize<ecs::NullComponentType>(this, child, *desired.rectTransform, nullptr).y;
-                        desired.rectTransform->layer = -1;
-                        childlayer = -1;
-                    }
-                    else
-                    {
-                        SPARK_ASSERT(false, "Unexpected ComboBox child.");
-                    }
-
-                    if (!desired.rectTransform->overridesChildSizes)
-                    {
-                        util::LayoutChildren(world, this, child, *desired.rectTransform, childlayer);
-                        desired.rectTransform->needsLayout = false;
-                    }
-                    else
-                    {
-                        desired.rectTransform->needsLayout = true;
-                    }
-                }
-
-                transform.needsLayout = false;
-            }
         });
     }
 }
