@@ -106,7 +106,6 @@ namespace se::editor::ui
         auto pathBarRect = world->AddComponent<se::ui::components::RectTransformComponent>(m_PathBarBox);
         pathBarRect->anchors = { 0.f, 1.f, 0.f, 1.f };
         pathBarRect->minX = 5;
-        pathBarRect->overridesChildSizes = true;
         world->AddComponent<se::ui::components::WidgetComponent>(m_PathBarBox);
         auto horBox = world->AddComponent<se::ui::components::HorizontalBoxComponent>(m_PathBarBox);
         horBox->spacing = 5;
