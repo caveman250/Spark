@@ -21,7 +21,9 @@ namespace se::ui::systems
         return ecs::SystemDeclaration("RootRectTransformSystem")
                 .WithComponent<components::RectTransformComponent>()
                 .WithComponent<const RootComponent>()
-                .WithVariantComponent<SPARK_CONST_WIDGET_TYPES_WITH_NULLTYPE>(ecs::ComponentMutability::Immutable)
+                .WithVariantComponent<SPARK_WIDGET_TYPES_WITH_NULLTYPE>(ecs::ComponentMutability::Mutable)
+                .WithHeirachyQuerys<SPARK_WIDGET_TYPES>(ecs::ComponentMutability::Mutable)
+                .WithHeirachyQuery<components::WidgetComponent>()
                 .WithDependency<LastRectSystem>();
     }
 
@@ -61,6 +63,6 @@ namespace se::ui::systems
                                              }
                                          }
                                      });
-        }, updateData.GetVariantComponentArray<SPARK_CONST_WIDGET_TYPES_WITH_NULLTYPE>());
+        }, updateData.GetVariantComponentArray<SPARK_WIDGET_TYPES_WITH_NULLTYPE>());
     }
 }

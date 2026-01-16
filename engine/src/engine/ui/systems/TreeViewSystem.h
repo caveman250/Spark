@@ -16,7 +16,5 @@ namespace se::ui::systems
 
         static ecs::SystemDeclaration GetSystemDeclaration();
         void OnUpdate(const ecs::SystemUpdateData& updateData) override;
-    private:
-        int MeasureAndArrange(const ecs::Id& entity,  bool collapsed, int startY);
     };
 }

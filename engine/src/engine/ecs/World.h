@@ -547,10 +547,10 @@ namespace se::ecs
                 updateData.AddComponentArray(comp.id, GetComponent(child, comp.id), comp.mutability);
             }
 
-            bool hasAnyVariant = hasNullVariant || declaration.variantComponentUsage.components.empty();
+            bool hasAnyVariant = false;
             for (const auto& comp: declaration.variantComponentUsage.components)
             {
-                if (!HasComponent(child, comp))
+                if (!HasComponent(child, comp) && comp != NullComponentType::GetComponentId())
                 {
                     continue;
                 }
@@ -562,7 +562,18 @@ namespace se::ecs
                 break;
             }
 
-            if (shouldSkip || !hasAnyVariant)
+            if (!hasAnyVariant)
+            {
+                if (hasNullVariant)
+                {
+                    hasAnyVariant = true;
+                    updateData.AddVariantComponentArray(NullComponentType::GetComponentId(),
+                                                    nullptr,
+                                                    declaration.variantComponentUsage.mutability);
+                }
+            }
+
+            if (shouldSkip || (!hasAnyVariant && !declaration.variantComponentUsage.components.empty()))
             {
                 continue;
             }

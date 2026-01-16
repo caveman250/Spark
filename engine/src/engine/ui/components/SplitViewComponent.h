@@ -42,5 +42,5 @@ namespace se::ui
                                                                      ecs::System* system,
                                                                      const ecs::Id& entity,
                                                                      components::RectTransformComponent& splitViewTransform,
-                                                                     const components::SplitViewComponent* splitView);
+                                                                     components::SplitViewComponent* splitView);
 }

@@ -10,7 +10,7 @@ namespace se::ui
     {
         auto dec = ecs::HeirachyQueryDeclaration()
                 .WithComponent<components::RectTransformComponent>()
-                .WithVariantComponent<SPARK_CONST_WIDGET_TYPES_WITH_NULLTYPE>(ecs::ComponentMutability::Immutable);
+                .WithVariantComponent<SPARK_WIDGET_TYPES_WITH_NULLTYPE>(ecs::ComponentMutability::Mutable);
         system->RunChildQuery(entity, dec,
           [world, system, &thisRect, entity](const ecs::SystemUpdateData& updateData)
           {
@@ -34,7 +34,7 @@ namespace se::ui
                           transform.needsLayout = true;
                       }
                   }
-              }, updateData.GetVariantComponentArray<SPARK_CONST_WIDGET_TYPES_WITH_NULLTYPE>());
+              }, updateData.GetVariantComponentArray<SPARK_WIDGET_TYPES_WITH_NULLTYPE>());
 
               return false;
           });

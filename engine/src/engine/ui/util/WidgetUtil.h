@@ -25,14 +25,14 @@ namespace se::ui::util
         Func&& func)
     {
         ecs::HeirachyQueryDeclaration decCopy = query;
-        std::ignore = decCopy.WithVariantComponent<SPARK_CONST_WIDGET_TYPES_WITH_NULLTYPE>(ecs::ComponentMutability::Immutable);
+        std::ignore = decCopy.WithVariantComponent<SPARK_WIDGET_TYPES_WITH_NULLTYPE>(ecs::ComponentMutability::Mutable);
 
         system->RunChildQuery(entity, decCopy, [func](const ecs::SystemUpdateData& updateData)
         {
             std::visit([updateData, func](auto&& value)
             {
                 func(updateData, value);
-            }, updateData.GetVariantComponentArray<SPARK_CONST_WIDGET_TYPES_WITH_NULLTYPE>());
+            }, updateData.GetVariantComponentArray<SPARK_WIDGET_TYPES_WITH_NULLTYPE>());
 
             return false;
         });
