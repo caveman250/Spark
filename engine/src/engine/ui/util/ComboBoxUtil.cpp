@@ -129,7 +129,6 @@ namespace se::ui::util
         auto verticalBoxEntity = world->CreateEntity(params.scene, "Vertical Box");
         auto verticalBoxTransform = world->AddComponent<RectTransformComponent>(verticalBoxEntity);
         verticalBoxTransform->anchors = { .left = 0.f, .right = 1.f, .top = 0.f, .bottom = 0.f };
-        verticalBoxTransform->overridesChildSizes = true;
         world->AddComponent<WidgetComponent>(verticalBoxEntity);
         auto verticalBox = world->AddComponent<VerticalBoxComponent>(verticalBoxEntity);
         verticalBox->paddingTop = textYOffset;

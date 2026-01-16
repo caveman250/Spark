@@ -102,7 +102,7 @@ namespace se::ui
         dec = ecs::HeirachyQueryDeclaration()
             .WithComponent<components::RectTransformComponent>();
         util::ForEachWidgetChild(entity, system, dec,
-         [world, system, horizontalBoxTransform, horizontalBox, &childRects](const ecs::SystemUpdateData& updateData,
+         [world, system](const ecs::SystemUpdateData& updateData,
                                                         auto&& widgetComps)
          {
              const auto& children = updateData.GetEntities();

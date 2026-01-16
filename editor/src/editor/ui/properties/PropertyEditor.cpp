@@ -58,7 +58,6 @@ namespace se::editor::ui::properties
             auto contentRect = world->AddComponent<RectTransformComponent>(m_Content);
             contentRect->anchors = { .left = 0.f, .right = 1.f, .top = 0.f, .bottom = 0.f };
             contentRect->minX = 5;
-            contentRect->overridesChildSizes = true;
             world->AddComponent<WidgetComponent>(m_Content);
             auto verticalBox = world->AddComponent<VerticalBoxComponent>(m_Content);
             verticalBox->spacing = 10;

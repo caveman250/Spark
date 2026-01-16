@@ -54,7 +54,6 @@ namespace se::editor::ui::properties
         ecs::Id verticalBoxEntity = world->CreateEntity(editor->GetEditorScene(), "Vector Editor Vertical Box");
         auto* verticalBoxRect = world->AddComponent<RectTransformComponent>(verticalBoxEntity);
         verticalBoxRect->anchors = { .left = 0.f, .right = 1.f, .top = 0.f, .bottom = 0.f };
-        verticalBoxRect->overridesChildSizes = true;
         world->AddComponent<WidgetComponent>(verticalBoxEntity);
         auto verticalBox = world->AddComponent<VerticalBoxComponent>(verticalBoxEntity);
         verticalBox->spacing = 5;
