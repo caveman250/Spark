@@ -35,7 +35,7 @@ def ProcessEnum(next_line, enum_list, lines, line_index, namespace_stack, filepa
         values.append(val)
 
     enum_list.append(Enum(enum, filepath, namespace, values, source_dir))
-    
+
 def DefineEnumBegin(enum):
     full_enum_name = enum.namespace + "::" + enum.name
     return f"""
@@ -56,7 +56,7 @@ namespace se::reflect
 
 def DefineEnumValue(enum, value):
     full_enum_name = enum.namespace + "::" + enum.name
-    return f"            {{\"{value}\", static_cast<std::>({full_enum_name}::{value})}},\n"
+    return f"            {{\"{value}\", static_cast<int>({full_enum_name}::{value})}},\n"
 
 def DefineEnumEnd():
     return f"""            }};
