@@ -1,7 +1,7 @@
 #pragma once
 
+#include "spark.h"
 #include "engine/ecs/System.h"
-#include "engine/ui/components/RectTransformComponent.h"
 
 using namespace se;
 using namespace se::ecs::components;

@@ -2,12 +2,15 @@
 
 #include "Widgets.generated.h"
 #include "engine/asset/AssetManager.h"
+#include "engine/ui/components/ButtonComponent.h"
+#include "engine/ui/components/CollapsingHeaderComponent.h"
 #include "engine/ui/components/MouseInputComponent.h"
 #include "engine/ui/components/WidgetComponent.h"
 
 namespace se::ui::util
 {
     ecs::Id CreateCollapsingHeader(ecs::World* world,
+                                   const std::string& name,
                                    ecs::Id& titleContainer,
                                    ecs::Id& contents,
                                    CollapsingHeaderComponent** collapsingHeader,
@@ -15,9 +18,8 @@ namespace se::ui::util
                                    bool withBackground,
                                    const ecs::Id& scene)
     {
-        auto entity = world->CreateEntity(scene, "Collapsing Header");
+        auto entity = world->CreateEntity(scene, name);
         auto rect = world->AddComponent<RectTransformComponent>(entity);
-        rect->overridesChildSizes = true;
         rect->anchors = { .left = 0.f, .right = 1.f, .top = 0.f, .bottom = 0.f };
         *collapsingHeader = world->AddComponent<CollapsingHeaderComponent>(entity);
         (*collapsingHeader)->collapsed = collapsed;
@@ -33,7 +35,7 @@ namespace se::ui::util
             titleBGMaterial->GetShaderSettings().SetSetting("color_setting", math::Vec3(.24f, .24f, .24f));
         }
 
-        ecs::Id title = world->CreateEntity(scene, "Collapsing Header Title");
+        ecs::Id title = world->CreateEntity(scene, std::format("Collapsing Header Title ({})", name));
         rect = world->AddComponent<RectTransformComponent>(title);
         rect->anchors = { .left = 0.f, .right = 1.f, .top = 0.f, .bottom = 0.f };
         world->AddComponent<WidgetComponent>(title);
@@ -45,7 +47,7 @@ namespace se::ui::util
         world->AddChild(entity, title);
         (*collapsingHeader)->titleEntity = title;
 
-        titleContainer = world->CreateEntity(scene, "Collapsing Header Title Contents");
+        titleContainer = world->CreateEntity(scene, std::format("Collapsing Header Title Contents ({})", name));
         rect = world->AddComponent<RectTransformComponent>(titleContainer);
         rect->anchors = { .left = 0.f, .right = 1.f, .top = 0.f, .bottom = 0.f };
         rect->minX = 12;
@@ -55,7 +57,7 @@ namespace se::ui::util
         static asset::AssetReference<asset::Texture> expanded_indicator_texture = "/engine_assets/textures/tree_node_indicator_expanded.sass";
         static asset::AssetReference<asset::Texture> collapsed_indicator_texture = "/engine_assets/textures/tree_node_indicator_collapsed.sass";
 
-        ecs::Id titleIndicator = world->CreateEntity(scene, "Collapsing Header Title Indicator");
+        ecs::Id titleIndicator = world->CreateEntity(scene, std::format("Collapsing Header Title Indicator ({})", name));
         rect = world->AddComponent<RectTransformComponent>(titleIndicator);
         rect->anchors = { .left = 0.f, .right = 0.f, .top = 0.f, .bottom = 0.f };
         rect->minX = 0;
@@ -82,29 +84,29 @@ namespace se::ui::util
                                                      collapsed ? &collapsed_indicator_texture : &expanded_indicator_texture);
         world->AddChild(title, titleIndicator);
 
-        auto titleButtonEntity = world->CreateEntity(scene, "Collapsing Header Title Button");
-        ButtonComponent* titleButton = world->AddComponent<ButtonComponent>(titleButtonEntity);
-        RectTransformComponent* titleButtonRect = world->AddComponent<RectTransformComponent>(titleButtonEntity);
+        auto titleButtonEntity = world->CreateEntity(scene, std::format("Collapsing Header Title Button ({})", name));
+        components::ButtonComponent* titleButton = world->AddComponent<components::ButtonComponent>(titleButtonEntity);
+        components::RectTransformComponent* titleButtonRect = world->AddComponent<components::RectTransformComponent>(titleButtonEntity);
         titleButtonRect->anchors = { .left = 0.f, .right = 1.f, .top = 0.f, .bottom = 1.f };
-        auto titleButtonWidget = world->AddComponent<WidgetComponent>(titleButtonEntity);
+        auto titleButtonWidget = world->AddComponent<components::WidgetComponent>(titleButtonEntity);
         titleButtonWidget->visibility = Visibility::Hidden;
         world->AddChild(title, titleButtonEntity);
         titleButton->onReleased.Subscribe([world, entity, titleIndicator]()
         {
-            CollapsingHeaderComponent* collapsingHeader = world->GetComponent<CollapsingHeaderComponent>(entity);
+            components::CollapsingHeaderComponent* collapsingHeader = world->GetComponent<components::CollapsingHeaderComponent>(entity);
             collapsingHeader->collapsed = !collapsingHeader->collapsed;
 
-            ImageComponent* image = world->GetComponent<ImageComponent>(titleIndicator);
+            components::ImageComponent* image = world->GetComponent<components::ImageComponent>(titleIndicator);
             image->materialInstance->SetUniform("Texture",
                                                 asset::shader::ast::AstType::Sampler2DReference,
                                                 1,
                                                 collapsingHeader->collapsed ? &collapsed_indicator_texture : &expanded_indicator_texture);
         });
 
-        contents = world->CreateEntity(scene, "Collapsing Header Contents");
-        rect = world->AddComponent<RectTransformComponent>(contents);
+        contents = world->CreateEntity(scene, std::format("Collapsing Header Contents ({})", name));
+        rect = world->AddComponent<components::RectTransformComponent>(contents);
         rect->anchors = { .left = 0.f, .right = 1.f, .top = 0.f, .bottom = 0.f };
-        world->AddComponent<WidgetComponent>(contents);
+        world->AddComponent<components::WidgetComponent>(contents);
         world->AddChild(entity, contents);
         (*collapsingHeader)->contentsEntity = contents;
 

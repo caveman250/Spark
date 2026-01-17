@@ -2,6 +2,7 @@
 #include "engine/ecs/Signal.h"
 #include "engine/reflect/Reflect.h"
 #include "engine/ui/DesiredSizeCalculator.h"
+#include "engine/ui/Layout.h"
 
 namespace se::ui::components
 {
@@ -32,4 +33,13 @@ namespace se::ui
 
         return GetDesiredSize<ecs::NullComponentType>(system, context->collapsedEntity, fakeTransform, nullptr);
     }
+
+    template <>
+    void Layout::LayoutWidgetChildren<components::ComboBoxComponent>(ecs::World* world,
+                                         ecs::System* system,
+                                         const ecs::Id& entity,
+                                         components::RectTransformComponent& comboBoxRect,
+                                         int layer,
+                                         components::ComboBoxComponent* comboBox);
+
 }

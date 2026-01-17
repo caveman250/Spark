@@ -25,7 +25,7 @@ namespace se::ecs
         template<typename Func>
         void RunQuery(Func&& func, bool force)
         {
-            Application::Get()->GetWorld()->Each(m_Declaration.componentUsage, m_Declaration.singletonComponentUsage, func, GetUpdateMode(), force);
+            Application::Get()->GetWorld()->Each(m_Declaration.componentUsage, m_Declaration.variantComponentUsage, m_Declaration.singletonComponentUsage, func, GetUpdateMode(), force);
         }
 
         template<typename Func>

@@ -22,7 +22,7 @@ def WriteWidgetTypesMacros(widget_list):
     ret = "\n#define SPARK_WIDGET_TYPES "
     for i in range(len(widget_list)):
         if len(widget_list[i].namespace) > 0:
-            ret += widget_list[i].namespace + "::"
+            ret += "::" + widget_list[i].namespace + "::"
         ret += widget_list[i].name
         if i < len(widget_list) - 1:
             ret += ","
@@ -31,7 +31,7 @@ def WriteWidgetTypesMacros(widget_list):
     for i in range(len(widget_list)):
         ret += "const "
         if len(widget_list[i].namespace) > 0:
-            ret += widget_list[i].namespace + "::"
+            ret +=  "::" + widget_list[i].namespace + "::"
         ret += widget_list[i].name
         if i < len(widget_list) - 1:
             ret += ","
@@ -39,26 +39,26 @@ def WriteWidgetTypesMacros(widget_list):
     ret += "\n#define SPARK_WIDGET_TYPES_WITH_NULLTYPE "
     for i in range(len(widget_list)):
         if len(widget_list[i].namespace) > 0:
-            ret += widget_list[i].namespace + "::"
+            ret +=  "::" + widget_list[i].namespace + "::"
         ret += widget_list[i].name
         if i < len(widget_list) - 1:
             ret += ","
-    ret += ",se::ecs::NullComponentType"
+    ret += ",::se::ecs::NullComponentType"
 
     ret += "\n#define SPARK_CONST_WIDGET_TYPES_WITH_NULLTYPE "
     for i in range(len(widget_list)):
         ret += "const "
         if len(widget_list[i].namespace) > 0:
-            ret += widget_list[i].namespace + "::"
+            ret +=  "::" + widget_list[i].namespace + "::"
         ret += widget_list[i].name
         if i < len(widget_list) - 1:
             ret += ","
-    ret += ",const se::ecs::NullComponentType"
+    ret += ",const ::se::ecs::NullComponentType"
 
     ret += "\n#define SPARK_WIDGET_POINTER_TYPES "
     for i in range(len(widget_list)):
         if len(widget_list[i].namespace) > 0:
-            ret += widget_list[i].namespace + "::"
+            ret +=  "::" + widget_list[i].namespace + "::"
         ret += widget_list[i].name
         ret += "*"
         if i < len(widget_list) - 1:
@@ -68,7 +68,7 @@ def WriteWidgetTypesMacros(widget_list):
     for i in range(len(widget_list)):
         ret += "const "
         if len(widget_list[i].namespace) > 0:
-            ret += widget_list[i].namespace + "::"
+            ret += "::" + widget_list[i].namespace + "::"
         ret += widget_list[i].name
         ret += "*"
         if i < len(widget_list) - 1:
@@ -77,23 +77,23 @@ def WriteWidgetTypesMacros(widget_list):
     ret += "\n#define SPARK_WIDGET_POINTER_TYPES_WITH_NULLTYPE "
     for i in range(len(widget_list)):
         if len(widget_list[i].namespace) > 0:
-            ret += widget_list[i].namespace + "::"
+            ret += "::" +  widget_list[i].namespace + "::"
         ret += widget_list[i].name
         ret += "*"
         if i < len(widget_list) - 1:
             ret += ","
-    ret += ",se::ecs::NullComponentType*"
+    ret += ",::se::ecs::NullComponentType*"
 
     ret += "\n#define SPARK_WIDGET_CONST_POINTER_TYPES_WITH_NULLTYPE "
     for i in range(len(widget_list)):
         ret += "const "
         if len(widget_list[i].namespace) > 0:
-            ret += widget_list[i].namespace + "::"
+            ret += "::" +  widget_list[i].namespace + "::"
         ret += widget_list[i].name
         ret += "*"
         if i < len(widget_list) - 1:
             ret += ","
-    ret += ",const se::ecs::NullComponentType*"
+    ret += ",const ::se::ecs::NullComponentType*"
 
     return ret
 

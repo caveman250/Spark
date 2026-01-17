@@ -3,6 +3,7 @@
 #include "spark.h"
 #include "engine/ecs/Component.h"
 #include "engine/math/math.h"
+#include "engine/ui/Layout.h"
 
 namespace se::ecs
 {
@@ -39,4 +40,13 @@ namespace se::ui
     {
         return GetVerticalBoxChildrenDesiredSize(system, entity, thisRect, context);
     }
+
+
+    template <>
+    void Layout::LayoutWidgetChildren<components::VerticalBoxComponent>(ecs::World*,
+                                                         ecs::System*,
+                                                         const ecs::Id&,
+                                                         components::RectTransformComponent&,
+                                                         int,
+                                                         components::VerticalBoxComponent*);
 }

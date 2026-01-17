@@ -157,13 +157,21 @@ namespace se::ecs
 
         template<typename Func>
         void Each(const std::vector<ComponentUsage>& components,
+                  const VariantComponentUsage& variantComponent,
                   const std::vector<ComponentUsage>& singletonComponents,
                   Func&& func,
                   UpdateMode mode,
                   bool force);
 
+        struct QueryArchetype
+        {
+            Archetype* archetype = nullptr;
+            Id variantCompType = s_InvalidEntity;
+
+        };
         void CollectArchetypes(const std::vector<ComponentUsage>& components,
-                               std::set<Archetype*>& archetypes);
+                                const VariantComponentUsage& variantComponent,
+                                std::vector<QueryArchetype>& archetypes);
 
         struct VariantQueryArchetype
         {
@@ -175,10 +183,6 @@ namespace se::ecs
                 return archetype < rhs.archetype;
             }
         };
-
-        void CollectArchetypesWithVariant(std::vector<ComponentUsage> components,
-                                          const ComponentUsage& variantUsage,
-                                          std::set<VariantQueryArchetype>& archetypes);
 
         template<typename Func>
         bool ChildEach(const Id& entity,
@@ -412,6 +416,7 @@ namespace se::ecs
 
     template<typename Func>
     void World::Each(const std::vector<ComponentUsage>& components,
+                     const VariantComponentUsage& variantComponent,
                      const std::vector<ComponentUsage>& singletonComponents,
                      Func&& func,
                      UpdateMode mode,
@@ -420,8 +425,8 @@ namespace se::ecs
         EASY_BLOCK("World::Each");
 
         EASY_BLOCK("Collect Archetypes");
-        std::set<Archetype*> archetypes = { };
-        CollectArchetypes(components, archetypes);
+        std::vector<QueryArchetype> archetypes = { };
+        CollectArchetypes(components, variantComponent, archetypes);
         EASY_END_BLOCK
 
         EASY_BLOCK("Collect Singletons");
@@ -433,18 +438,24 @@ namespace se::ecs
         EASY_END_BLOCK
 
         EASY_BLOCK("Run on Archetypes");
-        auto runOnArchetype = [this, components, func, &updateData](Archetype* archetype) mutable
+        auto runOnArchetype = [this, components, func, variantComponent, &updateData](const QueryArchetype& archetype) mutable
         {
             auto updateDataCopy = updateData;
-            if (!archetype->entities.empty())
+            if (!archetype.archetype->entities.empty())
             {
                 updateDataCopy.ClearEntityData();
-                updateDataCopy.SetEntities(archetype->entities);
+                updateDataCopy.SetEntities(archetype.archetype->entities);
                 for (const auto& compUsage: components)
                 {
                     const auto& compInfo = m_ComponentRecords[compUsage.id];
-                    const ArchetypeComponentKey& key = compInfo.archetypeRecords.at(archetype->id);
-                    updateDataCopy.AddComponentArray(compUsage.id, archetype->components.at(key).Data(), compUsage.mutability);
+                    const ArchetypeComponentKey& key = compInfo.archetypeRecords.at(archetype.archetype->id);
+                    updateDataCopy.AddComponentArray(compUsage.id, archetype.archetype->components.at(key).Data(), compUsage.mutability);
+                }
+                if (archetype.variantCompType != s_InvalidEntity)
+                {
+                    const auto& compInfo = m_ComponentRecords[archetype.variantCompType];
+                    const ArchetypeComponentKey& key = compInfo.archetypeRecords.at(archetype.archetype->id);
+                    updateDataCopy.AddVariantComponentArray(archetype.variantCompType, archetype.archetype->components.at(key).Data(), variantComponent.mutability);
                 }
 
                 func(updateDataCopy);
@@ -453,7 +464,7 @@ namespace se::ecs
         switch (mode)
         {
             case UpdateMode::SingleThreaded:
-                for (Archetype* archetype : archetypes)
+                for (const auto& archetype : archetypes)
                 {
                     runOnArchetype(archetype);
                 }
@@ -500,7 +511,6 @@ namespace se::ecs
         }
 #endif
         bool hasNullVariant = false;
-        std::set<Id> variantTypes = { };
         if (declaration.variantComponentUsage.type_hash != 0)
         {
             for (const auto& type: declaration.variantComponentUsage.components)
@@ -508,9 +518,8 @@ namespace se::ecs
                 if (type == s_InvalidEntity)
                 {
                     hasNullVariant = true;
-                    continue;
+                    break;
                 }
-                variantTypes.insert(type);
             }
         }
 
@@ -538,10 +547,10 @@ namespace se::ecs
                 updateData.AddComponentArray(comp.id, GetComponent(child, comp.id), comp.mutability);
             }
 
-            bool hasAnyVariant = hasNullVariant || declaration.variantComponentUsage.components.empty();
+            bool hasAnyVariant = false;
             for (const auto& comp: declaration.variantComponentUsage.components)
             {
-                if (!HasComponent(child, comp))
+                if (!HasComponent(child, comp) && comp != NullComponentType::GetComponentId())
                 {
                     continue;
                 }
@@ -553,7 +562,18 @@ namespace se::ecs
                 break;
             }
 
-            if (shouldSkip || !hasAnyVariant)
+            if (!hasAnyVariant)
+            {
+                if (hasNullVariant)
+                {
+                    hasAnyVariant = true;
+                    updateData.AddVariantComponentArray(NullComponentType::GetComponentId(),
+                                                    nullptr,
+                                                    declaration.variantComponentUsage.mutability);
+                }
+            }
+
+            if (shouldSkip || (!hasAnyVariant && !declaration.variantComponentUsage.components.empty()))
             {
                 continue;
             }

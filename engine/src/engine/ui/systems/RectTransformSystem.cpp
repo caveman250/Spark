@@ -1,13 +1,9 @@
-#include "spark.h"
-
-#include "engine/math/Mat4.h"
 #include "RectTransformSystem.h"
 
-#include <engine/ui/util/RectTransformUtil.h>
-
-#include "RootRectTransformSystem.h"
-#include "engine/Application.h"
 #include <easy/profiler.h>
+#include "Widgets.generated.h"
+#include "engine/Application.h"
+#include "engine/ui/util/RectTransformUtil.h"
 
 using namespace se;
 using namespace se::ecs::components;
@@ -18,6 +14,8 @@ namespace se::ui::systems
     {
         return ecs::SystemDeclaration("RectTransformSystem")
                     .WithComponent<ui::components::RectTransformComponent>()
+                    .WithVariantComponent<SPARK_WIDGET_TYPES_WITH_NULLTYPE>(ecs::ComponentMutability::Mutable)
+                    .WithHeirachyQuery<components::WidgetComponent>()
                     .WithDependency<RootRectTransformSystem>();
     }
 
@@ -34,20 +32,20 @@ namespace se::ui::systems
         const auto& entities = updateData.GetEntities();
         auto* transform = updateData.GetComponentArray<components::RectTransformComponent>();
 
-        ecs::util::ForEachEntity(this, updateData,
-        [this, world, entities, transform](size_t i)
+        std::visit([this, updateData, entities, world, transform](auto&& value)
         {
-            const auto& entity = entities[i];
-            auto& trans = transform[i];
-
-            if (trans.needsLayout && world->HasComponent<ParentComponent>(entity))
+            ecs::util::ForEachEntity(this, updateData,
+            [this, world, entities, transform, value](size_t i)
             {
-                if (!trans.overridesChildSizes)
+                const auto& entity = entities[i];
+                auto& trans = transform[i];
+
+                if (trans.needsLayout && world->HasComponent<ParentComponent>(entity))
                 {
-                    util::LayoutChildren(world, this, entities[i], trans, trans.layer);
+                    Layout::LayoutWidgetChildren(world, this, entities[i], trans, trans.layer, value + i);
                     trans.needsLayout = false;
                 }
-            }
-        });
+            });
+        }, updateData.GetVariantComponentArray<SPARK_WIDGET_TYPES_WITH_NULLTYPE>());
     }
 }

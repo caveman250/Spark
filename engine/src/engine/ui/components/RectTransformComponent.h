@@ -1,7 +1,6 @@
 #pragma once
 
 #include "spark.h"
-#include "engine/reflect/Reflect.h"
 #include "engine/ui/Anchors.h"
 #include "engine/ui/Rect.h"
 #include "engine/math/math.h"
@@ -50,9 +49,6 @@ namespace se::ui::components
 
         SPARK_MEMBER()
         Rect cachedParentSize = {};
-
-        SPARK_MEMBER()
-        bool overridesChildSizes = false;
 
         SPARK_MEMBER()
         int layer = 0;

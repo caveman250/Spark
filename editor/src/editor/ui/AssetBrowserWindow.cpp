@@ -84,7 +84,7 @@ namespace se::editor::ui
         {
             se::ui::components::TreeNodeComponent* treeNodeComp = nullptr;
             se::ui::components::TextComponent* textComp = nullptr;
-            se::ui::util::InsertTreeNode(treeView, treeViewComp, treeView, mount.vfsPath, &treeNodeComp, &textComp, editor->GetEditorScene());
+            se::ui::util::InsertTreeNode(treeView, treeViewRect, treeView, mount.vfsPath, &treeNodeComp, &textComp, editor->GetEditorScene());
             textComp->text = mount.vfsPath;
             treeNodeComp->onSelected.Subscribe([this, &mount]()
             {
@@ -106,7 +106,6 @@ namespace se::editor::ui
         auto pathBarRect = world->AddComponent<se::ui::components::RectTransformComponent>(m_PathBarBox);
         pathBarRect->anchors = { 0.f, 1.f, 0.f, 1.f };
         pathBarRect->minX = 5;
-        pathBarRect->overridesChildSizes = true;
         world->AddComponent<se::ui::components::WidgetComponent>(m_PathBarBox);
         auto horBox = world->AddComponent<se::ui::components::HorizontalBoxComponent>(m_PathBarBox);
         horBox->spacing = 5;
@@ -131,7 +130,6 @@ namespace se::editor::ui
 
         m_GridBoxEntity = world->CreateEntity(editor->GetEditorScene(), "Grid Box");
         auto* gridRect = world->AddComponent<se::ui::components::RectTransformComponent>(m_GridBoxEntity);
-        gridRect->overridesChildSizes = true;
         gridRect->anchors = { .left = 0.f, .right = 1.f, .top = 0.f, .bottom = 1.f };
         auto* gridBox = world->AddComponent<se::ui::components::GridBoxComponent>(m_GridBoxEntity);
         gridBox->spacing = 5;

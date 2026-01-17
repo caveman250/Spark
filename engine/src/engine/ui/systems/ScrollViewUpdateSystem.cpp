@@ -7,6 +7,8 @@
 #include "engine/Application.h"
 #include <easy/profiler.h>
 #include "engine/ui/systems/UIMouseInputSystem.h"
+#include "engine/ui/components/GridBoxComponent.h"
+#include "engine/ui/components/ScrollBoxComponent.h"
 
 using namespace se;
 using namespace se::ecs::components;
@@ -28,73 +30,18 @@ namespace se::ui::systems
     {
         EASY_BLOCK("ScrollViewUpdateSystem::OnUpdate");
 
-        auto app = Application::Get();
-        auto world = app->GetWorld();
-        auto window = app->GetWindow();
-
         const auto& entities = updateData.GetEntities();
         auto* scrollViews = updateData.GetComponentArray<components::ScrollViewComponent>();
         auto* rectTransforms = updateData.GetComponentArray<components::RectTransformComponent>();
         const auto* mouseComps = updateData.GetComponentArray<const components::MouseInputComponent>();
 
         ecs::util::ForEachEntity(this, updateData,
-        [this, world, window, entities, scrollViews, rectTransforms, mouseComps](size_t i)
+        [this, entities, scrollViews, rectTransforms, mouseComps](size_t i)
         {
             const auto& entity = entities[i];
             auto& scrollView = scrollViews[i];
             auto& rectTransform = rectTransforms[i];
             const auto& mouseComp = mouseComps[i];
-
-            if (rectTransform.needsLayout)
-            {
-                auto declaration = ecs::HeirachyQueryDeclaration()
-                    .WithComponent<components::RectTransformComponent>()
-                    .WithComponent<components::WidgetComponent>()
-                    .WithVariantComponent<SPARK_CONST_WIDGET_TYPES_WITH_NULLTYPE>(ecs::ComponentMutability::Immutable);
-                float totalChildSize = 0.f;
-                RunChildQuery(entity,
-                    declaration,
-                    [this, world, window, &rectTransform, &totalChildSize](const ecs::SystemUpdateData& updateData)
-                    {
-                        std::visit([this, world, window, &updateData, &rectTransform, &totalChildSize](auto&& value)
-                        {
-                            const auto& children = updateData.GetEntities();
-                            auto* childTransforms = updateData.GetComponentArray<components::RectTransformComponent>();
-                            auto widgets = updateData.GetComponentArray<components::WidgetComponent>();
-                            for (size_t i = 0; i < children.size(); ++i)
-                            {
-                                const auto& child = children[i];
-                                auto& childTransform = childTransforms[i];
-                                auto oldTransform = childTransform;
-                                childTransform.anchors = { 0, 1, 0, 0 };
-                                auto desiredSize = DesiredSizeCalculator::GetDesiredSize(this, child, &widgets[i], rectTransform, childTransform, &value[i]);
-                                childTransform.maxY = childTransform.minY + desiredSize.y / window->GetContentScale();
-                                childTransform.rect = util::CalculateScreenSpaceRect(childTransform, rectTransform);
-                                totalChildSize += childTransform.rect.size.y;
-                                if (!childTransform.overridesChildSizes)
-                                {
-                                    util::LayoutChildren(world, this, child, rectTransform, childTransform.layer);
-                                    childTransform.needsLayout = false;
-                                }
-                                else
-                                {
-                                    childTransform.needsLayout = true;
-                                }
-                            }
-                        }, updateData.GetVariantComponentArray<SPARK_CONST_WIDGET_TYPES>());
-
-                        return false;
-                    });
-
-                float availableScrollSpaceBottom = std::max(0.f, totalChildSize - rectTransform.rect.size.y);
-                if (availableScrollSpaceBottom > 0.f)
-                {
-                    util::TranslateChildren(entity, this, math::IntVec2(0, static_cast<int>(-availableScrollSpaceBottom * scrollView.scrollAmount)));
-                    scrollView.onScrolled.Broadcast(&rectTransform, scrollView.scrollAmount);
-                }
-
-                rectTransform.needsLayout = false;
-            }
 
             if (mouseComp.hovered)
             {
@@ -111,16 +58,11 @@ namespace se::ui::systems
                             declaration,
                             [&maxChildY, &minChildY](const ecs::SystemUpdateData& updateData)
                             {
-                                const auto& children = updateData.GetEntities();
-                                auto* childTransforms = updateData.GetComponentArray<components::RectTransformComponent>();
+                                auto* childTransform = updateData.GetComponentArray<components::RectTransformComponent>();
 
-                                for (size_t i = 0; i < children.size(); ++i)
-                                {
-                                    auto& childTransform = childTransforms[i];
-                                    minChildY = std::min(childTransform.rect.topLeft.y, minChildY);
-                                    maxChildY = std::max(childTransform.rect.topLeft.y + childTransform.rect.size.y,
-                                                         maxChildY);
-                                }
+                                minChildY = std::min(childTransform->rect.topLeft.y, minChildY);
+                                maxChildY = std::max(childTransform->rect.topLeft.y + childTransform->rect.size.y,
+                                                    maxChildY);
 
                                 return false;
                             });

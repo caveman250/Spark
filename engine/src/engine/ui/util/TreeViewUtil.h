@@ -13,7 +13,7 @@ namespace se::ui::util
 {
     ecs::Id CreateTreeView(components::TreeViewComponent** outTreeView, components::RectTransformComponent** outTransform, const ecs::Id& scene);
     ecs::Id InsertTreeNode(const ecs::Id& treeViewEntity,
-        components::TreeViewComponent* treeView,
+        components::RectTransformComponent* treeViewRect,
         const ecs::Id& parentNode,
         const std::string& name,
         components::TreeNodeComponent** outTreeNode,

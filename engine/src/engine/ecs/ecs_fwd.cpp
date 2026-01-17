@@ -37,7 +37,7 @@ namespace se::ecs
         return *this;
     }
 
-    bool IsEditorEntity(const Id& entity)
+    bool IsEditorEntity([[maybe_unused]] const Id& entity)
     {
 #if SPARK_EDITOR
         auto editor = Application::Get()->GetEditorRuntime();

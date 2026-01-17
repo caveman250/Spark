@@ -109,46 +109,6 @@ namespace se::ui::util
         return ret;
     }
 
-    void LayoutChildren(ecs::World* world,
-                        ecs::System* system,
-                        const ecs::Id& entity,
-                        const RectTransformComponent& parentRect,
-                        int depth)
-    {
-        EASY_BLOCK("se::ui::util::LayoutChildren");
-        auto declaration = ecs::HeirachyQueryDeclaration()
-                .WithComponent<RectTransformComponent>();
-        system->RunChildQuery(entity, declaration,
-                              [system, world, parentRect, depth](const ecs::SystemUpdateData& updateData)
-                              {
-                                  const auto& children = updateData.GetEntities();
-                                  auto* childTransform = updateData.GetComponentArray<RectTransformComponent>();
-
-                                  for (size_t i = 0; i < children.size(); ++i)
-                                  {
-                                      RectTransformComponent& child = childTransform[i];
-                                      child.rect = CalculateScreenSpaceRect(child, parentRect);
-                                      child.layer = depth;
-
-                                      if (!child.overridesChildSizes)
-                                      {
-                                          if (world->HasComponent<ecs::components::ParentComponent>(children[i]))
-                                          {
-                                              LayoutChildren(world, system, children[i], child, depth);
-                                          }
-
-                                          child.needsLayout = false;
-                                      }
-                                      else
-                                      {
-                                          child.needsLayout = true;
-                                      }
-                                  }
-
-                                  return false;
-                              });
-    }
-
     std::unordered_map<ecs::Id, ChildDesiredSizeInfo> GetChildrenDesiredSizes(const ecs::Id& entity,
                                                                               ecs::System* system,
                                                                               const RectTransformComponent& transform)

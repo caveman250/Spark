@@ -9,8 +9,6 @@ namespace se::ui::util
     Rect CalculateScreenSpaceRect(const RectTransformComponent& transform, const RectTransformComponent& parentTransform);
     Rect CalculateScreenSpaceRect(const RectTransformComponent& transform, const Rect& parentRect);
 
-    void LayoutChildren(ecs::World* world, ecs::System* system, const ecs::Id& entity, const RectTransformComponent& parentRect, int depth);
-
     struct ChildDesiredSizeInfo
     {
         RectTransformComponent* rectTransform = nullptr;

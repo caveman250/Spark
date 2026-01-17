@@ -45,22 +45,25 @@ namespace se::debug::systems
             auto& text = textComps[i];
             auto& fpsCounter = fpsCounters[i];
 
-            uint64_t timeThisFrame = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
-            uint64_t delta = timeThisFrame - fpsCounter.timeLastFrame;
+            clock_t timeThisFrame = clock();
+            clock_t delta = timeThisFrame - fpsCounter.timeLastFrame;
             fpsCounter.timeLastFrame = timeThisFrame;
-            constexpr float s_MillisecondsToSeconds = 1000000.f;
-            fpsCounter.fpsBuffer[fpsCounter.currentFrameIndex] = static_cast<uint64_t>(s_MillisecondsToSeconds / delta);
+            constexpr float s_MillisecondsToSeconds = 1000.f;
+            double milliseconds = (delta/static_cast<double>(CLOCKS_PER_SEC)) * 1000.0;
+            fpsCounter.frameTimeBuffer[fpsCounter.currentFrameIndex] = milliseconds;
             fpsCounter.currentFrameIndex = (fpsCounter.currentFrameIndex + 1) % components::FPSCounterComponent::s_NumFramesToBuffer;
 
-            float average = 0.f;
+            double average = 0.0;
             for (uint8_t j = 0; j < components::FPSCounterComponent::s_NumFramesToBuffer; ++j)
             {
-                average += fpsCounter.fpsBuffer[j];
+                average += fpsCounter.frameTimeBuffer[j];
             }
             constexpr float reciprocal = 1.f / components::FPSCounterComponent::s_NumFramesToBuffer;
             average *= reciprocal;
 
-            text.text = std::format("{:.0f}", std::max(1.f, average));
+            average = s_MillisecondsToSeconds / average;
+
+            text.text = std::format("{:.0f}", std::max(1.0, average));
         });
     }
 }

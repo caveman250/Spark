@@ -3,6 +3,7 @@
 #include "spark.h"
 #include "engine/ui/Rect.h"
 #include "engine/ecs/Component.h"
+#include "engine/ui/Layout.h"
 
 namespace se::ui::components
 {
@@ -13,4 +14,15 @@ namespace se::ui::components
         bool dirty = false;
         Rect lastRect = {};
     };
+}
+
+namespace se::ui
+{
+    template<>
+    void Layout::LayoutWidgetChildren<components::TreeViewComponent>(ecs::World* world,
+                                                                 ecs::System* system,
+                                                                 const ecs::Id& entity,
+                                                                 components::RectTransformComponent& splitViewTransform,
+                                                                 int layer,
+                                                                 components::TreeViewComponent* splitView);
 }

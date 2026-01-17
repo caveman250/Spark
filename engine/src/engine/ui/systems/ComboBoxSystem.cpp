@@ -34,19 +34,13 @@ namespace se::ui::systems
     {
         EASY_BLOCK("ComboBoxSystem::OnUpdate");
 
-        auto world = Application::Get()->GetWorld();
-
-        const auto& entities = updateData.GetEntities();
         auto* comboBoxes = updateData.GetComponentArray<components::ComboBoxComponent>();
-        auto* transforms = updateData.GetComponentArray<components::RectTransformComponent>();
         const auto* mouseComps = updateData.GetComponentArray<const components::MouseInputComponent>();
 
         ecs::util::ForEachEntity(this, updateData,
-        [this, world, entities, comboBoxes, transforms, mouseComps](size_t i)
+        [this, comboBoxes, mouseComps](size_t i)
         {
-            const auto& entity = entities[i];
             auto& comboBox = comboBoxes[i];
-            auto& transform = transforms[i];
             const auto& mouseInput = mouseComps[i];
 
             if (mouseInput.hovered)
@@ -77,46 +71,6 @@ namespace se::ui::systems
                         widget->updateEnabled = !comboBox.collapsed;
                         widget->dirty = true;
                     });
-            }
-
-            if (transform.needsLayout)
-            {
-                auto desiredSizeInfo = util::GetChildrenDesiredSizes(entity, this, transform);
-                for (const auto& [child, desired] : desiredSizeInfo)
-                {
-                    int childlayer = 0;
-                    if (child == comboBox.collapsedEntity)
-                    {
-                        desired.rectTransform->rect.topLeft = transform.rect.topLeft;
-                        desired.rectTransform->rect.size.x = transform.rect.size.x;
-                        desired.rectTransform->rect.size.y = desired.desiredSize.y;
-                        childlayer = desired.rectTransform->layer;
-                    }
-                    else if (child == comboBox.expandedEntity)
-                    {
-                        desired.rectTransform->rect.topLeft = transform.rect.topLeft;
-                        desired.rectTransform->rect.size.x = transform.rect.size.x;
-                        desired.rectTransform->rect.size.y = DesiredSizeCalculator::GetDesiredSize<ecs::NullComponentType>(this, child, *desired.rectTransform, nullptr).y;
-                        desired.rectTransform->layer = -1;
-                        childlayer = -1;
-                    }
-                    else
-                    {
-                        SPARK_ASSERT(false, "Unexpected ComboBox child.");
-                    }
-
-                    if (!desired.rectTransform->overridesChildSizes)
-                    {
-                        util::LayoutChildren(world, this, child, *desired.rectTransform, childlayer);
-                        desired.rectTransform->needsLayout = false;
-                    }
-                    else
-                    {
-                        desired.rectTransform->needsLayout = true;
-                    }
-                }
-
-                transform.needsLayout = false;
             }
         });
     }
