@@ -64,18 +64,14 @@ namespace se::ui::systems
     {
         EASY_BLOCK("SplitViewSystem::OnUpdate");
 
-        auto world = Application::Get()->GetWorld();
-
-        const auto& entities = updateData.GetEntities();
         const auto* inputComp = updateData.GetSingletonComponent<const input::InputComponent>();
         auto* splitViews = updateData.GetComponentArray<components::SplitViewComponent>();
         auto* transforms = updateData.GetComponentArray<components::RectTransformComponent>();
         const auto* inputComps = updateData.GetComponentArray<const components::MouseInputComponent>();
 
         ecs::util::ForEachEntity(this, updateData,
-         [this, world, entities, inputComp, splitViews, transforms, inputComps](size_t i)
+         [inputComp, splitViews, transforms, inputComps](size_t i)
          {
-             const auto& entity = entities[i];
              auto& splitView = splitViews[i];
              auto& input = inputComps[i];
              auto& splitViewTransform = transforms[i];

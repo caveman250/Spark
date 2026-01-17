@@ -31,10 +31,10 @@ namespace se::ui::systems
                     .WithDependency<UIKeyboardInputSystem>();
     }
 
-    void EditableTextSystem::HandleKey(const ecs::Id& entity,
-                                       components::EditableTextComponent& text,
-                                       components::KeyInputComponent& keyInput,
-                                       input::Key key)
+    void EditableTextSystem::HandleKey([[maybe_unused]] const ecs::Id& entity,
+                                       [[maybe_unused]] components::EditableTextComponent& text,
+                                       [[maybe_unused]] components::KeyInputComponent& keyInput,
+                                       [[maybe_unused]] input::Key key)
     {
 #if SPARK_EDITOR
         switch (key)
@@ -330,7 +330,7 @@ namespace se::ui::systems
 #endif
     }
 
-    void EditableTextSystem::OnUpdate(const ecs::SystemUpdateData& updateData)
+    void EditableTextSystem::OnUpdate([[maybe_unused]] const ecs::SystemUpdateData& updateData)
     {
 #if SPARK_EDITOR
         const auto& entities = updateData.GetEntities();
@@ -404,7 +404,7 @@ namespace se::ui::systems
 #endif
     }
 
-    void EditableTextSystem::OnRender(const ecs::SystemUpdateData& updateData)
+    void EditableTextSystem::OnRender([[maybe_unused]] const ecs::SystemUpdateData& updateData)
     {
 #if SPARK_EDITOR
         EASY_BLOCK("EditableTextSystem::OnRender");

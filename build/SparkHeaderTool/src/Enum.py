@@ -35,28 +35,6 @@ def ProcessEnum(next_line, enum_list, lines, line_index, namespace_stack, filepa
         values.append(val)
 
     enum_list.append(Enum(enum, filepath, namespace, values, source_dir))
-
-"""namespace se::reflect 
-{ 
-    template <> 
-    Type* getPrimitiveDescriptor<editor::ui::properties::PropertyTitleMode>()
-    {
-        static se::reflect::Enum* s_Instance = nullptr;
-        if (!s_Instance)
-        {
-            s_Instance = new se::reflect::Enum();
-            se::reflect::TypeLookup::GetTypeMap()["se::editor::ui::properties::PropertyTitleMode"] = s_Instance;
-            s_Instance->name = "se::editor::ui::properties::PropertyTitleMode";
-            s_Instance->size = sizeof(se::editor::ui::properties::PropertyTitleMode);
-            s_Instance->values =
-            {
-                EnumValue{"Inline", static_cast<int>(se::editor::ui::properties::PropertyTitleMode::Inline)},
-                EnumValue{"NextLine", static_cast<int>(se::editor::ui::properties::PropertyTitleMode::NextLine)},
-            };
-        }
-        return s_Instance;
-    } 
-}"""
     
 def DefineEnumBegin(enum):
     full_enum_name = enum.namespace + "::" + enum.name
@@ -78,7 +56,7 @@ namespace se::reflect
 
 def DefineEnumValue(enum, value):
     full_enum_name = enum.namespace + "::" + enum.name
-    return f"            {{\"{value}\", static_cast<int>({full_enum_name}::{value})}},\n"
+    return f"            {{\"{value}\", static_cast<std::>({full_enum_name}::{value})}},\n"
 
 def DefineEnumEnd():
     return f"""            }};

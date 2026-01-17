@@ -34,19 +34,13 @@ namespace se::ui::systems
     {
         EASY_BLOCK("ComboBoxSystem::OnUpdate");
 
-        auto world = Application::Get()->GetWorld();
-
-        const auto& entities = updateData.GetEntities();
         auto* comboBoxes = updateData.GetComponentArray<components::ComboBoxComponent>();
-        auto* transforms = updateData.GetComponentArray<components::RectTransformComponent>();
         const auto* mouseComps = updateData.GetComponentArray<const components::MouseInputComponent>();
 
         ecs::util::ForEachEntity(this, updateData,
-        [this, world, entities, comboBoxes, transforms, mouseComps](size_t i)
+        [this, comboBoxes, mouseComps](size_t i)
         {
-            const auto& entity = entities[i];
             auto& comboBox = comboBoxes[i];
-            auto& transform = transforms[i];
             const auto& mouseInput = mouseComps[i];
 
             if (mouseInput.hovered)

@@ -26,7 +26,7 @@ namespace se::ui
                                          const ecs::Id& entity,
                                          components::RectTransformComponent& thisRect,
                                          int layer,
-                                         T* t)
+                                         T*)
         {
             EASY_FUNCTION();
             DoLayoutChildren(world, system, entity, layer, thisRect);

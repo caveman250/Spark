@@ -30,17 +30,13 @@ namespace se::ui::systems
     {
         EASY_BLOCK("ScrollViewUpdateSystem::OnUpdate");
 
-        auto app = Application::Get();
-        auto world = app->GetWorld();
-        auto window = app->GetWindow();
-
         const auto& entities = updateData.GetEntities();
         auto* scrollViews = updateData.GetComponentArray<components::ScrollViewComponent>();
         auto* rectTransforms = updateData.GetComponentArray<components::RectTransformComponent>();
         const auto* mouseComps = updateData.GetComponentArray<const components::MouseInputComponent>();
 
         ecs::util::ForEachEntity(this, updateData,
-        [this, world, window, entities, scrollViews, rectTransforms, mouseComps](size_t i)
+        [this, entities, scrollViews, rectTransforms, mouseComps](size_t i)
         {
             const auto& entity = entities[i];
             auto& scrollView = scrollViews[i];
@@ -62,7 +58,6 @@ namespace se::ui::systems
                             declaration,
                             [&maxChildY, &minChildY](const ecs::SystemUpdateData& updateData)
                             {
-                                const auto& child = updateData.GetEntity();
                                 auto* childTransform = updateData.GetComponentArray<components::RectTransformComponent>();
 
                                 minChildY = std::min(childTransform->rect.topLeft.y, minChildY);
