@@ -3,6 +3,7 @@
 #include "spark.h"
 #include "engine/ecs/Component.h"
 #include "engine/math/math.h"
+#include "engine/ui/Layout.h"
 
 namespace se::ecs
 {
@@ -35,4 +36,12 @@ namespace se::ui
     {
         return GetGridBoxChildrenDesiredSize(system, entity, thisRect, context);
     }
+
+    template <>
+    void Layout::LayoutWidgetChildren<components::GridBoxComponent>(ecs::World* world,
+                                         ecs::System* system,
+                                         const ecs::Id& entity,
+                                         components::RectTransformComponent& gridBoxTransform,
+                                         int layer,
+                                         components::GridBoxComponent* gridBox);
 }
