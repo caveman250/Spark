@@ -103,10 +103,6 @@ namespace se::ui
              const auto& child = updateData.GetEntity();
              auto* rect = updateData.GetComponentArray<components::RectTransformComponent>();
 
-             if (strcmp(child.name->c_str(), "anchors") == 0)
-             {
-                 int lol = 1;
-             }
              LayoutWidgetChildren(world,
                                       system,
                                       child,

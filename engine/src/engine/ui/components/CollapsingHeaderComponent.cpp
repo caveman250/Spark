@@ -56,7 +56,7 @@ namespace se::ui
              auto* rect = updateData.GetComponentArray<components::RectTransformComponent>();
              auto* widget = updateData.GetComponentArray<components::WidgetComponent>();
 
-             rect->anchors = { 0.f, 1.f, 0.f, 1.f };
+             rect->anchors = { 0.f, 1.f, 0.f, 0.f };
              rect->minY = 0;
              rect->maxY = 0;
              rect->minX = 0;

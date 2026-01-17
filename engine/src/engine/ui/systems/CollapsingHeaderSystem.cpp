@@ -61,7 +61,6 @@ namespace se::ui::systems
                         });
 
                     util::InvalidateParent(entity, this);
-                    return;
                 }
             }
         );

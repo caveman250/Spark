@@ -20,14 +20,6 @@ namespace se::ui
                   const auto& child = updateData.GetEntity();
                   auto transform = updateData.GetComponentArray<components::RectTransformComponent>();
 
-                  if constexpr (std::is_same_v<components::TextComponent*, std::decay_t<decltype(value)>>)
-                  {
-                      if (strcmp(value->text.c_str(), "anchors") == 0)
-                      {
-                          int lol = 1;
-                      }
-                  }
-
                   transform->rect = util::CalculateScreenSpaceRect(*transform, thisRect);
                   transform->layer = layer;
                   LayoutWidgetChildren(world, system, child, *transform, layer, value);

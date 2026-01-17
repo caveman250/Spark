@@ -62,16 +62,12 @@ namespace se::ui::systems
                             declaration,
                             [&maxChildY, &minChildY](const ecs::SystemUpdateData& updateData)
                             {
-                                const auto& children = updateData.GetEntities();
-                                auto* childTransforms = updateData.GetComponentArray<components::RectTransformComponent>();
+                                const auto& child = updateData.GetEntity();
+                                auto* childTransform = updateData.GetComponentArray<components::RectTransformComponent>();
 
-                                for (size_t i = 0; i < children.size(); ++i)
-                                {
-                                    auto& childTransform = childTransforms[i];
-                                    minChildY = std::min(childTransform.rect.topLeft.y, minChildY);
-                                    maxChildY = std::max(childTransform.rect.topLeft.y + childTransform.rect.size.y,
-                                                         maxChildY);
-                                }
+                                minChildY = std::min(childTransform->rect.topLeft.y, minChildY);
+                                maxChildY = std::max(childTransform->rect.topLeft.y + childTransform->rect.size.y,
+                                                    maxChildY);
 
                                 return false;
                             });

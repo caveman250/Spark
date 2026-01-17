@@ -5,6 +5,19 @@
 namespace se::ui
 {
     template<>
+    math::IntVec2 DesiredSizeCalculator::GetDesiredSize<components::ScrollViewComponent>(ecs::System*,
+                                                                   const ecs::Id&,
+                                                                   components::RectTransformComponent& thisRect,
+                                                                   const components::ScrollViewComponent*)
+    {
+        EASY_BLOCK("GetDesiredSize - ScrollViewComponent");
+        auto window = Application::Get()->GetWindow();
+        math::IntVec2 rectSize = GetDesiredSizeFromRect(thisRect);
+        return math::IntVec2(std::max(rectSize.x, static_cast<int>(thisRect.minWidth * window->GetContentScale())),
+                             std::max(rectSize.y, static_cast<int>(thisRect.minHeight * window->GetContentScale())));
+    }
+
+    template<>
     void Layout::LayoutWidgetChildren<components::ScrollViewComponent>(ecs::World* world,
                                                                        ecs::System* system,
                                                                        const ecs::Id& entity,
@@ -18,24 +31,18 @@ namespace se::ui
                 .WithComponent<components::WidgetComponent>();
         float totalChildSize = 0.f;
         util::ForEachWidgetChild(entity, system, declaration,
-        [system, world, window, &rectTransform, &totalChildSize, layer](const ecs::SystemUpdateData& updateData, auto&& widgetComps)
+        [system, world, window, &rectTransform, &totalChildSize, layer](const ecs::SystemUpdateData& updateData, auto&& widgetComp)
         {
-            const auto& children = updateData.GetEntities();
-            auto* childTransforms = updateData.GetComponentArray<components::RectTransformComponent>();
-            auto widgets = updateData.GetComponentArray<components::WidgetComponent>();
-            for (size_t i = 0; i < children.size(); ++i)
-            {
-                const auto& child = children[i];
-                auto& childTransform = childTransforms[i];
-                auto oldTransform = childTransform;
-                childTransform.anchors = { 0, 1, 0, 0 };
-                auto desiredSize = DesiredSizeCalculator::GetDesiredSize(system, child, &widgets[i], rectTransform, childTransform, &widgetComps[i]);
-                childTransform.maxY = childTransform.minY + desiredSize.y / window->GetContentScale();
-                childTransform.rect = util::CalculateScreenSpaceRect(childTransform, rectTransform);
-                totalChildSize += childTransform.rect.size.y;
-                LayoutWidgetChildren(world, system, child, rectTransform, layer, &widgetComps[i]);
-                childTransform.needsLayout = false;
-            }
+            const auto& child = updateData.GetEntity();
+            auto* childTransform = updateData.GetComponentArray<components::RectTransformComponent>();
+            auto widget = updateData.GetComponentArray<components::WidgetComponent>();
+            childTransform->anchors = { 0, 1, 0, 0 };
+            auto desiredSize = DesiredSizeCalculator::GetDesiredSize(system, child, widget, rectTransform, *childTransform, widgetComp);
+            childTransform->maxY = childTransform->minY + desiredSize.y / window->GetContentScale();
+            childTransform->rect = util::CalculateScreenSpaceRect(*childTransform, rectTransform);
+            totalChildSize += childTransform->rect.size.y;
+            LayoutWidgetChildren(world, system, child, *childTransform, layer, widgetComp);
+            childTransform->needsLayout = false;
 
             return false;
         });
