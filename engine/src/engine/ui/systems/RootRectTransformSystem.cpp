@@ -6,7 +6,6 @@
 #include "engine/ui/util/RectTransformUtil.h"
 
 #include "engine/Application.h"
-#include "engine/ecs/components/TransformComponent.h"
 #include <easy/profiler.h>
 #include "platform/IWindow.h"
 #include "Widgets.generated.h"

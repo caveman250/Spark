@@ -94,44 +94,41 @@ namespace se::ui
         int layer,
         components::SplitViewComponent* splitView)
     {
-        if (splitViewTransform.needsLayout)
-        {
-            auto dec = ecs::HeirachyQueryDeclaration()
-                    .WithComponent<components::RectTransformComponent>();
+        auto dec = ecs::HeirachyQueryDeclaration()
+                .WithComponent<components::RectTransformComponent>();
 
-            util::ForEachWidgetChild(entity, system, dec,
-                                     [system, world, splitView, splitViewTransform, layer](const ecs::SystemUpdateData& updateData, auto&& widgetComps)
+        util::ForEachWidgetChild(entity, system, dec,
+                                 [system, world, splitView, splitViewTransform, layer](const ecs::SystemUpdateData& updateData, auto&& widgetComps)
+                                 {
+                                     const auto& children = updateData.GetEntities();
+                                     auto* rectTransforms = updateData.GetComponentArray<components::RectTransformComponent>();
+
+                                     for (size_t i = 0; i < children.size(); ++i)
                                      {
-                                         const auto& children = updateData.GetEntities();
-                                         auto* rectTransforms = updateData.GetComponentArray<components::RectTransformComponent>();
+                                         const auto& child = children[i];
+                                         auto& rectTransform = rectTransforms[i];
 
-                                         for (size_t i = 0; i < children.size(); ++i)
+                                         switch (splitView->dir)
                                          {
-                                             const auto& child = children[i];
-                                             auto& rectTransform = rectTransforms[i];
-
-                                             switch (splitView->dir)
-                                             {
-                                                 case components::SplitViewDirection::Vertical:
-                                                     ArrangeVertically(child, rectTransform, splitViewTransform, splitView);
-                                                     break;
-                                                 case components::SplitViewDirection::Horizontal:
-                                                     ArrangeHorizontally(child, rectTransform, splitViewTransform, splitView);
-                                                     break;
-                                                 default:
-                                                     SPARK_ASSERT(false);
-                                             }
-
-                                             rectTransform.layer = splitViewTransform.layer;
-
-                                             LayoutWidgetChildren(world, system, child, rectTransform, layer, widgetComps + i);
-                                             rectTransform.needsLayout = false;
+                                             case components::SplitViewDirection::Vertical:
+                                                 ArrangeVertically(child, rectTransform, splitViewTransform, splitView);
+                                                 break;
+                                             case components::SplitViewDirection::Horizontal:
+                                                 ArrangeHorizontally(child, rectTransform, splitViewTransform, splitView);
+                                                 break;
+                                             default:
+                                                 SPARK_ASSERT(false);
                                          }
 
-                                         return false;
-                                     });
+                                         rectTransform.layer = splitViewTransform.layer;
 
-            splitViewTransform.needsLayout = false;
-        }
+                                         LayoutWidgetChildren(world, system, child, rectTransform, layer, widgetComps + i);
+                                         rectTransform.needsLayout = false;
+                                     }
+
+                                     return false;
+                                 });
+
+        splitViewTransform.needsLayout = false;
     }
 }

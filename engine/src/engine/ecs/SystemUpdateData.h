@@ -124,7 +124,7 @@ namespace se::ecs
 
             bool constVariant = true;
             (AreTypesConst<Ts>(constVariant), ...);
-            if (!SPARK_VERIFY((m_VariantComponentData.mutability == ComponentMutability::Immutable) == constVariant,
+            if (!SPARK_VERIFY(m_VariantComponentData.variant_type.id == s_InvalidEntity || (m_VariantComponentData.mutability == ComponentMutability::Immutable) == constVariant,
                          "SystemUpdateData::GetVariantComponentArray - Variant Component mutability mismatch"))
             {
                 return std::variant<Ts*...>();

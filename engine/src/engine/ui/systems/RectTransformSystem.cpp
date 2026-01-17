@@ -1,15 +1,9 @@
-#include "spark.h"
-
-#include "engine/math/Mat4.h"
 #include "RectTransformSystem.h"
 
-#include <Widgets.generated.h>
-#include <engine/ui/util/RectTransformUtil.h>
-
-#include "RootRectTransformSystem.h"
-#include "engine/Application.h"
 #include <easy/profiler.h>
-#include "engine/ecs/util/SystemUtil.h"
+#include "Widgets.generated.h"
+#include "engine/Application.h"
+#include "engine/ui/util/RectTransformUtil.h"
 
 using namespace se;
 using namespace se::ecs::components;
@@ -20,8 +14,7 @@ namespace se::ui::systems
     {
         return ecs::SystemDeclaration("RectTransformSystem")
                     .WithComponent<ui::components::RectTransformComponent>()
-                    .WithVariantComponent<SPARK_CONST_WIDGET_TYPES_WITH_NULLTYPE>(ecs::ComponentMutability::Immutable)
-                    .WithHeirachyQuerys<SPARK_WIDGET_TYPES>(ecs::ComponentMutability::Mutable)
+                    .WithVariantComponent<SPARK_WIDGET_TYPES_WITH_NULLTYPE>(ecs::ComponentMutability::Mutable)
                     .WithHeirachyQuery<components::WidgetComponent>()
                     .WithDependency<RootRectTransformSystem>();
     }
@@ -53,6 +46,6 @@ namespace se::ui::systems
                     trans.needsLayout = false;
                 }
             });
-        }, updateData.GetVariantComponentArray<SPARK_CONST_WIDGET_TYPES_WITH_NULLTYPE>());
+        }, updateData.GetVariantComponentArray<SPARK_WIDGET_TYPES_WITH_NULLTYPE>());
     }
 }
