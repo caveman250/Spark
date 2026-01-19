@@ -260,6 +260,7 @@ namespace se::editor::ui
     {
         auto app = Application::Get();
         auto editor = app->GetEditorRuntime();
+        auto assetManager = asset::AssetManager::Get();
 
         if (file.fileName.size() == 0)
         {
@@ -304,17 +305,7 @@ namespace se::editor::ui
         imageRect->minAspectRatio = 1.f;
         imageRect->maxAspectRatio = 1.f;
         auto image = world->AddComponent<se::ui::components::ImageComponent>(imageEntity);
-        static std::shared_ptr<render::Material> material = nullptr;
-        if (!material)
-        {
-            material = std::make_shared<render::Material>(
-                std::vector{ asset::AssetReference<asset::Shader>("/engine_assets/shaders/ui.sass") },
-                std::vector{ asset::AssetReference<asset::Shader>("/engine_assets/shaders/alpha_texture.sass") });
-            auto rs = render::RenderState();
-            rs.srcBlend = render::BlendMode::SrcAlpha;
-            rs.dstBlend = render::BlendMode::OneMinusSrcAlpha;
-            material->SetRenderState(rs);
-        }
+        std::shared_ptr<render::Material> material = assetManager->GetAsset<render::Material>("/engine_assets/materials/ui_alpha_texture.sass");
         image->materialInstance = se::render::MaterialInstance::CreateMaterialInstance(material);
 
         if (file.isDirectory)

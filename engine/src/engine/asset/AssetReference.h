@@ -17,6 +17,7 @@ namespace se::asset
         bool IsSet() const { return !m_AssetPath.empty(); }
         bool Loaded() const { return m_Instance.get(); }
         const std::shared_ptr<T>& GetAsset() const;
+        const std::string& GetAssetPath() const;
 
         void operator=(const std::string& path);
         void operator=(const char* path);
@@ -57,6 +58,12 @@ namespace se::asset
         }
 
         return m_Instance;
+    }
+
+    template<typename T>
+    const std::string& AssetReference<T>::GetAssetPath() const
+    {
+        return m_AssetPath;
     }
 
     template<typename T>
