@@ -833,7 +833,6 @@ def WriteInvokeMethod(class_name, functions):
     ret += "    }\n"
     return ret
 
-
 def CreateClassInstantiationFiles(source_dirs, classes, template_instantiations):
     for src_dir in source_dirs:
         if not os.path.exists(src_dir):
@@ -856,6 +855,10 @@ def CreateClassInstantiationFiles(source_dirs, classes, template_instantiations)
         for full_name, class_obj in classes.items():
             if class_obj.is_reflected and class_obj.project_src_dir == src_dir:
                 init_members_cpp_content += f"#include \"{class_obj.path}\"\n"
+        for template_instantiation in template_instantiations:
+            if template_instantiation.project_src_dir == src_dir:
+                class_obj = next(x for x in classes.items() if x[1].name == template_instantiation.class_name)
+                init_members_cpp_content += f"#include \"{class_obj[1].path}\"\n"
         init_members_cpp_content += f"\nnamespace se\n{{\nvoid {project_name}_InitClassReflection()\n{{\n"
         for full_name, class_obj in classes.items():
             if class_obj.dev_only:
