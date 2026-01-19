@@ -57,20 +57,12 @@ namespace se::editor::ui
         world->AddComponent<se::ui::components::WidgetComponent>(verticalBoxEntity);
         world->AddChild(contentArea, verticalBoxEntity);
 
-        static std::shared_ptr<render::Material> bgMaterial = nullptr;
-        if (!bgMaterial)
-        {
-            bgMaterial = std::make_shared<render::Material>(
-                std::vector{ asset::AssetReference<asset::Shader>("/engine_assets/shaders/ui.sass") },
-                std::vector{ asset::AssetReference<asset::Shader>("/engine_assets/shaders/flat_color.sass") });
-            bgMaterial->GetShaderSettings().SetSetting("color_setting", math::Vec3(.25f, .25f, .25f));
-        }
-
         auto treeViewBG = world->CreateEntity(editor->GetEditorScene(), "Grid Box BG");
         auto* treeViewRect = world->AddComponent<se::ui::components::RectTransformComponent>(treeViewBG);
         treeViewRect->anchors = { 0.f, 0.f, 0.f, 1.f };
         treeViewRect->maxX = 195;
         auto treeViewBGImage = world->AddComponent<se::ui::components::ImageComponent>(treeViewBG);
+        auto bgMaterial = assetManager->GetAsset<render::Material>("/engine_assets/materials/editor_asset_browser_bg.sass");
         treeViewBGImage->materialInstance = se::render::MaterialInstance::CreateMaterialInstance(bgMaterial);
         world->AddChild(verticalBoxEntity, treeViewBG);
 

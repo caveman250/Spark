@@ -31,15 +31,7 @@ namespace se::editor::ui::properties
         auto app = Application::Get();
         auto world = app->GetWorld();
         auto editor = app->GetEditorRuntime();
-
-        static std::shared_ptr<render::Material> bgMaterial = nullptr;
-        if (!bgMaterial)
-        {
-            bgMaterial = std::make_shared<render::Material>(
-                std::vector{ asset::AssetReference<asset::Shader>("/engine_assets/shaders/ui.sass") },
-                std::vector{ asset::AssetReference<asset::Shader>("/engine_assets/shaders/flat_color.sass") });
-            bgMaterial->GetShaderSettings().SetSetting("color_setting", math::Vec3(0.27f, 0.27f, 0.27f));
-        }
+        auto assetManager = asset::AssetManager::Get();
 
         auto listBG = world->CreateEntity(editor->GetEditorScene(), "Vector Editor BG");
         auto* listRect = world->AddComponent<RectTransformComponent>(listBG);
@@ -48,6 +40,7 @@ namespace se::editor::ui::properties
         listRect->minX = 5;
         listRect->maxX = 5;
         auto listBGImage = world->AddComponent<ImageComponent>(listBG);
+        std::shared_ptr<render::Material> bgMaterial = assetManager->GetAsset<render::Material>("/engine_assets/materials/editor_containerbg.sass");
         listBGImage->materialInstance = render::MaterialInstance::CreateMaterialInstance(bgMaterial);
         world->AddChild(m_Content, listBG);
 

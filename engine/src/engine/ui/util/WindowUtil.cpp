@@ -34,15 +34,7 @@ namespace se::ui::util
         {
             auto image = world->AddComponent<ImageComponent>(entity);
 
-            static std::shared_ptr<render::Material> material = nullptr;
-            if (!material)
-            {
-                material = std::make_shared<render::Material>(
-                std::vector{ asset::AssetReference<asset::Shader>("/engine_assets/shaders/ui.sass") },
-                std::vector{ asset::AssetReference<asset::Shader>("/engine_assets/shaders/flat_color.sass") });
-                material->GetShaderSettings().SetSetting("color_setting", math::Vec3(0.3f, 0.3f, 0.3f));
-            }
-
+            auto material = assetManager->GetAsset<render::Material>("/engine_assets/materials/editor_window_bg.sass");
             image->materialInstance = render::MaterialInstance::CreateMaterialInstance(material);
         }
 

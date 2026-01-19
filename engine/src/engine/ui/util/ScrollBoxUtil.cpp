@@ -8,6 +8,7 @@
 #include <engine/ui/components/RectTransformComponent.h>
 #include <engine/ui/components/MouseInputComponent.h>
 
+#include "engine/io/VFS.h"
 #include "engine/render/Material.h"
 #include "engine/render/MaterialInstance.h"
 #include "engine/ui/components/WidgetComponent.h"
@@ -22,6 +23,7 @@ namespace se::ui::util
                             const ecs::Id& scene)
     {
         auto world = Application::Get()->GetWorld();
+        auto assetManager = asset::AssetManager::Get();
 
         auto scrollBoxEntity = world->CreateEntity(scene, "ScrollBox");
         *outScrollBox = world->AddComponent<components::ScrollBoxComponent>(scrollBoxEntity);
@@ -39,14 +41,7 @@ namespace se::ui::util
 
         scrollBarEntity = world->CreateEntity(scene, "Scroll Bar");
         auto scrollBarImage = world->AddComponent<components::ImageComponent>(scrollBarEntity);
-        static std::shared_ptr<render::Material> material = nullptr;
-        if (!material)
-        {
-            material = std::make_shared<render::Material>(
-                std::vector{ asset::AssetReference<asset::Shader>("/engine_assets/shaders/ui.sass") },
-                std::vector{ asset::AssetReference<asset::Shader>("/engine_assets/shaders/flat_color.sass") });
-            material->GetShaderSettings().SetSetting("color_setting", math::Vec3(0.8f, 0.8f, 0.8f));
-        }
+        std::shared_ptr<render::Material> material = assetManager->GetAsset<render::Material>("/engine_assets/materials/editor_scroll_bar.sass");
         scrollBarImage->materialInstance = render::MaterialInstance::CreateMaterialInstance(material);
         auto scrollBarRect = world->AddComponent<components::RectTransformComponent>(scrollBarEntity);
         scrollBarRect->anchors = { 1.f, 1.f, 0.f, 0.f };

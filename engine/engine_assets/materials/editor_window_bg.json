@@ -1,0 +1,125 @@
+{
+    "structs": [
+        {
+            "Material": {
+                "m_FragShaders": "Array",
+                "m_RenderState": "Object",
+                "m_ShaderSettings": "Object",
+                "m_UniformDefaults": "Object",
+                "m_VertShaders": "Array"
+            }
+        },
+        {
+            "AssetReference<Shader>": {
+                "m_AssetPath": "String"
+            }
+        },
+        {
+            "RenderState": {
+                "depthComp": "String",
+                "dstBlend": "String",
+                "lit": "bool",
+                "srcBlend": "String",
+                "stencilFunc": "String",
+                "stencilReadMask": "Uint32",
+                "stencilWriteMask": "Uint32"
+            }
+        },
+        {
+            "ShaderSettings": {
+                "m_Settings": "Array"
+            }
+        },
+        {
+            "Internal_MapItemString_Object": {
+                "key": "String",
+                "value": "Object"
+            }
+        },
+        {
+            "ShaderSettingDefinition<Vec3>": {
+                "m_Value": "Object"
+            }
+        },
+        {
+            "Vec3": {
+                "x": "Float",
+                "y": "Float",
+                "z": "Float"
+            }
+        },
+        {
+            "UniformStorage": {
+                "m_Storage": "Array"
+            }
+        }
+    ],
+    "root": {
+        "Material": {
+            "m_VertShaders": {
+                "struct": "AssetReference<Shader>",
+                "contents": [
+                    {
+                        "AssetReference<Shader>": {
+                            "m_AssetPath": "/engine_assets/shaders/ui.sass"
+                        }
+                    }
+                ]
+            },
+            "m_FragShaders": {
+                "struct": "AssetReference<Shader>",
+                "contents": [
+                    {
+                        "AssetReference<Shader>": {
+                            "m_AssetPath": "/engine_assets/shaders/flat_color.sass"
+                        }
+                    }
+                ]
+            },
+            "m_RenderState": {
+                "RenderState": {
+                    "depthComp": "None",
+                    "srcBlend": "One",
+                    "dstBlend": "Zero",
+                    "stencilWriteMask": 0,
+                    "stencilFunc": "None",
+                    "stencilReadMask": 0,
+                    "lit": false
+                }
+            },
+            "m_ShaderSettings": {
+                "ShaderSettings": {
+                    "m_Settings": {
+                        "struct": "Internal_MapItemString_Object",
+                        "contents": [
+                            {
+                                "Internal_MapItemString_Object": {
+                                    "key": "color_setting",
+                                    "value": {
+                                        "ShaderSettingDefinition<Vec3>": {
+                                            "m_Value": {
+                                                "Vec3": {
+                                                    "x": 0.30000001192092896,
+                                                    "y": 0.30000001192092896,
+                                                    "z": 0.30000001192092896
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        ]
+                    }
+                }
+            },
+            "m_UniformDefaults": {
+                "UniformStorage": {
+                    "m_Storage": {
+                        "struct": "Internal_MapItemString_Object",
+                        "contents": null
+                    }
+                }
+            }
+        }
+    }
+}

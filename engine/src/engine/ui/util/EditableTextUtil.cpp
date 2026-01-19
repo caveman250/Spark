@@ -17,7 +17,9 @@ namespace se::ui::util
                                EditableTextComponent** text)
 
     {
-        auto editor = Application::Get()->GetEditorRuntime();
+        auto app = Application::Get();
+        auto editor = app->GetEditorRuntime();
+        auto assetManager = asset::AssetManager::Get();
 
         auto ret = world->CreateEntity(editor->GetEditorScene(), "Label");
         (*text) = world->AddComponent<EditableTextComponent>(ret);
@@ -33,14 +35,7 @@ namespace se::ui::util
         auto caretComp = world->AddComponent<TextCaretComponent>(caretEntity);
         caretComp->active = false;
         auto caretImage = world->AddComponent<ImageComponent>(caretEntity);
-        static std::shared_ptr<render::Material> material = nullptr;
-        if (!material)
-        {
-            material = std::make_shared<render::Material>(
-                std::vector{ asset::AssetReference<asset::Shader>("/engine_assets/shaders/ui.sass") },
-                std::vector{ asset::AssetReference<asset::Shader>("/engine_assets/shaders/flat_color.sass") });
-            material->GetShaderSettings().SetSetting("color_setting", math::Vec3(0.6f, 0.6f, 0.6f));
-        }
+        auto material = assetManager->GetAsset<render::Material>("/engine_assets/materials/editor_lightbg.sass");
         caretImage->materialInstance = render::MaterialInstance::CreateMaterialInstance(material);
         world->AddChild(ret, caretEntity);
         std::function movedCb = [ret, world, caretEntity](int pos)

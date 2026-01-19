@@ -4,6 +4,7 @@
 #include "engine/Application.h"
 #include "engine/asset/AssetManager.h"
 #include "engine/asset/shader/Shader.h"
+#include "engine/io/VFS.h"
 #include "engine/render/Material.h"
 #include "engine/ui/components/ImageComponent.h"
 #include "engine/ui/components/KeyInputComponent.h"
@@ -20,6 +21,8 @@ namespace se::editor
         const float sliderVal)
     {
         auto world = Application::Get()->GetWorld();
+        auto assetManager = asset::AssetManager::Get();
+
         ecs::Id splitView = world->CreateEntity(scene, "SplitView");
         auto splitViewComp = world->AddComponent<se::ui::components::SplitViewComponent>(splitView);
         splitViewComp->dir = dir;
@@ -44,14 +47,7 @@ namespace se::editor
         splitViewComp->sliderEntity = world->CreateEntity(scene, "Slider");
         world->AddComponent<se::ui::components::RectTransformComponent>(splitViewComp->sliderEntity);
         world->AddComponent<se::ui::components::WidgetComponent>(splitViewComp->sliderEntity);
-        static std::shared_ptr<render::Material> bgMaterial = nullptr;
-        if (!bgMaterial)
-        {
-            bgMaterial = std::make_shared<render::Material>(
-                std::vector{ asset::AssetReference<asset::Shader>("/engine_assets/shaders/ui.sass") },
-                std::vector{ asset::AssetReference<asset::Shader>("/engine_assets/shaders/flat_color.sass") });
-            bgMaterial->GetShaderSettings().SetSetting("color_setting", math::Vec3(.15f, .15f, .15f));
-        }
+        auto bgMaterial = assetManager->GetAsset<render::Material>("/engine_assets/materials/editor_splitview_slider.sass");
         auto sliderImage = world->AddComponent<se::ui::components::ImageComponent>(splitViewComp->sliderEntity);
         sliderImage->materialInstance = se::render::MaterialInstance::CreateMaterialInstance(bgMaterial);
         world->AddChild(splitView, splitViewComp->sliderEntity);

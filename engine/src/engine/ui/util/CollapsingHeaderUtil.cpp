@@ -18,6 +18,8 @@ namespace se::ui::util
                                    bool withBackground,
                                    const ecs::Id& scene)
     {
+        auto assetManager = asset::AssetManager::Get();
+
         auto entity = world->CreateEntity(scene, name);
         auto rect = world->AddComponent<RectTransformComponent>(entity);
         rect->anchors = { .left = 0.f, .right = 1.f, .top = 0.f, .bottom = 0.f };
@@ -26,15 +28,6 @@ namespace se::ui::util
         world->AddComponent<MouseInputComponent>(entity);
         world->AddComponent<WidgetComponent>(entity);
 
-        static std::shared_ptr<render::Material> titleBGMaterial = nullptr;
-        if (!titleBGMaterial)
-        {
-            titleBGMaterial = std::make_shared<render::Material>(
-                std::vector{ asset::AssetReference<asset::Shader>("/engine_assets/shaders/ui.sass") },
-                std::vector{ asset::AssetReference<asset::Shader>("/engine_assets/shaders/flat_color.sass") });
-            titleBGMaterial->GetShaderSettings().SetSetting("color_setting", math::Vec3(.24f, .24f, .24f));
-        }
-
         ecs::Id title = world->CreateEntity(scene, std::format("Collapsing Header Title ({})", name));
         rect = world->AddComponent<RectTransformComponent>(title);
         rect->anchors = { .left = 0.f, .right = 1.f, .top = 0.f, .bottom = 0.f };
@@ -42,7 +35,8 @@ namespace se::ui::util
         if (withBackground)
         {
             auto titleImage = world->AddComponent<ImageComponent>(title);
-            titleImage->materialInstance = render::MaterialInstance::CreateMaterialInstance(titleBGMaterial);
+            auto titleBgMaterial = assetManager->GetAsset<render::Material>("/engine_assets/materials/editor_collapsing_header_title.sass");
+            titleImage->materialInstance = render::MaterialInstance::CreateMaterialInstance(titleBgMaterial);
         }
         world->AddChild(entity, title);
         (*collapsingHeader)->titleEntity = title;

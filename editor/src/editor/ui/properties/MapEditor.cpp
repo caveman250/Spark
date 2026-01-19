@@ -7,6 +7,7 @@
 #include "engine/ui/components/WidgetComponent.h"
 #include "engine/ui/components/VerticalBoxComponent.h"
 #include "engine/asset/AssetManager.h"
+#include "engine/io/VFS.h"
 #include "engine/render/Material.h"
 #include "engine/render/MaterialInstance.h"
 #include "engine/ui/components/TextComponent.h"
@@ -32,31 +33,24 @@ namespace se::editor::ui::properties
         auto app = Application::Get();
         auto world = app->GetWorld();
         auto editor = app->GetEditorRuntime();
-
-        static std::shared_ptr<render::Material> bgMaterial = nullptr;
-        if (!bgMaterial)
-        {
-            bgMaterial = std::make_shared<render::Material>(
-                std::vector{ asset::AssetReference<asset::Shader>("/engine_assets/shaders/ui.sass") },
-                std::vector{ asset::AssetReference<asset::Shader>("/engine_assets/shaders/flat_color.sass") });
-            bgMaterial->GetShaderSettings().SetSetting("color_setting", math::Vec3(0.27f, 0.27f, 0.27f));
-        }
+        auto assetManager = asset::AssetManager::Get();
 
         auto listBG = world->CreateEntity(editor->GetEditorScene(), "Vector Editor BG");
-        auto* listRect = world->AddComponent<se::ui::components::RectTransformComponent>(listBG);
-        world->AddComponent<se::ui::components::WidgetComponent>(listBG);
+        auto* listRect = world->AddComponent<RectTransformComponent>(listBG);
+        world->AddComponent<WidgetComponent>(listBG);
         listRect->anchors = {0.f, 1.f, 0.f, 0.f };
         listRect->minX = 5;
         listRect->maxX = 5;
-        auto listBGImage = world->AddComponent<se::ui::components::ImageComponent>(listBG);
-        listBGImage->materialInstance = se::render::MaterialInstance::CreateMaterialInstance(bgMaterial);
+        auto listBGImage = world->AddComponent<ImageComponent>(listBG);
+        std::shared_ptr<render::Material> bgMaterial = assetManager->GetAsset<render::Material>("/engine_assets/materials/editor_containerbg.sass");
+        listBGImage->materialInstance = render::MaterialInstance::CreateMaterialInstance(bgMaterial);
         world->AddChild(m_Content, listBG);
 
         ecs::Id verticalBoxEntity = world->CreateEntity(editor->GetEditorScene(), "Vector Editor Vertical Box");
-        auto* verticalBoxRect = world->AddComponent<se::ui::components::RectTransformComponent>(verticalBoxEntity);
+        auto* verticalBoxRect = world->AddComponent<RectTransformComponent>(verticalBoxEntity);
         verticalBoxRect->anchors = { .left = 0.f, .right = 1.f, .top = 0.f, .bottom = 0.f };
-        world->AddComponent<se::ui::components::WidgetComponent>(verticalBoxEntity);
-        auto verticalBox = world->AddComponent<se::ui::components::VerticalBoxComponent>(verticalBoxEntity);
+        world->AddComponent<WidgetComponent>(verticalBoxEntity);
+        auto verticalBox = world->AddComponent<VerticalBoxComponent>(verticalBoxEntity);
         verticalBox->spacing = 5;
         world->AddChild(listBG, verticalBoxEntity);
 
@@ -105,7 +99,7 @@ namespace se::editor::ui::properties
                                                            true);
                 if (!propertyEditor)
                 {
-                    auto text = properties::util::CreateMissingPropertyEditorText(containedType, 0.f, 0);
+                    auto text = util::CreateMissingPropertyEditorText(containedType, 0.f, 0);
                     world->AddChild(entity, text);
                 }
                 else

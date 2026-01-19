@@ -9,6 +9,7 @@
 #include "inttypes.h"
 #include "engine/asset/AssetManager.h"
 #include "engine/asset/shader/Shader.h"
+#include "engine/io/VFS.h"
 #include "engine/render/Material.h"
 #include "engine/ui/util/EditableTextUtil.h"
 
@@ -75,27 +76,13 @@ namespace se::editor::ui::properties
         world->AddComponent<WidgetComponent>(bg);
         auto image = world->AddComponent<ImageComponent>(bg);
 
-        static std::shared_ptr<render::Material> material = nullptr;
-        if (!material)
-        {
-            material = std::make_shared<render::Material>(
-                std::vector{ asset::AssetReference<asset::Shader>("/engine_assets/shaders/ui.sass") },
-                std::vector{ asset::AssetReference<asset::Shader>("/engine_assets/shaders/flat_color.sass") });
-            material->GetShaderSettings().SetSetting("color_setting", math::Vec3(0.6f, 0.6f, 0.6f));
-        }
+        auto material = asset::AssetManager::Get()->GetAsset<render::Material>("/engine_assets/materials/editor_lightbg.sass");
         image->materialInstance = render::MaterialInstance::CreateMaterialInstance(material);
         world->AddChild(m_Content, bg);
 
         auto innerImageEntity = world->CreateEntity(editor->GetEditorScene(), "Border");
         auto innerImage = world->AddComponent<ImageComponent>(innerImageEntity);
-        static std::shared_ptr<render::Material> innerMaterial = nullptr;
-        if (!innerMaterial)
-        {
-            innerMaterial = std::make_shared<render::Material>(
-                std::vector{ asset::AssetReference<asset::Shader>("/engine_assets/shaders/ui.sass") },
-                std::vector{ asset::AssetReference<asset::Shader>("/engine_assets/shaders/flat_color.sass") });
-            innerMaterial->GetShaderSettings().SetSetting("color_setting", math::Vec3(0.2f, 0.2f, 0.2f));
-        }
+        auto innerMaterial = asset::AssetManager::Get()->GetAsset<render::Material>("/engine_assets/materials/editor_darkbg.sass");
         innerImage->materialInstance = render::MaterialInstance::CreateMaterialInstance(innerMaterial);
         auto innerTransform = world->AddComponent<RectTransformComponent>(innerImageEntity);
         innerTransform->anchors = { .left = 0.f, .right = 1.f, .top = 0.f, .bottom = 1.f };

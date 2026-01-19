@@ -20,26 +20,12 @@ namespace se::ui::util
         bgTransform->anchors = { .left = 0.f, .right = 1.f, .top = 0.f, .bottom = 1.f };
         world->AddComponent<WidgetComponent>(ret.comboBox->collapsedEntity);
         auto image = world->AddComponent<ImageComponent>(ret.comboBox->collapsedEntity);
-        static std::shared_ptr<render::Material> bgMaterial = nullptr;
-        if (!bgMaterial)
-        {
-            bgMaterial = std::make_shared<render::Material>(
-                std::vector{ asset::AssetReference<asset::Shader>("/engine_assets/shaders/ui.sass") },
-                std::vector{ asset::AssetReference<asset::Shader>("/engine_assets/shaders/flat_color.sass") });
-            bgMaterial->GetShaderSettings().SetSetting("color_setting", math::Vec3(0.6f, 0.6f, 0.6f));
-        }
+        auto bgMaterial = assetManager->GetAsset<render::Material>("/engine_assets/materials/editor_lightbg.sass");
         image->materialInstance = render::MaterialInstance::CreateMaterialInstance(bgMaterial);
 
         auto innerImageEntity = world->CreateEntity(params.scene, "Border");
         auto innerImage = world->AddComponent<ImageComponent>(innerImageEntity);
-        static std::shared_ptr<render::Material> innerMaterial = nullptr;
-        if (!innerMaterial)
-        {
-            innerMaterial = std::make_shared<render::Material>(
-                std::vector{ asset::AssetReference<asset::Shader>("/engine_assets/shaders/ui.sass") },
-                std::vector{ asset::AssetReference<asset::Shader>("/engine_assets/shaders/flat_color.sass") });
-            innerMaterial->GetShaderSettings().SetSetting("color_setting", math::Vec3(0.2f, 0.2f, 0.2f));
-        }
+        auto innerMaterial = assetManager->GetAsset<render::Material>("/engine_assets/materials/editor_darkbg.sass");
         innerImage->materialInstance = render::MaterialInstance::CreateMaterialInstance(innerMaterial);
         auto innerTransform = world->AddComponent<RectTransformComponent>(innerImageEntity);
         innerTransform->anchors = { .left = 0.f, .right = 1.f, .top = 0.f, .bottom = 1.f };
@@ -100,26 +86,12 @@ namespace se::ui::util
         bgTransform->anchors = { .left = 0.f, .right = 1.f, .top = 0.f, .bottom = 0.f };
         world->AddComponent<WidgetComponent>(ret.comboBox->expandedEntity);
         auto image = world->AddComponent<ImageComponent>(ret.comboBox->expandedEntity);
-        static std::shared_ptr<render::Material> bgMaterial = nullptr;
-        if (!bgMaterial)
-        {
-            bgMaterial = std::make_shared<render::Material>(
-                std::vector{ asset::AssetReference<asset::Shader>("/engine_assets/shaders/ui.sass") },
-                std::vector{ asset::AssetReference<asset::Shader>("/engine_assets/shaders/flat_color.sass") });
-            bgMaterial->GetShaderSettings().SetSetting("color_setting", math::Vec3(0.6f, 0.6f, 0.6f));
-        }
+        auto bgMaterial = assetManager->GetAsset<render::Material>("/engine_assets/materials/editor_lightbg.sass");
         image->materialInstance = render::MaterialInstance::CreateMaterialInstance(bgMaterial);
 
         auto innerImageEntity = world->CreateEntity(params.scene, "Border");
         auto innerImage = world->AddComponent<ImageComponent>(innerImageEntity);
-        static std::shared_ptr<render::Material> innerMaterial = nullptr;
-        if (!innerMaterial)
-        {
-            innerMaterial = std::make_shared<render::Material>(
-                std::vector{ asset::AssetReference<asset::Shader>("/engine_assets/shaders/ui.sass") },
-                std::vector{ asset::AssetReference<asset::Shader>("/engine_assets/shaders/flat_color.sass") });
-            innerMaterial->GetShaderSettings().SetSetting("color_setting", math::Vec3(0.2f, 0.2f, 0.2f));
-        }
+        auto innerMaterial = assetManager->GetAsset<render::Material>("/engine_assets/materials/editor_darkbg.sass");
         innerImage->materialInstance = render::MaterialInstance::CreateMaterialInstance(innerMaterial);
         auto innerTransform = world->AddComponent<RectTransformComponent>(innerImageEntity);
         innerTransform->anchors = { .left = 0.f, .right = 1.f, .top = 0.f, .bottom = 1.f };
