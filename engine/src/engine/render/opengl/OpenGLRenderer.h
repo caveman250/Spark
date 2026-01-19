@@ -16,6 +16,8 @@ namespace se::render::opengl
 
         bool IsGLEWInitialised() const;
 
+        bool SupportsMultiThreadedRendering() const override;
+
     private:
         bool m_GlewInit = false;
     };

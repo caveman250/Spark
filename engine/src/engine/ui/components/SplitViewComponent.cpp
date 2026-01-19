@@ -74,7 +74,7 @@ namespace se::ui
         {
             auto entity1Width = splitViewTransform.rect.size.x * splitView->sliderPos;
             rectTransform.rect.topLeft = splitViewTransform.rect.topLeft + math::IntVec2(static_cast<int>(entity1Width - padding), 0);
-            rectTransform.rect.size.x = padding * 2;
+            rectTransform.rect.size.x = static_cast<int>(padding * 2);
             rectTransform.rect.size.y = splitViewTransform.rect.size.y;
         }
         else if (child == splitView->entity2)

@@ -88,10 +88,13 @@ namespace se::render::opengl
         }
         for (const auto& [usage, stream] : m_VertexStreams)
         {
-            SPARK_ASSERT(m_GlResources[usage] != 1);
-            glDeleteBuffers(1, &m_GlResources[usage]);
-            m_GlResources[usage] = GL_INVALID_VALUE;
-            GL_CHECK_ERROR()
+            auto it = m_GlResources.find(usage);
+            if (it != m_GlResources.end())
+            {
+                glDeleteBuffers(1, &it->second);
+                it->second = GL_INVALID_VALUE;
+                GL_CHECK_ERROR()
+            }
         }
     }
 }

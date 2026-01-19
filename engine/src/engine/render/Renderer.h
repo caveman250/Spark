@@ -58,6 +58,8 @@ namespace se::render
 
         virtual void SetFrameBuffer(size_t group, const std::shared_ptr<FrameBuffer>& fb);
 
+        virtual bool SupportsMultiThreadedRendering() const = 0;
+
         void Update();
 
         virtual void Render();

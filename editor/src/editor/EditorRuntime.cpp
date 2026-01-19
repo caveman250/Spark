@@ -83,7 +83,7 @@ namespace se::editor
         {
             auto window = Application::Get()->GetWindow();
             const float reciprocal = 1.f / window->GetContentScale();
-            OnViewportSizeChanged(x * reciprocal, y * reciprocal);
+            OnViewportSizeChanged(static_cast<int>(x * reciprocal), static_cast<int>(y * reciprocal));
         });
         m_ViewportWindow->ConstructUI();
 

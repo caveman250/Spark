@@ -486,6 +486,9 @@ namespace se::ecs
     {
         m_Running = true;
 
+        auto renderer = render::Renderer::Get<render::Renderer>();
+        bool parallel = renderer->SupportsMultiThreadedRendering();
+
         RunOnAllSystems([this](auto&& systemId)
         {
             EASY_BLOCK(systemId.name->c_str());
@@ -493,7 +496,7 @@ namespace se::ecs
             {
                 system->Render();
             }
-        }, m_EngineSystemRenderGroups, true, false);
+        }, m_EngineSystemRenderGroups, parallel, false);
 
         RunOnAllSystems([this](auto&& systemId)
         {
@@ -502,7 +505,7 @@ namespace se::ecs
             {
                 system->Render();
             }
-        }, m_AppSystemRenderGroups, true, false);
+        }, m_AppSystemRenderGroups, parallel, false);
 
         m_Running = false;
     }

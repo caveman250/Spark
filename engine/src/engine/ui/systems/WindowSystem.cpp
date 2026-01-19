@@ -6,6 +6,7 @@
 #include "engine/ui/components/MouseInputComponent.h"
 #include "engine/ui/components/RectTransformComponent.h"
 #include "engine/ui/components/WindowComponent.h"
+#include "engine/ui/util/RectTransformUtil.h"
 #include "platform/IWindow.h"
 #include "platform/MouseCursorUtil.h"
 

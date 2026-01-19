@@ -65,5 +65,10 @@ namespace se::render::opengl
     {
         return m_GlewInit;
     }
+
+    bool OpenGLRenderer::SupportsMultiThreadedRendering() const
+    {
+        return false;
+    }
 }
 #endif

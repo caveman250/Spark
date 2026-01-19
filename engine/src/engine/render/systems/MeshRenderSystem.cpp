@@ -25,6 +25,12 @@ namespace se::render::systems
                     .WithSingletonComponent<const camera::ActiveCameraComponent>();
     }
 
+    ecs::UpdateMode MeshRenderSystem::GetUpdateMode() const
+    {
+        auto renderer = Renderer::Get<Renderer>();
+        return renderer->SupportsMultiThreadedRendering() ? ecs::UpdateMode::MultiThreaded : ecs::UpdateMode::SingleThreaded;
+    }
+
     void MeshRenderSystem::OnUpdate(const ecs::SystemUpdateData& updateData)
     {
         auto* meshes = updateData.GetComponentArray<MeshComponent>();

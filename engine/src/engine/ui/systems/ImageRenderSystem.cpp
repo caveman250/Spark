@@ -27,6 +27,12 @@ namespace se::ui::systems
                     .WithSingletonComponent<singleton_components::UIRenderComponent>();
     }
 
+    ecs::UpdateMode ImageRenderSystem::GetUpdateMode() const
+    {
+        auto renderer = render::Renderer::Get<render::Renderer>();
+        return renderer->SupportsMultiThreadedRendering() ? ecs::UpdateMode::MultiThreaded : ecs::UpdateMode::SingleThreaded;
+    }
+
     void ImageRenderSystem::OnRender(const ecs::SystemUpdateData& updateData)
     {
         EASY_BLOCK("ImageRenderSystem::OnRender");

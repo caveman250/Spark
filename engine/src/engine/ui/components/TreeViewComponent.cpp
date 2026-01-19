@@ -29,9 +29,9 @@ namespace se::ui
                 widget->dirty = (widget->visibility == Visibility::Hidden) != collapsed;
                 widget->visibility = collapsed ? Visibility::Hidden : Visibility::Visible; // TODO should be collapsed instead of Hidden.
 
-                rectTransform->rect.topLeft.y = currentY * window->GetContentScale() + parentRect.rect.topLeft.y;
-                rectTransform->rect.topLeft.x = 6 * window->GetContentScale() + parentRect.rect.topLeft.x;
-                rectTransform->rect.size.y = 18 * window->GetContentScale();
+                rectTransform->rect.topLeft.y = static_cast<int>(currentY * window->GetContentScale()) + parentRect.rect.topLeft.y;
+                rectTransform->rect.topLeft.x = static_cast<int>(6 * window->GetContentScale()) + parentRect.rect.topLeft.x;
+                rectTransform->rect.size.y = static_cast<int>(18 * window->GetContentScale());
                 rectTransform->rect.size.x = parentRect.rect.size.x;
                 rectTransform->layer = parentRect.layer;
                 rectTransform->needsLayout = false;
