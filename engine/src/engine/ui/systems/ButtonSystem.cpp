@@ -30,8 +30,7 @@ namespace se::ui::systems
         auto* images = updateData.GetComponentArray<components::ImageComponent>();
         const auto* mouseEventComps = updateData.GetComponentArray<const components::MouseInputComponent>();
 
-        ecs::util::ForEachEntity(this, updateData,
-        [buttons, images, mouseEventComps](size_t i)
+        for (size_t i = 0; i < updateData.GetEntities().size(); ++i)
         {
             auto& button = buttons[i];
             auto& image = images[i];
@@ -92,6 +91,6 @@ namespace se::ui::systems
 
             button.lastHovered = button.hovered;
             button.lastPressed = button.pressed;
-        });
+        }
     }
 }

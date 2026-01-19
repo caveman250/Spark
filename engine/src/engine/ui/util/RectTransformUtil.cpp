@@ -174,19 +174,13 @@ namespace se::ui::util
         auto dec = ecs::HeirachyQueryDeclaration()
                 .WithComponent<RectTransformComponent>();
         system->RunRecursiveChildQuery(entity, dec,
-                               [delta](const ecs::SystemUpdateData& updateData)
-                               {
-                                   const auto& children = updateData.GetEntities();
-                                   auto* rects = updateData.GetComponentArray<RectTransformComponent>();
+        [delta](const ecs::SystemUpdateData& updateData)
+        {
+            auto* rect = updateData.GetComponentArray<RectTransformComponent>();
+            rect->rect.topLeft += delta;
 
-                                   for (size_t i = 0; i < children.size(); ++i)
-                                   {
-                                       auto& rect = rects[i];
-                                       rect.rect.topLeft += delta;
-                                   }
-
-                                   return false;
-                               });
+            return false;
+        });
     }
 
     void InvalidateParent(const ecs::Id& entity, ecs::System* system)

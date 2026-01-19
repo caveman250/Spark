@@ -36,11 +36,11 @@ namespace se::debug::systems
 
     void FPSCounterSystem::OnUpdate(const ecs::SystemUpdateData& systemUpdateData)
     {
+        const auto& entities = systemUpdateData.GetEntities();
         auto* textComps = systemUpdateData.GetComponentArray<ui::components::TextComponent>();
         auto* fpsCounters = systemUpdateData.GetComponentArray<components::FPSCounterComponent>();
 
-        ecs::util::ForEachEntity(this, systemUpdateData,
-        [textComps, fpsCounters] (size_t i)
+        for (size_t i = 0; i < entities.size(); ++i)
         {
             auto& text = textComps[i];
             auto& fpsCounter = fpsCounters[i];
@@ -64,7 +64,7 @@ namespace se::debug::systems
             average = s_MillisecondsToSeconds / average;
 
             text.text = std::format("{:.0f}", std::max(1.0, average));
-        });
+        }
     }
 }
 

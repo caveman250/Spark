@@ -27,14 +27,13 @@ namespace se::ui::systems
         EASY_BLOCK("LastRectSystem::OnUpdate");
 
         auto* transform = updateData.GetComponentArray<components::RectTransformComponent>();
-        ecs::util::ForEachEntity(this, updateData,
-        [transform](size_t i)
+        for (size_t i = 0; i < updateData.GetEntities().size(); ++i)
         {
             auto& trans = transform[i];
             if (!trans.needsLayout) // some layout optimisations rely on a position delta.
             {
                 trans.lastRect = trans.rect;
             }
-        });
+        }
     }
 }

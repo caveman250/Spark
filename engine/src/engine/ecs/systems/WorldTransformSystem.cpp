@@ -29,7 +29,7 @@ namespace se::ecs::systems
         const auto& entities = updateData.GetEntities();
         auto* transform = updateData.GetComponentArray<TransformComponent>();
 
-        util::ForEachEntity(this, updateData, [this, entities, transform](size_t i)
+        for (size_t i = 0; i < entities.size(); ++i)
         {
             const TransformComponent& parent = transform[i];
             auto declaration = HeirachyQueryDeclaration()
@@ -37,16 +37,11 @@ namespace se::ecs::systems
             RunChildQuery(entities[i], declaration,
               [parent](const SystemUpdateData& updateData)
             {
-                const auto& children = updateData.GetEntities();
                 auto* childTransform = updateData.GetComponentArray<TransformComponent>();
-                for (size_t i = 0; i < children.size(); ++i)
-                {
-                    TransformComponent& transform = childTransform[i];
-                    transform.worldTransform = parent.worldTransform * transform.transform;
-                }
+                childTransform->worldTransform = parent.worldTransform * childTransform->transform;
 
                 return false;
             });
-        });
+        }
     }
 }

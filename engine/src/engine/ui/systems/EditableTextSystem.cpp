@@ -340,8 +340,7 @@ namespace se::ui::systems
         auto* keyInputComps = updateData.GetComponentArray<components::KeyInputComponent>();
         const auto* inputComp = updateData.GetSingletonComponent<const input::InputComponent>();
 
-        ecs::util::ForEachEntity(this, updateData,
-        [this, entities, textComps, transformComps, mouseInputComps, keyInputComps, inputComp](size_t i)
+        for (size_t i = 0; i < entities.size(); ++i)
         {
             const ecs::Id& entity = entities[i];
             components::EditableTextComponent& text = textComps[i];
@@ -400,7 +399,7 @@ namespace se::ui::systems
                     }
                 }
             }
-        });
+        }
 #endif
     }
 
@@ -419,8 +418,7 @@ namespace se::ui::systems
         auto* textComps = updateData.GetComponentArray<components::EditableTextComponent>();
         auto* renderComp = updateData.GetSingletonComponent<singleton_components::UIRenderComponent>();
 
-        ecs::util::ForEachEntity(this, updateData,
-        [renderer, window, entities, widgetComps, transformComps, textComps, renderComp](size_t i)
+        for (size_t i = 0; i < entities.size(); ++i)
         {
             const auto& entity = entities[i];
             const auto& widget = widgetComps[i];
@@ -439,7 +437,7 @@ namespace se::ui::systems
                              renderer,
                              renderComp,
                              text.inEditMode ? text.editText : text.text);
-        });
+        }
 #endif
     }
 }

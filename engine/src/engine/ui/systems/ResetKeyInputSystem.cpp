@@ -24,11 +24,10 @@ namespace se::ui::systems
 
         auto* receivesInputComps = updateData.GetComponentArray<components::KeyInputComponent>();
 
-        ecs::util::ForEachEntity(this, updateData,
-        [receivesInputComps](size_t i)
+        for (size_t i = 0; i < updateData.GetEntities().size(); ++i)
         {
             auto& inputReceiver = receivesInputComps[i];
             inputReceiver.keyEvents.clear();
-        });
+        }
     }
 }

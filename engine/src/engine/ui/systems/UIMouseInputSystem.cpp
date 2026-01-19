@@ -37,8 +37,7 @@ namespace se::ui::systems
             return;
         }
 
-        ecs::util::ForEachEntity(this, updateData,
-        [this, entities, inputComp, receivesInputComps](size_t i)
+        for (size_t i = 0; i < entities.size(); ++i)
         {
             auto entity = entities[i];
             auto& inputReceiver = receivesInputComps[i];
@@ -105,7 +104,7 @@ namespace se::ui::systems
 
                 return consumedState == ConsumedState::Consumed;
             });
-        });
+        }
     }
 
     bool UIMouseInputSystem::TryConsumeEvent(const input::MouseEvent& mouseEvent, components::MouseInputComponent& inputReceiver)

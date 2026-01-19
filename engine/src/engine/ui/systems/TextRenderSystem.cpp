@@ -38,14 +38,13 @@ namespace se::ui::systems
         auto* textComps = updateData.GetComponentArray<components::TextComponent>();
         auto* renderComp = updateData.GetSingletonComponent<singleton_components::UIRenderComponent>();
 
-        ecs::util::ForEachEntity(this, updateData,
-        [entities, widgetComps, transformComps, textComps, renderer, renderComp, window](size_t i)
+        for (size_t i = 0; i < entities.size(); ++i)
         {
             const auto& entity = entities[i];
             const auto& widget = widgetComps[i];
             if (widget.visibility != Visibility::Visible || widget.parentVisibility != Visibility::Visible)
             {
-                return;
+                continue;
             }
 
             const auto& transform = transformComps[i];
@@ -56,6 +55,6 @@ namespace se::ui::systems
                     Application::Get()->GetGameViewportSize();
 
             util::RenderText(entity, widget, transform, text, windowSize, renderer, renderComp, text.text);
-        });
+        }
     }
 }

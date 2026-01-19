@@ -22,15 +22,14 @@ namespace se::ui::systems
 
         const auto& entities = updateData.GetEntities();
         auto* widgets = updateData.GetComponentArray<components::WidgetComponent>();
-        ecs::util::ForEachEntity(this, updateData,
-        [this, entities, widgets](size_t i)
+        for (size_t i = 0; i < entities.size(); ++i)
         {
             auto& widget = widgets[i];
             if (widget.dirty)
             {
                 UpdateWidgetVisibility(entities[i], widget);
             }
-        });
+        }
     }
 
     void WidgetVisibilitySystem::UpdateWidgetVisibility(const ecs::Id& entity,

@@ -34,7 +34,7 @@ namespace se::ui::systems
 
         std::visit([this, updateData, entities, world, transform](auto&& value)
         {
-            ecs::util::ForEachEntity(this, updateData,
+            ecs::util::ParallelForEachEntity(updateData,
             [this, world, entities, transform, value](size_t i)
             {
                 const auto& entity = entities[i];

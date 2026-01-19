@@ -28,10 +28,10 @@ namespace se::ecs::systems
 
         auto* transform = updateData.GetComponentArray<TransformComponent>();
 
-        util::ForEachEntity(this, updateData, [transform](size_t i)
+        for (size_t i = 0; i < updateData.GetEntities().size(); ++i)
         {
             auto& trans = transform[i];
             trans.worldTransform = trans.transform;
-        });
+        }
     }
 }

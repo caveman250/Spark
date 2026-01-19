@@ -37,24 +37,24 @@ namespace se::ui::systems
 
         std::visit([this, updateData, entities, world, transform, window](auto&& value)
         {
-            ecs::util::ForEachEntity(this, updateData,
-                                     [this, entities, world, transform, window, value](size_t i)
-                                     {
-                                         const auto& entity = entities[i];
-                                         Rect windowRect = Rect {
-                                             .topLeft = math::IntVec2(0, 0),
-                                             .size = ecs::IsEditorEntity(entity) ? math::IntVec2(window->GetWidth(), window->GetHeight()) : Application::Get()->GetGameViewportSize()
-                                         };
+            ecs::util::ParallelForEachEntity(updateData,
+            [this, entities, world, transform, window, value](size_t i)
+            {
+                const auto& entity = entities[i];
+                Rect windowRect = Rect {
+                    .topLeft = math::IntVec2(0, 0),
+                    .size = ecs::IsEditorEntity(entity) ? math::IntVec2(window->GetWidth(), window->GetHeight()) : Application::Get()->GetGameViewportSize()
+                };
 
-                                         auto& trans = transform[i];
-                                         trans.lastRect = trans.rect;
-                                         trans.rect = util::CalculateScreenSpaceRect(trans, windowRect);
-                                         if (trans.needsLayout || trans.rect != trans.lastRect)
-                                         {
-                                             Layout::LayoutWidgetChildren(world, this, entities[i], trans, trans.layer, value + i);
-                                             trans.needsLayout = false;
-                                         }
-                                     });
+                auto& trans = transform[i];
+                trans.lastRect = trans.rect;
+                trans.rect = util::CalculateScreenSpaceRect(trans, windowRect);
+                if (trans.needsLayout || trans.rect != trans.lastRect)
+                {
+                    Layout::LayoutWidgetChildren(world, this, entities[i], trans, trans.layer, value + i);
+                    trans.needsLayout = false;
+                }
+            });
         }, updateData.GetVariantComponentArray<SPARK_WIDGET_TYPES_WITH_NULLTYPE>());
     }
 }

@@ -34,11 +34,11 @@ namespace se::ui::systems
     {
         EASY_BLOCK("ComboBoxSystem::OnUpdate");
 
+        const auto& entities = updateData.GetEntities();
         auto* comboBoxes = updateData.GetComponentArray<components::ComboBoxComponent>();
         const auto* mouseComps = updateData.GetComponentArray<const components::MouseInputComponent>();
 
-        ecs::util::ForEachEntity(this, updateData,
-        [this, comboBoxes, mouseComps](size_t i)
+        for (size_t i = 0; i < entities.size(); ++i)
         {
             auto& comboBox = comboBoxes[i];
             const auto& mouseInput = mouseComps[i];
@@ -72,6 +72,6 @@ namespace se::ui::systems
                         widget->dirty = true;
                     });
             }
-        });
+        }
     }
 }

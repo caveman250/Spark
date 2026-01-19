@@ -35,8 +35,7 @@ namespace se::ui::systems
         auto* rectTransforms = updateData.GetComponentArray<components::RectTransformComponent>();
         const auto* mouseComps = updateData.GetComponentArray<const components::MouseInputComponent>();
 
-        ecs::util::ForEachEntity(this, updateData,
-        [this, entities, scrollViews, rectTransforms, mouseComps](size_t i)
+        for (size_t i = 0; i < entities.size(); ++i)
         {
             const auto& entity = entities[i];
             auto& scrollView = scrollViews[i];
@@ -45,6 +44,7 @@ namespace se::ui::systems
 
             if (mouseComp.hovered)
             {
+                SPARK_ASSERT(mouseComp.mouseEvents.size() < 5);
                 for (const auto& mouseEvent: mouseComp.mouseEvents)
                 {
                     if (mouseEvent.scrollDelta != 0)
@@ -97,6 +97,6 @@ namespace se::ui::systems
                     }
                 }
             }
-        });
+        }
     }
 }

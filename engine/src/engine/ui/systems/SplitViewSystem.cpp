@@ -69,8 +69,7 @@ namespace se::ui::systems
         auto* transforms = updateData.GetComponentArray<components::RectTransformComponent>();
         const auto* inputComps = updateData.GetComponentArray<const components::MouseInputComponent>();
 
-        ecs::util::ForEachEntity(this, updateData,
-         [inputComp, splitViews, transforms, inputComps](size_t i)
+        for (size_t i = 0; i < updateData.GetEntities().size(); ++i)
          {
              auto& splitView = splitViews[i];
              auto& input = inputComps[i];
@@ -137,6 +136,6 @@ namespace se::ui::systems
                  splitViewTransform.needsLayout = true;
                  splitView.lastSliderPos = splitView.sliderPos;
              }
-         });
+         }
     }
 }

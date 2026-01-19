@@ -30,8 +30,7 @@ namespace se::ui::systems
         auto* mouseEventComps = updateData.GetComponentArray<components::MouseInputComponent>();
         auto* inputComp = updateData.GetSingletonComponent<input::InputComponent>();
 
-        ecs::util::ForEachEntity(this, updateData,
-        [titleBars, transforms, mouseEventComps, inputComp](size_t i)
+        for (size_t i = 0; i < updateData.GetEntities().size(); ++i)
         {
             auto& titleBar = titleBars[i];
             const auto& rectTransform = transforms[i];
@@ -60,6 +59,6 @@ namespace se::ui::systems
             }
 
             titleBar.lastPressed = titleBar.pressed;
-        });
+        }
     }
 }

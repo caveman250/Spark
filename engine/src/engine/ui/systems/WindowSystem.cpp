@@ -35,8 +35,7 @@ namespace se::ui::systems
         const auto* inputComp = updateData.GetSingletonComponent<const input::InputComponent>();
         auto* appWindow = Application::Get()->GetWindow();
 
-        ecs::util::ForEachEntity(this, updateData,
-        [this, entities, windows, transforms, inputComps, inputComp, appWindow](size_t i)
+        for (size_t i = 0; i < entities.size(); ++i)
         {
             auto& window = windows[i];
             auto& transform = transforms[i];
@@ -148,6 +147,6 @@ namespace se::ui::systems
                 window.pendingDeltaX = 0;
                 window.pendingDeltaY = 0;
             }
-        });
+        }
     }
 }

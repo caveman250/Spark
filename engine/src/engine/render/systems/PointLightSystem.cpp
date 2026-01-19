@@ -19,10 +19,9 @@ namespace se::render::systems
         const auto* pointLights = updateData.GetComponentArray<const components::PointLightComponent>();
         auto* renderer = Renderer::Get<Renderer>();
 
-        ecs::util::ForEachEntity(this, updateData,
-        [transforms, pointLights, renderer](size_t i)
+        for (size_t i = 0; i < updateData.GetEntities().size(); ++i)
         {
             renderer->AddPointLight( PointLight{ transforms[i].pos, pointLights[i].color });
-        });
+        }
     }
 }

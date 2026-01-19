@@ -37,8 +37,7 @@ namespace se::ui::systems
         auto* receivesInputComps = updateData.GetComponentArray<components::KeyInputComponent>();
         auto* inputComp = updateData.GetSingletonComponent<input::InputComponent>();
 
-        ecs::util::ForEachEntity(this, updateData,
-        [this, entities, rectTransforms, receivesInputComps, inputComp](size_t i)
+        for (size_t i = 0; i < entities.size(); ++i)
         {
             auto entity = entities[i];
             auto& transform = rectTransforms[i];
@@ -91,7 +90,7 @@ namespace se::ui::systems
                     return false;
                 });
             }
-        });
+        }
     }
 
     bool UIKeyboardInputSystem::TryConsumeEvent(const input::KeyEvent& keyEvent, components::KeyInputComponent& inputReceiver)

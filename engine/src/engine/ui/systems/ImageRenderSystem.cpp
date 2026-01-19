@@ -41,13 +41,12 @@ namespace se::ui::systems
         auto* imageComps = updateData.GetComponentArray<components::ImageComponent>();
         auto* renderComp = updateData.GetSingletonComponent<singleton_components::UIRenderComponent>();
 
-        ecs::util::ForEachEntity(this, updateData,
-        [renderer, window, entities, widgetComps, transformComps, imageComps, renderComp](size_t i)
+        for (size_t i = 0; i < entities.size(); ++i)
         {
             const auto& widget = widgetComps[i];
             if (widget.visibility != Visibility::Visible || widget.parentVisibility != Visibility::Visible)
             {
-                return;
+                continue;
             }
 
             const auto& entity = entities[i];
@@ -85,6 +84,6 @@ namespace se::ui::systems
                 renderComp->entityRenderCommands[entity].push_back(UIRenderCommand(command, UILayerKey(transform.layer, ecs::IsEditorEntity(entity))));
                 renderComp->mutex.unlock();
             }
-        });
+        }
     }
 }

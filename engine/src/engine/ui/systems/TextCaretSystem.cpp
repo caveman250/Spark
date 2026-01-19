@@ -29,8 +29,7 @@ namespace se::ui::systems
         auto* textCarets = updateData.GetComponentArray<components::TextCaretComponent>();
         auto* widgets = updateData.GetComponentArray<components::WidgetComponent>();
 
-        ecs::util::ForEachEntity(this, updateData,
-         [app, textCarets, widgets](size_t i)
+        for (size_t i = 0; i < updateData.GetEntities().size(); ++i)
         {
             auto& textCaret = textCarets[i];
             auto& widget = widgets[i];
@@ -38,7 +37,7 @@ namespace se::ui::systems
             if (!textCaret.active)
             {
                 widget.visibility = Visibility::Collapsed;
-                return;
+                continue;
             }
 
             textCaret.currentStateTime += app->GetDeltaTime();
@@ -47,6 +46,6 @@ namespace se::ui::systems
                 widget.visibility = widget.visibility == Visibility::Visible ? Visibility::Collapsed : Visibility::Visible;
                 textCaret.currentStateTime = 0.f;
             }
-        });
+        }
     }
 }
