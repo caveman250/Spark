@@ -48,17 +48,17 @@ namespace se::render::systems
                 mesh.vertBuffer->CreatePlatformResource();
                 mesh.indexBuffer = IndexBuffer::CreateIndexBuffer(staticMesh);
                 mesh.indexBuffer->CreatePlatformResource();
+            }
 
-                if (!mesh.materialInstance)
+            if (!mesh.materialInstance || mesh.materialInstance->GetMaterial() != mesh.material)
+            {
+                if (mesh.material.IsSet())
                 {
-                    if (mesh.material.IsSet())
-                    {
-                        mesh.materialInstance = MaterialInstance::CreateMaterialInstance(mesh.material.GetAsset());
-                    }
-                    else
-                    {
-                        mesh.materialInstance = MaterialInstance::CreateMaterialInstance(mesh.model.GetAsset()->GetMaterial());
-                    }
+                    mesh.materialInstance = MaterialInstance::CreateMaterialInstance(mesh.material.GetAsset());
+                }
+                else
+                {
+                    mesh.materialInstance = MaterialInstance::CreateMaterialInstance(mesh.model.GetAsset()->GetMaterial());
                 }
             }
 

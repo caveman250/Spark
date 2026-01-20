@@ -22,6 +22,7 @@
 #include "Systems.generated.h"
 #include "camera/ActiveCameraComponent.h"
 #include "render/components/PointLightComponent.h"
+#include "ui/singleton_components/DragDropStateComponent.h"
 
 namespace se
 {
@@ -63,6 +64,10 @@ namespace se
         m_World.AddSingletonComponent<input::InputComponent>();
         m_World.AddSingletonComponent<camera::ActiveCameraComponent>();
         m_World.AddSingletonComponent<ui::singleton_components::UIRenderComponent>();
+
+#if SPARK_EDITOR
+        m_World.AddSingletonComponent<ui::singleton_components::DragDropStateComponent>();
+#endif
     }
 
     void Application::CreateInitialObservers()

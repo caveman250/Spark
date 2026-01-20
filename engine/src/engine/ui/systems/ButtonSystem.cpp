@@ -19,6 +19,7 @@ namespace se::ui::systems
                     .WithComponent<components::ButtonComponent>()
                     .WithComponent<components::ImageComponent>()
                     .WithComponent<const ui::components::MouseInputComponent>()
+                    .WithSingletonComponent<const input::InputComponent>()
                     .WithDependency<UIMouseInputSystem>();
     }
 
@@ -29,6 +30,7 @@ namespace se::ui::systems
         auto* buttons = updateData.GetComponentArray<components::ButtonComponent>();
         auto* images = updateData.GetComponentArray<components::ImageComponent>();
         const auto* mouseEventComps = updateData.GetComponentArray<const components::MouseInputComponent>();
+        const auto* inputComp = updateData.GetSingletonComponent<const input::InputComponent>();
 
         for (size_t i = 0; i < updateData.GetEntities().size(); ++i)
         {
@@ -51,6 +53,11 @@ namespace se::ui::systems
                 }
             }
 
+            if (button.pressed && inputComp->mouseButtonStates[static_cast<int>(se::input::MouseButton::Left)] != input::KeyState::Down)
+            {
+                button.pressed = false;
+            }
+
             button.hovered = !button.pressed && mouseEventComp.hovered;
 
             if (!image.materialInstance)
@@ -67,30 +74,54 @@ namespace se::ui::systems
                 image.materialInstance->SetUniform("Texture", asset::shader::ast::AstType::Sampler2DReference, 1, &button.image);
             }
 
-            if (button.hovered && !button.lastHovered)
+            asset::AssetReference<asset::Texture>* desiredTexture = nullptr;
+            if (button.hovered)
             {
-                image.materialInstance->SetUniform("Texture", asset::shader::ast::AstType::Sampler2DReference, 1, &button.hoveredImage);
+                desiredTexture = &button.hoveredImage;
             }
-            else if (button.pressed && !button.lastPressed)
+            else if (button.pressed)
             {
-                image.materialInstance->SetUniform("Texture", asset::shader::ast::AstType::Sampler2DReference, 1, &button.pressedImage);
+                desiredTexture = &button.pressedImage;
             }
-            else if (!button.pressed && !button.hovered && (button.lastPressed || button.lastHovered))
+            else if (!button.pressed && !button.hovered)
             {
-                image.materialInstance->SetUniform("Texture", asset::shader::ast::AstType::Sampler2DReference, 1, &button.image);
+                desiredTexture = &button.image;
+            }
+
+            if (SPARK_VERIFY(desiredTexture))
+            {
+                auto* currentTexture = image.materialInstance->GetUniform<asset::AssetReference<asset::Texture>>("Texture");
+                if (currentTexture->GetAssetPath() != desiredTexture->GetAssetPath())
+                {
+                    image.materialInstance->SetUniform("Texture", asset::shader::ast::AstType::Sampler2DReference, 1, desiredTexture);
+                }
             }
 
             if (button.pressed && !button.lastPressed)
             {
+                button.pressedPosition = { inputComp->mouseX, inputComp->mouseY };
                 button.onPressed.Broadcast();
             }
-            else if (!button.pressed && button.lastPressed)
+
+            if (button.pressed && !button.isDragging)
+            {
+                math::IntVec2 mousePos = { inputComp->mouseX, inputComp->mouseY };
+
+                if (math::MagnitudeSquared(mousePos - button.pressedPosition) > 20 * 20)
+                {
+                    button.isDragging = true;
+                    button.onDragged.Broadcast();
+                }
+            }
+
+            if (!button.pressed && button.lastPressed && !button.isDragging)
             {
                 button.onReleased.Broadcast();
             }
 
             button.lastHovered = button.hovered;
             button.lastPressed = button.pressed;
+            button.isDragging &= button.pressed;
         }
     }
 }

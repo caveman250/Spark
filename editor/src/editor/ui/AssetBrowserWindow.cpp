@@ -1,10 +1,12 @@
 #include "AssetBrowserWindow.h"
 #include "engine/Application.h"
 #include "engine/asset/AssetManager.h"
+#include "engine/input/InputComponent.h"
 #include "engine/io/VFS.h"
 #include "engine/render/MaterialInstance.h"
 #include "engine/string/util/StringUtil.h"
 #include "engine/ui/components/ButtonComponent.h"
+#include "engine/ui/components/DragDropComponent.h"
 #include "engine/ui/components/GridBoxComponent.h"
 #include "engine/ui/components/HorizontalBoxComponent.h"
 #include "engine/ui/components/ImageComponent.h"
@@ -16,6 +18,7 @@
 #include "engine/ui/components/TreeNodeComponent.h"
 #include "engine/ui/components/WidgetComponent.h"
 #include "engine/ui/components/WindowComponent.h"
+#include "engine/ui/singleton_components/DragDropStateComponent.h"
 #include "engine/ui/util/ScrollBoxUtil.h"
 #include "engine/ui/util/TreeViewUtil.h"
 #include "engine/ui/util/WindowUtil.h"
@@ -27,13 +30,13 @@ namespace se::editor::ui
         auto app = Application::Get();
         auto world = app->GetWorld();
         auto editor = app->GetEditorRuntime();
-        auto assetManager = se::asset::AssetManager::Get();
+        auto assetManager = asset::AssetManager::Get();
 
         se::ui::components::RectTransformComponent *windowTransform;
         se::ui::components::WindowComponent *windowComp;
         se::ui::components::TitleBarComponent *titleBarComp;
         ecs::Id contentArea;
-        m_Window = ::se::ui::util::CreateWindow(&windowTransform,
+        m_Window = se::ui::util::CreateWindow(&windowTransform,
                                                 &windowComp,
                                                 &titleBarComp,
                                                 contentArea,
@@ -63,12 +66,12 @@ namespace se::editor::ui
         treeViewRect->maxX = 195;
         auto treeViewBGImage = world->AddComponent<se::ui::components::ImageComponent>(treeViewBG);
         auto bgMaterial = assetManager->GetAsset<render::Material>("/engine_assets/materials/editor_asset_browser_bg.sass");
-        treeViewBGImage->materialInstance = se::render::MaterialInstance::CreateMaterialInstance(bgMaterial);
+        treeViewBGImage->materialInstance = render::MaterialInstance::CreateMaterialInstance(bgMaterial);
         world->AddChild(verticalBoxEntity, treeViewBG);
 
         se::ui::components::RectTransformComponent* transformComp = nullptr;
         se::ui::components::TreeViewComponent* treeViewComp = nullptr;
-        auto treeView = ::se::ui::util::CreateTreeView(&treeViewComp, &transformComp, editor->GetEditorScene());
+        auto treeView = se::ui::util::CreateTreeView(&treeViewComp, &transformComp, editor->GetEditorScene());
         transformComp->anchors = { 0.f, 1.f, 0.f, 1.f };
         world->AddChild(treeViewBG, treeView);
 
@@ -90,7 +93,7 @@ namespace se::editor::ui
         pathBarBGRect->maxY = 30;
         pathBarBGRect->minX = 200;
         auto pathBarBGImage = world->AddComponent<se::ui::components::ImageComponent>(pathBarBG);
-        pathBarBGImage->materialInstance = se::render::MaterialInstance::CreateMaterialInstance(bgMaterial);
+        pathBarBGImage->materialInstance = render::MaterialInstance::CreateMaterialInstance(bgMaterial);
         world->AddChild(verticalBoxEntity, pathBarBG);
 
         auto arial = assetManager->GetAsset<asset::Font>("/engine_assets/fonts/Arial.sass");
@@ -109,7 +112,7 @@ namespace se::editor::ui
         gridBGRect->minY = 35;
         gridBGRect->minX = 200;
         auto gridBGImage = world->AddComponent<se::ui::components::ImageComponent>(gridBG);
-        gridBGImage->materialInstance = se::render::MaterialInstance::CreateMaterialInstance(bgMaterial);
+        gridBGImage->materialInstance = render::MaterialInstance::CreateMaterialInstance(bgMaterial);
         world->AddChild(verticalBoxEntity, gridBG);
 
         ecs::Id scrollViewEntity;
@@ -117,7 +120,7 @@ namespace se::editor::ui
         se::ui::components::ScrollBoxComponent *scrollBox = nullptr;
         se::ui::components::ScrollViewComponent *scrollView = nullptr;
         se::ui::components::RectTransformComponent *scrollBoxTransform = nullptr;
-        auto scrollBoxEntity = ::se::ui::util::CreateScrollBox(&scrollBox, scrollViewEntity, &scrollView, &scrollBoxTransform, scrollBarEntity, editor->GetEditorScene());
+        auto scrollBoxEntity = se::ui::util::CreateScrollBox(&scrollBox, scrollViewEntity, &scrollView, &scrollBoxTransform, scrollBarEntity, editor->GetEditorScene());
         world->AddChild(gridBG, scrollBoxEntity);
 
         m_GridBoxEntity = world->CreateEntity(editor->GetEditorScene(), "Grid Box");
@@ -138,12 +141,17 @@ namespace se::editor::ui
 
     }
 
+    void AssetBrowserWindow::Update()
+    {
+        ToolWindow::Update();
+    }
+
     void AssetBrowserWindow::SetActiveFolder(const std::string &activeFolder)
     {
         m_ActiveFolder = activeFolder;
 
         auto world = Application::Get()->GetWorld();
-        auto assetManager = se::asset::AssetManager::Get();
+        auto assetManager = asset::AssetManager::Get();
         auto arial = assetManager->GetAsset<asset::Font>("/engine_assets/fonts/Arial.sass");
 
         for (const auto &child: world->GetChildren(m_GridBoxEntity))
@@ -279,6 +287,26 @@ namespace se::editor::ui
         auto buttonWidget = world->AddComponent<se::ui::components::WidgetComponent>(buttonEntity);
         buttonWidget->visibility = se::ui::Visibility::Hidden;
         auto button = world->AddComponent<se::ui::components::ButtonComponent>(buttonEntity);
+
+        button->onDragged.Subscribe([this, world, file]()
+        {
+            auto editor = Application::Get()->GetEditorRuntime();
+            auto dragDropStateComponent = world->GetSingletonComponent<se::ui::singleton_components::DragDropStateComponent>();
+            auto assetManager = asset::AssetManager::Get();
+
+            auto entity = world->CreateEntity(editor->GetEditorScene(), "Drag Drop Image");
+            world->AddComponent<se::ui::components::DragDropComponent>(entity);
+            auto* rect = world->AddComponent<se::ui::components::RectTransformComponent>(entity);
+            rect->layer = -1;
+            auto* image = world->AddComponent<se::ui::components::ImageComponent>(entity);
+            std::shared_ptr<render::Material> material = assetManager->GetAsset<render::Material>("/engine_assets/materials/ui_alpha_texture.sass");
+            image->materialInstance = render::MaterialInstance::CreateMaterialInstance(material);
+            image->materialInstance->SetUniform("Texture", asset::shader::ast::AstType::Sampler2DReference, 1, &m_FileTexture);
+
+            auto db = asset::binary::Database::Load(file.fullPath.data(), true);
+            dragDropStateComponent->dragDropAsset = assetManager->GetAsset(file.fullPath.data(), reflect::TypeFromString(db->GetRoot().GetStruct().GetName()));
+        });
+
         button->onReleased.Subscribe([this, file]()
         {
             if (file.isDirectory)
@@ -292,7 +320,7 @@ namespace se::editor::ui
                 auto db = asset::binary::Database::Load(file.fullPath.data(), true);
 
                 std::shared_ptr<asset::Asset> asset = asset::AssetManager::Get()->GetAsset(file.fullPath.data(),
-                                                                                           se::reflect::TypeFromString(db->GetRoot().GetStruct().GetName()));
+                                                                                           reflect::TypeFromString(db->GetRoot().GetStruct().GetName()));
                 runtime->SelectAsset(asset);
             }
         });
@@ -306,7 +334,7 @@ namespace se::editor::ui
         imageRect->maxAspectRatio = 1.f;
         auto image = world->AddComponent<se::ui::components::ImageComponent>(imageEntity);
         std::shared_ptr<render::Material> material = assetManager->GetAsset<render::Material>("/engine_assets/materials/ui_alpha_texture.sass");
-        image->materialInstance = se::render::MaterialInstance::CreateMaterialInstance(material);
+        image->materialInstance = render::MaterialInstance::CreateMaterialInstance(material);
 
         if (file.isDirectory)
         {

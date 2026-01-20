@@ -83,7 +83,7 @@ namespace se::editor::ui::properties
                 rect->maxX = 15;
                 world->AddComponent<WidgetComponent>(entity);
 
-                auto propertyEditor = CreatePropertyEditor(propName + "    (" + containedType->GetTypeName(m_VectorType->GetContainedValueByIndex(m_Value, i)) + ")",
+                auto propertyEditor = CreatePropertyEditor(propName + ": " + containedType->GetTypeName(m_VectorType->GetContainedValueByIndex(m_Value, i)),
                                                            containedType,
                                                            obj,
                                                            se::ui::Anchors(0.f, 1.f, 0.f, 0.f),

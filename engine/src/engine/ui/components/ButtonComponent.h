@@ -32,6 +32,11 @@ namespace se::ui::components
         SPARK_MEMBER(Serialized)
         ecs::Signal<> onPressed = {};
 
+        math::IntVec2 pressedPosition = {};
+        bool isDragging = false;
+
+        ecs::Signal<> onDragged = {};
+
         ecs::Signal<> onReleased = {};
 
     private:

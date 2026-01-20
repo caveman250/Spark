@@ -4,6 +4,7 @@
 #include "engine/ecs/ecs_fwd.h"
 #include "engine/asset/AssetReference.h"
 #include "engine/asset/texture/Texture.h"
+#include "engine/math/IntVec2.h"
 
 namespace se::ecs
 {
@@ -29,6 +30,7 @@ namespace se::editor::ui
         AssetBrowserWindow(EditorRuntime* editor) : ToolWindow(editor) {}
         void ConstructUI() override;
         void DestroyUI() override;
+        void Update() override;
 
         const ecs::Id& GetWindow() const { return m_Window; }
 

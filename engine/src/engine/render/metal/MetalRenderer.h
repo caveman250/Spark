@@ -15,6 +15,7 @@ namespace se::render::metal
         RenderAPI GetRenderAPIType() const override { return RenderAPI::Metal; }
         void Init() override;
         void Render() override;
+        bool SupportsMultiThreadedRendering() const override;
 
         MTLDevicePtr GetDevice() const { return m_Device; }
         MTLRenderCommandEncoderPtr GetCurrentCommandEncoder() const;

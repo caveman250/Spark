@@ -29,6 +29,8 @@ namespace se::render
 
         template <typename T>
         const T* GetUniform(const std::string& name);
+
+        const std::shared_ptr<Material>& GetMaterial() const { return m_Material; }
     protected:
         MaterialInstance(const std::shared_ptr<Material>& material);
         virtual void SetUniformInternal(const std::string& name, asset::shader::ast::AstType type, int count, const void* value) = 0;

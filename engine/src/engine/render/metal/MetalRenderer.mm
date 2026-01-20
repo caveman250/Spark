@@ -63,5 +63,10 @@ namespace se::render::metal
         }
         return m_CommandEncoder;
     }
+
+    bool MetalRenderer::SupportsMultiThreadedRendering() const
+    {
+        return true;
+    }
 }
 #endif

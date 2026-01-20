@@ -124,6 +124,7 @@ namespace se::editor
 
         m_PropertiesWindow->Update();
         m_ViewportWindow->Update();
+        m_AssetBrowserWindow->Update();
     }
 
     void EditorRuntime::Render()

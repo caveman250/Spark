@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Asset.h"
 #include "AssetManager.h"
 #include "spark.h"
 #include "engine/reflect/Reflect.h"
@@ -14,6 +15,7 @@ namespace se::asset
         AssetReference() = default;
         AssetReference(const std::string& path);
         AssetReference(const char* path);
+        void Set(const std::string& path);
         bool IsSet() const { return !m_AssetPath.empty(); }
         bool Loaded() const { return m_Instance.get(); }
         const std::shared_ptr<T>& GetAsset() const;
@@ -21,6 +23,7 @@ namespace se::asset
 
         void operator=(const std::string& path);
         void operator=(const char* path);
+        bool operator==(const std::shared_ptr<Asset>& asset) const;
 
     private:
         SPARK_MEMBER(Serialized)
@@ -46,6 +49,16 @@ namespace se::asset
          : m_AssetPath(path)
     {
 
+    }
+
+    template<typename T>
+    void AssetReference<T>::Set(const std::string& path)
+    {
+        m_AssetPath = path;
+        if (m_Instance)
+        {
+            m_Instance = nullptr;
+        }
     }
 
     template<typename T>
@@ -76,6 +89,12 @@ namespace se::asset
     void AssetReference<T>::operator=(const char* path)
     {
         *this = AssetReference(path);
+    }
+
+    template<typename T>
+    bool AssetReference<T>::operator==(const std::shared_ptr<Asset>& asset) const
+    {
+        return asset == GetAsset();
     }
 
     template <typename T>
