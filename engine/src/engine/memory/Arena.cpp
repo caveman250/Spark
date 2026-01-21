@@ -32,7 +32,6 @@ namespace se::memory
     {
         if (m_ObjectRecordsBegin)
         {
-            // ReSharper disable once CppDFAUnreachableCode
             for (ObjectRecord* objRecord = m_ObjectRecordsBegin; objRecord != nullptr; objRecord = objRecord->next)
             {
                 objRecord->Release(objRecord->objects_begin);

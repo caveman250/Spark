@@ -82,6 +82,7 @@ namespace se::ecs
 
         Id LoadScene(const std::string& path);
         void UnloadScene(const Id& scene);
+        void ReloadAllScenes();
         void SaveScene(const Id& scene, const std::string& path);
 
         Id CreateEntity(const std::string& name);

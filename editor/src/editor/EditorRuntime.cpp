@@ -132,21 +132,24 @@ namespace se::editor
             m_LastSelectedAsset = m_SelectedAsset;
             m_LastSelectedSingletonComp = m_SelectedSingletonComp;
 
-            auto world = Application::Get()->GetWorld();
-            if (m_SelectedEntity != se::ecs::s_InvalidEntity && world->HasComponent<ecs::components::TransformComponent>(m_SelectedEntity))
+            if (!m_GameMode)
             {
-                if (m_Gizmo == ecs::s_InvalidEntity )
+                auto world = Application::Get()->GetWorld();
+                if (m_SelectedEntity != se::ecs::s_InvalidEntity && world->HasComponent<ecs::components::TransformComponent>(m_SelectedEntity))
                 {
-                    CreateGizmo();
+                    if (m_Gizmo == ecs::s_InvalidEntity )
+                    {
+                        CreateGizmo();
+                    }
+                    else
+                    {
+                        SnapGizmoToSelectedEntity();
+                    }
                 }
-                else
+                else if (m_Gizmo != ecs::s_InvalidEntity)
                 {
-                    SnapGizmoToSelectedEntity();
+                    HideGizmo();
                 }
-            }
-            else if (m_Gizmo != ecs::s_InvalidEntity)
-            {
-                HideGizmo();
             }
 
             m_PropertiesWindow->RebuildProperties();
@@ -167,6 +170,7 @@ namespace se::editor
 
                     if (!m_GameMode)
                     {
+                        Application::Get()->GetWorld()->ReloadAllScenes();
                         CreateGizmo();
                     }
                     else if (m_Gizmo != ecs::s_InvalidEntity)

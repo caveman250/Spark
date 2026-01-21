@@ -602,6 +602,8 @@ namespace se::ecs
             }
         }
 
+        m_SceneRecords[scene].path = path;
+
         return scene;
     }
 
@@ -618,6 +620,55 @@ namespace se::ecs
             if (HasComponent<components::RootComponent>(entity))
             {
                 DestroyEntity(entity);
+            }
+        }
+    }
+
+    void World::ReloadAllScenes()
+    {
+#if SPARK_EDITOR
+        auto editorScene = Application::Get()->GetEditorRuntime()->GetEditorScene();
+#endif
+
+        auto safeCopy = m_SceneRecords;
+        for (const auto& sceneRecord : safeCopy)
+        {
+            if (sceneRecord.first != m_DefaultScene)
+            {
+#if SPARK_EDITOR
+                if (sceneRecord.first != editorScene)
+#endif
+                {
+                    UnloadScene(sceneRecord.first);
+                }
+            }
+        }
+
+        ProcessAllPending();
+
+        for (const auto& sceneRecord : safeCopy)
+        {
+            if (sceneRecord.first != m_DefaultScene)
+            {
+#if SPARK_EDITOR
+                if (sceneRecord.first != editorScene)
+#endif
+                {
+                    m_SceneRecords.erase(sceneRecord.first);
+                }
+            }
+        }
+
+        for (const auto& sceneRecord : safeCopy)
+        {
+            if (sceneRecord.first != m_DefaultScene)
+            {
+#if SPARK_EDITOR
+                if (sceneRecord.first != editorScene)
+#endif
+                {
+                    LoadScene(sceneRecord.second.path);
+                }
             }
         }
     }

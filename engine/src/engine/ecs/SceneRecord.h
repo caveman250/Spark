@@ -6,6 +6,7 @@ namespace se::ecs
 {
     struct SceneRecord
     {
+        std::string path = {};
         std::vector<Id> entities = {};
     };
 }
