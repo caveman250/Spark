@@ -13,7 +13,7 @@ namespace se::input
     {
 #if SPARK_EDITOR
         auto editor = Application::Get()->GetEditorRuntime();
-        if (*entity.scene != editor->GetEditorScene() &&
+        if (entity != ecs::s_InvalidEntity && *entity.scene != editor->GetEditorScene() &&
             !editor::util::PosWithinViewport(input->mouseX, input->mouseY))
         {
             return;
@@ -37,7 +37,8 @@ namespace se::input
     {
 #if SPARK_EDITOR
         auto editor = Application::Get()->GetEditorRuntime();
-        if (*entity.scene != editor->GetEditorScene() &&
+        if (entity != ecs::s_InvalidEntity &&
+            *entity.scene != editor->GetEditorScene() &&
             !editor::util::PosWithinViewport(input->mouseX, input->mouseY))
         {
             return;

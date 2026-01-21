@@ -925,7 +925,7 @@ def CreateSystemInstantiationFiles(source_dirs, classes):
                     init_systems_cpp_content += "#endif\n"
         for full_name, class_obj in classes.items():
             if class_obj.is_reflected and not class_obj.is_template and class_obj.project_src_dir == src_dir and class_obj.type == ClassType.SYSTEM:
-                if src_dir.endswith("engine/src/generated/"):
+                if src_dir.endswith("engine/src/generated/") or src_dir.endswith("editor/src/generated/"):
                     create_system_method = "CreateEngineSystem"
                 else:
                     create_system_method = "CreateAppSystem"

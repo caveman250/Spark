@@ -130,6 +130,23 @@ namespace se::math
         return temp *= scalar;
     }
 
+    Vec4 operator*(const Mat4& lhs,
+        const Vec4& rhs)
+    {
+        Vec4 const Mov0(rhs[0]);
+        Vec4 const Mov1(rhs[1]);
+        Vec4 const Mul0 = lhs[0] * Mov0;
+        Vec4 const Mul1 = lhs[1] * Mov1;
+        Vec4 const Add0 = Mul0 + Mul1;
+        Vec4 const Mov2(rhs[2]);
+        Vec4 const Mov3(rhs[3]);
+        Vec4 const Mul2 = lhs[2] * Mov2;
+        Vec4 const Mul3 = lhs[3] * Mov3;
+        Vec4 const Add1 = Mul2 + Mul3;
+        Vec4 const Add2 = Add0 + Add1;
+        return Add2;
+    }
+
     Mat4 operator/(const Mat4& lhs, const Mat4& rhs)
     {
         Mat4 temp(lhs);
@@ -297,5 +314,23 @@ namespace se::math
                    0.f,         scale.y,        0.f,        0.f,
                    0.f,         0.f,            scale.z,    0.f,
                    0.f,         0.f,            0.f,        1.f };
+    }
+
+    Vec3 UnProject(const Vec3& windowPos,
+        const Mat4& view,
+        const Mat4& proj,
+        const Vec4& viewport)
+    {
+        Mat4 inverse = Inverse(proj * view);
+
+        Vec4 tmp = Vec4(windowPos.x, windowPos.y, windowPos.z, 1.f);
+        tmp.x = (tmp.x - viewport[0]) / viewport[2];
+        tmp.y = (tmp.y - viewport[1]) / viewport[3];
+        tmp = tmp * 2.f - 1.f;
+
+        Vec4 obj = inverse * tmp;
+        obj /= obj.w;
+
+        return Vec3(obj.x, obj.y, obj.z);
     }
 }

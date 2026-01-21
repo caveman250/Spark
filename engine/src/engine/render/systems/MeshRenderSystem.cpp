@@ -11,6 +11,7 @@
 #include "engine/asset/mesh/Model.h"
 #include "engine/ecs/util/SystemUtil.h"
 #include "engine/render/VertexBuffer.h"
+#include "engine/render/singleton_components/MeshRenderComponent.h"
 
 using namespace se;
 using namespace se::ecs::components;
@@ -22,7 +23,8 @@ namespace se::render::systems
         return ecs::SystemDeclaration("MeshRenderSystem")
                     .WithComponent<const TransformComponent>()
                     .WithComponent<MeshComponent>()
-                    .WithSingletonComponent<const camera::ActiveCameraComponent>();
+                    .WithSingletonComponent<const camera::ActiveCameraComponent>()
+                    .WithSingletonComponent<singleton_components::MeshRenderComponent>();
     }
 
     ecs::UpdateMode MeshRenderSystem::GetUpdateMode() const
@@ -74,18 +76,36 @@ namespace se::render::systems
     void MeshRenderSystem::OnRender(const ecs::SystemUpdateData& updateData)
     {
         auto renderer = Renderer::Get<Renderer>();
-
         const auto* meshes = updateData.GetComponentArray<MeshComponent>();
+        auto* meshRenderComp = updateData.GetSingletonComponent<singleton_components::MeshRenderComponent>();
 
 #if SPARK_EDITOR
-        size_t renderGroup = Application::Get()->GetEditorRuntime()->GetOffscreenRenderGroup();
+        size_t defaultRenderGroup = Application::Get()->GetEditorRuntime()->GetOffscreenRenderGroup();
 #else
-        size_t renderGroup = renderer->GetDefaultRenderGroup();
+        size_t defaultRenderGroup = renderer->GetDefaultRenderGroup();
 #endif
 
         for (size_t i = 0; i < updateData.GetEntities().size(); ++i)
         {
             const auto& meshComp = meshes[i];
+
+            size_t renderGroup = defaultRenderGroup;
+            if (meshComp.renderLayer != 0)
+            {
+                meshRenderComp->mutex.lock();
+                auto it = meshRenderComp->layerRenderGroups.find(meshComp.renderLayer);
+                if (it == meshRenderComp->layerRenderGroups.end())
+                {
+                    it = meshRenderComp->layerRenderGroups.insert(std::make_pair(meshComp.renderLayer, renderer->AllocRenderGroup(meshComp.renderLayer))).first;
+#if SPARK_EDITOR
+                    renderer->SetFrameBuffer(it->second, Application::Get()->GetEditorRuntime()->GetFrameBuffer());
+#endif
+                }
+                meshRenderComp->mutex.unlock();
+
+                renderGroup = it->second;
+            }
+
             if (meshComp.materialInstance && meshComp.vertBuffer && meshComp.indexBuffer)
             {
                 renderer->Submit<commands::SubmitGeo>(renderGroup, meshComp.materialInstance, meshComp.vertBuffer, meshComp.indexBuffer);

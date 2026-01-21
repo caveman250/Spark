@@ -1,0 +1,153 @@
+{
+  "structs": [
+    {
+      "Material": {
+        "m_FragShaders": "Array",
+        "m_RenderState": "Object",
+        "m_ShaderSettings": "Object",
+        "m_UniformDefaults": "Object",
+        "m_VertShaders": "Array"
+      }
+    },
+    {
+      "AssetReference<Shader>": {
+        "m_AssetPath": "String"
+      }
+    },
+    {
+      "RenderState": {
+        "depthComp": "String",
+        "dstBlend": "String",
+        "lit": "bool",
+        "srcBlend": "String",
+        "stencilFunc": "String",
+        "stencilReadMask": "Uint32",
+        "stencilWriteMask": "Uint32"
+      }
+    },
+    {
+      "ShaderSettings": {
+        "m_Settings": "Array"
+      }
+    },
+    {
+      "Internal_MapItemString_Object": {
+        "key": "String",
+        "value": "Object"
+      }
+    },
+    {
+      "ShaderSettingDefinition<Vec3>": {
+        "m_Value": "Object"
+      }
+    },
+    {
+      "ShaderSettingDefinition<Vec4>": {
+        "m_Value": "Object"
+      }
+    },
+    {
+      "Vec3": {
+        "x": "Float",
+        "y": "Float",
+        "z": "Float"
+      }
+    },
+    {
+      "Vec4": {
+        "x": "Float",
+        "y": "Float",
+        "z": "Float",
+        "w": "Float"
+      }
+    },
+    {
+      "UniformStorage": {
+        "m_Storage": "Array"
+      }
+    },
+    {
+      "UniformValue<Vec3>": {
+        "type": "String",
+        "value": "Array",
+        "valueCount": "Int32"
+      }
+    }
+  ],
+  "root": {
+    "Material": {
+      "m_VertShaders": {
+        "struct": "AssetReference<Shader>",
+        "contents": [
+          {
+            "AssetReference<Shader>": {
+              "m_AssetPath": "/engine_assets/shaders/simple_vertex.sass"
+            }
+          }
+        ]
+      },
+      "m_FragShaders": {
+        "struct": "AssetReference<Shader>",
+        "contents": [
+          {
+            "AssetReference<Shader>": {
+              "m_AssetPath": "/engine_assets/shaders/runtime_flat_color.sass"
+            }
+          }
+        ]
+      },
+      "m_RenderState": {
+        "RenderState": {
+          "depthComp": "None",
+          "srcBlend": "One",
+          "dstBlend": "Zero",
+          "stencilWriteMask": 0,
+          "stencilFunc": "None",
+          "stencilReadMask": 0,
+          "lit": false
+        }
+      },
+      "m_ShaderSettings": {
+        "ShaderSettings": {
+          "m_Settings": {
+            "struct": "Internal_MapItemString_Object",
+            "contents": null
+          }
+        }
+      },
+      "m_UniformDefaults": {
+        "UniformStorage": {
+          "m_Storage": {
+            "struct": "Internal_MapItemString_Object",
+            "contents":
+            [
+              {
+                "Internal_MapItemString_Object": {
+                  "key": "uniform_color",
+                  "value": {
+                    "UniformValue<Vec3>": {
+                      "value": {
+                        "struct": "Vec3",
+                        "contents": [
+                          {
+                            "Vec3": {
+                              "x": 1,
+                              "y": 0,
+                              "z": 0
+                            }
+                          }
+                        ]
+                      },
+                      "type": "Vec3",
+                      "valueCount": 1
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      }
+    }
+  }
+}

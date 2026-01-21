@@ -33,6 +33,7 @@ namespace se
     SPARK_INSTANTIATE_TEMPLATE(ShaderSettingDefinition, int)
     SPARK_INSTANTIATE_TEMPLATE(ShaderSettingDefinition, float)
     SPARK_INSTANTIATE_TEMPLATE(ShaderSettingDefinition, math::Vec3)
+    SPARK_INSTANTIATE_TEMPLATE(ShaderSettingDefinition, math::Vec4)
 
     class ShaderSettings : public reflect::ObjectBase
     {

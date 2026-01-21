@@ -46,6 +46,7 @@ namespace se::math
     Mat4 operator-(const Mat4& lhs, const Mat4 &rhs);
     Mat4 operator*(const Mat4& lhs, const Mat4 &rhs);
     Mat4 operator*(const Mat4& lhs, float scalar);
+    Vec4 operator*(const Mat4& lhs, const Vec4& rhs);
     Mat4 operator/(const Mat4& lhs, const Mat4 &rhs);
     Mat4 operator/(const Mat4& lhs, float scalar);
     bool operator==(const Mat4& lhs, const Mat4 &rhs);
@@ -57,4 +58,5 @@ namespace se::math
     Mat4 LookAt(const Vec3& eye, const Vec3& center, const Vec3& up);
     Mat4 Translation(const Vec3& translation);
     Mat4 Scale(const Vec3& scale);
+    Vec3 UnProject(const Vec3& windowPos, const Mat4& view, const Mat4& proj, const Vec4& viewport);
 }

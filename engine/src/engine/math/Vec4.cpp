@@ -4,6 +4,11 @@
 
 namespace se::math
 {
+    Vec4::Vec4(const Vec3& vec,
+        float _w): x(vec.x), y(vec.y), z(vec.z), w(_w)
+    {
+    }
+
     float& Vec4::operator[](size_t i)
     {
         SPARK_ASSERT(i <= 3u);

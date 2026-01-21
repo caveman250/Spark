@@ -27,38 +27,18 @@ namespace se::ui::systems
     {
         EASY_BLOCK("ButtonSystem::OnUpdate");
 
+        const auto& entities = updateData.GetEntities();
         auto* buttons = updateData.GetComponentArray<components::ButtonComponent>();
         auto* images = updateData.GetComponentArray<components::ImageComponent>();
         const auto* mouseEventComps = updateData.GetComponentArray<const components::MouseInputComponent>();
         const auto* inputComp = updateData.GetSingletonComponent<const input::InputComponent>();
 
-        for (size_t i = 0; i < updateData.GetEntities().size(); ++i)
+        for (size_t i = 0; i < entities.size(); ++i)
         {
+            [[maybe_unused]] const auto& entity = entities[i];
             auto& button = buttons[i];
             auto& image = images[i];
             auto& mouseEventComp = mouseEventComps[i];
-
-            for (const auto& mouseEvent : mouseEventComp.mouseEvents)
-            {
-                if (mouseEvent.button == input::MouseButton::Left)
-                {
-                    if (mouseEvent.state == input::KeyState::Down)
-                    {
-                        button.pressed = true;
-                    }
-                    else if (mouseEvent.state == input::KeyState::Up)
-                    {
-                        button.pressed = false;
-                    }
-                }
-            }
-
-            if (button.pressed && inputComp->mouseButtonStates[static_cast<int>(se::input::MouseButton::Left)] != input::KeyState::Down)
-            {
-                button.pressed = false;
-            }
-
-            button.hovered = !button.pressed && mouseEventComp.hovered;
 
             if (!image.materialInstance)
             {
@@ -72,6 +52,34 @@ namespace se::ui::systems
 
                 image.materialInstance = render::MaterialInstance::CreateMaterialInstance(material);
                 image.materialInstance->SetUniform("Texture", asset::shader::ast::AstType::Sampler2DReference, 1, &button.image);
+            }
+
+#if SPARK_EDITOR
+            auto editor = Application::Get()->GetEditorRuntime();
+            if (editor->InGameMode() || *entity.scene == editor->GetEditorScene())
+#endif
+            {
+                for (const auto& mouseEvent : mouseEventComp.mouseEvents)
+                {
+                    if (mouseEvent.button == input::MouseButton::Left)
+                    {
+                        if (mouseEvent.state == input::KeyState::Down)
+                        {
+                            button.pressed = true;
+                        }
+                        else if (mouseEvent.state == input::KeyState::Up)
+                        {
+                            button.pressed = false;
+                        }
+                    }
+                }
+
+                if (button.pressed && inputComp->mouseButtonStates[static_cast<int>(se::input::MouseButton::Left)] != input::KeyState::Down)
+                {
+                    button.pressed = false;
+                }
+
+                button.hovered = !button.pressed && mouseEventComp.hovered;
             }
 
             asset::AssetReference<asset::Texture>* desiredTexture = nullptr;
@@ -91,7 +99,7 @@ namespace se::ui::systems
             if (SPARK_VERIFY(desiredTexture))
             {
                 auto* currentTexture = image.materialInstance->GetUniform<asset::AssetReference<asset::Texture>>("Texture");
-                if (currentTexture->GetAssetPath() != desiredTexture->GetAssetPath())
+                if (currentTexture != desiredTexture)
                 {
                     image.materialInstance->SetUniform("Texture", asset::shader::ast::AstType::Sampler2DReference, 1, desiredTexture);
                 }

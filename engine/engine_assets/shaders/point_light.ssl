@@ -1,6 +1,7 @@
 SSL_FRAGMENT
 
 setting int numLights;
+setting vec4 ambientStr;
 
 port(FragColor) in vec4 inColor;
 port(FragmentNormalCameraSpace) in vec3 normCameraSpace;
@@ -23,7 +24,6 @@ void main()
     float LightPower = 50.0f;
 
     vec4 MaterialDiffuseColor = inColor;
-    vec4 ambientStr = vec4(0.1, 0.1, 0.1, 1.0);
     vec4 MaterialAmbientColor = ambientStr * MaterialDiffuseColor;
     vec4 MaterialSpecularColor = vec4(0.3, 0.3, 0.3, 1.0);
 

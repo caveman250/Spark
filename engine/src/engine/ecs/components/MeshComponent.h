@@ -32,6 +32,9 @@ namespace se::ecs::components
         SPARK_MEMBER()
         std::shared_ptr<render::MaterialInstance> materialInstance = {};
 
+        SPARK_MEMBER(Serialized)
+        int renderLayer = 0;
+
         std::shared_ptr<render::VertexBuffer> vertBuffer = {};
         std::shared_ptr<render::IndexBuffer> indexBuffer = {};
     };

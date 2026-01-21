@@ -4,6 +4,7 @@
 
 namespace se::math
 {
+    struct Vec4;
     struct Vec3
     {
         SPARK_POD_CLASS()
@@ -12,9 +13,15 @@ namespace se::math
         {
         }
 
+        Vec3(float scalar) : x(scalar), y(scalar), z(scalar)
+        {
+        }
+
         Vec3(float _x, float _y, float _z) : x(_x), y(_y), z(_z)
         {
         }
+
+        Vec3(const Vec4& vec);
 
         SPARK_MEMBER(Serialized)
         float x;

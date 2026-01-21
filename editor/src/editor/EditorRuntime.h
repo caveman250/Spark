@@ -41,7 +41,13 @@ namespace se::editor
         se::ui::Rect GetViewportRect() const { return m_ViewportWindow->GetViewportScreenspaceRect(); }
         void OnViewportSizeChanged(int x, int y);
 
+        bool InGameMode() const { return m_GameMode; }
+
     private:
+        void CreateGizmo();
+        void UpdateSelectedEntityTranslation(const math::Vec3& worldPos) const;
+        void SnapGizmoToSelectedEntity() const;
+        void HideGizmo() const;
         startup::StartupManager m_StartupManager;
 
         ui::OutlineWindow* m_OutlineWindow = nullptr;
@@ -50,6 +56,7 @@ namespace se::editor
         ui::AssetBrowserWindow* m_AssetBrowserWindow = nullptr;
 
         ecs::Id m_EditorScene = ecs::s_InvalidEntity;
+        ecs::Id m_Gizmo = ecs::s_InvalidEntity;
 
         ecs::Id m_LastSelectedEntity = ecs::s_InvalidEntity;
         ecs::Id m_SelectedEntity = ecs::s_InvalidEntity;
@@ -60,5 +67,7 @@ namespace se::editor
 
         size_t m_OffscreenRenderGroup = 0;
         std::shared_ptr<render::FrameBuffer> m_FrameBuffer = nullptr;
+
+        bool m_GameMode = false;
     };
 }

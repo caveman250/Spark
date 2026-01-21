@@ -15,6 +15,7 @@
 #include "engine/reflect/Reflect.h"
 #include "engine/reflect/Util.h"
 #include "engine/render/Renderer.h"
+#include "engine/render/singleton_components/MeshRenderComponent.h"
 #include "engine/ui/components/RectTransformComponent.h"
 
 namespace se::ecs
@@ -452,14 +453,20 @@ namespace se::ecs
             }
         }, m_EngineSystemUpdateGroups, true, true);
 
-        RunOnAllSystems([this](auto&& systemId)
+#if SPARK_EDITOR
+        auto editor = Application::Get()->GetEditorRuntime();
+        if (editor->InGameMode())
+#endif
         {
-            EASY_BLOCK(systemId.name->c_str());
-            if (auto* system = m_AppSystems[systemId].instance)
+            RunOnAllSystems([this](auto&& systemId)
             {
-                system->Update();
-            }
-        }, m_AppSystemUpdateGroups, true, true);
+                EASY_BLOCK(systemId.name->c_str());
+                if (auto* system = m_AppSystems[systemId].instance)
+                {
+                    system->Update();
+                }
+            }, m_AppSystemUpdateGroups, true, true);
+        }
 
         m_Running = false;
 
@@ -484,6 +491,8 @@ namespace se::ecs
 
     void World::Render()
     {
+        GetSingletonComponent<render::singleton_components::MeshRenderComponent>()->layerRenderGroups.clear();
+
         m_Running = true;
 
         auto renderer = render::Renderer::Get<render::Renderer>();
