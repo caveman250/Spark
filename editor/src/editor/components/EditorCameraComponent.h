@@ -8,7 +8,7 @@ namespace se::editor::components
 {
     struct EditorCameraComponent : ecs::Component
     {
-        SPARK_COMPONENT()
+        SPARK_COMPONENT(EditorOnly)
 
         SPARK_MEMBER()
         bool mouseDown = false;

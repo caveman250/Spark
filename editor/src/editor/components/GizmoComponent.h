@@ -16,7 +16,7 @@ namespace se::editor::components
 
     struct GizmoComponent : ecs::Component
     {
-        SPARK_COMPONENT()
+        SPARK_COMPONENT(EditorOnly)
 
         math::Vec3 color = {};
         GizmoAxis axis = GizmoAxis::Forward;

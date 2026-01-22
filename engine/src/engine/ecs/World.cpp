@@ -8,7 +8,7 @@
 #include "components/ParentComponent.h"
 #include "components/RootComponent.h"
 #include "engine/bits/FlagUtil.h"
-#include "engine/container_util/MapUtil.h"
+#include "engine/containers/MapUtil.h"
 #include "engine/ecs/Signal.h"
 #include "engine/ecs/System.h"
 #include "engine/io/VFS.h"

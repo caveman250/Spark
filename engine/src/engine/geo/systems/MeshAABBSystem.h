@@ -3,12 +3,12 @@
 #include "spark.h"
 #include "engine/ecs/System.h"
 
-namespace se::ui::systems 
+namespace se::geo::systems 
 {
-    class DragDropSystem : public ecs::EngineSystem
+    class MeshAABBSystem : public ecs::EngineSystem
     {
         SPARK_SYSTEM()
-
+        
         static ecs::SystemDeclaration GetSystemDeclaration();
 
         void OnUpdate(const ecs::SystemUpdateData& updateData) override;

@@ -23,7 +23,7 @@
 #include "camera/ActiveCameraComponent.h"
 #include "render/components/PointLightComponent.h"
 #include "render/singleton_components/MeshRenderComponent.h"
-#include "ui/singleton_components/DragDropStateComponent.h"
+#include "../../../editor/src/editor/singleton_components/DragDropStateComponent.h"
 
 namespace se
 {
@@ -68,7 +68,7 @@ namespace se
         m_World.AddSingletonComponent<render::singleton_components::MeshRenderComponent>();
 
 #if SPARK_EDITOR
-        m_World.AddSingletonComponent<ui::singleton_components::DragDropStateComponent>();
+        m_World.AddSingletonComponent<editor::singleton_components::DragDropStateComponent>();
 #endif
     }
 

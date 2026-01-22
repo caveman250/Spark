@@ -120,6 +120,9 @@ namespace se::editor
         //Create camera
         auto camera = world->CreateEntity(GetEditorScene(), "Editor Camera");
         world->AddComponent<components::EditorCameraComponent>(camera);
+        auto transform = world->AddComponent<ecs::components::TransformComponent>(camera);
+        transform->pos = math::Vec3(7.2f, 5.7f, 12.9f);
+        transform->rot = { -0.27f, 3.64f, 0.f };
     }
 
     void EditorRuntime::Update()

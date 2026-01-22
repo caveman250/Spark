@@ -13,7 +13,7 @@
 #include "engine/ui/components/ImageComponent.h"
 #include "engine/ui/components/TextComponent.h"
 #include "engine/ui/components/WidgetComponent.h"
-#include "engine/ui/singleton_components/DragDropStateComponent.h"
+#include "../../singleton_components/DragDropStateComponent.h"
 
 namespace se::editor::ui::properties
 {
@@ -146,7 +146,7 @@ namespace se::editor::ui::properties
         auto app = Application::Get();
         auto world = app->GetWorld();
         auto* inputComp = world->GetSingletonComponent<input::InputComponent>();
-        auto* dragDropState = world->GetSingletonComponent<se::ui::singleton_components::DragDropStateComponent>();
+        auto* dragDropState = world->GetSingletonComponent<singleton_components::DragDropStateComponent>();
 
         auto image = world->GetComponent<ImageComponent>(m_Root);
 

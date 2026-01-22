@@ -90,8 +90,8 @@ def ProcessHeaders():
                                 Class.ProcessClass("SPARK_COMPONENT", line, class_stack)
                                 Components.ProcessComponent(components, path, class_stack)
                             elif line.startswith("SPARK_SINGLETON_COMPONENT"):
-                                Components.ProcessSingletonComponent(components, path, class_stack)
                                 Class.ProcessClass("SPARK_SINGLETON_COMPONENT", line, class_stack)
+                                Components.ProcessSingletonComponent(components, path, class_stack)
                             elif line.startswith("namespace"):
                                 Namespace.ProcessNamespace(line, namespace_stack, namespace_scope_depth_stack, current_scope_depth)
                             elif line.startswith("using namespace"):

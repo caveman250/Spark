@@ -1,7 +1,8 @@
 #pragma once
 
 #include "spark.h"
-#include "engine/reflect/Reflect.h"
+#include "engine/ecs/Component.h"
+#include "engine/geo/AABB.h"
 #include "engine/math/math.h"
 
 namespace se::ecs::components
@@ -24,5 +25,8 @@ namespace se::ecs::components
 
         SPARK_MEMBER()
         math::Mat4 worldTransform = {};
+
+        SPARK_MEMBER()
+        geo::AABB aabb = {};
     };
 }

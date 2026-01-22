@@ -8,11 +8,11 @@ namespace se::asset
     class Asset;
 }
 
-namespace se::ui::singleton_components
+namespace se::editor::singleton_components
 {
     struct DragDropStateComponent : ecs::Component
     {
-        SPARK_SINGLETON_COMPONENT()
+        SPARK_SINGLETON_COMPONENT(EditorOnly)
 
         std::shared_ptr<asset::Asset> dragDropAsset = nullptr;
     };

@@ -6,7 +6,7 @@
 #include "engine/render/MaterialInstance.h"
 #include "engine/string/util/StringUtil.h"
 #include "engine/ui/components/ButtonComponent.h"
-#include "engine/ui/components/DragDropComponent.h"
+#include "../components/DragDropComponent.h"
 #include "engine/ui/components/GridBoxComponent.h"
 #include "engine/ui/components/HorizontalBoxComponent.h"
 #include "engine/ui/components/ImageComponent.h"
@@ -18,7 +18,7 @@
 #include "engine/ui/components/TreeNodeComponent.h"
 #include "engine/ui/components/WidgetComponent.h"
 #include "engine/ui/components/WindowComponent.h"
-#include "engine/ui/singleton_components/DragDropStateComponent.h"
+#include "../singleton_components/DragDropStateComponent.h"
 #include "engine/ui/util/ScrollBoxUtil.h"
 #include "engine/ui/util/TreeViewUtil.h"
 #include "engine/ui/util/WindowUtil.h"
@@ -291,11 +291,11 @@ namespace se::editor::ui
         button->onDragged.Subscribe([this, world, file]()
         {
             auto editor = Application::Get()->GetEditorRuntime();
-            auto dragDropStateComponent = world->GetSingletonComponent<se::ui::singleton_components::DragDropStateComponent>();
+            auto dragDropStateComponent = world->GetSingletonComponent<singleton_components::DragDropStateComponent>();
             auto assetManager = asset::AssetManager::Get();
 
             auto entity = world->CreateEntity(editor->GetEditorScene(), "Drag Drop Image");
-            world->AddComponent<se::ui::components::DragDropComponent>(entity);
+            world->AddComponent<components::DragDropComponent>(entity);
             auto* rect = world->AddComponent<se::ui::components::RectTransformComponent>(entity);
             rect->layer = -1;
             auto* image = world->AddComponent<se::ui::components::ImageComponent>(entity);

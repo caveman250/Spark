@@ -1,18 +1,18 @@
 #include "DragDropSystem.h"
 
 #include "engine/input/InputComponent.h"
-#include "engine/ui/components/DragDropComponent.h"
+#include "editor/singleton_components/DragDropStateComponent.h"
+#include "editor/components/DragDropComponent.h"
 #include "engine/ui/components/RectTransformComponent.h"
-#include "engine/ui/singleton_components/DragDropStateComponent.h"
 #include "platform/IWindow.h"
 
-namespace se::ui::systems
+namespace se::editor::systems
 {
     ecs::SystemDeclaration DragDropSystem::GetSystemDeclaration()
     {
         return ecs::SystemDeclaration()
             .WithComponent<components::DragDropComponent>()
-            .WithComponent<components::RectTransformComponent>()
+            .WithComponent<se::ui::components::RectTransformComponent>()
             .WithSingletonComponent<input::InputComponent>()
             .WithSingletonComponent<singleton_components::DragDropStateComponent>();
     }
@@ -27,7 +27,7 @@ namespace se::ui::systems
         auto* inputComp = updateData.GetSingletonComponent<input::InputComponent>();
         auto* dragDropState = updateData.GetSingletonComponent<singleton_components::DragDropStateComponent>();
         auto* dragDropComps = updateData.GetComponentArray<components::DragDropComponent>();
-        auto* rectTransforms = updateData.GetComponentArray<components::RectTransformComponent>();
+        auto* rectTransforms = updateData.GetComponentArray<se::ui::components::RectTransformComponent>();
 
         float reciprocal = 1.f / window->GetContentScale();
 

@@ -11,10 +11,10 @@ namespace se::camera
         SPARK_SINGLETON_COMPONENT();
 
         SPARK_MEMBER()
-        math::Vec3 pos = math::Vec3(0, 2.f, 10.f);
+        math::Vec3 pos = {};
 
         SPARK_MEMBER()
-        math::Vec3 rot = { 0.f, 3.14f, 0.f };
+        math::Vec3 rot = {};
 
         SPARK_MEMBER()
         math::Mat4 proj = {};
