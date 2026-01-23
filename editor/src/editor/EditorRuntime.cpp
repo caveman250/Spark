@@ -69,6 +69,7 @@ namespace se::editor
 
         return splitView;
     }
+
     void EditorRuntime::Init()
     {
         auto world = Application::Get()->GetWorld();
@@ -169,17 +170,24 @@ namespace se::editor
             {
                 if (event.state == input::KeyState::Down)
                 {
+                    auto world = Application::Get()->GetWorld();
                     m_GameMode = !m_GameMode;
 
                     if (!m_GameMode)
                     {
-                        Application::Get()->GetWorld()->ReloadAllScenes();
+                        world->ReloadAllScenesFromTemp();
                         CreateGizmo();
                     }
-                    else if (m_Gizmo != ecs::s_InvalidEntity)
+                    else
                     {
-                        Application::Get()->GetWorld()->DestroyEntity(m_Gizmo);
-                        m_Gizmo = ecs::s_InvalidEntity;
+                        if (m_Gizmo != ecs::s_InvalidEntity)
+                        {
+                            Application::Get()->GetWorld()->DestroyEntity(m_Gizmo);
+                            m_Gizmo = ecs::s_InvalidEntity;
+                        }
+
+                        world->SaveAllScenesToTemp();
+
                     }
                     return true;
                 }

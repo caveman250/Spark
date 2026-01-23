@@ -560,7 +560,7 @@ namespace se::ecs
         ProcessAllPending();
     }
 
-    Id World::LoadScene(const std::string& path)
+    Id World::LoadScene(std::string path)
     {
         auto db = asset::binary::Database::Load(path, true);
         auto type = reflect::TypeResolver<SceneSaveData>::get();
@@ -602,6 +602,12 @@ namespace se::ecs
             }
         }
 
+        constexpr std::string editor_scene = "editor_scene_";
+        auto it = path.find(editor_scene);
+        if (it != std::string::npos)
+        {
+            path.replace(it, editor_scene.size(), "");
+        }
         m_SceneRecords[scene].path = path;
 
         return scene;
@@ -624,20 +630,33 @@ namespace se::ecs
         }
     }
 
-    void World::ReloadAllScenes()
-    {
 #if SPARK_EDITOR
+    void World::SaveAllScenesToTemp()
+    {
         auto editorScene = Application::Get()->GetEditorRuntime()->GetEditorScene();
-#endif
+        for (const auto& sceneRecord : m_SceneRecords)
+        {
+            if (sceneRecord.first != m_DefaultScene)
+            {
+                if (sceneRecord.first != editorScene)
+                {
+                    auto lastSlashIndex = sceneRecord.second.path.find_last_of("/");
+                    auto fileName = sceneRecord.second.path.substr(lastSlashIndex + 1);
+                    SaveScene(sceneRecord.first, std::format("/tmp/editor_scene_{}", fileName), true);
+                }
+            }
+        }
+    }
 
+    void World::ReloadAllScenesFromTemp()
+    {
+        auto editorScene = Application::Get()->GetEditorRuntime()->GetEditorScene();
         auto safeCopy = m_SceneRecords;
         for (const auto& sceneRecord : safeCopy)
         {
             if (sceneRecord.first != m_DefaultScene)
             {
-#if SPARK_EDITOR
                 if (sceneRecord.first != editorScene)
-#endif
                 {
                     UnloadScene(sceneRecord.first);
                 }
@@ -650,9 +669,7 @@ namespace se::ecs
         {
             if (sceneRecord.first != m_DefaultScene)
             {
-#if SPARK_EDITOR
                 if (sceneRecord.first != editorScene)
-#endif
                 {
                     m_SceneRecords.erase(sceneRecord.first);
                 }
@@ -663,17 +680,18 @@ namespace se::ecs
         {
             if (sceneRecord.first != m_DefaultScene)
             {
-#if SPARK_EDITOR
                 if (sceneRecord.first != editorScene)
-#endif
                 {
-                    LoadScene(sceneRecord.second.path);
+                    auto lastSlashIndex = sceneRecord.second.path.find_last_of("/");
+                    auto fileName = sceneRecord.second.path.substr(lastSlashIndex + 1);
+                    LoadScene(std::format("/tmp/editor_scene_{}", fileName));
                 }
             }
         }
     }
+#endif
 
-    void World::SaveScene(const Id& scene, const std::string& path)
+    void World::SaveScene(const Id& scene, const std::string& path, bool binary)
     {
         auto it = m_SceneRecords.find(scene);
         if (!SPARK_VERIFY(it != m_SceneRecords.end()))
@@ -711,8 +729,15 @@ namespace se::ecs
         auto root = db->GetRoot();
         type->Serialize(&saveData, root, {});
 
-        auto json = db->ToJson();
-        io::VFS::Get().WriteText(path, json.dump(4));
+        if (binary)
+        {
+            db->Save(path);
+        }
+        else
+        {
+            auto json = db->ToJson();
+            io::VFS::Get().WriteText(path, json.dump(4));
+        }
     }
 
     void RecurseWidgetChildren(World* world, const Id& entity, nlohmann::ordered_json& parentJson)

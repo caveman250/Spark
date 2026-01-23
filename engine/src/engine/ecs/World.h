@@ -80,10 +80,14 @@ namespace se::ecs
         void Render();
         void Shutdown();
 
-        Id LoadScene(const std::string& path);
+        Id LoadScene(std::string path);
         void UnloadScene(const Id& scene);
-        void ReloadAllScenes();
-        void SaveScene(const Id& scene, const std::string& path);
+        void SaveScene(const Id& scene, const std::string& path, bool binary = false);
+
+#if SPARK_EDITOR
+        void SaveAllScenesToTemp();
+        void ReloadAllScenesFromTemp();
+#endif
 
         Id CreateEntity(const std::string& name);
         Id CreateEntity(const Id& scene,

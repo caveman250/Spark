@@ -44,6 +44,7 @@ namespace se
         io::VFS::Get().Mount(std::format("{}/{}", ENGINE_DIR, "built"), "/engine_assets");
         io::VFS::Get().Mount(std::format("{}/{}", APP_DIR, "built"), "/assets");
         io::VFS::Get().Mount(std::format("{}/{}", APP_DIR, "save"), "/save");
+        io::VFS::Get().Mount(std::format("{}/{}", APP_DIR, "temp"), "/tmp");
 
         RegisterComponents(&m_World);
         engine_InitClassReflection();
