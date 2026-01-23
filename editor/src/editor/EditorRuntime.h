@@ -41,6 +41,7 @@ namespace se::editor
         se::ui::Rect GetViewportRect() const { return m_ViewportWindow->GetViewportScreenspaceRect(); }
         void OnViewportSizeChanged(int x, int y);
 
+        void ToggleGameMode();
         bool InGameMode() const { return m_GameMode; }
 
     private:

@@ -18,8 +18,8 @@ namespace se::ui::util
                          WindowComponent** window,
                          TitleBarComponent** titleBar,
                          ecs::Id& childArea,
+                         ecs::Id& titleArea,
                          const std::string& title,
-                         std::function<void()> onClose,
                          const ecs::Id& scene)
     {
         auto world = Application::Get()->GetWorld();
@@ -50,8 +50,8 @@ namespace se::ui::util
             inputComp->keyMask = static_cast<input::Key>(0x0);
         }
 
-        auto titleBarEntity = world->CreateEntity(scene, "TitleBar");
-        *titleBar = world->AddComponent<TitleBarComponent>(titleBarEntity);
+        titleArea = world->CreateEntity(scene, "TitleBar");
+        *titleBar = world->AddComponent<TitleBarComponent>(titleArea);
         std::function moveCb = [entity](float dX, float dY)
         {
             auto window = Application::Get()->GetWorld()->GetComponent<WindowComponent>(entity);
@@ -59,13 +59,13 @@ namespace se::ui::util
             window->pendingDeltaY += dY;
         };
         (*titleBar)->onMove.Subscribe(std::move(moveCb));
-        auto titleBarTransform = world->AddComponent<RectTransformComponent>(titleBarEntity);
+        auto titleBarTransform = world->AddComponent<RectTransformComponent>(titleArea);
         titleBarTransform->anchors = { 0.f, 1.f, 0.f, 0.f };
         titleBarTransform->minX = 0;
         titleBarTransform->maxX = 0;
         titleBarTransform->minY = 0;
         titleBarTransform->maxY = 30;
-        world->AddChild(entity, titleBarEntity);
+        world->AddChild(entity, titleArea);
 
         ecs::Id titleBarTextEntity = world->CreateEntity(scene, "TitleBarText");
         auto titleBarText = world->AddComponent<TextComponent>(titleBarTextEntity);
@@ -77,27 +77,7 @@ namespace se::ui::util
         titleBarTextTransform->minY = 6;
         titleBarTextTransform->anchors = { 0.f, 1.f, 0.f, 1.f };
         world->AddComponent<WidgetComponent>(titleBarTextEntity);
-        world->AddChild(titleBarEntity, titleBarTextEntity);
-
-        auto buttonEntity = world->CreateEntity(scene, "Close Button");
-        auto buttonComp = world->AddComponent<ButtonComponent>(buttonEntity);
-        buttonComp->image = "/engine_assets/textures/close_button_idle.sass";
-        buttonComp->pressedImage = "/engine_assets/textures/close_button_pressed.sass";
-        buttonComp->hoveredImage = "/engine_assets/textures/close_button_hovered.sass";
-        std::function<void()> buttonCb = [entity, world, onClose]()
-        {
-            onClose();
-            world->DestroyEntity(entity);
-        };
-        buttonComp->onReleased.Subscribe(std::move(buttonCb));
-        auto buttonTransform = world->AddComponent<RectTransformComponent>(buttonEntity);
-        buttonTransform->anchors = { 1.f, 1.f, 0.f, 1.f };
-        buttonTransform->minX = 25;
-        buttonTransform->maxX = 5;
-        buttonTransform->minY = 5;
-        buttonTransform->maxY = 5;
-
-        world->AddChild(titleBarEntity, buttonEntity);
+        world->AddChild(titleArea, titleBarTextEntity);
 
         childArea = world->CreateEntity(scene, "Content");
         auto childAreaTransform = world->AddComponent<RectTransformComponent>(childArea);

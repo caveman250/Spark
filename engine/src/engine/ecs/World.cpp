@@ -458,14 +458,17 @@ namespace se::ecs
         if (editor->InGameMode())
 #endif
         {
-            RunOnAllSystems([this](auto&& systemId)
+            if (!m_Paused)
             {
-                EASY_BLOCK(systemId.name->c_str());
-                if (auto* system = m_AppSystems[systemId].instance)
+                RunOnAllSystems([this](auto&& systemId)
                 {
-                    system->Update();
-                }
-            }, m_AppSystemUpdateGroups, true, true);
+                    EASY_BLOCK(systemId.name->c_str());
+                    if (auto* system = m_AppSystems[systemId].instance)
+                    {
+                        system->Update();
+                    }
+                }, m_AppSystemUpdateGroups, true, true);
+            }
         }
 
         m_Running = false;
@@ -558,6 +561,11 @@ namespace se::ecs
         m_Running = false;
 
         ProcessAllPending();
+    }
+
+    void World::TogglePause()
+    {
+        m_Paused = !m_Paused;
     }
 
     Id World::LoadScene(std::string path)

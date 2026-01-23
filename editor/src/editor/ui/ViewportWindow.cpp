@@ -21,7 +21,9 @@ namespace se::editor::ui
             return;
         }
 
-        auto world = Application::Get()->GetWorld();
+        auto app = Application::Get();
+        auto editor = app->GetEditorRuntime();
+        auto world = app->GetWorld();
         se::ui::components::RectTransformComponent* viewportRect = world->GetComponent<se::ui::components::RectTransformComponent>(m_Viewport);
 
         // awaiting layout.
@@ -33,12 +35,18 @@ namespace se::editor::ui
         if (viewportRect->rect != m_ViewportRect)
         {
             m_OnViewportSizeChanged(viewportRect->rect.size.x, viewportRect->rect.size.y);
-            auto app = Application::Get();
-            const auto& viewportTexture = app->GetEditorRuntime()->GetFrameBuffer()->GetColorTexture();
+            const auto& viewportTexture = editor->GetFrameBuffer()->GetColorTexture();
             auto imageComp = world->GetComponent<se::ui::components::ImageComponent>(m_Viewport);
             imageComp->materialInstance->SetUniform("Texture", asset::shader::ast::AstType::Sampler2D, 1, &viewportTexture);
         }
         m_ViewportRect = viewportRect->rect;
+
+        if (m_ShouldToggleGameMode)
+        {
+            editor->ToggleGameMode();
+            UpdatePlayButtonTexture();
+            m_ShouldToggleGameMode = false;
+        }
     }
 
     void ViewportWindow::ConstructUI()
@@ -51,13 +59,13 @@ namespace se::editor::ui
         se::ui::components::WindowComponent *windowComp;
         se::ui::components::TitleBarComponent *titleBarComp;
         ecs::Id contentArea;
+        ecs::Id titleArea;
         m_Window = ::se::ui::util::CreateWindow(&windowTransform,
                                                 &windowComp,
                                                 &titleBarComp,
                                                 contentArea,
+                                                titleArea,
                                                 "Viewport",
-                                                [this]()
-                                                { DestroyUI(); },
                                                 editor->GetEditorScene());
         windowTransform->anchors = {0.f, 0.f, 0.f, 0.f};
         windowTransform->minX = 310;
@@ -83,17 +91,115 @@ namespace se::editor::ui
 #endif
         }
 
-
-
         imageComp->materialInstance = render::MaterialInstance::CreateMaterialInstance(material);
         const auto& viewportTexture = app->GetEditorRuntime()->GetFrameBuffer()->GetColorTexture();
         imageComp->materialInstance->SetUniform("Texture", asset::shader::ast::AstType::Sampler2D, 1, &viewportTexture);
         world->AddChild(contentArea, m_Viewport);
         m_Valid = true;
+
+        auto playPauseBg = world->CreateEntity(editor->GetEditorScene(), "BG");
+        auto playPauseBgRect = world->AddComponent<se::ui::components::RectTransformComponent>(playPauseBg);
+        playPauseBgRect->anchors = { .left = 0.5f, .right = 0.5f, .top = 0.f, .bottom = 0.f };
+        playPauseBgRect->minX = -52;
+        playPauseBgRect->maxX = 52;
+        playPauseBgRect->minY = 4;
+        playPauseBgRect->maxY = 28;
+        auto playPauseBgImage = world->AddComponent<se::ui::components::ImageComponent>(playPauseBg);
+        auto bgMaterial = asset::AssetManager::Get()->GetAsset<render::Material>("/engine_assets/materials/ui_alpha_texture.sass");
+        playPauseBgImage->materialInstance = render::MaterialInstance::CreateMaterialInstance(bgMaterial);
+        asset::AssetReference<asset::Texture> bgImage = "/engine_assets/textures/editor_play_pause_bg.sass";
+        playPauseBgImage->materialInstance->SetUniform("Texture", asset::shader::ast::AstType::Sampler2DReference, 1, &bgImage);
+        world->AddChild(titleArea, playPauseBg);
+
+        m_PlayButton = world->CreateEntity(editor->GetEditorScene(), "Editor Play Button");
+        auto playButtonRect = world->AddComponent<se::ui::components::RectTransformComponent>(m_PlayButton);
+        playButtonRect->anchors = { .left = 0.5f, .right = 0.5f, .top = 0.f, .bottom = 0.f };
+        playButtonRect->minX = -25;
+        playButtonRect->maxX = -5;
+        playButtonRect->minY = 2;
+        playButtonRect->maxY = 22;
+        auto playButton = world->AddComponent<se::ui::components::ButtonComponent>(m_PlayButton);
+        playButton->image = "/engine_assets/textures/editor_play.sass";
+        playButton->pressedImage = "/engine_assets/textures/editor_play_pressed.sass";
+        playButton->hoveredImage = "/engine_assets/textures/editor_play_hovered.sass";
+        playButton->onReleased.Subscribe([this, world]()
+        {
+            if (world->Paused())
+            {
+                world->TogglePause();
+                UpdatePauseButtonTexture();
+            }
+
+            m_ShouldToggleGameMode = true;
+        });
+        world->AddChild(playPauseBg, m_PlayButton);
+
+        m_PauseButton = world->CreateEntity(editor->GetEditorScene(), "Editor Play Button");
+        auto pauseButtonRect = world->AddComponent<se::ui::components::RectTransformComponent>(m_PauseButton);
+        pauseButtonRect->anchors = { .left = 0.5f, .right = 0.5f, .top = 0.f, .bottom = 0.f };
+        pauseButtonRect->minX = 5;
+        pauseButtonRect->maxX = 25;
+        pauseButtonRect->minY = 2;
+        pauseButtonRect->maxY = 22;
+        auto pauseButton = world->AddComponent<se::ui::components::ButtonComponent>(m_PauseButton);
+        pauseButton->image = "/engine_assets/textures/editor_pause.sass";
+        pauseButton->pressedImage = "/engine_assets/textures/editor_pause_pressed.sass";
+        pauseButton->hoveredImage = "/engine_assets/textures/editor_pause_hovered.sass";
+        pauseButton->onReleased.Subscribe([this, world]()
+        {
+            auto editor = Application::Get()->GetEditorRuntime();
+            if (!world->Paused() && !editor->InGameMode())
+            {
+                return;
+            }
+
+            world->TogglePause();
+            UpdatePauseButtonTexture();
+        });
+        world->AddChild(playPauseBg, m_PauseButton);
     }
 
     void ViewportWindow::DestroyUI()
     {
         m_Valid = false;
+    }
+
+    void ViewportWindow::UpdatePlayButtonTexture() const
+    {
+        auto app = Application::Get();
+        auto world = app->GetWorld();
+        auto editor = app->GetEditorRuntime();
+        auto playButton = world->GetComponent<se::ui::components::ButtonComponent>(m_PlayButton);
+        if (!editor->InGameMode())
+        {
+            playButton->image = "/engine_assets/textures/editor_play.sass";
+            playButton->pressedImage = "/engine_assets/textures/editor_play_pressed.sass";
+            playButton->hoveredImage = "/engine_assets/textures/editor_play_hovered.sass";
+        }
+        else
+        {
+            playButton->image = "/engine_assets/textures/editor_stop.sass";
+            playButton->pressedImage = "/engine_assets/textures/editor_stop_pressed.sass";
+            playButton->hoveredImage = "/engine_assets/textures/editor_stop_hovered.sass";
+        }
+    }
+
+    void ViewportWindow::UpdatePauseButtonTexture() const
+    {
+        auto world = Application::Get()->GetWorld();
+        if (world->Paused())
+        {
+            auto pauseButton = world->GetComponent<se::ui::components::ButtonComponent>(m_PauseButton);
+            pauseButton->image = "/engine_assets/textures/editor_pause_active.sass";
+            pauseButton->pressedImage = "/engine_assets/textures/editor_pause_active_pressed.sass";
+            pauseButton->hoveredImage = "/engine_assets/textures/editor_pause_active_hovered.sass";
+        }
+        else
+        {
+            auto pauseButton = world->GetComponent<se::ui::components::ButtonComponent>(m_PauseButton);
+            pauseButton->image = "/engine_assets/textures/editor_pause.sass";
+            pauseButton->pressedImage = "/engine_assets/textures/editor_pause_pressed.sass";
+            pauseButton->hoveredImage = "/engine_assets/textures/editor_pause_hovered.sass";
+        }
     }
 }

@@ -22,9 +22,15 @@ namespace se::editor::ui
         const ecs::Id& GetWindow() const { return m_Window; }
 
     private:
+        void UpdatePlayButtonTexture() const;
+        void UpdatePauseButtonTexture() const;
+
         bool m_Valid = false;
+        bool m_ShouldToggleGameMode = false;
         ecs::Id m_Window = {};
         ecs::Id m_Viewport = {};
+        ecs::Id m_PlayButton = {};
+        ecs::Id m_PauseButton = {};
         se::ui::Rect m_ViewportRect = {};
         std::function<void(int, int)> m_OnViewportSizeChanged = nullptr;
     };

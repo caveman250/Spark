@@ -40,13 +40,13 @@ namespace se::editor::ui
         se::ui::components::WindowComponent *windowComp;
         se::ui::components::TitleBarComponent *titleBarComp;
         ecs::Id contentArea;
+        ecs::Id titleArea;
         m_Window = ::se::ui::util::CreateWindow(&windowTransform,
                                                 &windowComp,
                                                 &titleBarComp,
                                                 contentArea,
+                                                titleArea,
                                                 "Properties",
-                                                [this]()
-                                                { DestroyUI(); },
                                                 editor->GetEditorScene());
         windowTransform->anchors = {0.f, 0.f, 0.f, 0.f};
         windowTransform->minX = 860;

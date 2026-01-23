@@ -79,6 +79,8 @@ namespace se::ecs
         void Update();
         void Render();
         void Shutdown();
+        void TogglePause();
+        bool Paused() const { return m_Paused; }
 
         Id LoadScene(std::string path);
         void UnloadScene(const Id& scene);
@@ -329,6 +331,7 @@ namespace se::ecs
         std::vector<Id> m_PendingEngineSystemDeletions = { };
         memory::Arena m_TempStore = memory::Arena(20000000); // cleared after all pending creations/deletions
         bool m_ClearingTempObjects = { };
+        bool m_Paused = false;
 
         std::vector<BaseSignal*> m_PendingSignals = { };
 

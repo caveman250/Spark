@@ -162,39 +162,6 @@ namespace se::editor
         m_PropertiesWindow->Update();
         m_ViewportWindow->Update();
         m_AssetBrowserWindow->Update();
-
-        auto inputComp = Application::Get()->GetWorld()->GetSingletonComponent<input::InputComponent>();
-        input::InputUtil::ProcessKeyEvents(ecs::s_InvalidEntity, inputComp, [this](const input::KeyEvent& event)
-        {
-            if (event.key == input::Key::Space)
-            {
-                if (event.state == input::KeyState::Down)
-                {
-                    auto world = Application::Get()->GetWorld();
-                    m_GameMode = !m_GameMode;
-
-                    if (!m_GameMode)
-                    {
-                        world->ReloadAllScenesFromTemp();
-                        CreateGizmo();
-                    }
-                    else
-                    {
-                        if (m_Gizmo != ecs::s_InvalidEntity)
-                        {
-                            Application::Get()->GetWorld()->DestroyEntity(m_Gizmo);
-                            m_Gizmo = ecs::s_InvalidEntity;
-                        }
-
-                        world->SaveAllScenesToTemp();
-
-                    }
-                    return true;
-                }
-            }
-
-            return false;
-        });
     }
 
     void EditorRuntime::Render()
@@ -251,6 +218,29 @@ namespace se::editor
             m_FrameBuffer.reset();
         }
         m_FrameBuffer = render::FrameBuffer::CreateFrameBuffer({ x, y });
+    }
+
+    void EditorRuntime::ToggleGameMode()
+    {
+        auto world = Application::Get()->GetWorld();
+        m_GameMode = !m_GameMode;
+
+        if (!m_GameMode)
+        {
+            world->ReloadAllScenesFromTemp();
+            CreateGizmo();
+        }
+        else
+        {
+            if (m_Gizmo != ecs::s_InvalidEntity)
+            {
+                Application::Get()->GetWorld()->DestroyEntity(m_Gizmo);
+                m_Gizmo = ecs::s_InvalidEntity;
+            }
+
+            world->SaveAllScenesToTemp();
+
+        }
     }
 
     void EditorRuntime::CreateGizmo()

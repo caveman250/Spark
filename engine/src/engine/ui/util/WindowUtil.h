@@ -15,7 +15,7 @@ namespace se::ui::util
                          WindowComponent** window,
                          TitleBarComponent** titleBar,
                          ecs::Id& childArea,
+                         ecs::Id& titleArea,
                          const std::string& title,
-                         std::function<void()> onClose,
                          const ecs::Id& scene);
 }
