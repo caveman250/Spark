@@ -21,7 +21,7 @@ namespace se::asset
             const ofbx::Vec3Attributes normals = geom.getNormals();
             const ofbx::Vec2Attributes uvs = geom.getUVs();
 
-            const ofbx::DMatrix transform = mesh.getGlobalTransform();
+            //const ofbx::DMatrix transform = mesh.getGlobalTransform();
 
             for (int partition_idx = 0; partition_idx < geom.getPartitionCount(); ++partition_idx)
             {
