@@ -19,8 +19,8 @@ void main()
     vec2 distance_to_cell = abs(cell_coords - half_cell_size);
     vec2 distance_to_subcell = abs(subcell_coords - half_subcell_size);
 
-    vec2 cell_line_thickness = vec2(0.1f, 0.1f);
-    vec2 subcell_line_thickness = vec2(0.1f, 0.1f);
+    vec2 cell_line_thickness = vec2(0.15f, 0.15f);
+    vec2 subcell_line_thickness = vec2(0.15f, 0.15f);
 
     vec4 cell_colour = vec4(0.75, 0.75, 0.75, 0.5);
     vec4 subcell_colour = vec4(0.5, 0.5, 0.5, 0.3);
@@ -29,7 +29,7 @@ void main()
     vec2 adjusted_cell_line_thickness = cell_line_thickness + d;
     vec2 adjusted_subcell_line_thickness = subcell_line_thickness + d;
     adjusted_cell_line_thickness = 0.5 * adjusted_cell_line_thickness;
-    adjusted_subcell_line_thickness = 0.5 * adjusted_cell_line_thickness;
+    adjusted_subcell_line_thickness = 0.5 * adjusted_subcell_line_thickness;
 
     color = vec4(0, 0, 0, 0);
     if (distance_to_subcell.x < adjusted_subcell_line_thickness.x * 0.5 ||
