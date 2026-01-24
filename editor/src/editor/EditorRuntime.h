@@ -49,6 +49,8 @@ namespace se::editor
         void UpdateSelectedEntityTranslation(const math::Vec3& worldPos) const;
         void SnapGizmoToSelectedEntity() const;
         void HideGizmo() const;
+        void CreateEditorPlane();
+
         startup::StartupManager m_StartupManager;
 
         ui::OutlineWindow* m_OutlineWindow = nullptr;
@@ -58,6 +60,7 @@ namespace se::editor
 
         ecs::Id m_EditorScene = ecs::s_InvalidEntity;
         ecs::Id m_Gizmo = ecs::s_InvalidEntity;
+        ecs::Id m_Plane = ecs::s_InvalidEntity;
 
         ecs::Id m_LastSelectedEntity = ecs::s_InvalidEntity;
         ecs::Id m_SelectedEntity = ecs::s_InvalidEntity;

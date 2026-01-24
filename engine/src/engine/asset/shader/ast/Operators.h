@@ -21,6 +21,8 @@ namespace se::asset::shader::ast
         LessEquals,
         Greater,
         GreaterEquals,
+        Or,
+        And
     };
 
     class OperatorUtil

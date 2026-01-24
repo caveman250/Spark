@@ -69,4 +69,5 @@ enum class StencilFunc
     };
 
     bool operator==(const RenderState& lhs, const RenderState& rhs);
+    bool operator<(const  RenderState& lhs, const RenderState& rhs);
 }

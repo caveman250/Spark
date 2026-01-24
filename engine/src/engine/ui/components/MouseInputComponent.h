@@ -1,5 +1,6 @@
 #pragma once
 
+#include "engine/ecs/Component.h"
 #include "engine/input/MouseEvent.h"
 
 namespace se::ui::components

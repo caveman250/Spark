@@ -4,6 +4,7 @@
 #include "engine/ui/Anchors.h"
 #include "engine/ui/Rect.h"
 #include "engine/math/math.h"
+#include "engine/ecs/Component.h"
 
 namespace se::ui::components
 {

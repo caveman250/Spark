@@ -1,0 +1,57 @@
+SSL_FRAGMENT
+
+port(FragmentUV) in vec2 uv;
+port(FragmentCameraPos) in vec3 cameraPos;
+
+port(FragColor) out vec4 color;
+
+void main()
+{
+    float cell_size = 10.0f;
+    float half_cell_size = cell_size * 0.5f;
+
+    float subcell_size = 1.f;
+    float half_subcell_size = subcell_size * 0.5f;
+
+    vec2 cell_coords = mod(uv + half_cell_size, cell_size);
+    vec2 subcell_coords = mod(uv + half_subcell_size, subcell_size);
+
+    vec2 distance_to_cell = abs(cell_coords - half_cell_size);
+    vec2 distance_to_subcell = abs(subcell_coords - half_subcell_size);
+
+    vec2 cell_line_thickness = vec2(0.1f, 0.1f);
+    vec2 subcell_line_thickness = vec2(0.1f, 0.1f);
+
+    vec4 cell_colour = vec4(0.75, 0.75, 0.75, 0.5);
+    vec4 subcell_colour = vec4(0.5, 0.5, 0.5, 0.3);
+
+    vec2 d = fwidth(uv);
+    vec2 adjusted_cell_line_thickness = cell_line_thickness + d;
+    vec2 adjusted_subcell_line_thickness = subcell_line_thickness + d;
+    adjusted_cell_line_thickness = 0.5 * adjusted_cell_line_thickness;
+    adjusted_subcell_line_thickness = 0.5 * adjusted_cell_line_thickness;
+
+    color = vec4(0, 0, 0, 0);
+    if (distance_to_subcell.x < adjusted_subcell_line_thickness.x * 0.5 ||
+        distance_to_subcell.y < adjusted_subcell_line_thickness.y * 0.5)
+    {
+        color = subcell_colour;
+    }
+    if (distance_to_cell.x < adjusted_cell_line_thickness.x * 0.5 ||
+       distance_to_cell.y < adjusted_cell_line_thickness.y * 0.5)
+    {
+       color = cell_colour;
+    }
+
+    float min_fade_distance = 5.0f;
+    float max_fade_distance = 100.f;
+
+    float height_to_fade_distance_ratio = 15.0f;
+    float fade_distance = abs(cameraPos.y) * height_to_fade_distance_ratio;
+    fade_distance = max(fade_distance, min_fade_distance);
+    fade_distance = min(fade_distance, max_fade_distance);
+    float distance_to_camera = length(uv - cameraPos.xz);
+    float opacity_falloff = smoothstep(1.0, 0.0, distance_to_camera / fade_distance);
+
+    color *= opacity_falloff;
+}

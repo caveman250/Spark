@@ -36,6 +36,8 @@ namespace se::asset::shader::ast
         {"<=", OperatorType::LessEquals},
         {">", OperatorType::Greater},
         {">=", OperatorType::GreaterEquals},
+        {"||", OperatorType::Or},
+        {"&&", OperatorType::And},
     };
 
     std::map<OperatorType, std::string> OperatorUtil::s_TypeToGlsl =
@@ -54,6 +56,8 @@ namespace se::asset::shader::ast
         {OperatorType::LessEquals, "<="},
         {OperatorType::Greater, ">"},
         {OperatorType::GreaterEquals, ">="},
+        {OperatorType::Or, "||"},
+        {OperatorType::And, "&&"},
     };
 
     uint8_t OperatorUtil::GetOperatorPriority(OperatorType type)
@@ -78,7 +82,7 @@ namespace se::asset::shader::ast
 
     const std::vector<std::string>& OperatorUtil::GetOperatorStrings()
     {
-        static std::vector<std::string> ret = {"*", "/", "+", "-", "*=", "/=", "+=", "-=", "=", "<", ">", "<=", ">="};
+        static std::vector<std::string> ret = {"*", "/", "+", "-", "*=", "/=", "+=", "-=", "=", "<", ">", "<=", ">=", "||", "&&"};
         return ret;
     }
 }

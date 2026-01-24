@@ -38,6 +38,12 @@ namespace se::asset::shader::compiler
         bool ProcessFunctionDeclaration(const Token& token, ParseError& outError);
         bool ProcessEndOfFunctionDeclaration(const Token& token, ParseError& outError);
         bool ProcessPropertyAccess(const Token& token, ast::AstType& returnType, ParseError& outError);
+        bool ProcessModFunc(const Token& token, ast::AstType& returnType, ParseError& outError);
+        bool ProcessAbsFunc(const Token& token, ast::AstType& returnType, ParseError& outError);
+        bool ProcessFWidthFunc(const Token& token, ast::AstType& returnType, ParseError& outError);
+        bool ProcessInverseFunc(const Token& token, ast::AstType& returnType, ParseError& outError);
+        bool ProcessMinFunc(const Token& token, ast::AstType& returnType, ParseError& outError);
+        bool ProcessMaxFunc(const Token& token, ast::AstType& returnType, ParseError& outError);
 
         bool ProcessVec2(const Token& token, ParseError& error);
         bool ProcessVec3(const Token& token, ParseError& error);

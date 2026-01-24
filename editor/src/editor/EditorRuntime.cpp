@@ -7,6 +7,7 @@
 #include "engine/Application.h"
 #include "engine/asset/AssetManager.h"
 #include "engine/asset/shader/Shader.h"
+#include "engine/camera/ActiveCameraComponent.h"
 #include "engine/ecs/components/MeshComponent.h"
 #include "engine/ecs/components/TransformComponent.h"
 #include "engine/input/InputComponent.h"
@@ -124,6 +125,8 @@ namespace se::editor
         auto transform = world->AddComponent<ecs::components::TransformComponent>(camera);
         transform->pos = math::Vec3(7.2f, 5.7f, 12.9f);
         transform->rot = { -0.27f, 3.64f, 0.f };
+
+        CreateEditorPlane();
     }
 
     void EditorRuntime::Update()
@@ -162,6 +165,17 @@ namespace se::editor
         m_PropertiesWindow->Update();
         m_ViewportWindow->Update();
         m_AssetBrowserWindow->Update();
+
+        if (!m_GameMode)
+        {
+            auto world = Application::Get()->GetWorld();
+            auto activeCamera = world->GetSingletonComponent<camera::ActiveCameraComponent>();
+            auto planeModel = world->GetComponent<ecs::components::MeshComponent>(m_Plane);
+            if (planeModel->materialInstance)
+            {
+                planeModel->materialInstance->SetUniform("cameraPos", asset::shader::ast::AstType::Vec3, 1, &activeCamera->pos);
+            }
+        }
     }
 
     void EditorRuntime::Render()
@@ -229,6 +243,7 @@ namespace se::editor
         {
             world->ReloadAllScenesFromTemp();
             CreateGizmo();
+            CreateEditorPlane();
         }
         else
         {
@@ -236,6 +251,12 @@ namespace se::editor
             {
                 Application::Get()->GetWorld()->DestroyEntity(m_Gizmo);
                 m_Gizmo = ecs::s_InvalidEntity;
+            }
+
+            if (m_Plane != ecs::s_InvalidEntity)
+            {
+                Application::Get()->GetWorld()->DestroyEntity(m_Plane);
+                m_Plane = ecs::s_InvalidEntity;
             }
 
             world->SaveAllScenesToTemp();
@@ -364,6 +385,19 @@ namespace se::editor
 
         auto transform = world->GetComponent<ecs::components::TransformComponent>(m_Gizmo);
         transform->pos = math::Vec3(std::numeric_limits<float>::max());
+    }
+
+    void EditorRuntime::CreateEditorPlane()
+    {
+        auto world = Application::Get()->GetWorld();
+
+        m_Plane = world->CreateEntity(GetEditorScene(), "Editor Plane");
+        auto planeTransform = world->AddComponent<ecs::components::TransformComponent>(m_Plane);
+        planeTransform->rot.x = -90;
+        planeTransform->scale = 100;
+        auto planeModel = world->AddComponent<ecs::components::MeshComponent>(m_Plane);
+        planeModel->model = "/engine_assets/models/plane.sass";
+        planeModel->material = "/engine_assets/materials/editor_plane.sass";
     }
 
     const std::shared_ptr<asset::Asset>& EditorRuntime::GetSelectedAsset() const

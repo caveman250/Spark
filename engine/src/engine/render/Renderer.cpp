@@ -72,7 +72,7 @@ namespace se::render
                     return lhs->GetRenderStage() < rhs->GetRenderStage();
                 }
 
-                return lhs->GetSortKey() < rhs->GetSortKey();
+                return lhs->GetRenderState() < rhs->GetRenderState();
             });
         }
     }

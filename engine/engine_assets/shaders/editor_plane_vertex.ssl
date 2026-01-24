@@ -1,0 +1,26 @@
+SSL_VERTEX
+
+port(VertexPos) in vec3 inPos;
+port(VertexUV) in vec2 inUV;
+port(VertexNormal) in vec3 inNormal;
+
+port(FinalVertexPos) out vec4 outPos;
+port(FragmentUV) out vec2 outUV;
+port(FragmentCameraPos) out vec3 outCameraPos;
+
+uniform mat4 model;
+uniform mat4 view;
+uniform mat4 proj;
+uniform vec3 cameraPos;
+
+void main()
+{
+    mat4 VP = proj * view;
+
+    vec4 worldPos = model * vec4(inPos, 1);
+    worldPos.xz += cameraPos.xz;
+    outUV = worldPos.xz;
+    outPos = VP * worldPos;
+
+    outCameraPos = cameraPos;
+}

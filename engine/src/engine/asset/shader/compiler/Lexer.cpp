@@ -49,6 +49,8 @@ namespace se::asset::shader::compiler
             case '-':
             case '*':
             case '/':
+            case '|':
+            case '&':
                 return ProcessComplexSyntax(offset);
             case 'a':
             case 'b':
@@ -266,6 +268,8 @@ namespace se::asset::shader::compiler
             {'+', '='},
             {'-', '='},
             {'=', '='},
+            {'|', '|'},
+            {'&', '&'},
         };
 
         for (const auto &[a, b]: s_AllowedPairs)
