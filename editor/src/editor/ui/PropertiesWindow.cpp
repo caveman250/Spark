@@ -84,7 +84,6 @@ namespace se::editor::ui
     {
         if (m_Valid)
         {
-            auto ariel = asset::AssetManager::Get()->GetAsset<asset::Font>("/engine_assets/fonts/Arial.sass");
             auto world = Application::Get()->GetWorld();
             for (const auto &child: world->GetChildren(m_ScrollBoxContent))
             {
@@ -105,7 +104,7 @@ namespace se::editor::ui
 
             if (selectedEntity)
             {
-                AddEntityProperties(selectedEntity, world, ariel);
+                AddEntityProperties(selectedEntity, world, "/engine_assets/fonts/Arial.sass");
             }
             else if (selectedSingletonComp)
             {
@@ -113,7 +112,7 @@ namespace se::editor::ui
             }
             else if (selectedAsset)
             {
-                AddAssetProperties(selectedAsset, world, ariel);
+                AddAssetProperties(selectedAsset, world, "/engine_assets/fonts/Arial.sass");
             }
 
             scrollBoxTransform->needsLayout = true;
@@ -122,7 +121,7 @@ namespace se::editor::ui
 
     void PropertiesWindow::AddEntityProperties(const ecs::Id& entity,
                                                ecs::World* world,
-                                               const std::shared_ptr<asset::Font>& font)
+                                               const asset::AssetReference<asset::Font>& font)
     {
         auto editor = Application::Get()->GetEditorRuntime();
 
@@ -174,7 +173,7 @@ namespace se::editor::ui
 
     void PropertiesWindow::AddAssetProperties(const std::shared_ptr<asset::Asset>& asset,
                                               ecs::World* world,
-                                              const std::shared_ptr<asset::Font>& font)
+                                              const asset::AssetReference<asset::Font>& font)
     {
         auto editor = Application::Get()->GetEditorRuntime();
 

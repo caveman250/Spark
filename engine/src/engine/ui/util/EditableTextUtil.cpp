@@ -12,7 +12,7 @@ namespace se::ui::util
 {
 #if SPARK_EDITOR
     ecs::Id CreateEditableText(ecs::World* world,
-                               const std::shared_ptr<asset::Font>& font,
+                               const asset::AssetReference<asset::Font>& font,
                                int fontSize,
                                EditableTextComponent** text)
 
@@ -58,7 +58,7 @@ namespace se::ui::util
                                    const EditableTextComponent& text,
                                    const RectTransformComponent& rect)
     {
-        return MeasureText(rect.rect, text.font, text.fontSize, text.editText, true, text.wrap, pos);
+        return MeasureText(rect.rect, text.font.GetAsset(), text.fontSize, text.editText, true, text.wrap, pos);
     }
 
     int CalcCaretPosition(const math::Vec2& mousePos,
@@ -66,7 +66,7 @@ namespace se::ui::util
                           const RectTransformComponent& rect)
     {
         math::Vec2 localMousePos = mousePos - math::Vec2(rect.rect.topLeft);
-        return GetCharIndexForPosition(localMousePos, rect.rect, text.font, text.fontSize, text.editText, true, text.wrap, text.alignment);
+        return GetCharIndexForPosition(localMousePos, rect.rect, text.font.GetAsset(), text.fontSize, text.editText, true, text.wrap, text.alignment);
     }
 
     void BeginEditingText(ecs::System* system,

@@ -28,7 +28,7 @@ namespace se::editor::ui::properties
             textRect->anchors = { 0.f, 1.f, 0.f, 0.f };
             auto text = world->AddComponent<TextComponent>(textEntity);
             text->text = std::format("Name: {}\n", m_Value->GetName());
-            text->font = asset::AssetManager::Get()->GetAsset<asset::Font>("/engine_assets/fonts/Arial.sass");
+            text->font = "/engine_assets/fonts/Arial.sass";
             text->fontSize = 14;
             world->AddChild(m_Content, textEntity);
         }
@@ -46,7 +46,7 @@ namespace se::editor::ui::properties
             textRect->anchors = { 0.f, 1.f, 0.f, 0.f };
             auto text = world->AddComponent<TextComponent>(textEntity);
             text->text = std::format("Num Chars: {}\n", m_Value->GetNumChars());
-            text->font = asset::AssetManager::Get()->GetAsset<asset::Font>("/engine_assets/fonts/Arial.sass");
+            text->font = "/engine_assets/fonts/Arial.sass";
             text->fontSize = 14;
             world->AddChild(m_Content, textEntity);
         }
@@ -57,7 +57,7 @@ namespace se::editor::ui::properties
             textRect->anchors = { 0.f, 1.f, 0.f, 0.f };
             auto text = world->AddComponent<TextComponent>(textEntity);
             text->text = std::format("Ascent (at 32px): {}\n", m_Value->GetAscent(32));
-            text->font = asset::AssetManager::Get()->GetAsset<asset::Font>("/engine_assets/fonts/Arial.sass");
+            text->font = "/engine_assets/fonts/Arial.sass";
             text->fontSize = 14;
             world->AddChild(m_Content, textEntity);
         }
@@ -68,7 +68,7 @@ namespace se::editor::ui::properties
             textRect->anchors = { 0.f, 1.f, 0.f, 0.f };
             auto text = world->AddComponent<TextComponent>(textEntity);
             text->text = std::format("Descent (at 32px): {}\n", m_Value->GetDescent(32));
-            text->font = asset::AssetManager::Get()->GetAsset<asset::Font>("/engine_assets/fonts/Arial.sass");
+            text->font = "/engine_assets/fonts/Arial.sass";
             text->fontSize = 14;
             world->AddChild(m_Content, textEntity);
         }
@@ -79,7 +79,7 @@ namespace se::editor::ui::properties
             textRect->anchors = { 0.f, 1.f, 0.f, 0.f };
             auto text = world->AddComponent<TextComponent>(textEntity);
             text->text = std::format("Line Height (at 32px): {}\n", m_Value->GetLineHeight(32));
-            text->font = asset::AssetManager::Get()->GetAsset<asset::Font>("/engine_assets/fonts/Arial.sass");
+            text->font = "/engine_assets/fonts/Arial.sass";
             text->fontSize = 14;
             world->AddChild(m_Content, textEntity);
         }

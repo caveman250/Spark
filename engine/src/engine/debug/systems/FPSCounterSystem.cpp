@@ -21,10 +21,9 @@ namespace se::debug::systems
     void FPSCounterSystem::OnInit(const ecs::SystemUpdateData&)
     {
         auto world = Application::Get()->GetWorld();
-        auto assetManager = asset::AssetManager::Get();
         ecs::Id fpsCounterEntity = world->CreateEntity("FPS Counter");
         auto text = world->AddComponent<ui::components::TextComponent>(fpsCounterEntity);
-        text->font = assetManager->GetAsset<asset::Font>("/engine_assets/fonts/Arial.sass");
+        text->font = "/engine_assets/fonts/Arial.sass";
         text->fontSize = 24;
         text->alignment = ui::text::Alignment::Right;
         auto rect = world->AddComponent<ui::components::RectTransformComponent>(fpsCounterEntity);

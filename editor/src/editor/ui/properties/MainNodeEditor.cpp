@@ -28,7 +28,7 @@ namespace se::editor::ui::properties
         textRect->anchors = { 0.f, 1.f, 0.f, 0.f };
         auto text = world->AddComponent<TextComponent>(textEntity);
         text->text = std::format("Num child nodes: {}", m_Value->m_Children.size());
-        text->font = asset::AssetManager::Get()->GetAsset<asset::Font>("/engine_assets/fonts/Arial.sass");
+        text->font = "/engine_assets/fonts/Arial.sass";
         text->fontSize = 14;
         world->AddChild(m_Content, textEntity);
     }

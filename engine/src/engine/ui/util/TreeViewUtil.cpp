@@ -37,7 +37,6 @@ namespace se::ui::util
         const ecs::Id& scene)
     {
         auto world = Application::Get()->GetWorld();
-        auto assetManager = asset::AssetManager::Get();
 
         treeViewRect->needsLayout = true;
 
@@ -58,7 +57,7 @@ namespace se::ui::util
 
         auto textEntity = world->CreateEntity(scene, "Text");
         *outText = world->AddComponent<TextComponent>(textEntity);
-        (*outText)->font = assetManager->GetAsset<asset::Font>("/engine_assets/fonts/Arial.sass");
+        (*outText)->font = "/engine_assets/fonts/Arial.sass";
         (*outText)->fontSize = 14;
         auto textRect = world->AddComponent<RectTransformComponent>(textEntity);
         textRect->anchors = { .left = 0.f, .right = 1.f, .top = 0.f, .bottom = 1.f };

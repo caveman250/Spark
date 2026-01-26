@@ -34,7 +34,7 @@ namespace se::ui::util
 
         collapsedText = world->CreateEntity(params.scene, "Label");
         auto text = world->AddComponent<TextComponent>(collapsedText);
-        text->font = asset::AssetManager::Get()->GetAsset<asset::Font>("/engine_assets/fonts/Arial.sass");
+        text->font = "/engine_assets/fonts/Arial.sass";
         text->fontSize = params.fontSize;
         text->text = params.options[params.selectedIndex];
         auto labelRect = world->AddComponent<RectTransformComponent>(collapsedText);
@@ -114,7 +114,7 @@ namespace se::ui::util
 
             auto textEntity = world->CreateEntity(params.scene, "Label");
             auto text = world->AddComponent<TextComponent>(textEntity);
-            text->font = asset::AssetManager::Get()->GetAsset<asset::Font>("/engine_assets/fonts/Arial.sass");
+            text->font = "/engine_assets/fonts/Arial.sass";
             text->fontSize = params.fontSize;
             text->text = option;
             world->AddComponent<RectTransformComponent>(textEntity);

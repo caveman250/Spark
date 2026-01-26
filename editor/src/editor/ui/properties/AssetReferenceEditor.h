@@ -122,7 +122,7 @@ namespace se::editor::ui::properties
         m_Label = world->CreateEntity(editor->GetEditorScene(), "Title");
         world->AddComponent<WidgetComponent>(m_Label);
         auto text = world->AddComponent<TextComponent>(m_Label);
-        text->font = asset::AssetManager::Get()->GetAsset<asset::Font>("/engine_assets/fonts/Arial.sass");
+        text->font = "/engine_assets/fonts/Arial.sass";
         text->fontSize = 14;
         if (m_Value->IsSet())
         {

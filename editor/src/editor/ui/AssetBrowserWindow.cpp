@@ -151,8 +151,6 @@ namespace se::editor::ui
         m_ActiveFolder = activeFolder;
 
         auto world = Application::Get()->GetWorld();
-        auto assetManager = asset::AssetManager::Get();
-        auto arial = assetManager->GetAsset<asset::Font>("/engine_assets/fonts/Arial.sass");
 
         for (const auto &child: world->GetChildren(m_GridBoxEntity))
         {
@@ -166,14 +164,14 @@ namespace se::editor::ui
         m_PathBarItems.clear();
 
         auto& vfs = io::VFS::Get();
-        vfs.ForEachFile(m_ActiveFolder, false, [this, world, &arial](const io::VFSFile& file)
+        vfs.ForEachFile(m_ActiveFolder, false, [this, world](const io::VFSFile& file)
         {
             if (file.extension == "json")
             {
                 return;
             }
 
-            auto fileEntity = CreateFileItem(world, file, arial);
+            auto fileEntity = CreateFileItem(world, file, "/engine_assets/fonts/Arial.sass");
             if (fileEntity != ecs::s_InvalidEntity)
             {
                 world->AddChild(m_GridBoxEntity, fileEntity);
@@ -183,10 +181,10 @@ namespace se::editor::ui
         auto gridBox = world->GetComponent<se::ui::components::RectTransformComponent>(m_GridBoxEntity);
         gridBox->needsLayout = true;
 
-        CreatePathBar(arial);
+        CreatePathBar("/engine_assets/fonts/Arial.sass");
     }
 
-    void AssetBrowserWindow::CreatePathBar(const std::shared_ptr<asset::Font>& font)
+    void AssetBrowserWindow::CreatePathBar(const asset::AssetReference<asset::Font>& font)
     {
         auto app = Application::Get();
         auto world = app->GetWorld();
@@ -231,7 +229,7 @@ namespace se::editor::ui
     void AssetBrowserWindow::CreatePathItem(ecs::World* world,
                         const std::string& name,
                         const std::string& path,
-                        const std::shared_ptr<asset::Font>& font)
+                        const asset::AssetReference<asset::Font>& font)
     {
         auto app = Application::Get();
         auto editor = app->GetEditorRuntime();
@@ -264,7 +262,7 @@ namespace se::editor::ui
 
     ecs::Id AssetBrowserWindow::CreateFileItem(ecs::World* world,
                                                const io::VFSFile& file,
-                                               const std::shared_ptr<asset::Font>& font)
+                                               const asset::AssetReference<asset::Font>& font)
     {
         auto app = Application::Get();
         auto editor = app->GetEditorRuntime();

@@ -42,7 +42,6 @@ namespace se::editor::ui::properties
         auto world = app->GetWorld();
         auto editor = app->GetEditorRuntime();
 
-        auto ariel = asset::AssetManager::Get()->GetAsset<asset::Font>("/engine_assets/fonts/Arial.sass");
         m_Name = name;
 
         ecs::Id titleContainer = { };
@@ -77,7 +76,7 @@ namespace se::editor::ui::properties
         {
             auto titleEntity = world->CreateEntity(editor->GetEditorScene(), std::format("Property Title ({})", name));
             auto titleText = world->AddComponent<TextComponent>(titleEntity);
-            titleText->font = ariel;
+            titleText->font = "/engine_assets/fonts/Arial.sass";
             titleText->fontSize = titleFontSize;
             titleText->text = m_Name;
             titleText->wrap = se::ui::text::WrapMode::Char;

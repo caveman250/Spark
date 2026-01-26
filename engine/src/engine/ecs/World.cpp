@@ -1032,6 +1032,41 @@ namespace se::ecs
         return ret;
     }
 
+#if SPARK_EDITOR
+    void World::SetUIVisibility(bool visible)
+    {
+        SPARK_ASSERT(!m_Running);
+
+        auto editor = Application::Get()->GetEditorRuntime();
+
+        std::vector dec = {
+            ComponentUsage(components::RootComponent::GetComponentId(), ComponentMutability::Immutable),
+            ComponentUsage(ui::components::WidgetComponent::GetComponentId(), ComponentMutability::Mutable)
+        };
+        Each(dec,
+            {},
+            {},
+            [this, visible, editor](const SystemUpdateData& updateData)
+            {
+                const auto& entities = updateData.GetEntities();
+                auto* widgets = updateData.GetComponentArray<ui::components::WidgetComponent>();
+
+                for (size_t i = 0; i < entities.size(); ++i)
+                {
+                    const auto& entity = entities[i];
+                    if (*entity.scene != editor->GetEditorScene() &&
+                        *entity.scene != m_DefaultScene)
+                    {
+                        auto& widget = widgets[i];
+                        widget.dirty = true;
+                        widget.parentVisibility = visible ? ui::Visibility::Visible : ui::Visibility::Collapsed;
+                        widget.parentUpdateEnabled = visible;
+                    }
+                }
+            }, UpdateMode::MultiThreaded, false);
+    }
+#endif
+
     void World::AddChild(const Id& entity, const Id& childEntity)
     {
         if (!HasComponent<components::ParentComponent>(entity))

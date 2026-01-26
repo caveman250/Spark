@@ -31,7 +31,7 @@ namespace se::editor::ui::properties
             m_Value->indices.size(),
             m_Value->uvs.size(),
             m_Value->normals.size());
-        text->font = asset::AssetManager::Get()->GetAsset<asset::Font>("/engine_assets/fonts/Arial.sass");
+        text->font = "/engine_assets/fonts/Arial.sass";
         text->fontSize = 14;
         world->AddChild(m_Content, textEntity);
     }

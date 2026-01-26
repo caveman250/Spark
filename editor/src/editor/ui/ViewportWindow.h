@@ -18,8 +18,8 @@ namespace se::editor::ui
         void DestroyUI() override;
 
         const se::ui::Rect& GetViewportScreenspaceRect() const { return m_ViewportRect; }
-
         const ecs::Id& GetWindow() const { return m_Window; }
+
 
     private:
         void UpdatePlayButtonTexture() const;
@@ -27,10 +27,12 @@ namespace se::editor::ui
 
         bool m_Valid = false;
         bool m_ShouldToggleGameMode = false;
+        bool m_UIVisible = true;
         ecs::Id m_Window = {};
         ecs::Id m_Viewport = {};
         ecs::Id m_PlayButton = {};
         ecs::Id m_PauseButton = {};
+        ecs::Id m_UIVisibleCheckBox = {};
         se::ui::Rect m_ViewportRect = {};
         std::function<void(int, int)> m_OnViewportSizeChanged = nullptr;
     };

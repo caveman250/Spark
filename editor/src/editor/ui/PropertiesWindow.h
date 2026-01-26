@@ -4,6 +4,8 @@
 
 namespace se::asset
 {
+    template <typename T>
+    class AssetReference;
     class Asset;
     class Font;
 }
@@ -34,11 +36,11 @@ namespace se::editor::ui
     private:
         void AddEntityProperties(const ecs::Id& entity,
                                  ecs::World* world,
-                                 const std::shared_ptr<asset::Font>& font);
+                                 const asset::AssetReference<asset::Font>& font);
         void AddSingletonComponentProperties(reflect::ObjectBase* selectedSingletonComp);
         void AddAssetProperties(const std::shared_ptr<asset::Asset>& asset,
                                 ecs::World* world,
-                                const std::shared_ptr<asset::Font>& font);
+                                const asset::AssetReference<asset::Font>& font);
 
         ecs::Id m_Window;
         ecs::Id m_ScrollBoxContent;

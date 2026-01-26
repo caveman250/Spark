@@ -21,7 +21,7 @@ namespace se::ui::components
         SPARK_WIDGET_COMPONENT()
 
         // text
-        std::shared_ptr<asset::Font> font = { };
+        asset::AssetReference<asset::Font> font = { };
         int fontSize = 0;
         std::string text = { };
         text::Alignment alignment = text::Alignment::Left;
@@ -55,7 +55,7 @@ namespace se::ui
     {
         auto window = Application::Get()->GetWindow();
         auto ret = util::MeasureText(thisRect.rect,
-                                         text->font,
+                                         text->font.GetAsset(),
                                          static_cast<int>(text->fontSize * window->GetContentScale()),
                                          text->inEditMode ? text->editText : text->text,
                                          true,

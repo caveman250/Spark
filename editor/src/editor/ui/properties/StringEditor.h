@@ -74,7 +74,7 @@ namespace se::editor::ui::properties
         world->AddChild(bg, innerImageEntity);
 
         EditableTextComponent* editableText = nullptr;
-        m_Label = se::ui::util::CreateEditableText(world, ariel, fontSize, &editableText);
+        m_Label = se::ui::util::CreateEditableText(world, "/engine_assets/fonts/Arial.sass", fontSize, &editableText);
         editableText->text = std::format("{}", *m_Value);
         std::function cb = [this](std::string newVal)
         {

@@ -24,7 +24,8 @@ namespace se::ui::components
     {
         SPARK_WIDGET_COMPONENT()
 
-        std::shared_ptr<asset::Font> font = {};
+        SPARK_MEMBER(Serialized)
+        asset::AssetReference<asset::Font> font = {};
 
         SPARK_MEMBER(Serialized)
         int fontSize = 0;
@@ -57,7 +58,7 @@ namespace se::ui
                                                                                        const components::TextComponent* text)
     {
         auto window = Application::Get()->GetWindow();
-        auto ret = util::MeasureText(thisRect.rect, text->font, static_cast<int>(text->fontSize * window->GetContentScale()), text->text, true, text->wrap);
+        auto ret = util::MeasureText(thisRect.rect, text->font.GetAsset(), static_cast<int>(text->fontSize * window->GetContentScale()), text->text, true, text->wrap);
         return ret;
     }
 }

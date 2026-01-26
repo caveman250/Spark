@@ -43,7 +43,6 @@ namespace se::editor
 
         void ToggleGameMode();
         bool InGameMode() const { return m_GameMode; }
-
     private:
         void CreateGizmo();
         void UpdateSelectedEntityTranslation(const math::Vec3& worldPos) const;

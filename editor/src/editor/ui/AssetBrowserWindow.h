@@ -36,14 +36,14 @@ namespace se::editor::ui
 
     private:
         void SetActiveFolder(const std::string& activeFolder);
-        void CreatePathBar(const std::shared_ptr<asset::Font>& font);
+        void CreatePathBar(const asset::AssetReference<asset::Font>& font);
         void CreatePathItem(ecs::World* world,
                             const std::string& name,
                             const std::string& path,
-                            const std::shared_ptr<asset::Font>& font);
+                            const asset::AssetReference<asset::Font>& font);
         ecs::Id CreateFileItem(ecs::World* world,
                                const io::VFSFile& name,
-                               const std::shared_ptr<asset::Font>& font);
+                               const asset::AssetReference<asset::Font>& font);
 
         ecs::Id m_Window = ecs::s_InvalidEntity;
         ecs::Id m_GridBoxEntity = ecs::s_InvalidEntity;

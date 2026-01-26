@@ -46,7 +46,7 @@ namespace se::ui::util
             }
 
             textComp.materialInstance = render::MaterialInstance::CreateMaterialInstance(textMaterial);
-            auto texture = textComp.font->GetTextureAsset();
+            auto texture = textComp.font.GetAsset()->GetTextureAsset();
             textComp.materialInstance->SetUniform("Texture", asset::shader::ast::AstType::Sampler2D, 1, &texture);
         }
 
@@ -64,7 +64,7 @@ namespace se::ui::util
         {
             auto window = Application::Get()->GetWindow();
             asset::StaticMesh mesh = util::CreateTextMesh(transform.rect,
-                                                          textComp.font,
+                                                          textComp.font.GetAsset(),
                                                           static_cast<int>(textComp.fontSize * window->GetContentScale()),
                                                           text,
                                                           true,

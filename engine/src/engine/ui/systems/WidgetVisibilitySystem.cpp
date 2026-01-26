@@ -24,6 +24,7 @@ namespace se::ui::systems
         auto* widgets = updateData.GetComponentArray<components::WidgetComponent>();
         for (size_t i = 0; i < entities.size(); ++i)
         {
+            [[maybe_unused]] const auto& entity = entities[i];
             auto& widget = widgets[i];
             if (widget.dirty)
             {
@@ -44,9 +45,13 @@ namespace se::ui::systems
             auto* childWidgets = updateData.GetComponentArray<components::WidgetComponent>();
             for (size_t i = 0; i < children.size(); ++i)
             {
+                [[maybe_unused]] const auto& child = children[i];
                 auto& childWidget = childWidgets[i];
-                childWidget.parentVisibility = std::min(widget.visibility, widget.parentVisibility);
-                childWidget.parentUpdateEnabled = widget.updateEnabled && widget.parentUpdateEnabled;
+                {
+                    childWidget.parentVisibility = std::min(widget.visibility, widget.parentVisibility);
+                    childWidget.parentUpdateEnabled = widget.updateEnabled && widget.parentUpdateEnabled;
+                }
+
                 UpdateWidgetVisibility(children[i], childWidget);
             }
 

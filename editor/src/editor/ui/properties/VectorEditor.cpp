@@ -58,7 +58,7 @@ namespace se::editor::ui::properties
             auto textEntity = world->CreateEntity(editor->GetEditorScene(), "Title");
             world->AddComponent<WidgetComponent>(textEntity);
             auto text = world->AddComponent<TextComponent>(textEntity);
-            text->font = asset::AssetManager::Get()->GetAsset<asset::Font>("/engine_assets/fonts/Arial.sass");
+            text->font = "/engine_assets/fonts/Arial.sass";
             text->fontSize = 16;
             text->text = "empty.";
             auto textRect = world->AddComponent<RectTransformComponent>(textEntity);

@@ -13,7 +13,7 @@ namespace se::editor::ui::properties::util
         auto world = app->GetWorld();
         auto textEntity = world->CreateEntity(editor->GetEditorScene(), "MissingPropertyEditorText");
         auto text = world->AddComponent<se::ui::components::TextComponent>(textEntity);
-        text->font = asset::AssetManager::Get()->GetAsset<asset::Font>("/engine_assets/fonts/Arial.sass");
+        text->font = "/engine_assets/fonts/Arial.sass";
         text->fontSize = 14;
         text->text = std::format("Missing Property Editor of type {}.",
                                  type->GetTypeName(nullptr));

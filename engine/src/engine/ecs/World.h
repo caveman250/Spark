@@ -85,6 +85,7 @@ namespace se::ecs
         Id LoadScene(std::string path);
         void UnloadScene(const Id& scene);
         void SaveScene(const Id& scene, const std::string& path, bool binary = false);
+        const Id& GetDefaultScene() const { return m_DefaultScene; }
 
 #if SPARK_EDITOR
         void SaveAllScenesToTemp();
@@ -97,6 +98,9 @@ namespace se::ecs
         void DestroyEntity(const Id& entity);
         std::vector<Id> GetEntities() const;
         std::vector<Id> GetRootEntities();
+#if SPARK_EDITOR
+        void SetUIVisibility(bool visible);
+#endif
 
         template<typename T>
         T* GetComponent(const Id& entity);

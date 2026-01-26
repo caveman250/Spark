@@ -22,7 +22,7 @@ namespace se::ui::components
         SPARK_MEMBER()
         bool parentUpdateEnabled = true;
 
-        SPARK_MEMBER(Serialized)
-        bool dirty = false;
+        SPARK_MEMBER()
+        bool dirty = true;
     };
 }

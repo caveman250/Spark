@@ -10,6 +10,7 @@
 #include "engine/render/MaterialInstance.h"
 #include "engine/render/FrameBuffer.h"
 #include "engine/render/render_fwd.h"
+#include "engine/ui/util/ComboBoxUtil.h"
 
 namespace se::editor::ui
 {
@@ -157,6 +158,44 @@ namespace se::editor::ui
             UpdatePauseButtonTexture();
         });
         world->AddChild(playPauseBg, m_PauseButton);
+
+        ecs::Id titleBarTextEntity = world->CreateEntity(editor->GetEditorScene(), "TitleBarText");
+        auto titleBarText = world->AddComponent<se::ui::components::TextComponent>(titleBarTextEntity);
+        titleBarText->font = "/engine_assets/fonts/Arial.sass";
+        titleBarText->fontSize = 14;
+        titleBarText->text = "Show UI";
+        auto titleBarTextTransform = world->AddComponent<se::ui::components::RectTransformComponent>(titleBarTextEntity);
+        titleBarTextTransform->minX = 82;
+        titleBarTextTransform->minY = 8;
+        titleBarTextTransform->maxY = 26;
+        titleBarTextTransform->anchors = { 1.f, 1.f, 0.f, 0.f };
+        world->AddComponent<se::ui::components::WidgetComponent>(titleBarTextEntity);
+        world->AddChild(titleArea, titleBarTextEntity);
+
+        m_UIVisibleCheckBox = world->CreateEntity(editor->GetEditorScene(), "Border");
+        auto button = world->AddComponent<se::ui::components::ButtonComponent>(m_UIVisibleCheckBox);
+        static asset::AssetReference<asset::Texture> checkedTexture = "/engine_assets/textures/checkbox_checked.sass";
+        static asset::AssetReference<asset::Texture> unCheckedTexture = "/engine_assets/textures/checkbox_unchecked.sass";
+        button->image = m_UIVisible ? checkedTexture : unCheckedTexture;
+        button->pressedImage = m_UIVisible ? checkedTexture : unCheckedTexture;
+        button->hoveredImage = m_UIVisible ? checkedTexture : unCheckedTexture;
+        button->onReleased.Subscribe([this, world]()
+        {
+            m_UIVisible = !m_UIVisible;
+            world->SetUIVisibility(m_UIVisible);
+
+            auto button = world->GetComponent<se::ui::components::ButtonComponent>(m_UIVisibleCheckBox);
+            button->image = m_UIVisible ? checkedTexture : unCheckedTexture;
+            button->pressedImage = m_UIVisible ? checkedTexture : unCheckedTexture;
+            button->hoveredImage = m_UIVisible ? checkedTexture : unCheckedTexture;
+        });
+        auto innerTransform = world->AddComponent<se::ui::components::RectTransformComponent>(m_UIVisibleCheckBox);
+        innerTransform->anchors = { .left = 1.f, .right = 1.f, .top = 0.f, .bottom = 0.f };
+        innerTransform->minY = 6;
+        innerTransform->minX = 24;
+        innerTransform->maxY = 24;
+        innerTransform->maxX = 6;
+        world->AddChild(titleArea, m_UIVisibleCheckBox);
     }
 
     void ViewportWindow::DestroyUI()

@@ -86,7 +86,8 @@ namespace se::editor::ui
 
         for (const auto& entity : world->GetRootEntities())
         {
-            if (*entity.scene == editor->GetEditorScene())
+            if (*entity.scene == editor->GetEditorScene() ||
+                *entity.scene == world->GetDefaultScene())
             {
                 continue;
             }
