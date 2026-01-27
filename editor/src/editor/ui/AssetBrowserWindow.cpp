@@ -19,6 +19,7 @@
 #include "engine/ui/components/WidgetComponent.h"
 #include "engine/ui/components/WindowComponent.h"
 #include "../singleton_components/DragDropStateComponent.h"
+#include "engine/ecs/SceneSaveData.h"
 #include "engine/ui/util/ScrollBoxUtil.h"
 #include "engine/ui/util/TreeViewUtil.h"
 #include "engine/ui/util/WindowUtil.h"
@@ -319,7 +320,15 @@ namespace se::editor::ui
 
                 std::shared_ptr<asset::Asset> asset = asset::AssetManager::Get()->GetAsset(file.fullPath.data(),
                                                                                            reflect::TypeFromString(db->GetRoot().GetStruct().GetName()));
-                runtime->SelectAsset(asset);
+
+                if (asset->GetReflectType() == ecs::SceneSaveData::GetReflection())
+                {
+                    runtime->LoadScene(asset->m_Path);
+                }
+                else
+                {
+                    runtime->SelectAsset(asset);
+                }
             }
         });
         world->AddChild(fileEntity, buttonEntity);

@@ -28,6 +28,7 @@ namespace se::editor
         void Shutdown();
 
         const ecs::Id& GetEditorScene() const;
+        void LoadScene(const std::string& path);
         const ecs::Id& GetSelectedEntity() const;
         void SelectEntity(const ecs::Id& id);
         reflect::ObjectBase* GetSelectedSingletonComponent() const;
@@ -44,6 +45,10 @@ namespace se::editor
         void ToggleGameMode();
         bool InGameMode() const { return m_GameMode; }
     private:
+        void SaveAsset(const std::shared_ptr<asset::Asset>& asset) const;
+        std::string GetAssetSourcePath(const std::string& assetPath) const;
+
+        void SaveScene();
         void CreateGizmo();
         void UpdateSelectedEntityTranslation(const math::Vec3& worldPos) const;
         void SnapGizmoToSelectedEntity() const;
@@ -57,6 +62,8 @@ namespace se::editor
         ui::ViewportWindow* m_ViewportWindow = nullptr;
         ui::AssetBrowserWindow* m_AssetBrowserWindow = nullptr;
 
+        ecs::Id m_LoadedScene = ecs::s_InvalidEntity;
+        std::string m_ScenePath = {};
         ecs::Id m_EditorScene = ecs::s_InvalidEntity;
         ecs::Id m_Gizmo = ecs::s_InvalidEntity;
         ecs::Id m_Plane = ecs::s_InvalidEntity;

@@ -88,8 +88,8 @@ namespace se::ecs
         const Id& GetDefaultScene() const { return m_DefaultScene; }
 
 #if SPARK_EDITOR
-        void SaveAllScenesToTemp();
-        void ReloadAllScenesFromTemp();
+        void SaveSceneToTemp(const Id& id);
+        Id ReloadSceneFromTemp(const Id& id);
 #endif
 
         Id CreateEntity(const std::string& name);

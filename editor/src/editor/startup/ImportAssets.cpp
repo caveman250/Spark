@@ -7,14 +7,8 @@ namespace se::editor::startup
 {
     void ImportAssets::Run()
     {
-        io::VFS::Get().Mount(std::format("{}/{}", APP_DIR, "assets"), "/source_assets");
-        io::VFS::Get().Mount(std::format("{}/{}", ENGINE_DIR, "engine_assets"), "/engine_source_assets");
-
         ProcessDir("/source_assets", "/assets");
         ProcessDir("/engine_source_assets", "/engine_assets");
-
-        io::VFS::Get().Unmount("/source_assets");
-        io::VFS::Get().Unmount("/engine_source_assets");
     }
 
     void ImportAssets::ProcessDir(const std::string& dir, const std::string& outputDir) const

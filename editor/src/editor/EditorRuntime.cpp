@@ -127,6 +127,8 @@ namespace se::editor
         transform->rot = { -0.27f, 3.64f, 0.f };
 
         CreateEditorPlane();
+
+        m_LoadedScene = world->CreateScene("New Scene");
     }
 
     void EditorRuntime::Update()
@@ -176,6 +178,24 @@ namespace se::editor
             {
                 planeModel->materialInstance->SetUniform("cameraPos", asset::shader::ast::AstType::Vec3, 1, &activeCamera->pos);
             }
+
+            if (m_LoadedScene != ecs::s_InvalidEntity)
+            {
+                auto inputComp = world->GetSingletonComponent<input::InputComponent>();
+                input::InputUtil::ProcessKeyEvents(ecs::s_InvalidEntity, inputComp, [this, inputComp](const input::KeyEvent& ev)
+                {
+                    if (ev.state == input::KeyState::Down &&
+                        ev.key == input::Key::S)
+                    {
+                        if (inputComp->keyStates[static_cast<int>(input::Key::LeftControl)] == input::KeyState::Down)
+                        {
+                            SaveScene();
+                            return true;
+                        }
+                    }
+                    return false;
+                });
+            }
         }
     }
 
@@ -195,6 +215,17 @@ namespace se::editor
     const ecs::Id& EditorRuntime::GetEditorScene() const
     {
         return m_EditorScene;
+    }
+
+    void EditorRuntime::LoadScene(const std::string& path)
+    {
+        auto world = Application::Get()->GetWorld();
+        if (m_LoadedScene)
+        {
+            world->UnloadScene(m_LoadedScene);
+        }
+        m_LoadedScene = world->LoadScene(path);
+        m_ScenePath = path;
     }
 
     const ecs::Id& EditorRuntime::GetSelectedEntity() const
@@ -242,7 +273,7 @@ namespace se::editor
 
         if (!m_GameMode)
         {
-            world->ReloadAllScenesFromTemp();
+            m_LoadedScene = world->ReloadSceneFromTemp(m_LoadedScene);
             CreateGizmo();
             CreateEditorPlane();
         }
@@ -260,8 +291,54 @@ namespace se::editor
                 m_Plane = ecs::s_InvalidEntity;
             }
 
-            world->SaveAllScenesToTemp();
+            world->SaveSceneToTemp(m_LoadedScene);
+        }
+    }
 
+    std::string EditorRuntime::GetAssetSourcePath(const std::string& assetPath) const
+    {
+        std::string ret = assetPath;
+        constexpr std::string engineAssets = "/engine_assets";
+        constexpr std::string engineSourceAssets = "/source_engine_assets";
+        constexpr std::string appAssets = "/assets";
+        constexpr std::string appSourceAssets = "/source_assets";
+        if (ret.starts_with(engineAssets))
+        {
+            ret.replace(0, engineAssets.size(), engineSourceAssets);
+        }
+        else if (ret.starts_with(appAssets))
+        {
+            ret.replace(0, appAssets.size(), appSourceAssets);
+        }
+
+        if (ret.ends_with(".sass"))
+        {
+            ret.replace(ret.size() - 5,  5, ".json");
+        }
+
+        return ret;
+    }
+
+    void EditorRuntime::SaveAsset(const std::shared_ptr<asset::Asset>& asset) const
+    {
+        std::string sourcePath = GetAssetSourcePath(asset->m_Path);
+        auto type = asset->GetReflectType();
+        auto db = asset::binary::Database::Create(false);
+        db->SetRootStruct(db->GetOrCreateStruct(type->GetTypeName(nullptr), type->GetStructLayout(nullptr)));
+        auto root = db->GetRoot();
+        type->Serialize(asset.get(), root, {});
+
+        db->Save(asset->m_Path);
+        io::VFS::Get().WriteText(GetAssetSourcePath(asset->m_Path), db->ToJson().dump(4));
+    }
+
+    void EditorRuntime::SaveScene()
+    {
+        if (SPARK_VERIFY(m_LoadedScene))
+        {
+            auto world = Application::Get()->GetWorld();
+            world->SaveScene(m_LoadedScene, m_ScenePath, true);
+            world->SaveScene(m_LoadedScene, GetAssetSourcePath(m_ScenePath), false);
         }
     }
 

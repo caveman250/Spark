@@ -59,7 +59,7 @@ namespace se::ui::systems
             const auto& transform = transformComps[i];
             auto& image = imageComps[i];
 
-            if (SPARK_VERIFY(image.materialInstance))
+            if (image.materialInstance)
             {
                 if (transform.rect.topLeft != image.lastRect.topLeft)
                 {

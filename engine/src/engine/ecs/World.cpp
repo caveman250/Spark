@@ -479,6 +479,7 @@ namespace se::ecs
             signal->Execute();
         }
         m_PendingSignals.clear();
+        ProcessAllPending();
 
 #if SPARK_EDITOR
         if (m_EntitiesChangedThisFrame)
@@ -618,6 +619,8 @@ namespace se::ecs
         }
         m_SceneRecords[scene].path = path;
 
+        m_EntitiesChangedThisFrame = true;
+
         return scene;
     }
 
@@ -639,63 +642,32 @@ namespace se::ecs
     }
 
 #if SPARK_EDITOR
-    void World::SaveAllScenesToTemp()
+    void World::SaveSceneToTemp(const Id& id)
     {
-        auto editorScene = Application::Get()->GetEditorRuntime()->GetEditorScene();
-        for (const auto& sceneRecord : m_SceneRecords)
+        auto it = m_SceneRecords.find(id);
+        if (it != m_SceneRecords.end())
         {
-            if (sceneRecord.first != m_DefaultScene)
-            {
-                if (sceneRecord.first != editorScene)
-                {
-                    auto lastSlashIndex = sceneRecord.second.path.find_last_of("/");
-                    auto fileName = sceneRecord.second.path.substr(lastSlashIndex + 1);
-                    SaveScene(sceneRecord.first, std::format("/tmp/editor_scene_{}", fileName), true);
-                }
-            }
+            const auto& record = it->second;
+            auto lastSlashIndex = record.path.find_last_of("/");
+            auto fileName = record.path.substr(lastSlashIndex + 1);
+            SaveScene(it->first, std::format("/tmp/editor_scene_{}", fileName), true);
         }
     }
 
-    void World::ReloadAllScenesFromTemp()
+    Id World::ReloadSceneFromTemp(const Id& id)
     {
-        auto editorScene = Application::Get()->GetEditorRuntime()->GetEditorScene();
-        auto safeCopy = m_SceneRecords;
-        for (const auto& sceneRecord : safeCopy)
+        std::string fileName = {};
+        auto it = m_SceneRecords.find(id);
+        if (it != m_SceneRecords.end())
         {
-            if (sceneRecord.first != m_DefaultScene)
-            {
-                if (sceneRecord.first != editorScene)
-                {
-                    UnloadScene(sceneRecord.first);
-                }
-            }
+            auto lastSlashIndex = it->second.path.find_last_of("/");
+            fileName = it->second.path.substr(lastSlashIndex + 1);
+            UnloadScene(it->first);
         }
 
         ProcessAllPending();
-
-        for (const auto& sceneRecord : safeCopy)
-        {
-            if (sceneRecord.first != m_DefaultScene)
-            {
-                if (sceneRecord.first != editorScene)
-                {
-                    m_SceneRecords.erase(sceneRecord.first);
-                }
-            }
-        }
-
-        for (const auto& sceneRecord : safeCopy)
-        {
-            if (sceneRecord.first != m_DefaultScene)
-            {
-                if (sceneRecord.first != editorScene)
-                {
-                    auto lastSlashIndex = sceneRecord.second.path.find_last_of("/");
-                    auto fileName = sceneRecord.second.path.substr(lastSlashIndex + 1);
-                    LoadScene(std::format("/tmp/editor_scene_{}", fileName));
-                }
-            }
-        }
+        m_SceneRecords.erase(it->first);
+        return LoadScene(std::format("/tmp/editor_scene_{}", fileName));
     }
 #endif
 
