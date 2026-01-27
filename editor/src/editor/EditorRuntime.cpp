@@ -135,13 +135,14 @@ namespace se::editor
             m_SelectedAsset != m_LastSelectedAsset ||
             m_SelectedSingletonComp != m_LastSelectedSingletonComp)
         {
+            auto world = Application::Get()->GetWorld();
             m_LastSelectedEntity = m_SelectedEntity;
             m_LastSelectedAsset = m_SelectedAsset;
             m_LastSelectedSingletonComp = m_SelectedSingletonComp;
 
             if (!m_GameMode)
             {
-                auto world = Application::Get()->GetWorld();
+
                 if (m_SelectedEntity != se::ecs::s_InvalidEntity && world->HasComponent<ecs::components::TransformComponent>(m_SelectedEntity))
                 {
                     if (m_Gizmo == ecs::s_InvalidEntity )
@@ -371,12 +372,20 @@ namespace se::editor
             HideGizmo();
             return;
         }
-
         const auto world = Application::Get()->GetWorld();
 
         const auto selectedEntityTransform = world->GetComponent<ecs::components::TransformComponent>(m_SelectedEntity);
         const auto gizmoTransform = world->GetComponent<ecs::components::TransformComponent>(m_Gizmo);
-        gizmoTransform->pos = selectedEntityTransform->worldTransform[3];
+        if (const ecs::Id& parent = world->GetParent(m_SelectedEntity); parent != ecs::s_InvalidEntity)
+        {
+            auto selectedEntityParentTransform = world->GetComponent<ecs::components::TransformComponent>(parent);
+            auto localPos = selectedEntityParentTransform->worldTransform * math::Vec4(selectedEntityTransform->pos, 1);
+            gizmoTransform->pos = localPos;
+        }
+        else
+        {
+            gizmoTransform->pos = selectedEntityTransform->pos;
+        }
     }
 
     void EditorRuntime::HideGizmo() const

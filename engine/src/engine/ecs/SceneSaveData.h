@@ -5,6 +5,8 @@
 
 namespace se::ecs 
 {
+    struct Component;
+
     struct SceneEntityData : reflect::ObjectBase
     {
         SPARK_CLASS()

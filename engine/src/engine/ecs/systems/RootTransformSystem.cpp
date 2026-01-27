@@ -26,12 +26,24 @@ namespace se::ecs::systems
     {
         EASY_BLOCK("RootTransformSystem::OnUpdate");
 
+        const auto entities = updateData.GetEntities();
         auto* transform = updateData.GetComponentArray<TransformComponent>();
 
-        for (size_t i = 0; i < updateData.GetEntities().size(); ++i)
+        util::ParallelForEachEntity(updateData, [this, &entities, &transform](size_t i)
         {
+            const auto& entity = entities[i];
             auto& trans = transform[i];
             trans.worldTransform = trans.transform;
-        }
+
+            HeirachyQueryDeclaration dec = HeirachyQueryDeclaration()
+                .WithComponent<TransformComponent>();
+
+            RunRecursiveChildQuery(entity, dec, [trans](const SystemUpdateData& updateData)
+            {
+                auto* childTransform = updateData.GetComponentArray<TransformComponent>();
+                childTransform->worldTransform = trans.worldTransform * childTransform->transform;
+                return false;
+            });
+        });
     }
 }

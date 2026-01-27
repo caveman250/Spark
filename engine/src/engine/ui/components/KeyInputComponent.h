@@ -1,5 +1,6 @@
 #pragma once
 #include "engine/input/KeyEvent.h"
+#include "engine/ecs/Component.h"
 
 namespace se::ui::components
 {

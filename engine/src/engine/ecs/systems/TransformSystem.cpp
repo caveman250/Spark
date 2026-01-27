@@ -4,11 +4,11 @@
 #include "engine/ecs/components/MeshComponent.h"
 #include "TransformSystem.h"
 
-#include "WorldTransformSystem.h"
 #include "engine/Application.h"
 #include "engine/ecs/components/TransformComponent.h"
 #include <easy/profiler.h>
 
+#include "RootTransformSystem.h"
 #include "engine/ecs/util/SystemUtil.h"
 
 using namespace se;
@@ -20,7 +20,7 @@ namespace se::ecs::systems
     {
         return SystemDeclaration("TransformSystem")
                 .WithComponent<TransformComponent>()
-                .WithDependency<WorldTransformSystem>();
+                .WithDependency<RootTransformSystem>();
     }
 
     void TransformSystem::OnUpdate(const SystemUpdateData& updateData)
