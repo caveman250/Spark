@@ -98,25 +98,28 @@ namespace se::editor::systems
 
             math::Vec3 up = math::Cross(right, forward);
 
-            // Movement
-            if (input->keyStates.at(static_cast<int>(input::Key::W)) == input::KeyState::Down)
+            if (!input::InputUtil::IsAnyModifierKeyDown(input))
             {
-                transform.pos += forward * 5.f * Application::Get()->GetDeltaTime();
-            }
+                // Movement
+                if (input->keyStates.at(static_cast<int>(input::Key::W)) == input::KeyState::Down)
+                {
+                    transform.pos += forward * 5.f * Application::Get()->GetDeltaTime();
+                }
 
-            if (input->keyStates.at(static_cast<int>(input::Key::S)) == input::KeyState::Down)
-            {
-                transform.pos -= forward * 5.f * Application::Get()->GetDeltaTime();
-            }
+                if (input->keyStates.at(static_cast<int>(input::Key::S)) == input::KeyState::Down)
+                {
+                    transform.pos -= forward * 5.f * Application::Get()->GetDeltaTime();
+                }
 
-            if (input->keyStates.at(static_cast<int>(input::Key::A)) == input::KeyState::Down)
-            {
-                transform.pos -= right * 5.f * Application::Get()->GetDeltaTime();
-            }
+                if (input->keyStates.at(static_cast<int>(input::Key::A)) == input::KeyState::Down)
+                {
+                    transform.pos -= right * 5.f * Application::Get()->GetDeltaTime();
+                }
 
-            if (input->keyStates.at(static_cast<int>(input::Key::D)) == input::KeyState::Down)
-            {
-                transform.pos += right * 5.f * Application::Get()->GetDeltaTime();
+                if (input->keyStates.at(static_cast<int>(input::Key::D)) == input::KeyState::Down)
+                {
+                    transform.pos += right * 5.f * Application::Get()->GetDeltaTime();
+                }
             }
 
             activeCamera->pos = transform.pos;

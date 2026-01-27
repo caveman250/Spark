@@ -16,6 +16,8 @@ namespace se::input
         static void ProcessMouseEvents(const ecs::Id& entity, InputComponent* input, const std::function<bool(const MouseEvent&)>& func);
         static void ProcessKeyEvents(const ecs::Id& entity, InputComponent* input, const std::function<bool(const KeyEvent&)>& func);
 
+        static bool IsAnyModifierKeyDown(const InputComponent* input);
+
     private:
         static void ConsumeKeyEvent(InputComponent* input, int index);
         static void ConsumeMouseEvent(InputComponent* input, int index);

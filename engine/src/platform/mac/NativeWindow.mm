@@ -9,19 +9,21 @@ static std::map<uint32_t, bool> s_ModifierKeyStates = {}; // TODO
 
 -(void)initKeyReceiver
 {
-    [NSEvent addLocalMonitorForEventsMatchingMask:NSEventMaskFlagsChanged|NSEventMaskKeyDown handler:^NSEvent * (NSEvent * theEvent)
+    [NSEvent addLocalMonitorForEventsMatchingMask:NSEventMaskFlagsChanged|NSEventMaskKeyDown|NSEventMaskKeyUp handler:^NSEvent * (NSEvent * theEvent)
     {
         auto app = se::Application::Get();
         auto inputComp = app->GetWorld()->GetSingletonComponent<se::input::InputComponent>();
 
+        auto type = [theEvent type];
+        bool modifierFlagsChanged = (NSEventMaskFromType(type) & NSEventMaskFlagsChanged) != 0;
+        bool keyDown = (NSEventMaskFromType(type) & NSEventMaskKeyDown) != 0;
+        bool keyUp = (NSEventMaskFromType(type) & NSEventMaskKeyUp) != 0;
+
         auto keyCode = [theEvent keyCode];
-        if (keyCode == 0x38 || keyCode == 0x3C ||
-            keyCode == 0x3B || keyCode == 0x3E ||
-            keyCode == 0x3A || keyCode == 0x3D)
+        se::input::Key key = se::mac::KeyMap::MacKeyToSparkKey(keyCode);
+        if (modifierFlagsChanged)
         {
             s_ModifierKeyStates[keyCode] = !s_ModifierKeyStates[keyCode];
-
-            se::input::Key key = se::mac::KeyMap::MacKeyToSparkKey(keyCode);
 
             se::input::KeyEvent keyEvent;
             keyEvent.key = key;
@@ -30,37 +32,24 @@ static std::map<uint32_t, bool> s_ModifierKeyStates = {}; // TODO
             inputComp->keyEvents.push_back(keyEvent);
             inputComp->keyStates[static_cast<int>(key)] = keyEvent.state;
         }
+        else
+        {
+           inputComp->keyStates[static_cast<int>(key)] = keyDown ?
+                    se::input::KeyState::Down :
+                    se::input::KeyState::Up;
+        }
+
+//        auto keyStateType = se::reflect::EnumResolver<se::input::KeyState>::get();
+//        auto keyType = se::reflect::EnumResolver<se::input::Key>::get();
+//        if (keyDown)
+//            se::debug::Log::Error("addLocalMonitorForEventsMatchingMask - inputEvent {} - Down", keyType->ToString(static_cast<int>(key)));
+//        if (keyUp)
+//            se::debug::Log::Error("addLocalMonitorForEventsMatchingMask - inputEvent {} - Up", keyType->ToString(static_cast<int>(key)));
+//        if (modifierFlagsChanged)
+//            se::debug::Log::Error("addLocalMonitorForEventsMatchingMask - inputEvent {} - Modifier Flags Changed", keyType->ToString(static_cast<int>(key)));
 
         return theEvent;
     }];
-}
-
-- (void)keyDown:(NSEvent*) event
-{
-    uint32_t scanCode = [event keyCode];
-    se::input::Key key = se::mac::KeyMap::MacKeyToSparkKey(scanCode);
-    auto inputComp = se::Application::Get()->GetWorld()->GetSingletonComponent<se::input::InputComponent>();
-
-    se::input::KeyEvent keyEvent;
-    keyEvent.key = key;
-    keyEvent.state = se::input::KeyState::Down;
-
-    inputComp->keyEvents.push_back(keyEvent);
-    inputComp->keyStates[static_cast<int>(key)] = keyEvent.state;
-}
-
-- (void)keyUp:(NSEvent*) event
-{
-    uint32_t scanCode = [event keyCode];
-    se::input::Key key = se::mac::KeyMap::MacKeyToSparkKey(scanCode);
-    auto inputComp = se::Application::Get()->GetWorld()->GetSingletonComponent<se::input::InputComponent>();
-
-    se::input::KeyEvent keyEvent;
-    keyEvent.key = key;
-    keyEvent.state = se::input::KeyState::Up;
-
-    inputComp->keyEvents.push_back(keyEvent);
-    inputComp->keyStates[static_cast<int>(key)] = keyEvent.state;
 }
 
 - (void)mouseDown:(NSEvent*) event

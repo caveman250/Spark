@@ -187,7 +187,11 @@ namespace se::editor
                     if (ev.state == input::KeyState::Down &&
                         ev.key == input::Key::S)
                     {
+#if SPARK_PLATFORM_MAC
+                        if (inputComp->keyStates[static_cast<int>(input::Key::LeftSuper)] == input::KeyState::Down)
+#else
                         if (inputComp->keyStates[static_cast<int>(input::Key::LeftControl)] == input::KeyState::Down)
+#endif
                         {
                             SaveScene();
                             return true;

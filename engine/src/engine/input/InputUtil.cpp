@@ -9,7 +9,9 @@
 
 namespace se::input
 {
-    void InputUtil::ProcessMouseEvents([[maybe_unused]] const ecs::Id& entity, InputComponent *input, const std::function<bool(const MouseEvent &)> &func)
+    void InputUtil::ProcessMouseEvents([[maybe_unused]] const ecs::Id& entity,
+                                       InputComponent* input,
+                                       const std::function<bool(const MouseEvent&)>& func)
     {
 #if SPARK_EDITOR
         auto editor = Application::Get()->GetEditorRuntime();
@@ -33,7 +35,9 @@ namespace se::input
         }
     }
 
-    void InputUtil::ProcessKeyEvents([[maybe_unused]] const ecs::Id& entity, InputComponent *input, const std::function<bool(const KeyEvent &)> &func)
+    void InputUtil::ProcessKeyEvents([[maybe_unused]] const ecs::Id& entity,
+                                     InputComponent* input,
+                                     const std::function<bool(const KeyEvent&)>& func)
     {
 #if SPARK_EDITOR
         auto editor = Application::Get()->GetEditorRuntime();
@@ -58,12 +62,26 @@ namespace se::input
         }
     }
 
-    void InputUtil::ConsumeKeyEvent(InputComponent* input, int index)
+    bool InputUtil::IsAnyModifierKeyDown(const InputComponent* input)
+    {
+        return input->keyStates[static_cast<int>(Key::LeftControl)] == KeyState::Down ||
+               input->keyStates[static_cast<int>(Key::RightControl)] == KeyState::Down ||
+               input->keyStates[static_cast<int>(Key::LeftAlt)] == KeyState::Down ||
+               input->keyStates[static_cast<int>(Key::RightAlt)] == KeyState::Down ||
+               input->keyStates[static_cast<int>(Key::LeftSuper)] == KeyState::Down ||
+               input->keyStates[static_cast<int>(Key::RightSuper)] == KeyState::Down ||
+               input->keyStates[static_cast<int>(Key::LeftShift)] == KeyState::Down ||
+               input->keyStates[static_cast<int>(Key::RightShift)] == KeyState::Down;
+    }
+
+    void InputUtil::ConsumeKeyEvent(InputComponent* input,
+                                    int index)
     {
         input->keyEvents.erase(std::next(input->keyEvents.begin(), index));
     }
 
-    void InputUtil::ConsumeMouseEvent(InputComponent *input, int index)
+    void InputUtil::ConsumeMouseEvent(InputComponent* input,
+                                      int index)
     {
         input->mouseEvents.erase(std::next(input->mouseEvents.begin(), index));
     }
