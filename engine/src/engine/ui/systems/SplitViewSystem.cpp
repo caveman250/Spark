@@ -28,7 +28,8 @@ namespace se::ui::systems
                 .WithComponent<components::RectTransformComponent>()
                 .WithComponent<const components::MouseInputComponent>()
                 .WithSingletonComponent<const input::InputComponent>()
-                .WithDependency<RectTransformSystem>();
+                .WithDependency<RectTransformSystem>()
+                .WithDependency<UIMouseInputSystem>();
     }
 
     constexpr int s_Padding = 3;
