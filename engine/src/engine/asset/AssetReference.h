@@ -118,4 +118,13 @@ namespace se::asset
     }
 }
 
+template <typename T>
+struct std::hash<se::asset::AssetReference<T>>
+{
+    std::size_t operator()(const se::asset::AssetReference<T>& val) const
+    {
+        return std::hash<std::string>()(val.GetAssetPath());
+    }
+};
+
 #include "se_asset_AssetReference.generated.h"

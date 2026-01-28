@@ -42,7 +42,8 @@ namespace se::render::systems
         for (size_t i = 0; i < updateData.GetEntities().size(); ++i)
         {
             auto& mesh = meshes[i];
-            if (!mesh.vertBuffer)
+            size_t modelHash = std::hash<asset::AssetReference<asset::Model>>()(mesh.model);
+            if (!mesh.vertBuffer || mesh.modelHash != modelHash)
             {
                 const auto& modelAsset = mesh.model.GetAsset();
                 auto staticMesh = modelAsset->GetMesh();
@@ -50,6 +51,7 @@ namespace se::render::systems
                 mesh.vertBuffer->CreatePlatformResource();
                 mesh.indexBuffer = IndexBuffer::CreateIndexBuffer(staticMesh);
                 mesh.indexBuffer->CreatePlatformResource();
+                mesh.modelHash = modelHash;
             }
 
             if (!mesh.materialInstance || mesh.materialInstance->GetMaterial() != mesh.material)
