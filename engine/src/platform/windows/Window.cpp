@@ -120,6 +120,7 @@ namespace se::windows
                 window->GetTempInputComponent().mouseY = GET_Y_LPARAM(lParam);
                 break;
             }
+            case WM_LBUTTONDBLCLK:
             case WM_LBUTTONDOWN:
             {
                 window->GetTempInputComponent().mouseButtonStates[static_cast<int>(input::MouseButton::Left)] = input::KeyState::Down;
@@ -140,6 +141,7 @@ namespace se::windows
                 window->GetTempInputComponent().mouseEvents.push_back(mouseEvent);
                 break;
             }
+            case WM_RBUTTONDBLCLK:
             case WM_RBUTTONDOWN:
             {
                 window->GetTempInputComponent().mouseButtonStates[static_cast<int>(input::MouseButton::Right)] = input::KeyState::Down;
