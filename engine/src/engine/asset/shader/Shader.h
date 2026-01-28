@@ -55,7 +55,13 @@ namespace se::asset
         Shader(const Shader& rhs);
         Shader& operator=(const Shader& rhs);
 
-        bool FindVariable(const std::string& name, shader::ast::AstType& type) const;
+        struct ShaderVariable
+        {
+            shader::ast::AstType type;
+            int arraySizeConstant = 0;
+            std::string arraySizeVariable = {};
+        };
+        std::optional<ShaderVariable> FindVariable(const std::string& name) const;
         const std::map<std::string, std::shared_ptr<shader::ast::InputNode>>& GetInputs() const { return m_Inputs; }
         const std::map<std::string, std::shared_ptr<shader::ast::OutputNode>>& GetOutputs() const { return m_Outputs; }
         const std::map<std::string, std::shared_ptr<shader::ast::InputPortNode>>& GetInputPorts() const { return m_InputPorts; }

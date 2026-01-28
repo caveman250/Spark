@@ -60,6 +60,12 @@ namespace se::editor::systems
             auto& gizmo = gizmos[i];
             auto& mesh = meshes[i];
 
+            // uninitialized
+            if (!mesh.materialInstance)
+            {
+                continue;
+            }
+
             gizmo.mouseDown &= inputComp->mouseButtonStates[static_cast<int>(input::MouseButton::Left)] == input::KeyState::Down;
 
             if (geo::util::RayCastAABB(ray, transform))

@@ -17,7 +17,7 @@ namespace se::asset
         AssetReference(const char* path);
         void Set(const std::string& path);
         bool IsSet() const { return !m_AssetPath.empty(); }
-        bool Loaded() const { return m_Instance.get(); }
+        bool Loaded() const { return m_Instance.get() != nullptr; }
         const std::shared_ptr<T>& GetAsset() const;
         const std::string& GetAssetPath() const;
 

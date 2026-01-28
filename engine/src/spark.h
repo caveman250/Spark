@@ -38,6 +38,8 @@
 
 #undef min
 #undef max
+#undef near
+#undef far
 #undef LoadImage
 #undef CreateWindow
 #undef DELETE

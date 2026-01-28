@@ -141,60 +141,64 @@ namespace se::asset
         return *this;
     }
 
-    bool Shader::FindVariable(const std::string &name, shader::ast::AstType &type) const
+    std::optional<Shader::ShaderVariable> Shader::FindVariable(const std::string& name) const
     {
         for (int i = static_cast<int>(m_ScopeStack.size()) - 1; i > -1; --i)
         {
-            if (m_ScopeStack[i].m_Variables.contains(name))
+            auto it = m_ScopeStack[i].m_Variables.find(name);
+            if (it != m_ScopeStack[i].m_Variables.end())
             {
-                type = m_ScopeStack[i].m_Variables.at(name).type;
-                return true;
+                const auto& var = it->second;
+                return ShaderVariable(var.type, var.arraySizeConstant, var.arraySizeVariable);
             }
         }
 
-        if (m_GlobalVariables.contains(name))
+        auto it = m_GlobalVariables.find(name);
+        if (it != m_GlobalVariables.end())
         {
-            type = m_GlobalVariables.at(name).type;
-            return true;
+            const auto& var = it->second;
+            return ShaderVariable(var.type, var.arraySizeConstant, var.arraySizeVariable);
         }
 
-        if (m_Settings.contains(name))
+        it = m_Settings.find(name);
+        if (it != m_Settings.end())
         {
-            type = m_Settings.at(name).type;
-            return true;
+            const auto& var = it->second;
+            return ShaderVariable(var.type, var.arraySizeConstant, var.arraySizeVariable);
         }
 
-        if (m_Uniforms.contains(name))
+        it = m_Uniforms.find(name);
+        if (it != m_Uniforms.end())
         {
-            type = m_Uniforms.at(name).type;
-            return true;
+            const auto& var = it->second;
+            return ShaderVariable(var.type, var.arraySizeConstant, var.arraySizeVariable);
         }
 
         if (const std::shared_ptr<shader::ast::InputPortNode>& input = FindInputPort(name))
         {
-            type = input->GetVar().type;
-            return true;
+            const auto& var = input->GetVar();
+            return ShaderVariable(var.type, var.arraySizeConstant, var.arraySizeVariable);
         }
 
         if (const std::shared_ptr<shader::ast::OutputPortNode>& output = FindOutputPort(name))
         {
-            type = output->GetVar().type;
-            return true;
+            const auto& var = output->GetVar();
+            return ShaderVariable(var.type, var.arraySizeConstant, var.arraySizeVariable);
         }
 
         if (const std::shared_ptr<shader::ast::InputNode>& input = FindInput(name))
         {
-            type = input->GetVar().type;
-            return true;
+            const auto& var = input->GetVar();
+            return ShaderVariable(var.type, var.arraySizeConstant, var.arraySizeVariable);
         }
 
         if (const std::shared_ptr<shader::ast::OutputNode>& output = FindOutput(name))
         {
-            type = output->GetVar().type;
-            return true;
+            const auto& var = output->GetVar();
+            return ShaderVariable(var.type, var.arraySizeConstant, var.arraySizeVariable);
         }
 
-        return false;
+        return std::nullopt;
     }
 
     const std::shared_ptr<shader::ast::InputPortNode>& Shader::FindInputPort(const std::string &name) const

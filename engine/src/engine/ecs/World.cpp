@@ -16,6 +16,7 @@
 #include "engine/reflect/Util.h"
 #include "engine/render/Renderer.h"
 #include "engine/render/singleton_components/MeshRenderComponent.h"
+#include "engine/string/util/StringUtil.h"
 #include "engine/ui/components/RectTransformComponent.h"
 
 namespace se::ecs
@@ -611,11 +612,11 @@ namespace se::ecs
             }
         }
 
-        constexpr std::string editor_scene = "editor_scene_";
+        constexpr const char* editor_scene = "editor_scene_";
         auto it = path.find(editor_scene);
         if (it != std::string::npos)
         {
-            path.replace(it, editor_scene.size(), "");
+            path.replace(it, string::util::ConstLength(editor_scene), "");
         }
         m_SceneRecords[scene].path = path;
 

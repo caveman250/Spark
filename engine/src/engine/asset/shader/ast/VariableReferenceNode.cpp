@@ -9,10 +9,10 @@ namespace se::asset::shader::ast
     VariableReferenceNode::VariableReferenceNode(const std::string& name, const Shader& shaderStageAst, int index, const std::string& indexVar)
     {
         SPARK_ASSERT(name != " ");
-        AstType type;
-        if (shaderStageAst.FindVariable(name, type))
+        auto varInfo = shaderStageAst.FindVariable(name);
+        if (varInfo.has_value())
         {
-            m_Type = type;
+            m_Type = varInfo.value().type;
             m_Name = name;
             m_Index = index;
             m_IndexVar = indexVar;

@@ -1024,8 +1024,8 @@ namespace se::asset::shader::compiler
 
             if (nextToken.type == TokenType::Identifier)
             {
-                ast::AstType type;
-                if (!m_Shader.FindVariable(nextToken.value, type))
+                auto varInfo = m_Shader.FindVariable(nextToken.value);
+                if (!varInfo.has_value())
                 {
                     outError = {nextToken.line, nextToken.pos, std::format("Undefined variable {}", nextToken.value)};
                     return false;
@@ -1051,7 +1051,7 @@ namespace se::asset::shader::compiler
                 }
                 else if (expressionType == ast::AstType::Invalid)
                 {
-                    expressionType = type;
+                    expressionType = varInfo.value().type;
                 }
 
                 int arrayIndex = -1;
@@ -1084,25 +1084,29 @@ namespace se::asset::shader::compiler
                         return false;
                     }
 
-                    if (expressionType == ast::AstType::Vec2)
+
+                    if (varInfo.value().arraySizeConstant == 0 && varInfo->arraySizeVariable.empty())
                     {
-                        expressionType = ast::AstType::Float;
-                    }
-                    else if (expressionType == ast::AstType::Vec3)
-                    {
-                        expressionType = ast::AstType::Float;
-                    }
-                    else if (expressionType == ast::AstType::Vec4)
-                    {
-                        expressionType = ast::AstType::Float;
-                    }
-                    else if (expressionType == ast::AstType::Mat3)
-                    {
-                        expressionType = ast::AstType::Vec3;
-                    }
-                    else if (expressionType == ast::AstType::Mat4)
-                    {
-                        expressionType = ast::AstType::Vec4;
+                        if (expressionType == ast::AstType::Vec2)
+                        {
+                            expressionType =  ast::AstType::Float;
+                        }
+                        else if (expressionType == ast::AstType::Vec3)
+                        {
+                            expressionType = ast::AstType::Float;
+                        }
+                        else if (expressionType == ast::AstType::Vec4)
+                        {
+                            expressionType = ast::AstType::Float;
+                        }
+                        else if (expressionType == ast::AstType::Mat3)
+                        {
+                            expressionType = ast::AstType::Vec3;
+                        }
+                        else if (expressionType == ast::AstType::Mat4)
+                        {
+                            expressionType = ast::AstType::Vec4;
+                        }
                     }
                 }
 
@@ -1460,8 +1464,8 @@ namespace se::asset::shader::compiler
         {
             return false;
         }
-        ast::AstType varType;
-        if (!m_Shader.FindVariable(textureVariableToken.value, varType))
+        auto texVarInfo = m_Shader.FindVariable(textureVariableToken.value);
+        if (!texVarInfo.has_value())
         {
             outError = {
                 textureVariableToken.line, textureVariableToken.pos,
@@ -1469,11 +1473,11 @@ namespace se::asset::shader::compiler
             };
             return false;
         }
-        if (varType != ast::AstType::Sampler2D)
+        if (texVarInfo.value().type != ast::AstType::Sampler2D)
         {
             outError = {
                 textureVariableToken.line, textureVariableToken.pos,
-                std::format("Unexpected type: {} Expected: sampler2D", ast::TypeUtil::TypeToGlsl(varType))
+                std::format("Unexpected type: {} Expected: sampler2D", ast::TypeUtil::TypeToGlsl(texVarInfo.value().type))
             };
             return false;
         }
@@ -1488,8 +1492,9 @@ namespace se::asset::shader::compiler
         {
             return false;
         }
-        ast::AstType uvVarType;
-        if (!m_Shader.FindVariable(uvVariableToken.value, uvVarType))
+
+        auto uvVarInfo = m_Shader.FindVariable(uvVariableToken.value);
+        if (!uvVarInfo.has_value())
         {
             outError = {
                 textureVariableToken.line, textureVariableToken.pos,
@@ -1497,11 +1502,11 @@ namespace se::asset::shader::compiler
             };
             return false;
         }
-        if (uvVarType != ast::AstType::Vec2)
+        if (uvVarInfo.value().type != ast::AstType::Vec2)
         {
             outError = {
                 textureVariableToken.line, textureVariableToken.pos,
-                std::format("Unexpected type: {} Expected: vec2", ast::TypeUtil::TypeToGlsl(varType))
+                std::format("Unexpected type: {} Expected: vec2", ast::TypeUtil::TypeToGlsl(uvVarInfo.value().type))
             };
             return false;
         }
@@ -1786,7 +1791,6 @@ namespace se::asset::shader::compiler
                             std::format("Unexpected type {}", ast::TypeUtil::TypeToGlsl(argType))
                     };
                     return false;
-                    break;
             }
 
             if (Peek({TokenType::Syntax}, {")"}))

@@ -12,8 +12,8 @@ namespace se::geo::util
         const math::Vec3 min = (transform.aabb.pos - localSpaceRay.origin) / localSpaceRay.direction;
         const math::Vec3 max = (transform.aabb.pos + transform.aabb.size - localSpaceRay.origin) / localSpaceRay.direction;
 
-        const math::Vec3 near = { std::min(min.x, max.x), std::min(min.y, max.y), std::min(min.z, max.z)};
-        const math::Vec3 far = { std::max(min.x, max.x), std::max(min.y, max.y), std::max(min.z, max.z)};
+        const math::Vec3 near = { std::min(min.x, max.x), std::min(min.y, max.y), std::min(min.z, max.z) };
+        const math::Vec3 far = { std::max(min.x, max.x), std::max(min.y, max.y), std::max(min.z, max.z) };
 
         const float nearMax = std::max(std::max(near.x, near.y), near.z);
         const float farMin = std::min(std::min(far.x, far.y), far.z);

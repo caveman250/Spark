@@ -42,7 +42,7 @@ namespace se::render::systems
         for (size_t i = 0; i < updateData.GetEntities().size(); ++i)
         {
             auto& mesh = meshes[i];
-            if (!mesh.model.Loaded())
+            if (!mesh.vertBuffer)
             {
                 const auto& modelAsset = mesh.model.GetAsset();
                 auto staticMesh = modelAsset->GetMesh();

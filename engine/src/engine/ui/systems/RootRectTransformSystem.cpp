@@ -9,6 +9,8 @@
 #include <easy/profiler.h>
 #include "platform/IWindow.h"
 #include "Widgets.generated.h"
+#include "engine/ecs/components/RootComponent.h"
+#include "engine/ecs/util/SystemUtil.h"
 
 using namespace se;
 using namespace se::ecs::components;

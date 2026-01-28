@@ -14,6 +14,7 @@
 #include "engine/input/InputUtil.h"
 #include "engine/io/VFS.h"
 #include "engine/render/Material.h"
+#include "engine/string/util/StringUtil.h"
 #include "engine/ui/components/ImageComponent.h"
 #include "engine/ui/components/KeyInputComponent.h"
 #include "engine/ui/components/MouseInputComponent.h"
@@ -302,17 +303,17 @@ namespace se::editor
     std::string EditorRuntime::GetAssetSourcePath(const std::string& assetPath) const
     {
         std::string ret = assetPath;
-        constexpr std::string engineAssets = "/engine_assets";
-        constexpr std::string engineSourceAssets = "/source_engine_assets";
-        constexpr std::string appAssets = "/assets";
-        constexpr std::string appSourceAssets = "/source_assets";
+        constexpr const char* engineAssets = "/engine_assets";
+        constexpr const char* engineSourceAssets = "/source_engine_assets";
+        constexpr const char* appAssets = "/assets";
+        constexpr const char* appSourceAssets = "/source_assets";
         if (ret.starts_with(engineAssets))
         {
-            ret.replace(0, engineAssets.size(), engineSourceAssets);
+            ret.replace(0, string::util::ConstLength(engineAssets), engineSourceAssets);
         }
         else if (ret.starts_with(appAssets))
         {
-            ret.replace(0, appAssets.size(), appSourceAssets);
+            ret.replace(0, string::util::ConstLength(appAssets), appSourceAssets);
         }
 
         if (ret.ends_with(".sass"))
