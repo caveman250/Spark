@@ -235,6 +235,12 @@ namespace se::editor::ui
         auto app = Application::Get();
         auto editor = app->GetEditorRuntime();
 
+        ecs::Id pathItemEntity = world->CreateEntity(editor->GetEditorScene(), "Path Item");
+        world->AddComponent<se::ui::components::RectTransformComponent>(pathItemEntity);
+        world->AddComponent<se::ui::components::WidgetComponent>(pathItemEntity);
+
+        world->AddChild(m_PathBarBox, pathItemEntity);
+
         ecs::Id buttonEntity = world->CreateEntity(editor->GetEditorScene(), "Button");
         auto buttonRect = world->AddComponent<se::ui::components::RectTransformComponent>(buttonEntity);
         buttonRect->anchors = { .left = 0.f, .right = 1.f, .top = 0.f, .bottom = 1.f };
@@ -255,10 +261,10 @@ namespace se::editor::ui
         auto textRect = world->AddComponent<se::ui::components::RectTransformComponent>(labelEntity);
         textRect->anchors = { .left = 0.f, .right = 1.f, .top = 0.f, .bottom = 1.f };
         world->AddComponent<se::ui::components::WidgetComponent>(labelEntity);
-        world->AddChild(buttonEntity, labelEntity);
+        world->AddChild(pathItemEntity, labelEntity);
+        world->AddChild(pathItemEntity, buttonEntity);
 
-        world->AddChild(m_PathBarBox, buttonEntity);
-        m_PathBarItems.push_back(buttonEntity);
+        m_PathBarItems.push_back(pathItemEntity);
     }
 
     ecs::Id AssetBrowserWindow::CreateFileItem(ecs::World* world,
