@@ -559,6 +559,11 @@ namespace se::ecs
                 updateData.AddComponentArray(comp.id, GetComponent(child, comp.id), comp.mutability);
             }
 
+            if (shouldSkip)
+            {
+                continue;
+            }
+
             bool hasAnyVariant = false;
             for (const auto& comp: declaration.variantComponentUsage.components)
             {
@@ -583,11 +588,10 @@ namespace se::ecs
                                                     nullptr,
                                                     declaration.variantComponentUsage.mutability);
                 }
-            }
-
-            if (shouldSkip || (!hasAnyVariant && !declaration.variantComponentUsage.components.empty()))
-            {
-                continue;
+                else if (!declaration.variantComponentUsage.components.empty())
+                {
+                    continue;
+                }
             }
 
             if (func(updateData))

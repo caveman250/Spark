@@ -28,7 +28,7 @@
 
 #include "json.hpp"
 
-#define SPARK_ENABLE_PROFILING 1
+#define SPARK_ENABLE_PROFILING 0
 
 #if SPARK_PLATFORM_WINDOWS
 #include "windows.h"

@@ -118,9 +118,12 @@ namespace se::ecs
     void* World::GetComponent(const Id& entity, const Id& component)
     {
         EntityRecord& record = m_EntityRecords.at(entity);
+        auto& compInfo = m_ComponentRecords.at(component);
         Archetype* archetype = record.archetype;
-        auto compInfo = m_ComponentRecords[component];
-        if (!compInfo.archetypeRecords.contains(archetype->id))
+        auto it = compInfo.archetypeRecords.find(archetype->id);
+        bool hasComp = it != compInfo.archetypeRecords.end();
+
+        if (!hasComp)
         {
             // check pending comps
             for (const auto& pendingComp: m_PendingComponentCreations)
@@ -133,8 +136,11 @@ namespace se::ecs
 
             return nullptr;
         }
-        ArchetypeComponentKey& a_record = compInfo.archetypeRecords[archetype->id];
-        return archetype->components[a_record].GetComponent(record.entity_idx);
+
+        ArchetypeComponentKey& a_record = it->second;
+        const auto& compList = archetype->components.at(a_record);
+        void* comp = compList.GetComponent(record.entity_idx);
+        return comp;
     }
 
     void World::DestroyEntityInternal(const Id& entity)
