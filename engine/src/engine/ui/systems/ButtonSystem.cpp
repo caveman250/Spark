@@ -99,7 +99,7 @@ namespace se::ui::systems
             if (SPARK_VERIFY(desiredTexture))
             {
                 auto* currentTexture = image.materialInstance->GetUniform<asset::AssetReference<asset::Texture>>("Texture");
-                if (currentTexture != desiredTexture)
+                if (*currentTexture != *desiredTexture)
                 {
                     image.materialInstance->SetUniform("Texture", asset::shader::ast::AstType::Sampler2DReference, 1, desiredTexture);
                 }

@@ -24,6 +24,7 @@ namespace se::asset
         void operator=(const std::string& path);
         void operator=(const char* path);
         bool operator==(const std::shared_ptr<Asset>& asset) const;
+        bool operator==(const AssetReference<T>& asset) const;
 
     private:
         SPARK_MEMBER(Serialized)
@@ -95,6 +96,12 @@ namespace se::asset
     bool AssetReference<T>::operator==(const std::shared_ptr<Asset>& asset) const
     {
         return asset == GetAsset();
+    }
+
+    template<typename T>
+    bool AssetReference<T>::operator==(const AssetReference<T>& asset) const
+    {
+        return m_AssetPath == asset.GetAssetPath();
     }
 
     template <typename T>

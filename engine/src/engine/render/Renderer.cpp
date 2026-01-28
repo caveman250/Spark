@@ -81,6 +81,8 @@ namespace se::render
     {
         EASY_FUNCTION();
         std::set<render::FrameBuffer*> frameBuffers = {};
+
+        EASY_BLOCK("Sort Draw Calls")
         std::ranges::sort(m_RenderGroups, [](const RenderGroup& lhs, const RenderGroup& rhs)
         {
             if (lhs.frameBuffer != rhs.frameBuffer)
@@ -90,7 +92,9 @@ namespace se::render
 
             return lhs.layer < rhs.layer;
         });
+        EASY_END_BLOCK
 
+        EASY_BLOCK("Prepare framebuffers")
         for (const auto& renderGroup : m_RenderGroups)
         {
             if (renderGroup.frameBuffer)
@@ -103,13 +107,16 @@ namespace se::render
         {
             frameBuffer->PreRender();
         }
+        EASY_END_BLOCK
 
         for (int i = static_cast<int>(m_RenderGroups.size()) - 1; i >= 0; --i)
         {
+            EASY_BLOCK("Render Group")
             auto& renderGroup = m_RenderGroups[i];
             m_ActiveRenderGroup = i;
             if (renderGroup.frameBuffer)
             {
+                EASY_BLOCK("Bind Framebuffer")
                 renderGroup.frameBuffer->Bind();
             }
 
@@ -120,14 +127,18 @@ namespace se::render
 
             if (renderGroup.frameBuffer)
             {
+                EASY_BLOCK("Unbind Framebuffer")
                 renderGroup.frameBuffer->UnBind();
             }
+            EASY_END_BLOCK
         }
 
+        EASY_BLOCK("Commit framebuffers")
         for (const auto& frameBuffer : frameBuffers)
         {
             frameBuffer->Commit();
         }
+        EASY_END_BLOCK
     }
 
     void Renderer::Submit(size_t group, commands::RenderCommand *renderCommand)

@@ -82,7 +82,11 @@ namespace se::ui::systems
                      math::IntVec2(window->GetWidth(), window->GetHeight()) :
                      Application::Get()->GetGameViewportSize();
 
-                image.materialInstance->SetUniform("screenSize", asset::shader::ast::AstType::Vec2, 1, &windowSize);
+                const math::Vec2* screenSizeUniform = image.materialInstance->GetUniform<math::Vec2>("screenSize");
+                if (!screenSizeUniform || *screenSizeUniform != windowSize)
+                {
+                    image.materialInstance->SetUniform("screenSize", asset::shader::ast::AstType::Vec2, 1, &windowSize);
+                }
 
                 auto command = renderer->AllocRenderCommand<render::commands::SubmitUI>(image.materialInstance, image.vertBuffer,
                                                              image.indexBuffer);
