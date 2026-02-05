@@ -2,6 +2,7 @@
 
 #include "engine/asset/binary/Database.h"
 #include "BuiltAsset.h"
+#include "Blueprint.h"
 
 namespace se::asset::meta
 {
@@ -13,7 +14,7 @@ namespace se::asset::builder
     {
     public:
         static bool IsRelevantFile(const std::string& assetPath);
-        static bool IsOutOfDate(const std::string& assetPath, const meta::MetaData& meta, const std::string& outputPath);
-        static std::vector<BuiltAsset> ProcessAsset(const std::string& assetPath, const std::string& outputPath, meta::MetaData& meta);
+        static bool IsOutOfDate(const std::string& assetPath, Blueprint* bp, const std::string& outputPath);
+        static Blueprint* GetBlueprintForAsset(const std::string& assetPath);
     };
 }

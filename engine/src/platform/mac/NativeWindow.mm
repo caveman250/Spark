@@ -17,7 +17,6 @@ static std::map<uint32_t, bool> s_ModifierKeyStates = {}; // TODO
         auto type = [theEvent type];
         bool modifierFlagsChanged = (NSEventMaskFromType(type) & NSEventMaskFlagsChanged) != 0;
         bool keyDown = (NSEventMaskFromType(type) & NSEventMaskKeyDown) != 0;
-        bool keyUp = (NSEventMaskFromType(type) & NSEventMaskKeyUp) != 0;
 
         auto keyCode = [theEvent keyCode];
         se::input::Key key = se::mac::KeyMap::MacKeyToSparkKey(keyCode);
@@ -37,16 +36,12 @@ static std::map<uint32_t, bool> s_ModifierKeyStates = {}; // TODO
            inputComp->keyStates[static_cast<int>(key)] = keyDown ?
                     se::input::KeyState::Down :
                     se::input::KeyState::Up;
-        }
 
-//        auto keyStateType = se::reflect::EnumResolver<se::input::KeyState>::get();
-//        auto keyType = se::reflect::EnumResolver<se::input::Key>::get();
-//        if (keyDown)
-//            se::debug::Log::Error("addLocalMonitorForEventsMatchingMask - inputEvent {} - Down", keyType->ToString(static_cast<int>(key)));
-//        if (keyUp)
-//            se::debug::Log::Error("addLocalMonitorForEventsMatchingMask - inputEvent {} - Up", keyType->ToString(static_cast<int>(key)));
-//        if (modifierFlagsChanged)
-//            se::debug::Log::Error("addLocalMonitorForEventsMatchingMask - inputEvent {} - Modifier Flags Changed", keyType->ToString(static_cast<int>(key)));
+            se::input::KeyEvent keyEvent;
+            keyEvent.key = key;
+            keyEvent.state = keyDown ? se::input::KeyState::Down : se::input::KeyState::Up;
+            inputComp->keyEvents.push_back(keyEvent);
+        }
 
         return theEvent;
     }];

@@ -2,6 +2,7 @@
 
 #include "Format.h"
 #include "engine/asset/Asset.h"
+#include "engine/asset/meta/TextureMetaData.h"
 #include "engine/asset/texture/Mipmap.h"
 #include "engine/render/TextureResource.h"
 
@@ -25,8 +26,11 @@ namespace se::asset
         Texture();
         ~Texture() override;
 
+        bool UsesMetaData() const override { return true; }
+        std::shared_ptr<meta::MetaData> CreateMetaData() const override;
+
         void Release();
-        static std::shared_ptr<Texture> FromRawData(uint32_t width, uint32_t height, const memory::BinaryBlob& blob, texture::Format format);
+        static std::shared_ptr<Texture> FromRawData(uint32_t width, uint32_t height, const memory::BinaryBlob& blob, texture::Format format, texture::Usage usage);
         static std::shared_ptr<Texture> Create(uint32_t width, uint32_t height, texture::Format format, texture::Usage usage);
 
         uint32_t GetWidth() const { return m_Width; }

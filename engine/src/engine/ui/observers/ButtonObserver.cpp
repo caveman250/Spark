@@ -19,15 +19,8 @@ namespace se::ui::observers
         {
             auto image = world->AddComponent<components::ImageComponent>(entity);
 
-            static auto material = std::make_shared<render::Material>(
-                std::vector{ asset::AssetReference<asset::Shader>("/engine_assets/shaders/ui.sass") },
-                std::vector{ asset::AssetReference<asset::Shader>("/engine_assets/shaders/alpha_texture.sass") });
-            auto rs = render::RenderState();
-            rs.srcBlend = render::BlendMode::SrcAlpha;
-            rs.dstBlend = render::BlendMode::OneMinusSrcAlpha;
-            material->SetRenderState(rs);
-
-            image->materialInstance = render::MaterialInstance::CreateMaterialInstance(material);
+            auto alphaTexture = asset::AssetManager::Get()->GetAsset<render::Material>("/engine_assets/materials/ui_alpha_texture.sass");
+            image->materialInstance = render::MaterialInstance::CreateMaterialInstance(alphaTexture);
             image->materialInstance->SetUniform("Texture", asset::shader::ast::AstType::Sampler2DReference, 1, &component->image);
         }
 

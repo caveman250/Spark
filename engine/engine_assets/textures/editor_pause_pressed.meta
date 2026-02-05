@@ -1,1 +1,18 @@
-{"version":2}
+{
+    "structs": [
+        {
+            "TextureMetaData": {
+                "m_Format": "String",
+                "m_Usage": "String",
+                "m_Version": "Uint32"
+            }
+        }
+    ],
+    "root": {
+        "TextureMetaData": {
+            "m_Format": "BC7",
+            "m_Usage": "Read",
+            "m_Version": 2
+        }
+    }
+}

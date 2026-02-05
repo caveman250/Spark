@@ -6,7 +6,9 @@
 #include "components/GizmoComponent.h"
 #include "engine/Application.h"
 #include "engine/asset/AssetManager.h"
+#include "engine/asset/meta/MetaDataManager.h"
 #include "engine/asset/shader/Shader.h"
+#include "engine/asset/util/AssetUtil.h"
 #include "engine/camera/ActiveCameraComponent.h"
 #include "engine/ecs/components/MeshComponent.h"
 #include "engine/ecs/components/TransformComponent.h"
@@ -20,58 +22,10 @@
 #include "engine/ui/components/MouseInputComponent.h"
 #include "engine/ui/components/SplitViewComponent.h"
 #include "engine/ui/components/WindowComponent.h"
+#include "engine/ui/util/SplitViewUtil.h"
 
 namespace se::editor
 {
-    ecs::Id AddSplitView(const ecs::Id& scene,
-        const ecs::Id& window1,
-        const ecs::Id& window2,
-        const se::ui::components::SplitViewDirection dir,
-        const float sliderVal)
-    {
-        auto world = Application::Get()->GetWorld();
-        auto assetManager = asset::AssetManager::Get();
-
-        ecs::Id splitView = world->CreateEntity(scene, "SplitView");
-        auto splitViewComp = world->AddComponent<se::ui::components::SplitViewComponent>(splitView);
-        splitViewComp->dir = dir;
-        splitViewComp->sliderPos = sliderVal;
-        world->AddComponent<se::ui::components::WidgetComponent>(splitView);
-        world->AddComponent<se::ui::components::MouseInputComponent>(splitView);
-        auto keyInput = world->AddComponent<se::ui::components::KeyInputComponent>(splitView);
-        keyInput->keyMask = input::Key::Unknown;
-
-        auto rect = world->AddComponent<se::ui::components::RectTransformComponent>(splitView);
-        rect->anchors = { .left = 0.f, .right = 1.f, .top = 0.f, .bottom = 1.f };
-        rect->needsLayout = true;
-
-        world->AddChild(splitView, window1);
-        splitViewComp->entity1 = window1;
-        if (world->HasComponent<se::ui::components::WindowComponent>(window1))
-        {
-            auto window = world->GetComponent<se::ui::components::WindowComponent>(window1);
-            window->docked = true;
-        }
-
-        splitViewComp->sliderEntity = world->CreateEntity(scene, "Slider");
-        world->AddComponent<se::ui::components::RectTransformComponent>(splitViewComp->sliderEntity);
-        world->AddComponent<se::ui::components::WidgetComponent>(splitViewComp->sliderEntity);
-        auto bgMaterial = assetManager->GetAsset<render::Material>("/engine_assets/materials/editor_splitview_slider.sass");
-        auto sliderImage = world->AddComponent<se::ui::components::ImageComponent>(splitViewComp->sliderEntity);
-        sliderImage->materialInstance = se::render::MaterialInstance::CreateMaterialInstance(bgMaterial);
-        world->AddChild(splitView, splitViewComp->sliderEntity);
-
-        world->AddChild(splitView, window2);
-        splitViewComp->entity2 = window2;
-        if (world->HasComponent<se::ui::components::WindowComponent>(window2))
-        {
-            auto window = world->GetComponent<se::ui::components::WindowComponent>(window2);
-            window->docked = true;
-        }
-
-        return splitView;
-    }
-
     void EditorRuntime::Init()
     {
         auto world = Application::Get()->GetWorld();
@@ -102,19 +56,19 @@ namespace se::editor
         m_AssetBrowserWindow = new ui::AssetBrowserWindow(this);
         m_AssetBrowserWindow->ConstructUI();
 
-        ecs::Id splitView1 = AddSplitView(m_EditorScene,
+        ecs::Id splitView1 = se::ui::util::AddSplitView(m_EditorScene,
             m_OutlineWindow->GetWindow(),
             m_ViewportWindow->GetWindow(),
             se::ui::components::SplitViewDirection::Horizontal,
             0.3f);
 
-         ecs::Id splitView2 = AddSplitView(m_EditorScene,
+         ecs::Id splitView2 = se::ui::util::AddSplitView(m_EditorScene,
              splitView1,
              m_AssetBrowserWindow->GetWindow(),
              se::ui::components::SplitViewDirection::Vertical,
              0.6f);
 
-         AddSplitView(m_EditorScene,
+         se::ui::util::AddSplitView(m_EditorScene,
              splitView2,
              m_PropertiesWindow->GetWindow(),
              se::ui::components::SplitViewDirection::Horizontal,
@@ -128,8 +82,6 @@ namespace se::editor
         transform->rot = { -0.27f, 3.64f, 0.f };
 
         CreateEditorPlane();
-
-        m_LoadedScene = world->CreateScene("New Scene");
     }
 
     void EditorRuntime::Update()
@@ -180,27 +132,26 @@ namespace se::editor
                 planeModel->materialInstance->SetUniform("cameraPos", asset::shader::ast::AstType::Vec3, 1, &activeCamera->pos);
             }
 
-            if (m_LoadedScene != ecs::s_InvalidEntity)
+
+            auto inputComp = world->GetSingletonComponent<input::InputComponent>();
+            input::InputUtil::ProcessKeyEvents(ecs::s_InvalidEntity, inputComp, [this, inputComp](const input::KeyEvent& ev)
             {
-                auto inputComp = world->GetSingletonComponent<input::InputComponent>();
-                input::InputUtil::ProcessKeyEvents(ecs::s_InvalidEntity, inputComp, [this, inputComp](const input::KeyEvent& ev)
+                if (ev.state == input::KeyState::Down &&
+                    ev.key == input::Key::S)
                 {
-                    if (ev.state == input::KeyState::Down &&
-                        ev.key == input::Key::S)
-                    {
 #if SPARK_PLATFORM_MAC
-                        if (inputComp->keyStates[static_cast<int>(input::Key::LeftSuper)] == input::KeyState::Down)
+                    if (inputComp->keyStates[static_cast<int>(input::Key::LeftSuper)] == input::KeyState::Down)
 #else
-                        if (inputComp->keyStates[static_cast<int>(input::Key::LeftControl)] == input::KeyState::Down)
+                    if (inputComp->keyStates[static_cast<int>(input::Key::LeftControl)] == input::KeyState::Down)
 #endif
-                        {
-                            SaveScene();
-                            return true;
-                        }
+                    {
+                        SaveAll();
+
+                        return true;
                     }
-                    return false;
-                });
-            }
+                }
+                return false;
+            });
         }
     }
 
@@ -225,7 +176,7 @@ namespace se::editor
     void EditorRuntime::LoadScene(const std::string& path)
     {
         auto world = Application::Get()->GetWorld();
-        if (m_LoadedScene)
+        if (m_LoadedScene != ecs::s_InvalidEntity)
         {
             world->UnloadScene(m_LoadedScene);
         }
@@ -300,41 +251,47 @@ namespace se::editor
         }
     }
 
-    std::string EditorRuntime::GetAssetSourcePath(const std::string& assetPath) const
+    void EditorRuntime::SaveAll()
     {
-        std::string ret = assetPath;
-        constexpr const char* engineAssets = "/engine_assets";
-        constexpr const char* engineSourceAssets = "/source_engine_assets";
-        constexpr const char* appAssets = "/assets";
-        constexpr const char* appSourceAssets = "/source_assets";
-        if (ret.starts_with(engineAssets))
+        if (m_LoadedScene != ecs::s_InvalidEntity)
         {
-            ret.replace(0, string::util::ConstLength(engineAssets), engineSourceAssets);
-        }
-        else if (ret.starts_with(appAssets))
-        {
-            ret.replace(0, string::util::ConstLength(appAssets), appSourceAssets);
+            SaveScene();
         }
 
-        if (ret.ends_with(".sass"))
+        if (m_SelectedAsset)
         {
-            ret.replace(ret.size() - 5,  5, ".json");
+            SaveAsset(m_SelectedAsset);
         }
-
-        return ret;
     }
 
     void EditorRuntime::SaveAsset(const std::shared_ptr<asset::Asset>& asset) const
     {
-        std::string sourcePath = GetAssetSourcePath(asset->m_Path);
-        auto type = asset->GetReflectType();
-        auto db = asset::binary::Database::Create(false);
-        db->SetRootStruct(db->GetOrCreateStruct(type->GetTypeName(nullptr), type->GetStructLayout(nullptr)));
-        auto root = db->GetRoot();
-        type->Serialize(asset.get(), root, {});
+        auto metaManager = asset::meta::MetaManager::Get();
+        std::string sourcePath = asset::util::GetAssetSourcePath(asset->m_Path);
+        if (asset->UsesMetaData())
+        {
+            auto metaPath = metaManager->GetMetaPath(asset->m_Path);
+            auto meta = metaManager->GetOrCreateMetaDataForAsset(asset.get());
 
-        db->Save(asset->m_Path);
-        io::VFS::Get().WriteText(GetAssetSourcePath(asset->m_Path), db->ToJson().dump(4));
+            auto type = meta->GetReflectType();
+            auto db = asset::binary::Database::Create(false);
+            db->SetRootStruct(db->GetOrCreateStruct(type->GetTypeName(nullptr), type->GetStructLayout(nullptr)));
+            auto root = db->GetRoot();
+            type->Serialize(meta.get(), root, {});
+
+            io::VFS::Get().WriteText(metaPath, db->ToJson().dump(4));
+        }
+        else
+        {
+            auto type = asset->GetReflectType();
+            auto db = asset::binary::Database::Create(false);
+            db->SetRootStruct(db->GetOrCreateStruct(type->GetTypeName(nullptr), type->GetStructLayout(nullptr)));
+            auto root = db->GetRoot();
+            type->Serialize(asset.get(), root, {});
+
+            db->Save(asset->m_Path);
+            io::VFS::Get().WriteText(sourcePath, db->ToJson().dump(4));
+        }
     }
 
     void EditorRuntime::SaveScene()
@@ -343,7 +300,7 @@ namespace se::editor
         {
             auto world = Application::Get()->GetWorld();
             world->SaveScene(m_LoadedScene, m_ScenePath, true);
-            world->SaveScene(m_LoadedScene, GetAssetSourcePath(m_ScenePath), false);
+            world->SaveScene(m_LoadedScene, asset::util::GetAssetSourcePath(m_ScenePath), false);
         }
     }
 

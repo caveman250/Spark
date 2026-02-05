@@ -62,6 +62,7 @@ namespace se::editor::ui::properties
         virtual PropertyTitleMode GetTitleMode() const { return PropertyTitleMode::Inline; }
 
         virtual ecs::Id GetWidgetId() const { return m_WidgetId; }
+        virtual ecs::Id GetContentId() const { return m_Content; }
         RectTransformComponent* GetRectTransform() { return m_RectTransform; }
     protected:
         ecs::Id m_WidgetId;

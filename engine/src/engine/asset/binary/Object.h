@@ -20,6 +20,8 @@ namespace se::asset::binary
     class Object
     {
     public:
+        bool HasField(const std::string& field) const;
+
         template<typename T>
         const T Get(const std::string& field) const;
 

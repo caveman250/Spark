@@ -3,6 +3,8 @@
 #include "engine/asset/builder/AssetBuilder.h"
 #include "ImportAssets.h"
 
+#include "engine/asset/meta/MetaDataManager.h"
+
 namespace se::editor::startup
 {
     void ImportAssets::Run()
@@ -17,16 +19,17 @@ namespace se::editor::startup
         {
             if (se::asset::builder::AssetBuilder::IsRelevantFile(file.fullPath.data()))
             {
-                auto meta = asset::meta::MetaData::GetMetaDataForAsset(file.fullPath.data());
-
                 std::string outputPathBase = file.fullPath.data();
                 outputPathBase.replace(0, dir.length(), outputDir);
                 auto extensionIt = outputPathBase.find_last_of(".");
                 outputPathBase.replace(extensionIt, outputPathBase.length() - extensionIt, ".sass");
 
-                if (se::asset::builder::AssetBuilder::IsOutOfDate(file.fullPath.data(), meta.value(), outputPathBase))
+                auto* bp = asset::builder::AssetBuilder::GetBlueprintForAsset(file.fullPath);
+
+                if (se::asset::builder::AssetBuilder::IsOutOfDate(file.fullPath, bp, outputPathBase))
                 {
-                    for (const auto& builtAsset : se::asset::builder::AssetBuilder::ProcessAsset(file.fullPath.data(), outputPathBase, meta.value()))
+                    debug::Log::Info("Processing asset {}...", file.fullPath);
+                    for (const auto& builtAsset : bp->BuildAsset(file.fullPath, outputPathBase))
                     {
                         if (!builtAsset.fileNameSuffix.empty())
                         {
@@ -49,8 +52,6 @@ namespace se::editor::startup
                         }
                     }
                 }
-
-                meta.value().Save();
             }
         }, true);
     }

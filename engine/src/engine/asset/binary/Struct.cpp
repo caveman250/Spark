@@ -89,7 +89,6 @@ namespace se::asset::binary
             }
         }
 
-        SPARK_ASSERT(false);
         return std::numeric_limits<uint32_t>().max();
     }
 }

@@ -45,9 +45,8 @@ namespace se::editor
         void ToggleGameMode();
         bool InGameMode() const { return m_GameMode; }
     private:
+        void SaveAll();
         void SaveAsset(const std::shared_ptr<asset::Asset>& asset) const;
-        std::string GetAssetSourcePath(const std::string& assetPath) const;
-
         void SaveScene();
         void CreateGizmo();
         void UpdateSelectedEntityTranslation(const math::Vec3& worldPos) const;

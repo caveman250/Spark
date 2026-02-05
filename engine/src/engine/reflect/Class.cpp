@@ -89,6 +89,12 @@ namespace se::reflect
         for (size_t i = 0; i < members.size(); ++i)
         {
             auto& member = members[i];
+
+            if (!thisObj.HasField(member.name))
+            {
+                continue;
+            }
+
             if (member.serialized)
             {
                 if (member.type->RequiresExplicitInstantiation())

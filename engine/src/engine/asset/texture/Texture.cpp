@@ -27,6 +27,11 @@ namespace se::asset
         Release();
     }
 
+    std::shared_ptr<meta::MetaData> Texture::CreateMetaData() const
+    {
+        return std::make_shared<meta::TextureMetaData>(m_Path);
+    }
+
     void Texture::Release()
     {
         for (auto& mip : m_Mips)
@@ -35,7 +40,7 @@ namespace se::asset
         }
     }
 
-    std::shared_ptr<Texture> Texture::FromRawData(uint32_t width, uint32_t height, const memory::BinaryBlob &blob, texture::Format format)
+    std::shared_ptr<Texture> Texture::FromRawData(uint32_t width, uint32_t height, const memory::BinaryBlob &blob, texture::Format format, texture::Usage usage)
     {
         std::shared_ptr<Texture> ret = std::make_shared<Texture>();
         ret->m_Width = width;
@@ -43,6 +48,7 @@ namespace se::asset
         ret->m_Mips.push_back(texture::Mipmap(blob, width, height));
         ret->m_Format = format;
         ret->m_MipCount = 1;
+        ret->m_Usage = usage;
         return ret;
     }
 

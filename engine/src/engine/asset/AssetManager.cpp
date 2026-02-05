@@ -14,8 +14,6 @@ namespace se::asset
     {
         std::lock_guard guard(m_Mutex);
 
-        //static_assert(std::is_convertible<T*, Asset*>::value, "Attempting to load a non asset type via AssetManager::GetAsset");
-
         if (m_AssetCache.contains(path))
         {
             auto& asset = m_AssetCache.at(path);

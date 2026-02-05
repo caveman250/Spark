@@ -11,7 +11,7 @@ namespace se::asset::builder
         return std::regex(".*.ssl");
     }
 
-    std::vector<BuiltAsset> ShaderBlueprint::BuildAsset(const std::string& path, const std::string&, meta::MetaData&) const
+    std::vector<BuiltAsset> ShaderBlueprint::BuildAsset(const std::string& path, const std::string&) const
     {
         auto shader = shader::ShaderCompiler::CompileShader(path);
         if (shader.has_value())

@@ -21,6 +21,9 @@ namespace se::asset
                    -v.y
                 };
             }
+            default:
+                SPARK_ASSERT(false);
+                return v;
         }
     }
 
@@ -52,7 +55,7 @@ namespace se::asset
 
             for (int partition_idx = 0; partition_idx < geom.getPartitionCount(); ++partition_idx)
             {
-                SPARK_ASSERT(partition_idx == 0); // TODO multiple meshes
+                //SPARK_ASSERT(partition_idx == 0); // TODO multiple meshes
 
                 const ofbx::GeometryPartition& partition = geom.getPartition(partition_idx);
 

@@ -37,8 +37,7 @@ namespace se::asset::builder
     }
 
     std::vector<BuiltAsset> FontBlueprint::BuildAsset(const std::string& path,
-                                                      const std::string& outputPath,
-                                                      meta::MetaData&) const
+                                                      const std::string& outputPath) const
     {
         std::vector<BuiltAsset> ret;
         Font font;
@@ -103,7 +102,7 @@ namespace se::asset::builder
         memory::BinaryBlob monochromeBitmap = GenerateMonochromeBitmap(info, imageWidth, imageHeight, scale,
                                                                        boundingBoxes, placedBoundingBoxes);
 
-        font.m_Texture = Texture::FromRawData(imageWidth, imageHeight, monochromeBitmap, texture::Format::R8);
+        font.m_Texture = Texture::FromRawData(imageWidth, imageHeight, monochromeBitmap, texture::Format::R8, texture::Usage::Read);
 
         std::free(fontData);
 

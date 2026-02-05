@@ -20,22 +20,6 @@ namespace se::asset::builder
         std::make_unique<JsonBlueprint>()
     };
 
-    std::vector<BuiltAsset> AssetBuilder::ProcessAsset(const std::string& assetPath, const std::string& outputPath, meta::MetaData& meta)
-    {
-        for (const auto& bp : s_AssetBlueprints)
-        {
-            std::string lowerAssetPath = string::util::ToLower(assetPath);
-            if (std::regex_match(lowerAssetPath, bp->GetFilePattern()))
-            {
-                auto dbs = bp->BuildAsset(assetPath, outputPath, meta);
-                meta.SetFormatVersion(bp->GetLatestVersion());
-                return dbs;
-            }
-        }
-
-        return { };
-    }
-
     bool AssetBuilder::IsRelevantFile(const std::string &assetPath)
     {
         std::string lowerAssetPath = string::util::ToLower(assetPath);
@@ -50,7 +34,7 @@ namespace se::asset::builder
         return false;
     }
 
-    bool AssetBuilder::IsOutOfDate(const std::string& assetPath, const meta::MetaData& meta, const std::string& outputPath)
+    bool AssetBuilder::IsOutOfDate(const std::string& assetPath, Blueprint* bp, const std::string& outputPath)
     {
         auto& vfs = io::VFS::Get();
         if (!vfs.Exists(outputPath) || vfs.GetLastModified(outputPath) < vfs.GetLastModified(assetPath))
@@ -58,14 +42,25 @@ namespace se::asset::builder
             return true;
         }
 
-        for (const auto& bp : s_AssetBlueprints)
+        if (bp->IsOutOfDate(assetPath))
         {
-            if (std::regex_match(assetPath, bp->GetFilePattern()))
-            {
-                return bp->GetLatestVersion() > meta.GetFormatVersion();
-            }
+            return true;
         }
 
         return false;
+    }
+
+    Blueprint* AssetBuilder::GetBlueprintForAsset(const std::string& assetPath)
+    {
+        for (const auto& bp : s_AssetBlueprints)
+        {
+            std::string lowerAssetPath = string::util::ToLower(assetPath);
+            if (std::regex_match(lowerAssetPath, bp->GetFilePattern()))
+            {
+                return bp.get();
+            }
+        }
+
+        return nullptr;
     }
 }

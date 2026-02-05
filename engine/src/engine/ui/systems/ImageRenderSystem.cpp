@@ -59,6 +59,13 @@ namespace se::ui::systems
             const auto& transform = transformComps[i];
             auto& image = imageComps[i];
 
+            if (!image.materialInstance && image.texture.IsSet())
+            {
+                auto alphaTexture = asset::AssetManager::Get()->GetAsset<render::Material>("/engine_assets/materials/ui_alpha_texture.sass");
+                image.materialInstance = render::MaterialInstance::CreateMaterialInstance(alphaTexture);
+                image.materialInstance->SetUniform("Texture", asset::shader::ast::AstType::Sampler2DReference, 1, &image.texture);
+            }
+
             if (image.materialInstance)
             {
                 if (transform.rect.topLeft != image.lastRect.topLeft)

@@ -12,7 +12,7 @@ namespace se::asset::builder
         return std::regex(".*.fbx");
     }
 
-    std::vector<BuiltAsset> FBXBlueprint::BuildAsset(const std::string& path, const std::string&, meta::MetaData&) const
+    std::vector<BuiltAsset> FBXBlueprint::BuildAsset(const std::string& path, const std::string&) const
     {
         ofbx::LoadFlags flags =
                 //		ofbx::LoadFlags::IGNORE_MODELS |

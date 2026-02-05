@@ -13,8 +13,8 @@ namespace se::asset::builder
     {
     public:
         virtual ~Blueprint() {}
-        virtual uint32_t GetLatestVersion() const = 0;
         virtual std::regex GetFilePattern() const = 0;
-        virtual std::vector<BuiltAsset> BuildAsset(const std::string& path, const std::string& outputPath, meta::MetaData& meta) const = 0;
+        virtual std::vector<BuiltAsset> BuildAsset(const std::string& path, const std::string& outputPath) const = 0;
+        virtual bool IsOutOfDate([[maybe_unused]] const std::string& assetPath) { return false; }
     };
 }

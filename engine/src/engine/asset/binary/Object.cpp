@@ -85,6 +85,11 @@ namespace se::asset::binary
         }
     }
 
+    bool Object::HasField(const std::string& field) const
+    {
+        return m_Struct.GetFieldIndex(field) != std::numeric_limits<uint32_t>().max();
+    }
+
     std::string Object::GetNativeTypeString(const std::string& field) const
     {
         auto binaryType = m_Struct.GetFieldType(m_Struct.GetFieldIndex(field));

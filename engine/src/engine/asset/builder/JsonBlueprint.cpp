@@ -10,8 +10,7 @@ namespace se::asset::builder
     }
 
     std::vector<BuiltAsset> JsonBlueprint::BuildAsset(const std::string& path,
-        [[maybe_unused]] const std::string& outputPath,
-        [[maybe_unused]] meta::MetaData& meta) const
+        [[maybe_unused]] const std::string& outputPath) const
     {
         std::vector<BuiltAsset> ret;
 
