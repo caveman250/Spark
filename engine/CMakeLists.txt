@@ -22,6 +22,10 @@ endif()
 
 if (WIN32)
     target_link_libraries(Spark Dwmapi)
+
+    if (${USE_EDITOR})
+        target_link_libraries(Spark Editor)
+    endif()
 endif()
 
 ###### Platform Linker ######
