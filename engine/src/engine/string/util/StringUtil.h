@@ -14,4 +14,6 @@ namespace se::string::util
                      std::string &rhs,
                      char deliminator,
                      bool fromEnd);
+
+    std::string ToLower(std::string s);
 }

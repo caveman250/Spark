@@ -25,4 +25,10 @@ namespace se::string::util
 
         return false;
     }
+
+    std::string ToLower(std::string s)
+    {
+        std::ranges::transform(s, s.begin(), [](int c){ return static_cast<char>(std::tolower(c)); });
+        return s;
+    }
 }
