@@ -4,10 +4,37 @@
 
 namespace se::asset
 {
+    ofbx::Vec3 ConvertPosition(int upAxis, ofbx::Vec3 v)
+    {
+        switch (upAxis)
+        {
+            case 0:
+                SPARK_ASSERT(false); // need to test this with a real asset.
+                return v;
+            case 1:
+                break;
+            case 2:
+            {
+                return {
+                    v.x,
+                    v.z,
+                   -v.y
+                };
+            }
+        }
+    }
+
     std::shared_ptr<Model> Model::FromFBX(ofbx::IScene* fbxScene)
     {
         auto ret = std::make_shared<Model>();
         StaticMesh& staticMesh = ret->m_Mesh;
+
+        const ofbx::GlobalSettings* settings = fbxScene->getGlobalSettings();
+        int upAxis = settings->UpAxis;        // 0=X, 1=Y, 2=Z
+        int upSign = settings->UpAxisSign;    // usually +1
+        double unitScale = settings->UnitScaleFactor;
+
+        // i want 1, 1, 1
 
         int mesh_count = fbxScene->getMeshCount();
 
@@ -45,28 +72,28 @@ namespace se::asset
                         {
                             const int pv = idx[v];
 
-                            // ---- position ----
-                            ofbx::Vec3 p = positions.get(pv);
+                            ofbx::Vec3 p = ConvertPosition(upAxis, positions.get(pv));
                             //ofbx::DVec3 tp = transform * ofbx::DVec3(p.x, p.y, p.z);
-                            ofbx::DVec3 tp = ofbx::DVec3(p.x, p.y, p.z);
-                            staticMesh.vertices.emplace_back(
-                                float(tp.x), float(tp.y), float(tp.z));
+                            //ofbx::DVec3 tp = ofbx::DVec3(p.x, p.y, p.z);
+                            staticMesh.vertices.emplace_back(p.x, p.y, p.z);
 
-                            // ---- normal ----
                             if (normals.values)
                             {
-                                ofbx::Vec3 n = normals.get(pv);
+                                ofbx::Vec3 n = ConvertPosition(upAxis, normals.get(pv));
                                 staticMesh.normals.emplace_back(n.x, n.y, n.z);
                             }
 
-                            // ---- UV ----
                             if (uvs.values)
                             {
-                                ofbx::Vec2 uv = uvs.get(pv);
-                                staticMesh.uvs.emplace_back(uv.x, uv.y);
+                                int uv_index = pv;
+
+                                if (uvs.indices)
+                                    uv_index = uvs.indices[pv];
+
+                                ofbx::Vec2 uv = uvs.values[uv_index];
+                                staticMesh.uvs.emplace_back(uv.x, 1.0f - uv.y);
                             }
 
-                            // ---- index ----
                             staticMesh.indices.push_back(
                                 static_cast<uint32_t>(staticMesh.vertices.size() - 1));
                         }
