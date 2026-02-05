@@ -7,6 +7,7 @@
 #include "FontBlueprint.h"
 #include "JsonBlueprint.h"
 #include "ShaderBlueprint.h"
+#include "engine/string/util/StringUtil.h"
 
 namespace se::asset::builder
 {
@@ -23,7 +24,8 @@ namespace se::asset::builder
     {
         for (const auto& bp : s_AssetBlueprints)
         {
-            if (std::regex_match(assetPath, bp->GetFilePattern()))
+            std::string lowerAssetPath = string::util::ToLower(assetPath);
+            if (std::regex_match(lowerAssetPath, bp->GetFilePattern()))
             {
                 auto dbs = bp->BuildAsset(assetPath, outputPath, meta);
                 meta.SetFormatVersion(bp->GetLatestVersion());
@@ -36,9 +38,10 @@ namespace se::asset::builder
 
     bool AssetBuilder::IsRelevantFile(const std::string &assetPath)
     {
+        std::string lowerAssetPath = string::util::ToLower(assetPath);
         for (const auto& bp : s_AssetBlueprints)
         {
-            if (std::regex_match(assetPath, bp->GetFilePattern()))
+            if (std::regex_match(lowerAssetPath, bp->GetFilePattern()))
             {
                return true;
             }
