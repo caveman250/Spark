@@ -42,13 +42,13 @@ namespace se
         m_TimeLastFrame = std::chrono::system_clock::now();
 
 #if SPARK_EDITOR
-        io::VFS::Get().Mount(std::format("{}/{}", ENGINE_DIR, "engine_assets"), "/engine_source_assets");
-        io::VFS::Get().Mount(std::format("{}/{}", APP_DIR, "assets"), "/source_assets");
+        io::VFS::Get().Mount(std::format("{}/{}", ENGINE_DIR, "engine_assets"), "/engine_source_assets", false);
+        io::VFS::Get().Mount(std::format("{}/{}", APP_DIR, "assets"), "/source_assets", false);
 #endif
-        io::VFS::Get().Mount(std::format("{}/{}", ENGINE_DIR, "built"), "/engine_assets");
-        io::VFS::Get().Mount(std::format("{}/{}", APP_DIR, "built"), "/assets");
-        io::VFS::Get().Mount(std::format("{}/{}", APP_DIR, "save"), "/save");
-        io::VFS::Get().Mount(std::format("{}/{}", APP_DIR, "temp"), "/tmp");
+        io::VFS::Get().Mount(std::format("{}/{}", ENGINE_DIR, "built"), "/engine_assets", true);
+        io::VFS::Get().Mount(std::format("{}/{}", APP_DIR, "built"), "/assets", true);
+        io::VFS::Get().Mount(std::format("{}/{}", APP_DIR, "save"), "/save", false);
+        io::VFS::Get().Mount(std::format("{}/{}", APP_DIR, "temp"), "/tmp", false);
 
         RegisterComponents(&m_World);
         engine_InitClassReflection();

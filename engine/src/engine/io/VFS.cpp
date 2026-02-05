@@ -18,9 +18,9 @@ namespace se::io
         return *s_Instance;
     }
 
-    void VFS::Mount(const std::string& fsPath, const std::string& vfsPath)
+    void VFS::Mount(const std::string& fsPath, const std::string& vfsPath, bool visibleInEditor)
     {
-        m_Mounts.push_back(VFSMount(fsPath, vfsPath));
+        m_Mounts.push_back(VFSMount(fsPath, vfsPath, visibleInEditor));
     }
 
     void VFS::Unmount(const std::string& vfsPath)

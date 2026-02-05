@@ -7,6 +7,7 @@ namespace se::io
     {
         std::string fsPath;
         std::string vfsPath;
+        bool visibleInEditor;
     };
 
     struct VFSFile
@@ -23,7 +24,7 @@ namespace se::io
     public:
         static VFS& Get();
 
-        void Mount(const std::string& fsPath, const std::string& vfsPath);
+        void Mount(const std::string& fsPath, const std::string& vfsPath, bool visibleInEditor);
         void Unmount(const std::string& vfsPath);
         bool Exists(const std::string& path);
         std::optional<std::string> ResolveFSPath(const std::string& vfsPath, bool allowMissing);

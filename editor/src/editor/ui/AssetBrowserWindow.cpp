@@ -78,14 +78,17 @@ namespace se::editor::ui
 
         for (const auto& mount : io::VFS::Get().GetMounts())
         {
-            se::ui::components::TreeNodeComponent* treeNodeComp = nullptr;
-            se::ui::components::TextComponent* textComp = nullptr;
-            se::ui::util::InsertTreeNode(treeView, treeViewRect, treeView, mount.vfsPath, &treeNodeComp, &textComp, editor->GetEditorScene());
-            textComp->text = mount.vfsPath;
-            treeNodeComp->onSelected.Subscribe([this, &mount]()
+            if (mount.visibleInEditor)
             {
-                SetActiveFolder(mount.vfsPath);
-            });
+                se::ui::components::TreeNodeComponent* treeNodeComp = nullptr;
+                se::ui::components::TextComponent* textComp = nullptr;
+                se::ui::util::InsertTreeNode(treeView, treeViewRect, treeView, mount.vfsPath, &treeNodeComp, &textComp, editor->GetEditorScene());
+                textComp->text = mount.vfsPath;
+                treeNodeComp->onSelected.Subscribe([this, &mount]()
+                {
+                    SetActiveFolder(mount.vfsPath);
+                });
+            }
         }
 
         auto pathBarBG = world->CreateEntity(editor->GetEditorScene(), "Path Bar BG");
@@ -363,8 +366,12 @@ namespace se::editor::ui
         auto labelEntity = world->CreateEntity(editor->GetEditorScene(), "Text");
         auto labelText = world->AddComponent<se::ui::components::TextComponent>(labelEntity);
         labelText->font = font;
-        labelText->fontSize = 14;
+        labelText->fontSize = 12;
         labelText->text = file.fileName;
+        if (labelText->text.size() > 20)
+        {
+            labelText->text = labelText->text.substr(0, 20) + "...";
+        }
         labelText->alignment = se::ui::text::Alignment::Center;
         auto textRect = world->AddComponent<se::ui::components::RectTransformComponent>(labelEntity);
         textRect->anchors = { .left = 0.f, .right = 1.f, .top = 1.f, .bottom = 1.f };
