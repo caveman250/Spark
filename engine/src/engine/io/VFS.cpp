@@ -3,6 +3,7 @@
 #include <filesystem>
 #include "engine/string/util/StringUtil.h"
 #include "engine/io/util/PathUtil.h"
+#include "engine/threads/ParallelForEach.h"
 
 namespace se::io
 {
@@ -190,7 +191,7 @@ namespace se::io
         return ResolveFSPath(path, false).has_value();
     }
 
-    void VFS::ForEachFile(const std::string& dirPath, bool recursive, const std::function<void(const VFSFile&)>& func)
+    void VFS::ForEachFile(const std::string& dirPath, bool recursive, const std::function<void(const VFSFile&)>& func, bool parallel)
     {
         auto fsPath = ResolveFSPath(dirPath, false);
         if (!fsPath.has_value())
@@ -198,28 +199,48 @@ namespace se::io
             return;
         }
 
+        auto processFile = [this, func](const std::filesystem::directory_entry& file)
+        {
+            VFSFile vfsFile = {
+                .fullPath = GetVFSPath(file.path().string()),
+                .isDirectory = file.is_directory()
+            };
+            util::SplitPath(vfsFile.fullPath, vfsFile.dir, vfsFile.fileName, vfsFile.extension);
+            func(vfsFile);
+        };
+
         if (recursive)
         {
-            for (const std::filesystem::directory_entry& file: std::filesystem::recursive_directory_iterator(fsPath.value().data()))
+            if (parallel)
             {
-                VFSFile vfsFile = {
-                    .fullPath = GetVFSPath(file.path().string()),
-                    .isDirectory = file.is_directory()
-                };
-                util::SplitPath(vfsFile.fullPath, vfsFile.dir, vfsFile.fileName, vfsFile.extension);
-                func(vfsFile);
+                std::vector<std::filesystem::directory_entry> entries;
+                for (const auto& e : std::filesystem::recursive_directory_iterator(fsPath.value().data()))
+                {
+                    entries.push_back(e);
+                }
+
+                threads::ParallelForEach(entries, processFile);
+            }
+            else
+            {
+                std::ranges::for_each(std::filesystem::recursive_directory_iterator(fsPath.value().data()), processFile);
             }
         }
         else
         {
-            for (const std::filesystem::directory_entry& file: std::filesystem::directory_iterator(fsPath.value().data()))
+            if (parallel)
             {
-                VFSFile vfsFile = {
-                        .fullPath = GetVFSPath(file.path().string()),
-                        .isDirectory = file.is_directory()
-                };
-                util::SplitPath(vfsFile.fullPath, vfsFile.dir, vfsFile.fileName, vfsFile.extension);
-                func(vfsFile);
+                std::vector<std::filesystem::directory_entry> entries;
+                for (const auto& e : std::filesystem::directory_iterator(fsPath.value().data()))
+                {
+                    entries.push_back(e);
+                }
+
+                threads::ParallelForEach(entries, processFile);
+            }
+            else
+            {
+                std::ranges::for_each(std::filesystem::directory_iterator(fsPath.value().data()), processFile);
             }
         }
     }

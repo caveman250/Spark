@@ -34,7 +34,7 @@ namespace se::io
         char* ReadBinary(const std::string& path, size_t& outSize);
         void WriteBinary(const std::string& path, char* data, size_t size);
 
-        void ForEachFile(const std::string& dirPath, bool recursive, const std::function<void(const VFSFile&)>& func);
+        void ForEachFile(const std::string& dirPath, bool recursive, const std::function<void(const VFSFile&)>& func, bool parallel = false);
 
         const std::vector<VFSMount>& GetMounts() const { return m_Mounts; }
 
