@@ -191,8 +191,10 @@ namespace se::io
         return ResolveFSPath(path, false).has_value();
     }
 
-    void VFS::ForEachFile(const std::string& dirPath, bool recursive, const std::function<void(const VFSFile&)>& func, bool parallel)
+    void VFS::ForEachFile(const std::string& dirPath, bool recursive, const std::function<void(const VFSFile&)>& func, bool parallel, bool sorted)
     {
+        SPARK_ASSERT(!sorted || (!parallel && !recursive), "ForEachFile - sorted not supported when parallel or recursive are set.");
+
         auto fsPath = ResolveFSPath(dirPath, false);
         if (!fsPath.has_value())
         {
@@ -237,6 +239,19 @@ namespace se::io
                 }
 
                 threads::ParallelForEach(entries, processFile);
+            }
+            else if (sorted)
+            {
+                std::vector<std::filesystem::directory_entry> sortedEntries;
+                for (auto& entry : std::filesystem::directory_iterator(fsPath.value().data()))
+                    sortedEntries.push_back(entry);
+
+                std::ranges::sort(sortedEntries, [](const std::filesystem::directory_entry& a, const std::filesystem::directory_entry& b)
+                {
+                    return a.path() < b.path();
+                });
+                for (auto& entry : sortedEntries)
+                    processFile(entry);
             }
             else
             {

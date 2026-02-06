@@ -33,13 +33,6 @@ namespace se::editor::ui::properties
             world->AddChild(m_Content, textEntity);
         }
 
-        auto reflect = reflect::ClassResolver<asset::Font>::get();
-        if (auto *propEditor = properties::CreatePropertyEditor(*reflect->GetMember("m_Texture"), m_Value, {0.f, 1.f, 0.f, 0.f}, true, false, true))
-        {
-            world->AddChild(m_Content, propEditor->GetWidgetId());
-            m_Editors.push_back(propEditor);
-        }
-
         {
             auto textEntity = world->CreateEntity(editor->GetEditorScene(), "Text");
             auto* textRect = world->AddComponent<RectTransformComponent>(textEntity);
@@ -82,6 +75,35 @@ namespace se::editor::ui::properties
             text->font = "/engine_assets/fonts/Arial.sass";
             text->fontSize = 14;
             world->AddChild(m_Content, textEntity);
+        }
+
+        {
+            auto previewContainer = world->CreateEntity(editor->GetEditorScene(), "Preview Container");
+            auto previewContainerRect = world->AddComponent<RectTransformComponent>(previewContainer);
+            previewContainerRect->minHeight = std::min(m_Value->GetTextureAsset()->GetHeight(), 256u);
+            world->AddComponent<WidgetComponent>(previewContainer);
+
+            auto previewInnerContainer = world->CreateEntity(editor->GetEditorScene(), "Preview Inner Container");
+            auto previewInnerContainerRect = world->AddComponent<RectTransformComponent>(previewInnerContainer);
+            previewInnerContainerRect->anchors = { .left = 0.f, .right = 1.f, .top = 0.f, .bottom = 1.f };
+            world->AddComponent<WidgetComponent>(previewInnerContainer);
+            auto image = world->AddComponent<ImageComponent>(previewInnerContainer);
+            auto imageMaterial = asset::AssetManager::Get()->GetAsset<render::Material>("/engine_assets/materials/editor_darkbg.sass");
+            image->materialInstance = render::MaterialInstance::CreateMaterialInstance(imageMaterial);
+            world->AddChild(previewContainer, previewInnerContainer);
+
+            auto preview = world->CreateEntity(editor->GetEditorScene(), "Preview");
+            auto previewRect = world->AddComponent<RectTransformComponent>(preview);
+            previewRect->anchors = { .left = 0.f, .right = 1.f, .top = 0.f, .bottom = 1.f };
+            previewRect->minAspectRatio = m_Value->GetTextureAsset()->GetWidth() / m_Value->GetTextureAsset()->GetHeight();
+            previewRect->maxAspectRatio = m_Value->GetTextureAsset()->GetWidth() / m_Value->GetTextureAsset()->GetHeight();
+            auto previewImage = world->AddComponent<ImageComponent>(preview);
+            auto alphaTexture = asset::AssetManager::Get()->GetAsset<render::Material>("/engine_assets/materials/ui_alpha_texture.sass");
+            previewImage->materialInstance = render::MaterialInstance::CreateMaterialInstance(alphaTexture);
+            previewImage->materialInstance->SetUniform("Texture", asset::shader::ast::AstType::Sampler2D, 1, &m_Value->GetTextureAsset());
+            world->AddChild(previewInnerContainer, preview);
+
+            world->AddChild(m_Content, previewContainer);
         }
 
 

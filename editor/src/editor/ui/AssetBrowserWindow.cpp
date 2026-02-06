@@ -180,7 +180,7 @@ namespace se::editor::ui
             {
                 world->AddChild(m_GridBoxEntity, fileEntity);
             }
-        });
+        }, false, true);
 
         auto gridBox = world->GetComponent<se::ui::components::RectTransformComponent>(m_GridBoxEntity);
         gridBox->needsLayout = true;
@@ -296,24 +296,27 @@ namespace se::editor::ui
         buttonWidget->visibility = se::ui::Visibility::Hidden;
         auto button = world->AddComponent<se::ui::components::ButtonComponent>(buttonEntity);
 
-        button->onDragged.Subscribe([this, world, file]()
+        if (!file.isDirectory)
         {
-            auto editor = Application::Get()->GetEditorRuntime();
-            auto dragDropStateComponent = world->GetSingletonComponent<singleton_components::DragDropStateComponent>();
-            auto assetManager = asset::AssetManager::Get();
+            button->onDragged.Subscribe([this, world, file]()
+            {
+                auto editor = Application::Get()->GetEditorRuntime();
+                auto dragDropStateComponent = world->GetSingletonComponent<singleton_components::DragDropStateComponent>();
+                auto assetManager = asset::AssetManager::Get();
 
-            auto entity = world->CreateEntity(editor->GetEditorScene(), "Drag Drop Image");
-            world->AddComponent<components::DragDropComponent>(entity);
-            auto* rect = world->AddComponent<se::ui::components::RectTransformComponent>(entity);
-            rect->layer = -1;
-            auto* image = world->AddComponent<se::ui::components::ImageComponent>(entity);
-            std::shared_ptr<render::Material> material = assetManager->GetAsset<render::Material>("/engine_assets/materials/ui_alpha_texture.sass");
-            image->materialInstance = render::MaterialInstance::CreateMaterialInstance(material);
-            image->materialInstance->SetUniform("Texture", asset::shader::ast::AstType::Sampler2DReference, 1, &m_FileTexture);
+                auto entity = world->CreateEntity(editor->GetEditorScene(), "Drag Drop Image");
+                world->AddComponent<components::DragDropComponent>(entity);
+                auto* rect = world->AddComponent<se::ui::components::RectTransformComponent>(entity);
+                rect->layer = -1;
+                auto* image = world->AddComponent<se::ui::components::ImageComponent>(entity);
+                std::shared_ptr<render::Material> material = assetManager->GetAsset<render::Material>("/engine_assets/materials/ui_alpha_texture.sass");
+                image->materialInstance = render::MaterialInstance::CreateMaterialInstance(material);
+                image->materialInstance->SetUniform("Texture", asset::shader::ast::AstType::Sampler2DReference, 1, &m_FileTexture);
 
-            auto db = asset::binary::Database::Load(file.fullPath.data(), true);
-            dragDropStateComponent->dragDropAsset = assetManager->GetAsset(file.fullPath.data(), reflect::TypeFromString(db->GetRoot().GetStruct().GetName()));
-        });
+                auto db = asset::binary::Database::Load(file.fullPath.data(), true);
+                dragDropStateComponent->dragDropAsset = assetManager->GetAsset(file.fullPath.data(), reflect::TypeFromString(db->GetRoot().GetStruct().GetName()));
+            });
+        }
 
         button->onReleased.Subscribe([this, file]()
         {

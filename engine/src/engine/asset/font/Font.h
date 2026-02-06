@@ -47,7 +47,7 @@ namespace se::asset
 
         Font() = default;
         const std::string& GetName() const;
-        std::shared_ptr<Texture> GetTextureAsset();
+        const std::shared_ptr<Texture>& GetTextureAsset();
         const CharData& GetCharData(char c) const;
         size_t GetNumChars() const { return m_CharData.size(); }
         float GetLineHeight(int fontSize) const;

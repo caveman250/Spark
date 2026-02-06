@@ -23,8 +23,6 @@ namespace se::editor::ui::properties
         auto meta = metaManager->GetOrCreateMetaDataForAsset(m_Value);
         auto editor = Application::Get()->GetEditorRuntime();
 
-
-
         auto metaType = meta->GetReflectType();
         m_WrappedEditor = CreatePropertyEditor(name,
                                                metaType,

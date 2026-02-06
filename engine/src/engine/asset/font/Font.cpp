@@ -9,7 +9,7 @@ namespace se::asset
         return m_Name;
     }
 
-    std::shared_ptr<Texture> Font::GetTextureAsset()
+    const std::shared_ptr<Texture>& Font::GetTextureAsset()
     {
         return m_Texture;
     }
