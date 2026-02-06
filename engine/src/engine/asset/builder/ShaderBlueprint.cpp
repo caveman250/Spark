@@ -14,6 +14,7 @@ namespace se::asset::builder
     std::vector<BuiltAsset> ShaderBlueprint::BuildAsset(const std::string& path, const std::string&) const
     {
         auto shader = shader::ShaderCompiler::CompileShader(path);
+        shader->m_SourcePath = path;
         if (shader.has_value())
         {
             return { { reflect::SerialiseType<Shader>(&shader.value()), "" } };

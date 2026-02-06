@@ -103,6 +103,7 @@ namespace se::asset::builder
                                                                        boundingBoxes, placedBoundingBoxes);
 
         font.m_Texture = Texture::FromRawData(imageWidth, imageHeight, monochromeBitmap, texture::Format::R8, texture::Usage::Read);
+        font.m_SourcePath = path;
 
         std::free(fontData);
 

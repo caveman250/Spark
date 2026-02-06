@@ -27,6 +27,6 @@ namespace se::asset::builder
 
     private:
         uint32_t GetLatestVersion() const { return 2; }
-        bool IsOutOfDate(const std::string& assetPath) override;
+        bool IsOutOfDate(const std::string& assetPath, const std::string& outputPath) override;
     };
 }

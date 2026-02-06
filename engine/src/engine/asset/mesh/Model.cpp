@@ -1,18 +1,54 @@
 #include "spark.h"
 #include "Model.h"
 #include "ofbx.h"
+#include "engine/asset/meta/ModelMetaData.h"
 
 namespace se::asset
 {
-    ofbx::Vec3 ConvertPosition(int upAxis, ofbx::Vec3 v)
+    math::Vec3 ConvertPosition(int upAxis, const ofbx::Vec3& v, const std::shared_ptr<meta::ModelMetaData>& meta)
     {
         switch (upAxis)
         {
             case 0:
                 SPARK_ASSERT(false); // need to test this with a real asset.
-                return v;
+                return {
+                    v.x * meta->importScale,
+                    v.y * meta->importScale,
+                    v.z * meta->importScale
+                };
             case 1:
-                break;
+                return {
+                    v.x * meta->importScale,
+                    v.y * meta->importScale,
+                    v.z * meta->importScale
+                };
+            case 2:
+            {
+                return {
+                    v.x * meta->importScale,
+                    v.z * meta->importScale,
+                   -v.y * meta->importScale
+                };
+            }
+            default:
+                SPARK_ASSERT(false);
+                return {
+                    v.x * meta->importScale,
+                    v.y * meta->importScale,
+                    v.z * meta->importScale
+                };
+        }
+    }
+
+    math::Vec3 ConvertNormal(int upAxis, const ofbx::Vec3& v)
+    {
+        switch (upAxis)
+        {
+            case 0:
+                SPARK_ASSERT(false); // need to test this with a real asset.
+                return  { v.x, v.y, v.z };
+            case 1:
+                return  { v.x, v.y, v.z };
             case 2:
             {
                 return {
@@ -23,19 +59,24 @@ namespace se::asset
             }
             default:
                 SPARK_ASSERT(false);
-                return v;
+                return  { v.x, v.y, v.z };
         }
     }
 
-    std::shared_ptr<Model> Model::FromFBX(ofbx::IScene* fbxScene)
+    std::shared_ptr<meta::MetaData> Model::CreateMetaData() const
+    {
+        return std::make_shared<meta::ModelMetaData>(m_Path);
+    }
+
+    std::shared_ptr<Model> Model::FromFBX(ofbx::IScene* fbxScene, const std::shared_ptr<meta::ModelMetaData>& meta)
     {
         auto ret = std::make_shared<Model>();
         StaticMesh& staticMesh = ret->m_Mesh;
 
         const ofbx::GlobalSettings* settings = fbxScene->getGlobalSettings();
         int upAxis = settings->UpAxis;        // 0=X, 1=Y, 2=Z
-        int upSign = settings->UpAxisSign;    // usually +1
-        double unitScale = settings->UnitScaleFactor;
+        // int upSign = settings->UpAxisSign;    // TODO usually +1
+        // double unitScale = settings->UnitScaleFactor; TODO
 
         // i want 1, 1, 1
 
@@ -75,15 +116,12 @@ namespace se::asset
                         {
                             const int pv = idx[v];
 
-                            ofbx::Vec3 p = ConvertPosition(upAxis, positions.get(pv));
                             //ofbx::DVec3 tp = transform * ofbx::DVec3(p.x, p.y, p.z);
-                            //ofbx::DVec3 tp = ofbx::DVec3(p.x, p.y, p.z);
-                            staticMesh.vertices.emplace_back(p.x, p.y, p.z);
+                            staticMesh.vertices.emplace_back(ConvertPosition(upAxis, positions.get(pv), meta));
 
                             if (normals.values)
                             {
-                                ofbx::Vec3 n = ConvertPosition(upAxis, normals.get(pv));
-                                staticMesh.normals.emplace_back(n.x, n.y, n.z);
+                                staticMesh.normals.emplace_back(ConvertNormal(upAxis, normals.get(pv)));
                             }
 
                             if (uvs.values)

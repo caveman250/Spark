@@ -13,11 +13,20 @@ namespace ofbx
 
 namespace se::asset
 {
+    namespace meta
+    {
+        class ModelMetaData;
+    }
+
     class Model : public Asset
     {
         SPARK_CLASS()
 
-        static std::shared_ptr<Model> FromFBX(ofbx::IScene* fbxScene);
+        std::shared_ptr<meta::MetaData> CreateMetaData() const override;
+        bool UsesMetaData() const override { return true; }
+        std::string GetSourceFileExtension() const override { return ".fbx"; }
+
+        static std::shared_ptr<Model> FromFBX(ofbx::IScene* fbxScene, const std::shared_ptr<meta::ModelMetaData>& meta);
 
         const StaticMesh& GetMesh() { return m_Mesh; }
         const std::shared_ptr<render::Material>& GetMaterial() { return m_Material.GetAsset(); }

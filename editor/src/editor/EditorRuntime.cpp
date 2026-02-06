@@ -6,6 +6,7 @@
 #include "components/GizmoComponent.h"
 #include "engine/Application.h"
 #include "engine/asset/AssetManager.h"
+#include "engine/asset/builder/AssetBuilder.h"
 #include "engine/asset/meta/MetaDataManager.h"
 #include "engine/asset/shader/Shader.h"
 #include "engine/asset/util/AssetUtil.h"
@@ -16,6 +17,7 @@
 #include "engine/input/InputUtil.h"
 #include "engine/io/VFS.h"
 #include "engine/render/Material.h"
+#include "engine/render/singleton_components/MeshRenderComponent.h"
 #include "engine/string/util/StringUtil.h"
 #include "engine/ui/components/ImageComponent.h"
 #include "engine/ui/components/KeyInputComponent.h"
@@ -86,6 +88,9 @@ namespace se::editor
 
     void EditorRuntime::Update()
     {
+        auto* meshRenderComp = Application::Get()->GetWorld()->GetSingletonComponent<render::singleton_components::MeshRenderComponent>();
+        meshRenderComp->invalidatedMeshAssets.clear();
+
         if (m_SelectedEntity != m_LastSelectedEntity ||
             m_SelectedAsset != m_LastSelectedAsset ||
             m_SelectedSingletonComp != m_LastSelectedSingletonComp)
@@ -267,7 +272,6 @@ namespace se::editor
     void EditorRuntime::SaveAsset(const std::shared_ptr<asset::Asset>& asset) const
     {
         auto metaManager = asset::meta::MetaManager::Get();
-        std::string sourcePath = asset::util::GetAssetSourcePath(asset->m_Path);
         if (asset->UsesMetaData())
         {
             auto metaPath = metaManager->GetMetaPath(asset->m_Path);
@@ -280,6 +284,23 @@ namespace se::editor
             type->Serialize(meta.get(), root, {});
 
             io::VFS::Get().WriteText(metaPath, db->ToJson().dump(4));
+
+            auto* bp = asset::builder::AssetBuilder::GetBlueprintForAsset(asset->m_SourcePath);
+            for (const auto& builtAsset : bp->BuildAsset(asset->m_SourcePath, asset->m_Path))
+            {
+                if (!builtAsset.fileNameSuffix.empty())
+                {
+                    auto outputPath = asset->m_Path;
+                    auto extensionIt = outputPath.find_last_of(".");
+                    outputPath.insert(extensionIt, builtAsset.fileNameSuffix);
+                    builtAsset.db->Save(outputPath);
+                }
+                else
+                {
+                    builtAsset.db->Save(asset->m_Path);
+                }
+            }
+            asset::AssetManager::Get()->ForceReloadAsset(asset->m_Path, asset->GetReflectType());
         }
         else
         {
@@ -290,7 +311,7 @@ namespace se::editor
             type->Serialize(asset.get(), root, {});
 
             db->Save(asset->m_Path);
-            io::VFS::Get().WriteText(sourcePath, db->ToJson().dump(4));
+            io::VFS::Get().WriteText(asset->m_SourcePath, db->ToJson().dump(4));
         }
     }
 

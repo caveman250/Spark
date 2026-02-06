@@ -1,5 +1,7 @@
 #include "AssetManager.h"
 #include "Asset.h"
+#include "engine/Application.h"
+#include "engine/render/singleton_components/MeshRenderComponent.h"
 
 namespace se::asset
 {
@@ -37,4 +39,27 @@ namespace se::asset
 
         return asset;
     }
+
+#if SPARK_EDITOR
+    void AssetManager::ForceReloadAsset(const std::string& path, reflect::Type* type)
+    {
+        if (m_AssetCache.contains(path))
+        {
+            auto& asset = m_AssetCache.at(path);
+            if (!asset.expired())
+            {
+                auto shared = asset.lock();
+                auto db = binary::Database::Load(path, true);
+                if (!SPARK_VERIFY(db))
+                {
+                    return;
+                }
+                auto root = db->GetRoot();
+                type->Deserialize(shared.get(), root, {});
+                auto* meshRenderComp = Application::Get()->GetWorld()->GetSingletonComponent<render::singleton_components::MeshRenderComponent>();
+                meshRenderComp->invalidatedMeshAssets.push_back(asset::AssetReference<Model>(path));
+            }
+        }
+    }
+#endif
 }

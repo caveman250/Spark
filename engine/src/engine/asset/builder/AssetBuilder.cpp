@@ -42,7 +42,7 @@ namespace se::asset::builder
             return true;
         }
 
-        if (bp->IsOutOfDate(assetPath))
+        if (bp->IsOutOfDate(assetPath, outputPath))
         {
             return true;
         }

@@ -38,12 +38,21 @@ namespace se::render::systems
         auto* meshes = updateData.GetComponentArray<MeshComponent>();
         const auto* transforms = updateData.GetComponentArray<const TransformComponent>();
         const auto* camera = updateData.GetSingletonComponent<const camera::ActiveCameraComponent>();
+        auto* meshRenderComp = updateData.GetSingletonComponent<singleton_components::MeshRenderComponent>();
 
         for (size_t i = 0; i < updateData.GetEntities().size(); ++i)
         {
             auto& mesh = meshes[i];
             size_t modelHash = std::hash<asset::AssetReference<asset::Model>>()(mesh.model);
-            if (!mesh.vertBuffer || mesh.modelHash != modelHash)
+            bool buffersValid = mesh.vertBuffer && mesh.modelHash == modelHash;
+#if SPARK_EDITOR
+            if (std::ranges::contains(meshRenderComp->invalidatedMeshAssets, mesh.model))
+            {
+                buffersValid = false;
+            }
+#endif
+
+            if (!buffersValid)
             {
                 const auto& modelAsset = mesh.model.GetAsset();
                 auto staticMesh = modelAsset->GetMesh();

@@ -21,6 +21,10 @@ namespace se::asset
 
         std::shared_ptr<Asset> GetAsset(const std::string& path, reflect::Type* type);
 
+#if SPARK_EDITOR
+        void ForceReloadAsset(const std::string& path, reflect::Type* type);
+#endif
+
     private:
         std::unordered_map<std::string, std::weak_ptr<Asset>> m_AssetCache;
         std::mutex m_Mutex;

@@ -1,1 +1,16 @@
-{"version":0}
+{
+    "structs": [
+        {
+            "ModelMetaData": {
+                "importScale": "Float",
+                "m_Version": "Uint32"
+            }
+        }
+    ],
+    "root": {
+        "ModelMetaData": {
+            "importScale": 1.0,
+            "m_Version": 2
+        }
+    }
+}

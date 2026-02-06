@@ -36,7 +36,7 @@ namespace se::render::metal
             size_t bufferSize = numElements * sizeof(float) * streamStride;
             auto buffer= m_Buffers.emplace_back([device newBufferWithLength:bufferSize options:MTLStorageModeShared]);
             [buffer retain];
-            for (size_t i = 0; i < numElements; ++i)
+            for (size_t i = 0; i < numElements / stride; ++i)
             {
                 float* dest = static_cast<float*>([buffer contents]) + i * streamStride;
                 float* source = const_cast<float*>(stream.data.data()) + i * stride;

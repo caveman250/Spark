@@ -66,13 +66,14 @@ namespace se::asset::meta
 
     std::shared_ptr<MetaData> MetaManager::GetOrCreateMetaDataForAsset(Asset* asset)
     {
-        auto it = m_MetaCache.find(asset->m_Path);
+        std::lock_guard guard(m_Mutex);
+        auto it = m_MetaCache.find(asset->m_SourcePath);
         if (it != m_MetaCache.end())
         {
             return it->second;
         }
 
-        auto metaPath = GetMetaPath(asset->m_Path);
+        auto metaPath = GetMetaPath(asset->m_SourcePath);
         if (metaPath.empty())
         {
             return nullptr;

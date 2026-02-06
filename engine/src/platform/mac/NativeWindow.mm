@@ -3,8 +3,6 @@
 #import "KeyMap.h"
 #import "engine/input/InputComponent.h"
 
-static std::map<uint32_t, bool> s_ModifierKeyStates = {}; // TODO
-
 @implementation NativeWindow
 
 -(void)initKeyReceiver
@@ -22,11 +20,33 @@ static std::map<uint32_t, bool> s_ModifierKeyStates = {}; // TODO
         se::input::Key key = se::mac::KeyMap::MacKeyToSparkKey(keyCode);
         if (modifierFlagsChanged)
         {
-            s_ModifierKeyStates[keyCode] = !s_ModifierKeyStates[keyCode];
+            NSEventModifierFlags modifiers = [theEvent modifierFlags];
+
+            switch (key)
+            {
+                case se::input::Key::LeftSuper:
+                case se::input::Key::RightSuper:
+                    keyDown = modifiers & NSEventModifierFlagCommand;
+                    break;
+                case se::input::Key::LeftShift:
+                case se::input::Key::RightShift:
+                    keyDown = modifiers & NSEventModifierFlagShift;
+                    break;
+                case se::input::Key::LeftControl:
+                case se::input::Key::RightControl:
+                    keyDown = modifiers & NSEventModifierFlagControl;
+                    break;
+                case se::input::Key::LeftAlt:
+                case se::input::Key::RightAlt:
+                    keyDown = modifiers & NSEventModifierFlagOption;
+                    break;
+                default:
+                    return theEvent;
+            }
 
             se::input::KeyEvent keyEvent;
             keyEvent.key = key;
-            keyEvent.state = s_ModifierKeyStates[keyCode] ? se::input::KeyState::Down : se::input::KeyState::Up;
+            keyEvent.state = keyDown ? se::input::KeyState::Down : se::input::KeyState::Up;
 
             inputComp->keyEvents.push_back(keyEvent);
             inputComp->keyStates[static_cast<int>(key)] = keyEvent.state;

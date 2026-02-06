@@ -397,7 +397,8 @@ namespace se::reflect
                 return static_cast<const void*>(&vec.at(index));
             };
 
-            emplace_back = [](const void* vecPtr, const std::string& type) -> void* {
+            emplace_back = [](const void* vecPtr, const std::string& type) -> void*
+            {
                 auto& vec = *(std::vector<T>*)vecPtr;
                 return &vec.emplace_back(InstantiateContainerObj<T>(type));
             };
@@ -440,6 +441,7 @@ namespace se::reflect
     template <typename T>
     void Type_StdVector<T>::Deserialize(void* obj, asset::binary::Object& parentObj, const std::string& fieldName) const
     {
+        static_cast<std::vector<T>*>(obj)->clear();
         DeserializeVector(obj, parentObj, fieldName, itemType, emplace_back);
     }
 
@@ -654,6 +656,8 @@ namespace se::reflect
     void Type_StdMap<T, Y>::Deserialize(void* obj, asset::binary::Object& parentObj, const std::string& fieldName) const
     {
         std::map<T, Y>* map = (std::map<T, Y>*)obj;
+        map->clear();
+
         auto array = parentObj.Get<asset::binary::Array>(fieldName.empty() ? "val" : fieldName);
         if (array.GetCount() == 0)
         {
@@ -810,6 +814,7 @@ namespace se::reflect
     void Type_StdUnorderedMap<T, Y>::Deserialize(void* obj, asset::binary::Object& parentObj, const std::string& fieldName) const
     {
         std::unordered_map<T, Y>* map = (std::unordered_map<T, Y>*)obj;
+        map->clear();
         auto array = parentObj.Get<asset::binary::Array>(fieldName.empty() ? "val" : fieldName);
         if (array.GetCount() == 0)
         {

@@ -2,6 +2,7 @@
 
 #include "MetaData.h"
 #include "TextureMetaData.h"
+#include "ModelMetaData.h"
 #include "spark.h"
 #include "engine/asset/Asset.h"
 #include "engine/asset/util/AssetUtil.h"
@@ -20,6 +21,7 @@ namespace se::asset::meta
         template <typename T>
         std::shared_ptr<T> GetOrCreateMetaDataForAsset(std::string assetPath)
         {
+            std::lock_guard guard(m_Mutex);
             auto it = m_MetaCache.find(assetPath);
             if (it != m_MetaCache.end())
             {
@@ -44,5 +46,6 @@ namespace se::asset::meta
         void InitMetaData(const std::shared_ptr<MetaData>& meta);
 
         std::unordered_map<std::string, std::shared_ptr<MetaData>> m_MetaCache;
+        std::mutex m_Mutex;
     };
 }

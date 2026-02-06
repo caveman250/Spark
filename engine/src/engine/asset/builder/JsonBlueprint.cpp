@@ -16,6 +16,9 @@ namespace se::asset::builder
 
         std::string jsonText = io::VFS::Get().ReadText(path);
         nlohmann::json json = nlohmann::json::parse(jsonText);
+        auto& root = json["root"];
+        auto& first_item = root.items().begin().value();
+        first_item["m_SourcePath"] = path;
         auto db = binary::Database::FromJson(json);
         ret.push_back({ db, "" });
 

@@ -35,6 +35,7 @@ namespace se::asset::builder
     {
         auto metaManager = meta::MetaManager::Get();
         auto metaData = metaManager->GetOrCreateMetaDataForAsset<meta::TextureMetaData>(path);
+
         auto imageData = LoadImage(path);
         if (!imageData.data)
         {
@@ -51,6 +52,7 @@ namespace se::asset::builder
         }
 
         auto texture = Texture::FromRawData(imageData.x, imageData.y, compressedData, metaData->m_Format, metaData->m_Usage);
+        texture->m_SourcePath = path;
         auto db = reflect::SerialiseType<Texture>(texture.get());
 
         FreeImage(imageData);
@@ -113,10 +115,15 @@ namespace se::asset::builder
         std::free(imageData.sourceData);
     }
 
-    bool TextureBlueprint::IsOutOfDate(const std::string& assetPath)
+    bool TextureBlueprint::IsOutOfDate(const std::string& assetPath, const std::string& outputPath)
     {
         auto metaManager = meta::MetaManager::Get();
         auto metaData = metaManager->GetOrCreateMetaDataForAsset<meta::TextureMetaData>(assetPath);
-        return metaData->GetFormatVersion() < GetLatestVersion();
+        if (metaData->GetFormatVersion() < GetLatestVersion())
+        {
+            return true;
+        }
+
+        return Blueprint::IsOutOfDate(assetPath, outputPath);
     }
 }
