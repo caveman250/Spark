@@ -12,11 +12,22 @@ namespace se::ui::components
 namespace se::ui::util
 {
     ecs::Id CreateTreeView(components::TreeViewComponent** outTreeView, components::RectTransformComponent** outTransform, const ecs::Id& scene);
-    ecs::Id InsertTreeNode(const ecs::Id& treeViewEntity,
-        components::RectTransformComponent* treeViewRect,
-        const ecs::Id& parentNode,
-        const std::string& name,
-        components::TreeNodeComponent** outTreeNode,
-        components::TextComponent** outText,
-        const ecs::Id& scene);
+
+    struct TreeNodeParams
+    {
+        const ecs::Id& treeViewEntity;
+        const ecs::Id& parentNode;
+        const std::string& name;
+        const ecs::Id& scene;
+        components::RectTransformComponent* treeViewRect = nullptr;
+        std::vector<std::string> contextOptions = {};
+        std::function<void(int)> onContextMenuOptionSelected = nullptr;
+    };
+    struct NewTreeNode
+    {
+        ecs::Id entity;
+        components::TreeNodeComponent* treeNode;
+        components::TextComponent* text;
+    };
+    NewTreeNode InsertTreeNode(const TreeNodeParams& params);
 }

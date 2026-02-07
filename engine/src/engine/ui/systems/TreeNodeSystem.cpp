@@ -1,5 +1,6 @@
 #include "TreeNodeSystem.h"
 #include "UIMouseInputSystem.h"
+#include "engine/ui/util/ContextMenuUtil.h"
 
 namespace se::ui::systems
 {
@@ -8,11 +9,13 @@ namespace se::ui::systems
         return ecs::SystemDeclaration("Tree Node System")
                     .WithComponent<components::TreeNodeComponent>()
                     .WithComponent<components::MouseInputComponent>()
+                    .WithSingletonComponent<const input::InputComponent>()
                     .WithDependency<UIMouseInputSystem>();
     }
 
     void TreeNodeSystem::OnUpdate(const ecs::SystemUpdateData& updateData)
     {
+        const auto* inputComp = updateData.GetSingletonComponent<const input::InputComponent>();
         auto* treeNodes = updateData.GetComponentArray<components::TreeNodeComponent>();
         auto* mouseEventComps = updateData.GetComponentArray<components::MouseInputComponent>();
 
@@ -28,6 +31,21 @@ namespace se::ui::systems
                     if (mouseEvent.state == input::KeyState::Up)
                     {
                         treeNode.onSelected.Broadcast();
+                    }
+                }
+                else if (mouseEvent.button == input::MouseButton::Right)
+                {
+                    if (mouseEvent.state == input::KeyState::Up)
+                    {
+                        util::ContextMenuParams params = {
+                            .fontSize = 14,
+                            .options = treeNode.contextOptions,
+                            .onItemSelected = treeNode.onContextMenuOptionSelected,
+                            .mousePos = { inputComp->mouseX, inputComp->mouseY },
+                            .scene = Application::Get()->GetEditorRuntime()->GetEditorScene()
+                        };
+
+                        util::CreateContextMenu(params);
                     }
                 }
             }

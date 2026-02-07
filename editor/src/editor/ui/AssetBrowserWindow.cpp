@@ -83,11 +83,16 @@ namespace se::editor::ui
         {
             if (mount.visibleInEditor)
             {
-                se::ui::components::TreeNodeComponent* treeNodeComp = nullptr;
-                se::ui::components::TextComponent* textComp = nullptr;
-                se::ui::util::InsertTreeNode(treeView, treeViewRect, treeView, mount.vfsPath, &treeNodeComp, &textComp, editor->GetEditorScene());
-                textComp->text = mount.vfsPath;
-                treeNodeComp->onSelected.Subscribe([this, &mount]()
+                se::ui::util::TreeNodeParams params = {
+                    .treeViewEntity = treeView,
+                    .parentNode = treeView,
+                    .name = mount.vfsPath,
+                    .scene = editor->GetEditorScene(),
+                    .treeViewRect = treeViewRect
+                };
+                se::ui::util::NewTreeNode treeNode = se::ui::util::InsertTreeNode(params);
+                treeNode.text->text = mount.vfsPath;
+                treeNode.treeNode->onSelected.Subscribe([this, &mount]()
                 {
                     SetActiveFolder(mount.vfsPath, false);
                 });

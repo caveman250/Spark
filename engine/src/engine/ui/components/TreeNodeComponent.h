@@ -17,5 +17,7 @@ namespace se::ui::components
         std::shared_ptr<asset::Font> font = nullptr;
         int fontSize = 16;
         int depth = 0;
+        std::vector<std::string> contextOptions = {};
+        std::function<void(int)> onContextMenuOptionSelected = nullptr;
     };
 }

@@ -28,37 +28,34 @@ namespace se::ui::util
         return entity;
     }
 
-    ecs::Id InsertTreeNode(const ecs::Id& treeViewEntity,
-       RectTransformComponent* treeViewRect,
-        const ecs::Id& parentNode,
-        const std::string& name,
-        TreeNodeComponent** outTreeNode,
-        TextComponent** outText,
-        const ecs::Id& scene)
+    NewTreeNode InsertTreeNode(const TreeNodeParams& params)
     {
+        NewTreeNode ret = {};
         auto world = Application::Get()->GetWorld();
 
-        treeViewRect->needsLayout = true;
+        params.treeViewRect->needsLayout = true;
 
-        auto entity = world->CreateEntity(scene, name);
-        world->AddChild(parentNode, entity);
+        ret.entity = world->CreateEntity(params.scene, params.name);
+        world->AddChild(params.parentNode, ret.entity);
 
-        *outTreeNode = world->AddComponent<TreeNodeComponent>(entity);
-        std::function<void(bool)> collapsedTreeViewCb = [treeViewEntity](bool)
+        ret.treeNode = world->AddComponent<TreeNodeComponent>(ret.entity);
+        ret.treeNode->contextOptions = params.contextOptions;
+        ret.treeNode->onContextMenuOptionSelected = params.onContextMenuOptionSelected;
+        std::function<void(bool)> collapsedTreeViewCb = [params](bool)
         {
-            auto treeView = Application::Get()->GetWorld()->GetComponent<TreeViewComponent>(treeViewEntity);
+            auto treeView = Application::Get()->GetWorld()->GetComponent<TreeViewComponent>(params.treeViewEntity);
             treeView->dirty = true;
         };
-        (*outTreeNode)->onCollapsedStateChange.Subscribe(std::move(collapsedTreeViewCb));
+        ret.treeNode->onCollapsedStateChange.Subscribe(std::move(collapsedTreeViewCb));
 
-        world->AddComponent<RectTransformComponent>(entity);
-        world->AddComponent<WidgetComponent>(entity);
-        world->AddComponent<MouseInputComponent>(entity);
+        world->AddComponent<RectTransformComponent>(ret.entity);
+        world->AddComponent<WidgetComponent>(ret.entity);
+        world->AddComponent<MouseInputComponent>(ret.entity);
 
-        auto textEntity = world->CreateEntity(scene, "Text");
-        *outText = world->AddComponent<TextComponent>(textEntity);
-        (*outText)->font = "/engine_assets/fonts/Arial.sass";
-        (*outText)->fontSize = 14;
+        auto textEntity = world->CreateEntity(params.scene, "Text");
+        ret.text = world->AddComponent<TextComponent>(textEntity);
+        ret.text->font = "/engine_assets/fonts/Arial.sass";
+        ret.text->fontSize = 14;
         auto textRect = world->AddComponent<RectTransformComponent>(textEntity);
         textRect->anchors = { .left = 0.f, .right = 1.f, .top = 0.f, .bottom = 1.f };
         textRect->minX = 12;
@@ -66,12 +63,12 @@ namespace se::ui::util
         textRect->minY = 0;
         textRect->maxY = 0;
         world->AddComponent<WidgetComponent>(textEntity);
-        world->AddChild(entity, textEntity);
+        world->AddChild(ret.entity, textEntity);
 
         static asset::AssetReference<asset::Texture> expanded_indicator_texture = "/engine_assets/textures/tree_node_indicator_expanded.sass";
         static asset::AssetReference<asset::Texture> collapsed_indicator_texture = "/engine_assets/textures/tree_node_indicator_collapsed.sass";
 
-        auto statusIcon = world->CreateEntity(scene, "Status Icon");
+        auto statusIcon = world->CreateEntity(params.scene, "Status Icon");
         auto rect = world->AddComponent<RectTransformComponent>(statusIcon);
         rect->anchors = { .left = 0.f, .right = 0.f, .top = 0.f, .bottom = 1.f };
         rect->minX = 2;
@@ -83,11 +80,11 @@ namespace se::ui::util
         button->image = expanded_indicator_texture;
         button->hoveredImage = expanded_indicator_texture;
         button->pressedImage = expanded_indicator_texture;
-        std::function statusIconCallback = [world, entity, treeViewEntity, statusIcon](input::MouseButton)
+        std::function statusIconCallback = [world, entity = ret.entity, params, statusIcon](input::MouseButton)
         {
             auto buttonComp = Application::Get()->GetWorld()->GetComponent<ButtonComponent>(statusIcon);
 
-            auto treeView = world->GetComponent<TreeViewComponent>(treeViewEntity);
+            auto treeView = world->GetComponent<TreeViewComponent>(params.treeViewEntity);
             auto treeNode = world->GetComponent<TreeNodeComponent>(entity);
             treeNode->collapsed = !treeNode->collapsed;
             const auto& texture = treeNode->collapsed ? collapsed_indicator_texture : expanded_indicator_texture;
@@ -127,10 +124,10 @@ namespace se::ui::util
                 image->materialInstance->SetUniform("Texture", asset::shader::ast::AstType::Sampler2DReference, 1, &expanded_indicator_texture);
             }
         };
-        (*outTreeNode)->onCollapsedStateChange.Subscribe(std::move(collapsedImageCb));
+        ret.treeNode->onCollapsedStateChange.Subscribe(std::move(collapsedImageCb));
 
-        world->AddChild(entity, statusIcon);
+        world->AddChild(ret.entity, statusIcon);
 
-        return entity;
+        return ret;
     }
 }
