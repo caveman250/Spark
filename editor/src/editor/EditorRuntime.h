@@ -28,6 +28,7 @@ namespace se::editor
         void Shutdown();
 
         const ecs::Id& GetEditorScene() const;
+        const ecs::Id& GetLoadedScene() const;
         void LoadScene(const std::string& path);
         const ecs::Id& GetSelectedEntity() const;
         void SelectEntity(const ecs::Id& id);

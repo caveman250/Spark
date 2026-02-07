@@ -1,6 +1,9 @@
 #include "OutlineWindow.h"
 
 #include "editor/EditorRuntime.h"
+#include "engine/Application.h"
+#include "engine/input/InputComponent.h"
+#include "engine/ui/components/MouseInputComponent.h"
 #include "engine/ui/components/RectTransformComponent.h"
 #include "engine/ui/components/ScrollBoxComponent.h"
 #include "engine/ui/components/TextComponent.h"
@@ -8,10 +11,10 @@
 #include "engine/ui/components/TreeNodeComponent.h"
 #include "engine/ui/components/TreeViewComponent.h"
 #include "engine/ui/components/WindowComponent.h"
+#include "engine/ui/util/ContextMenuUtil.h"
 #include "engine/ui/util/ScrollBoxUtil.h"
 #include "engine/ui/util/TreeViewUtil.h"
 #include "engine/ui/util/WindowUtil.h"
-#include "engine/Application.h"
 
 namespace se::editor::ui
 {
@@ -121,6 +124,36 @@ namespace se::editor::ui
                 m_Editor->SelectSingletonComponent(singletonComponent);
             };
             treeNodeComp->onSelected.Subscribe(std::move(selectedCb));
+        }
+    }
+
+    void OutlineWindow::Update()
+    {
+        ToolWindow::Update();
+
+        auto world = Application::Get()->GetWorld();
+        auto inputComp = world->GetSingletonComponent<input::InputComponent>();
+        auto mouseInput = world->GetComponent<se::ui::components::MouseInputComponent>(m_Window);
+        for (const auto& event: mouseInput->mouseEvents)
+        {
+            if (event.button == input::MouseButton::Right && event.state == input::KeyState::Up)
+            {
+                std::vector<std::string> options = { "Create Entity" };
+                auto onSelected = [](int)
+                {
+                    auto editor = Application::Get()->GetEditorRuntime();
+                    Application::Get()->GetWorld()->CreateEntity(editor->GetLoadedScene(), "New Entity");
+                };
+                se::ui::util::ContextMenuParams params = {
+                    .fontSize = 14,
+                    .options = options,
+                    .onItemSelected = onSelected,
+                    .mousePos = { inputComp->mouseX, inputComp->mouseY },
+                    .scene = Application::Get()->GetEditorRuntime()->GetEditorScene()
+                };
+
+                se::ui::util::CreateContextMenu(params);
+            }
         }
     }
 

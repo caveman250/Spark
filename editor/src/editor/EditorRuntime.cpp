@@ -126,6 +126,7 @@ namespace se::editor
         m_PropertiesWindow->Update();
         m_ViewportWindow->Update();
         m_AssetBrowserWindow->Update();
+        m_OutlineWindow->Update();
 
         if (!m_GameMode)
         {
@@ -176,6 +177,11 @@ namespace se::editor
     const ecs::Id& EditorRuntime::GetEditorScene() const
     {
         return m_EditorScene;
+    }
+
+    const ecs::Id& EditorRuntime::GetLoadedScene() const
+    {
+        return m_LoadedScene;
     }
 
     void EditorRuntime::LoadScene(const std::string& path)

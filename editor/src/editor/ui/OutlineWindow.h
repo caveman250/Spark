@@ -21,6 +21,7 @@ namespace se::editor::ui
         void ConstructUI() override;
         void DestroyUI() override;
         void RebuildOutline() const;
+        void Update() override;
 
         ecs::Id GetWindow() const { return m_Window; }
 

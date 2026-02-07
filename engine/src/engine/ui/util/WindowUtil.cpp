@@ -40,8 +40,7 @@ namespace se::ui::util
 
         if (!world->HasComponent<MouseInputComponent>(entity))
         {
-            auto inputComp = world->AddComponent<MouseInputComponent>(entity);
-            inputComp->buttonMask = std::to_underlying(input::MouseButton::Left);
+            world->AddComponent<MouseInputComponent>(entity);
         }
 
         if (!world->HasComponent<KeyInputComponent>(entity))
