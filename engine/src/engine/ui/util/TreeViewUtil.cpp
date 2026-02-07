@@ -83,7 +83,7 @@ namespace se::ui::util
         button->image = expanded_indicator_texture;
         button->hoveredImage = expanded_indicator_texture;
         button->pressedImage = expanded_indicator_texture;
-        std::function<void()> statusIconCallback = [world, entity, treeViewEntity, statusIcon]()
+        std::function statusIconCallback = [world, entity, treeViewEntity, statusIcon](input::MouseButton)
         {
             auto buttonComp = Application::Get()->GetWorld()->GetComponent<ButtonComponent>(statusIcon);
 

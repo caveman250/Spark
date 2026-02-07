@@ -59,24 +59,22 @@ namespace se::ui::systems
             if (editor->InGameMode() || *entity.scene == editor->GetEditorScene())
 #endif
             {
-                for (const auto& mouseEvent : mouseEventComp.mouseEvents)
-                {
-                    if (mouseEvent.button == input::MouseButton::Left)
-                    {
-                        if (mouseEvent.state == input::KeyState::Down)
-                        {
-                            button.pressed = true;
-                        }
-                        else if (mouseEvent.state == input::KeyState::Up)
-                        {
-                            button.pressed = false;
-                        }
-                    }
-                }
-
-                if (button.pressed && inputComp->mouseButtonStates[static_cast<int>(se::input::MouseButton::Left)] != input::KeyState::Down)
+                if (button.pressed && inputComp->mouseButtonStates[static_cast<int>(button.pressedButton)] != input::KeyState::Down)
                 {
                     button.pressed = false;
+                }
+
+                for (const auto& mouseEvent : mouseEventComp.mouseEvents)
+                {
+                    if (mouseEvent.state == input::KeyState::Down)
+                    {
+                        button.pressed = true;
+                        button.pressedButton = mouseEvent.button;
+                    }
+                    else if (mouseEvent.state == input::KeyState::Up)
+                    {
+                        button.pressed = false;
+                    }
                 }
 
                 button.hovered = !button.pressed && mouseEventComp.hovered;
@@ -108,7 +106,7 @@ namespace se::ui::systems
             if (button.pressed && !button.lastPressed)
             {
                 button.pressedPosition = { inputComp->mouseX, inputComp->mouseY };
-                button.onPressed.Broadcast();
+                button.onPressed.Broadcast(button.pressedButton);
             }
 
             if (button.pressed && !button.isDragging)
@@ -118,13 +116,13 @@ namespace se::ui::systems
                 if (math::MagnitudeSquared(mousePos - button.pressedPosition) > 20 * 20)
                 {
                     button.isDragging = true;
-                    button.onDragged.Broadcast();
+                    button.onDragged.Broadcast(button.pressedButton);
                 }
             }
 
             if (!button.pressed && button.lastPressed && !button.isDragging)
             {
-                button.onReleased.Broadcast();
+                button.onReleased.Broadcast(button.pressedButton);
             }
 
             button.lastHovered = button.hovered;

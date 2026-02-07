@@ -5,6 +5,7 @@
 #include "engine/ecs/Signal.h"
 #include "engine/ecs/Component.h"
 #include "engine/asset/AssetReference.h"
+#include "engine/input/InputComponent.h"
 
 namespace se::ui::systems
 {
@@ -19,6 +20,7 @@ namespace se::ui::components
 
         bool pressed = false;
         bool hovered = false;
+        input::MouseButton pressedButton = {};
 
         SPARK_MEMBER(Serialized)
         asset::AssetReference<asset::Texture> image = {};
@@ -30,14 +32,14 @@ namespace se::ui::components
         asset::AssetReference<asset::Texture> hoveredImage = {};
 
         SPARK_MEMBER(Serialized)
-        ecs::Signal<> onPressed = {};
+        ecs::Signal<input::MouseButton> onPressed = {};
 
         math::IntVec2 pressedPosition = {};
         bool isDragging = false;
 
-        ecs::Signal<> onDragged = {};
+        ecs::Signal<input::MouseButton> onDragged = {};
 
-        ecs::Signal<> onReleased = {};
+        ecs::Signal<input::MouseButton> onReleased = {};
 
     private:
         bool lastPressed = false;

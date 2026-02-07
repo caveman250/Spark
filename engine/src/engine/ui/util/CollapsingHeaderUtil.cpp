@@ -85,7 +85,7 @@ namespace se::ui::util
         auto titleButtonWidget = world->AddComponent<components::WidgetComponent>(titleButtonEntity);
         titleButtonWidget->visibility = Visibility::Hidden;
         world->AddChild(title, titleButtonEntity);
-        titleButton->onReleased.Subscribe([world, entity, titleIndicator]()
+        titleButton->onReleased.Subscribe([world, entity, titleIndicator](input::MouseButton)
         {
             components::CollapsingHeaderComponent* collapsingHeader = world->GetComponent<components::CollapsingHeaderComponent>(entity);
             collapsingHeader->collapsed = !collapsingHeader->collapsed;

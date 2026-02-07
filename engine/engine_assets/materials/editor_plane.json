@@ -6,7 +6,8 @@
         "m_RenderState": "Object",
         "m_ShaderSettings": "Object",
         "m_UniformDefaults": "Object",
-        "m_VertShaders": "Array"
+        "m_VertShaders": "Array",
+        "m_SourcePath": "String"
       }
     },
     {

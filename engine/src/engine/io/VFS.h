@@ -34,6 +34,7 @@ namespace se::io
         void WriteText(const std::string& path, const std::string& text);
         char* ReadBinary(const std::string& path, size_t& outSize);
         void WriteBinary(const std::string& path, char* data, size_t size);
+        void Copy(const std::string& src, const std::string& dest);
 
         void ForEachFile(const std::string& dirPath, bool recursive, const std::function<void(const VFSFile&)>& func, bool parallel = false, bool sorted = false);
 

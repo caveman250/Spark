@@ -111,6 +111,15 @@ namespace se::io
         myfile.close();
     }
 
+    void VFS::Copy(const std::string& src,
+        const std::string& dest)
+    {
+        size_t size = 0;
+        char* data = ReadBinary(src, size);
+        WriteBinary(dest, data, size);
+        free(data);
+    }
+
     std::optional<std::string> VFS::ResolveFSPath(const std::string& vfsPath, bool allowMissing)
     {
         for (const auto& mount : m_Mounts)

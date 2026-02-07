@@ -659,6 +659,7 @@ def DefineTemplateClassBegin(class_name, template_types, template_params):
     if is_variadic:
         template_type = template_types[0:-3]
         create_name += f"            (CollectName<{template_type}>(s_Reflection->name), ...);\n"
+        create_name += "            s_Reflection->name.resize(s_Reflection->name.size() - 2);"
     else:
         for i in range(0, len(template_types_list)):
             create_name += f"            s_Reflection->name += se::reflect::TypeResolver<{template_types_list[i]}>::get()->name;\n"

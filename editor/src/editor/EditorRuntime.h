@@ -44,6 +44,8 @@ namespace se::editor
 
         void ToggleGameMode();
         bool InGameMode() const { return m_GameMode; }
+
+        static std::string DuplicateAsset(const std::shared_ptr<asset::Asset>& asset);
     private:
         void SaveAll();
         void SaveAsset(const std::shared_ptr<asset::Asset>& asset) const;

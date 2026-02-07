@@ -98,7 +98,8 @@ namespace se::editor::systems
 
             math::Vec3 up = math::Cross(right, forward);
 
-            if (!input::InputUtil::IsAnyModifierKeyDown(input))
+            if (util::PosWithinViewport(input->mouseX, input->mouseY) &&
+                !input::InputUtil::IsAnyModifierKeyDown(input))
             {
                 // Movement
                 if (input->keyStates.at(static_cast<int>(input::Key::W)) == input::KeyState::Down)

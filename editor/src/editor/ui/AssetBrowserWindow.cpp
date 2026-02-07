@@ -36,19 +36,19 @@ namespace se::editor::ui
         auto editor = app->GetEditorRuntime();
         auto assetManager = asset::AssetManager::Get();
 
-        se::ui::components::RectTransformComponent *windowTransform;
-        se::ui::components::WindowComponent *windowComp;
-        se::ui::components::TitleBarComponent *titleBarComp;
+        se::ui::components::RectTransformComponent* windowTransform;
+        se::ui::components::WindowComponent* windowComp;
+        se::ui::components::TitleBarComponent* titleBarComp;
         ecs::Id contentArea;
         ecs::Id titleArea;
         m_Window = se::ui::util::CreateWindow(&windowTransform,
-                                                &windowComp,
-                                                &titleBarComp,
-                                                contentArea,
-                                                titleArea,
-                                                "Asset Browser",
-                                                editor->GetEditorScene());
-        windowTransform->anchors = {0.f, 0.f, 0.f, 0.f};
+                                              &windowComp,
+                                              &titleBarComp,
+                                              contentArea,
+                                              titleArea,
+                                              "Asset Browser",
+                                              editor->GetEditorScene());
+        windowTransform->anchors = { 0.f, 0.f, 0.f, 0.f };
         windowTransform->minX = 20;
         windowTransform->maxX = 850;
         windowTransform->minY = 390;
@@ -79,7 +79,7 @@ namespace se::editor::ui
         transformComp->anchors = { 0.f, 1.f, 0.f, 1.f };
         world->AddChild(treeViewBG, treeView);
 
-        for (const auto& mount : io::VFS::Get().GetMounts())
+        for (const auto& mount: io::VFS::Get().GetMounts())
         {
             if (mount.visibleInEditor)
             {
@@ -126,9 +126,9 @@ namespace se::editor::ui
 
         ecs::Id scrollViewEntity;
         ecs::Id scrollBarEntity;
-        se::ui::components::ScrollBoxComponent *scrollBox = nullptr;
-        se::ui::components::ScrollViewComponent *scrollView = nullptr;
-        se::ui::components::RectTransformComponent *scrollBoxTransform = nullptr;
+        se::ui::components::ScrollBoxComponent* scrollBox = nullptr;
+        se::ui::components::ScrollViewComponent* scrollView = nullptr;
+        se::ui::components::RectTransformComponent* scrollBoxTransform = nullptr;
         auto scrollBoxEntity = se::ui::util::CreateScrollBox(&scrollBox, scrollViewEntity, &scrollView, &scrollBoxTransform, scrollBarEntity, editor->GetEditorScene());
         world->AddChild(m_GridBG, scrollBoxEntity);
 
@@ -147,7 +147,6 @@ namespace se::editor::ui
 
     void AssetBrowserWindow::DestroyUI()
     {
-
     }
 
     void AssetBrowserWindow::Update()
@@ -157,15 +156,15 @@ namespace se::editor::ui
         auto world = Application::Get()->GetWorld();
         auto inputComp = world->GetSingletonComponent<input::InputComponent>();
         auto gridMouseInput = world->GetComponent<se::ui::components::MouseInputComponent>(m_GridBG);
-        for (const auto& event : gridMouseInput->mouseEvents)
+        for (const auto& event: gridMouseInput->mouseEvents)
         {
             if (event.state == input::KeyState::Up)
             {
-                std::vector<std::string> options = {"Create Scene", "Create Material" };
+                std::vector<std::string> options = { "Create Scene", "Create Material" };
                 auto onSelected = [this](int i)
                 {
                     auto assetManager = asset::AssetManager::Get();
-                    std::string fileName = {};
+                    std::string fileName = { };
                     switch (i)
                     {
                         case 0:
@@ -183,7 +182,6 @@ namespace se::editor::ui
 
                     SetActiveFolder(m_ActiveFolder);
                     SelectFile(fileName);
-
                 };
                 se::ui::util::ContextMenuParams params = {
                     .fontSize = 14,
@@ -198,13 +196,13 @@ namespace se::editor::ui
         }
     }
 
-    void AssetBrowserWindow::SetActiveFolder(const std::string &activeFolder)
+    void AssetBrowserWindow::SetActiveFolder(const std::string& activeFolder)
     {
         m_ActiveFolder = activeFolder;
 
         auto world = Application::Get()->GetWorld();
 
-        for (const auto &child: world->GetChildren(m_GridBoxEntity))
+        for (const auto& child: world->GetChildren(m_GridBoxEntity))
         {
             world->DestroyEntity(child);
         }
@@ -242,7 +240,7 @@ namespace se::editor::ui
         auto world = app->GetWorld();
         auto editor = app->GetEditorRuntime();
 
-        std::string cumulativePath = {};
+        std::string cumulativePath = { };
         std::string lhs, rhs;
         std::string path = m_ActiveFolder;
         while (string::util::Split(path, lhs, rhs, '/', false))
@@ -279,9 +277,9 @@ namespace se::editor::ui
     }
 
     void AssetBrowserWindow::CreatePathItem(ecs::World* world,
-                        const std::string& name,
-                        const std::string& path,
-                        const asset::AssetReference<asset::Font>& font)
+                                            const std::string& name,
+                                            const std::string& path,
+                                            const asset::AssetReference<asset::Font>& font)
     {
         auto app = Application::Get();
         auto editor = app->GetEditorRuntime();
@@ -298,10 +296,10 @@ namespace se::editor::ui
         auto buttonWidget = world->AddComponent<se::ui::components::WidgetComponent>(buttonEntity);
         buttonWidget->visibility = se::ui::Visibility::Hidden;
         auto button = world->AddComponent<se::ui::components::ButtonComponent>(buttonEntity);
-        button->onReleased.Subscribe([this, path]()
-                                     {
-                                         SetActiveFolder(path);
-                                     });
+        button->onReleased.Subscribe([this, path](input::MouseButton)
+        {
+            SetActiveFolder(path);
+        });
 
         auto labelEntity = world->CreateEntity(editor->GetEditorScene(), "Text");
         auto labelText = world->AddComponent<se::ui::components::TextComponent>(labelEntity);
@@ -346,7 +344,7 @@ namespace se::editor::ui
 
         if (!file.isDirectory)
         {
-            button->onDragged.Subscribe([this, world, file]()
+            button->onDragged.Subscribe([this, world, file](input::MouseButton)
             {
                 auto editor = Application::Get()->GetEditorRuntime();
                 auto dragDropStateComponent = world->GetSingletonComponent<singleton_components::DragDropStateComponent>();
@@ -366,15 +364,47 @@ namespace se::editor::ui
             });
         }
 
-        button->onReleased.Subscribe([this, file]()
+        button->onReleased.Subscribe([this, file, editor](input::MouseButton button)
         {
-            if (file.isDirectory)
+            switch (button)
             {
-                SetActiveFolder(m_ActiveFolder + '/' + file.fileName);
-            }
-            else
-            {
-                SelectFile(file.fullPath);
+                case input::MouseButton::Left:
+                {
+                    if (file.isDirectory)
+                    {
+                        SetActiveFolder(m_ActiveFolder + '/' + file.fileName);
+                    }
+                    else
+                    {
+                        SelectFile(file.fullPath);
+                    }
+                    break;
+                }
+                case input::MouseButton::Right:
+                {
+                    auto world = Application::Get()->GetWorld();
+                    auto inputComp = world->GetSingletonComponent<input::InputComponent>();
+                    se::ui::util::ContextMenuParams params = {
+                        .fontSize = 14,
+                        .options = { "Duplicate" },
+                        .onItemSelected = [this, file](int)
+                        {
+                            auto db = asset::binary::Database::Load(file.fullPath, true);
+
+                            std::shared_ptr<asset::Asset> asset = asset::AssetManager::Get()->GetAsset(file.fullPath,
+                                                                                                       reflect::TypeFromString(db->GetRoot().GetStruct().GetName()));
+                            std::string newPath = EditorRuntime::DuplicateAsset(asset);
+                            SetActiveFolder(m_ActiveFolder);
+                            SelectFile(newPath);
+                        },
+                        .mousePos = { inputComp->mouseX, inputComp->mouseY },
+                        .scene = Application::Get()->GetEditorRuntime()->GetEditorScene()
+                    };
+                    se::ui::util::CreateContextMenu(params);
+                    break;
+                }
+                default:
+                    break;
             }
         });
         world->AddChild(fileEntity, buttonEntity);

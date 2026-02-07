@@ -123,7 +123,7 @@ namespace se::editor::ui
         playButton->image = "/engine_assets/textures/editor_play.sass";
         playButton->pressedImage = "/engine_assets/textures/editor_play_pressed.sass";
         playButton->hoveredImage = "/engine_assets/textures/editor_play_hovered.sass";
-        playButton->onReleased.Subscribe([this, world]()
+        playButton->onReleased.Subscribe([this, world](input::MouseButton)
         {
             if (world->Paused())
             {
@@ -146,7 +146,7 @@ namespace se::editor::ui
         pauseButton->image = "/engine_assets/textures/editor_pause.sass";
         pauseButton->pressedImage = "/engine_assets/textures/editor_pause_pressed.sass";
         pauseButton->hoveredImage = "/engine_assets/textures/editor_pause_hovered.sass";
-        pauseButton->onReleased.Subscribe([this, world]()
+        pauseButton->onReleased.Subscribe([this, world](input::MouseButton)
         {
             auto editor = Application::Get()->GetEditorRuntime();
             if (!world->Paused() && !editor->InGameMode())
@@ -179,7 +179,7 @@ namespace se::editor::ui
         button->image = m_UIVisible ? checkedTexture : unCheckedTexture;
         button->pressedImage = m_UIVisible ? checkedTexture : unCheckedTexture;
         button->hoveredImage = m_UIVisible ? checkedTexture : unCheckedTexture;
-        button->onReleased.Subscribe([this, world]()
+        button->onReleased.Subscribe([this, world](input::MouseButton)
         {
             m_UIVisible = !m_UIVisible;
             world->SetUIVisibility(m_UIVisible);

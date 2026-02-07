@@ -28,7 +28,7 @@ namespace se::render
 
         ~Material() override = default;
 
-        bool CanEditInEditor() const override { return true; }
+        bool IsDataAsset() const override { return true; }
 
         virtual void Bind(const VertexBuffer& vb);
         virtual void CreatePlatformResources(const VertexBuffer& vb);

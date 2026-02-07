@@ -125,7 +125,7 @@ namespace se::ui::util
             auto buttonRect = world->AddComponent<RectTransformComponent>(textButtonEntity);
             buttonRect->anchors = { .left = 0.f, .right = 1.f, .top = 0.f, .bottom = 1.f };
             auto textButton = world->AddComponent<ButtonComponent>(textButtonEntity);
-            textButton->onReleased.Subscribe([params, ret, i, world, collapsedText, option]()
+            textButton->onReleased.Subscribe([params, ret, i, world, collapsedText, option](input::MouseButton)
             {
                 params.onItemSelected(static_cast<int>(i));
                 auto comboBox = world->GetComponent<ComboBoxComponent>(ret.id);

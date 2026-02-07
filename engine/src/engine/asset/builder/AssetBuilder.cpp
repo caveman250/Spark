@@ -63,4 +63,33 @@ namespace se::asset::builder
 
         return nullptr;
     }
+
+    void AssetBuilder::ProcessAsset(const std::string& path, const std::string& outputPath)
+    {
+        auto* bp = asset::builder::AssetBuilder::GetBlueprintForAsset(path);
+
+        debug::Log::Info("Processing asset {}...", path);
+        for (const auto& builtAsset : bp->BuildAsset(path, outputPath))
+        {
+            if (!builtAsset.fileNameSuffix.empty())
+            {
+                auto newOutputPath = outputPath;
+                auto extensionIt = newOutputPath.find_last_of(".");
+                newOutputPath.insert(extensionIt, builtAsset.fileNameSuffix);
+                builtAsset.db->Save(newOutputPath);
+
+                // std::string jsonPth = outputPath;
+                // jsonPth = jsonPth.replace(jsonPth.length() - 5, 5, ".json");
+                // io::VFS::Get().WriteText(jsonPth, builtAsset.db->ToJson().dump(4));
+            }
+            else
+            {
+                builtAsset.db->Save(outputPath);
+
+                // std::string jsonPth = outputPathBase;
+                // jsonPth = jsonPth.replace(jsonPth.length() - 5, 5, ".json");
+                // io::VFS::Get().WriteText(jsonPth, builtAsset.db->ToJson().dump(4));
+            }
+        }
+    }
 }

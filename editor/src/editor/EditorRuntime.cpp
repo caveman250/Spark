@@ -269,6 +269,68 @@ namespace se::editor
         }
     }
 
+    std::string EditorRuntime::DuplicateAsset(const std::shared_ptr<asset::Asset>& asset)
+    {
+        auto type = asset->GetReflectType();
+
+        if (asset->IsDataAsset())
+        {
+            auto db = asset::binary::Database::Create(false);
+            db->SetRootStruct(db->GetOrCreateStruct(type->GetTypeName(nullptr), type->GetStructLayout(nullptr)));
+            auto root = db->GetRoot();
+            type->Serialize(asset.get(), root, {});
+
+            auto& vfs = io::VFS::Get();
+            auto pathExtensionIt = asset->m_Path.find(".");
+            std::string newPath = asset->m_Path;
+            newPath.replace(pathExtensionIt, 1, "_1.");
+            auto sourcePathExtensionIt = asset->m_SourcePath.find(".");
+            std::string newSourcePath = asset->m_SourcePath;
+            newSourcePath.replace(sourcePathExtensionIt, 1, "_1.");
+            int index = 1;
+            while (vfs.Exists(newPath))
+            {
+                index++;
+                newPath.replace(pathExtensionIt, 2, std::format("_{}", index));
+                newSourcePath.replace(sourcePathExtensionIt, 2, std::format("_{}", index));
+            }
+            db->Save(newPath);
+            io::VFS::Get().WriteText(newSourcePath, db->ToJson().dump(4));
+            return newPath;
+        }
+        else
+        {
+            auto& vfs = io::VFS::Get();
+            auto metaManager = asset::meta::MetaManager::Get();
+
+            auto sourcePathExtensionIt = asset->m_SourcePath.find(".");
+            std::string newSourcePath = asset->m_SourcePath;
+            newSourcePath.replace(sourcePathExtensionIt, 1, "_1.");
+
+            auto metaPath = metaManager->GetMetaPath(asset->m_Path);
+
+            int index = 1;
+            while (vfs.Exists(newSourcePath))
+            {
+                index++;
+                newSourcePath.replace(sourcePathExtensionIt, 2, std::format("_{}", index));
+            }
+
+            vfs.Copy(asset->m_SourcePath, newSourcePath);
+
+            if (asset->UsesMetaData())
+            {
+                auto newMetaPath = metaManager->GetMetaPath(newSourcePath);
+                vfs.Copy(metaPath, newMetaPath);
+            }
+
+            std::string newPath = asset::util::GetAssetBuiltPath(newSourcePath);
+            vfs.Copy(asset->m_Path, newPath);
+
+            return newPath;
+        }
+    }
+
     void EditorRuntime::SaveAsset(const std::shared_ptr<asset::Asset>& asset) const
     {
         auto metaManager = asset::meta::MetaManager::Get();

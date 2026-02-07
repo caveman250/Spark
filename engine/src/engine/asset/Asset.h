@@ -15,7 +15,7 @@ namespace se::asset
     {
         SPARK_CLASS()
 
-        virtual bool CanEditInEditor() const { return false; }
+        virtual bool IsDataAsset() const { return false; }
         virtual bool UsesMetaData() const { return false; }
         virtual std::shared_ptr<meta::MetaData> CreateMetaData() const { return nullptr; }
         virtual std::string GetSourceFileExtension() const { return ".json"; }
