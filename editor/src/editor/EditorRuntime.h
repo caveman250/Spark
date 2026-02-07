@@ -46,9 +46,11 @@ namespace se::editor
         bool InGameMode() const { return m_GameMode; }
 
         static std::string DuplicateAsset(const std::shared_ptr<asset::Asset>& asset);
+        static void SaveAsset(const std::shared_ptr<asset::Asset>& asset);
+        static void DeleteAsset(const std::shared_ptr<asset::Asset>& asset);
+
     private:
         void SaveAll();
-        void SaveAsset(const std::shared_ptr<asset::Asset>& asset) const;
         void SaveScene();
         void CreateGizmo();
         void UpdateSelectedEntityTranslation(const math::Vec3& worldPos) const;

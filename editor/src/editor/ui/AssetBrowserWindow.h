@@ -35,7 +35,7 @@ namespace se::editor::ui
         const ecs::Id& GetWindow() const { return m_Window; }
 
     private:
-        void SetActiveFolder(const std::string& activeFolder);
+        void SetActiveFolder(const std::string& activeFolder, bool setSelection);
         void CreatePathBar(const asset::AssetReference<asset::Font>& font);
         void CreatePathItem(ecs::World* world,
                             const std::string& name,

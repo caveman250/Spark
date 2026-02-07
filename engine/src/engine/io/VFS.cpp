@@ -120,6 +120,17 @@ namespace se::io
         free(data);
     }
 
+    bool VFS::Delete(const std::string& path)
+    {
+        auto fsPath = ResolveFSPath(path, true);
+        if (fsPath.has_value())
+        {
+            return std::filesystem::remove(fsPath.value());
+        }
+
+        return false;
+    }
+
     std::optional<std::string> VFS::ResolveFSPath(const std::string& vfsPath, bool allowMissing)
     {
         for (const auto& mount : m_Mounts)
@@ -128,7 +139,7 @@ namespace se::io
             {
                 auto workingDir = std::filesystem::current_path();
                 auto fsPath = GetFSPath(vfsPath, mount);
-                if (std::filesystem::exists(fsPath.data()))
+                if (std::filesystem::exists(fsPath))
                 {
                     return fsPath;
                 }

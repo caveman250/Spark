@@ -8,23 +8,31 @@ namespace se::io::util
                    std::string& file,
                    std::string& extension)
     {
-        std::string pathMinusExtension = {};
-        if (!string::util::Split(path, pathMinusExtension, extension, '.', true))
+        std::string fileName = {};
+        if (!string::util::Split(path, dir, fileName, '/', true))
         {
-            if (!string::util::Split(path, dir, file, '/', true))
+            if (fileName.starts_with(".") && fileName.find_last_of(".") == 0)
             {
-                dir = path;
-                file = {};
+                extension = {};
+            }
+            else if (!string::util::Split(fileName, file, extension, '.', true))
+            {
+                file = fileName;
                 extension = {};
             }
 
             return;
         }
 
-        if (!string::util::Split(pathMinusExtension, dir, file, '/', true))
+        if (fileName.starts_with(".") && fileName.find_last_of(".") == 0)
         {
-            dir = {};
-            file = path;
+            file = fileName;
+            extension = {};
+        }
+        else if (!string::util::Split(fileName, file, extension, '.', true))
+        {
+            file = fileName;
+            extension = {};
         }
     }
 }

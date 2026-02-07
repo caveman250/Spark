@@ -89,7 +89,7 @@ namespace se::editor::ui
                 textComp->text = mount.vfsPath;
                 treeNodeComp->onSelected.Subscribe([this, &mount]()
                 {
-                    SetActiveFolder(mount.vfsPath);
+                    SetActiveFolder(mount.vfsPath, false);
                 });
             }
         }
@@ -140,7 +140,7 @@ namespace se::editor::ui
         world->AddComponent<se::ui::components::WidgetComponent>(m_GridBoxEntity);
         world->AddChild(scrollViewEntity, m_GridBoxEntity);
 
-        SetActiveFolder("/assets");
+        SetActiveFolder("/assets", false);
 
         gridRect->needsLayout = true;
     }
@@ -180,7 +180,7 @@ namespace se::editor::ui
                             break;
                     }
 
-                    SetActiveFolder(m_ActiveFolder);
+                    SetActiveFolder(m_ActiveFolder, false);
                     SelectFile(fileName);
                 };
                 se::ui::util::ContextMenuParams params = {
@@ -196,7 +196,7 @@ namespace se::editor::ui
         }
     }
 
-    void AssetBrowserWindow::SetActiveFolder(const std::string& activeFolder)
+    void AssetBrowserWindow::SetActiveFolder(const std::string& activeFolder, bool setSelection)
     {
         m_ActiveFolder = activeFolder;
 
@@ -214,11 +214,22 @@ namespace se::editor::ui
         m_PathBarItems.clear();
 
         auto& vfs = io::VFS::Get();
-        vfs.ForEachFile(m_ActiveFolder, false, [this, world](const io::VFSFile& file)
+        std::string firstFile = {};
+        vfs.ForEachFile(m_ActiveFolder, false, [this, world, &firstFile](const io::VFSFile& file)
         {
             if (file.extension == "json")
             {
                 return;
+            }
+
+            if (file.fileName.starts_with("."))
+            {
+                return;
+            }
+
+            if (firstFile.empty() && !file.isDirectory)
+            {
+                firstFile = file.fullPath;
             }
 
             auto fileEntity = CreateFileItem(world, file, "/engine_assets/fonts/Arial.sass");
@@ -232,6 +243,11 @@ namespace se::editor::ui
         gridBox->needsLayout = true;
 
         CreatePathBar("/engine_assets/fonts/Arial.sass");
+
+        if (setSelection && !firstFile.empty())
+        {
+            SelectFile(firstFile);
+        }
     }
 
     void AssetBrowserWindow::CreatePathBar(const asset::AssetReference<asset::Font>& font)
@@ -298,7 +314,7 @@ namespace se::editor::ui
         auto button = world->AddComponent<se::ui::components::ButtonComponent>(buttonEntity);
         button->onReleased.Subscribe([this, path](input::MouseButton)
         {
-            SetActiveFolder(path);
+            SetActiveFolder(path, false);
         });
 
         auto labelEntity = world->CreateEntity(editor->GetEditorScene(), "Text");
@@ -364,7 +380,7 @@ namespace se::editor::ui
             });
         }
 
-        button->onReleased.Subscribe([this, file, editor](input::MouseButton button)
+        button->onReleased.Subscribe([this, file](input::MouseButton button)
         {
             switch (button)
             {
@@ -372,7 +388,7 @@ namespace se::editor::ui
                 {
                     if (file.isDirectory)
                     {
-                        SetActiveFolder(m_ActiveFolder + '/' + file.fileName);
+                        SetActiveFolder(m_ActiveFolder + '/' + file.fileName, false);
                     }
                     else
                     {
@@ -386,16 +402,33 @@ namespace se::editor::ui
                     auto inputComp = world->GetSingletonComponent<input::InputComponent>();
                     se::ui::util::ContextMenuParams params = {
                         .fontSize = 14,
-                        .options = { "Duplicate" },
-                        .onItemSelected = [this, file](int)
+                        .options = { "Duplicate", "Delete" },
+                        .onItemSelected = [this, file](int selection)
                         {
                             auto db = asset::binary::Database::Load(file.fullPath, true);
 
                             std::shared_ptr<asset::Asset> asset = asset::AssetManager::Get()->GetAsset(file.fullPath,
                                                                                                        reflect::TypeFromString(db->GetRoot().GetStruct().GetName()));
-                            std::string newPath = EditorRuntime::DuplicateAsset(asset);
-                            SetActiveFolder(m_ActiveFolder);
-                            SelectFile(newPath);
+
+                            switch (selection)
+                            {
+                                case 0:
+                                {
+                                    std::string newPath = EditorRuntime::DuplicateAsset(asset);
+                                    SetActiveFolder(m_ActiveFolder, false);
+                                    SelectFile(newPath);
+                                    break;
+                                }
+                                case 1:
+                                {
+                                    EditorRuntime::DeleteAsset(asset);
+                                    SetActiveFolder(m_ActiveFolder, true);
+                                    break;
+                                }
+                                default:
+                                    SPARK_ASSERT(false);
+                            }
+
                         },
                         .mousePos = { inputComp->mouseX, inputComp->mouseY },
                         .scene = Application::Get()->GetEditorRuntime()->GetEditorScene()
@@ -460,7 +493,7 @@ namespace se::editor::ui
 
         if (asset->GetReflectType() == ecs::SceneSaveData::GetReflection())
         {
-            runtime->LoadScene(asset->m_Path);
+            //runtime->LoadScene(asset->m_Path);
         }
         else
         {

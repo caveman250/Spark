@@ -3,6 +3,7 @@
 #include "engine/asset/builder/AssetBuilder.h"
 #include "ImportAssets.h"
 
+#include "engine/asset/AssetManager.h"
 #include "engine/asset/meta/MetaDataManager.h"
 
 namespace se::editor::startup
