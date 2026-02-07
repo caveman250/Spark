@@ -21,6 +21,7 @@ namespace se::ui::components
         bool pressed = false;
         bool hovered = false;
         input::MouseButton pressedButton = {};
+        std::time_t timePressed = 0;
 
         SPARK_MEMBER(Serialized)
         asset::AssetReference<asset::Texture> image = {};
@@ -33,6 +34,8 @@ namespace se::ui::components
 
         SPARK_MEMBER(Serialized)
         ecs::Signal<input::MouseButton> onPressed = {};
+
+        ecs::Signal<input::MouseButton> onDoubleClick = {};
 
         math::IntVec2 pressedPosition = {};
         bool isDragging = false;

@@ -45,6 +45,7 @@ namespace se::editor::ui
                                const io::VFSFile& name,
                                const asset::AssetReference<asset::Font>& font);
         void SelectFile(const std::string& file);
+        void OpenFile(const std::string& file);
 
         ecs::Id m_Window = ecs::s_InvalidEntity;
         ecs::Id m_GridBoxEntity = ecs::s_InvalidEntity;

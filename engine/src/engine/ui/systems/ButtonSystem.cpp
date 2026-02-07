@@ -5,6 +5,7 @@
 #include "engine/Application.h"
 #include <easy/profiler.h>
 #include "engine/render/MaterialInstance.h"
+#include "engine/time/TimeUtil.h"
 #include "engine/ui/components/ImageComponent.h"
 #include "engine/ui/components/MouseInputComponent.h"
 
@@ -107,6 +108,14 @@ namespace se::ui::systems
             {
                 button.pressedPosition = { inputComp->mouseX, inputComp->mouseY };
                 button.onPressed.Broadcast(button.pressedButton);
+
+                auto now = time::Now();
+                if (now - button.timePressed < 400)
+                {
+                    button.onDoubleClick.Broadcast(button.pressedButton);
+                }
+
+                button.timePressed = now;
             }
 
             if (button.pressed && !button.isDragging)

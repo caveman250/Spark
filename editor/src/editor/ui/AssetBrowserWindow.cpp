@@ -440,6 +440,22 @@ namespace se::editor::ui
                     break;
             }
         });
+        button->onDoubleClick.Subscribe([this, file](input::MouseButton button)
+        {
+            switch (button)
+            {
+                case input::MouseButton::Left:
+                {
+                    if (!file.isDirectory)
+                    {
+                        OpenFile(file.fullPath);
+                    }
+                    break;
+                }
+                default:
+                    break;
+            }
+        });
         world->AddChild(fileEntity, buttonEntity);
 
         ecs::Id imageEntity = world->CreateEntity(editor->GetEditorScene(), "Image");
@@ -491,13 +507,21 @@ namespace se::editor::ui
         std::shared_ptr<asset::Asset> asset = asset::AssetManager::Get()->GetAsset(file,
                                                                                    reflect::TypeFromString(db->GetRoot().GetStruct().GetName()));
 
+        runtime->SelectAsset(asset);
+    }
+
+    void AssetBrowserWindow::OpenFile(const std::string& file)
+    {
+        auto app = Application::Get();
+        EditorRuntime* runtime = app->GetEditorRuntime();
+        auto db = asset::binary::Database::Load(file, true);
+
+        std::shared_ptr<asset::Asset> asset = asset::AssetManager::Get()->GetAsset(file,
+                                                                                   reflect::TypeFromString(db->GetRoot().GetStruct().GetName()));
+
         if (asset->GetReflectType() == ecs::SceneSaveData::GetReflection())
         {
-            //runtime->LoadScene(asset->m_Path);
-        }
-        else
-        {
-            runtime->SelectAsset(asset);
+            runtime->LoadScene(file);
         }
     }
 }
