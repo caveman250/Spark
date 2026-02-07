@@ -6,6 +6,7 @@
 #include "engine/ui/components/TextCaretComponent.h"
 #include "engine/ui/components/WidgetComponent.h"
 #include "engine/ui/components/ImageComponent.h"
+#include "engine/render/Material.h"
 #include "engine/asset/AssetManager.h"
 
 namespace se::ui::util

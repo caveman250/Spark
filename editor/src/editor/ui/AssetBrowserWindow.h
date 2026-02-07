@@ -44,9 +44,11 @@ namespace se::editor::ui
         ecs::Id CreateFileItem(ecs::World* world,
                                const io::VFSFile& name,
                                const asset::AssetReference<asset::Font>& font);
+        void SelectFile(const std::string& file);
 
         ecs::Id m_Window = ecs::s_InvalidEntity;
         ecs::Id m_GridBoxEntity = ecs::s_InvalidEntity;
+        ecs::Id m_GridBG = ecs::s_InvalidEntity;
         ecs::Id m_PathBarBox = ecs::s_InvalidEntity;
         std::vector<ecs::Id> m_PathBarItems = {};
         std::string m_ActiveFolder = "/assets";

@@ -2,7 +2,7 @@
 
 #include "spark.h"
 #include "engine/math/math.h"
-
+#include "engine/asset/AssetReference.h"
 
 namespace se::ecs
 {
@@ -28,30 +28,30 @@ namespace se::ui::util
     ecs::Id CreateEditableText(ecs::World* world,
                                const asset::AssetReference<asset::Font>& font,
                                int fontSize,
-                               EditableTextComponent** text);
+                               components::EditableTextComponent** text);
 
     math::IntVec2 GetCaretPosition(int pos,
-                                   const EditableTextComponent& text,
-                                   const RectTransformComponent& rect);
+                                   const components::EditableTextComponent& text,
+                                   const components::RectTransformComponent& rect);
 
     int CalcCaretPosition(const math::Vec2& mousePos,
-                                   const EditableTextComponent& text,
-                                   const RectTransformComponent& rect);
+                                   const components::EditableTextComponent& text,
+                                   const components::RectTransformComponent& rect);
 
     void BeginEditingText(ecs::System* system,
                           const ecs::Id& entity,
-                          EditableTextComponent& textComp,
-                          KeyInputComponent& keyInputComp);
+                          components::EditableTextComponent& textComp,
+                          components::KeyInputComponent& keyInputComp);
 
     void EndEditingText(ecs::System* system,
                         const ecs::Id& entity,
-                        EditableTextComponent& textComp,
-                        KeyInputComponent& keyInputComp);
+                        components::EditableTextComponent& textComp,
+                        components::KeyInputComponent& keyInputComp);
 
-    void MoveCaret(EditableTextComponent& textComp,
+    void MoveCaret(components::EditableTextComponent& textComp,
                    int delta);
 
-    void SetCaretPos(EditableTextComponent& textComp,
+    void SetCaretPos(components::EditableTextComponent& textComp,
                      int pos);
 #endif
 }

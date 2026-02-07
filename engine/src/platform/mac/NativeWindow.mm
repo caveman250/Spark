@@ -83,11 +83,11 @@
 {
     auto app = se::Application::Get();
     auto inputComp = app->GetWorld()->GetSingletonComponent<se::input::InputComponent>();
-    inputComp->mouseButtonStates[static_cast<int>(se::input::MouseButton::Left)] = se::input::KeyState::Up;
+    inputComp->mouseButtonStates[static_cast<int>(se::input::MouseButton::Right)] = se::input::KeyState::Down;
 
     se::input::MouseEvent mouseEvent;
-    mouseEvent.button = se::input::MouseButton::Left;
-    mouseEvent.state = se::input::KeyState::Up;
+    mouseEvent.button = se::input::MouseButton::Right;
+    mouseEvent.state = se::input::KeyState::Down;
     inputComp->mouseEvents.push_back(mouseEvent);
 }
 

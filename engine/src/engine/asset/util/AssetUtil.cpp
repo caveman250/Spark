@@ -5,7 +5,7 @@
 
 namespace se::asset::util
 {
-    std::string GetAssetSourcePath(std::string assetPath)
+    std::string GetDataAssetSourcePath(std::string assetPath)
     {
         constexpr const char* engineAssets = "/engine_assets";
         constexpr const char* engineSourceAssets = "/source_engine_assets";

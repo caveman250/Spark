@@ -20,6 +20,9 @@
 #include "engine/ui/components/WindowComponent.h"
 #include "../singleton_components/DragDropStateComponent.h"
 #include "engine/ecs/SceneSaveData.h"
+#include "engine/ui/components/MouseInputComponent.h"
+#include "engine/ui/singleton_components/UIRenderComponent.h"
+#include "engine/ui/util/ContextMenuUtil.h"
 #include "engine/ui/util/ScrollBoxUtil.h"
 #include "engine/ui/util/TreeViewUtil.h"
 #include "engine/ui/util/WindowUtil.h"
@@ -110,14 +113,16 @@ namespace se::editor::ui
         horBox->spacing = 5;
         world->AddChild(pathBarBG, m_PathBarBox);
 
-        auto gridBG = world->CreateEntity(editor->GetEditorScene(), "Grid Box BG");
-        auto* gridBGRect = world->AddComponent<se::ui::components::RectTransformComponent>(gridBG);
+        m_GridBG = world->CreateEntity(editor->GetEditorScene(), "Grid Box BG");
+        auto* gridBGRect = world->AddComponent<se::ui::components::RectTransformComponent>(m_GridBG);
         gridBGRect->anchors = { .left = 0.f, .right = 1.f, .top = 0.f, .bottom = 1.f };
         gridBGRect->minY = 35;
         gridBGRect->minX = 200;
-        auto gridBGImage = world->AddComponent<se::ui::components::ImageComponent>(gridBG);
+        auto gridBGImage = world->AddComponent<se::ui::components::ImageComponent>(m_GridBG);
         gridBGImage->materialInstance = render::MaterialInstance::CreateMaterialInstance(bgMaterial);
-        world->AddChild(verticalBoxEntity, gridBG);
+        auto gridMouseInput = world->AddComponent<se::ui::components::MouseInputComponent>(m_GridBG);
+        gridMouseInput->buttonMask = std::to_underlying(se::input::MouseButton::Right);
+        world->AddChild(verticalBoxEntity, m_GridBG);
 
         ecs::Id scrollViewEntity;
         ecs::Id scrollBarEntity;
@@ -125,7 +130,7 @@ namespace se::editor::ui
         se::ui::components::ScrollViewComponent *scrollView = nullptr;
         se::ui::components::RectTransformComponent *scrollBoxTransform = nullptr;
         auto scrollBoxEntity = se::ui::util::CreateScrollBox(&scrollBox, scrollViewEntity, &scrollView, &scrollBoxTransform, scrollBarEntity, editor->GetEditorScene());
-        world->AddChild(gridBG, scrollBoxEntity);
+        world->AddChild(m_GridBG, scrollBoxEntity);
 
         m_GridBoxEntity = world->CreateEntity(editor->GetEditorScene(), "Grid Box");
         auto* gridRect = world->AddComponent<se::ui::components::RectTransformComponent>(m_GridBoxEntity);
@@ -148,6 +153,49 @@ namespace se::editor::ui
     void AssetBrowserWindow::Update()
     {
         ToolWindow::Update();
+
+        auto world = Application::Get()->GetWorld();
+        auto inputComp = world->GetSingletonComponent<input::InputComponent>();
+        auto gridMouseInput = world->GetComponent<se::ui::components::MouseInputComponent>(m_GridBG);
+        for (const auto& event : gridMouseInput->mouseEvents)
+        {
+            if (event.state == input::KeyState::Up)
+            {
+                std::vector<std::string> options = {"Create Scene", "Create Material" };
+                auto onSelected = [this](int i)
+                {
+                    auto assetManager = asset::AssetManager::Get();
+                    std::string fileName = {};
+                    switch (i)
+                    {
+                        case 0:
+                            fileName = m_ActiveFolder + "/new_scene.sass";
+                            assetManager->CreateDataAsset<ecs::SceneSaveData>(fileName);
+                            break;
+                        case 1:
+                            fileName = m_ActiveFolder + "/new_material.sass";
+                            assetManager->CreateDataAsset<render::Material>(fileName);
+                            break;
+                        default:
+                            SPARK_ASSERT(false);
+                            break;
+                    }
+
+                    SetActiveFolder(m_ActiveFolder);
+                    SelectFile(fileName);
+
+                };
+                se::ui::util::ContextMenuParams params = {
+                    .fontSize = 14,
+                    .options = options,
+                    .onItemSelected = onSelected,
+                    .mousePos = { inputComp->mouseX, inputComp->mouseY },
+                    .scene = Application::Get()->GetEditorRuntime()->GetEditorScene()
+                };
+
+                se::ui::util::CreateContextMenu(params);
+            }
+        }
     }
 
     void AssetBrowserWindow::SetActiveFolder(const std::string &activeFolder)
@@ -326,21 +374,7 @@ namespace se::editor::ui
             }
             else
             {
-                auto app = Application::Get();
-                EditorRuntime* runtime = app->GetEditorRuntime();
-                auto db = asset::binary::Database::Load(file.fullPath.data(), true);
-
-                std::shared_ptr<asset::Asset> asset = asset::AssetManager::Get()->GetAsset(file.fullPath.data(),
-                                                                                           reflect::TypeFromString(db->GetRoot().GetStruct().GetName()));
-
-                if (asset->GetReflectType() == ecs::SceneSaveData::GetReflection())
-                {
-                    runtime->LoadScene(asset->m_Path);
-                }
-                else
-                {
-                    runtime->SelectAsset(asset);
-                }
+                SelectFile(file.fullPath);
             }
         });
         world->AddChild(fileEntity, buttonEntity);
@@ -383,5 +417,24 @@ namespace se::editor::ui
         world->AddChild(fileEntity, labelEntity);
 
         return fileEntity;
+    }
+
+    void AssetBrowserWindow::SelectFile(const std::string& file)
+    {
+        auto app = Application::Get();
+        EditorRuntime* runtime = app->GetEditorRuntime();
+        auto db = asset::binary::Database::Load(file, true);
+
+        std::shared_ptr<asset::Asset> asset = asset::AssetManager::Get()->GetAsset(file,
+                                                                                   reflect::TypeFromString(db->GetRoot().GetStruct().GetName()));
+
+        if (asset->GetReflectType() == ecs::SceneSaveData::GetReflection())
+        {
+            runtime->LoadScene(asset->m_Path);
+        }
+        else
+        {
+            runtime->SelectAsset(asset);
+        }
     }
 }

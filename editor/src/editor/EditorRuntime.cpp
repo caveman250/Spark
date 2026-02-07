@@ -321,7 +321,7 @@ namespace se::editor
         {
             auto world = Application::Get()->GetWorld();
             world->SaveScene(m_LoadedScene, m_ScenePath, true);
-            world->SaveScene(m_LoadedScene, asset::util::GetAssetSourcePath(m_ScenePath), false);
+            world->SaveScene(m_LoadedScene, asset::util::GetDataAssetSourcePath(m_ScenePath), false);
         }
     }
 

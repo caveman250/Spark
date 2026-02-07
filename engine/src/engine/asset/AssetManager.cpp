@@ -16,12 +16,12 @@ namespace se::asset
     {
         std::lock_guard guard(m_Mutex);
 
-        if (m_AssetCache.contains(path))
+        const auto it = m_AssetCache.find(path);
+        if (it != m_AssetCache.end())
         {
-            auto& asset = m_AssetCache.at(path);
-            if (!asset.expired())
+            if (!it->second.expired())
             {
-                return asset.lock();
+                return it->second.lock();
             }
         }
 
@@ -35,7 +35,7 @@ namespace se::asset
         std::shared_ptr<Asset> asset = std::shared_ptr<Asset>(static_cast<Asset*>(type->heap_constructor()));
         asset->m_Path = path;
         type->Deserialize(asset.get(), root, {});
-        m_AssetCache[path] = asset;
+        m_AssetCache.insert(std::make_pair(path,asset));
 
         return asset;
     }
