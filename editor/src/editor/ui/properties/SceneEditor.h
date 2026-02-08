@@ -18,6 +18,5 @@ namespace se::editor::ui::properties
     private:
         ecs::Id m_SplitView = {};
         ecs::SceneSaveData* m_Value = nullptr;
-        PropertyEditor* m_WrappedEditor = nullptr;
     };
 }

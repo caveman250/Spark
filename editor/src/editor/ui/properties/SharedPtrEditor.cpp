@@ -56,5 +56,6 @@ namespace se::editor::ui::properties
 
     void SharedPtrEditor::Update()
     {
+        m_WrappedEditor->Update();
     }
 }

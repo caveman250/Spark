@@ -63,5 +63,6 @@ namespace se::editor::ui::properties
 
     void TextureEditor::Update()
     {
+        m_WrappedEditor->Update();
     }
 }

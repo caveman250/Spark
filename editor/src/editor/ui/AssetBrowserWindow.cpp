@@ -165,36 +165,25 @@ namespace se::editor::ui
         {
             if (event.state == input::KeyState::Up)
             {
-                std::vector<std::string> options = { "Create Scene", "Create Material" };
-                auto onSelected = [this](int i)
-                {
-                    auto assetManager = asset::AssetManager::Get();
-                    std::string fileName = { };
-                    switch (i)
-                    {
-                        case 0:
-                            fileName = m_ActiveFolder + "/new_scene.sass";
-                            assetManager->CreateDataAsset<ecs::SceneSaveData>(fileName);
-                            break;
-                        case 1:
-                            fileName = m_ActiveFolder + "/new_material.sass";
-                            assetManager->CreateDataAsset<render::Material>(fileName);
-                            break;
-                        default:
-                            SPARK_ASSERT(false);
-                            break;
-                    }
-
-                    SetActiveFolder(m_ActiveFolder, false);
-                    SelectFile(fileName);
-                };
                 se::ui::util::ContextMenuParams params = {
                     .fontSize = 14,
-                    .options = options,
-                    .onItemSelected = onSelected,
                     .mousePos = { inputComp->mouseX, inputComp->mouseY },
                     .scene = Application::Get()->GetEditorRuntime()->GetEditorScene()
                 };
+                params.AddOption("Create Scene", [this]()
+                {
+                    std::string fileName = m_ActiveFolder + "/new_scene.sass";
+                    asset::AssetManager::Get()->CreateDataAsset<ecs::SceneSaveData>(fileName);
+                    SetActiveFolder(m_ActiveFolder, false);
+                    SelectFile(fileName);
+                });
+                params.AddOption("Create Material", [this]()
+                {
+                    std::string fileName = m_ActiveFolder + "/new_material.sass";
+                    asset::AssetManager::Get()->CreateDataAsset<render::Material>(fileName);
+                    SetActiveFolder(m_ActiveFolder, false);
+                    SelectFile(fileName);
+                });
 
                 se::ui::util::CreateContextMenu(params);
             }
@@ -407,37 +396,28 @@ namespace se::editor::ui
                     auto inputComp = world->GetSingletonComponent<input::InputComponent>();
                     se::ui::util::ContextMenuParams params = {
                         .fontSize = 14,
-                        .options = { "Duplicate", "Delete" },
-                        .onItemSelected = [this, file](int selection)
-                        {
-                            auto db = asset::binary::Database::Load(file.fullPath, true);
-
-                            std::shared_ptr<asset::Asset> asset = asset::AssetManager::Get()->GetAsset(file.fullPath,
-                                                                                                       reflect::TypeFromString(db->GetRoot().GetStruct().GetName()));
-
-                            switch (selection)
-                            {
-                                case 0:
-                                {
-                                    std::string newPath = EditorRuntime::DuplicateAsset(asset);
-                                    SetActiveFolder(m_ActiveFolder, false);
-                                    SelectFile(newPath);
-                                    break;
-                                }
-                                case 1:
-                                {
-                                    EditorRuntime::DeleteAsset(asset);
-                                    SetActiveFolder(m_ActiveFolder, true);
-                                    break;
-                                }
-                                default:
-                                    SPARK_ASSERT(false);
-                            }
-
-                        },
                         .mousePos = { inputComp->mouseX, inputComp->mouseY },
                         .scene = Application::Get()->GetEditorRuntime()->GetEditorScene()
                     };
+                    params.AddOption("Duplicate", [this, file]()
+                    {
+                        auto db = asset::binary::Database::Load(file.fullPath, true);
+
+                        std::shared_ptr<asset::Asset> asset = asset::AssetManager::Get()->GetAsset(file.fullPath,
+                                                                                                    reflect::TypeFromString(db->GetRoot().GetStruct().GetName()));
+                        std::string newPath = EditorRuntime::DuplicateAsset(asset);
+                        SetActiveFolder(m_ActiveFolder, false);
+                        SelectFile(newPath);
+                    });
+                    params.AddOption("Delete", [this, file]()
+                    {
+                        auto db = asset::binary::Database::Load(file.fullPath, true);
+
+                        std::shared_ptr<asset::Asset> asset = asset::AssetManager::Get()->GetAsset(file.fullPath,
+                                                                                                    reflect::TypeFromString(db->GetRoot().GetStruct().GetName()));
+                        EditorRuntime::DeleteAsset(asset);
+                        SetActiveFolder(m_ActiveFolder, true);
+                    });
                     se::ui::util::CreateContextMenu(params);
                     break;
                 }

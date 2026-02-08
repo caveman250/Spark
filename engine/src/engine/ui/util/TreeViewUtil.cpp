@@ -40,8 +40,7 @@ namespace se::ui::util
 
         ret.treeNode = world->AddComponent<TreeNodeComponent>(ret.entity);
         ret.treeNode->contextOptions = params.contextOptions;
-        ret.treeNode->onContextMenuOptionSelected = params.onContextMenuOptionSelected;
-        std::function<void(bool)> collapsedTreeViewCb = [params](bool)
+        std::function collapsedTreeViewCb = [params](bool)
         {
             auto treeView = Application::Get()->GetWorld()->GetComponent<TreeViewComponent>(params.treeViewEntity);
             treeView->dirty = true;
@@ -75,7 +74,7 @@ namespace se::ui::util
         rect->maxX = 10;
         rect->minY = 8;
         rect->maxY = 4;
-        auto image = world->AddComponent<ImageComponent>(statusIcon);
+        world->AddComponent<ImageComponent>(statusIcon);
         auto button = world->AddComponent<ButtonComponent>(statusIcon);
         button->image = expanded_indicator_texture;
         button->hoveredImage = expanded_indicator_texture;
@@ -94,21 +93,6 @@ namespace se::ui::util
             treeView->dirty = true;
         };
         button->onPressed.Subscribe(std::move(statusIconCallback));
-
-        static std::shared_ptr<render::Material> material = nullptr;
-        if (!material)
-        {
-            material = std::make_shared<render::Material>(
-                std::vector{ asset::AssetReference<asset::Shader>("/engine_assets/shaders/ui.sass") },
-                std::vector{ asset::AssetReference<asset::Shader>("/engine_assets/shaders/alpha_texture.sass") });
-            auto rs = render::RenderState();
-            rs.srcBlend = render::BlendMode::SrcAlpha;
-            rs.dstBlend = render::BlendMode::OneMinusSrcAlpha;
-            material->SetRenderState(rs);
-        }
-
-        image->materialInstance = render::MaterialInstance::CreateMaterialInstance(material);
-        image->materialInstance->SetUniform("Texture", asset::shader::ast::AstType::Sampler2DReference, 1, &expanded_indicator_texture);
 
         world->AddComponent<MouseInputComponent>(statusIcon);
 

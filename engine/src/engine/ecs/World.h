@@ -90,6 +90,8 @@ namespace se::ecs
 #if SPARK_EDITOR
         void SaveSceneToTemp(const Id& id);
         Id ReloadSceneFromTemp(const Id& id);
+
+        std::vector<std::pair<ecs::Id, reflect::Class*>> GetAllComponentTypes();
 #endif
 
         Id CreateEntity(const std::string& name);
@@ -107,6 +109,8 @@ namespace se::ecs
 
         template<typename T>
         T* AddComponent(const Id& entity);
+
+        void AddComponent(const Id& entity, const Id& comp);
 
         void AddChild(const Id& entity,
                       const Id& childEntity);

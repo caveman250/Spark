@@ -98,6 +98,7 @@ namespace se::editor::ui::properties
                 else
                 {
                     world->AddChild(entity, propertyEditor->GetWidgetId());
+                    m_Editors.push_back(propertyEditor);
                 }
 
                 world->AddChild(verticalBoxEntity, entity);
@@ -107,5 +108,9 @@ namespace se::editor::ui::properties
 
     void VectorEditor::Update()
     {
+        for (auto* editor : m_Editors)
+        {
+            editor->Update();
+        }
     }
 }

@@ -20,8 +20,7 @@ namespace se::ui::util
         const std::string& name;
         const ecs::Id& scene;
         components::RectTransformComponent* treeViewRect = nullptr;
-        std::vector<std::string> contextOptions = {};
-        std::function<void(int)> onContextMenuOptionSelected = nullptr;
+        std::vector<std::pair<std::string, std::function<void()>>> contextOptions = {};
     };
     struct NewTreeNode
     {

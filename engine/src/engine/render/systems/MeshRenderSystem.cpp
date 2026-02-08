@@ -54,6 +54,10 @@ namespace se::render::systems
 
             if (!buffersValid)
             {
+                if (!mesh.model.IsSet())
+                {
+                    continue;
+                }
                 const auto& modelAsset = mesh.model.GetAsset();
                 auto staticMesh = modelAsset->GetMesh();
                 mesh.vertBuffer = VertexBuffer::CreateVertexBuffer(staticMesh);
@@ -69,7 +73,7 @@ namespace se::render::systems
                 {
                     mesh.materialInstance = MaterialInstance::CreateMaterialInstance(mesh.material.GetAsset());
                 }
-                else
+                else if (mesh.model.IsSet() && mesh.model.GetAsset()->HasMaterial())
                 {
                     mesh.materialInstance = MaterialInstance::CreateMaterialInstance(mesh.model.GetAsset()->GetMaterial());
                 }

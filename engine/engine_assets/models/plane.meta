@@ -2,6 +2,8 @@
     "structs": [
         {
             "ModelMetaData": {
+                "flipUVX": "bool",
+                "flipUVY": "bool",
                 "importScale": "Float",
                 "m_Version": "Uint32"
             }
@@ -10,6 +12,8 @@
     "root": {
         "ModelMetaData": {
             "importScale": 1.0,
+            "flipUVX": false,
+            "flipUVY": false,
             "m_Version": 2
         }
     }

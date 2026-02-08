@@ -6,6 +6,7 @@
 #include "engine/input/InputUtil.h"
 #include <easy/profiler.h>
 
+#include "RootRectTransformSystem.h"
 #include "engine/ecs/util/SystemUtil.h"
 
 using namespace se;
@@ -19,7 +20,8 @@ namespace se::ui::systems
                     .WithComponent<const RootComponent>()
                     .WithComponent<components::MouseInputComponent>()
                     .WithSingletonComponent<input::InputComponent>()
-                    .WithDependency<ResetMouseInputSystem>();
+                    .WithDependency<ResetMouseInputSystem>()
+                    .WithDependency<RootRectTransformSystem>();
     }
 
     void UIMouseInputSystem::OnUpdate(const ecs::SystemUpdateData& updateData)

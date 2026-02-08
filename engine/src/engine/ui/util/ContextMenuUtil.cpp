@@ -14,6 +14,12 @@
 
 namespace se::ui::util
 {
+    void ContextMenuParams::AddOption(const std::string& name,
+        const std::function<void()>& cb)
+    {
+        options.push_back(std::make_pair(name, cb));
+    }
+
     void CreateContextMenu(ContextMenuParams& params)
     {
         ecs::Id contextMenu = {};
@@ -24,13 +30,13 @@ namespace se::ui::util
         auto assetManager = asset::AssetManager::Get();
         auto arial = assetManager->GetAsset<asset::Font>("/engine_assets/fonts/Arial.sass");
 
-        contextMenu = world->CreateEntity(params.scene, "Vertical Box");
+        contextMenu = world->CreateEntity(params.scene, "Context Menu");
         auto verticalBoxTransform = world->AddComponent<RectTransformComponent>(contextMenu);
         verticalBoxTransform->anchors = { .left = 0.f, .right = 0.f, .top = 0.f, .bottom = 0.f };
         verticalBoxTransform->layer = -1;
         verticalBoxTransform->minY = params.mousePos.y / window->GetContentScale();
         verticalBoxTransform->minX = params.mousePos.x / window->GetContentScale();
-        verticalBoxTransform->maxX = verticalBoxTransform->minX + 120;
+        verticalBoxTransform->maxX = verticalBoxTransform->minX + params.minWidth;
         world->AddComponent<WidgetComponent>(contextMenu);
         world->AddComponent<MouseInputComponent>(contextMenu);
         world->AddComponent<ContextMenuComponent>(contextMenu);
@@ -50,7 +56,7 @@ namespace se::ui::util
             auto text = world->AddComponent<TextComponent>(textEntity);
             text->font = "/engine_assets/fonts/Arial.sass";
             text->fontSize = params.fontSize;
-            text->text = option;
+            text->text = option.first;
             world->AddComponent<RectTransformComponent>(textEntity);
             world->AddComponent<WidgetComponent>(textEntity);
             world->AddChild(contextMenu, textEntity);
@@ -59,9 +65,9 @@ namespace se::ui::util
             auto buttonRect = world->AddComponent<RectTransformComponent>(textButtonEntity);
             buttonRect->anchors = { .left = 0.f, .right = 1.f, .top = 0.f, .bottom = 1.f };
             auto textButton = world->AddComponent<ButtonComponent>(textButtonEntity);
-            textButton->onReleased.Subscribe([world, params, i, contextMenu](input::MouseButton)
+            textButton->onReleased.Subscribe([world, option, contextMenu](input::MouseButton)
             {
-                params.onItemSelected(static_cast<int>(i));
+                option.second();
                 world->DestroyEntity(contextMenu);
             });
             auto optionWidget = world->AddComponent<WidgetComponent>(textButtonEntity);

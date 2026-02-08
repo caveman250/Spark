@@ -1,5 +1,6 @@
 #include "ContextMenuSystem.h"
 
+#include "ResetMouseInputSystem.h"
 #include "engine/input/InputComponent.h"
 #include "engine/ui/components/ContextMenuComponent.h"
 #include "engine/ui/components/MouseInputComponent.h"
@@ -11,7 +12,9 @@ namespace se::ui::systems
         return ecs::SystemDeclaration()
             .WithComponent<const components::MouseInputComponent>()
             .WithComponent<const components::ContextMenuComponent>()
-            .WithSingletonComponent<const input::InputComponent>();
+            .WithSingletonComponent<const input::InputComponent>()
+            .WithDependency<RootRectTransformSystem>()
+            .WithDependency<ResetMouseInputSystem>();
     }
 
     void ContextMenuSystem::OnUpdate(const ecs::SystemUpdateData& systemUpdateData)

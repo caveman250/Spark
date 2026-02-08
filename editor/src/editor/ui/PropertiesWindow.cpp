@@ -3,6 +3,8 @@
 #include "engine/Application.h"
 #include "engine/asset/AssetManager.h"
 #include "engine/ui/components/RectTransformComponent.h"
+#include "engine/ui/components/ImageComponent.h"
+#include "engine/ui/components/ButtonComponent.h"
 #include "engine/ui/components/ScrollBoxComponent.h"
 #include "engine/ui/components/TextComponent.h"
 #include "engine/ui/components/TitleBarComponent.h"
@@ -151,6 +153,61 @@ namespace se::editor::ui
                 auto propTextEntity = properties::util::CreateMissingPropertyEditorText(compRecord.type, 0.f, 0);
                 world->AddChild(m_ScrollBoxContent, propTextEntity);
             }
+        }
+
+        {
+            auto addComp = world->CreateEntity(editor->GetEditorScene(), "Add Component Button");
+            auto rect = world->AddComponent<se::ui::components::RectTransformComponent>(addComp);
+            rect->anchors = { .left = 0.f, .right = 1.f, .top = 0.f, .bottom = 0.f };
+            world->AddComponent<se::ui::components::ImageComponent>(addComp);
+            auto button = world->AddComponent<se::ui::components::ButtonComponent>(addComp);
+            button->image = "/engine_assets/textures/editor_button.sass";
+            button->hoveredImage = "/engine_assets/textures/editor_button_pressed.sass";
+            button->pressedImage = "/engine_assets/textures/editor_button_hovered.sass";
+            button->onReleased.Subscribe([world, entity](input::MouseButton btn)
+            {
+                switch (btn)
+                {
+                    case input::MouseButton::Left:
+                    {
+                        auto inputComp = world->GetSingletonComponent<input::InputComponent>();
+                        se::ui::util::ContextMenuParams params = {
+                            .fontSize = 14,
+                            .mousePos = { inputComp->mouseX, inputComp->mouseY },
+                            .scene = Application::Get()->GetEditorRuntime()->GetEditorScene()
+                        };
+
+                        for (const auto& [id, type] : world->GetAllComponentTypes())
+                        {
+                            if (!world->HasComponent(entity, id))
+                            {
+                                params.AddOption(type->name, [world, entity, id]()
+                                {
+                                    world->AddComponent(entity, id);
+                                });
+                            }
+                        }
+
+                        se::ui::util::CreateContextMenu(params);
+                        break;
+                    }
+                    default:
+                        break;
+                }
+            });
+            world->AddChild(m_ScrollBoxContent, addComp);
+
+            auto textEntity = world->CreateEntity(editor->GetEditorScene(), "Text");
+            auto text = world->AddComponent<se::ui::components::TextComponent>(textEntity);
+            text->font = font;
+            text->fontSize = 14;
+            text->text = "Add Component";
+            text->alignment = se::ui::text::Alignment::Center;
+            auto textRect = world->AddComponent<se::ui::components::RectTransformComponent>(textEntity);
+            textRect->minY = 4;
+            textRect->anchors = { .left = 0.f, .right = 1.f, .top = 0.f, .bottom = 1.f };
+            world->AddComponent<se::ui::components::WidgetComponent>(textEntity);
+            world->AddChild(addComp, textEntity);
         }
     }
 

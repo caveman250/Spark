@@ -35,5 +35,6 @@ namespace se::editor::ui::properties
 
     void ModelEditor::Update()
     {
+        m_WrappedEditor->Update();
     }
 }

@@ -39,10 +39,9 @@ namespace se::ui::systems
                     {
                         util::ContextMenuParams params = {
                             .fontSize = 14,
-                            .options = treeNode.contextOptions,
-                            .onItemSelected = treeNode.onContextMenuOptionSelected,
                             .mousePos = { inputComp->mouseX, inputComp->mouseY },
-                            .scene = Application::Get()->GetEditorRuntime()->GetEditorScene()
+                            .scene = Application::Get()->GetEditorRuntime()->GetEditorScene(),
+                            .options = treeNode.contextOptions,
                         };
 
                         util::CreateContextMenu(params);

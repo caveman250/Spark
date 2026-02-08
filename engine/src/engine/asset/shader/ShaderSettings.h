@@ -58,7 +58,6 @@ namespace se
         static_assert(std::is_same_v<T, float> ||
             std::is_same_v<T, int> ||
             std::is_same_v<T, math::Vec3>);
-        SPARK_ASSERT(!m_Settings.contains(setting));
         m_Settings[setting] = std::make_shared<ShaderSettingDefinition<T>>(value);
     }
 }

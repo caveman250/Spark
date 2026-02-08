@@ -22,6 +22,11 @@ namespace se::geo::systems
             const auto& mesh = meshes[i];
             auto& transform = transforms[i];
 
+            // TODO this could be done on import.
+            if (!mesh.model.IsSet())
+            {
+                return;
+            }
             if (transform.aabb.size == 0)
             {
                 float minX = std::numeric_limits<float>::max(), minY = std::numeric_limits<float>::max(), minZ = std::numeric_limits<float>::max();

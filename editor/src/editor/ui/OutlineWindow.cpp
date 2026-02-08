@@ -96,11 +96,6 @@ namespace se::editor::ui
             }
 
             AddEntityUI(world, entity, m_TreeViewEntity, treeViewRect);
-
-            if (m_Editor->GetSelectedEntity() == ecs::s_InvalidEntity)
-            {
-                m_Editor->SelectEntity(entity);
-            }
         }
 
         ecs::Id singletonComponentsNode = {};
@@ -149,19 +144,16 @@ namespace se::editor::ui
         {
             if (event.button == input::MouseButton::Right && event.state == input::KeyState::Up)
             {
-                std::vector<std::string> options = { "Create Entity" };
-                auto onSelected = [](int)
-                {
-                    auto editor = Application::Get()->GetEditorRuntime();
-                    Application::Get()->GetWorld()->CreateEntity(editor->GetLoadedScene(), "New Entity");
-                };
                 se::ui::util::ContextMenuParams params = {
                     .fontSize = 14,
-                    .options = options,
-                    .onItemSelected = onSelected,
                     .mousePos = { inputComp->mouseX, inputComp->mouseY },
                     .scene = Application::Get()->GetEditorRuntime()->GetEditorScene()
                 };
+                params.AddOption("Create Entity", []()
+                {
+                    auto editor = Application::Get()->GetEditorRuntime();
+                    Application::Get()->GetWorld()->CreateEntity(editor->GetLoadedScene(), "New Entity");
+                });
 
                 se::ui::util::CreateContextMenu(params);
             }
@@ -178,11 +170,13 @@ namespace se::editor::ui
             .name = *entity.name,
             .scene = editor->GetEditorScene(),
             .treeViewRect = treeViewRect,
-            .contextOptions = { "Delete Entity "},
-            .onContextMenuOptionSelected = [entity](int)
-            {
-                Application::Get()->GetWorld()->DestroyEntity(entity);
-            }
+            .contextOptions = {
+                std::make_pair("Delete Entity",
+                    [entity]()
+                    {
+                        Application::Get()->GetWorld()->DestroyEntity(entity);
+                    })
+            },
         };
         auto treeNode = se::ui::util::InsertTreeNode(params);
         treeNode.text->text = *entity.name;

@@ -676,6 +676,21 @@ namespace se::ecs
         m_SceneRecords.erase(it->first);
         return LoadScene(std::format("/tmp/editor_scene_{}", fileName));
     }
+
+    std::vector<std::pair<Id, reflect::Class*>> World::GetAllComponentTypes()
+    {
+        std::vector<std::pair<Id, reflect::Class*>> ret ={};
+        ret.reserve(m_ComponentRecords.size());
+        for (const auto& [id, comp] : m_ComponentRecords)
+        {
+            if (id != s_InvalidEntity && comp.type != nullptr)
+            {
+                ret.push_back(std::make_pair(id, comp.type));
+            }
+        }
+
+        return ret;
+    }
 #endif
 
     void World::SaveScene(const Id& scene, const std::string& path, bool binary)
@@ -1045,6 +1060,20 @@ namespace se::ecs
             }, UpdateMode::MultiThreaded, false);
     }
 #endif
+
+    void World::AddComponent(const Id& entity,
+        const Id& comp)
+    {
+        auto guard = std::lock_guard(m_ComponentMutex);
+
+        if (!SPARK_VERIFY(!HasComponent(entity, comp)))
+        {
+            return;
+        }
+
+        m_PendingComponentCreations.emplace_back(PendingComponent { .entity = entity, .comp = comp, .tempData = nullptr });
+        SPARK_ASSERT(m_PendingComponentCreations.back().comp.name != nullptr);
+    }
 
     void World::AddChild(const Id& entity, const Id& childEntity)
     {

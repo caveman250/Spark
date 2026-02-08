@@ -29,6 +29,7 @@ namespace se::asset
         static std::shared_ptr<Model> FromFBX(ofbx::IScene* fbxScene, const std::shared_ptr<meta::ModelMetaData>& meta);
 
         const StaticMesh& GetMesh() { return m_Mesh; }
+        bool HasMaterial() const { return m_Material.IsSet(); }
         const std::shared_ptr<render::Material>& GetMaterial() { return m_Material.GetAsset(); }
     private:
         SPARK_MEMBER(Serialized)

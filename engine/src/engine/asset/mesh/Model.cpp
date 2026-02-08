@@ -132,7 +132,8 @@ namespace se::asset
                                     uv_index = uvs.indices[pv];
 
                                 ofbx::Vec2 uv = uvs.values[uv_index];
-                                staticMesh.uvs.emplace_back(uv.x, 1.0f - uv.y);
+                                staticMesh.uvs.emplace_back(meta->flipUVX ? 1.f - uv.x : uv.x,
+                                    meta->flipUVY ? 1.f - uv.y : uv.y);
                             }
 
                             staticMesh.indices.push_back(

@@ -15,5 +15,11 @@ namespace se::asset::meta
 
         SPARK_MEMBER(Serialized)
         float importScale = 1.f;
+
+        SPARK_MEMBER(Serialized)
+        bool flipUVX = false;
+
+        SPARK_MEMBER(Serialized)
+        bool flipUVY = false;
     };
 }
