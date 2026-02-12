@@ -161,7 +161,7 @@ def ProcessHeaders():
 
     Widgets.WriteWidgetHeader(widgets)
     Components.WriteComponentsFile(components)
-    Class.WriteClassFiles(finalised_reflected_classes, class_heirachy_map, template_instantiations)
+    Class.WriteClassFiles(finalised_reflected_classes, enum_list, class_heirachy_map, template_instantiations)
     Enum.WriteEnumFiles(enum_list)
     Log.Msg("Pass 2: Done.")
     return 0

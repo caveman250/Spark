@@ -1,16 +1,17 @@
 #pragma once
 
 #include "spark.h"
+#include "engine/asset/AssetReference.h"
 #include "engine/asset/font/Font.h"
 #include "engine/asset/texture/Texture.h"
 #include "engine/reflect/Reflect.h"
-#include "engine/render/VertexBuffer.h"
 #include "engine/render/IndexBuffer.h"
 #include "engine/render/MaterialInstance.h"
-#include "engine/ui/util/MeshUtil.h"
-#include "engine/ui/util/RectTransformUtil.h"
+#include "engine/render/VertexBuffer.h"
 #include "engine/ui/text/Alignment.h"
 #include "engine/ui/text/WrapMode.h"
+#include "engine/ui/util/MeshUtil.h"
+#include "engine/ui/util/RectTransformUtil.h"
 #include "platform/IWindow.h"
 
 namespace se::ui::systems

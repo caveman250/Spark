@@ -80,7 +80,7 @@ namespace se::editor::ui::properties
         {
             auto previewContainer = world->CreateEntity(editor->GetEditorScene(), "Preview Container");
             auto previewContainerRect = world->AddComponent<RectTransformComponent>(previewContainer);
-            previewContainerRect->minHeight = std::min(m_Value->GetTextureAsset()->GetHeight(), 256u);
+            previewContainerRect->minHeight = static_cast<float>(std::min(m_Value->GetTextureAsset()->GetHeight(), 256u));
             world->AddComponent<WidgetComponent>(previewContainer);
 
             auto previewInnerContainer = world->CreateEntity(editor->GetEditorScene(), "Preview Inner Container");
@@ -95,8 +95,8 @@ namespace se::editor::ui::properties
             auto preview = world->CreateEntity(editor->GetEditorScene(), "Preview");
             auto previewRect = world->AddComponent<RectTransformComponent>(preview);
             previewRect->anchors = { .left = 0.f, .right = 1.f, .top = 0.f, .bottom = 1.f };
-            previewRect->minAspectRatio = m_Value->GetTextureAsset()->GetWidth() / m_Value->GetTextureAsset()->GetHeight();
-            previewRect->maxAspectRatio = m_Value->GetTextureAsset()->GetWidth() / m_Value->GetTextureAsset()->GetHeight();
+            previewRect->minAspectRatio = static_cast<float>(m_Value->GetTextureAsset()->GetWidth() / m_Value->GetTextureAsset()->GetHeight());
+            previewRect->maxAspectRatio = static_cast<float>(m_Value->GetTextureAsset()->GetWidth() / m_Value->GetTextureAsset()->GetHeight());
             auto previewImage = world->AddComponent<ImageComponent>(preview);
             auto alphaTexture = asset::AssetManager::Get()->GetAsset<render::Material>("/engine_assets/materials/ui_alpha_texture.sass");
             previewImage->materialInstance = render::MaterialInstance::CreateMaterialInstance(alphaTexture);

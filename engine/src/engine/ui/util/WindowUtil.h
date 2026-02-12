@@ -11,9 +11,9 @@ namespace se::ui::components
 
 namespace se::ui::util
 {
-    ecs::Id CreateWindow(RectTransformComponent** transform,
-                         WindowComponent** window,
-                         TitleBarComponent** titleBar,
+    ecs::Id CreateWindow(components::RectTransformComponent** transform,
+                         components::WindowComponent** window,
+                         components::TitleBarComponent** titleBar,
                          ecs::Id& childArea,
                          ecs::Id& titleArea,
                          const std::string& title,

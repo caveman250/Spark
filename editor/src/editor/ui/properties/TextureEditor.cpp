@@ -36,7 +36,7 @@ namespace se::editor::ui::properties
 
         auto previewContainer = world->CreateEntity(editor->GetEditorScene(), "Preview Container");
         auto previewContainerRect = world->AddComponent<RectTransformComponent>(previewContainer);
-        previewContainerRect->minHeight = std::min(m_Value->GetHeight(), 256u);
+        previewContainerRect->minHeight = static_cast<float>(std::min(m_Value->GetHeight(), 256u));
         world->AddComponent<WidgetComponent>(previewContainer);
 
         auto previewInnerContainer = world->CreateEntity(editor->GetEditorScene(), "Preview Inner Container");
@@ -52,8 +52,8 @@ namespace se::editor::ui::properties
         auto preview = world->CreateEntity(editor->GetEditorScene(), "Preview");
         auto previewRect = world->AddComponent<RectTransformComponent>(preview);
         previewRect->anchors = { .left = 0.f, .right = 1.f, .top = 0.f, .bottom = 1.f };
-        previewRect->minAspectRatio = m_Value->GetWidth() / m_Value->GetHeight();
-        previewRect->maxAspectRatio = m_Value->GetWidth() / m_Value->GetHeight();
+        previewRect->minAspectRatio = static_cast<float>(m_Value->GetWidth() / m_Value->GetHeight());
+        previewRect->maxAspectRatio = static_cast<float>(m_Value->GetWidth() / m_Value->GetHeight());
         auto previewImage = world->AddComponent<ImageComponent>(preview);
         previewImage->texture = m_Value->m_Path;
         world->AddChild(previewInnerContainer, preview);

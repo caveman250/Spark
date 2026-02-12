@@ -834,18 +834,34 @@ def WriteInvokeMethod(class_name, functions):
     ret += "    }\n"
     return ret
 
-def CreateClassInstantiationFiles(source_dirs, classes, template_instantiations):
+def GetClass(class_name, classes, enum_list):
+    if class_name.find("::"):
+        class_name = class_name.split("::")[-1]
+    for x in classes.items():
+        if x[1].name == class_name:
+            return x[1]
+
+    for x in enum_list:
+        if x.name == class_name:
+            return x
+
+    return None
+
+def CreateClassInstantiationFiles(source_dirs, enum_list, classes, template_instantiations):
     for src_dir in source_dirs:
         if not os.path.exists(src_dir):
             os.mkdir(src_dir)
+
         project_name = src_dir.split('/')[-4]
         init_members_h_content = f"#pragma once\nnamespace se\n{{\nvoid {project_name}_InitClassReflection();\n}}"
         output_path = src_dir + "Classes.generated.h"
         existing_contents = ""
+
         if os.path.isfile(output_path):
             input_handle = open(output_path, "r")
             existing_contents = input_handle.read()
             input_handle.close()
+
         if existing_contents != init_members_h_content:
             print(f"-- -- {src_dir}Classes.generated.h generating...")
             output_handle = open(output_path, "w+")
@@ -853,25 +869,35 @@ def CreateClassInstantiationFiles(source_dirs, classes, template_instantiations)
             output_handle.close()
 
         init_members_cpp_content = "#include \"spark.h\"\n"
+
         for full_name, class_obj in classes.items():
             if class_obj.is_reflected and class_obj.project_src_dir == src_dir:
                 init_members_cpp_content += f"#include \"{class_obj.path}\"\n"
+
         for template_instantiation in template_instantiations:
             if template_instantiation.project_src_dir == src_dir:
-                class_obj = next(x for x in classes.items() if x[1].name == template_instantiation.class_name)
-                init_members_cpp_content += f"#include \"{class_obj[1].path}\"\n"
+                class_obj = GetClass(template_instantiation.class_name, classes, enum_list)
+                if class_obj is not None:
+                    init_members_cpp_content += f"#include \"{class_obj.path}\"\n"
+                for template_type in template_instantiation.template_types:
+                    template_type_class_obj = GetClass(template_type, classes, enum_list)
+                    if template_type_class_obj is not None:
+                        init_members_cpp_content += f"#include \"{template_type_class_obj.path}\"\n"
+
         init_members_cpp_content += f"\nnamespace se\n{{\nvoid {project_name}_InitClassReflection()\n{{\n"
+
         for full_name, class_obj in classes.items():
-            if class_obj.dev_only:
-                init_members_cpp_content += "#if WITH_DEV_ONLY_CLASSES\n"
-            if class_obj.editor_only:
-                init_members_cpp_content += "#if WITH_EDITOR_ONLY_CLASSES\n"
             if class_obj.is_reflected and not class_obj.is_template and class_obj.project_src_dir == src_dir:
+                if class_obj.dev_only:
+                    init_members_cpp_content += "#if WITH_DEV_ONLY_CLASSES\n"
+                if class_obj.editor_only:
+                    init_members_cpp_content += "#if WITH_EDITOR_ONLY_CLASSES\n"
                 init_members_cpp_content += "    " + full_name + "::InitMembers();\n"
-            if class_obj.editor_only:
-                init_members_cpp_content += "#endif\n"
-            if class_obj.dev_only:
-                init_members_cpp_content += "#endif\n"
+                if class_obj.editor_only:
+                    init_members_cpp_content += "#endif\n"
+                if class_obj.dev_only:
+                    init_members_cpp_content += "#endif\n"
+
         for template_instantiation in template_instantiations:
             if template_instantiation.project_src_dir == src_dir:
                 template_params_string = ", ".join(template_instantiation.template_types)
@@ -884,6 +910,7 @@ def CreateClassInstantiationFiles(source_dirs, classes, template_instantiations)
             input_handle = open(output_path, "r")
             existing_contents = input_handle.read()
             input_handle.close()
+
         if existing_contents != init_members_cpp_content:
             print(f"-- -- {src_dir}Classes.generated.cpp generating...")
             output_handle = open(output_path, "w+")
@@ -1150,12 +1177,12 @@ def WriteTemplateInstantiations(template_instantiations, classes):
             output_handle.write(contents)
             output_handle.close()
 
-def WriteClassFiles(classes, base_class_map, template_instantiations):
+def WriteClassFiles(classes, enum_list, base_class_map, template_instantiations):
     source_dirs = set()
     for full_name, class_obj in classes.items():
         source_dirs.add(class_obj.project_src_dir)
 
-    CreateClassInstantiationFiles(source_dirs, classes, template_instantiations)
+    CreateClassInstantiationFiles(source_dirs, enum_list, classes, template_instantiations)
     CreateSystemInstantiationFiles(source_dirs, classes)
 
     for full_name, classobj in classes.items():
