@@ -108,5 +108,20 @@ namespace se::ui::util
             world->AddChild(contextMenu, scrollBox.scrollBoxEntity);
             world->AddChild(scrollBox.scrollViewEntity, verticalBox);
         }
+
+        auto windowSize = windowRect.size / window->GetContentScale();
+
+        if (contextMenuTransform->maxX > windowSize.x)
+        {
+            int delta = contextMenuTransform->maxX - windowSize.x;
+            contextMenuTransform->maxX -= delta;
+            contextMenuTransform->minX -= delta;
+        }
+        if (contextMenuTransform->maxY > windowSize.y)
+        {
+            int delta = contextMenuTransform->maxY - windowSize.y;
+            contextMenuTransform->maxY -= delta;
+            contextMenuTransform->minY -= delta;
+        }
     }
 }
