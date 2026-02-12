@@ -13,6 +13,28 @@ namespace se::memory
         ResetAndReleaseMemory();
     }
 
+    void* Arena::Alloc(reflect::Type* type)
+    {
+        if (!SPARK_VERIFY(m_Current + type->size < m_Capacity))
+        {
+            return nullptr;
+        }
+
+        char* item = m_Arena + m_Current;
+        m_Current += type->size;
+
+        char* recordMemory = m_Arena + m_Current;
+        ObjectRecordReflected* record = new (recordMemory)ObjectRecordReflected();
+        record->type = type;
+        m_Current += sizeof(ObjectRecordReflected);
+        record->next = m_ObjectRecordsBegin;
+        record->objects_begin = item;
+        record->objects_count = 1;
+        m_ObjectRecordsBegin = record;
+
+        return type->inplace_constructor(item);
+    }
+
     void Arena::Reset()
     {
         ReleaseObjects();

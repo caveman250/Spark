@@ -24,6 +24,19 @@ namespace se::memory
         }
     };
 
+    struct ObjectRecordReflected : ObjectRecord
+    {
+        reflect::Type* type = nullptr;
+
+        void Release(void* obj) override
+        {
+            for (uint32_t i = 0; i < objects_count; ++i)
+            {
+                type->destructor(static_cast<uint8_t*>(obj) + i * type->size);
+            }
+        }
+    };
+
     class Arena
     {
     public:
@@ -31,6 +44,7 @@ namespace se::memory
         ~Arena();
         template <typename T, typename... Args>
         T* Alloc(Args &&... args);
+        void* Alloc(reflect::Type* type);
         // useful for allocating via a base class. Does not call new
         template<typename BaseClass>
         void* AllocUninitialized(size_t size);
@@ -61,7 +75,7 @@ namespace se::memory
 
         char* recordMemory = m_Arena + m_Current;
         ObjectRecordTemplated<T>* record = new (recordMemory) ObjectRecordTemplated<T>();
-        m_Current += sizeof(ObjectRecord);
+        m_Current += sizeof(ObjectRecordTemplated<T>);
         record->next = m_ObjectRecordsBegin;
         record->objects_begin = item;
         record->objects_count = 1;
