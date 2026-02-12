@@ -31,11 +31,11 @@ namespace se::editor
         const ecs::Id& GetLoadedScene() const;
         void LoadScene(const std::string& path);
         const ecs::Id& GetSelectedEntity() const;
-        void SelectEntity(const ecs::Id& id);
+        void SelectEntity(const ecs::Id& id, bool force = false);
         reflect::ObjectBase* GetSelectedSingletonComponent() const;
-        void SelectSingletonComponent(reflect::ObjectBase* comp);
+        void SelectSingletonComponent(reflect::ObjectBase* comp, bool force = false);
         const std::shared_ptr<asset::Asset>& GetSelectedAsset() const;
-        void SelectAsset(const std::shared_ptr<asset::Asset>& asset);
+        void SelectAsset(const std::shared_ptr<asset::Asset>& asset, bool force = false);
         void OnEntitiesChanged() const;
 
         size_t GetOffscreenRenderGroup() const { return m_OffscreenRenderGroup; }
@@ -78,6 +78,7 @@ namespace se::editor
         reflect::ObjectBase* m_LastSelectedSingletonComp = nullptr;
         std::shared_ptr<asset::Asset> m_SelectedAsset = nullptr;
         std::shared_ptr<asset::Asset> m_LastSelectedAsset = nullptr;
+        bool m_ForceSelection = false;
 
         size_t m_OffscreenRenderGroup = 0;
         std::shared_ptr<render::FrameBuffer> m_FrameBuffer = nullptr;

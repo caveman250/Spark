@@ -164,7 +164,7 @@ namespace se::editor::ui
             button->image = "/engine_assets/textures/editor_button.sass";
             button->hoveredImage = "/engine_assets/textures/editor_button_pressed.sass";
             button->pressedImage = "/engine_assets/textures/editor_button_hovered.sass";
-            button->onReleased.Subscribe([world, entity](input::MouseButton btn)
+            button->onReleased.Subscribe([world, entity, addComp, editor](input::MouseButton btn)
             {
                 switch (btn)
                 {
@@ -174,16 +174,20 @@ namespace se::editor::ui
                         se::ui::util::ContextMenuParams params = {
                             .fontSize = 14,
                             .mousePos = { inputComp->mouseX, inputComp->mouseY },
-                            .scene = Application::Get()->GetEditorRuntime()->GetEditorScene()
+                            .scene = Application::Get()->GetEditorRuntime()->GetEditorScene(),
+                            .minWidth = 250
                         };
 
                         for (const auto& [id, type] : world->GetAllComponentTypes())
                         {
                             if (!world->HasComponent(entity, id))
                             {
-                                params.AddOption(type->name, [world, entity, id]()
+                                params.AddOption(type->name, [world, entity, id, type, addComp, editor]()
                                 {
-                                    world->AddComponent(entity, id);
+                                    std::ignore = world->AddComponent(entity, id, type);
+                                    world->ProcessAllPending();
+                                    //RebuildProperties();
+                                    editor->SelectEntity(entity, true);
                                 });
                             }
                         }

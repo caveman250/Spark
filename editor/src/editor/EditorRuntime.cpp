@@ -91,7 +91,8 @@ namespace se::editor
         auto* meshRenderComp = Application::Get()->GetWorld()->GetSingletonComponent<render::singleton_components::MeshRenderComponent>();
         meshRenderComp->invalidatedMeshAssets.clear();
 
-        if (m_SelectedEntity != m_LastSelectedEntity ||
+        if (m_ForceSelection ||
+            m_SelectedEntity != m_LastSelectedEntity ||
             m_SelectedAsset != m_LastSelectedAsset ||
             m_SelectedSingletonComp != m_LastSelectedSingletonComp)
         {
@@ -99,10 +100,10 @@ namespace se::editor
             m_LastSelectedEntity = m_SelectedEntity;
             m_LastSelectedAsset = m_SelectedAsset;
             m_LastSelectedSingletonComp = m_SelectedSingletonComp;
+            m_ForceSelection = false;
 
             if (!m_GameMode)
             {
-
                 if (m_SelectedEntity != se::ecs::s_InvalidEntity && world->HasComponent<ecs::components::TransformComponent>(m_SelectedEntity))
                 {
                     if (m_Gizmo == ecs::s_InvalidEntity )
@@ -200,11 +201,12 @@ namespace se::editor
         return m_SelectedEntity;
     }
 
-    void EditorRuntime::SelectEntity(const ecs::Id& id)
+    void EditorRuntime::SelectEntity(const ecs::Id& id, bool force)
     {
         m_SelectedEntity = id;
         m_SelectedSingletonComp = nullptr;
         m_SelectedAsset = nullptr;
+        m_ForceSelection = force;
     }
 
     reflect::ObjectBase* EditorRuntime::GetSelectedSingletonComponent() const
@@ -212,11 +214,12 @@ namespace se::editor
         return m_SelectedSingletonComp;
     }
 
-    void EditorRuntime::SelectSingletonComponent(reflect::ObjectBase* comp)
+    void EditorRuntime::SelectSingletonComponent(reflect::ObjectBase* comp, bool force)
     {
         m_SelectedEntity = ecs::s_InvalidEntity;
         m_SelectedSingletonComp = comp;
         m_SelectedAsset = nullptr;
+        m_ForceSelection = force;
     }
 
     void EditorRuntime::OnEntitiesChanged() const
@@ -531,10 +534,11 @@ namespace se::editor
         return m_SelectedAsset;
     }
 
-    void EditorRuntime::SelectAsset(const std::shared_ptr<asset::Asset>& asset)
+    void EditorRuntime::SelectAsset(const std::shared_ptr<asset::Asset>& asset, bool force)
     {
         m_SelectedEntity = ecs::s_InvalidEntity;
         m_SelectedSingletonComp = nullptr;
         m_SelectedAsset = asset;
+        m_ForceSelection = force;
     }
 }
