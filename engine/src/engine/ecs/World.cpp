@@ -21,6 +21,8 @@
 
 namespace se::ecs
 {
+    thread_local int World::EachDepth = 0;
+
     Id World::CreateEntity(const std::string& name)
     {
         return CreateEntity(m_DefaultScene, name);

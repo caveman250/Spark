@@ -167,9 +167,6 @@ namespace se::ecs
         int32_t* GetFlags(uint64_t id);
         const Id* GetScene(uint64_t id) const;
 
-    private:
-        bool IsRunning() const { return m_Running; }
-
         template<typename Func>
         void Each(const std::vector<ComponentUsage>& components,
                   const VariantComponentUsage& variantComponent,
@@ -177,6 +174,8 @@ namespace se::ecs
                   Func&& func,
                   UpdateMode mode,
                   bool force);
+    private:
+        bool IsRunning() const { return m_Running; }
 
         struct QueryArchetype
         {
@@ -298,6 +297,7 @@ namespace se::ecs
         void OnSignalDestroyed(BaseSignal* signal);
 
         bool m_Running = false;
+        static thread_local int EachDepth;
 
         std::unordered_map<Id, Archetype> m_Archetypes = { };
         std::unordered_map<Type, Id> m_ArchetypeTypeLookup = { };
@@ -440,6 +440,9 @@ namespace se::ecs
     {
         EASY_BLOCK("World::Each");
 
+        SPARK_ASSERT(EachDepth == 0, "Each may not be called recursively.");
+        EachDepth++;
+
         EASY_BLOCK("Collect Archetypes");
         std::vector<QueryArchetype> archetypes = { };
         CollectArchetypes(components, variantComponent, archetypes);
@@ -505,6 +508,8 @@ namespace se::ecs
             func(updateData);
         }
         EASY_END_BLOCK
+
+        EachDepth--;
     }
 
     template<typename Func>
