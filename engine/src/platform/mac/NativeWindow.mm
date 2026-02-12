@@ -67,6 +67,16 @@
     }];
 }
 
+- (void)keyDown:(NSEvent*) event
+{
+    // ignore
+}
+
+- (void)keyUp:(NSEvent*) event
+{
+    // ignore
+}
+
 - (void)mouseDown:(NSEvent*) event
 {
     auto app = se::Application::Get();
