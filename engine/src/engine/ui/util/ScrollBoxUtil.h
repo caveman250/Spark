@@ -9,10 +9,15 @@ namespace se::ui::components
 
 namespace se::ui::util
 {
-    ecs::Id CreateScrollBox(components::ScrollBoxComponent** outScrollBox,
-                            ecs::Id& scrollViewEntity,
-                            components::ScrollViewComponent** outScrollView,
-                            components::RectTransformComponent** outTransform,
-                            ecs::Id& scrollBarEntity,
-                            const ecs::Id& scene);
+    struct NewScrollBox
+    {
+        components::ScrollBoxComponent* scrollBox = nullptr;
+        components::ScrollViewComponent* scrollView = nullptr;
+        components::RectTransformComponent* transform = nullptr;
+        ecs::Id scrollBoxEntity = ecs::s_InvalidEntity;
+        ecs::Id scrollViewEntity = ecs::s_InvalidEntity;
+        ecs::Id scrollBarEntity = ecs::s_InvalidEntity;
+    };
+
+    NewScrollBox CreateScrollBox(const ecs::Id& scene);
 }

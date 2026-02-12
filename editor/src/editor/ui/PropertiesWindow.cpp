@@ -56,13 +56,8 @@ namespace se::editor::ui
         windowTransform->minY = 20;
         windowTransform->maxY = 700;
 
-        ecs::Id scrollViewEntity;
-        ecs::Id scrollBarEntity;
-        se::ui::components::ScrollBoxComponent *scrollBox = nullptr;
-        se::ui::components::ScrollViewComponent *scrollView = nullptr;
-        se::ui::components::RectTransformComponent *scrollBoxTransform = nullptr;
-        auto scrollBoxEntity = ::se::ui::util::CreateScrollBox(&scrollBox, scrollViewEntity, &scrollView, &scrollBoxTransform, scrollBarEntity, editor->GetEditorScene());
-        world->AddChild(contentArea, scrollBoxEntity);
+        auto scrollBox = ::se::ui::util::CreateScrollBox(editor->GetEditorScene());
+        world->AddChild(contentArea, scrollBox.scrollBoxEntity);
 
         m_ScrollBoxContent = world->CreateEntity("Vertical Box");
         auto verticalBox = world->AddComponent<se::ui::components::VerticalBoxComponent>(m_ScrollBoxContent);
@@ -72,7 +67,7 @@ namespace se::editor::ui
         world->AddComponent<se::ui::components::WidgetComponent>(m_ScrollBoxContent);
         auto verticalBoxTransform = world->AddComponent<se::ui::components::RectTransformComponent>(m_ScrollBoxContent);
         verticalBoxTransform->anchors = { 0.f, 1.f, 0.f, 0.f };
-        world->AddChild(scrollViewEntity, m_ScrollBoxContent);
+        world->AddChild(scrollBox.scrollViewEntity, m_ScrollBoxContent);
 
         m_Valid = true;
     }

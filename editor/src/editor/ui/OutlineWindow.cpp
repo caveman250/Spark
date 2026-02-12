@@ -42,18 +42,13 @@ namespace se::editor::ui
         windowTransform->minY = 20;
         windowTransform->maxY = 380;
 
-        se::ui::components::ScrollBoxComponent* scrollBox = nullptr;
-        se::ui::components::ScrollViewComponent* scrollView = nullptr;
-        se::ui::components::RectTransformComponent* scrollBoxTransform = nullptr;
-        ecs::Id scrollViewEntity;
-        ecs::Id scrollBar;
-        auto scrollBoxEntity = ::se::ui::util::CreateScrollBox(&scrollBox, scrollViewEntity, &scrollView, &scrollBoxTransform, scrollBar, editor->GetEditorScene());
-        world->AddChild(childArea, scrollBoxEntity);
+        auto scrollBox = ::se::ui::util::CreateScrollBox(editor->GetEditorScene());
+        world->AddChild(childArea, scrollBox.scrollBoxEntity);
 
         se::ui::components::RectTransformComponent* transformComp = nullptr;
         se::ui::components::TreeViewComponent* treeViewComp = nullptr;
         m_TreeViewEntity = ::se::ui::util::CreateTreeView(&treeViewComp, &transformComp, editor->GetEditorScene());
-        world->AddChild(scrollViewEntity, m_TreeViewEntity);
+        world->AddChild(scrollBox.scrollViewEntity, m_TreeViewEntity);
         transformComp->anchors = { 0.f, 1.f, 0.f, 0.f };
         transformComp->maxX = 15;
         transformComp->minX = 5;

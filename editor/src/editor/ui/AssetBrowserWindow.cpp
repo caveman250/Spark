@@ -129,13 +129,8 @@ namespace se::editor::ui
         gridMouseInput->buttonMask = std::to_underlying(se::input::MouseButton::Right);
         world->AddChild(verticalBoxEntity, m_GridBG);
 
-        ecs::Id scrollViewEntity;
-        ecs::Id scrollBarEntity;
-        se::ui::components::ScrollBoxComponent* scrollBox = nullptr;
-        se::ui::components::ScrollViewComponent* scrollView = nullptr;
-        se::ui::components::RectTransformComponent* scrollBoxTransform = nullptr;
-        auto scrollBoxEntity = se::ui::util::CreateScrollBox(&scrollBox, scrollViewEntity, &scrollView, &scrollBoxTransform, scrollBarEntity, editor->GetEditorScene());
-        world->AddChild(m_GridBG, scrollBoxEntity);
+        auto scrollBox = ::se::ui::util::CreateScrollBox(editor->GetEditorScene());
+        world->AddChild(m_GridBG, scrollBox.scrollBoxEntity);
 
         m_GridBoxEntity = world->CreateEntity(editor->GetEditorScene(), "Grid Box");
         auto* gridRect = world->AddComponent<se::ui::components::RectTransformComponent>(m_GridBoxEntity);
@@ -143,7 +138,7 @@ namespace se::editor::ui
         auto* gridBox = world->AddComponent<se::ui::components::GridBoxComponent>(m_GridBoxEntity);
         gridBox->spacing = 5;
         world->AddComponent<se::ui::components::WidgetComponent>(m_GridBoxEntity);
-        world->AddChild(scrollViewEntity, m_GridBoxEntity);
+        world->AddChild(scrollBox.scrollViewEntity, m_GridBoxEntity);
 
         SetActiveFolder("/assets", false);
 
