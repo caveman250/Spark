@@ -30,7 +30,7 @@ namespace se::ui::util
             return;
         }
 
-        if (!textComp.materialInstance)
+        if (!textComp.materialInstance && textComp.font.IsSet())
         {
             static std::shared_ptr<render::Material> textMaterial = nullptr;
             if (!textMaterial)
@@ -48,6 +48,11 @@ namespace se::ui::util
             textComp.materialInstance = render::MaterialInstance::CreateMaterialInstance(textMaterial);
             auto texture = textComp.font.GetAsset()->GetTextureAsset();
             textComp.materialInstance->SetUniform("Texture", asset::shader::ast::AstType::Sampler2D, 1, &texture);
+        }
+
+        if (!textComp.materialInstance)
+        {
+            return;
         }
 
         const math::Vec2* materialPos = textComp.materialInstance->template GetUniform<math::Vec2>("pos");
