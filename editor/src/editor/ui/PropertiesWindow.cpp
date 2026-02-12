@@ -138,7 +138,16 @@ namespace se::editor::ui
         {
             const auto &compRecord = world->m_ComponentRecords[component];
             auto compInstance = world->GetComponent(entity, component);
-            if (auto *propEditor = properties::CreatePropertyEditor(compRecord.type->GetTypeName(compInstance), compRecord.type, compInstance, {0.f, 1.f, 0.f, 0.f}, false, true, true))
+            properties::PropertyEditorParams params = {
+                .name = compRecord.type->GetTypeName(compInstance),
+                .type = compRecord.type,
+                .value = compInstance,
+                .anchors = {0.f, 1.f, 0.f, 0.f},
+                .collapsed = false,
+                .withBackground = true,
+                .constructTitle = true,
+            };
+            if (auto *propEditor = properties::CreatePropertyEditor(params))
             {
                 world->AddChild(m_ScrollBoxContent, propEditor->GetWidgetId());
                 m_PropertyEditors.push_back(propEditor);
@@ -215,7 +224,16 @@ namespace se::editor::ui
         auto world = Application::Get()->GetWorld();
         auto reflectClass = static_cast<reflect::Class *>(selectedSingletonComp->GetReflectType());
 
-        if (auto *propEditor = properties::CreatePropertyEditor(reflectClass->GetTypeName(selectedSingletonComp), reflectClass, selectedSingletonComp, {0.f, 1.f, 0.f, 0.f}, false, true, true))
+        properties::PropertyEditorParams params = {
+            .name = reflectClass->GetTypeName(selectedSingletonComp),
+            .type = reflectClass,
+            .value = selectedSingletonComp,
+            .anchors = {0.f, 1.f, 0.f, 0.f},
+            .collapsed = false,
+            .withBackground = true,
+            .constructTitle = true,
+        };
+        if (auto *propEditor = properties::CreatePropertyEditor(params))
         {
             world->AddChild(m_ScrollBoxContent, propEditor->GetWidgetId());
             m_PropertyEditors.push_back(propEditor);
@@ -244,7 +262,16 @@ namespace se::editor::ui
         world->AddComponent<se::ui::components::WidgetComponent>(filePathEntity);
         world->AddChild(m_ScrollBoxContent, filePathEntity);
 
-        if (auto *propEditor = properties::CreatePropertyEditor(reflectClass->GetTypeName(asset.get()), reflectClass, asset.get(), {0.f, 1.f, 0.f, 0.f}, false, true, true))
+        properties::PropertyEditorParams params = {
+            .name = reflectClass->GetTypeName(asset.get()),
+            .type = reflectClass,
+            .value = asset.get(),
+            .anchors = {0.f, 1.f, 0.f, 0.f},
+            .collapsed = false,
+            .withBackground = true,
+            .constructTitle = true,
+        };
+        if (auto *propEditor = properties::CreatePropertyEditor(params))
         {
             world->AddChild(m_ScrollBoxContent, propEditor->GetWidgetId());
             m_PropertyEditors.push_back(propEditor);

@@ -24,7 +24,7 @@ namespace se::editor::ui::properties
 
     public:
         void SetValue(void* value, const reflect::Type* type) override;
-        void ConstructUI(const std::string& name, bool constructTitle, const se::ui::Anchors& anchors, bool collapsed, bool withBackground) override;
+        void ConstructUI(const PropertyEditorParams& params) override;
         void Update() override;
 
     private:
@@ -61,13 +61,9 @@ namespace se::editor::ui::properties
     }
 
     template<typename T>
-    void AssetReferenceEditor<T>::ConstructUI(const std::string& name,
-        bool constructTitle,
-        const se::ui::Anchors& anchors,
-        bool collapsed,
-        bool withBackground)
+    void AssetReferenceEditor<T>::ConstructUI(const PropertyEditorParams& params)
     {
-        PropertyEditor::ConstructUI(name, constructTitle, anchors, collapsed, withBackground);
+        PropertyEditor::ConstructUI(params);
 
         constexpr int iconSize = 32;
         constexpr int borderSize = 2;
@@ -80,7 +76,7 @@ namespace se::editor::ui::properties
 
         m_Root = world->CreateEntity(editor->GetEditorScene(), "Asset Reference Editor");
         auto bgTransform = world->AddComponent<RectTransformComponent>(m_Root);
-        bgTransform->anchors = { .left = constructTitle ? 0.35f : 0.f, .right = 1.f, .top = 0.f, .bottom = 0.f };
+        bgTransform->anchors = { .left = params.constructTitle ? 0.35f : 0.f, .right = 1.f, .top = 0.f, .bottom = 0.f };
         bgTransform->minY = 0;
         bgTransform->maxY = iconSize + borderSize * 4;
         world->AddComponent<WidgetComponent>(m_Root);

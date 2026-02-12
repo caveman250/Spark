@@ -19,26 +19,23 @@ namespace se::editor::ui::properties
         }
     }
 
-    void SharedPtrEditor::ConstructUI(const std::string& name, bool constructTitle, const se::ui::Anchors& anchors, bool collapsed, bool withBackground)
+    void SharedPtrEditor::ConstructUI(const PropertyEditorParams& params)
     {
         auto containedType = m_Type->GetContainedValueType(m_Value);
-        m_WrappedEditor = CreatePropertyEditor(name,
-                                               containedType,
-                                               m_Type->GetContainedValue(m_Value),
-                                               anchors,
-                                               collapsed,
-                                               withBackground,
-                                               constructTitle);
+        auto wrappedParams = params;
+        wrappedParams.type = containedType;
+        wrappedParams.value = m_Type->GetContainedValue(m_Value);
+        m_WrappedEditor = CreatePropertyEditor(wrappedParams);
 
         if (!m_WrappedEditor)
         {
-            PropertyEditor::ConstructUI(name, constructTitle, anchors, collapsed, withBackground);
+            PropertyEditor::ConstructUI(params);
 
             auto app = Application::Get();
             auto world = app->GetWorld();
             auto editor = app->GetEditorRuntime();
 
-            auto entity = world->CreateEntity(editor->GetEditorScene(), name);
+            auto entity = world->CreateEntity(editor->GetEditorScene(), params.name);
             auto rect = world->AddComponent<RectTransformComponent>(entity);
             rect->anchors = { .left = 0.f, .right = 1.f, .top = 0.f, .bottom = 0.f };
             rect->minX = 5;

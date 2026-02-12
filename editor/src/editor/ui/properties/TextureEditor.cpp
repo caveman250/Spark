@@ -17,20 +17,17 @@ namespace se::editor::ui::properties
         m_Value = static_cast<asset::Texture*>(value);
     }
 
-    void TextureEditor::ConstructUI(const std::string& name, bool constructTitle, const se::ui::Anchors& anchors, bool collapsed, bool withBackground)
+    void TextureEditor::ConstructUI(const PropertyEditorParams& params)
     {
         auto metaManager = asset::meta::MetaManager::Get();
         auto meta = metaManager->GetOrCreateMetaDataForAsset(m_Value);
         auto editor = Application::Get()->GetEditorRuntime();
 
         auto metaType = meta->GetReflectType();
-        m_WrappedEditor = CreatePropertyEditor(name,
-                                               metaType,
-                                               meta.get(),
-                                               anchors,
-                                               collapsed,
-                                               withBackground,
-                                               constructTitle);
+        auto wrappedParams = params;
+        wrappedParams.type = metaType;
+        wrappedParams.value = meta.get();
+        m_WrappedEditor = CreatePropertyEditor(wrappedParams);
 
         auto world = Application::Get()->GetWorld();
 

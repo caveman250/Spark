@@ -16,9 +16,9 @@ namespace se::editor::ui::properties
         m_EnumType = static_cast<const reflect::Enum*>(type);
     }
 
-    void EnumEditor::ConstructUI(const std::string& name, bool constructTitle, const se::ui::Anchors& anchors, bool collapsed, bool withBackground)
+    void EnumEditor::ConstructUI(const PropertyEditorParams& params)
     {
-       PropertyEditor::ConstructUI(name, constructTitle, anchors, collapsed, withBackground);
+       PropertyEditor::ConstructUI(params);
 
         auto app = Application::Get();
         auto world = app->GetWorld();
@@ -26,7 +26,7 @@ namespace se::editor::ui::properties
         auto assetManager = asset::AssetManager::Get();
         auto ariel = assetManager->GetAsset<asset::Font>("/engine_assets/fonts/Arial.sass");
 
-        se::ui::util::ComboBoxParams params =
+        se::ui::util::ComboBoxParams comboBoxParams =
         {
             .fontSize = 14,
             .options = { },
@@ -36,10 +36,10 @@ namespace se::editor::ui::properties
         };
         for (const auto& value : m_EnumType->values)
         {
-            params.options.push_back(value.name);
+            comboBoxParams.options.push_back(value.name);
         }
 
-        auto comboBox = se::ui::util::CreateComboBox(params);
+        auto comboBox = se::ui::util::CreateComboBox(comboBoxParams);
         comboBox.rectTransform->anchors = { .left = 0.35f, .right = 1.f, .top = 0.f, .bottom = 0.f };
         world->AddChild(m_Content, comboBox.id);
     }

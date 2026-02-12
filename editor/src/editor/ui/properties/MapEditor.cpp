@@ -26,9 +26,9 @@ namespace se::editor::ui::properties
         }
     }
 
-    void MapEditor::ConstructUI(const std::string& name, bool constructTitle, const se::ui::Anchors& anchors, bool collapsed, bool withBackground)
+    void MapEditor::ConstructUI(const PropertyEditorParams& params)
     {
-        PropertyEditor::ConstructUI(name, constructTitle, anchors, collapsed, withBackground);
+        PropertyEditor::ConstructUI(params);
 
         auto app = Application::Get();
         auto world = app->GetWorld();
@@ -90,13 +90,16 @@ namespace se::editor::ui::properties
                 rect->maxX = 15;
                 world->AddComponent<WidgetComponent>(entity);
 
-                auto propertyEditor = CreatePropertyEditor(propName + ": " + containedType->GetTypeName(m_VectorType->GetContainedValueByIndex(m_Value, i)),
-                                                           containedType,
-                                                           obj,
-                                                           se::ui::Anchors(0.f, 1.f, 0.f, 0.f),
-                                                           true,
-                                                           false,
-                                                           true);
+                PropertyEditorParams propertyParams = {
+                    .name = propName + ": " + containedType->GetTypeName(m_VectorType->GetContainedValueByIndex(m_Value, i)),
+                    .type = containedType,
+                    .value = obj,
+                    .anchors = se::ui::Anchors(0.f, 1.f, 0.f, 0.f),
+                    .collapsed = true,
+                    .withBackground = false,
+                    .constructTitle = true
+                };
+                auto propertyEditor = CreatePropertyEditor(propertyParams);
                 if (!propertyEditor)
                 {
                     auto text = util::CreateMissingPropertyEditorText(containedType, 0.f, 0);

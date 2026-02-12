@@ -14,9 +14,9 @@ namespace se::editor::ui::properties
         m_Value = static_cast<asset::Font*>(value);
     }
 
-    void FontEditor::ConstructUI(const std::string& name, bool constructTitle, const se::ui::Anchors& anchors, bool collapsed, bool withBackground)
+    void FontEditor::ConstructUI(const PropertyEditorParams& params)
     {
-        PropertyEditor::ConstructUI(name, constructTitle, anchors, collapsed, withBackground);
+        PropertyEditor::ConstructUI(params);
 
         auto app = Application::Get();
         auto world = app->GetWorld();

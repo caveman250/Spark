@@ -14,9 +14,11 @@ namespace se::editor::ui::properties
         m_Value = static_cast<ecs::SceneSaveData*>(value);
     }
 
-    void SceneEditor::ConstructUI(const std::string&, bool constructTitle, const se::ui::Anchors& anchors, bool collapsed, bool withBackground)
+    void SceneEditor::ConstructUI(const PropertyEditorParams& params)
     {
-        PropertyEditor::ConstructUI("Scene", constructTitle, anchors, collapsed, withBackground);
+        auto paramsCopy = params;
+        paramsCopy.name = "Scene";
+        PropertyEditor::ConstructUI(paramsCopy);
 
         auto app = Application::Get();
         auto world = app->GetWorld();

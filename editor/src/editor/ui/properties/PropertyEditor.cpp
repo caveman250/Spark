@@ -31,29 +31,25 @@ namespace se::editor::ui::properties
         return s_Instance;
     }
 
-    void PropertyEditor::ConstructUI(const std::string& name,
-                                     bool constructTitle,
-                                     const se::ui::Anchors& anchors,
-                                     bool collapsed,
-                                     bool withBackground)
+    void PropertyEditor::ConstructUI(const PropertyEditorParams& params)
     {
         constexpr int titleFontSize = 14;
         auto app = Application::Get();
         auto world = app->GetWorld();
         auto editor = app->GetEditorRuntime();
 
-        m_Name = name;
+        m_Name = params.name;
 
         ecs::Id titleContainer = { };
         if (GetTitleMode() == PropertyTitleMode::NextLine)
         {
             ecs::Id contentsEntity;
             CollapsingHeaderComponent* collapsingHeader = nullptr;
-            m_WidgetId = se::ui::util::CreateCollapsingHeader(world, m_Name, titleContainer, contentsEntity, &collapsingHeader, collapsed, withBackground, editor->GetEditorScene());
+            m_WidgetId = se::ui::util::CreateCollapsingHeader(world, m_Name, titleContainer, contentsEntity, &collapsingHeader, params.collapsed, params.withBackground, editor->GetEditorScene());
             m_RectTransform = world->GetComponent<RectTransformComponent>(m_WidgetId);
-            m_RectTransform->anchors = anchors;
+            m_RectTransform->anchors = params.anchors;
 
-            m_Content = world->CreateEntity(editor->GetEditorScene(), std::format("Property Content ({})", name));
+            m_Content = world->CreateEntity(editor->GetEditorScene(), std::format("Property Content ({})", params.name));
             auto contentRect = world->AddComponent<RectTransformComponent>(m_Content);
             contentRect->anchors = { .left = 0.f, .right = 1.f, .top = 0.f, .bottom = 0.f };
             contentRect->minX = 5;
@@ -64,17 +60,17 @@ namespace se::editor::ui::properties
         }
         else
         {
-            m_WidgetId = world->CreateEntity(editor->GetEditorScene(), name);
+            m_WidgetId = world->CreateEntity(editor->GetEditorScene(), params.name);
             m_RectTransform = world->AddComponent<RectTransformComponent>(m_WidgetId);
-            m_RectTransform->anchors = anchors;
+            m_RectTransform->anchors = params.anchors;
             world->AddComponent<WidgetComponent>(m_WidgetId);
             titleContainer = m_WidgetId;
             m_Content = m_WidgetId;
         }
 
-        if (constructTitle)
+        if (params.constructTitle)
         {
-            auto titleEntity = world->CreateEntity(editor->GetEditorScene(), std::format("Property Title ({})", name));
+            auto titleEntity = world->CreateEntity(editor->GetEditorScene(), std::format("Property Title ({})", params.name));
             auto titleText = world->AddComponent<TextComponent>(titleEntity);
             titleText->font = "/engine_assets/fonts/Arial.sass";
             titleText->fontSize = titleFontSize;
@@ -96,33 +92,27 @@ namespace se::editor::ui::properties
         Application::Get()->GetWorld()->DestroyEntity(m_WidgetId);
     }
 
-    PropertyEditor* CreatePropertyEditor(const std::string& name,
-                                         reflect::Type* type,
-                                         void* value,
-                                         const se::ui::Anchors& anchors,
-                                         bool collapsed,
-                                         bool withBackground,
-                                         bool constructTitle)
+    PropertyEditor* CreatePropertyEditor(const PropertyEditorParams& params)
     {
         reflect::Type* editor_type = nullptr;
 
-        if (type->IsEnum())
+        if (params.type->IsEnum())
         {
             editor_type = EnumEditor::GetReflection();
         }
-        else if (type->IsContainer())
+        else if (params.type->IsContainer())
         {
-            auto* container = static_cast<reflect::Type_Container*>(type);
+            auto* container = static_cast<reflect::Type_Container*>(params.type);
             editor_type = GetContainerPropertyEditorTypes()[container->GetContainerTypeName()];
         }
         else
         {
-            editor_type = GetPropertyEditorTypes()[type];
+            editor_type = GetPropertyEditorTypes()[params.type];
         }
 
         if (!editor_type)
         {
-            if (type->IsClass())
+            if (params.type->IsClass())
             {
                 editor_type = reflect::TypeResolver<ClassEditor>::get();
             }
@@ -133,19 +123,9 @@ namespace se::editor::ui::properties
         }
 
         auto editor = static_cast<PropertyEditor*>(editor_type->heap_constructor());
-        editor->SetValue(value, type);
-        editor->SetName(name);
-        editor->ConstructUI(name, constructTitle, anchors, collapsed, withBackground);
+        editor->SetValue(params.value, params.type);
+        editor->SetName(params.name);
+        editor->ConstructUI(params);
         return editor;
-    }
-
-    PropertyEditor* CreatePropertyEditor(const reflect::Class::Member& member,
-                                         const void* classInstance,
-                                         const se::ui::Anchors& anchors,
-                                         bool collapsed,
-                                         bool withBackground,
-                                         bool constructTitle)
-    {
-        return CreatePropertyEditor(member.name, member.type, classInstance ? member.get(classInstance) : nullptr, anchors, collapsed, withBackground, constructTitle);
     }
 }

@@ -1,5 +1,6 @@
 #pragma once
 #include "engine/reflect/Object.h"
+#include "engine/ui/Anchors.h"
 
 namespace se::ui
 {
@@ -50,11 +51,23 @@ namespace se::editor::ui::properties
 #define SSCANF(buffer, str, var, ...) sscanf_s(buffer, str, var, __VA_ARGS__)
 #endif
 
+    struct PropertyEditorParams
+    {
+        std::string name = {};
+        reflect::Type* type = nullptr;
+        void* value = nullptr;
+        se::ui::Anchors anchors = {};
+        bool collapsed = false;
+        bool withBackground = false;
+        bool constructTitle = false;
+        std::vector<std::pair<std::string, std::function<void()>>> contextOptions = {};
+    };
+
     using namespace se::ui::components;
     class PropertyEditor : public reflect::ObjectBase
     {
     public:
-        virtual void ConstructUI(const std::string& name, bool constructTitle, const se::ui::Anchors& anchors, bool collapsed, bool withBackground);
+        virtual void ConstructUI(const PropertyEditorParams& params);
         virtual void DestroyUI();
         virtual void SetValue(void* value, const reflect::Type* type) = 0;
         virtual void SetName(const std::string& name) { m_Name = name; }
@@ -71,6 +84,5 @@ namespace se::editor::ui::properties
         std::string m_Name = {};
     };
 
-    PropertyEditor* CreatePropertyEditor(const std::string& name, reflect::Type* type, void* value, const se::ui::Anchors& anchors, bool collapsed, bool withBackground, bool constructTitle);
-    PropertyEditor* CreatePropertyEditor(const reflect::Class::Member& member, const void* classInstance, const se::ui::Anchors& anchors, bool collapsed, bool withBackground, bool constructTitle);
+    PropertyEditor* CreatePropertyEditor(const PropertyEditorParams& params);
 }

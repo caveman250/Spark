@@ -10,7 +10,7 @@ namespace se::editor::ui::properties
 
     public:
         void SetValue(void* value, const reflect::Type* type) override;
-        void ConstructUI(const std::string& name, bool constructTitle, const se::ui::Anchors& anchor, bool collapseds, bool withBackground) override;
+        void ConstructUI(const PropertyEditorParams& params) override;
         PropertyTitleMode GetTitleMode() const override { return PropertyTitleMode::NextLine; }
         void Update() override;
 

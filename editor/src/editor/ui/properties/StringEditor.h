@@ -20,7 +20,7 @@ namespace se::editor::ui::properties
 
     public:
         void SetValue(void* value, const reflect::Type* type) override;
-        void ConstructUI(const std::string& name, bool constructTitle, const se::ui::Anchors& anchors, bool collapsed, bool withBackground) override;
+        void ConstructUI(const PropertyEditorParams& params) override;
         void Update() override;
 
     private:
@@ -37,9 +37,9 @@ namespace se::editor::ui::properties
     }
 
     template <typename S>
-    void StringEditor<S>::ConstructUI(const std::string& name, bool constructTitle, const se::ui::Anchors& anchors, bool collapsed, bool withBackground)
+    void StringEditor<S>::ConstructUI(const PropertyEditorParams& params)
     {
-        PropertyEditor::ConstructUI(name, constructTitle, anchors, collapsed, withBackground);
+        PropertyEditor::ConstructUI(params);
 
         constexpr int fontSize = 14;
         constexpr int padding = 4;
@@ -54,7 +54,7 @@ namespace se::editor::ui::properties
 
         auto bg = world->CreateEntity(editor->GetEditorScene(), "String Editor");
         auto bgTransform = world->AddComponent<RectTransformComponent>(bg);
-        bgTransform->anchors = { .left = constructTitle ? 0.35f : 0.f, .right = 1.f, .top = 0.f, .bottom = 0.f };
+        bgTransform->anchors = { .left = params.constructTitle ? 0.35f : 0.f, .right = 1.f, .top = 0.f, .bottom = 0.f };
         bgTransform->minY = 0;
         bgTransform->maxY = ariel->GetLineHeight(fontSize) + padding + borderSize * 2 + 0.5f;
 

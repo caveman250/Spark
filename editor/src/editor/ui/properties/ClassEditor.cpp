@@ -18,9 +18,9 @@ namespace se::editor::ui::properties
         }
     }
 
-    void ClassEditor::ConstructUI(const std::string& name, bool constructTitle, const se::ui::Anchors& anchors, bool collapsed, bool withBackground)
+    void ClassEditor::ConstructUI(const PropertyEditorParams& params)
     {
-        PropertyEditor::ConstructUI(name, constructTitle, anchors, collapsed, withBackground);
+        PropertyEditor::ConstructUI(params);
 
         auto app = Application::Get();
         auto world = app->GetWorld();
@@ -36,7 +36,16 @@ namespace se::editor::ui::properties
 
             numSerialisedMembers++;
 
-            if (auto *propEditor = CreatePropertyEditor(member, m_Value, {0.f, 1.f, 0.f, 0.f}, true, false, true))
+            PropertyEditorParams memberParams = {
+                .name = member.name,
+                .type = member.type,
+                .value = m_Value ? member.get(m_Value) : nullptr,
+                .anchors = {0.f, 1.f, 0.f, 0.f},
+                .collapsed = true,
+                .withBackground = false,
+                .constructTitle = true
+            };
+            if (auto *propEditor = CreatePropertyEditor(memberParams))
             {
                 world->AddChild(m_Content, propEditor->GetWidgetId());
                 m_Editors.push_back(propEditor);

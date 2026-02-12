@@ -18,9 +18,9 @@ namespace se::editor::ui::properties
         m_Value = static_cast<bool*>(value);
     }
 
-    void BoolEditor::ConstructUI(const std::string& name, bool constructTitle, const se::ui::Anchors& anchors, bool collapsed, bool withBackground)
+    void BoolEditor::ConstructUI(const PropertyEditorParams& params)
     {
-       PropertyEditor::ConstructUI(name, constructTitle, anchors, collapsed, withBackground);
+       PropertyEditor::ConstructUI(params);
 
         auto app = Application::Get();
         auto world = app->GetWorld();
@@ -32,7 +32,7 @@ namespace se::editor::ui::properties
         auto bgTransform = world->AddComponent<RectTransformComponent>(bg);
         bgTransform->minY = 0;
         bgTransform->maxY = 24;
-        if (constructTitle)
+        if (params.constructTitle)
         {
             bgTransform->anchors = { .left = 1.f, .right = 1.f, .top = 0.f, .bottom = 0.f };
             bgTransform->minX = 24;
