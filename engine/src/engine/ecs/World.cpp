@@ -95,7 +95,7 @@ namespace se::ecs
 
     std::vector<reflect::ObjectBase*> World::GetSingletonComponents() const
     {
-        return util::ToValueArray<reflect::ObjectBase*>(m_SingletonComponents);
+        return ::se::util::ToValueArray<reflect::ObjectBase*>(m_SingletonComponents);
     }
 
     void World::DestroyAppSystem(const Id& id)
@@ -691,6 +691,11 @@ namespace se::ecs
             }
         }
 
+        std::ranges::sort(ret, [](const std::pair<Id, reflect::Class*>& a, const std::pair<Id, reflect::Class*>& b)
+        {
+            return a.second->name < b.second->name;
+        });
+
         return ret;
     }
 #endif
@@ -1009,7 +1014,7 @@ namespace se::ecs
 
     std::vector<Id> World::GetEntities() const
     {
-        return util::ToKeyArray<Id>(m_EntityRecords);
+        return ::se::util::ToKeyArray<Id>(m_EntityRecords);
     }
 
     std::vector<Id> World::GetRootEntities()

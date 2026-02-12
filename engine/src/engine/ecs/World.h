@@ -174,6 +174,12 @@ namespace se::ecs
                   Func&& func,
                   UpdateMode mode,
                   bool force);
+
+        template<typename Func>
+        bool ChildEach(const Id& entity,
+               const System* system,
+               const HeirachyQueryDeclaration& declaration,
+               Func&& func);
     private:
         bool IsRunning() const { return m_Running; }
 
@@ -197,12 +203,6 @@ namespace se::ecs
                 return archetype < rhs.archetype;
             }
         };
-
-        template<typename Func>
-        bool ChildEach(const Id& entity,
-                       const System* system,
-                       const HeirachyQueryDeclaration& declaration,
-                       Func&& func);
 
         template<typename Func>
         void HeirachyQuery(const Id& child,
@@ -526,7 +526,14 @@ namespace se::ecs
         }
 
 #if !SPARK_DIST
-        if (!ValidateHeirachyQuery(system, declaration))
+        if (system)
+        {
+            if (!ValidateHeirachyQuery(system, declaration))
+            {
+                return false;
+            }
+        }
+        else if (!SPARK_VERIFY(!m_Running, "ChildEach may not be called during world update without a system."))
         {
             return false;
         }

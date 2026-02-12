@@ -1,6 +1,7 @@
 #pragma once
 
 #include "spark.h"
+#include "util/VariantUtil.h"
 
 namespace se::ecs
 {
@@ -172,12 +173,6 @@ namespace se::ecs
             return *this;
         }
 
-        template<typename T>
-        void CollectVariantComponentIds(std::vector<Id>& components)
-        {
-            components.emplace_back(T::GetComponentId());
-        }
-
         template<typename... Ts>
         HeirachyQueryDeclaration& WithVariantComponent(ComponentMutability mutability)
         {
@@ -186,7 +181,7 @@ namespace se::ecs
                 return *this;
             }
             std::vector<Id> components;
-            (CollectVariantComponentIds<Ts>(components), ...);
+            (util::CollectVariantComponentIds<Ts>(components), ...);
             variantComponentUsage = VariantComponentUsage(typeid(std::variant<Ts*...>).hash_code(), components, mutability);
             return *this;
         }

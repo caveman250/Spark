@@ -67,6 +67,11 @@ namespace se::ui::systems
 
                 for (const auto& mouseEvent : mouseEventComp.mouseEvents)
                 {
+                    if (mouseEvent.button == input::MouseButton::None)
+                    {
+                        continue;
+                    }
+
                     if (mouseEvent.state == input::KeyState::Down)
                     {
                         button.pressed = true;

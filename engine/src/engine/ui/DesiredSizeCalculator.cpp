@@ -1,5 +1,6 @@
 #include "DesiredSizeCalculator.h"
 #include "engine/ui/components/RectTransformComponent.h"
+#include "engine/ecs/util/VariantUtil.h"
 #include "Widgets.generated.h"
 
 se::math::IntVec2 se::ui::DesiredSizeCalculator::GetChildrenDesiredSize(ecs::System* system,
@@ -7,12 +8,8 @@ se::math::IntVec2 se::ui::DesiredSizeCalculator::GetChildrenDesiredSize(ecs::Sys
                                                                      components::RectTransformComponent& thisRect)
 {
     math::IntVec2 ret = {};
-    auto dec = ecs::HeirachyQueryDeclaration()
-            .WithComponent<components::RectTransformComponent>()
-            .WithComponent<const components::WidgetComponent>()
-            .WithVariantComponent<SPARK_CONST_WIDGET_TYPES_WITH_NULLTYPE>(ecs::ComponentMutability::Immutable);
-    system->RunChildQuery(entity,dec,
-      [&ret, system, &thisRect, entity](const ecs::SystemUpdateData& updateData)
+
+    auto func = [&ret, system, &thisRect, entity](const ecs::SystemUpdateData& updateData)
     {
         std::visit([&ret, system, updateData, thisRect, entity](auto&& value)
         {
@@ -29,7 +26,22 @@ se::math::IntVec2 se::ui::DesiredSizeCalculator::GetChildrenDesiredSize(ecs::Sys
 
         }, updateData.GetVariantComponentArray<SPARK_CONST_WIDGET_TYPES_WITH_NULLTYPE>());
         return false;
-    });
+    };
+
+    auto dec = ecs::HeirachyQueryDeclaration()
+        .WithComponent<components::RectTransformComponent>()
+        .WithComponent<const components::WidgetComponent>()
+        .WithVariantComponent<SPARK_CONST_WIDGET_TYPES_WITH_NULLTYPE>(ecs::ComponentMutability::Immutable);
+
+    if (system)
+    {
+        system->RunChildQuery(entity,dec, func);
+    }
+    else
+    {
+        auto world = Application::Get()->GetWorld();
+        world->ChildEach(entity, nullptr, dec, func);
+    }
 
     return ret;
 }

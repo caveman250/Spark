@@ -10,6 +10,8 @@ namespace se::ui::systems
                     .WithComponent<components::TreeNodeComponent>()
                     .WithComponent<components::MouseInputComponent>()
                     .WithSingletonComponent<const input::InputComponent>()
+                    .WithHeirachyQuery<components::RectTransformComponent>()
+                    .WithHeirachyQuery<const components::WidgetComponent>()
                     .WithDependency<UIMouseInputSystem>();
     }
 
@@ -42,6 +44,7 @@ namespace se::ui::systems
                             .mousePos = { inputComp->mouseX, inputComp->mouseY },
                             .scene = Application::Get()->GetEditorRuntime()->GetEditorScene(),
                             .options = treeNode.contextOptions,
+                            .system = this
                         };
 
                         util::CreateContextMenu(params);

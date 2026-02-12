@@ -11,6 +11,7 @@ namespace se::ui::util
         math::IntVec2 mousePos = {};
         ecs::Id scene = false;
         std::vector<std::pair<std::string, std::function<void()>>> options = {};
+        ecs::System* system = nullptr;
 
         void AddOption(const std::string& name, const std::function<void()>& cb);
     };

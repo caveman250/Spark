@@ -11,6 +11,7 @@
 #include "engine/ui/components/ButtonComponent.h"
 #include "engine/ui/components/ContextMenuComponent.h"
 #include "engine/ui/components/MouseInputComponent.h"
+#include "engine/ui/util/ScrollBoxUtil.h"
 
 namespace se::ui::util
 {
@@ -31,22 +32,30 @@ namespace se::ui::util
         auto arial = assetManager->GetAsset<asset::Font>("/engine_assets/fonts/Arial.sass");
 
         contextMenu = world->CreateEntity(params.scene, "Context Menu");
-        auto verticalBoxTransform = world->AddComponent<RectTransformComponent>(contextMenu);
-        verticalBoxTransform->anchors = { .left = 0.f, .right = 0.f, .top = 0.f, .bottom = 0.f };
-        verticalBoxTransform->layer = -1;
-        verticalBoxTransform->minY = params.mousePos.y / window->GetContentScale();
-        verticalBoxTransform->minX = params.mousePos.x / window->GetContentScale();
-        verticalBoxTransform->maxX = verticalBoxTransform->minX + params.minWidth;
+        auto contextMenuTransform = world->AddComponent<RectTransformComponent>(contextMenu);
+        contextMenuTransform->anchors = { .left = 0.f, .right = 0.f, .top = 0.f, .bottom = 0.f };
+        contextMenuTransform->layer = -1;
+        contextMenuTransform->minY = params.mousePos.y / window->GetContentScale();
+        contextMenuTransform->maxY = contextMenuTransform->minY + 1;
+        contextMenuTransform->minX = params.mousePos.x / window->GetContentScale();
+        contextMenuTransform->maxX = contextMenuTransform->minX + params.minWidth;
         world->AddComponent<WidgetComponent>(contextMenu);
         world->AddComponent<MouseInputComponent>(contextMenu);
         world->AddComponent<ContextMenuComponent>(contextMenu);
-        auto verticalBox = world->AddComponent<VerticalBoxComponent>(contextMenu);
-        verticalBox->paddingTop = 2;
-        verticalBox->paddingLeft = 2;
-        verticalBox->paddingRight = 2;
         auto image = world->AddComponent<ImageComponent>(contextMenu);
         auto bgMaterial = assetManager->GetAsset<render::Material>("/engine_assets/materials/editor_context_menu.sass");
         image->materialInstance = render::MaterialInstance::CreateMaterialInstance(bgMaterial);
+
+        auto verticalBox = world->CreateEntity("Vertical Box");
+        auto verticalBoxComp = world->AddComponent<VerticalBoxComponent>(verticalBox);
+        verticalBoxComp->paddingTop = 2;
+        verticalBoxComp->paddingLeft = 2;
+        verticalBoxComp->paddingRight = 2;
+        auto verticalBoxTransform = world->AddComponent<RectTransformComponent>(verticalBox);
+        verticalBoxTransform->anchors = { .left = 0.f, .right = 1.f, .top = 0.f, .bottom = 1.f };
+        verticalBoxTransform->layer = -1;
+        auto verticalBoxWidget = world->AddComponent<WidgetComponent>(verticalBox);
+        world->AddComponent<MouseInputComponent>(verticalBox);
 
         for (size_t i = 0; i < params.options.size(); ++i)
         {
@@ -59,7 +68,7 @@ namespace se::ui::util
             text->text = option.first;
             world->AddComponent<RectTransformComponent>(textEntity);
             world->AddComponent<WidgetComponent>(textEntity);
-            world->AddChild(contextMenu, textEntity);
+            world->AddChild(verticalBox, textEntity);
 
             auto textButtonEntity = world->CreateEntity(params.scene, "Button");
             auto buttonRect = world->AddComponent<RectTransformComponent>(textButtonEntity);
@@ -73,6 +82,31 @@ namespace se::ui::util
             auto optionWidget = world->AddComponent<WidgetComponent>(textButtonEntity);
             optionWidget->visibility = Visibility::Hidden;
             world->AddChild(textEntity, textButtonEntity);
+        }
+
+        Rect windowRect = Rect {
+            .topLeft = math::IntVec2(0, 0),
+            .size = math::IntVec2(window->GetWidth(), window->GetHeight())
+        };
+        contextMenuTransform->rect = CalculateScreenSpaceRect(*contextMenuTransform, windowRect);
+        auto desiredHeight = DesiredSizeCalculator::GetDesiredSize(params.system,
+            verticalBox,
+            verticalBoxWidget,
+            *contextMenuTransform,
+            *verticalBoxTransform,
+            verticalBoxComp).y;
+
+        if (desiredHeight < 800)
+        {
+            world->AddChild(contextMenu, verticalBox);
+            contextMenuTransform->maxY = contextMenuTransform->minY + desiredHeight / window->GetContentScale();
+        }
+        else
+        {
+            contextMenuTransform->maxY = contextMenuTransform->minY + 400;
+            auto scrollBox = CreateScrollBox(app->GetEditorRuntime()->GetEditorScene());
+            world->AddChild(contextMenu, scrollBox.scrollBoxEntity);
+            world->AddChild(scrollBox.scrollViewEntity, verticalBox);
         }
     }
 }

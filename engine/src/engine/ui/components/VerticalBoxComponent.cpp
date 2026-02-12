@@ -28,6 +28,7 @@ namespace se::ui
                   {
                       auto& transform = transforms[i];
                       transform.minX = transform.maxX = transform.minY = transform.maxY = 0;
+                      transform.anchors = { .left = 0.f, .right = 1.f, .top = 0.f, .bottom = 0.f };
                       math::IntVec2 childDesiredSize = DesiredSizeCalculator::GetDesiredSize(system,
                                                                                           entities[i],
                                                                                           &widgets[i],
