@@ -110,7 +110,7 @@ namespace se::ecs
         template<typename T>
         T* AddComponent(const Id& entity);
 
-        void AddComponent(const Id& entity, const Id& comp);
+        void* AddComponent(const Id& entity, const Id& comp, reflect::Type* type);
 
         void AddChild(const Id& entity,
                       const Id& childEntity);

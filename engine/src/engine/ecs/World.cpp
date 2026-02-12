@@ -1061,18 +1061,21 @@ namespace se::ecs
     }
 #endif
 
-    void World::AddComponent(const Id& entity,
-        const Id& comp)
+    void* World::AddComponent(const Id& entity,
+        const Id& comp,
+        reflect::Type* type)
     {
         auto guard = std::lock_guard(m_ComponentMutex);
 
         if (!SPARK_VERIFY(!HasComponent(entity, comp)))
         {
-            return;
+            return nullptr;
         }
 
-        m_PendingComponentCreations.emplace_back(PendingComponent { .entity = entity, .comp = comp, .tempData = nullptr });
+        void* tempComp = m_TempStore.Alloc(type);
+        m_PendingComponentCreations.emplace_back(PendingComponent { .entity = entity, .comp = comp, .tempData = tempComp });
         SPARK_ASSERT(m_PendingComponentCreations.back().comp.name != nullptr);
+        return tempComp;
     }
 
     void World::AddChild(const Id& entity, const Id& childEntity)
