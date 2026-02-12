@@ -122,6 +122,8 @@ namespace se::ecs
         template<typename T>
         void RemoveComponent(const Id& entity);
 
+        void RemoveComponent(const Id& entity, const Id& comp);
+
         template<typename T>
         T* AddSingletonComponent();
 
@@ -745,12 +747,7 @@ namespace se::ecs
     template<typename T>
     void World::RemoveComponent(const Id& entity)
     {
-        auto guard = std::lock_guard(m_ComponentMutex);
-        if (!SPARK_VERIFY(HasComponent<T>(entity)))
-        {
-            return;
-        }
-        m_PendingComponentDeletions.push_back(std::make_pair(entity, T::GetComponentId()));
+        RemoveComponent(entity, T::GetComponentId());
     }
 
 

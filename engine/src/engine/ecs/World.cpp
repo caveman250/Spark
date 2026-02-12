@@ -1361,4 +1361,15 @@ namespace se::ecs
         }
         return it->second.parent;
     }
+
+    void World::RemoveComponent(const Id& entity,
+        const Id& comp)
+    {
+        auto guard = std::lock_guard(m_ComponentMutex);
+        if (!SPARK_VERIFY(HasComponent(entity, comp)))
+        {
+            return;
+        }
+        m_PendingComponentDeletions.push_back(std::make_pair(entity, comp));
+    }
 }

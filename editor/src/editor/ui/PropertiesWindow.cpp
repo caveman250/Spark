@@ -146,6 +146,14 @@ namespace se::editor::ui
                 .collapsed = false,
                 .withBackground = true,
                 .constructTitle = true,
+                .contextOptions = {
+                    { "Remove Component", [world, editor, entity, component]()
+                        {
+                            world->RemoveComponent(entity, component);
+                            editor->SelectEntity(entity, true);
+                        }
+                    }
+                }
             };
             if (auto *propEditor = properties::CreatePropertyEditor(params))
             {

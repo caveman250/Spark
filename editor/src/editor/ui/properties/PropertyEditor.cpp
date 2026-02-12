@@ -4,6 +4,7 @@
 #include "EnumEditor.h"
 #include "engine/Application.h"
 #include "engine/asset/AssetManager.h"
+#include "engine/ui/components/ButtonComponent.h"
 #include "engine/ui/components/CollapsingHeaderComponent.h"
 #include "engine/ui/components/RectTransformComponent.h"
 #include "engine/ui/components/TextComponent.h"
@@ -11,6 +12,7 @@
 #include "engine/ui/components/WidgetComponent.h"
 #include "engine/ui/text/WrapMode.h"
 #include "engine/ui/util/CollapsingHeaderUtil.h"
+#include "engine/ui/util/ContextMenuUtil.h"
 
 namespace se::ui::components
 {
@@ -48,6 +50,35 @@ namespace se::editor::ui::properties
             m_WidgetId = se::ui::util::CreateCollapsingHeader(world, m_Name, titleContainer, contentsEntity, &collapsingHeader, params.collapsed, params.withBackground, editor->GetEditorScene());
             m_RectTransform = world->GetComponent<RectTransformComponent>(m_WidgetId);
             m_RectTransform->anchors = params.anchors;
+
+            if (!params.contextOptions.empty())
+            {
+                auto contextButton = world->CreateEntity(editor->GetEditorScene(), "Contyext Button");
+                auto button = world->AddComponent<ButtonComponent>(contextButton);
+                button->image = "/engine_assets/textures/editor_context.sass";
+                button->pressedImage = "/engine_assets/textures/editor_context.sass";
+                button->hoveredImage = "/engine_assets/textures/editor_context.sass";
+                button->onReleased.Subscribe([world, editor, options = params.contextOptions](input::MouseButton)
+                {
+                    auto inputComp = world->GetSingletonComponent<input::InputComponent>();
+                    se::ui::util::ContextMenuParams contextParams = {
+                        .fontSize = 14,
+                        .minWidth = 200,
+                        .mousePos = { inputComp->mouseX, inputComp->mouseY },
+                        .scene = editor->GetEditorScene(),
+                        .options = options
+                    };
+
+                    se::ui::util::CreateContextMenu(contextParams);
+                });
+                auto buttonTrans = world->AddComponent<RectTransformComponent>(contextButton);
+                buttonTrans->anchors = { .left = 1.f, .right = 1.f, .top = 0.f, .bottom = 0.f };
+                buttonTrans->minX = 18;
+                buttonTrans->maxX = 2;
+                buttonTrans->maxY = 18;
+                buttonTrans->minY = 2;
+                world->AddChild(titleContainer, contextButton);
+            }
 
             m_Content = world->CreateEntity(editor->GetEditorScene(), std::format("Property Content ({})", params.name));
             auto contentRect = world->AddComponent<RectTransformComponent>(m_Content);
