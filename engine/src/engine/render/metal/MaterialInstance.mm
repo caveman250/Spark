@@ -152,7 +152,7 @@ namespace se::render::metal
         {
             SPARK_ASSERT(count == 1, "Setting arrays of texture uniforms not supported.");
             const asset::AssetReference<asset::Texture>* textureRef = static_cast<const asset::AssetReference<asset::Texture>*>(value);
-            if (!textureRef)
+            if (!textureRef || !textureRef->IsSet())
             {
                 return;
             }
