@@ -4,6 +4,7 @@
 #include <easy/profiler.h>
 #include "ResetMouseInputSystem.h"
 #include "RootRectTransformSystem.h"
+#include "editor/util/ViewportUtil.h"
 #include "engine/ecs/util/SystemUtil.h"
 #include "engine/input/InputUtil.h"
 #include "engine/ui/components/RectTransformComponent.h"
@@ -64,13 +65,21 @@ namespace se::ui::systems
 
                 if (!inputReceiver.hovered)
                 {
-                    return;
+                    continue;
                 }
 
                 if (!inputReceiver.enabled)
                 {
-                    return;
+                    continue;
                 }
+
+#if SPARK_EDITOR
+                auto editor = Application::Get()->GetEditorRuntime();
+                if (*entity.scene == editor->GetEditorScene() && editor::util::PosWithinViewport(inputComp->mouseX, inputComp->mouseY))
+                {
+                    continue;
+                }
+#endif
 
                 rootEntities.push_back({ entity, &inputReceiver, &rectTransform });
             }
