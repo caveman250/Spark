@@ -1,13 +1,12 @@
 #include "spark.h"
 
 #include "UIMouseInputSystem.h"
-
-#include "ResetMouseInputSystem.h"
-#include "engine/input/InputUtil.h"
 #include <easy/profiler.h>
-
+#include "ResetMouseInputSystem.h"
 #include "RootRectTransformSystem.h"
 #include "engine/ecs/util/SystemUtil.h"
+#include "engine/input/InputUtil.h"
+#include "engine/ui/components/RectTransformComponent.h"
 
 using namespace se;
 using namespace se::ecs::components;
@@ -18,21 +17,37 @@ namespace se::ui::systems
     {
         return ecs::SystemDeclaration("UIMouseInputSystem")
                     .WithComponent<const RootComponent>()
+                    .WithComponent<const components::RectTransformComponent>()
                     .WithComponent<components::MouseInputComponent>()
                     .WithSingletonComponent<input::InputComponent>()
                     .WithDependency<ResetMouseInputSystem>()
                     .WithDependency<RootRectTransformSystem>();
     }
 
+
+
     void UIMouseInputSystem::OnUpdate(const ecs::QueryResults& results)
     {
         EASY_BLOCK("UIMouseInputSystem::OnUpdate");
 
-        ecs::ForEachArcheType(results, ecs::UpdateMode::SingleThreaded, false, [this](const ecs::SystemUpdateData& updateData)
+        input::InputComponent* inputComp = nullptr;
+        struct InputRootEntity
+        {
+            ecs::Id id = {};
+            components::MouseInputComponent* mouseInput = nullptr;
+            const components::RectTransformComponent* rectTransform = nullptr;
+        };
+        std::vector<InputRootEntity> rootEntities = {};
+
+        ecs::ForEachArcheType(results, ecs::UpdateMode::SingleThreaded, false, [&rootEntities, &inputComp](const ecs::SystemUpdateData& updateData)
         {
             const auto& entities = updateData.GetEntities();
-            auto* inputComp = updateData.GetSingletonComponent<input::InputComponent>();
+            if (!inputComp)
+            {
+                inputComp = updateData.GetSingletonComponent<input::InputComponent>();
+            }
             auto* receivesInputComps = updateData.GetComponentArray<components::MouseInputComponent>();
+            const auto* rectTransforms = updateData.GetComponentArray<const components::RectTransformComponent>();
 
             if (inputComp->mouseDeltaX == 0 &&
                 inputComp->mouseDeltaY == 0 &&
@@ -45,6 +60,7 @@ namespace se::ui::systems
             {
                 auto entity = entities[i];
                 auto& inputReceiver = receivesInputComps[i];
+                const auto& rectTransform = rectTransforms[i];
 
                 if (!inputReceiver.hovered)
                 {
@@ -56,51 +72,61 @@ namespace se::ui::systems
                     return;
                 }
 
-                input::InputUtil::ProcessMouseEvents(entity, inputComp, [this, entity, &inputReceiver](const input::MouseEvent& mouseEvent)
+                rootEntities.push_back({ entity, &inputReceiver, &rectTransform });
+            }
+        });
+
+        std::ranges::sort(rootEntities, [](const auto& a, const auto& b)
+        {
+            return a.rectTransform->layer < b.rectTransform->layer;
+        });
+
+        for (const auto& entity : rootEntities)
+        {
+            input::InputUtil::ProcessMouseEvents(entity.id, inputComp, [this, &entity](const input::MouseEvent& mouseEvent)
+            {
+                bool consumed = false;
+                auto declaration = ecs::HeirachyQueryDeclaration()
+                        .WithComponent<components::MouseInputComponent>();
+                RunRecursiveChildQuery(entity.id, declaration,
+                [this, &consumed, mouseEvent](const ecs::SystemUpdateData& updateData)
                 {
-                    bool consumed = false;
-                    auto declaration = ecs::HeirachyQueryDeclaration()
-                            .WithComponent<components::MouseInputComponent>();
-                    RunRecursiveChildQuery(entity, declaration,
-                    [this, &consumed, mouseEvent](const ecs::SystemUpdateData& updateData)
+                    if (consumed)
                     {
-                        if (consumed)
+                        return true;
+                    }
+
+                    const auto& children = updateData.GetEntities();
+                    auto* childInputComps = updateData.GetComponentArray<components::MouseInputComponent>();
+
+                    for (size_t j = 0; j < children.size(); ++j)
+                    {
+                        auto& childInputReceiver = childInputComps[j];
+
+                        if (childInputReceiver.hovered && childInputReceiver.enabled)
                         {
-                            return true;
-                        }
-
-                        const auto& children = updateData.GetEntities();
-                        auto* childInputComps = updateData.GetComponentArray<components::MouseInputComponent>();
-
-                        for (size_t j = 0; j < children.size(); ++j)
-                        {
-                            auto& childInputReceiver = childInputComps[j];
-
-                            if (childInputReceiver.hovered && childInputReceiver.enabled)
+                            if (TryConsumeEvent(mouseEvent, childInputReceiver))
                             {
-                                if (TryConsumeEvent(mouseEvent, childInputReceiver))
-                                {
-                                    consumed = true;
-                                    return true;
-                                }
+                                consumed = true;
+                                return true;
                             }
-                        }
-
-                        return false;
-                    });
-
-                    if (!consumed)
-                    {
-                        if (TryConsumeEvent(mouseEvent, inputReceiver))
-                        {
-                            return true;
                         }
                     }
 
-                    return consumed;
-                });
-            }
-        });
+                    return false;
+                                       });
+
+                if (!consumed)
+                {
+                    if (TryConsumeEvent(mouseEvent, *entity.mouseInput))
+                    {
+                        return true;
+                    }
+                }
+
+                return consumed;
+            });
+        }
     }
 
     bool UIMouseInputSystem::TryConsumeEvent(const input::MouseEvent& mouseEvent, components::MouseInputComponent& inputReceiver)
