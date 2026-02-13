@@ -32,22 +32,12 @@ namespace se::ui::util
 
         if (!textComp.materialInstance && textComp.font.IsSet())
         {
-            static std::shared_ptr<render::Material> textMaterial = nullptr;
-            if (!textMaterial)
-            {
-                textMaterial = std::make_shared<render::Material>(
-                std::vector{ asset::AssetReference<asset::Shader>("/engine_assets/shaders/ui.sass") },
-                std::vector{ asset::AssetReference<asset::Shader>("/engine_assets/shaders/text.sass") });
-
-                render::RenderState rs;
-                rs.srcBlend = render::BlendMode::SrcAlpha;
-                rs.dstBlend = render::BlendMode::OneMinusSrcAlpha;
-                textMaterial->SetRenderState(rs);
-            }
-
+            auto textMaterial = asset::AssetManager::Get()->GetAsset<render::Material>("/engine_assets/materials/text.sass");
             textComp.materialInstance = render::MaterialInstance::CreateMaterialInstance(textMaterial);
             auto texture = textComp.font.GetAsset()->GetTextureAsset();
             textComp.materialInstance->SetUniform("Texture", asset::shader::ast::AstType::Sampler2D, 1, &texture);
+            float smoothing = textComp.fontSize > 50 ? 0.01f : 0.15f;
+            textComp.materialInstance->SetUniform("smoothing", asset::shader::ast::AstType::Float, 1, &smoothing);
         }
 
         if (!textComp.materialInstance)
