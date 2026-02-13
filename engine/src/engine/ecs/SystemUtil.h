@@ -89,8 +89,7 @@ namespace se::ecs
         EASY_END_BLOCK
 
         EASY_BLOCK("Run on empty");
-        bool hasStaticComps = !queryResults.singletonComponents.empty();
-        if (queryResults.archetypes.empty() && (force || hasStaticComps))
+        if (force && queryResults.archetypes.empty())
         {
             auto updateDataCopy = queryResults.updateData;
             static std::vector<Id> empty = {};
