@@ -13,6 +13,6 @@ namespace se::ecs::systems
         SPARK_SYSTEM()
     public:
         static SystemDeclaration GetSystemDeclaration();
-        void OnUpdate(const SystemUpdateData& updateData) override;
+        void OnUpdate(const QueryResults& results) override;
     };
 }

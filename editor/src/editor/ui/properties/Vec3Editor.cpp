@@ -33,7 +33,7 @@ namespace se::editor::ui::properties
             { 0.f, 0.33f, 0.f, 1.f },
             false,
             false,
-            true,
+            false,
             {}));
         m_XEditor.GetRectTransform()->minX = 2;
         m_XEditor.GetRectTransform()->maxX = -2;
@@ -46,7 +46,7 @@ namespace se::editor::ui::properties
            { 0.33f, 0.66f, 0.f, 1.f },
            false,
            false,
-           true,
+           false,
            {}));
         m_YEditor.GetRectTransform()->minX = 2;
         m_YEditor.GetRectTransform()->maxX = 2;
@@ -59,7 +59,7 @@ namespace se::editor::ui::properties
            { 0.66f, 1.f, 0.f, 1.f },
            false,
            false,
-           true,
+           false,
            {}));
         m_ZEditor.GetRectTransform()->minX = -2;
         m_ZEditor.GetRectTransform()->maxX = 2;

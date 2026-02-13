@@ -23,74 +23,72 @@ namespace se::ui::systems
                     .WithDependency<ResetKeyInputSystem>();
     }
 
-    ecs::UpdateMode UIKeyboardInputSystem::GetUpdateMode() const
-    {
-        return ecs::UpdateMode::SingleThreaded;
-    }
-
-    void UIKeyboardInputSystem::OnUpdate(const ecs::SystemUpdateData& updateData)
+    void UIKeyboardInputSystem::OnUpdate(const ecs::QueryResults& results)
     {
         EASY_BLOCK("UIKeyboardInputSystem::OnUpdate");
 
-        const auto& entities = updateData.GetEntities();
-        const auto* rectTransforms = updateData.GetComponentArray<const components::RectTransformComponent>();
-        auto* receivesInputComps = updateData.GetComponentArray<components::KeyInputComponent>();
-        auto* inputComp = updateData.GetSingletonComponent<input::InputComponent>();
-
-        for (size_t i = 0; i < entities.size(); ++i)
+        ecs::ForEachArcheType(results, ecs::UpdateMode::SingleThreaded, false, [this](const ecs::SystemUpdateData& updateData)
         {
-            auto entity = entities[i];
-            auto& transform = rectTransforms[i];
-            auto& inputReceiver = receivesInputComps[i];
+            const auto& entities = updateData.GetEntities();
+            const auto* rectTransforms = updateData.GetComponentArray<const components::RectTransformComponent>();
+            auto* receivesInputComps = updateData.GetComponentArray<components::KeyInputComponent>();
+            auto* inputComp = updateData.GetSingletonComponent<input::InputComponent>();
 
-            bool hovered = transform.rect.Contains(math::IntVec2(inputComp->mouseX, inputComp->mouseY));
-            if (hovered)
+            for (size_t i = 0; i < entities.size(); ++i)
             {
-                input::InputUtil::ProcessKeyEvents(entity, inputComp, [this, entity, inputComp, &inputReceiver](const input::KeyEvent& keyEvent)
-                {
-                    if (TryConsumeEvent(keyEvent, inputReceiver))
-                    {
-                        return true;
-                    }
+                auto entity = entities[i];
+                auto& transform = rectTransforms[i];
+                auto& inputReceiver = receivesInputComps[i];
 
-                    bool consumed = false;
-                    auto declaration = ecs::HeirachyQueryDeclaration()
-                            .WithComponent<const components::RectTransformComponent>()
-                            .WithComponent<components::KeyInputComponent>();
-                    RunRecursiveChildQuery(entity, declaration,
-                [this, &consumed, inputComp, keyEvent](const ecs::SystemUpdateData& updateData)
+                bool hovered = transform.rect.Contains(math::IntVec2(inputComp->mouseX, inputComp->mouseY));
+                if (hovered)
+                {
+                    input::InputUtil::ProcessKeyEvents(entity, inputComp, [this, entity, inputComp, &inputReceiver](const input::KeyEvent& keyEvent)
                     {
-                        if (consumed)
+                        if (TryConsumeEvent(keyEvent, inputReceiver))
                         {
                             return true;
                         }
 
-                        const auto& children = updateData.GetEntities();
-                        auto* childTransforms = updateData.GetComponentArray<const components::RectTransformComponent>();
-                        auto* childInputComps = updateData.GetComponentArray<components::KeyInputComponent>();
-
-                        for (size_t j = 0; j < children.size(); ++j)
+                        bool consumed = false;
+                        auto declaration = ecs::HeirachyQueryDeclaration()
+                                .WithComponent<const components::RectTransformComponent>()
+                                .WithComponent<components::KeyInputComponent>();
+                        RunRecursiveChildQuery(entity, declaration,
+                    [this, &consumed, inputComp, keyEvent](const ecs::SystemUpdateData& updateData)
                         {
-                            auto& childTransform = childTransforms[j];
-                            auto& childInputReceiver = childInputComps[j];
-                            bool childHovered = childTransform.rect.Contains(math::IntVec2(inputComp->mouseX, inputComp->mouseY));
-                            if (childHovered)
+                            if (consumed)
                             {
-                                if (TryConsumeEvent(keyEvent, childInputReceiver))
+                                return true;
+                            }
+
+                            const auto& children = updateData.GetEntities();
+                            auto* childTransforms = updateData.GetComponentArray<const components::RectTransformComponent>();
+                            auto* childInputComps = updateData.GetComponentArray<components::KeyInputComponent>();
+
+                            for (size_t j = 0; j < children.size(); ++j)
+                            {
+                                auto& childTransform = childTransforms[j];
+                                auto& childInputReceiver = childInputComps[j];
+                                bool childHovered = childTransform.rect.Contains(math::IntVec2(inputComp->mouseX, inputComp->mouseY));
+                                if (childHovered)
                                 {
-                                    consumed = true;
-                                    return true;
+                                    if (TryConsumeEvent(keyEvent, childInputReceiver))
+                                    {
+                                        consumed = true;
+                                        return true;
+                                    }
                                 }
                             }
-                        }
+
+                            return false;
+                        });
 
                         return false;
                     });
-
-                    return false;
-                });
+                }
             }
-        }
+        });
     }
 
     bool UIKeyboardInputSystem::TryConsumeEvent(const input::KeyEvent& keyEvent, components::KeyInputComponent& inputReceiver)

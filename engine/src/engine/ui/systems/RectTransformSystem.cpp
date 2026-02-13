@@ -19,33 +19,31 @@ namespace se::ui::systems
                     .WithDependency<RootRectTransformSystem>();
     }
 
-    ecs::UpdateMode RectTransformSystem::GetUpdateMode() const
-    {
-        return ecs::UpdateMode::SingleThreaded;
-    }
-
-    void RectTransformSystem::OnUpdate(const ecs::SystemUpdateData& updateData)
+    void RectTransformSystem::OnUpdate(const ecs::QueryResults& results)
     {
         EASY_BLOCK("RectTransformSystem::OnUpdate");
         auto world = Application::Get()->GetWorld();
 
-        const auto& entities = updateData.GetEntities();
-        auto* transform = updateData.GetComponentArray<components::RectTransformComponent>();
-
-        std::visit([this, updateData, entities, world, transform](auto&& value)
+        ecs::ForEachArcheType(results, ecs::UpdateMode::SingleThreaded, false, [this, world](const ecs::SystemUpdateData& updateData)
         {
-            ecs::util::ParallelForEachEntity(updateData,
-            [this, world, entities, transform, value](size_t i)
-            {
-                const auto& entity = entities[i];
-                auto& trans = transform[i];
+            const auto& entities = updateData.GetEntities();
+            auto* transform = updateData.GetComponentArray<components::RectTransformComponent>();
 
-                if (trans.needsLayout && world->HasComponent<ParentComponent>(entity))
+            std::visit([this, &updateData, entities, world, transform](auto&& value)
+            {
+                ecs::util::ParallelForEachEntity(updateData,
+                [this, world, entities, transform, value](size_t i)
                 {
-                    Layout::LayoutWidgetChildren(world, this, entities[i], trans, trans.layer, value + i);
-                    trans.needsLayout = false;
-                }
-            });
-        }, updateData.GetVariantComponentArray<SPARK_WIDGET_TYPES_WITH_NULLTYPE>());
+                    const auto& entity = entities[i];
+                    auto& trans = transform[i];
+
+                    if (trans.needsLayout && world->HasComponent<ParentComponent>(entity))
+                    {
+                        Layout::LayoutWidgetChildren(world, this, entities[i], trans, trans.layer, value + i);
+                        trans.needsLayout = false;
+                    }
+                });
+            }, updateData.GetVariantComponentArray<SPARK_WIDGET_TYPES_WITH_NULLTYPE>());
+        });
     }
 }

@@ -185,9 +185,9 @@ namespace se::editor::ui
                         auto inputComp = world->GetSingletonComponent<input::InputComponent>();
                         se::ui::util::ContextMenuParams params = {
                             .fontSize = 14,
+                            .minWidth = 250,
                             .mousePos = { inputComp->mouseX, inputComp->mouseY },
                             .scene = Application::Get()->GetEditorRuntime()->GetEditorScene(),
-                            .minWidth = 250
                         };
 
                         for (const auto& [id, type] : world->GetAllComponentTypes())

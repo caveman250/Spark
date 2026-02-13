@@ -9,8 +9,8 @@ namespace se::debug::systems
         SPARK_SYSTEM(DevOnly)
 
         static ecs::SystemDeclaration GetSystemDeclaration();
-        void OnInit(const ecs::SystemUpdateData&) override;
-        void OnUpdate(const ecs::SystemUpdateData&) override;
+        void OnInit(const ecs::QueryResults&) override;
+        void OnUpdate(const ecs::QueryResults&) override;
     };
 }
 #endif

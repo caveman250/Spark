@@ -15,42 +15,49 @@ namespace se::ui::systems
                     .WithDependency<UIMouseInputSystem>();
     }
 
-    void TreeNodeSystem::OnUpdate(const ecs::SystemUpdateData& updateData)
+    void TreeNodeSystem::OnUpdate(const ecs::QueryResults& results)
     {
-        const auto* inputComp = updateData.GetSingletonComponent<const input::InputComponent>();
-        auto* treeNodes = updateData.GetComponentArray<components::TreeNodeComponent>();
-        auto* mouseEventComps = updateData.GetComponentArray<components::MouseInputComponent>();
+        EASY_BLOCK("TreeNodeSystem::OnUpdate");
 
-        for (size_t i = 0; i < updateData.GetEntities().size(); ++i)
+        ecs::ForEachArcheType(results, ecs::UpdateMode::MultiThreaded, false, [this](const ecs::SystemUpdateData& updateData)
         {
-            auto& treeNode = treeNodes[i];
-            auto& eventComp = mouseEventComps[i];
+            const auto& entities = updateData.GetEntities();
+            const auto* inputComp = updateData.GetSingletonComponent<const input::InputComponent>();
+            auto* treeNodes = updateData.GetComponentArray<components::TreeNodeComponent>();
+            auto* mouseEventComps = updateData.GetComponentArray<components::MouseInputComponent>();
 
-            for (const auto& mouseEvent : eventComp.mouseEvents)
+            for (size_t i = 0; i < entities.size(); ++i)
             {
-                if (mouseEvent.button == input::MouseButton::Left)
-                {
-                    if (mouseEvent.state == input::KeyState::Up)
-                    {
-                        treeNode.onSelected.Broadcast();
-                    }
-                }
-                else if (mouseEvent.button == input::MouseButton::Right)
-                {
-                    if (mouseEvent.state == input::KeyState::Up)
-                    {
-                        util::ContextMenuParams params = {
-                            .fontSize = 14,
-                            .mousePos = { inputComp->mouseX, inputComp->mouseY },
-                            .scene = Application::Get()->GetEditorRuntime()->GetEditorScene(),
-                            .options = treeNode.contextOptions,
-                            .system = this
-                        };
+                const auto& entity = entities[i];
+                auto& treeNode = treeNodes[i];
+                auto& eventComp = mouseEventComps[i];
 
-                        util::CreateContextMenu(params);
+                for (const auto& mouseEvent : eventComp.mouseEvents)
+                {
+                    if (mouseEvent.button == input::MouseButton::Left)
+                    {
+                        if (mouseEvent.state == input::KeyState::Up)
+                        {
+                            treeNode.onSelected.Broadcast();
+                        }
+                    }
+                    else if (mouseEvent.button == input::MouseButton::Right)
+                    {
+                        if (mouseEvent.state == input::KeyState::Up)
+                        {
+                            util::ContextMenuParams params = {
+                                .fontSize = 14,
+                                .mousePos = { inputComp->mouseX, inputComp->mouseY },
+                                .scene = *entity.scene,
+                                .options = treeNode.contextOptions,
+                                .system = this
+                            };
+
+                            util::CreateContextMenu(params);
+                        }
                     }
                 }
             }
-        }
+        });
     }
 }

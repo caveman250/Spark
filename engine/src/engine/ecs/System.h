@@ -16,16 +16,15 @@ namespace se::ecs
     public:
         virtual ~System() {}
 
-        virtual void OnInit(const SystemUpdateData&) {}
-        virtual void OnUpdate(const SystemUpdateData&) {}
-        virtual void OnRender(const SystemUpdateData&) {}
-        virtual void OnShutdown(const SystemUpdateData&) {}
-        virtual UpdateMode GetUpdateMode() const { return UpdateMode::MultiThreaded; }
+        virtual void OnInit(const QueryResults&) {}
+        virtual void OnUpdate(const QueryResults&) {}
+        virtual void OnRender(const QueryResults&) {}
+        virtual void OnShutdown(const QueryResults&) {}
 
         template<typename Func>
         void RunQuery(Func&& func, bool force)
         {
-            Application::Get()->GetWorld()->Each(m_Declaration.componentUsage, m_Declaration.variantComponentUsage, m_Declaration.singletonComponentUsage, func, GetUpdateMode(), force);
+            Application::Get()->GetWorld()->RunQuery(m_Declaration.componentUsage, m_Declaration.variantComponentUsage, m_Declaration.singletonComponentUsage, func);
         }
 
         template<typename Func>

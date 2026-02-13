@@ -28,35 +28,38 @@ namespace se::ui::systems
                 .WithDependency<LastRectSystem>();
     }
 
-    void RootRectTransformSystem::OnUpdate(const ecs::SystemUpdateData& updateData)
+    void RootRectTransformSystem::OnUpdate(const ecs::QueryResults& results)
     {
         EASY_BLOCK("RootRectTransformSystem::OnUpdate");
 
         auto world = Application::Get()->GetWorld();
-        const auto& entities = updateData.GetEntities();
-        auto* transform = updateData.GetComponentArray<components::RectTransformComponent>();
+
         auto window = Application::Get()->GetWindow();
-
-        std::visit([this, updateData, entities, world, transform, window](auto&& value)
+        ecs::ForEachArcheType(results, ecs::UpdateMode::MultiThreaded, false, [this, world, window](const ecs::SystemUpdateData& updateData)
         {
-            ecs::util::ParallelForEachEntity(updateData,
-            [this, entities, world, transform, window, value](size_t i)
+            std::visit([this, &updateData, world, window](auto&& value)
             {
-                const auto& entity = entities[i];
-                Rect windowRect = Rect {
-                    .topLeft = math::IntVec2(0, 0),
-                    .size = ecs::IsEditorEntity(entity) ? math::IntVec2(window->GetWidth(), window->GetHeight()) : Application::Get()->GetGameViewportSize()
-                };
+                const auto& entities = updateData.GetEntities();
+                auto* transform = updateData.GetComponentArray<components::RectTransformComponent>();
 
-                auto& trans = transform[i];
-                trans.lastRect = trans.rect;
-                trans.rect = util::CalculateScreenSpaceRect(trans, windowRect);
-                if (trans.needsLayout || trans.rect != trans.lastRect)
+                ecs::util::ParallelForEachEntity(updateData, [this, entities, world, transform, window, value](size_t i)
                 {
-                    Layout::LayoutWidgetChildren(world, this, entities[i], trans, trans.layer, value + i);
-                    trans.needsLayout = false;
-                }
-            });
-        }, updateData.GetVariantComponentArray<SPARK_WIDGET_TYPES_WITH_NULLTYPE>());
+                    const auto& entity = entities[i];
+                    Rect windowRect = Rect {
+                        .topLeft = math::IntVec2(0, 0),
+                        .size = ecs::IsEditorEntity(entity) ? math::IntVec2(window->GetWidth(), window->GetHeight()) : Application::Get()->GetGameViewportSize()
+                    };
+
+                    auto& trans = transform[i];
+                    trans.lastRect = trans.rect;
+                    trans.rect = util::CalculateScreenSpaceRect(trans, windowRect);
+                    if (trans.needsLayout || trans.rect != trans.lastRect)
+                    {
+                        Layout::LayoutWidgetChildren(world, this, entities[i], trans, trans.layer, value + i);
+                        trans.needsLayout = false;
+                    }
+                });
+            }, updateData.GetVariantComponentArray<SPARK_WIDGET_TYPES_WITH_NULLTYPE>());
+        });
     }
 }

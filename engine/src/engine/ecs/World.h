@@ -56,6 +56,12 @@ struct std::hash<std::vector<se::ecs::Id, Alloc>>
 
 namespace se::ecs
 {
+    struct QueryArchetype
+    {
+        Archetype* archetype = nullptr;
+        Id variantCompType = s_InvalidEntity;
+    };
+
     class System;
     template<typename... Cs>
     class SignalActionBuilder;
@@ -103,6 +109,12 @@ namespace se::ecs
 #if SPARK_EDITOR
         void SetUIVisibility(bool visible);
 #endif
+
+        template<typename T>
+        bool HasComponent(const Id& entity);
+
+        bool HasComponent(const Id& entity, const Id& component);
+        void* GetComponent(const Id& entity, const Id& component);
 
         template<typename T>
         T* GetComponent(const Id& entity);
@@ -153,9 +165,6 @@ namespace se::ecs
         template<typename T>
         std::pair<Id, ComponentMutability> CreateComponentUsagePair(ComponentMutability type);
 
-        template<typename T>
-        bool HasComponent(const Id& entity);
-
         bool IsChildOf(const Id& entity,
                        const Id& parent) const;
 
@@ -170,12 +179,10 @@ namespace se::ecs
         const Id* GetScene(uint64_t id) const;
 
         template<typename Func>
-        void Each(const std::vector<ComponentUsage>& components,
+        void RunQuery(const std::vector<ComponentUsage>& components,
                   const VariantComponentUsage& variantComponent,
                   const std::vector<ComponentUsage>& singletonComponents,
-                  Func&& func,
-                  UpdateMode mode,
-                  bool force);
+                  Func&& func);
 
         template<typename Func>
         bool ChildEach(const Id& entity,
@@ -185,12 +192,7 @@ namespace se::ecs
     private:
         bool IsRunning() const { return m_Running; }
 
-        struct QueryArchetype
-        {
-            Archetype* archetype = nullptr;
-            Id variantCompType = s_InvalidEntity;
 
-        };
         void CollectArchetypes(const std::vector<ComponentUsage>& components,
                                 const VariantComponentUsage& variantComponent,
                                 std::vector<QueryArchetype>& archetypes);
@@ -257,11 +259,6 @@ namespace se::ecs
 
         Id NewObserver();
         Id RecycleObserver();
-
-        bool HasComponent(const Id& entity,
-                          const Id& component);
-        void* GetComponent(const Id& entity,
-                           const Id& component);
 
         uint64_t NewEntity();
         uint64_t RecycleEntity();
@@ -432,13 +429,20 @@ namespace se::ecs
         return { T::GetComponentId(), type };
     }
 
+    struct QueryResults
+    {
+        const std::vector<QueryArchetype>& archetypes;
+        const std::vector<ComponentUsage>& componentUsage;
+        const std::vector<ComponentUsage>& singletonComponents;
+        const SystemUpdateData& updateData;
+        const VariantComponentUsage& variantComponent;
+    };
+
     template<typename Func>
-    void World::Each(const std::vector<ComponentUsage>& components,
+    void World::RunQuery(const std::vector<ComponentUsage>& components,
                      const VariantComponentUsage& variantComponent,
                      const std::vector<ComponentUsage>& singletonComponents,
-                     Func&& func,
-                     UpdateMode mode,
-                     bool force)
+                     Func&& func)
     {
         EASY_BLOCK("World::Each");
 
@@ -458,58 +462,14 @@ namespace se::ecs
         }
         EASY_END_BLOCK
 
-        EASY_BLOCK("Run on Archetypes");
-        auto runOnArchetype = [this, components, func, variantComponent, &updateData](const QueryArchetype& archetype) mutable
-        {
-            auto updateDataCopy = updateData;
-            if (!archetype.archetype->entities.empty())
-            {
-                updateDataCopy.ClearEntityData();
-                updateDataCopy.SetEntities(archetype.archetype->entities);
-                for (const auto& compUsage: components)
-                {
-                    const auto& compInfo = m_ComponentRecords[compUsage.id];
-                    const ArchetypeComponentKey& key = compInfo.archetypeRecords.at(archetype.archetype->id);
-                    updateDataCopy.AddComponentArray(compUsage.id, archetype.archetype->components.at(key).Data(), compUsage.mutability);
-                }
-                if (archetype.variantCompType != s_InvalidEntity)
-                {
-                    const auto& compInfo = m_ComponentRecords[archetype.variantCompType];
-                    const ArchetypeComponentKey& key = compInfo.archetypeRecords.at(archetype.archetype->id);
-                    updateDataCopy.AddVariantComponentArray(archetype.variantCompType, archetype.archetype->components.at(key).Data(), variantComponent.mutability);
-                }
-
-                func(updateDataCopy);
-            }
+        QueryResults results = {
+            .archetypes = archetypes,
+            .componentUsage = components,
+            .singletonComponents = singletonComponents,
+            .updateData = updateData,
+            .variantComponent = variantComponent
         };
-        switch (mode)
-        {
-            case UpdateMode::SingleThreaded:
-                for (const auto& archetype : archetypes)
-                {
-                    runOnArchetype(archetype);
-                }
-                break;
-            case UpdateMode::MultiThreaded:
-                threads::ParallelForEach(archetypes, runOnArchetype);
-                break;
-        }
-        EASY_END_BLOCK
-
-        EASY_BLOCK("Run on empty");
-        bool hasStaticComps = !singletonComponents.empty();
-        if (archetypes.empty() && (force || hasStaticComps))
-        {
-            std::vector<Id> empty;
-            updateData.SetEntities(empty);
-
-            for (const auto& compUsage: components)
-            {
-                updateData.AddComponentArray(compUsage.id, nullptr, compUsage.mutability);
-            }
-            func(updateData);
-        }
-        EASY_END_BLOCK
+        func(results);
 
         EachDepth--;
     }

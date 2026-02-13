@@ -12,8 +12,7 @@ namespace se::ui::systems
 
     public:
         static ecs::SystemDeclaration GetSystemDeclaration();
-        ecs::UpdateMode GetUpdateMode() const override;
-        void OnRender(const ecs::SystemUpdateData& updateData) override;
+        void OnRender(const ecs::QueryResults&) override;
 
     };
 }

@@ -30,48 +30,51 @@ namespace se::ui::systems
                     .WithDependency<RootRectTransformSystem>();
     }
 
-    void ComboBoxSystem::OnUpdate(const ecs::SystemUpdateData& updateData)
+    void ComboBoxSystem::OnUpdate(const ecs::QueryResults& results)
     {
         EASY_BLOCK("ComboBoxSystem::OnUpdate");
 
-        const auto& entities = updateData.GetEntities();
-        auto* comboBoxes = updateData.GetComponentArray<components::ComboBoxComponent>();
-        const auto* mouseComps = updateData.GetComponentArray<const components::MouseInputComponent>();
-
-        for (size_t i = 0; i < entities.size(); ++i)
+        ecs::ForEachArcheType(results, ecs::UpdateMode::MultiThreaded, false, [this](const ecs::SystemUpdateData& updateData)
         {
-            auto& comboBox = comboBoxes[i];
-            const auto& mouseInput = mouseComps[i];
+            const auto& entities = updateData.GetEntities();
+            auto* comboBoxes = updateData.GetComponentArray<components::ComboBoxComponent>();
+            const auto* mouseComps = updateData.GetComponentArray<const components::MouseInputComponent>();
 
-            if (mouseInput.hovered)
+            for (size_t i = 0; i < entities.size(); ++i)
             {
-                for (const auto& mouseEvent: mouseInput.mouseEvents)
+                auto& comboBox = comboBoxes[i];
+                const auto& mouseInput = mouseComps[i];
+
+                if (mouseInput.hovered)
                 {
-                    if (mouseEvent.button == input::MouseButton::Left)
+                    for (const auto& mouseEvent: mouseInput.mouseEvents)
                     {
-                        if (mouseEvent.state == input::KeyState::Up)
+                        if (mouseEvent.button == input::MouseButton::Left)
                         {
-                            comboBox.collapsed = !comboBox.collapsed;
+                            if (mouseEvent.state == input::KeyState::Up)
+                            {
+                                comboBox.collapsed = !comboBox.collapsed;
+                            }
                         }
                     }
                 }
-            }
 
-            if (comboBox.collapsed != comboBox.lastCollapsed)
-            {
-                comboBox.lastCollapsed = comboBox.collapsed;
+                if (comboBox.collapsed != comboBox.lastCollapsed)
+                {
+                    comboBox.lastCollapsed = comboBox.collapsed;
 
-                auto declaration = ecs::HeirachyQueryDeclaration()
-                            .WithComponent<components::WidgetComponent>();
-                RunQueryOnChild(comboBox.expandedEntity, declaration,
-                    [&comboBox](const ecs::SystemUpdateData& updateData)
-                    {
-                        auto* widget = updateData.GetComponentArray<components::WidgetComponent>();
-                        widget->visibility = comboBox.collapsed ? Visibility::Collapsed : Visibility::Visible;
-                        widget->updateEnabled = !comboBox.collapsed;
-                        widget->dirty = true;
-                    });
+                    auto declaration = ecs::HeirachyQueryDeclaration()
+                                .WithComponent<components::WidgetComponent>();
+                    RunQueryOnChild(comboBox.expandedEntity, declaration,
+                        [&comboBox](const ecs::SystemUpdateData& updateData)
+                        {
+                            auto* widget = updateData.GetComponentArray<components::WidgetComponent>();
+                            widget->visibility = comboBox.collapsed ? Visibility::Collapsed : Visibility::Visible;
+                            widget->updateEnabled = !comboBox.collapsed;
+                            widget->dirty = true;
+                        });
+                }
             }
-        }
+        });
     }
 }

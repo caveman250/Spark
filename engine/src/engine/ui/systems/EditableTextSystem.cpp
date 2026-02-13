@@ -330,114 +330,120 @@ namespace se::ui::systems
 #endif
     }
 
-    void EditableTextSystem::OnUpdate([[maybe_unused]] const ecs::SystemUpdateData& updateData)
+    void EditableTextSystem::OnUpdate([[maybe_unused]] const ecs::QueryResults& results)
     {
 #if SPARK_EDITOR
-        const auto& entities = updateData.GetEntities();
-        auto* textComps = updateData.GetComponentArray<components::EditableTextComponent>();
-        const auto* transformComps = updateData.GetComponentArray<const components::RectTransformComponent>();
-        const auto* mouseInputComps = updateData.GetComponentArray<const components::MouseInputComponent>();
-        auto* keyInputComps = updateData.GetComponentArray<components::KeyInputComponent>();
-        const auto* inputComp = updateData.GetSingletonComponent<const input::InputComponent>();
-
-        for (size_t i = 0; i < entities.size(); ++i)
+        ecs::ForEachArcheType(results, ecs::UpdateMode::MultiThreaded, false, [this](const ecs::SystemUpdateData& updateData)
         {
-            const ecs::Id& entity = entities[i];
-            components::EditableTextComponent& text = textComps[i];
-            components::KeyInputComponent& keyInput = keyInputComps[i];
-            const components::MouseInputComponent& mouseInput = mouseInputComps[i];
-            const components::RectTransformComponent& rectTransform = transformComps[i];
+            const auto& entities = updateData.GetEntities();
+            auto* textComps = updateData.GetComponentArray<components::EditableTextComponent>();
+            const auto* transformComps = updateData.GetComponentArray<const components::RectTransformComponent>();
+            const auto* mouseInputComps = updateData.GetComponentArray<const components::MouseInputComponent>();
+            auto* keyInputComps = updateData.GetComponentArray<components::KeyInputComponent>();
+            const auto* inputComp = updateData.GetSingletonComponent<const input::InputComponent>();
 
-            if (mouseInput.hovered)
+            for (size_t i = 0; i < entities.size(); ++i)
             {
-                MouseCursorUtil::SetMouseCursor(MouseCursor::IBeam);
+                const ecs::Id& entity = entities[i];
+                components::EditableTextComponent& text = textComps[i];
+                components::KeyInputComponent& keyInput = keyInputComps[i];
+                const components::MouseInputComponent& mouseInput = mouseInputComps[i];
+                const components::RectTransformComponent& rectTransform = transformComps[i];
 
-                for (const auto& mouseEvent: mouseInput.mouseEvents)
+                if (mouseInput.hovered)
                 {
-                    if (mouseEvent.button == input::MouseButton::Left)
+                    MouseCursorUtil::SetMouseCursor(MouseCursor::IBeam);
+
+                    for (const auto& mouseEvent: mouseInput.mouseEvents)
                     {
-                        if (mouseEvent.state == input::KeyState::Up)
+                        if (mouseEvent.button == input::MouseButton::Left)
                         {
-                            if (!text.inEditMode)
+                            if (mouseEvent.state == input::KeyState::Up)
                             {
-                                util::BeginEditingText(this, entity, text, keyInput);
+                                if (!text.inEditMode)
+                                {
+                                    util::BeginEditingText(this, entity, text, keyInput);
+                                }
+
+                                util::SetCaretPos(text,
+                                                  util::CalcCaretPosition(
+                                                      math::Vec2(static_cast<float>(inputComp->mouseX), static_cast<float>(inputComp->mouseY)),
+                                                      text,
+                                                      rectTransform));
                             }
-
-                            util::SetCaretPos(text,
-                                              util::CalcCaretPosition(
-                                                  math::Vec2(static_cast<float>(inputComp->mouseX), static_cast<float>(inputComp->mouseY)),
-                                                  text,
-                                                  rectTransform));
                         }
                     }
                 }
-            }
-            else if (text.inEditMode)
-            {
-                util::EndEditingText(this, entity, text, keyInput);
-            }
-
-            if (!mouseInput.hovered && mouseInput.lastHovered)
-            {
-                MouseCursorUtil::SetMouseCursor(MouseCursor::Arrow);
-            }
-
-            if (text.inEditMode)
-            {
-                for (const auto& keyEvent: keyInput.keyEvents)
+                else if (text.inEditMode)
                 {
-                    if (keyEvent.state == input::KeyState::Down)
+                    util::EndEditingText(this, entity, text, keyInput);
+                }
+
+                if (!mouseInput.hovered && mouseInput.lastHovered)
+                {
+                    MouseCursorUtil::SetMouseCursor(MouseCursor::Arrow);
+                }
+
+                if (text.inEditMode)
+                {
+                    for (const auto& keyEvent: keyInput.keyEvents)
                     {
-                        if (keyEvent.key == input::Key::Escape)
+                        if (keyEvent.state == input::KeyState::Down)
                         {
-                            util::EndEditingText(this, entity, text, keyInput);
-                        }
-                        else
-                        {
-                            HandleKey(entity, text, keyInput, keyEvent.key);
+                            if (keyEvent.key == input::Key::Escape)
+                            {
+                                util::EndEditingText(this, entity, text, keyInput);
+                            }
+                            else
+                            {
+                                HandleKey(entity, text, keyInput, keyEvent.key);
+                            }
                         }
                     }
                 }
             }
-        }
+        });
 #endif
     }
 
-    void EditableTextSystem::OnRender([[maybe_unused]] const ecs::SystemUpdateData& updateData)
+    void EditableTextSystem::OnRender([[maybe_unused]] const ecs::QueryResults& results)
     {
 #if SPARK_EDITOR
         EASY_BLOCK("EditableTextSystem::OnRender");
 
-        auto app = Application::Get();
-        auto renderer = render::Renderer::Get<render::Renderer>();
-        auto window = app->GetWindow();
-
-        const auto& entities = updateData.GetEntities();
-        auto* widgetComps = updateData.GetComponentArray<components::WidgetComponent>();
-        const auto* transformComps = updateData.GetComponentArray<const components::RectTransformComponent>();
-        auto* textComps = updateData.GetComponentArray<components::EditableTextComponent>();
-        auto* renderComp = updateData.GetSingletonComponent<singleton_components::UIRenderComponent>();
-
-        for (size_t i = 0; i < entities.size(); ++i)
+        ecs::ForEachArcheType(results, ecs::UpdateMode::MultiThreaded, false, [](const ecs::SystemUpdateData& updateData)
         {
-            const auto& entity = entities[i];
-            const auto& widget = widgetComps[i];
-            const auto& transform = transformComps[i];
-            auto& text = textComps[i];
+            auto app = Application::Get();
+            auto renderer = render::Renderer::Get<render::Renderer>();
+            auto window = app->GetWindow();
 
-            auto windowSize = ecs::IsEditorEntity(entity) ?
-                math::IntVec2(window->GetWidth(), window->GetHeight()) :
-                Application::Get()->GetGameViewportSize();
+            const auto& entities = updateData.GetEntities();
+            auto* widgetComps = updateData.GetComponentArray<components::WidgetComponent>();
+            const auto* transformComps = updateData.GetComponentArray<const components::RectTransformComponent>();
+            auto* textComps = updateData.GetComponentArray<components::EditableTextComponent>();
+            auto* renderComp = updateData.GetSingletonComponent<singleton_components::UIRenderComponent>();
 
-            util::RenderText(entity,
-                             widget,
-                             transform,
-                             text,
-                             windowSize,
-                             renderer,
-                             renderComp,
-                             text.inEditMode ? text.editText : text.text);
-        }
+            for (size_t i = 0; i < entities.size(); ++i)
+            {
+                const auto& entity = entities[i];
+                const auto& widget = widgetComps[i];
+                const auto& transform = transformComps[i];
+                auto& text = textComps[i];
+
+                auto windowSize = ecs::IsEditorEntity(entity) ?
+                    math::IntVec2(window->GetWidth(), window->GetHeight()) :
+                    Application::Get()->GetGameViewportSize();
+
+                util::RenderText(entity,
+                                 widget,
+                                 transform,
+                                 text,
+                                 windowSize,
+                                 renderer,
+                                 renderComp,
+                                 text.inEditMode ? text.editText : text.text);
+            }
+        });
 #endif
     }
 }

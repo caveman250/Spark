@@ -34,96 +34,100 @@ namespace se::editor::systems
         return point;
     }
 
-    void GizmoSystem::OnUpdate(const ecs::SystemUpdateData& systemUpdateData)
+    void GizmoSystem::OnUpdate(const ecs::QueryResults& results)
     {
         auto editor = Application::Get()->GetEditorRuntime();
-        const auto& entities = systemUpdateData.GetEntities();
-        auto cameraComp = systemUpdateData.GetSingletonComponent<const camera::ActiveCameraComponent>();
-        auto inputComp = systemUpdateData.GetSingletonComponent<input::InputComponent>();
-        auto* gizmos = systemUpdateData.GetComponentArray<components::GizmoComponent>();
-        auto* transforms = systemUpdateData.GetComponentArray<ecs::components::TransformComponent>();
-        auto* meshes = systemUpdateData.GetComponentArray<ecs::components::MeshComponent>();
 
-        auto mousePos = util::ScreenSpaceToGameViewportSpace(inputComp->mouseX, inputComp->mouseY);
-        auto viewportRect = editor->GetViewportRect();
-        math::Vec3 mouseWorldPos = ScreenToWorldPoint(mousePos
-           , cameraComp->view
-           , cameraComp->proj
-           , math::Vec4(0.f, 0.f, static_cast<float>(viewportRect.size.x), static_cast<float>(viewportRect.size.y)));
-        math::Vec3 direction = math::Normalized(mouseWorldPos - cameraComp->pos);
-        geo::Ray ray = geo::Ray(cameraComp->pos, direction);
-
-        for (size_t i = 0; i < entities.size(); ++i)
+        ecs::ForEachArcheType(results, ecs::UpdateMode::MultiThreaded, false, [editor](const ecs::SystemUpdateData& updateData)
         {
-            const auto& entity = entities[i];
-            auto& transform = transforms[i];
-            auto& gizmo = gizmos[i];
-            auto& mesh = meshes[i];
+            const auto& entities = updateData.GetEntities();
+            auto cameraComp = updateData.GetSingletonComponent<const camera::ActiveCameraComponent>();
+            auto inputComp = updateData.GetSingletonComponent<input::InputComponent>();
+            auto* gizmos = updateData.GetComponentArray<components::GizmoComponent>();
+            auto* transforms = updateData.GetComponentArray<ecs::components::TransformComponent>();
+            auto* meshes = updateData.GetComponentArray<ecs::components::MeshComponent>();
 
-            // uninitialized
-            if (!mesh.materialInstance)
+            auto mousePos = util::ScreenSpaceToGameViewportSpace(inputComp->mouseX, inputComp->mouseY);
+            auto viewportRect = editor->GetViewportRect();
+            math::Vec3 mouseWorldPos = ScreenToWorldPoint(mousePos
+               , cameraComp->view
+               , cameraComp->proj
+               , math::Vec4(0.f, 0.f, static_cast<float>(viewportRect.size.x), static_cast<float>(viewportRect.size.y)));
+            math::Vec3 direction = math::Normalized(mouseWorldPos - cameraComp->pos);
+            geo::Ray ray = geo::Ray(cameraComp->pos, direction);
+
+            for (size_t i = 0; i < entities.size(); ++i)
             {
-                continue;
-            }
+                const auto& entity = entities[i];
+                auto& transform = transforms[i];
+                auto& gizmo = gizmos[i];
+                auto& mesh = meshes[i];
 
-            gizmo.mouseDown &= inputComp->mouseButtonStates[static_cast<int>(input::MouseButton::Left)] == input::KeyState::Down;
-
-            if (geo::util::RayCastAABB(ray, transform))
-            {
-                math::Vec3 yellow = math::Vec3(1.f, 1.f, 0.f);
-                mesh.materialInstance->SetUniform("uniform_color", asset::shader::ast::AstType::Vec3, 1, &yellow);
-
-                input::InputUtil::ProcessMouseEvents(entity, inputComp, [&gizmo](const input::MouseEvent& mouseEvent)
+                // uninitialized
+                if (!mesh.materialInstance)
                 {
-                    if (mouseEvent.button == input::MouseButton::Left)
+                    continue;
+                }
+
+                gizmo.mouseDown &= inputComp->mouseButtonStates[static_cast<int>(input::MouseButton::Left)] == input::KeyState::Down;
+
+                if (geo::util::RayCastAABB(ray, transform))
+                {
+                    math::Vec3 yellow = math::Vec3(1.f, 1.f, 0.f);
+                    mesh.materialInstance->SetUniform("uniform_color", asset::shader::ast::AstType::Vec3, 1, &yellow);
+
+                    input::InputUtil::ProcessMouseEvents(entity, inputComp, [&gizmo](const input::MouseEvent& mouseEvent)
                     {
-                        if (mouseEvent.state == input::KeyState::Down)
+                        if (mouseEvent.button == input::MouseButton::Left)
                         {
-                            gizmo.mouseDown = true;
+                            if (mouseEvent.state == input::KeyState::Down)
+                            {
+                                gizmo.mouseDown = true;
+                            }
+
+                            return true;
                         }
 
-                        return true;
-                    }
-
-                    return false;
-                });
-            }
-            else if (!gizmo.mouseDown)
-            {
-                mesh.materialInstance->SetUniform("uniform_color", asset::shader::ast::AstType::Vec3, 1, &gizmo.color);
-            }
-
-            if (gizmo.mouseDown)
-            {
-                math::Vec3 forward(cos(cameraComp->rot.x) * sin(cameraComp->rot.y),
-                         sin(cameraComp->rot.x),
-                         cos(cameraComp->rot.x) * cos(cameraComp->rot.y));
-                math::Vec3 worldPos = { transform.worldTransform[3].x, transform.worldTransform[3].y, transform.worldTransform[3].z };
-                geo::Plane plane = {
-                    .normal = forward,
-                    .distSquared = math::Dot(forward, worldPos)
-                };
-                auto hit = geo::util::RayCastPlane(ray, plane);
-                SPARK_ASSERT(hit.has_value());
-                switch (gizmo.axis)
+                        return false;
+                    });
+                }
+                else if (!gizmo.mouseDown)
                 {
-                    case components::GizmoAxis::Forward:
+                    mesh.materialInstance->SetUniform("uniform_color", asset::shader::ast::AstType::Vec3, 1, &gizmo.color);
+                }
+
+                if (gizmo.mouseDown)
+                {
+                    math::Vec3 forward(cos(cameraComp->rot.x) * sin(cameraComp->rot.y),
+                             sin(cameraComp->rot.x),
+                             cos(cameraComp->rot.x) * cos(cameraComp->rot.y));
+                    math::Vec3 worldPos = { transform.worldTransform[3].x, transform.worldTransform[3].y, transform.worldTransform[3].z };
+                    geo::Plane plane = {
+                        .normal = forward,
+                        .distSquared = math::Dot(forward, worldPos)
+                    };
+                    auto hit = geo::util::RayCastPlane(ray, plane);
+                    SPARK_ASSERT(hit.has_value());
+                    switch (gizmo.axis)
                     {
-                        gizmo.onMove.Broadcast(math::Vec3(0.f, 0.f, hit.value().intersectionPoint.z));
-                        break;
-                    }
-                    case components::GizmoAxis::Right:
-                    {
-                        gizmo.onMove.Broadcast(math::Vec3(hit.value().intersectionPoint.x, 0.f, 0.f));
-                        break;
-                    }
-                    case components::GizmoAxis::Up:
-                    {
-                        gizmo.onMove.Broadcast(math::Vec3(0.f, hit.value().intersectionPoint.y, 0.f));
-                        break;
+                        case components::GizmoAxis::Forward:
+                        {
+                            gizmo.onMove.Broadcast(math::Vec3(0.f, 0.f, hit.value().intersectionPoint.z));
+                            break;
+                        }
+                        case components::GizmoAxis::Right:
+                        {
+                            gizmo.onMove.Broadcast(math::Vec3(hit.value().intersectionPoint.x, 0.f, 0.f));
+                            break;
+                        }
+                        case components::GizmoAxis::Up:
+                        {
+                            gizmo.onMove.Broadcast(math::Vec3(0.f, hit.value().intersectionPoint.y, 0.f));
+                            break;
+                        }
                     }
                 }
             }
-        }
+        });
     }
 }

@@ -16,21 +16,24 @@ namespace se::ui::systems
                 .WithComponent<components::WidgetComponent>();
     }
 
-    void WidgetVisibilitySystem::OnUpdate(const ecs::SystemUpdateData& updateData)
+    void WidgetVisibilitySystem::OnUpdate(const ecs::QueryResults& results)
     {
         EASY_BLOCK("WidgetVisibilitySystem::OnUpdate");
 
-        const auto& entities = updateData.GetEntities();
-        auto* widgets = updateData.GetComponentArray<components::WidgetComponent>();
-        for (size_t i = 0; i < entities.size(); ++i)
+        ecs::ForEachArcheType(results, ecs::UpdateMode::MultiThreaded, false, [this](const ecs::SystemUpdateData& updateData)
         {
-            [[maybe_unused]] const auto& entity = entities[i];
-            auto& widget = widgets[i];
-            if (widget.dirty)
+            const auto& entities = updateData.GetEntities();
+            auto* widgets = updateData.GetComponentArray<components::WidgetComponent>();
+            for (size_t i = 0; i < entities.size(); ++i)
             {
-                UpdateWidgetVisibility(entities[i], widget);
+                [[maybe_unused]] const auto& entity = entities[i];
+                auto& widget = widgets[i];
+                if (widget.dirty)
+                {
+                    UpdateWidgetVisibility(entities[i], widget);
+                }
             }
-        }
+        });
     }
 
     void WidgetVisibilitySystem::UpdateWidgetVisibility(const ecs::Id& entity,

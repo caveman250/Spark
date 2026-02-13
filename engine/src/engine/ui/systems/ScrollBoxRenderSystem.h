@@ -16,6 +16,6 @@ class ScrollBoxRenderSystem : public ecs::EngineSystem
         SPARK_SYSTEM()
     public:
         static ecs::SystemDeclaration GetSystemDeclaration();
-        void OnRender(const ecs::SystemUpdateData& updateData) override;
+        void OnRender(const ecs::QueryResults&) override;
     };
 }

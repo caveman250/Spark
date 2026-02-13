@@ -16,8 +16,8 @@ namespace se::ui::systems
 
         static ecs::SystemDeclaration GetSystemDeclaration();
 
-        void OnUpdate(const ecs::SystemUpdateData&) override;
-        void OnRender(const ecs::SystemUpdateData&) override;
+        void OnUpdate(const ecs::QueryResults&) override;
+        void OnRender(const ecs::QueryResults&) override;
 
     private:
         void HandleKey(const ecs::Id& entity,

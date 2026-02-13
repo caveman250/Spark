@@ -13,8 +13,7 @@ namespace se::render::systems
         SPARK_SYSTEM()
     public:
         static ecs::SystemDeclaration GetSystemDeclaration();
-        ecs::UpdateMode GetUpdateMode() const override;
-        void OnUpdate(const ecs::SystemUpdateData& updateData) override;
-        void OnRender(const ecs::SystemUpdateData& updateData) override;
+        void OnUpdate(const ecs::QueryResults&) override;
+        void OnRender(const ecs::QueryResults&) override;
     };
 }

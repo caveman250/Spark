@@ -21,44 +21,47 @@ namespace se::ui::systems
                     .WithDependency<UIMouseInputSystem>();
     }
 
-    void TitleBarSystem::OnUpdate(const ecs::SystemUpdateData& updateData)
+    void TitleBarSystem::OnUpdate(const ecs::QueryResults& results)
     {
         EASY_BLOCK("TitleBarSystem::OnUpdate");
 
-        auto* titleBars = updateData.GetComponentArray<components::TitleBarComponent>();
-        const auto* transforms = updateData.GetComponentArray<const components::RectTransformComponent>();
-        auto* mouseEventComps = updateData.GetComponentArray<components::MouseInputComponent>();
-        auto* inputComp = updateData.GetSingletonComponent<input::InputComponent>();
-
-        for (size_t i = 0; i < updateData.GetEntities().size(); ++i)
+        ecs::ForEachArcheType(results, ecs::UpdateMode::MultiThreaded, false, [](const ecs::SystemUpdateData& updateData)
         {
-            auto& titleBar = titleBars[i];
-            const auto& rectTransform = transforms[i];
-            auto& mouseEventComp = mouseEventComps[i];
+            auto* titleBars = updateData.GetComponentArray<components::TitleBarComponent>();
+            const auto* transforms = updateData.GetComponentArray<const components::RectTransformComponent>();
+            auto* mouseEventComps = updateData.GetComponentArray<components::MouseInputComponent>();
+            auto* inputComp = updateData.GetSingletonComponent<input::InputComponent>();
 
-            mouseEventComp.enabled = std::abs(inputComp->mouseY - rectTransform.rect.topLeft.y) >= 5;
-
-            for (const auto& event : mouseEventComp.mouseEvents)
+            for (size_t i = 0; i < updateData.GetEntities().size(); ++i)
             {
-                if (event.button == input::MouseButton::Left)
+                auto& titleBar = titleBars[i];
+                const auto& rectTransform = transforms[i];
+                auto& mouseEventComp = mouseEventComps[i];
+
+                mouseEventComp.enabled = std::abs(inputComp->mouseY - rectTransform.rect.topLeft.y) >= 5;
+
+                for (const auto& event : mouseEventComp.mouseEvents)
                 {
-                    if (event.state == input::KeyState::Down)
+                    if (event.button == input::MouseButton::Left)
                     {
-                        titleBar.pressed = true;
-                    }
-                    else if (event.state == input::KeyState::Up)
-                    {
-                        titleBar.pressed = false;
+                        if (event.state == input::KeyState::Down)
+                        {
+                            titleBar.pressed = true;
+                        }
+                        else if (event.state == input::KeyState::Up)
+                        {
+                            titleBar.pressed = false;
+                        }
                     }
                 }
-            }
 
-            if (titleBar.pressed && (inputComp->mouseDeltaX || inputComp->mouseDeltaY))
-            {
-                titleBar.onMove.Broadcast(static_cast<float>(inputComp->mouseDeltaX), static_cast<float>(inputComp->mouseDeltaY));
-            }
+                if (titleBar.pressed && (inputComp->mouseDeltaX || inputComp->mouseDeltaY))
+                {
+                    titleBar.onMove.Broadcast(static_cast<float>(inputComp->mouseDeltaX), static_cast<float>(inputComp->mouseDeltaY));
+                }
 
-            titleBar.lastPressed = titleBar.pressed;
-        }
+                titleBar.lastPressed = titleBar.pressed;
+            }
+        });
     }
 }

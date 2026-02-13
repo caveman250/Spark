@@ -27,40 +27,43 @@ namespace se::ui::systems
                 .WithDependency<RectTransformSystem>();
     }
 
-    void CollapsingHeaderSystem::OnUpdate(const ecs::SystemUpdateData& updateData)
+    void CollapsingHeaderSystem::OnUpdate(const ecs::QueryResults& results)
     {
         EASY_BLOCK("CollapsingHeaderSystem::OnUpdate");
 
-        const auto& entities = updateData.GetEntities();
-        auto* collapsingHeaders = updateData.GetComponentArray<components::CollapsingHeaderComponent>();
-        auto* transforms = updateData.GetComponentArray<components::RectTransformComponent>();
-
-        for (size_t i = 0; i < entities.size(); ++i)
+        ecs::ForEachArcheType(results, ecs::UpdateMode::MultiThreaded, false, [this](const ecs::SystemUpdateData& updateData)
         {
-            const auto& entity = entities[i];
-            auto& collapsingHeader = collapsingHeaders[i];
-            auto& transform = transforms[i];
+            const auto& entities = updateData.GetEntities();
+            auto* collapsingHeaders = updateData.GetComponentArray<components::CollapsingHeaderComponent>();
+            auto* transforms = updateData.GetComponentArray<components::RectTransformComponent>();
 
-            if (collapsingHeader.collapsed != collapsingHeader.lastCollapsed)
+            for (size_t i = 0; i < entities.size(); ++i)
             {
-                collapsingHeader.lastCollapsed = collapsingHeader.collapsed;
-                collapsingHeader.onCollapsed.Broadcast(collapsingHeader.collapsed);
-                transform.desiredSize = { };
-                transform.cachedParentSize = { };
+                const auto& entity = entities[i];
+                auto& collapsingHeader = collapsingHeaders[i];
+                auto& transform = transforms[i];
 
-                auto declaration = ecs::HeirachyQueryDeclaration()
-                        .WithComponent<components::WidgetComponent>();
-                RunQueryOnChild(collapsingHeader.contentsEntity, declaration,
-                                [&collapsingHeader](const ecs::SystemUpdateData& updateData)
-                                {
-                                    auto* widget = updateData.GetComponentArray<components::WidgetComponent>();
-                                    widget->visibility = collapsingHeader.collapsed ? Visibility::Collapsed : Visibility::Visible;
-                                    widget->updateEnabled = !collapsingHeader.collapsed;
-                                    widget->dirty = true;
-                                });
+                if (collapsingHeader.collapsed != collapsingHeader.lastCollapsed)
+                {
+                    collapsingHeader.lastCollapsed = collapsingHeader.collapsed;
+                    collapsingHeader.onCollapsed.Broadcast(collapsingHeader.collapsed);
+                    transform.desiredSize = { };
+                    transform.cachedParentSize = { };
 
-                util::InvalidateParent(entity, this);
+                    auto declaration = ecs::HeirachyQueryDeclaration()
+                            .WithComponent<components::WidgetComponent>();
+                    RunQueryOnChild(collapsingHeader.contentsEntity, declaration,
+                                    [&collapsingHeader](const ecs::SystemUpdateData& updateData)
+                                    {
+                                        auto* widget = updateData.GetComponentArray<components::WidgetComponent>();
+                                        widget->visibility = collapsingHeader.collapsed ? Visibility::Collapsed : Visibility::Visible;
+                                        widget->updateEnabled = !collapsingHeader.collapsed;
+                                        widget->dirty = true;
+                                    });
+
+                    util::InvalidateParent(entity, this);
+                }
             }
-        }
+        });
     }
 }

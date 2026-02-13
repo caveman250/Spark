@@ -17,25 +17,28 @@ namespace se::ui::systems
             .WithDependency<ResetMouseInputSystem>();
     }
 
-    void ContextMenuSystem::OnUpdate(const ecs::SystemUpdateData& systemUpdateData)
+    void ContextMenuSystem::OnUpdate(const ecs::QueryResults& results)
     {
-        const auto* inputComp = systemUpdateData.GetSingletonComponent<const input::InputComponent>();
-        if (inputComp->mouseButtonStates[static_cast<int>(input::MouseButton::Left)] == input::KeyState::Down)
+        ecs::ForEachArcheType(results, ecs::UpdateMode::MultiThreaded, false, [](const ecs::SystemUpdateData& updateData)
         {
-            auto world = Application::Get()->GetWorld();
-
-            const auto& entities = systemUpdateData.GetEntities();
-            const auto* mouseInputComps = systemUpdateData.GetComponentArray<const components::MouseInputComponent>();
-
-            for (size_t i = 0; i < entities.size(); ++i)
+            const auto* inputComp = updateData.GetSingletonComponent<const input::InputComponent>();
+            if (inputComp->mouseButtonStates[static_cast<int>(input::MouseButton::Left)] == input::KeyState::Down)
             {
-                const auto& mouseInputComp = mouseInputComps[i];
+                auto world = Application::Get()->GetWorld();
 
-                if (!mouseInputComp.hovered)
+                const auto& entities = updateData.GetEntities();
+                const auto* mouseInputComps = updateData.GetComponentArray<const components::MouseInputComponent>();
+
+                for (size_t i = 0; i < entities.size(); ++i)
                 {
-                    world->DestroyEntity(entities[i]);
+                    const auto& mouseInputComp = mouseInputComps[i];
+
+                    if (!mouseInputComp.hovered)
+                    {
+                        world->DestroyEntity(entities[i]);
+                    }
                 }
             }
-        }
+        });
     }
 }

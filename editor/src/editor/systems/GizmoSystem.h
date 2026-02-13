@@ -11,6 +11,6 @@ namespace se::editor::systems
         
         static ecs::SystemDeclaration GetSystemDeclaration();
 
-        void OnUpdate(const ecs::SystemUpdateData&) override;
+        void OnUpdate(const ecs::QueryResults&) override;
     };
 }

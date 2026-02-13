@@ -27,80 +27,78 @@ namespace se::ui::systems
                     .WithSingletonComponent<singleton_components::UIRenderComponent>();
     }
 
-    ecs::UpdateMode ImageRenderSystem::GetUpdateMode() const
-    {
-        auto renderer = render::Renderer::Get<render::Renderer>();
-        return renderer->SupportsMultiThreadedRendering() ? ecs::UpdateMode::MultiThreaded : ecs::UpdateMode::SingleThreaded;
-    }
-
-    void ImageRenderSystem::OnRender(const ecs::SystemUpdateData& updateData)
+    void ImageRenderSystem::OnRender(const ecs::QueryResults& results)
     {
         EASY_BLOCK("ImageRenderSystem::OnRender");
 
         auto app = Application::Get();
         auto renderer = render::Renderer::Get<render::Renderer>();
         auto window = app->GetWindow();
+        auto updateMode = renderer->SupportsMultiThreadedRendering() ? ecs::UpdateMode::MultiThreaded : ecs::UpdateMode::SingleThreaded;
 
-        const auto& entities = updateData.GetEntities();
-        const auto* widgetComps = updateData.GetComponentArray<const components::WidgetComponent>();
-        const auto* transformComps = updateData.GetComponentArray<const components::RectTransformComponent>();
-        auto* imageComps = updateData.GetComponentArray<components::ImageComponent>();
-        auto* renderComp = updateData.GetSingletonComponent<singleton_components::UIRenderComponent>();
-
-        for (size_t i = 0; i < entities.size(); ++i)
+        ecs::ForEachArcheType(results, updateMode, false, [renderer, window](const ecs::SystemUpdateData& updateData)
         {
-            const auto& widget = widgetComps[i];
-            if (widget.visibility != Visibility::Visible || widget.parentVisibility != Visibility::Visible)
-            {
-                continue;
-            }
+            const auto& entities = updateData.GetEntities();
+            const auto* widgetComps = updateData.GetComponentArray<const components::WidgetComponent>();
+            const auto* transformComps = updateData.GetComponentArray<const components::RectTransformComponent>();
+            auto* imageComps = updateData.GetComponentArray<components::ImageComponent>();
+            auto* renderComp = updateData.GetSingletonComponent<singleton_components::UIRenderComponent>();
 
-            const auto& entity = entities[i];
-            const auto& transform = transformComps[i];
-            auto& image = imageComps[i];
-
-            if (!image.materialInstance && image.texture.IsSet())
+            for (size_t i = 0; i < entities.size(); ++i)
             {
-                auto alphaTexture = asset::AssetManager::Get()->GetAsset<render::Material>("/engine_assets/materials/ui_alpha_texture.sass");
-                image.materialInstance = render::MaterialInstance::CreateMaterialInstance(alphaTexture);
-                image.materialInstance->SetUniform("Texture", asset::shader::ast::AstType::Sampler2DReference, 1, &image.texture);
-            }
-
-            if (image.materialInstance)
-            {
-                if (transform.rect.topLeft != image.lastRect.topLeft)
+                const auto& widget = widgetComps[i];
+                if (widget.visibility != Visibility::Visible || widget.parentVisibility != Visibility::Visible)
                 {
-                    auto floatVec = math::Vec2(transform.rect.topLeft);
-                    image.materialInstance->SetUniform("pos", asset::shader::ast::AstType::Vec2, 1, &floatVec);
+                    continue;
                 }
 
-                if (!image.vertBuffer || image.lastRect.size != transform.rect.size)
+                const auto& entity = entities[i];
+                const auto& transform = transformComps[i];
+                auto& image = imageComps[i];
+
+                if (!image.materialInstance && image.texture.IsSet())
                 {
-                    asset::StaticMesh mesh = util::CreateMeshFromRect(transform.rect);
-                    image.vertBuffer = render::VertexBuffer::CreateVertexBuffer(mesh);
-                    image.vertBuffer->CreatePlatformResource();
-                    image.indexBuffer = render::IndexBuffer::CreateIndexBuffer(mesh);
-                    image.indexBuffer->CreatePlatformResource();
+                    auto alphaTexture = asset::AssetManager::Get()->GetAsset<render::Material>("/engine_assets/materials/ui_alpha_texture.sass");
+                    image.materialInstance = render::MaterialInstance::CreateMaterialInstance(alphaTexture);
+                    image.materialInstance->SetUniform("Texture", asset::shader::ast::AstType::Sampler2DReference, 1, &image.texture);
                 }
 
-                image.lastRect = transform.rect;
-
-                math::Vec2 windowSize = ecs::IsEditorEntity(entity) ?
-                     math::IntVec2(window->GetWidth(), window->GetHeight()) :
-                     Application::Get()->GetGameViewportSize();
-
-                const math::Vec2* screenSizeUniform = image.materialInstance->GetUniform<math::Vec2>("screenSize");
-                if (!screenSizeUniform || *screenSizeUniform != windowSize)
+                if (image.materialInstance)
                 {
-                    image.materialInstance->SetUniform("screenSize", asset::shader::ast::AstType::Vec2, 1, &windowSize);
-                }
+                    if (transform.rect.topLeft != image.lastRect.topLeft)
+                    {
+                        auto floatVec = math::Vec2(transform.rect.topLeft);
+                        image.materialInstance->SetUniform("pos", asset::shader::ast::AstType::Vec2, 1, &floatVec);
+                    }
 
-                auto command = renderer->AllocRenderCommand<render::commands::SubmitUI>(image.materialInstance, image.vertBuffer,
-                                                             image.indexBuffer);
-                renderComp->mutex.lock();
-                renderComp->entityRenderCommands[entity].push_back(UIRenderCommand(command, UILayerKey(transform.layer, ecs::IsEditorEntity(entity))));
-                renderComp->mutex.unlock();
+                    if (!image.vertBuffer || image.lastRect.size != transform.rect.size)
+                    {
+                        asset::StaticMesh mesh = util::CreateMeshFromRect(transform.rect);
+                        image.vertBuffer = render::VertexBuffer::CreateVertexBuffer(mesh);
+                        image.vertBuffer->CreatePlatformResource();
+                        image.indexBuffer = render::IndexBuffer::CreateIndexBuffer(mesh);
+                        image.indexBuffer->CreatePlatformResource();
+                    }
+
+                    image.lastRect = transform.rect;
+
+                    math::Vec2 windowSize = ecs::IsEditorEntity(entity) ?
+                         math::IntVec2(window->GetWidth(), window->GetHeight()) :
+                         Application::Get()->GetGameViewportSize();
+
+                    const math::Vec2* screenSizeUniform = image.materialInstance->GetUniform<math::Vec2>("screenSize");
+                    if (!screenSizeUniform || *screenSizeUniform != windowSize)
+                    {
+                        image.materialInstance->SetUniform("screenSize", asset::shader::ast::AstType::Vec2, 1, &windowSize);
+                    }
+
+                    auto command = renderer->AllocRenderCommand<render::commands::SubmitUI>(image.materialInstance, image.vertBuffer,
+                                                                 image.indexBuffer);
+                    renderComp->mutex.lock();
+                    renderComp->entityRenderCommands[entity].push_back(UIRenderCommand(command, UILayerKey(transform.layer, ecs::IsEditorEntity(entity))));
+                    renderComp->mutex.unlock();
+                }
             }
-        }
+        });
     }
 }

@@ -10,16 +10,19 @@ namespace se::input
             .WithSingletonComponent<InputComponent>();
     }
 
-    void InputSystem::OnUpdate(const ecs::SystemUpdateData &updateData)
+    void InputSystem::OnUpdate(const ecs::QueryResults& results)
     {
         EASY_BLOCK("InputSystem::OnUpdate");
 
-        auto* inputComp = updateData.GetSingletonComponent<InputComponent>();
+        ecs::ForEachArcheType(results, ecs::UpdateMode::SingleThreaded, false, [](const ecs::SystemUpdateData& updateData)
+        {
+            auto* inputComp = updateData.GetSingletonComponent<InputComponent>();
 
-        inputComp->mouseDeltaX = inputComp->mouseX - inputComp->lastMouseX;
-        inputComp->mouseDeltaY = inputComp->mouseY - inputComp->lastMouseY;
+            inputComp->mouseDeltaX = inputComp->mouseX - inputComp->lastMouseX;
+            inputComp->mouseDeltaY = inputComp->mouseY - inputComp->lastMouseY;
 
-        inputComp->lastMouseX = inputComp->mouseX;
-        inputComp->lastMouseY = inputComp->mouseY;
+            inputComp->lastMouseX = inputComp->mouseX;
+            inputComp->lastMouseY = inputComp->mouseY;
+        });
     }
 }

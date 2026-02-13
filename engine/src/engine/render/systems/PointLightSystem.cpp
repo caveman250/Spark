@@ -13,15 +13,19 @@ namespace se::render::systems
                 .WithComponent<const ecs::components::TransformComponent>();
     }
 
-    void PointLightSystem::OnUpdate(const ecs::SystemUpdateData& updateData)
+    void PointLightSystem::OnUpdate(const ecs::QueryResults& results)
     {
-        const auto* transforms = updateData.GetComponentArray<const ecs::components::TransformComponent>();
-        const auto* pointLights = updateData.GetComponentArray<const components::PointLightComponent>();
-        auto* renderer = Renderer::Get<Renderer>();
+        auto renderer = Renderer::Get<Renderer>();
 
-        for (size_t i = 0; i < updateData.GetEntities().size(); ++i)
+        ecs::ForEachArcheType(results, ecs::UpdateMode::MultiThreaded, false, [renderer](const ecs::SystemUpdateData& updateData)
         {
-            renderer->AddPointLight( PointLight{ transforms[i].pos, pointLights[i].color });
-        }
+            const auto* transforms = updateData.GetComponentArray<const ecs::components::TransformComponent>();
+            const auto* pointLights = updateData.GetComponentArray<const components::PointLightComponent>();
+
+            for (size_t i = 0; i < updateData.GetEntities().size(); ++i)
+            {
+                renderer->AddPointLight( PointLight{ transforms[i].pos, pointLights[i].color });
+            }
+        });
     }
 }

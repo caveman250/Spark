@@ -12,55 +12,58 @@ namespace se::geo::systems
             .WithComponent<ecs::components::TransformComponent>();
     }
 
-    void MeshAABBSystem::OnUpdate(const ecs::SystemUpdateData& updateData)
+    void MeshAABBSystem::OnUpdate(const ecs::QueryResults& results)
     {
-        const auto* meshes = updateData.GetComponentArray<const ecs::components::MeshComponent>();
-        auto* transforms = updateData.GetComponentArray<ecs::components::TransformComponent>();
-
-        for (size_t i = 0; i < updateData.GetEntities().size(); ++i)
+        ecs::ForEachArcheType(results, ecs::UpdateMode::MultiThreaded, false, [](const ecs::SystemUpdateData& updateData)
         {
-            const auto& mesh = meshes[i];
-            auto& transform = transforms[i];
+            const auto* meshes = updateData.GetComponentArray<const ecs::components::MeshComponent>();
+            auto* transforms = updateData.GetComponentArray<ecs::components::TransformComponent>();
 
-            // TODO this could be done on import.
-            if (!mesh.model.IsSet())
+            for (size_t i = 0; i < updateData.GetEntities().size(); ++i)
             {
-                return;
-            }
-            if (transform.aabb.size == 0)
-            {
-                float minX = std::numeric_limits<float>::max(), minY = std::numeric_limits<float>::max(), minZ = std::numeric_limits<float>::max();
-                float maxX = std::numeric_limits<float>::min(), maxY = std::numeric_limits<float>::min(), maxZ = std::numeric_limits<float>::min();
-                for (const auto& vert : mesh.model.GetAsset()->GetMesh().vertices)
+                const auto& mesh = meshes[i];
+                auto& transform = transforms[i];
+
+                // TODO this could be done on import.
+                if (!mesh.model.IsSet())
                 {
-                    if (vert.x < minX)
-                    {
-                        minX = vert.x;
-                    }
-                    if (vert.y < minY)
-                    {
-                        minY = vert.y;
-                    }
-                    if (vert.z < minZ)
-                    {
-                        minZ = vert.z;
-                    }
-                    if (vert.x > maxX)
-                    {
-                        maxX = vert.x;
-                    }
-                    if (vert.y > maxY)
-                    {
-                        maxY = vert.y;
-                    }
-                    if (vert.z > maxZ)
-                    {
-                        maxZ = vert.z;
-                    }
+                    return;
                 }
+                if (transform.aabb.size == 0)
+                {
+                    float minX = std::numeric_limits<float>::max(), minY = std::numeric_limits<float>::max(), minZ = std::numeric_limits<float>::max();
+                    float maxX = std::numeric_limits<float>::min(), maxY = std::numeric_limits<float>::min(), maxZ = std::numeric_limits<float>::min();
+                    for (const auto& vert : mesh.model.GetAsset()->GetMesh().vertices)
+                    {
+                        if (vert.x < minX)
+                        {
+                            minX = vert.x;
+                        }
+                        if (vert.y < minY)
+                        {
+                            minY = vert.y;
+                        }
+                        if (vert.z < minZ)
+                        {
+                            minZ = vert.z;
+                        }
+                        if (vert.x > maxX)
+                        {
+                            maxX = vert.x;
+                        }
+                        if (vert.y > maxY)
+                        {
+                            maxY = vert.y;
+                        }
+                        if (vert.z > maxZ)
+                        {
+                            maxZ = vert.z;
+                        }
+                    }
 
-                transform.aabb = { {minX, minY, minZ}, { maxX - minX, maxY - minY, maxZ - minZ }};
+                    transform.aabb = { {minX, minY, minZ}, { maxX - minX, maxY - minY, maxZ - minZ }};
+                }
             }
-        }
+        });
     }
 }

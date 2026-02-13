@@ -23,20 +23,23 @@ namespace se::ecs::systems
                 .WithDependency<RootTransformSystem>();
     }
 
-    void TransformSystem::OnUpdate(const SystemUpdateData& updateData)
+    void TransformSystem::OnUpdate(const QueryResults& results)
     {
         EASY_BLOCK("TransformSystem::OnUpdate");
 
-        auto* transform = updateData.GetComponentArray<TransformComponent>();
-
-        for (size_t i = 0; i < updateData.GetEntities().size(); ++i)
+        ForEachArcheType(results, ecs::UpdateMode::MultiThreaded, false, [](const ecs::SystemUpdateData& updateData)
         {
-            auto& trans = transform[i];
-            trans.transform = Translation(trans.pos);
-            trans.transform = trans.transform * AxisAngle(math::Vec3(1.0f, 0.0f, 0.0f), trans.rot.x);
-            trans.transform = trans.transform * AxisAngle(math::Vec3(0.0f, 1.0f, 0.0f), trans.rot.y);
-            trans.transform = trans.transform * AxisAngle(math::Vec3(0.0f, 0.0f, 1.0f), trans.rot.z);
-            trans.transform = trans.transform *  Scale(trans.scale);
-        }
+            auto* transform = updateData.GetComponentArray<TransformComponent>();
+
+            for (size_t i = 0; i < updateData.GetEntities().size(); ++i)
+            {
+                auto& trans = transform[i];
+                trans.transform = Translation(trans.pos);
+                trans.transform = trans.transform * AxisAngle(math::Vec3(1.0f, 0.0f, 0.0f), trans.rot.x);
+                trans.transform = trans.transform * AxisAngle(math::Vec3(0.0f, 1.0f, 0.0f), trans.rot.y);
+                trans.transform = trans.transform * AxisAngle(math::Vec3(0.0f, 0.0f, 1.0f), trans.rot.z);
+                trans.transform = trans.transform *  Scale(trans.scale);
+            }
+        });
     }
 }

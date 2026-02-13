@@ -20,32 +20,34 @@ namespace se::ui::systems
                     .WithComponent<components::WidgetComponent>();
     }
 
-    void TextCaretSystem::OnUpdate(const ecs::SystemUpdateData& updateData)
+    void TextCaretSystem::OnUpdate(const ecs::QueryResults& results)
     {
         EASY_BLOCK("TextCaretSystem::OnUpdate");
 
         auto app = Application::Get();
-
-        auto* textCarets = updateData.GetComponentArray<components::TextCaretComponent>();
-        auto* widgets = updateData.GetComponentArray<components::WidgetComponent>();
-
-        for (size_t i = 0; i < updateData.GetEntities().size(); ++i)
+        ecs::ForEachArcheType(results, ecs::UpdateMode::MultiThreaded, false, [app](const ecs::SystemUpdateData& updateData)
         {
-            auto& textCaret = textCarets[i];
-            auto& widget = widgets[i];
+            auto* textCarets = updateData.GetComponentArray<components::TextCaretComponent>();
+            auto* widgets = updateData.GetComponentArray<components::WidgetComponent>();
 
-            if (!textCaret.active)
+            for (size_t i = 0; i < updateData.GetEntities().size(); ++i)
             {
-                widget.visibility = Visibility::Collapsed;
-                continue;
-            }
+                auto& textCaret = textCarets[i];
+                auto& widget = widgets[i];
 
-            textCaret.currentStateTime += app->GetDeltaTime();
-            if (textCaret.currentStateTime >= 0.5f)
-            {
-                widget.visibility = widget.visibility == Visibility::Visible ? Visibility::Collapsed : Visibility::Visible;
-                textCaret.currentStateTime = 0.f;
+                if (!textCaret.active)
+                {
+                    widget.visibility = Visibility::Collapsed;
+                    continue;
+                }
+
+                textCaret.currentStateTime += app->GetDeltaTime();
+                if (textCaret.currentStateTime >= 0.5f)
+                {
+                    widget.visibility = widget.visibility == Visibility::Visible ? Visibility::Collapsed : Visibility::Visible;
+                    textCaret.currentStateTime = 0.f;
+                }
             }
-        }
+        });
     }
 }

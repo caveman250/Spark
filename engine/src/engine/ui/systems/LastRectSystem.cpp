@@ -22,18 +22,21 @@ namespace se::ui::systems
                     .WithComponent<ui::components::RectTransformComponent>();
     }
 
-    void LastRectSystem::OnUpdate(const ecs::SystemUpdateData& updateData)
+    void LastRectSystem::OnUpdate(const ecs::QueryResults& results)
     {
         EASY_BLOCK("LastRectSystem::OnUpdate");
 
-        auto* transform = updateData.GetComponentArray<components::RectTransformComponent>();
-        for (size_t i = 0; i < updateData.GetEntities().size(); ++i)
+        ecs::ForEachArcheType(results, ecs::UpdateMode::MultiThreaded, false, [](const ecs::SystemUpdateData& updateData)
         {
-            auto& trans = transform[i];
-            if (!trans.needsLayout) // some layout optimisations rely on a position delta.
+            auto* transform = updateData.GetComponentArray<components::RectTransformComponent>();
+            for (size_t i = 0; i < updateData.GetEntities().size(); ++i)
             {
-                trans.lastRect = trans.rect;
+                auto& trans = transform[i];
+                if (!trans.needsLayout) // some layout optimisations rely on a position delta.
+                {
+                    trans.lastRect = trans.rect;
+                }
             }
-        }
+        });
     }
 }

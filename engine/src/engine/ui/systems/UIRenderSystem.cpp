@@ -84,32 +84,31 @@ namespace se::ui::systems
                     .WithDependency<CollapsingHeaderSystem>();
     }
 
-    ecs::UpdateMode UIRenderSystem::GetUpdateMode() const
-    {
-        return ecs::UpdateMode::SingleThreaded;
-    }
-
-    void UIRenderSystem::OnRender(const ecs::SystemUpdateData& updateData)
+    void UIRenderSystem::OnRender(const ecs::QueryResults& results)
     {
         auto* app = Application::Get();
         auto* world = app->GetWorld();
         auto* primaryWindow = app->GetWindow();
         auto* renderer = render::Renderer::Get<render::Renderer>();
-        const auto& entities = updateData.GetEntities();
-        auto* renderComp = updateData.GetSingletonComponent<singleton_components::UIRenderComponent>();
 
-        renderComp->LayerToRenderGroupMap.clear();
-#if SPARK_EDITOR
-        auto* editorRuntime = Application::Get()->GetEditorRuntime();
-        renderComp->LayerToRenderGroupMap.insert(std::make_pair(UILayerKey(0), editorRuntime->GetOffscreenRenderGroup()));
-        renderComp->LayerToRenderGroupMap.insert(std::make_pair(UILayerKey(0, true), renderer->GetDefaultRenderGroup()));
-#else
-        renderComp->LayerToRenderGroupMap.insert(std::make_pair(UILayerKey(0), renderer->GetDefaultRenderGroup()));
-#endif
-
-        for (const auto& entity: entities)
+        ecs::ForEachArcheType(results, ecs::UpdateMode::SingleThreaded, false, [world, primaryWindow, renderer](const ecs::SystemUpdateData& updateData)
         {
-            RenderEntity(entity, renderComp, renderer, primaryWindow, world);
-        }
+            const auto& entities = updateData.GetEntities();
+            auto* renderComp = updateData.GetSingletonComponent<singleton_components::UIRenderComponent>();
+
+            renderComp->LayerToRenderGroupMap.clear();
+    #if SPARK_EDITOR
+            auto* editorRuntime = Application::Get()->GetEditorRuntime();
+            renderComp->LayerToRenderGroupMap.insert(std::make_pair(UILayerKey(0), editorRuntime->GetOffscreenRenderGroup()));
+            renderComp->LayerToRenderGroupMap.insert(std::make_pair(UILayerKey(0, true), renderer->GetDefaultRenderGroup()));
+    #else
+            renderComp->LayerToRenderGroupMap.insert(std::make_pair(UILayerKey(0), renderer->GetDefaultRenderGroup()));
+    #endif
+
+            for (const auto& entity: entities)
+            {
+                RenderEntity(entity, renderComp, renderer, primaryWindow, world);
+            }
+        });
     }
 }

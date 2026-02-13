@@ -18,6 +18,7 @@
 #include "engine/render/singleton_components/MeshRenderComponent.h"
 #include "engine/string/util/StringUtil.h"
 #include "engine/ui/components/RectTransformComponent.h"
+#include "SystemUtil.h"
 
 namespace se::ecs
 {
@@ -628,7 +629,9 @@ namespace se::ecs
         }
         m_SceneRecords[scene].path = path;
 
+#if SPARK_EDITOR
         m_EntitiesChangedThisFrame = true;
+#endif
 
         return scene;
     }
@@ -1020,15 +1023,19 @@ namespace se::ecs
     std::vector<Id> World::GetRootEntities()
     {
         std::vector<Id> ret = {};
-        Each({ ComponentUsage(components::RootComponent::GetComponentId(), ComponentMutability::Immutable) },
+        RunQuery({ ComponentUsage(components::RootComponent::GetComponentId(), ComponentMutability::Immutable) },
             {},
              {},
-            [&ret](const SystemUpdateData& updateData)
+            [&ret](const QueryResults& result)
             {
-                const auto& entities = updateData.GetEntities();
-                ret.reserve(ret.size() + entities.size());
-                ret.insert(ret.end(), entities.begin(), entities.end());
-            }, UpdateMode::SingleThreaded, false);
+                ForEachArcheType(result, UpdateMode::SingleThreaded, false, [&ret](const SystemUpdateData& updateData)
+                {
+                    const auto& entities = updateData.GetEntities();
+                    ret.reserve(ret.size() + entities.size());
+                    ret.insert(ret.end(), entities.begin(), entities.end());
+                });
+
+            });
 
         return ret;
     }
@@ -1044,27 +1051,30 @@ namespace se::ecs
             ComponentUsage(components::RootComponent::GetComponentId(), ComponentMutability::Immutable),
             ComponentUsage(ui::components::WidgetComponent::GetComponentId(), ComponentMutability::Mutable)
         };
-        Each(dec,
+        RunQuery(dec,
             {},
-            {},
-            [this, visible, editor](const SystemUpdateData& updateData)
+             {},
+            [this, visible, editor](const QueryResults& result)
             {
-                const auto& entities = updateData.GetEntities();
-                auto* widgets = updateData.GetComponentArray<ui::components::WidgetComponent>();
-
-                for (size_t i = 0; i < entities.size(); ++i)
+                ForEachArcheType(result, UpdateMode::SingleThreaded, false, [this, visible, editor](const SystemUpdateData& updateData)
                 {
-                    const auto& entity = entities[i];
-                    if (*entity.scene != editor->GetEditorScene() &&
-                        *entity.scene != m_DefaultScene)
+                    const auto& entities = updateData.GetEntities();
+                    auto* widgets = updateData.GetComponentArray<ui::components::WidgetComponent>();
+
+                    for (size_t i = 0; i < entities.size(); ++i)
                     {
-                        auto& widget = widgets[i];
-                        widget.dirty = true;
-                        widget.parentVisibility = visible ? ui::Visibility::Visible : ui::Visibility::Collapsed;
-                        widget.parentUpdateEnabled = visible;
+                        const auto& entity = entities[i];
+                        if (*entity.scene != editor->GetEditorScene() &&
+                            *entity.scene != m_DefaultScene)
+                        {
+                            auto& widget = widgets[i];
+                            widget.dirty = true;
+                            widget.parentVisibility = visible ? ui::Visibility::Visible : ui::Visibility::Collapsed;
+                            widget.parentUpdateEnabled = visible;
+                        }
                     }
-                }
-            }, UpdateMode::MultiThreaded, false);
+                });
+            });
     }
 #endif
 

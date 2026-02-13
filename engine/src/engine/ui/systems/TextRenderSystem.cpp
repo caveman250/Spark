@@ -24,43 +24,41 @@ namespace se::ui::systems
                     .WithSingletonComponent<singleton_components::UIRenderComponent>();
     }
 
-    ecs::UpdateMode TextRenderSystem::GetUpdateMode() const
-    {
-        auto renderer = render::Renderer::Get<render::Renderer>();
-        return renderer->SupportsMultiThreadedRendering() ? ecs::UpdateMode::MultiThreaded : ecs::UpdateMode::SingleThreaded;
-    }
-
-    void TextRenderSystem::OnRender(const ecs::SystemUpdateData& updateData)
+    void TextRenderSystem::OnRender(const ecs::QueryResults& results)
     {
         EASY_BLOCK("TextRenderSystem::OnRender");
 
         auto app = Application::Get();
         auto window = app->GetWindow();
         auto renderer = render::Renderer::Get<render::Renderer>();
+        auto updateMode = renderer->SupportsMultiThreadedRendering() ? ecs::UpdateMode::MultiThreaded : ecs::UpdateMode::SingleThreaded;
 
-        const auto& entities = updateData.GetEntities();
-        const auto* widgetComps = updateData.GetComponentArray<const components::WidgetComponent>();
-        const auto* transformComps = updateData.GetComponentArray<const components::RectTransformComponent>();
-        auto* textComps = updateData.GetComponentArray<components::TextComponent>();
-        auto* renderComp = updateData.GetSingletonComponent<singleton_components::UIRenderComponent>();
-
-        for (size_t i = 0; i < entities.size(); ++i)
+        ecs::ForEachArcheType(results, updateMode, false, [window, renderer](const ecs::SystemUpdateData& updateData)
         {
-            const auto& entity = entities[i];
-            const auto& widget = widgetComps[i];
-            if (widget.visibility != Visibility::Visible || widget.parentVisibility != Visibility::Visible)
+            const auto& entities = updateData.GetEntities();
+            const auto* widgetComps = updateData.GetComponentArray<const components::WidgetComponent>();
+            const auto* transformComps = updateData.GetComponentArray<const components::RectTransformComponent>();
+            auto* textComps = updateData.GetComponentArray<components::TextComponent>();
+            auto* renderComp = updateData.GetSingletonComponent<singleton_components::UIRenderComponent>();
+
+            for (size_t i = 0; i < entities.size(); ++i)
             {
-                continue;
+                const auto& entity = entities[i];
+                const auto& widget = widgetComps[i];
+                if (widget.visibility != Visibility::Visible || widget.parentVisibility != Visibility::Visible)
+                {
+                    continue;
+                }
+
+                const auto& transform = transformComps[i];
+                auto& text = textComps[i];
+
+                auto windowSize = ecs::IsEditorEntity(entity) ?
+                        math::IntVec2(window->GetWidth(), window->GetHeight()) :
+                        Application::Get()->GetGameViewportSize();
+
+                util::RenderText(entity, widget, transform, text, windowSize, renderer, renderComp, text.text);
             }
-
-            const auto& transform = transformComps[i];
-            auto& text = textComps[i];
-
-            auto windowSize = ecs::IsEditorEntity(entity) ?
-                    math::IntVec2(window->GetWidth(), window->GetHeight()) :
-                    Application::Get()->GetGameViewportSize();
-
-            util::RenderText(entity, widget, transform, text, windowSize, renderer, renderComp, text.text);
-        }
+        });
     }
 }

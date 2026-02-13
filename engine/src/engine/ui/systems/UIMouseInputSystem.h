@@ -16,8 +16,7 @@ namespace se::ui::systems
         SPARK_SYSTEM()
     public:
         static ecs::SystemDeclaration GetSystemDeclaration();
-        void OnUpdate(const ecs::SystemUpdateData& updateData) override;
-        ecs::UpdateMode GetUpdateMode() const override { return ecs::UpdateMode::SingleThreaded; }
+        void OnUpdate(const ecs::QueryResults&) override;
 
     private:
         bool TryConsumeEvent(const input::MouseEvent& keyEvent, components::MouseInputComponent& inputReceiver);

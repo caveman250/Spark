@@ -35,6 +35,7 @@ namespace se::ui::components
         SPARK_MEMBER(Serialized)
         ecs::Signal<input::MouseButton> onPressed = {};
 
+        SPARK_MEMBER(Serialized)
         ecs::Signal<input::MouseButton> onDoubleClick = {};
 
         math::IntVec2 pressedPosition = {};

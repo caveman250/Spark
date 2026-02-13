@@ -104,7 +104,7 @@ namespace se::ui::util
         else
         {
             contextMenuTransform->maxY = contextMenuTransform->minY + 400;
-            auto scrollBox = CreateScrollBox(app->GetEditorRuntime()->GetEditorScene());
+            auto scrollBox = CreateScrollBox(params.scene);
             world->AddChild(contextMenu, scrollBox.scrollBoxEntity);
             world->AddChild(scrollBox.scrollViewEntity, verticalBox);
         }
@@ -113,13 +113,13 @@ namespace se::ui::util
 
         if (contextMenuTransform->maxX > windowSize.x)
         {
-            int delta = contextMenuTransform->maxX - windowSize.x;
+            int delta = static_cast<int>(contextMenuTransform->maxX) - windowSize.x;
             contextMenuTransform->maxX -= delta;
             contextMenuTransform->minX -= delta;
         }
         if (contextMenuTransform->maxY > windowSize.y)
         {
-            int delta = contextMenuTransform->maxY - windowSize.y;
+            int delta = static_cast<int>(contextMenuTransform->maxY) - windowSize.y;
             contextMenuTransform->maxY -= delta;
             contextMenuTransform->minY -= delta;
         }

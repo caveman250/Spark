@@ -18,16 +18,19 @@ namespace se::ui::systems
                     .WithDependency<input::InputSystem>();
     }
 
-    void ResetKeyInputSystem::OnUpdate(const ecs::SystemUpdateData& updateData)
+    void ResetKeyInputSystem::OnUpdate(const ecs::QueryResults& results)
     {
         EASY_BLOCK("ResetKeyInputSystem::OnUpdate");
 
-        auto* receivesInputComps = updateData.GetComponentArray<components::KeyInputComponent>();
-
-        for (size_t i = 0; i < updateData.GetEntities().size(); ++i)
+        ecs::ForEachArcheType(results, ecs::UpdateMode::MultiThreaded, false, [](const ecs::SystemUpdateData& updateData)
         {
-            auto& inputReceiver = receivesInputComps[i];
-            inputReceiver.keyEvents.clear();
-        }
+            auto* receivesInputComps = updateData.GetComponentArray<components::KeyInputComponent>();
+
+            for (size_t i = 0; i < updateData.GetEntities().size(); ++i)
+            {
+                auto& inputReceiver = receivesInputComps[i];
+                inputReceiver.keyEvents.clear();
+            }
+        });
     }
 }

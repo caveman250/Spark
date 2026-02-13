@@ -18,7 +18,7 @@ namespace se::debug::systems
                     .WithDependency<ui::systems::RectTransformSystem>();
     }
 
-    void FPSCounterSystem::OnInit(const ecs::SystemUpdateData&)
+    void FPSCounterSystem::OnInit(const ecs::QueryResults&)
     {
         auto world = Application::Get()->GetWorld();
         ecs::Id fpsCounterEntity = world->CreateEntity("FPS Counter");
@@ -33,37 +33,40 @@ namespace se::debug::systems
         world->AddComponent<components::FPSCounterComponent>(fpsCounterEntity);
     }
 
-    void FPSCounterSystem::OnUpdate(const ecs::SystemUpdateData& systemUpdateData)
+    void FPSCounterSystem::OnUpdate(const ecs::QueryResults& results)
     {
-        const auto& entities = systemUpdateData.GetEntities();
-        auto* textComps = systemUpdateData.GetComponentArray<ui::components::TextComponent>();
-        auto* fpsCounters = systemUpdateData.GetComponentArray<components::FPSCounterComponent>();
-
-        for (size_t i = 0; i < entities.size(); ++i)
+        ecs::ForEachArcheType(results, ecs::UpdateMode::MultiThreaded, false, [](const ecs::SystemUpdateData& updateData)
         {
-            auto& text = textComps[i];
-            auto& fpsCounter = fpsCounters[i];
+            const auto& entities = updateData.GetEntities();
+            auto* textComps = updateData.GetComponentArray<ui::components::TextComponent>();
+            auto* fpsCounters = updateData.GetComponentArray<components::FPSCounterComponent>();
 
-            clock_t timeThisFrame = clock();
-            clock_t delta = timeThisFrame - fpsCounter.timeLastFrame;
-            fpsCounter.timeLastFrame = timeThisFrame;
-            constexpr float s_MillisecondsToSeconds = 1000.f;
-            double milliseconds = (delta/static_cast<double>(CLOCKS_PER_SEC)) * 1000.0;
-            fpsCounter.frameTimeBuffer[fpsCounter.currentFrameIndex] = milliseconds;
-            fpsCounter.currentFrameIndex = (fpsCounter.currentFrameIndex + 1) % components::FPSCounterComponent::s_NumFramesToBuffer;
-
-            double average = 0.0;
-            for (uint8_t j = 0; j < components::FPSCounterComponent::s_NumFramesToBuffer; ++j)
+            for (size_t i = 0; i < entities.size(); ++i)
             {
-                average += fpsCounter.frameTimeBuffer[j];
+                auto& text = textComps[i];
+                auto& fpsCounter = fpsCounters[i];
+
+                clock_t timeThisFrame = clock();
+                clock_t delta = timeThisFrame - fpsCounter.timeLastFrame;
+                fpsCounter.timeLastFrame = timeThisFrame;
+                constexpr float s_MillisecondsToSeconds = 1000.f;
+                double milliseconds = (delta/static_cast<double>(CLOCKS_PER_SEC)) * 1000.0;
+                fpsCounter.frameTimeBuffer[fpsCounter.currentFrameIndex] = milliseconds;
+                fpsCounter.currentFrameIndex = (fpsCounter.currentFrameIndex + 1) % components::FPSCounterComponent::s_NumFramesToBuffer;
+
+                double average = 0.0;
+                for (uint8_t j = 0; j < components::FPSCounterComponent::s_NumFramesToBuffer; ++j)
+                {
+                    average += fpsCounter.frameTimeBuffer[j];
+                }
+                constexpr float reciprocal = 1.f / components::FPSCounterComponent::s_NumFramesToBuffer;
+                average *= reciprocal;
+
+                average = s_MillisecondsToSeconds / average;
+
+                text.text = std::format("{:.0f}", std::max(1.0, average));
             }
-            constexpr float reciprocal = 1.f / components::FPSCounterComponent::s_NumFramesToBuffer;
-            average *= reciprocal;
-
-            average = s_MillisecondsToSeconds / average;
-
-            text.text = std::format("{:.0f}", std::max(1.0, average));
-        }
+        });
     }
 }
 

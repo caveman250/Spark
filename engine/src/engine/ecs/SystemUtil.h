@@ -1,7 +1,10 @@
 #pragma once
+#include "UpdateMode.h"
 
 namespace se::ecs
 {
+    struct QueryArchetype;
+    struct QueryResults;
     struct SystemRecord;
     template <typename T>
     concept ClassWithGetSystemDeclaration = requires
@@ -42,4 +45,61 @@ namespace se::ecs
         int m_NumVerts = { };
         std::vector<std::pair<Id, SystemRecord>> m_SortedArray = { };
     };
+
+    template <typename Func>
+    void ForEachArcheType(const QueryResults& queryResults,
+        UpdateMode mode,
+        bool force,
+        Func&& func)
+    {
+        EASY_BLOCK("ForEachArcheType");
+        auto world = Application::Get()->GetWorld();
+        auto runOnArchetype = [&queryResults, func, world](const QueryArchetype& archetype) mutable
+        {
+            auto updateDataCopy = queryResults.updateData;
+            if (!archetype.archetype->entities.empty())
+            {
+                updateDataCopy.ClearEntityData();
+                updateDataCopy.SetEntities(archetype.archetype->entities);
+                for (const auto& compUsage: queryResults.componentUsage)
+                {
+                    updateDataCopy.AddComponentArray(compUsage.id, world->GetComponent(archetype.archetype->entities[0], compUsage.id), compUsage.mutability);
+                }
+                if (archetype.variantCompType != s_InvalidEntity)
+                {
+                    updateDataCopy.AddVariantComponentArray(archetype.variantCompType, world->GetComponent(archetype.archetype->entities[0], archetype.variantCompType), queryResults.variantComponent.mutability);
+                }
+
+                func(updateDataCopy);
+            }
+        };
+
+        switch (mode)
+        {
+            case UpdateMode::SingleThreaded:
+                for (const auto& archetype : queryResults.archetypes)
+                {
+                    runOnArchetype(archetype);
+                }
+                break;
+            case UpdateMode::MultiThreaded:
+                threads::ParallelForEach(queryResults.archetypes, runOnArchetype);
+                break;
+        }
+        EASY_END_BLOCK
+
+        EASY_BLOCK("Run on empty");
+        bool hasStaticComps = !queryResults.singletonComponents.empty();
+        if (queryResults.archetypes.empty() && (force || hasStaticComps))
+        {
+            auto updateDataCopy = queryResults.updateData;
+            updateDataCopy.SetEntities({});
+            for (const auto& compUsage: queryResults.componentUsage)
+            {
+                updateDataCopy.AddComponentArray(compUsage.id, nullptr, compUsage.mutability);
+            }
+            func(updateDataCopy);
+        }
+        EASY_END_BLOCK
+    }
 }

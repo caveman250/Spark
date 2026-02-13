@@ -28,48 +28,51 @@ namespace se::ui::systems
                 .WithDependency<input::InputSystem>();
     }
 
-    void ResetMouseInputSystem::OnUpdate(const ecs::SystemUpdateData& updateData)
+    void ResetMouseInputSystem::OnUpdate(const ecs::QueryResults& results)
     {
         EASY_BLOCK("ResetMouseInputSystem::OnUpdate");
 
-        const auto& entities = updateData.GetEntities();
-        const auto* rectTransforms = updateData.GetComponentArray<const components::RectTransformComponent>();
-        const auto* widgets = updateData.GetComponentArray<const components::WidgetComponent>();
-        auto* receivesInputComps = updateData.GetComponentArray<components::MouseInputComponent>();
-        auto* inputComp = updateData.GetSingletonComponent<input::InputComponent>();
-
-        for (size_t i = 0; i < entities.size(); ++i)
+        ecs::ForEachArcheType(results, ecs::UpdateMode::MultiThreaded, false, [](const ecs::SystemUpdateData& updateData)
         {
-            const auto& transform = rectTransforms[i];
-            const auto& widget = widgets[i];
-            auto& inputReceiver = receivesInputComps[i];
-            inputReceiver.mouseEvents.clear();
+            const auto& entities = updateData.GetEntities();
+            const auto* rectTransforms = updateData.GetComponentArray<const components::RectTransformComponent>();
+            const auto* widgets = updateData.GetComponentArray<const components::WidgetComponent>();
+            auto* receivesInputComps = updateData.GetComponentArray<components::MouseInputComponent>();
+            auto* inputComp = updateData.GetSingletonComponent<input::InputComponent>();
 
-            if (inputComp->mouseDeltaX == 0 &&
-                inputComp->mouseDeltaY == 0)
+            for (size_t i = 0; i < entities.size(); ++i)
             {
-                continue;
-            }
+                const auto& transform = rectTransforms[i];
+                const auto& widget = widgets[i];
+                auto& inputReceiver = receivesInputComps[i];
+                inputReceiver.mouseEvents.clear();
 
-            inputReceiver.lastHovered = inputReceiver.hovered;
+                if (inputComp->mouseDeltaX == 0 &&
+                    inputComp->mouseDeltaY == 0)
+                {
+                    continue;
+                }
 
-            if (!widget.updateEnabled || !widget.parentUpdateEnabled)
-            {
-                inputReceiver.hovered = false;
-                continue;
-            }
+                inputReceiver.lastHovered = inputReceiver.hovered;
 
-#if SPARK_EDITOR
-            if (!ecs::IsEditorEntity(entities[i]))
-            {
-                auto adjustedMousePos = editor::util::ScreenSpaceToGameViewportSpace(inputComp->mouseX, inputComp->mouseY);
-                inputReceiver.hovered = transform.rect.Contains(adjustedMousePos);
-            }
-            else
+                if (!widget.updateEnabled || !widget.parentUpdateEnabled)
+                {
+                    inputReceiver.hovered = false;
+                    continue;
+                }
+
+    #if SPARK_EDITOR
+                if (!ecs::IsEditorEntity(entities[i]))
+                {
+                    auto adjustedMousePos = editor::util::ScreenSpaceToGameViewportSpace(inputComp->mouseX, inputComp->mouseY);
+                    inputReceiver.hovered = transform.rect.Contains(adjustedMousePos);
+                }
+                else
 #endif
-            {
-                inputReceiver.hovered = transform.rect.Contains(math::IntVec2(inputComp->mouseX, inputComp->mouseY));
+                {
+                    inputReceiver.hovered = transform.rect.Contains(math::IntVec2(inputComp->mouseX, inputComp->mouseY));
+                }
             }
-        }
+        });
     }
 }
