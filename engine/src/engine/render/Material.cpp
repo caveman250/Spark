@@ -1,6 +1,7 @@
 #include "Material.h"
 
 #include "Renderer.h"
+#include "easy/profiler.h"
 #include "engine/asset/shader/ast/NameGenerator.h"
 #include "engine/asset/shader/ast/ShaderCompileContext.h"
 #include "engine/asset/shader/compiler/ShaderCompiler.h"
@@ -9,6 +10,7 @@ namespace se::render
 {
     void Material::Bind(const VertexBuffer& vb)
     {
+        EASY_FUNCTION();
         auto renderer = Renderer::Get<Renderer>();
         auto boundMat = renderer->GetBoundMaterial();
         if (boundMat == this)

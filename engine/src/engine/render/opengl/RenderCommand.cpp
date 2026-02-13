@@ -10,6 +10,7 @@ namespace se::render::commands
 {
     void Clear::Execute()
     {
+        EASY_BLOCK("Clear");
         GLbitfield mask = 0;
         if (m_ClearColour)
         {
@@ -28,6 +29,7 @@ namespace se::render::commands
 
     void SubmitGeo::Execute()
     {
+        EASY_BLOCK("SubmitGeo");
         m_MaterialInstance->Bind(*m_VertBuffer);
         m_VertBuffer->Bind();
         m_IndexBuffer->Bind();
@@ -40,6 +42,7 @@ namespace se::render::commands
 
     void SubmitUI::Execute()
     {
+        EASY_BLOCK("SubmitUI");
         m_MaterialInstance->Bind(*m_VertBuffer);
         m_VertBuffer->Bind();
         m_IndexBuffer->Bind();
@@ -52,6 +55,7 @@ namespace se::render::commands
 
     void PushScissor::Execute()
     {
+        EASY_BLOCK("PushScissor");
         if (m_Rect.size.x <= 0 || m_Rect.size.y <= 0)
         {
             return;
@@ -70,6 +74,7 @@ namespace se::render::commands
 
     void PopScissor::Execute()
     {
+        EASY_BLOCK("PopScissor");
         glDisable(GL_SCISSOR_TEST); // TODO keep track of stack
         GL_CHECK_ERROR()
     }

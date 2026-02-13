@@ -93,7 +93,8 @@ namespace se::ecs
         if (queryResults.archetypes.empty() && (force || hasStaticComps))
         {
             auto updateDataCopy = queryResults.updateData;
-            updateDataCopy.SetEntities({});
+            static std::vector<Id> empty = {};
+            updateDataCopy.SetEntities(empty);
             for (const auto& compUsage: queryResults.componentUsage)
             {
                 updateDataCopy.AddComponentArray(compUsage.id, nullptr, compUsage.mutability);

@@ -26,6 +26,8 @@ namespace se::render::opengl
 
     void MaterialInstance::Bind(const VertexBuffer& vb)
     {
+        EASY_FUNCTION();
+
         render::MaterialInstance::Bind(vb);
 
         glUseProgram(m_CompiledProgram);
@@ -87,6 +89,7 @@ namespace se::render::opengl
 
     void MaterialInstance::CreatePlatformResources()
     {
+        EASY_FUNCTION();
         render::MaterialInstance::CreatePlatformResources();
 
         MaterialPlatformResources* materialResources = static_cast<MaterialPlatformResources*>(m_Material->GetPlatformResources().get());
@@ -186,6 +189,7 @@ namespace se::render::opengl
                 break;
             case asset::shader::ast::AstType::Sampler2D:
             {
+                EASY_BLOCK("asset::shader::ast::AstType::Sampler2D");
                 SPARK_ASSERT(count == 1, "Setting arrays of texture uniforms not supported.");
                 const auto& texture = *reinterpret_cast<const std::shared_ptr<asset::Texture>*>(value);
                 const auto& platformResource = texture->GetPlatformResource();
@@ -202,6 +206,7 @@ namespace se::render::opengl
             }
             case asset::shader::ast::AstType::Sampler2DReference:
             {
+                EASY_BLOCK("asset::shader::ast::AstType::Sampler2DReference");
                 SPARK_ASSERT(count == 1, "Setting arrays of texture uniforms not supported.");
                 const auto* texture = reinterpret_cast<const asset::AssetReference<asset::Texture>*>(value);
                 const auto& platformResource = texture->GetAsset()->GetPlatformResource();

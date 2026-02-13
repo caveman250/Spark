@@ -24,6 +24,7 @@ namespace se::render::opengl
 
     void IndexBuffer::CreatePlatformResource()
     {
+        EASY_FUNCTION();
         glGenBuffers(1, &m_Resource);
         GL_CHECK_ERROR()
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_Resource);

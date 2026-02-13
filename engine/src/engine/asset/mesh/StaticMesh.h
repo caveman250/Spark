@@ -1,6 +1,7 @@
 #pragma once
 
 #include "spark.h"
+#include "engine/geo/AABB.h"
 #include "engine/math/math.h"
 
 namespace se::asset
@@ -20,5 +21,8 @@ namespace se::asset
 
         SPARK_MEMBER(Serialized)
         std::vector<uint32_t> indices;
+
+        SPARK_MEMBER(Serialized)
+        geo::AABB aabb;
     };
 }

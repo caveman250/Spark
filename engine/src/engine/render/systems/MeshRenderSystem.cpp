@@ -21,7 +21,7 @@ namespace se::render::systems
     ecs::SystemDeclaration MeshRenderSystem::GetSystemDeclaration()
     {
         return ecs::SystemDeclaration("MeshRenderSystem")
-                    .WithComponent<const TransformComponent>()
+                    .WithComponent<TransformComponent>()
                     .WithComponent<MeshComponent>()
                     .WithSingletonComponent<const camera::ActiveCameraComponent>()
                     .WithSingletonComponent<singleton_components::MeshRenderComponent>();
@@ -29,12 +29,13 @@ namespace se::render::systems
 
     void MeshRenderSystem::OnUpdate(const ecs::QueryResults& results)
     {
+        EASY_BLOCK("MeshRenderSystem::OnUpdate");
         auto renderer = Renderer::Get<Renderer>();
         auto updateMode = renderer->SupportsMultiThreadedRendering() ? ecs::UpdateMode::MultiThreaded : ecs::UpdateMode::SingleThreaded;
         ecs::ForEachArcheType(results, updateMode, false, [](const ecs::SystemUpdateData& updateData)
         {
             auto* meshes = updateData.GetComponentArray<MeshComponent>();
-            const auto* transforms = updateData.GetComponentArray<const TransformComponent>();
+            auto* transforms = updateData.GetComponentArray<TransformComponent>();
             const auto* camera = updateData.GetSingletonComponent<const camera::ActiveCameraComponent>();
 
 #if SPARK_EDITOR
@@ -44,6 +45,7 @@ namespace se::render::systems
             for (size_t i = 0; i < updateData.GetEntities().size(); ++i)
             {
                 auto& mesh = meshes[i];
+                auto& transform = transforms[i];
                 size_t modelHash = std::hash<asset::AssetReference<asset::Model>>()(mesh.model);
                 bool buffersValid = mesh.vertBuffer && mesh.modelHash == modelHash;
     #if SPARK_EDITOR
@@ -55,6 +57,7 @@ namespace se::render::systems
 
                 if (!buffersValid)
                 {
+                    EASY_BLOCK("Create Buffers")
                     if (!mesh.model.IsSet())
                     {
                         continue;
@@ -65,11 +68,13 @@ namespace se::render::systems
                     mesh.vertBuffer->CreatePlatformResource();
                     mesh.indexBuffer = IndexBuffer::CreateIndexBuffer(staticMesh);
                     mesh.indexBuffer->CreatePlatformResource();
+                    transform.aabb = staticMesh.aabb;
                     mesh.modelHash = modelHash;
                 }
 
                 if (!mesh.materialInstance || mesh.materialInstance->GetMaterial() != mesh.material)
                 {
+                    EASY_BLOCK("Create Material Instance")
                     if (mesh.material.IsSet())
                     {
                         mesh.materialInstance = MaterialInstance::CreateMaterialInstance(mesh.material.GetAsset());
@@ -82,6 +87,7 @@ namespace se::render::systems
 
                 if (const auto& material = mesh.materialInstance)
                 {
+                    EASY_BLOCK("Set Uniforms")
                     material->SetUniform("model", asset::shader::ast::AstType::Mat4, 1, &transforms[i].worldTransform);
                     material->SetUniform("view", asset::shader::ast::AstType::Mat4, 1, &camera->view);
                     material->SetUniform("proj", asset::shader::ast::AstType::Mat4, 1, &camera->proj);
@@ -92,6 +98,7 @@ namespace se::render::systems
 
     void MeshRenderSystem::OnRender(const ecs::QueryResults& results)
     {
+        EASY_BLOCK("MeshRenderSystem::OnRender");
         auto renderer = Renderer::Get<Renderer>();
         auto updateMode = renderer->SupportsMultiThreadedRendering() ? ecs::UpdateMode::MultiThreaded : ecs::UpdateMode::SingleThreaded;
 

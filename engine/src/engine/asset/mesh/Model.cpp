@@ -94,9 +94,24 @@ namespace se::asset
 
             //const ofbx::DMatrix transform = mesh.getGlobalTransform();
 
+            // if (transform.aabb.size == 0)
+            // {
+            //     float minX = std::numeric_limits<float>::max(), minY = std::numeric_limits<float>::max(), minZ = std::numeric_limits<float>::max();
+            //     float maxX = std::numeric_limits<float>::min(), maxY = std::numeric_limits<float>::min(), maxZ = std::numeric_limits<float>::min();
+            //     for (const auto& vert : mesh.model.GetAsset()->GetMesh().vertices)
+            //     {
+            //
+            //     }
+            //
+            //     transform.aabb = { {minX, minY, minZ}, { maxX - minX, maxY - minY, maxZ - minZ }};
+            // }
+
             for (int partition_idx = 0; partition_idx < geom.getPartitionCount(); ++partition_idx)
             {
                 //SPARK_ASSERT(partition_idx == 0); // TODO multiple meshes
+
+                float minX = std::numeric_limits<float>::max(), minY = std::numeric_limits<float>::max(), minZ = std::numeric_limits<float>::max();
+                float maxX = std::numeric_limits<float>::min(), maxY = std::numeric_limits<float>::min(), maxZ = std::numeric_limits<float>::min();
 
                 const ofbx::GeometryPartition& partition = geom.getPartition(partition_idx);
 
@@ -117,7 +132,33 @@ namespace se::asset
                             const int pv = idx[v];
 
                             //ofbx::DVec3 tp = transform * ofbx::DVec3(p.x, p.y, p.z);
-                            staticMesh.vertices.emplace_back(ConvertPosition(upAxis, positions.get(pv), meta));
+                            math::Vec3 pos = ConvertPosition(upAxis, positions.get(pv), meta);
+                            staticMesh.vertices.emplace_back(pos);
+
+                            if (pos.x < minX)
+                            {
+                                minX = pos.x;
+                            }
+                            if (pos.y < minY)
+                            {
+                                minY = pos.y;
+                            }
+                            if (pos.z < minZ)
+                            {
+                                minZ = pos.z;
+                            }
+                            if (pos.x > maxX)
+                            {
+                                maxX = pos.x;
+                            }
+                            if (pos.y > maxY)
+                            {
+                                maxY = pos.y;
+                            }
+                            if (pos.z > maxZ)
+                            {
+                                maxZ = pos.z;
+                            }
 
                             if (normals.values)
                             {
@@ -141,6 +182,8 @@ namespace se::asset
                         }
                     }
                 }
+
+                staticMesh.aabb = { {minX, minY, minZ}, { maxX - minX, maxY - minY, maxZ - minZ }};
             }
         }
 

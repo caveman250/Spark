@@ -9,7 +9,10 @@ namespace se::geo
     {
         SPARK_POD_CLASS()
 
+        SPARK_MEMBER(Serialized)
         math::Vec3 pos = {};
+
+        SPARK_MEMBER(Serialized)
         math::Vec3 size = {};
     };
 }

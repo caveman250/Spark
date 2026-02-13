@@ -2,6 +2,7 @@
 
 #include "Format.h"
 #include "Mipmap.h"
+#include "easy/profiler.h"
 #include "engine/asset/builder/TextureBlueprint.h"
 #include "engine/render/TextureResource.h"
 
@@ -59,6 +60,7 @@ namespace se::asset
 
     const std::shared_ptr<render::TextureResource> &Texture::GetPlatformResource()
     {
+        EASY_FUNCTION()
         if (!m_PlatformResource)
         {
             m_PlatformResource = render::TextureResource::Create(*this);

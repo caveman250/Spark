@@ -1,5 +1,6 @@
 #include "engine/render/TextureResource.h"
 #include "engine/render/render_fwd.h"
+#include "easy/profiler.h"
 #if OPENGL_RENDERER
 #include "TextureResource.h"
 #include "engine/asset/texture/Mipmap.h"
@@ -17,11 +18,15 @@ namespace se::render::opengl
 {
     void TextureResource::CreatePlatformResources()
     {
+        EASY_FUNCTION()
+
         render::TextureResource::CreatePlatformResources();
+        EASY_BLOCK("glGenTextures")
         glGenTextures(1, &m_ID);
         GL_CHECK_ERROR()
         glBindTexture(GL_TEXTURE_2D, m_ID);
         GL_CHECK_ERROR()
+        EASY_END_BLOCK
 
         if (!m_MipData.empty())
         {
@@ -30,6 +35,7 @@ namespace se::render::opengl
             {
                 if (!IsCompressedFormat(m_Format))
                 {
+                    EASY_BLOCK("glTexImage2D")
                     glTexImage2D(GL_TEXTURE_2D,
                                            level,
                                            TextureFormatToGLInternalFormat(m_Format),
@@ -43,6 +49,7 @@ namespace se::render::opengl
                 }
                 else
                 {
+                    EASY_BLOCK("glCompressedTexImage2D")
                     glCompressedTexImage2D(GL_TEXTURE_2D,
                            level,
                            TextureFormatToGLInternalFormat(m_Format),
@@ -61,6 +68,7 @@ namespace se::render::opengl
         {
             if (SPARK_VERIFY(!IsCompressedFormat(m_Format)), "TextureResource::CreatePlatformResources - Compressed format without any mip data?")
             {
+                EASY_BLOCK("glTexImage2D")
                 glTexImage2D(GL_TEXTURE_2D,
                              0,
                              TextureFormatToGLInternalFormat(m_Format),
@@ -74,6 +82,7 @@ namespace se::render::opengl
             }
         }
 
+        EASY_BLOCK("Set Params")
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
         GL_CHECK_ERROR()
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
@@ -85,11 +94,13 @@ namespace se::render::opengl
 
         glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, 4.f);
         GL_CHECK_ERROR()
+        EASY_END_BLOCK
 
         if (!m_MipData.empty())
         {
-            glGenerateMipmap(GL_TEXTURE_2D);
-            GL_CHECK_ERROR()
+            //EASY_BLOCK("glGenerateMipmap")
+            //glGenerateMipmap(GL_TEXTURE_2D);
+            //GL_CHECK_ERROR()
         }
     }
 

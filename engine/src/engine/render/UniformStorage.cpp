@@ -1,5 +1,6 @@
 #include "UniformStorage.h"
 #include "MaterialInstance.h"
+#include "easy/profiler.h"
 
 namespace se
 {

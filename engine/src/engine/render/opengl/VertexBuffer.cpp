@@ -25,6 +25,7 @@ namespace se::render::opengl
 
     void VertexBuffer::CreatePlatformResource()
     {
+        EASY_FUNCTION();
         Cleanup();
 
         glGenVertexArrays(1, &m_VertexArrayID);

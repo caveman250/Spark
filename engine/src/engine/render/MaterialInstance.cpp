@@ -1,15 +1,20 @@
 #include "MaterialInstance.h"
 #include "Material.h"
 #include "Renderer.h"
+#include "easy/profiler.h"
 
 namespace se::render
 {
     void MaterialInstance::Bind(const VertexBuffer& vb)
     {
+        EASY_FUNCTION();
+
         m_Material->Bind(vb);
 
         if (m_Material->GetRenderState().lit)
         {
+            EASY_BLOCK("Apply Lights");
+
             const auto& lightSetup = Renderer::Get<Renderer>()->GetLightSetup();
             std::vector<math::Vec3> pos;
             pos.resize(lightSetup.pointLights.size());
@@ -31,6 +36,7 @@ namespace se::render
 
         if (m_UniformStorage.IsStale())
         {
+            EASY_BLOCK("Apply Uniforms");
             m_UniformStorage.Apply(this);
         }
     }

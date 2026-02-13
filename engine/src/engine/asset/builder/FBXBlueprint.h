@@ -12,7 +12,7 @@ namespace se::asset::builder
         std::vector<BuiltAsset> BuildAsset(const std::string& path, const std::string& outputPath) const override;
 
     private:
-        uint32_t GetLatestVersion() const { return 2; }
+        uint32_t GetLatestVersion() const { return 3; }
         bool IsOutOfDate(const std::string& assetPath, const std::string& outputPath) override;
     };
 }
