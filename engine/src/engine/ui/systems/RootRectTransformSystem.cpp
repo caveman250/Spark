@@ -35,14 +35,15 @@ namespace se::ui::systems
         auto world = Application::Get()->GetWorld();
 
         auto window = Application::Get()->GetWindow();
-        ecs::ForEachArcheType(results, ecs::UpdateMode::MultiThreaded, false, [this, world, window](const ecs::SystemUpdateData& updateData)
+        bool forceRelayout = !math::FloatEqual(window->GetContentScale(), window->GetLastContentScale());
+        ecs::ForEachArcheType(results, ecs::UpdateMode::MultiThreaded, false, [this, world, window, forceRelayout](const ecs::SystemUpdateData& updateData)
         {
-            std::visit([this, &updateData, world, window](auto&& value)
+            std::visit([this, &updateData, world, window, forceRelayout](auto&& value)
             {
                 const auto& entities = updateData.GetEntities();
                 auto* transform = updateData.GetComponentArray<components::RectTransformComponent>();
 
-                ecs::util::ParallelForEachEntity(updateData, [this, entities, world, transform, window, value](size_t i)
+                ecs::util::ParallelForEachEntity(updateData, [this, entities, world, transform, window, value, forceRelayout](size_t i)
                 {
                     const auto& entity = entities[i];
                     Rect windowRect = Rect {
@@ -50,10 +51,25 @@ namespace se::ui::systems
                         .size = ecs::IsEditorEntity(entity) ? math::IntVec2(window->GetWidth(), window->GetHeight()) : Application::Get()->GetGameViewportSize()
                     };
 
+                    if (forceRelayout)
+                    {
+                        auto dec = ecs::HeirachyQueryDeclaration()
+                            .WithComponent<components::RectTransformComponent>();
+                        RunRecursiveChildQuery(entity, dec, [](const ecs::SystemUpdateData& updateData)
+                        {
+                            auto* transform = updateData.GetComponentArray<components::RectTransformComponent>();
+                            transform->needsLayout = true;
+                            transform->cachedParentSize = {};
+                            transform->desiredSize = {};
+                            transform->rect = {};
+                            return false;
+                        });
+                    }
+
                     auto& trans = transform[i];
                     trans.lastRect = trans.rect;
                     trans.rect = util::CalculateScreenSpaceRect(trans, windowRect);
-                    if (trans.needsLayout || trans.rect != trans.lastRect)
+                    if (forceRelayout || trans.needsLayout || trans.rect != trans.lastRect)
                     {
                         Layout::LayoutWidgetChildren(world, this, entities[i], trans, trans.layer, value + i);
                         trans.needsLayout = false;

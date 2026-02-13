@@ -20,10 +20,13 @@ namespace se::windows
         HCURSOR GetCursor() const { return m_Cursor; }
         input::InputComponent& GetTempInputComponent();
 
+        void OnContentScaleChanged(float contentScale);
+
     private:
         void RegisterWindowClass(HINSTANCE instance);
         void CreateWindowsWindow(HINSTANCE instance);
         void CreateContext();
+        void CalcContentScale();
 
         HWND m_Hwnd = {};
         HDC m_Hdc = {};

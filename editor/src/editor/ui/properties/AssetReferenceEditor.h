@@ -29,8 +29,9 @@ namespace se::editor::ui::properties
 
     private:
         asset::AssetReference<T>* m_Value = nullptr;
-        ecs::Id m_Root;
-        ecs::Id m_Label;
+        ecs::Id m_Root = {};
+        ecs::Id m_Label = {};
+        ecs::Id m_Icon = {};
         bool m_IsHighlighted = false;
 
         inline static const math::Vec3 s_DefaultColor = math::Vec3(0.6f, 0.6f, 0.6f);
@@ -95,8 +96,8 @@ namespace se::editor::ui::properties
         innerTransform->minX = innerTransform->maxX = innerTransform->minY = innerTransform->maxY = borderSize;
         world->AddChild(m_Root, innerImageEntity);
 
-        auto iconEntity = world->CreateEntity(editor->GetEditorScene(), "Icon");
-        auto iconImage = world->AddComponent<ImageComponent>(iconEntity);
+        m_Icon = world->CreateEntity(editor->GetEditorScene(), "Icon");
+        auto iconImage = world->AddComponent<ImageComponent>(m_Icon);
         auto iconMaterial = assetManager->GetAsset<render::Material>("/engine_assets/materials/ui_alpha_texture.sass");
         iconImage->materialInstance = render::MaterialInstance::CreateMaterialInstance(iconMaterial);
         if (m_Value->IsSet())
@@ -109,11 +110,11 @@ namespace se::editor::ui::properties
             auto fileImage = asset::AssetReference<asset::Texture>("/engine_assets/textures/no_file.sass");
             iconImage->materialInstance->SetUniform("Texture", asset::shader::ast::AstType::Sampler2DReference, 1, &fileImage);
         }
-        auto iconTransform = world->AddComponent<RectTransformComponent>(iconEntity);
+        auto iconTransform = world->AddComponent<RectTransformComponent>(m_Icon);
         iconTransform->anchors = { .left = 0.f, .right = 0.f, .top = 0.f, .bottom = 0.f };
         iconTransform->minX = iconTransform->minY = borderSize;
         iconTransform->maxX = iconTransform->maxY = borderSize + iconSize;
-        world->AddChild(innerImageEntity, iconEntity);
+        world->AddChild(innerImageEntity, m_Icon);
 
         m_Label = world->CreateEntity(editor->GetEditorScene(), "Title");
         world->AddComponent<WidgetComponent>(m_Label);
@@ -182,6 +183,10 @@ namespace se::editor::ui::properties
 
                     auto* text = world->GetComponent<TextComponent>(m_Label);
                     text->text = GetAssetName(m_Value->GetAssetPath());
+
+                    auto fileImage = asset::AssetReference<asset::Texture>("/engine_assets/textures/default_file.sass");
+                    auto* iconImage = world->GetComponent<ImageComponent>(m_Icon);
+                    iconImage->materialInstance->SetUniform("Texture", asset::shader::ast::AstType::Sampler2DReference, 1, &fileImage);
                 }
             }
         }

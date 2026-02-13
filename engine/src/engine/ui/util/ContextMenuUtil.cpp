@@ -46,7 +46,7 @@ namespace se::ui::util
         auto bgMaterial = assetManager->GetAsset<render::Material>("/engine_assets/materials/editor_context_menu.sass");
         image->materialInstance = render::MaterialInstance::CreateMaterialInstance(bgMaterial);
 
-        auto verticalBox = world->CreateEntity("Vertical Box");
+        auto verticalBox = world->CreateEntity(params.scene, "Vertical Box");
         auto verticalBoxComp = world->AddComponent<VerticalBoxComponent>(verticalBox);
         verticalBoxComp->paddingTop = 2;
         verticalBoxComp->paddingLeft = 2;

@@ -19,6 +19,8 @@ namespace se
 
     void PlatformRunLoop::Init()
     {
+        SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
+
         auto app = Application::Get();
         app->Init();
         m_Window = Application::Get()->GetWindow();
@@ -45,5 +47,8 @@ namespace se
         auto inputComp = app->GetWorld()->GetSingletonComponent<input::InputComponent>();
         inputComp->keyEvents.clear();
         inputComp->mouseEvents.clear();
+
+        auto window = app->GetWindow();
+        window->SetLastContentScale(window->GetContentScale());
     }
 }

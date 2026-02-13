@@ -1,9 +1,9 @@
 #include "Window.h"
 
+#include <shellscalingapi.h>
 #include <unordered_map>
 #include <GL/glew.h>
 #include <GL/wglew.h>
-
 #include "KeyMap.h"
 #include "engine/Application.h"
 #include "engine/input/InputComponent.h"
@@ -16,6 +16,8 @@
 #ifndef DWMWA_USE_IMMERSIVE_DARK_MODE
 #define DWMWA_USE_IMMERSIVE_DARK_MODE 20
 #endif
+
+#pragma comment(lib, "Shcore.lib")
 
 namespace se
 {
@@ -69,6 +71,10 @@ namespace se::windows
     static LRESULT CALLBACK wndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     {
         Window* window = s_WindowInstances[hWnd];
+        if (!window)
+        {
+            return DefWindowProcW(hWnd, message, wParam, lParam);
+        }
 
         switch (message)
         {
@@ -86,7 +92,8 @@ namespace se::windows
             }
             case WM_SIZE:
             {
-                window->OnResize(LOWORD(lParam), HIWORD(lParam));
+                window->OnResize(static_cast<float>(LOWORD(lParam)) / window->GetContentScale(),
+                    static_cast<float>(HIWORD(lParam)) / window->GetContentScale());
                 break;
             }
             case WM_CLOSE:
@@ -214,6 +221,12 @@ namespace se::windows
                 window->GetTempInputComponent().mouseEvents.push_back(mouseEvent);
                 return 0;
             }
+            case WM_DPICHANGED:
+            {
+                auto dpi = HIWORD(wParam);
+                window->OnContentScaleChanged(dpi / 96.f);
+                break;
+            }
         }
         return DefWindowProcW(hWnd, message, wParam, lParam);
     }
@@ -246,24 +259,24 @@ namespace se::windows
     void Window::CreateWindowsWindow(HINSTANCE instance)
     {
         DWORD style = WS_OVERLAPPEDWINDOW | WS_CLIPSIBLINGS | WS_CLIPCHILDREN;
-        RECT rect = {0, 0, m_SizeX, m_SizeY};
+        LPCWSTR title = L"Spark";
+        LPCWSTR windowClass = L"SparkApplication";
+        m_Hwnd = CreateWindowW(windowClass, title, style, 0, 0, 1, 1, nullptr, nullptr, instance,
+                               nullptr);
 
-        if (AdjustWindowRect(&rect, style, false))
+        if (!m_Hwnd)
         {
-            LPCWSTR title = L"Spark";
-            LPCWSTR windowClass = L"SparkApplication";
-            m_Hwnd = CreateWindowW(windowClass, title, style, 0, 0, rect.right - rect.left, rect.bottom - rect.top, nullptr, nullptr, instance,
-                                   nullptr);
+            debug::Log::Fatal("CreateWindowW failed: Cannot create window.");
+        }
 
-            if (!m_Hwnd)
-            {
-                debug::Log::Fatal("CreateWindowW failed: Can not create window.");
-            }
-        }
-        else
+        m_Hdc = GetDC(m_Hwnd);
+        if (!m_Hwnd)
         {
-            debug::Log::Fatal("AdjustWindowRect failed: Can not create window.");
+            debug::Log::Fatal("GetDC failed.");
         }
+
+        CalcContentScale();
+        OnContentScaleChanged(m_ContentScale);
     }
 
     void Window::CreateContext()
@@ -272,7 +285,6 @@ namespace se::windows
         auto openGLRenderer = se::render::Renderer::Get<se::render::opengl::OpenGLRenderer>();
         SPARK_ASSERT(openGLRenderer);
 
-        m_Hdc = GetDC(m_Hwnd);
         if (m_Hdc)
         {
             PIXELFORMATDESCRIPTOR pfd;
@@ -341,5 +353,24 @@ namespace se::windows
     input::InputComponent& Window::GetTempInputComponent()
     {
         return m_TempInputComponent;
+    }
+
+    void Window::OnContentScaleChanged(float contentScale)
+    {
+        float oldContentScale = m_ContentScale;
+        m_ContentScale = contentScale;
+        BOOL result = MoveWindow(m_Hwnd,
+            m_PosX / oldContentScale * m_ContentScale,
+            m_PosY / oldContentScale* m_ContentScale,
+            m_SizeX * m_ContentScale,
+            m_SizeY * m_ContentScale,
+            false);
+        SPARK_ASSERT(result);
+    }
+
+    void Window::CalcContentScale()
+    {
+        float dpi = static_cast<float>(GetDeviceCaps(m_Hdc, 88));
+        m_ContentScale = dpi / 96.f;
     }
 }
