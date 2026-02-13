@@ -14,7 +14,7 @@ namespace se::input
     {
         EASY_BLOCK("InputSystem::OnUpdate");
 
-        ecs::ForEachArcheType(results, ecs::UpdateMode::SingleThreaded, false, [](const ecs::SystemUpdateData& updateData)
+        ecs::ForEachArcheType(results, ecs::UpdateMode::SingleThreaded, true, [](const ecs::SystemUpdateData& updateData)
         {
             auto* inputComp = updateData.GetSingletonComponent<InputComponent>();
 
