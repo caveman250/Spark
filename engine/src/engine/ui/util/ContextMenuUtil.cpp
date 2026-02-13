@@ -96,7 +96,7 @@ namespace se::ui::util
             *verticalBoxTransform,
             verticalBoxComp).y;
 
-        if (desiredHeight < 800)
+        if (desiredHeight < 400 * window->GetContentScale())
         {
             world->AddChild(contextMenu, verticalBox);
             contextMenuTransform->maxY = contextMenuTransform->minY + desiredHeight / window->GetContentScale();
