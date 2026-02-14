@@ -27,6 +27,12 @@ namespace se::windows
     {
     }
 
+    void WindowsRunLoop::Init()
+    {
+        SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
+        PlatformRunLoop::Init();
+    }
+
     void WindowsRunLoop::Run()
     {
         Init();

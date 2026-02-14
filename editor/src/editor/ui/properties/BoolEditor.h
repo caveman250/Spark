@@ -16,6 +16,7 @@ namespace se::editor::ui::properties
         SPARK_CLASS()
     public:
         void SetValue(void* value, const reflect::Type* type) override;
+        void* GetValue() const override { return m_Value; }
         void ConstructUI(const PropertyEditorParams& params) override;
         void Update() override;
 

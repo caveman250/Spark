@@ -189,6 +189,12 @@ namespace se::ecs
                const System* system,
                const HeirachyQueryDeclaration& declaration,
                Func&& func);
+
+        template<typename Func>
+        void ParentQuery(const Id& entity,
+                 const System* system,
+                 const HeirachyQueryDeclaration& declaration,
+                 Func&& func);
     private:
         bool IsRunning() const { return m_Running; }
 
@@ -213,12 +219,6 @@ namespace se::ecs
                            const System* system,
                            const HeirachyQueryDeclaration& declaration,
                            Func&& func);
-
-        template<typename Func>
-        void ParentQuery(const Id& entity,
-                         const System* system,
-                         const HeirachyQueryDeclaration& declaration,
-                         Func&& func);
 
         template<typename Func>
         bool RecursiveChildEach(const Id& entity,
@@ -588,7 +588,14 @@ namespace se::ecs
                               Func&& func)
     {
 #if !SPARK_DIST
-        if (!ValidateHeirachyQuery(system, declaration))
+        if (system)
+        {
+            if (!ValidateHeirachyQuery(system, declaration))
+            {
+                return;
+            }
+        }
+        else if (!SPARK_VERIFY(!m_Running, "ChildEach may not be called during world update without a system."))
         {
             return;
         }

@@ -9,6 +9,7 @@ namespace se::windows
     {
     public:
         WindowsRunLoop();
+        void Init() override;
         void Run() override;
         void Update() override;
         bool ShouldExit() override;

@@ -1,5 +1,6 @@
 #include "MeshUtil.h"
 
+#include "engine/asset/builder/FontBlueprint.h"
 #include "engine/asset/font/Font.h"
 
 namespace se::ui::util
@@ -170,7 +171,7 @@ namespace se::ui::util
                                      text::WrapMode wrap,
                                      text::Alignment justification)
     {
-        float scale = static_cast<float>(fontSize) / 32.f;
+        float scale = static_cast<float>(fontSize) / asset::builder::FontBlueprint::s_Scale;
         asset::StaticMesh mesh;
         uint32_t indexOffset = 0;
         math::Vec2 cursorPos = { };
@@ -293,7 +294,7 @@ namespace se::ui::util
         text::WrapMode wrap,
         size_t endIndex)
     {
-        float scale = static_cast<float>(fontSize) / 32.f;
+        float scale = static_cast<float>(fontSize) / asset::builder::FontBlueprint::s_Scale;
         math::Vec2 max = { };
 
         math::Vec2 cursorPos = { };
@@ -360,7 +361,7 @@ namespace se::ui::util
         text::WrapMode wrap,
         text::Alignment justification)
     {
-        float scale = static_cast<float>(fontSize) / 32.f;
+        float scale = static_cast<float>(fontSize) / asset::builder::FontBlueprint::s_Scale;
         math::Vec2 cursorPos = { };
         cursorPos.y += font->GetLineHeight(fontSize);
         size_t lineStart = 0;

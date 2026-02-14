@@ -24,7 +24,7 @@ namespace se::ui::systems
 
         auto renderer = render::Renderer::Get<render::Renderer>();
 
-        ecs::ForEachArcheType(results, ecs::UpdateMode::MultiThreaded, false, [this, renderer](const ecs::SystemUpdateData& updateData)
+        ecs::ForEachArcheType(results, ecs::UpdateMode::MultiThreaded, false, [renderer](const ecs::SystemUpdateData& updateData)
         {
             const auto& entities = updateData.GetEntities();
             const auto* rectTransforms = updateData.GetComponentArray<const components::RectTransformComponent>();

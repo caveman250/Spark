@@ -10,6 +10,7 @@ namespace se::editor::ui::properties
         SPARK_CLASS()
     public:
         void SetValue(void* value, const reflect::Type* type) override;
+        void* GetValue() const override { return m_Value; }
         void ConstructUI(const PropertyEditorParams& params) override;
         ecs::Id GetWidgetId() const override { return m_WrappedEditor->GetWidgetId(); }
         void Update() override;

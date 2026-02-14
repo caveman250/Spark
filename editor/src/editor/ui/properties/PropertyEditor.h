@@ -69,8 +69,10 @@ namespace se::editor::ui::properties
     public:
         virtual void ConstructUI(const PropertyEditorParams& params);
         virtual void DestroyUI();
+        virtual void* GetValue() const = 0;
         virtual void SetValue(void* value, const reflect::Type* type) = 0;
         virtual void SetName(const std::string& name) { m_Name = name; }
+        void UpdateName(const std::string& name);
         virtual void Update() = 0;
         virtual PropertyTitleMode GetTitleMode() const { return PropertyTitleMode::Inline; }
 
@@ -80,6 +82,7 @@ namespace se::editor::ui::properties
     protected:
         ecs::Id m_WidgetId;
         ecs::Id m_Content;
+        ecs::Id m_Title;
         RectTransformComponent* m_RectTransform = nullptr;
         std::string m_Name = {};
     };

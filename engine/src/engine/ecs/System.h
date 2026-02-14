@@ -22,7 +22,7 @@ namespace se::ecs
         virtual void OnShutdown(const QueryResults&) {}
 
         template<typename Func>
-        void RunQuery(Func&& func, bool force)
+        void RunQuery(Func&& func)
         {
             Application::Get()->GetWorld()->RunQuery(m_Declaration.componentUsage, m_Declaration.variantComponentUsage, m_Declaration.singletonComponentUsage, func);
         }

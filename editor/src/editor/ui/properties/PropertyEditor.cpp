@@ -6,6 +6,7 @@
 #include "engine/asset/AssetManager.h"
 #include "engine/ui/components/ButtonComponent.h"
 #include "engine/ui/components/CollapsingHeaderComponent.h"
+#include "engine/ui/components/MouseInputComponent.h"
 #include "engine/ui/components/RectTransformComponent.h"
 #include "engine/ui/components/TextComponent.h"
 #include "engine/ui/components/VerticalBoxComponent.h"
@@ -93,6 +94,7 @@ namespace se::editor::ui::properties
         {
             m_WidgetId = world->CreateEntity(editor->GetEditorScene(), params.name);
             m_RectTransform = world->AddComponent<RectTransformComponent>(m_WidgetId);
+            world->AddComponent<MouseInputComponent>(m_WidgetId);
             m_RectTransform->anchors = params.anchors;
             world->AddComponent<WidgetComponent>(m_WidgetId);
             titleContainer = m_WidgetId;
@@ -101,26 +103,66 @@ namespace se::editor::ui::properties
 
         if (params.constructTitle)
         {
-            auto titleEntity = world->CreateEntity(editor->GetEditorScene(), std::format("Property Title ({})", params.name));
-            auto titleText = world->AddComponent<TextComponent>(titleEntity);
+            m_Title = world->CreateEntity(editor->GetEditorScene(), std::format("Property Title ({})", params.name));
+            auto titleText = world->AddComponent<TextComponent>(m_Title);
             titleText->font = "/engine_assets/fonts/Arial.sass";
             titleText->fontSize = titleFontSize;
             titleText->text = m_Name;
             titleText->wrap = se::ui::text::WrapMode::Char;
-            auto titleRect = world->AddComponent<RectTransformComponent>(titleEntity);
+            auto titleRect = world->AddComponent<RectTransformComponent>(m_Title);
             titleRect->anchors = {
                 .left = 0.f,
                 .right = GetTitleMode() == PropertyTitleMode::Inline ? 0.3f : 1.f,
                 .top = 0.f,
                 .bottom = 1.f
             };
-            world->AddChild(titleContainer, titleEntity);
+            world->AddChild(titleContainer, m_Title);
+
+            if (GetTitleMode() == PropertyTitleMode::Inline && !params.contextOptions.empty())
+            {
+                auto buttonEntity = world->CreateEntity(editor->GetEditorScene(), "Property Invisible Button");
+                auto buttonRect = world->AddComponent<RectTransformComponent>(buttonEntity);
+                buttonRect->anchors = {
+                    .left = 0.f,
+                    .right = 1.f,
+                    .top = 0.f,
+                    .bottom = 1.f
+                };
+                auto button = world->AddComponent<ButtonComponent>(buttonEntity);
+                button->onReleased.Subscribe([world, editor, options = params.contextOptions](input::MouseButton mouseButton)
+                {
+                    if (mouseButton == input::MouseButton::Right)
+                    {
+                        auto inputComp = world->GetSingletonComponent<input::InputComponent>();
+                        se::ui::util::ContextMenuParams contextParams = {
+                            .fontSize = 14,
+                            .minWidth = 200,
+                            .mousePos = { inputComp->mouseX, inputComp->mouseY },
+                            .scene = editor->GetEditorScene(),
+                            .options = options
+                        };
+
+                        se::ui::util::CreateContextMenu(contextParams);
+                    }
+                });
+                auto widget = world->AddComponent<WidgetComponent>(buttonEntity);
+                widget->visibility = se::ui::Visibility::Hidden;
+                world->AddChild(m_Title, buttonEntity);
+            }
         }
     }
 
     void PropertyEditor::DestroyUI()
     {
         Application::Get()->GetWorld()->DestroyEntity(m_WidgetId);
+    }
+
+    void PropertyEditor::UpdateName(const std::string& name)
+    {
+        m_Name = name;
+        auto text = Application::Get()->GetWorld()->GetComponent<TextComponent>(m_Title);
+        text->text = name;
+
     }
 
     PropertyEditor* CreatePropertyEditor(const PropertyEditorParams& params)

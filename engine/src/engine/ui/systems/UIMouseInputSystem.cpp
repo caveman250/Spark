@@ -105,25 +105,20 @@ namespace se::ui::systems
                         return true;
                     }
 
-                    const auto& children = updateData.GetEntities();
-                    auto* childInputComps = updateData.GetComponentArray<components::MouseInputComponent>();
+                    [[maybe_unused]] const auto& child = updateData.GetEntity();
+                    auto* childInputComp = updateData.GetComponentArray<components::MouseInputComponent>();
 
-                    for (size_t j = 0; j < children.size(); ++j)
+                    if (childInputComp->hovered && childInputComp->enabled)
                     {
-                        auto& childInputReceiver = childInputComps[j];
-
-                        if (childInputReceiver.hovered && childInputReceiver.enabled)
+                        if (TryConsumeEvent(mouseEvent, *childInputComp))
                         {
-                            if (TryConsumeEvent(mouseEvent, childInputReceiver))
-                            {
-                                consumed = true;
-                                return true;
-                            }
+                            consumed = true;
+                            return true;
                         }
                     }
 
                     return false;
-                                       });
+                });
 
                 if (!consumed)
                 {

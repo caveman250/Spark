@@ -210,10 +210,10 @@ namespace se::ui::util
             auto parent = world->GetParent(currentEntity);
             if (parent == ecs::s_InvalidEntity)
             {
-                system->RunQueryOnParent(lastEntity, dec, rootFunc);
+                world->ParentQuery(lastEntity, system, dec, rootFunc);
                 break;
             }
-            system->RunQueryOnParent(currentEntity, dec, func);
+            world->ParentQuery(currentEntity, system, dec, func);
             lastEntity = currentEntity;
             currentEntity = parent;
         }
