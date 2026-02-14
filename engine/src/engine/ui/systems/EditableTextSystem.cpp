@@ -340,10 +340,18 @@ namespace se::ui::systems
             const auto* transformComps = updateData.GetComponentArray<const components::RectTransformComponent>();
             const auto* mouseInputComps = updateData.GetComponentArray<const components::MouseInputComponent>();
             auto* keyInputComps = updateData.GetComponentArray<components::KeyInputComponent>();
+            auto* widgets = updateData.GetComponentArray<components::WidgetComponent>();
             const auto* inputComp = updateData.GetSingletonComponent<const input::InputComponent>();
 
             for (size_t i = 0; i < entities.size(); ++i)
             {
+                components::WidgetComponent& widget = widgets[i];
+
+                if (!widget.updateEnabled)
+                {
+                    continue;
+                }
+
                 const ecs::Id& entity = entities[i];
                 components::EditableTextComponent& text = textComps[i];
                 components::KeyInputComponent& keyInput = keyInputComps[i];
@@ -352,29 +360,32 @@ namespace se::ui::systems
 
                 if (mouseInput.hovered)
                 {
-                    MouseCursorUtil::SetMouseCursor(MouseCursor::IBeam);
-
-                    for (const auto& mouseEvent: mouseInput.mouseEvents)
+                    if (mouseInput.buttonMask != 0)
                     {
-                        if (mouseEvent.button == input::MouseButton::Left)
-                        {
-                            if (mouseEvent.state == input::KeyState::Up)
-                            {
-                                if (!text.inEditMode)
-                                {
-                                    util::BeginEditingText(this, entity, text, keyInput);
-                                }
+                        MouseCursorUtil::SetMouseCursor(MouseCursor::IBeam);
 
-                                util::SetCaretPos(text,
-                                                  util::CalcCaretPosition(
-                                                      math::Vec2(static_cast<float>(inputComp->mouseX), static_cast<float>(inputComp->mouseY)),
-                                                      text,
-                                                      rectTransform));
+                        for (const auto& mouseEvent: mouseInput.mouseEvents)
+                        {
+                            if (mouseEvent.button == input::MouseButton::Left)
+                            {
+                                if (mouseEvent.state == input::KeyState::Up)
+                                {
+                                    if (!text.inEditMode)
+                                    {
+                                        util::BeginEditingText(this, entity, text, keyInput);
+                                    }
+
+                                    util::SetCaretPos(text,
+                                                      util::CalcCaretPosition(
+                                                          math::Vec2(static_cast<float>(inputComp->mouseX), static_cast<float>(inputComp->mouseY)),
+                                                          text,
+                                                          rectTransform));
+                                }
                             }
                         }
                     }
                 }
-                else if (text.inEditMode)
+                else if (inputComp->mouseButtonStates[static_cast<int>(input::MouseButton::Left)] == input::KeyState::Down)
                 {
                     util::EndEditingText(this, entity, text, keyInput);
                 }
@@ -425,8 +436,8 @@ namespace se::ui::systems
 
             for (size_t i = 0; i < entities.size(); ++i)
             {
-                const auto& entity = entities[i];
                 const auto& widget = widgetComps[i];
+                const auto& entity = entities[i];
                 const auto& transform = transformComps[i];
                 auto& text = textComps[i];
 

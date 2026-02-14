@@ -95,7 +95,7 @@ namespace se::editor::ui
             auto scrollBoxTransform = world->GetComponent<se::ui::components::RectTransformComponent>(
                     m_ScrollBoxContent);
 
-            ecs::Id selectedEntity = m_Editor->GetSelectedEntity();
+            const ecs::Id& selectedEntity = m_Editor->GetSelectedEntity();
             reflect::ObjectBase* selectedSingletonComp = m_Editor->GetSelectedSingletonComponent();
             const auto& selectedAsset = m_Editor->GetSelectedAsset();
 
@@ -225,6 +225,22 @@ namespace se::editor::ui
             world->AddComponent<se::ui::components::WidgetComponent>(textEntity);
             world->AddChild(addComp, textEntity);
         }
+    }
+
+    void PropertiesWindow::AddFolderProperties(const std::string& path)
+    {
+        auto app = Application::Get();
+        auto world = app->GetWorld();
+        auto editor = app->GetEditorRuntime();
+
+        auto filePathEntity = world->CreateEntity(editor->GetEditorScene(), "File Path");
+        auto filePathText = world->AddComponent<se::ui::components::TextComponent>(filePathEntity);
+        filePathText->font = "/engine_assets/fonts/Arial.sass";
+        filePathText->fontSize = 12;
+        filePathText->text = path;
+        world->AddComponent<se::ui::components::RectTransformComponent>(filePathEntity);
+        world->AddComponent<se::ui::components::WidgetComponent>(filePathEntity);
+        world->AddChild(m_ScrollBoxContent, filePathEntity);
     }
 
     void PropertiesWindow::AddSingletonComponentProperties(reflect::ObjectBase* selectedSingletonComp)

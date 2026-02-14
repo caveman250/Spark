@@ -46,6 +46,7 @@ namespace se::editor::ui
                                const asset::AssetReference<asset::Font>& font);
         void SelectFile(const std::string& file);
         void OpenFile(const std::string& file);
+        void SelectFolder(const std::string& folder);
 
         ecs::Id m_Window = ecs::s_InvalidEntity;
         ecs::Id m_GridBoxEntity = ecs::s_InvalidEntity;

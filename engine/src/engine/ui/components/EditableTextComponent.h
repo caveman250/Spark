@@ -28,6 +28,7 @@ namespace se::ui::components
         text::WrapMode wrap = text::WrapMode::None;
 
         // edit mode
+        bool enabled = true;
         bool inEditMode = false;
         std::string editText = { };
         int caretPosition = 0;

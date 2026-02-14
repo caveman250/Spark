@@ -20,15 +20,25 @@ namespace se::ui::components
     struct KeyInputComponent;
     struct EditableTextComponent;
     struct RectTransformComponent;
+    struct MouseInputComponent;
+    struct WidgetComponent;
 }
 
 namespace se::ui::util
 {
 #if SPARK_EDITOR
-    ecs::Id CreateEditableText(ecs::World* world,
+    struct NewEditableText
+    {
+        ecs::Id entity = {};
+        components::EditableTextComponent* text = nullptr;
+        components::WidgetComponent* widget = nullptr;
+        components::MouseInputComponent* mouseInput = nullptr;
+    };
+    NewEditableText CreateEditableText(ecs::World* world,
                                const asset::AssetReference<asset::Font>& font,
-                               int fontSize,
-                               components::EditableTextComponent** text);
+                               int fontSize);
+
+    void SetEnabled(components::MouseInputComponent* mouseInput, bool enabled);
 
     math::IntVec2 GetCaretPosition(int pos,
                                    const components::EditableTextComponent& text,

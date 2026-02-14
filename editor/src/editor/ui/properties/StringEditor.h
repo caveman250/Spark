@@ -74,14 +74,14 @@ namespace se::editor::ui::properties
         innerTransform->minX = innerTransform->maxX = innerTransform->minY = innerTransform->maxY = borderSize;
         world->AddChild(bg, innerImageEntity);
 
-        EditableTextComponent* editableText = nullptr;
-        m_Label = se::ui::util::CreateEditableText(world, "/engine_assets/fonts/Arial.sass", fontSize, &editableText);
-        editableText->text = std::format("{}", *m_Value);
+        auto editText = se::ui::util::CreateEditableText(world, "/engine_assets/fonts/Arial.sass", fontSize);
+        m_Label = editText.entity;
+        editText.text->text = std::format("{}", *m_Value);
         std::function cb = [this](std::string newVal)
         {
             *m_Value = newVal.data();
         };
-        editableText->onComitted.Subscribe(std::move(cb));
+        editText.text->onComitted.Subscribe(std::move(cb));
 
         auto labelRect = world->AddComponent<RectTransformComponent>(m_Label);
         labelRect->anchors = { .left = 0.f, .right = 1.f, .top = 0.f, .bottom = 1.f };

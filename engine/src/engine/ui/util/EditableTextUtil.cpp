@@ -8,24 +8,27 @@
 #include "engine/ui/components/ImageComponent.h"
 #include "engine/render/Material.h"
 #include "engine/asset/AssetManager.h"
+#include "engine/ui/components/MouseInputComponent.h"
 
 namespace se::ui::util
 {
 #if SPARK_EDITOR
-    ecs::Id CreateEditableText(ecs::World* world,
+    NewEditableText CreateEditableText(ecs::World* world,
                                const asset::AssetReference<asset::Font>& font,
-                               int fontSize,
-                               EditableTextComponent** text)
+                               int fontSize)
 
     {
+        NewEditableText ret = {};
         auto app = Application::Get();
         auto editor = app->GetEditorRuntime();
         auto assetManager = asset::AssetManager::Get();
 
-        auto ret = world->CreateEntity(editor->GetEditorScene(), "Label");
-        (*text) = world->AddComponent<EditableTextComponent>(ret);
-        (*text)->font = font;
-        (*text)->fontSize = fontSize;
+        ret.entity = world->CreateEntity(editor->GetEditorScene(), "Label");
+        ret.text = world->AddComponent<EditableTextComponent>(ret.entity);
+        ret.text->font = font;
+        ret.text->fontSize = fontSize;
+        ret.mouseInput = world->AddComponent<MouseInputComponent>(ret.entity);
+        ret.widget = world->AddComponent<WidgetComponent>(ret.entity);
         auto caretEntity = world->CreateEntity(editor->GetEditorScene(), "Caret");
         auto caretRect = world->AddComponent<RectTransformComponent>(caretEntity);
         caretRect->anchors = { 0.f, 0.f, 0.f, 1.f };
@@ -38,11 +41,11 @@ namespace se::ui::util
         auto caretImage = world->AddComponent<ImageComponent>(caretEntity);
         auto material = assetManager->GetAsset<render::Material>("/engine_assets/materials/editor_lightbg.sass");
         caretImage->materialInstance = render::MaterialInstance::CreateMaterialInstance(material);
-        world->AddChild(ret, caretEntity);
+        world->AddChild(ret.entity, caretEntity);
         std::function movedCb = [ret, world, caretEntity](int pos)
         {
-            auto* editText = world->GetComponent<EditableTextComponent>(ret);
-            auto* textRect = world->GetComponent<RectTransformComponent>(ret);
+            auto* editText = world->GetComponent<EditableTextComponent>(ret.entity);
+            auto* textRect = world->GetComponent<RectTransformComponent>(ret.entity);
             math::IntVec2 offset = GetCaretPosition(pos, *editText, *textRect);
 
             auto* caretRect = world->GetComponent<RectTransformComponent>(caretEntity);
@@ -50,9 +53,14 @@ namespace se::ui::util
             caretRect->maxX = caretRect->minX + 2;
             caretRect->rect = CalculateScreenSpaceRect(*caretRect, *textRect);
         };
-        (*text)->onCaretMoved.Subscribe(std::move(movedCb));
+        ret.text->onCaretMoved.Subscribe(std::move(movedCb));
 
         return ret;
+    }
+
+    void SetEnabled(MouseInputComponent* mouseInput, bool enabled)
+    {
+        mouseInput->buttonMask = enabled ? 0xffffffff : 0;
     }
 
     math::IntVec2 GetCaretPosition(int pos,
@@ -66,7 +74,8 @@ namespace se::ui::util
                           const EditableTextComponent& text,
                           const RectTransformComponent& rect)
     {
-        math::Vec2 localMousePos = mousePos - math::Vec2(rect.rect.topLeft);
+        auto window = Application::Get()->GetWindow();
+        math::Vec2 localMousePos = (mousePos - math::Vec2(rect.rect.topLeft)) / window->GetContentScale();
         return GetCharIndexForPosition(localMousePos, rect.rect, text.font.GetAsset(), text.fontSize, text.editText, true, text.wrap, text.alignment);
     }
 
@@ -86,7 +95,7 @@ namespace se::ui::util
         auto dec = ecs::HeirachyQueryDeclaration()
                 .WithComponent<TextCaretComponent>()
                 .WithComponent<WidgetComponent>();
-        system->RunChildQuery(entity, dec, [](const ecs::SystemUpdateData& updateData)
+        Application::Get()->GetWorld()->ChildEach(entity, system, dec, [](const ecs::SystemUpdateData& updateData)
         {
             const auto& entities = updateData.GetEntities();
             auto* carets = updateData.GetComponentArray<TextCaretComponent>();

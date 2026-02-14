@@ -3,15 +3,17 @@
 #include "editor/EditorRuntime.h"
 #include "engine/Application.h"
 #include "engine/input/InputComponent.h"
+#include "engine/ui/components/EditableTextComponent.h"
+#include "engine/ui/components/KeyInputComponent.h"
 #include "engine/ui/components/MouseInputComponent.h"
 #include "engine/ui/components/RectTransformComponent.h"
 #include "engine/ui/components/ScrollBoxComponent.h"
-#include "engine/ui/components/TextComponent.h"
 #include "engine/ui/components/TitleBarComponent.h"
 #include "engine/ui/components/TreeNodeComponent.h"
 #include "engine/ui/components/TreeViewComponent.h"
 #include "engine/ui/components/WindowComponent.h"
 #include "engine/ui/util/ContextMenuUtil.h"
+#include "engine/ui/util/EditableTextUtil.h"
 #include "engine/ui/util/ScrollBoxUtil.h"
 #include "engine/ui/util/TreeViewUtil.h"
 #include "engine/ui/util/WindowUtil.h"
@@ -64,7 +66,7 @@ namespace se::editor::ui
         m_Valid = false;
     }
 
-    void OutlineWindow::RebuildOutline() const
+    void OutlineWindow::RebuildOutline()
     {
         if (!m_Valid)
         {
@@ -155,7 +157,7 @@ namespace se::editor::ui
         }
     }
 
-    void OutlineWindow::AddEntityUI(ecs::World* world, const ecs::Id& entity, const ecs::Id& parent, se::ui::components::RectTransformComponent* treeViewRect) const
+    void OutlineWindow::AddEntityUI(ecs::World* world, const ecs::Id& entity, const ecs::Id& parent, se::ui::components::RectTransformComponent* treeViewRect)
     {
         auto editor = Application::Get()->GetEditorRuntime();
 
@@ -166,6 +168,20 @@ namespace se::editor::ui
             .scene = editor->GetEditorScene(),
             .treeViewRect = treeViewRect,
             .contextOptions = {
+                std::make_pair("Rename",
+                    [this, entity]()
+                    {
+                        auto* world = Application::Get()->GetWorld();
+                        const auto& textEntity = m_EntityTexts.at(entity);
+                        auto* text = world->GetComponent<se::ui::components::EditableTextComponent>(textEntity);
+                        auto* keyInput = world->GetComponent<se::ui::components::KeyInputComponent>(textEntity);
+
+                        if (!text->inEditMode)
+                        {
+                            se::ui::util::BeginEditingText(nullptr, textEntity, *text, *keyInput);
+                            se::ui::util::SetCaretPos(*text, text->text.size());
+                        }
+                    }),
                 std::make_pair("Delete Entity",
                     [entity]()
                     {
@@ -174,7 +190,13 @@ namespace se::editor::ui
             },
         };
         auto treeNode = se::ui::util::InsertTreeNode(params);
+        treeNode.text->onComitted.Subscribe([entity, world, editor](const std::string& newName)
+        {
+            world->RenameEntity(entity, newName);
+            editor->SelectEntity(entity, true);
+        });
         treeNode.text->text = *entity.name;
+        m_EntityTexts[entity] = treeNode.textEntity;
 
         std::function<void()> selectedCb = [entity, this]()
         {

@@ -37,6 +37,7 @@ namespace se::editor::ui
         void AddEntityProperties(const ecs::Id& entity,
                                  ecs::World* world,
                                  const asset::AssetReference<asset::Font>& font);
+        void AddFolderProperties(const std::string& path);
         void AddSingletonComponentProperties(reflect::ObjectBase* selectedSingletonComp);
         void AddAssetProperties(const std::shared_ptr<asset::Asset>& asset,
                                 ecs::World* world,

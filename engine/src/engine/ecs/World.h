@@ -103,6 +103,8 @@ namespace se::ecs
         Id CreateEntity(const std::string& name);
         Id CreateEntity(const Id& scene,
                         const std::string& name);
+        void RenameEntity(const Id& entity,
+                        const std::string& name);
         void DestroyEntity(const Id& entity);
         std::vector<Id> GetEntities() const;
         std::vector<Id> GetRootEntities();

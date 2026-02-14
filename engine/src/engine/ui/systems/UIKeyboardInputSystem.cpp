@@ -16,7 +16,6 @@ namespace se::ui::systems
     ecs::SystemDeclaration UIKeyboardInputSystem::GetSystemDeclaration()
     {
         return ecs::SystemDeclaration("UIKeyboardInputSystem")
-                    .WithComponent<const components::RectTransformComponent>()
                     .WithComponent<const RootComponent>()
                     .WithComponent<components::KeyInputComponent>()
                     .WithSingletonComponent<input::InputComponent>()
@@ -27,23 +26,21 @@ namespace se::ui::systems
     {
         EASY_BLOCK("UIKeyboardInputSystem::OnUpdate");
 
-        ecs::ForEachArcheType(results, ecs::UpdateMode::SingleThreaded, false, [this](const ecs::SystemUpdateData& updateData)
+        auto* world = Application::Get()->GetWorld();
+        ecs::ForEachArcheType(results, ecs::UpdateMode::SingleThreaded, false, [this, world](const ecs::SystemUpdateData& updateData)
         {
             const auto& entities = updateData.GetEntities();
-            const auto* rectTransforms = updateData.GetComponentArray<const components::RectTransformComponent>();
             auto* receivesInputComps = updateData.GetComponentArray<components::KeyInputComponent>();
             auto* inputComp = updateData.GetSingletonComponent<input::InputComponent>();
 
             for (size_t i = 0; i < entities.size(); ++i)
             {
                 auto entity = entities[i];
-                auto& transform = rectTransforms[i];
                 auto& inputReceiver = receivesInputComps[i];
 
-                bool hovered = transform.rect.Contains(math::IntVec2(inputComp->mouseX, inputComp->mouseY));
-                if (hovered)
+                if (world->HasComponent<ParentComponent>(entity) || inputReceiver.keyMask != input::Key::Unknown)
                 {
-                    input::InputUtil::ProcessKeyEvents(entity, inputComp, [this, entity, inputComp, &inputReceiver](const input::KeyEvent& keyEvent)
+                    input::InputUtil::ProcessKeyEvents(entity, inputComp, [this, entity, world, &inputReceiver](const input::KeyEvent& keyEvent)
                     {
                         if (TryConsumeEvent(keyEvent, inputReceiver))
                         {
@@ -52,32 +49,24 @@ namespace se::ui::systems
 
                         bool consumed = false;
                         auto declaration = ecs::HeirachyQueryDeclaration()
-                                .WithComponent<const components::RectTransformComponent>()
                                 .WithComponent<components::KeyInputComponent>();
                         RunRecursiveChildQuery(entity, declaration,
-                    [this, &consumed, inputComp, keyEvent](const ecs::SystemUpdateData& updateData)
+                    [this, &consumed, world, keyEvent](const ecs::SystemUpdateData& updateData)
                         {
                             if (consumed)
                             {
                                 return true;
                             }
 
-                            const auto& children = updateData.GetEntities();
-                            auto* childTransforms = updateData.GetComponentArray<const components::RectTransformComponent>();
+                            const auto& child = updateData.GetEntity();
                             auto* childInputComps = updateData.GetComponentArray<components::KeyInputComponent>();
 
-                            for (size_t j = 0; j < children.size(); ++j)
+                            if (world->HasComponent<ParentComponent>(child) || childInputComps->keyMask != input::Key::Unknown)
                             {
-                                auto& childTransform = childTransforms[j];
-                                auto& childInputReceiver = childInputComps[j];
-                                bool childHovered = childTransform.rect.Contains(math::IntVec2(inputComp->mouseX, inputComp->mouseY));
-                                if (childHovered)
+                                if (TryConsumeEvent(keyEvent, *childInputComps))
                                 {
-                                    if (TryConsumeEvent(keyEvent, childInputReceiver))
-                                    {
-                                        consumed = true;
-                                        return true;
-                                    }
+                                    consumed = true;
+                                    return true;
                                 }
                             }
 

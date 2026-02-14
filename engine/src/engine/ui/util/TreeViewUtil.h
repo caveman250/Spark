@@ -5,7 +5,7 @@ namespace se::ui::components
 {
     struct TreeViewComponent;
     struct RectTransformComponent;
-    struct TextComponent;
+    struct EditableTextComponent;
     struct TreeNodeComponent;
 }
 
@@ -26,7 +26,8 @@ namespace se::ui::util
     {
         ecs::Id entity;
         components::TreeNodeComponent* treeNode;
-        components::TextComponent* text;
+        ecs::Id textEntity;
+        components::EditableTextComponent* text;
     };
     NewTreeNode InsertTreeNode(const TreeNodeParams& params);
 }

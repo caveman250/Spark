@@ -20,6 +20,7 @@
 #include "engine/ui/components/WindowComponent.h"
 #include "../singleton_components/DragDropStateComponent.h"
 #include "engine/ecs/SceneSaveData.h"
+#include "engine/ui/components/EditableTextComponent.h"
 #include "engine/ui/components/MouseInputComponent.h"
 #include "engine/ui/singleton_components/UIRenderComponent.h"
 #include "engine/ui/util/ContextMenuUtil.h"
@@ -377,7 +378,7 @@ namespace se::editor::ui
                 {
                     if (file.isDirectory)
                     {
-                        SetActiveFolder(m_ActiveFolder + '/' + file.fileName, false);
+                        SelectFolder(file.fullPath);
                     }
                     else
                     {
@@ -426,7 +427,11 @@ namespace se::editor::ui
             {
                 case input::MouseButton::Left:
                 {
-                    if (!file.isDirectory)
+                    if (file.isDirectory)
+                    {
+                        SetActiveFolder(m_ActiveFolder + '/' + file.fileName, false);
+                    }
+                    else
                     {
                         OpenFile(file.fullPath);
                     }
@@ -503,5 +508,10 @@ namespace se::editor::ui
         {
             runtime->LoadScene(file);
         }
+    }
+
+    void AssetBrowserWindow::SelectFolder(const std::string&)
+    {
+        // TODO
     }
 }

@@ -77,6 +77,17 @@ namespace se::ecs
         return entityId;
     }
 
+    void World::RenameEntity(const Id& entity,
+        const std::string& name)
+    {
+        auto guard = std::lock_guard(m_EntityMutex);
+        auto it = m_IdMetaMap.find(entity);
+        if (SPARK_VERIFY(it != m_IdMetaMap.end()))
+        {
+            it->second.name = name;
+        }
+    }
+
     void World::DestroyEngineSystem(const Id& id)
     {
         auto guard = std::lock_guard(m_SystemMutex);
@@ -483,12 +494,13 @@ namespace se::ecs
 
         m_Running = false;
 
-        for (auto* signal: m_PendingSignals)
+        auto safeCopy = m_PendingSignals;
+        m_PendingSignals.clear();
+        for (auto* signal: safeCopy)
         {
             EASY_BLOCK("Execute Signals");
             signal->Execute();
         }
-        m_PendingSignals.clear();
         ProcessAllPending();
 
 #if SPARK_EDITOR

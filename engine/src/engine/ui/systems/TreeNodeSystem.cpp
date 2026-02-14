@@ -43,7 +43,7 @@ namespace se::ui::systems
                     }
                     else if (mouseEvent.button == input::MouseButton::Right)
                     {
-                        if (mouseEvent.state == input::KeyState::Up)
+                        if (mouseEvent.state == input::KeyState::Up && !treeNode.contextOptions.empty())
                         {
                             util::ContextMenuParams params = {
                                 .fontSize = 14,

@@ -14,6 +14,8 @@
 #include "engine/ui/components/TreeNodeComponent.h"
 #include "engine/ui/components/TreeViewComponent.h"
 #include "engine/ui/components/WidgetComponent.h"
+#include "engine/ui/util/EditableTextUtil.h"
+
 
 namespace se::ui::util
 {
@@ -51,18 +53,18 @@ namespace se::ui::util
         world->AddComponent<WidgetComponent>(ret.entity);
         world->AddComponent<MouseInputComponent>(ret.entity);
 
-        auto textEntity = world->CreateEntity(params.scene, "Text");
-        ret.text = world->AddComponent<TextComponent>(textEntity);
-        ret.text->font = "/engine_assets/fonts/Arial.sass";
-        ret.text->fontSize = 14;
-        auto textRect = world->AddComponent<RectTransformComponent>(textEntity);
+
+        auto editText = CreateEditableText(world, "/engine_assets/fonts/Arial.sass", 14);
+        ret.textEntity = editText.entity;
+        ret.text = editText.text;
+        SetEnabled(editText.mouseInput, false);
+        auto textRect = world->AddComponent<RectTransformComponent>(editText.entity);
         textRect->anchors = { .left = 0.f, .right = 1.f, .top = 0.f, .bottom = 1.f };
         textRect->minX = 12;
         textRect->maxX = 0;
         textRect->minY = 0;
         textRect->maxY = 0;
-        world->AddComponent<WidgetComponent>(textEntity);
-        world->AddChild(ret.entity, textEntity);
+        world->AddChild(ret.entity, editText.entity);
 
         static asset::AssetReference<asset::Texture> expanded_indicator_texture = "/engine_assets/textures/tree_node_indicator_expanded.sass";
         static asset::AssetReference<asset::Texture> collapsed_indicator_texture = "/engine_assets/textures/tree_node_indicator_collapsed.sass";
