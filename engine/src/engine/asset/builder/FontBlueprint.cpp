@@ -14,7 +14,6 @@ namespace se::asset::builder
 {
     constexpr int s_SDFPadding = 3;
     constexpr int s_SDFOneEdge = 128;
-    constexpr int s_SDFPixelDistScale = 32;
 
     constexpr const char* s_FontMapChars =
             "!@#$%^&*()_+"
@@ -56,7 +55,7 @@ namespace se::asset::builder
 
         font.m_Name = fontName;
 
-        float scale = stbtt_ScaleForPixelHeight(&info, static_cast<float>(32));
+        float scale = stbtt_ScaleForPixelHeight(&info, static_cast<float>(s_Scale));
 
         int ascent, descent, lineGap;
         stbtt_GetFontVMetrics(&info, &ascent, &descent, &lineGap);
@@ -145,7 +144,7 @@ namespace se::asset::builder
                                   s_FontMapChars[i],
                                   s_SDFPadding,
                                   s_SDFOneEdge,
-                                  s_SDFPixelDistScale,
+                                  s_Scale,
                                   &sizeX,
                                   &sizeY,
                                   &xOff,
@@ -261,7 +260,7 @@ namespace se::asset::builder
                                                     s_FontMapChars[boundingBoxes[i].second],
                                                     s_SDFPadding,
                                                     s_SDFOneEdge,
-                                                    s_SDFPixelDistScale,
+                                                    s_Scale,
                                                     &sizeX,
                                                     &sizeY,
                                                     &xOff,

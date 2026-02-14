@@ -1,5 +1,6 @@
 #include "Font.h"
 #include "engine/asset/AssetManager.h"
+#include "engine/asset/builder/FontBlueprint.h"
 #include "engine/asset/texture/Texture.h"
 
 namespace se::asset
@@ -27,20 +28,20 @@ namespace se::asset
 
     float Font::GetLineHeight(int fontSize) const
     {
-        float scale = static_cast<float>(fontSize) / 32.f;
+        float scale = static_cast<float>(fontSize) / builder::FontBlueprint::s_Scale;
         float height = m_Ascent - m_Descent + m_LineGap;
         return height * scale;
     }
 
     float Font::GetAscent(int fontSize) const
     {
-        float scale = static_cast<float>(fontSize) / 32.f;
+        float scale = static_cast<float>(fontSize) / builder::FontBlueprint::s_Scale;
         return m_Ascent * scale;
     }
 
     float Font::GetDescent(int fontSize) const
     {
-        float scale = static_cast<float>(fontSize) / 32.f;
+        float scale = static_cast<float>(fontSize) / builder::FontBlueprint::s_Scale;
         return m_Descent * scale;
     }
 }

@@ -20,6 +20,7 @@ namespace se::asset::builder
     class FontBlueprint : public Blueprint
     {
     public:
+        static constexpr int s_Scale = 80;
         std::regex GetFilePattern() const override;
         std::vector<BuiltAsset> BuildAsset(const std::string& path, const std::string& outputPath) const override;
 
