@@ -31,206 +31,275 @@ namespace se::ui::systems
                     .WithDependency<UIKeyboardInputSystem>();
     }
 
+    char GetCharForKey(input::Key key, const input::InputComponent* inputComp)
+    {
+        bool shiftPressed = inputComp->keyStates[static_cast<int>(input::Key::LeftShift)] == input::KeyState::Down ||
+            inputComp->keyStates[static_cast<int>(input::Key::RightShift)] == input::KeyState::Down;
+        switch (key)
+        {
+            case input::Key::Unknown:
+                return 0;
+            case input::Key::Space:
+                return ' ';
+            case input::Key::Apostrophe:
+                return shiftPressed ? '"' : '\'';
+            case input::Key::Comma:
+                return shiftPressed ? '<' : ',';
+            case input::Key::Minus:
+                return shiftPressed ? '_' : '-';
+            case input::Key::Period:
+                return shiftPressed ? '>' : '.';
+            case input::Key::ForwardSlash:
+                return shiftPressed ? '?' : '/';
+            case input::Key::Key0:
+                return shiftPressed ? ')' : '0';
+            case input::Key::Key1:
+                return shiftPressed ? '!' : '1';
+            case input::Key::Key2:
+                return shiftPressed ? '@' : '2';
+            case input::Key::Key3:
+                return shiftPressed ? '#' : '3';
+            case input::Key::Key4:
+                return shiftPressed ? '$' : '4';
+            case input::Key::Key5:
+                return shiftPressed ? '%' : '5';
+            case input::Key::Key6:
+                return shiftPressed ? '^' : '6';
+            case input::Key::Key7:
+                return shiftPressed ? '&' : '7';
+            case input::Key::Key8:
+                return shiftPressed ? '*' : '8';
+            case input::Key::Key9:
+                return shiftPressed ? '(' : '9';
+            case input::Key::Semicolon:
+                return shiftPressed ? ':' : ';';
+            case input::Key::Equal:
+                return shiftPressed ? '+' : '=';
+            case input::Key::A:
+                return shiftPressed ? 'A' : 'a';
+            case input::Key::B:
+                return shiftPressed ? 'B' : 'b';
+            case input::Key::C:
+                return shiftPressed ? 'C' : 'c';
+            case input::Key::D:
+                return shiftPressed ? 'D' : 'd';
+            case input::Key::E:
+                return shiftPressed ? 'E' : 'e';
+            case input::Key::F:
+                return shiftPressed ? 'F' : 'f';
+            case input::Key::G:
+                return shiftPressed ? 'G' : 'g';
+            case input::Key::H:
+                return shiftPressed ? 'H' : 'h';
+            case input::Key::I:
+                return shiftPressed ? 'I' : 'i';
+            case input::Key::J:
+                return shiftPressed ? 'J' : 'j';
+            case input::Key::K:
+                return shiftPressed ? 'K' : 'k';
+            case input::Key::L:
+                return shiftPressed ? 'L' : 'l';
+            case input::Key::M:
+                return shiftPressed ? 'M' : 'm';
+            case input::Key::N:
+                return shiftPressed ? 'N' : 'n';
+            case input::Key::O:
+                return shiftPressed ? 'O' : 'o';
+            case input::Key::P:
+                return shiftPressed ? 'P' : 'p';
+            case input::Key::Q:
+                return shiftPressed ? 'Q' : 'q';
+            case input::Key::R:
+                return shiftPressed ? 'R' : 'r';
+            case input::Key::S:
+                return shiftPressed ? 'S' : 's';
+            case input::Key::T:
+                return shiftPressed ? 'T' : 't';
+            case input::Key::U:
+                return shiftPressed ? 'U' : 'u';
+            case input::Key::V:
+                return shiftPressed ? 'V' : 'v';
+            case input::Key::W:
+                return shiftPressed ? 'W' : 'w';
+            case input::Key::X:
+                return shiftPressed ? 'X' : 'x';
+            case input::Key::Y:
+                return shiftPressed ? 'Y' : 'y';
+            case input::Key::Z:
+                return shiftPressed ? 'Z' : 'z';
+            case input::Key::LeftBracket:
+                return shiftPressed ? '{' : '[';
+            case input::Key::Backslash:
+                return shiftPressed ? '|' : '\\';
+            case input::Key::RightBracket:
+                return shiftPressed ? '}' : ']';
+            case input::Key::GraveAccent:
+                return shiftPressed ? '~' : '`';
+            case input::Key::Num0:
+                return shiftPressed ? 0 : '0';
+            case input::Key::Num1:
+                return shiftPressed ? 0 : '1';
+            case input::Key::Num2:
+                return shiftPressed ? 0 : '2';
+            case input::Key::Num3:
+                return shiftPressed ? 0 : '3';
+            case input::Key::Num4:
+                return shiftPressed ? 0 : '4';
+            case input::Key::Num5:
+                return shiftPressed ? 0 : '5';
+            case input::Key::Num6:
+                return shiftPressed ? 0 : '6';
+            case input::Key::Num7:
+                return shiftPressed ? 0 : '7';
+            case input::Key::Num8:
+                return shiftPressed ? 0 : '8';
+            case input::Key::Num9:
+                return shiftPressed ? 0 : '9';
+            case input::Key::NumDecimal:
+            case input::Key::NumDivide:
+            case input::Key::NumMultiply:
+            case input::Key::NumSubtract:
+            case input::Key::NumAdd:
+            case input::Key::NumEnter:
+            case input::Key::NumEqual:
+            case input::Key::World2:
+            case input::Key::Escape:
+            case input::Key::Enter:
+            case input::Key::Tab:
+            case input::Key::Backspace:
+            case input::Key::Insert:
+            case input::Key::Delete:
+            case input::Key::Right:
+            case input::Key::Left:
+            case input::Key::Down:
+            case input::Key::Up:
+            case input::Key::PageUp:
+            case input::Key::PageDown:
+            case input::Key::Home:
+            case input::Key::End:
+            case input::Key::CapsLock:
+            case input::Key::ScrollLock:
+            case input::Key::NumLock:
+            case input::Key::PrintScreen:
+            case input::Key::Pause:
+            case input::Key::F1:
+            case input::Key::F2:
+            case input::Key::F3:
+            case input::Key::F4:
+            case input::Key::F5:
+            case input::Key::F6:
+            case input::Key::F7:
+            case input::Key::F8:
+            case input::Key::F9:
+            case input::Key::F10:
+            case input::Key::F11:
+            case input::Key::F12:
+            case input::Key::F13:
+            case input::Key::F14:
+            case input::Key::F15:
+            case input::Key::F16:
+            case input::Key::F17:
+            case input::Key::F18:
+            case input::Key::F19:
+            case input::Key::F20:
+            case input::Key::F21:
+            case input::Key::F22:
+            case input::Key::F23:
+            case input::Key::F24:
+            case input::Key::LeftShift:
+            case input::Key::LeftControl:
+            case input::Key::LeftAlt:
+            case input::Key::LeftSuper:
+            case input::Key::RightShift:
+            case input::Key::RightControl:
+            case input::Key::RightAlt:
+            case input::Key::RightSuper:
+            case input::Key::Menu:
+                return 0;
+        }
+        
+        SPARK_ASSERT(false, "Unhandled key");
+        return 0;
+    }
+
+    void AddChar(components::EditableTextComponent* text, input::Key key, const input::InputComponent* inputComp)
+    {
+        char c = GetCharForKey(key, inputComp);
+        if (c != 0)
+        {
+            text->editText.insert(text->caretPosition, 1, c);
+            util::MoveCaret(*text, 1);
+        }
+    }
+
     void EditableTextSystem::HandleKey([[maybe_unused]] const ecs::Id& entity,
                                        [[maybe_unused]] components::EditableTextComponent& text,
                                        [[maybe_unused]] components::KeyInputComponent& keyInput,
-                                       [[maybe_unused]] input::Key key)
+                                       [[maybe_unused]] input::Key key,
+                                       [[maybe_unused]] const input::InputComponent* inputComponent)
     {
 #if SPARK_EDITOR
         switch (key)
         {
             case input::Key::Space:
-                text.editText.insert(text.caretPosition, 1, ' ');
-                util::MoveCaret(text, 1);
-                break;
             case input::Key::Apostrophe:
-                text.editText.insert(text.caretPosition, 1, '\'');
-                util::MoveCaret(text, 1);
-                break;
             case input::Key::Comma:
-                text.editText.insert(text.caretPosition, 1, ',');
-                util::MoveCaret(text, 1);
-                break;
             case input::Key::Minus:
-                text.editText.insert(text.caretPosition, 1, '-');
-                util::MoveCaret(text, 1);
-                break;
             case input::Key::Period:
-                text.editText.insert(text.caretPosition, 1, '.');
-                util::MoveCaret(text, 1);
-                break;
             case input::Key::ForwardSlash:
-                text.editText.insert(text.caretPosition, 1, '/');
-                util::MoveCaret(text, 1);
-                break;
             case input::Key::Key0:
-                text.editText.insert(text.caretPosition, 1, '0');
-                util::MoveCaret(text, 1);
-                break;
             case input::Key::Key1:
-                text.editText.insert(text.caretPosition, 1, '1');
-                util::MoveCaret(text, 1);
-                break;
             case input::Key::Key2:
-                text.editText.insert(text.caretPosition, 1, '2');
-                util::MoveCaret(text, 1);
-                break;
             case input::Key::Key3:
-                text.editText.insert(text.caretPosition, 1, '3');
-                util::MoveCaret(text, 1);
-                break;
             case input::Key::Key4:
-                text.editText.insert(text.caretPosition, 1, '4');
-                util::MoveCaret(text, 1);
-                break;
             case input::Key::Key5:
-                text.editText.insert(text.caretPosition, 1, '5');
-                util::MoveCaret(text, 1);
-                break;
             case input::Key::Key6:
-                text.editText.insert(text.caretPosition, 1, '6');
-                util::MoveCaret(text, 1);
-                break;
             case input::Key::Key7:
-                text.editText.insert(text.caretPosition, 1, '7');
-                util::MoveCaret(text, 1);
-                break;
             case input::Key::Key8:
-                text.editText.insert(text.caretPosition, 1, '8');
-                util::MoveCaret(text, 1);
-                break;
             case input::Key::Key9:
-                text.editText.insert(text.caretPosition, 1, '9');
-                util::MoveCaret(text, 1);
-                break;
             case input::Key::Semicolon:
-                text.editText.insert(text.caretPosition, 1, ';');
-                util::MoveCaret(text, 1);
-                break;
             case input::Key::Equal:
-                text.editText.insert(text.caretPosition, 1, '=');
-                util::MoveCaret(text, 1);
-                break;
             case input::Key::A:
-                text.editText.insert(text.caretPosition, 1, 'a');
-                util::MoveCaret(text, 1);
-                break;
             case input::Key::B:
-                text.editText.insert(text.caretPosition, 1, 'b');
-                util::MoveCaret(text, 1);
-                break;
             case input::Key::C:
-                text.editText.insert(text.caretPosition, 1, 'c');
-                util::MoveCaret(text, 1);
-                break;
             case input::Key::D:
-                text.editText.insert(text.caretPosition, 1, 'd');
-                util::MoveCaret(text, 1);
-                break;
             case input::Key::E:
-                text.editText.insert(text.caretPosition, 1, 'e');
-                util::MoveCaret(text, 1);
-                break;
             case input::Key::F:
-                text.editText.insert(text.caretPosition, 1, 'f');
-                util::MoveCaret(text, 1);
-                break;
             case input::Key::G:
-                text.editText.insert(text.caretPosition, 1, 'g');
-                util::MoveCaret(text, 1);
-                break;
             case input::Key::H:
-                text.editText.insert(text.caretPosition, 1, 'h');
-                util::MoveCaret(text, 1);
-                break;
             case input::Key::I:
-                text.editText.insert(text.caretPosition, 1, 'i');
-                util::MoveCaret(text, 1);
-                break;
             case input::Key::J:
-                text.editText.insert(text.caretPosition, 1, 'j');
-                util::MoveCaret(text, 1);
-                break;
             case input::Key::K:
-                text.editText.insert(text.caretPosition, 1, 'k');
-                util::MoveCaret(text, 1);
-                break;
             case input::Key::L:
-                text.editText.insert(text.caretPosition, 1, 'l');
-                util::MoveCaret(text, 1);
-                break;
             case input::Key::M:
-                text.editText.insert(text.caretPosition, 1, 'm');
-                util::MoveCaret(text, 1);
-                break;
             case input::Key::N:
-                text.editText.insert(text.caretPosition, 1, 'n');
-                util::MoveCaret(text, 1);
-                break;
             case input::Key::O:
-                text.editText.insert(text.caretPosition, 1, 'o');
-                util::MoveCaret(text, 1);
-                break;
             case input::Key::P:
-                text.editText.insert(text.caretPosition, 1, 'p');
-                util::MoveCaret(text, 1);
-                break;
             case input::Key::Q:
-                text.editText.insert(text.caretPosition, 1, 'q');
-                util::MoveCaret(text, 1);
-                break;
             case input::Key::R:
-                text.editText.insert(text.caretPosition, 1, 'r');
-                util::MoveCaret(text, 1);
-                break;
             case input::Key::S:
-                text.editText.insert(text.caretPosition, 1, 's');
-                util::MoveCaret(text, 1);
-                break;
             case input::Key::T:
-                text.editText.insert(text.caretPosition, 1, 't');
-                util::MoveCaret(text, 1);
-                break;
             case input::Key::U:
-                text.editText.insert(text.caretPosition, 1, 'u');
-                util::MoveCaret(text, 1);
-                break;
             case input::Key::V:
-                text.editText.insert(text.caretPosition, 1, 'v');
-                util::MoveCaret(text, 1);
-                break;
             case input::Key::W:
-                text.editText.insert(text.caretPosition, 1, 'w');
-                util::MoveCaret(text, 1);
-                break;
             case input::Key::X:
-                text.editText.insert(text.caretPosition, 1, 'x');
-                util::MoveCaret(text, 1);
-                break;
             case input::Key::Y:
-                text.editText.insert(text.caretPosition, 1, 'y');
-                util::MoveCaret(text, 1);
-                break;
             case input::Key::Z:
-                text.editText.insert(text.caretPosition, 1, 'z');
-                util::MoveCaret(text, 1);
-                break;
             case input::Key::LeftBracket:
-                text.editText.insert(text.caretPosition, 1, '[');
-                util::MoveCaret(text, 1);
-                break;
             case input::Key::Backslash:
-                text.editText.insert(text.caretPosition, 1, '\\');
-                util::MoveCaret(text, 1);
-                break;
             case input::Key::RightBracket:
-                text.editText.insert(text.caretPosition, 1, ']');
-                util::MoveCaret(text, 1);
-                break;
             case input::Key::GraveAccent:
-                text.editText.insert(text.caretPosition, 1, '`');
-                util::MoveCaret(text, 1);
-                break;
+            case input::Key::Num0:
+            case input::Key::Num1:
+            case input::Key::Num2:
+            case input::Key::Num3:
+            case input::Key::Num4:
+            case input::Key::Num5:
+            case input::Key::Num6:
+            case input::Key::Num7:
+            case input::Key::Num8:
+            case input::Key::Num9:
+                AddChar(&text, key, inputComponent);
             case input::Key::World2:
                 break;
             case input::Key::Escape:
@@ -242,18 +311,19 @@ namespace se::ui::systems
                 break;
             case input::Key::Tab:
                 text.editText.insert(text.caretPosition, "    ");
+                util::MoveCaret(text, 4);
                 break;
             case input::Key::Backspace:
                 if (text.caretPosition > 0)
                 {
-                    text.editText.erase(text.caretPosition - 1);
+                    text.editText.erase(text.caretPosition - 1, 1);
                     util::MoveCaret(text, -1);
                 }
                 break;
             case input::Key::Delete:
                 if (text.caretPosition < static_cast<int>(text.editText.size()))
                 {
-                    text.editText.erase(text.caretPosition);
+                    text.editText.erase(text.caretPosition, 1);
                 }
                 break;
             case input::Key::Right:
@@ -298,16 +368,6 @@ namespace se::ui::systems
             case input::Key::F22:
             case input::Key::F23:
             case input::Key::F24:
-            case input::Key::Num0:
-            case input::Key::Num1:
-            case input::Key::Num2:
-            case input::Key::Num3:
-            case input::Key::Num4:
-            case input::Key::Num5:
-            case input::Key::Num6:
-            case input::Key::Num7:
-            case input::Key::Num8:
-            case input::Key::Num9:
             case input::Key::NumDecimal:
             case input::Key::NumDivide:
             case input::Key::NumMultiply:
@@ -407,7 +467,7 @@ namespace se::ui::systems
                             }
                             else
                             {
-                                HandleKey(entity, text, keyInput, keyEvent.key);
+                                HandleKey(entity, text, keyInput, keyEvent.key, inputComp);
                             }
                         }
                     }

@@ -2,6 +2,10 @@
 #include "engine/ecs/System.h"
 #include "engine/input/Key.h"
 
+namespace se::input
+{
+    struct InputComponent;
+}
 namespace se::ui::components
 {
     struct KeyInputComponent;
@@ -23,6 +27,7 @@ namespace se::ui::systems
         void HandleKey(const ecs::Id& entity,
                    components::EditableTextComponent& text,
                    components::KeyInputComponent& keyInput,
-                   input::Key key);
+                   input::Key key,
+                   const input::InputComponent* inputComponent);
     };
 }

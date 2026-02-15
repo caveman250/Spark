@@ -193,7 +193,10 @@ namespace se::editor::ui
         treeNode.text->onComitted.Subscribe([entity, world, editor](const std::string& newName)
         {
             world->RenameEntity(entity, newName);
-            editor->SelectEntity(entity, true);
+            if (editor->GetSelectedEntity() == entity)
+            {
+                editor->SelectEntity(entity, true);
+            }
         });
         treeNode.text->text = *entity.name;
         m_EntityTexts[entity] = treeNode.textEntity;
