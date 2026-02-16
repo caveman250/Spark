@@ -339,6 +339,11 @@ namespace se::asset::binary
             auto fieldName = objStruct.GetFieldName(i);
             auto fieldType = objStruct.GetFieldType(i);
 
+            if (!json.contains(fieldName))
+            {
+                continue;
+            }
+
             switch (fieldType)
             {
             case Type::Bool:

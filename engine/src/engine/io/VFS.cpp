@@ -120,6 +120,17 @@ namespace se::io
         free(data);
     }
 
+    void VFS::Rename(const std::string& src,
+        const std::string& dest)
+    {
+        auto srcFsPath = ResolveFSPath(src, true);
+        auto destFsPath = ResolveFSPath(dest, true);
+        if (SPARK_VERIFY(srcFsPath.has_value() && destFsPath.has_value()))
+        {
+            std::filesystem::rename(srcFsPath.value(), destFsPath.value());
+        }
+    }
+
     bool VFS::Delete(const std::string& path)
     {
         auto fsPath = ResolveFSPath(path, true);

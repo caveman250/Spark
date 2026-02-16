@@ -24,6 +24,7 @@
 #include "engine/ui/components/MouseInputComponent.h"
 #include "engine/ui/singleton_components/UIRenderComponent.h"
 #include "engine/ui/util/ContextMenuUtil.h"
+#include "engine/ui/util/EditableTextUtil.h"
 #include "engine/ui/util/ScrollBoxUtil.h"
 #include "engine/ui/util/TreeViewUtil.h"
 #include "engine/ui/util/WindowUtil.h"
@@ -347,6 +348,54 @@ namespace se::editor::ui
         auto buttonWidget = world->AddComponent<se::ui::components::WidgetComponent>(buttonEntity);
         buttonWidget->visibility = se::ui::Visibility::Hidden;
         auto button = world->AddComponent<se::ui::components::ButtonComponent>(buttonEntity);
+        world->AddChild(fileEntity, buttonEntity);
+
+        ecs::Id imageEntity = world->CreateEntity(editor->GetEditorScene(), "Image");
+        auto imageRect = world->AddComponent<se::ui::components::RectTransformComponent>(imageEntity);
+        imageRect->anchors = { .left = 0.f, .right = 1.f, .top = 0.f, .bottom = 1.f };
+        imageRect->maxY = 20;
+        imageRect->minAspectRatio = 1.f;
+        imageRect->maxAspectRatio = 1.f;
+        auto image = world->AddComponent<se::ui::components::ImageComponent>(imageEntity);
+        std::shared_ptr<render::Material> material = assetManager->GetAsset<render::Material>("/engine_assets/materials/ui_alpha_texture.sass");
+        image->materialInstance = render::MaterialInstance::CreateMaterialInstance(material);
+
+        if (file.isDirectory)
+        {
+            image->materialInstance->SetUniform("Texture", asset::shader::ast::AstType::Sampler2DReference, 1, &m_FolderTexture);
+        }
+        else
+        {
+            image->materialInstance->SetUniform("Texture", asset::shader::ast::AstType::Sampler2DReference, 1, &m_FileTexture);
+        }
+
+        world->AddChild(fileEntity, imageEntity);
+
+        auto label= se::ui::util::CreateEditableText(world, "/engine_assets/fonts/Arial.sass", 14);
+        label.text->font = font;
+        label.text->fontSize = 12;
+        label.text->text = file.fileName;
+        if (label.text->text.size() > 20)
+        {
+            label.text->text = label.text->text.substr(0, 20) + "...";
+        }
+        label.text->alignment = se::ui::text::Alignment::Center;
+        se::ui::util::SetEditTextMouseInputEnabled(label.mouseInput, false);
+        auto textRect = world->AddComponent<se::ui::components::RectTransformComponent>(label.entity);
+        textRect->anchors = { .left = 0.f, .right = 1.f, .top = 1.f, .bottom = 1.f };
+        textRect->minY = 20;
+        label.text->onComitted.Subscribe([this, file, editor, assetManager](std::string newName)
+        {
+            std::string newPath = std::format("{}/{}.sass", file.dir, newName);
+            auto db = asset::binary::Database::Load(file.fullPath.data(), true);
+            auto asset = assetManager->GetAsset(file.fullPath.data(), reflect::TypeFromString(db->GetRoot().GetStruct().GetName()));
+            editor->RenameAsset(asset, newPath);
+            if (editor->GetSelectedAsset() == asset)
+            {
+                SelectFile(newPath);
+            }
+        });
+        world->AddChild(fileEntity, label.entity);
 
         if (!file.isDirectory)
         {
@@ -370,7 +419,7 @@ namespace se::editor::ui
             });
         }
 
-        button->onReleased.Subscribe([this, file](input::MouseButton button)
+        button->onReleased.Subscribe([this, file, labelEntity = label.entity](input::MouseButton button)
         {
             switch (button)
             {
@@ -395,6 +444,13 @@ namespace se::editor::ui
                         .mousePos = { inputComp->mouseX, inputComp->mouseY },
                         .scene = Application::Get()->GetEditorRuntime()->GetEditorScene()
                     };
+                    params.AddOption("Rename", [world, labelEntity]()
+                    {
+                        auto editText = world->GetComponent<se::ui::components::EditableTextComponent>(labelEntity);
+                        auto keyInputComp = world->GetComponent<se::ui::components::KeyInputComponent>(labelEntity);
+                        se::ui::util::BeginEditingText(nullptr, labelEntity, *editText, *keyInputComp);
+                        se::ui::util::SetCaretPos(*editText, editText->text.size());
+                    });
                     params.AddOption("Duplicate", [this, file]()
                     {
                         auto db = asset::binary::Database::Load(file.fullPath, true);
@@ -441,44 +497,6 @@ namespace se::editor::ui
                     break;
             }
         });
-        world->AddChild(fileEntity, buttonEntity);
-
-        ecs::Id imageEntity = world->CreateEntity(editor->GetEditorScene(), "Image");
-        auto imageRect = world->AddComponent<se::ui::components::RectTransformComponent>(imageEntity);
-        imageRect->anchors = { .left = 0.f, .right = 1.f, .top = 0.f, .bottom = 1.f };
-        imageRect->maxY = 20;
-        imageRect->minAspectRatio = 1.f;
-        imageRect->maxAspectRatio = 1.f;
-        auto image = world->AddComponent<se::ui::components::ImageComponent>(imageEntity);
-        std::shared_ptr<render::Material> material = assetManager->GetAsset<render::Material>("/engine_assets/materials/ui_alpha_texture.sass");
-        image->materialInstance = render::MaterialInstance::CreateMaterialInstance(material);
-
-        if (file.isDirectory)
-        {
-            image->materialInstance->SetUniform("Texture", asset::shader::ast::AstType::Sampler2DReference, 1, &m_FolderTexture);
-        }
-        else
-        {
-            image->materialInstance->SetUniform("Texture", asset::shader::ast::AstType::Sampler2DReference, 1, &m_FileTexture);
-        }
-
-        world->AddChild(fileEntity, imageEntity);
-
-        auto labelEntity = world->CreateEntity(editor->GetEditorScene(), "Text");
-        auto labelText = world->AddComponent<se::ui::components::TextComponent>(labelEntity);
-        labelText->font = font;
-        labelText->fontSize = 12;
-        labelText->text = file.fileName;
-        if (labelText->text.size() > 20)
-        {
-            labelText->text = labelText->text.substr(0, 20) + "...";
-        }
-        labelText->alignment = se::ui::text::Alignment::Center;
-        auto textRect = world->AddComponent<se::ui::components::RectTransformComponent>(labelEntity);
-        textRect->anchors = { .left = 0.f, .right = 1.f, .top = 1.f, .bottom = 1.f };
-        textRect->minY = 20;
-        world->AddComponent<se::ui::components::WidgetComponent>(labelEntity);
-        world->AddChild(fileEntity, labelEntity);
 
         return fileEntity;
     }

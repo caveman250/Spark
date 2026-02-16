@@ -4,6 +4,6 @@
 
 namespace se::asset::util
 {
-    std::string GetDataAssetSourcePath(std::string assetPath);
+    std::string GetSourcePath(std::string assetPath, const std::string& fileExt);
     std::string GetAssetBuiltPath(std::string assetPath);
 }

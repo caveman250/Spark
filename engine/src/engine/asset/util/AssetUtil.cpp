@@ -5,7 +5,7 @@
 
 namespace se::asset::util
 {
-    std::string GetDataAssetSourcePath(std::string assetPath)
+    std::string GetSourcePath(std::string assetPath, const std::string& fileExt)
     {
         constexpr const char* engineAssets = "/engine_assets";
         constexpr const char* engineSourceAssets = "/engine_source_assets";
@@ -22,7 +22,7 @@ namespace se::asset::util
 
         if (assetPath.ends_with(".sass"))
         {
-            assetPath.replace(assetPath.size() - 5,  5, ".json");
+            assetPath.replace(assetPath.size() - 5,  5, fileExt);
         }
 
         return assetPath;

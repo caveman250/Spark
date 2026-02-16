@@ -171,11 +171,17 @@ namespace se::ui::util
                                      text::WrapMode wrap,
                                      text::Alignment justification)
     {
-        float scale = static_cast<float>(fontSize) / asset::builder::FontBlueprint::s_Scale;
-        asset::StaticMesh mesh;
+        asset::StaticMesh mesh = {};
         uint32_t indexOffset = 0;
+        float scale = static_cast<float>(fontSize) / asset::builder::FontBlueprint::s_Scale;
         math::Vec2 cursorPos = { };
         cursorPos.y += font->GetAscent(fontSize);
+        if (text.empty())
+        {
+            CreateCharMesh(font->GetCharData(' '), cursorPos, mesh, indexOffset, scale);
+            return mesh;
+        }
+
         size_t lineStart = 0;
         for (size_t i = 0; i < text.size(); ++i)
         {

@@ -375,13 +375,43 @@ namespace se::editor
         vfs.Delete(asset->m_SourcePath);
     }
 
+    void EditorRuntime::RenameAsset(const std::shared_ptr<asset::Asset>& asset,
+        const std::string& newPath)
+    {
+        auto metaManager = asset::meta::MetaManager::Get();
+        auto& vfs = io::VFS::Get();
+
+        std::string oldPath = asset->m_Path;
+        std::string metaPath = metaManager->GetMetaPath(asset->m_Path);
+        std::string oldSourcePath = asset->m_SourcePath;
+        std::string newSourcePath = asset::util::GetSourcePath(newPath, asset->GetSourceFileExtension());
+
+        asset->m_Path = newPath;
+        asset->m_SourcePath = newSourcePath;
+        auto type = asset->GetReflectType();
+        auto db = asset::binary::Database::Create(false);
+        db->SetRootStruct(db->GetOrCreateStruct(type->GetTypeName(nullptr), type->GetStructLayout(nullptr)));
+        auto root = db->GetRoot();
+        type->Serialize(asset.get(), root, {});
+        db->Save(asset->m_Path);
+        vfs.Delete(oldPath);
+
+        vfs.Rename(oldSourcePath, newSourcePath);
+
+        if (asset->UsesMetaData())
+        {
+            std::string newMetaPath = metaManager->GetMetaPath(asset->m_Path);
+            vfs.Rename(metaPath, newMetaPath);
+        }
+    }
+
     void EditorRuntime::SaveScene()
     {
         if (SPARK_VERIFY(m_LoadedScene))
         {
             auto world = Application::Get()->GetWorld();
             world->SaveScene(m_LoadedScene, m_ScenePath, true);
-            world->SaveScene(m_LoadedScene, asset::util::GetDataAssetSourcePath(m_ScenePath), false);
+            world->SaveScene(m_LoadedScene, asset::util::GetSourcePath(m_ScenePath, ".json"), false);
         }
     }
 

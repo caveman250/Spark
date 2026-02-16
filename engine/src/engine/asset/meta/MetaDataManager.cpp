@@ -12,7 +12,7 @@ namespace se::asset::meta
     {
         if (assetPath.ends_with(".sass"))
         {
-            assetPath = util::GetDataAssetSourcePath(assetPath);
+            assetPath = util::GetSourcePath(assetPath, ".json");
         }
 
         auto metaPath = assetPath;

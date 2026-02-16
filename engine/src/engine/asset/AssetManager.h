@@ -88,7 +88,7 @@ namespace se::asset
             return nullptr;
         }
 
-        auto sourcePath = util::GetDataAssetSourcePath(path);
+        auto sourcePath = util::GetSourcePath(path, ".json");
         std::shared_ptr<T> asset = std::make_shared<T>();
         asset->m_Path = path;
         asset->m_SourcePath = sourcePath;

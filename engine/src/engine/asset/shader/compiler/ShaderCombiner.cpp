@@ -270,7 +270,13 @@ namespace se::asset::shader::compiler
         {
             if (shader.GetType() == ShaderType::Vertex)
             {
-                shader.AddInput(std::make_shared<ast::InputAttributeNode>(GetInputLoc(port->GetPortName()), port->GetVar(), name.data()));
+                uint8_t loc = GetInputLoc(port->GetPortName());
+                if (strcmp(name.c_str(), "inUV") == 0 && loc == 0)
+                {
+                    int lol = 1;
+                }
+                loc = GetInputLoc(port->GetPortName());
+                shader.AddInput(std::make_shared<ast::InputAttributeNode>(loc, port->GetVar(), name.data()));
             }
             else if (shader.GetType() == ShaderType::Fragment)
             {
