@@ -66,7 +66,7 @@ namespace se::ui::util
             return;
         }
 
-        if (!textComp.materialInstance)
+        if (!textComp.materialInstance || !textComp.vertBuffer)
         {
             return;
         }
