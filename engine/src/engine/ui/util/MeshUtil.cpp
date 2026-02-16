@@ -263,8 +263,8 @@ namespace se::ui::util
                                                            rect);
                 if (offset != 0)
                 {
-                    size_t lineEnd = i;
-                    for (size_t j = lineStart * 4; j <= lineEnd * 4; ++j)
+                    size_t lineEnd = i + 1;
+                    for (size_t j = lineStart * 4; j < lineEnd * 4; ++j)
                     {
                         mesh.vertices[j].x += offset;
                     }

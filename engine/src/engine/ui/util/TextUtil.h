@@ -16,20 +16,8 @@ namespace se::ui::util
     concept TextTypeConcept = std::is_same_v<TextComponent, T> || std::is_same_v<EditableTextComponent, T>;
 
     template<TextTypeConcept T>
-    void RenderText(const ecs::Id& entity,
-                    const WidgetComponent& widget,
-                    const RectTransformComponent& transform,
-                    T& textComp,
-                    const math::Vec2& windowSize,
-                    render::Renderer* renderer,
-                    singleton_components::UIRenderComponent* renderComp,
-                    const std::string& text)
+    void UpdateText(T& textComp, const RectTransformComponent& transform, const std::string& text)
     {
-        if (widget.visibility != Visibility::Visible || widget.parentVisibility != Visibility::Visible || text.size() == 0)
-        {
-            return;
-        }
-
         if (!textComp.materialInstance && textComp.font.IsSet())
         {
             auto textMaterial = asset::AssetManager::Get()->GetAsset<render::Material>("/engine_assets/materials/text.sass");
@@ -38,18 +26,6 @@ namespace se::ui::util
             textComp.materialInstance->SetUniform("Texture", asset::shader::ast::AstType::Sampler2D, 1, &texture);
             float smoothing = textComp.fontSize > 50 ? 0.01f : 0.1f;
             textComp.materialInstance->SetUniform("smoothing", asset::shader::ast::AstType::Float, 1, &smoothing);
-        }
-
-        if (!textComp.materialInstance)
-        {
-            return;
-        }
-
-        const math::Vec2* materialPos = textComp.materialInstance->template GetUniform<math::Vec2>("pos");
-        auto floatVec = math::Vec2(transform.rect.topLeft);
-        if (!materialPos || *materialPos != floatVec)
-        {
-            textComp.materialInstance->SetUniform("pos", asset::shader::ast::AstType::Vec2, 1, &floatVec);
         }
 
         if (!textComp.vertBuffer ||
@@ -72,6 +48,34 @@ namespace se::ui::util
 
             textComp.lastFontSize = textComp.fontSize;
             textComp.lastText = text;
+        }
+    }
+
+    template<TextTypeConcept T>
+    void RenderText(const ecs::Id& entity,
+                    const WidgetComponent& widget,
+                    const RectTransformComponent& transform,
+                    T& textComp,
+                    const math::Vec2& windowSize,
+                    render::Renderer* renderer,
+                    singleton_components::UIRenderComponent* renderComp,
+                    const std::string& text)
+    {
+        if (widget.visibility != Visibility::Visible || widget.parentVisibility != Visibility::Visible || text.size() == 0)
+        {
+            return;
+        }
+
+        if (!textComp.materialInstance)
+        {
+            return;
+        }
+
+        const math::Vec2* materialPos = textComp.materialInstance->template GetUniform<math::Vec2>("pos");
+        auto floatVec = math::Vec2(transform.rect.topLeft);
+        if (!materialPos || *materialPos != floatVec)
+        {
+            textComp.materialInstance->SetUniform("pos", asset::shader::ast::AstType::Vec2, 1, &floatVec);
         }
 
         textComp.materialInstance->SetUniform("screenSize", asset::shader::ast::AstType::Vec2, 1, &windowSize);

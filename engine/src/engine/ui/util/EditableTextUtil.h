@@ -38,11 +38,9 @@ namespace se::ui::util
                                const asset::AssetReference<asset::Font>& font,
                                int fontSize);
 
-    void SetEnabled(components::MouseInputComponent* mouseInput, bool enabled);
+    void SetEditTextMouseInputEnabled(components::MouseInputComponent* mouseInput, bool enabled);
 
-    math::IntVec2 GetCaretPosition(int pos,
-                                   const components::EditableTextComponent& text,
-                                   const components::RectTransformComponent& rect);
+    float GetCaretPosition(int pos, const components::EditableTextComponent& text);
 
     int CalcCaretPosition(const math::Vec2& mousePos,
                                    const components::EditableTextComponent& text,

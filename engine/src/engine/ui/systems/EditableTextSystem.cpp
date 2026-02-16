@@ -407,7 +407,7 @@ namespace se::ui::systems
             {
                 components::WidgetComponent& widget = widgets[i];
 
-                if (!widget.updateEnabled)
+                if (!widget.updateEnabled || !widget.parentUpdateEnabled)
                 {
                     continue;
                 }
@@ -472,6 +472,8 @@ namespace se::ui::systems
                         }
                     }
                 }
+
+                util::UpdateText(text, rectTransform, text.inEditMode ? text.editText : text.text);
             }
         });
 #endif

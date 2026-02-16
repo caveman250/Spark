@@ -57,7 +57,7 @@ namespace se::ui::util
         auto editText = CreateEditableText(world, "/engine_assets/fonts/Arial.sass", 14);
         ret.textEntity = editText.entity;
         ret.text = editText.text;
-        SetEnabled(editText.mouseInput, false);
+        SetEditTextMouseInputEnabled(editText.mouseInput, false);
         auto textRect = world->AddComponent<RectTransformComponent>(editText.entity);
         textRect->anchors = { .left = 0.f, .right = 1.f, .top = 0.f, .bottom = 1.f };
         textRect->minX = 12;

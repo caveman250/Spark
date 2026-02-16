@@ -46,10 +46,10 @@ namespace se::ui::util
         {
             auto* editText = world->GetComponent<EditableTextComponent>(ret.entity);
             auto* textRect = world->GetComponent<RectTransformComponent>(ret.entity);
-            math::IntVec2 offset = GetCaretPosition(pos, *editText, *textRect);
+            float offset = GetCaretPosition(pos, *editText);
 
             auto* caretRect = world->GetComponent<RectTransformComponent>(caretEntity);
-            caretRect->minX = static_cast<float>(offset.x);
+            caretRect->minX = offset;
             caretRect->maxX = caretRect->minX + 2;
             caretRect->rect = CalculateScreenSpaceRect(*caretRect, *textRect);
         };
@@ -58,16 +58,38 @@ namespace se::ui::util
         return ret;
     }
 
-    void SetEnabled(MouseInputComponent* mouseInput, bool enabled)
+    void SetEditTextMouseInputEnabled(MouseInputComponent* mouseInput, bool enabled)
     {
         mouseInput->buttonMask = enabled ? 0xffffffff : 0;
     }
 
-    math::IntVec2 GetCaretPosition(int pos,
-                                   const EditableTextComponent& text,
-                                   const RectTransformComponent& rect)
+    float GetCaretPosition(int pos, const EditableTextComponent& text)
     {
-        return MeasureText(rect.rect, text.font.GetAsset(), text.fontSize, text.editText, true, text.wrap, pos);
+        auto window = Application::Get()->GetWindow();
+        const auto& verts = text.vertBuffer->GetVertexStreams().at(render::VertexStreamType::Position);
+        size_t numVerts = verts.data.size() / verts.stride;
+
+        if (pos == text.editText.length())
+        {
+            // get TR of last char
+            size_t vertex = numVerts - 2;
+            size_t index = vertex * verts.stride;
+            SPARK_ASSERT(index < verts.data.size());
+            // get x component
+            float ret = verts.data[index];
+            return ret / window->GetContentScale();
+        }
+        else
+        {
+            // get BL of pos
+            constexpr uint8_t numVertsPerChar = 4;
+            size_t vertex = pos * numVertsPerChar;
+            size_t index = vertex * verts.stride;
+            SPARK_ASSERT(index < verts.data.size());
+            // get x component
+            float ret = verts.data[index];
+            return ret / window->GetContentScale();
+        }
     }
 
     int CalcCaretPosition(const math::Vec2& mousePos,
@@ -75,8 +97,8 @@ namespace se::ui::util
                           const RectTransformComponent& rect)
     {
         auto window = Application::Get()->GetWindow();
-        math::Vec2 localMousePos = (mousePos - math::Vec2(rect.rect.topLeft)) / window->GetContentScale();
-        return GetCharIndexForPosition(localMousePos, rect.rect, text.font.GetAsset(), text.fontSize, text.editText, true, text.wrap, text.alignment);
+        math::Vec2 localMousePos = mousePos - math::Vec2(rect.rect.topLeft);
+        return GetCharIndexForPosition(localMousePos, rect.rect, text.font.GetAsset(), text.fontSize * window->GetContentScale(), text.editText, true, text.wrap, text.alignment);
     }
 
     void BeginEditingText(ecs::System* system,

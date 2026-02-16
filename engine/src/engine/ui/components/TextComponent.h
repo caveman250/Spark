@@ -59,7 +59,12 @@ namespace se::ui
                                                                                        const components::TextComponent* text)
     {
         auto window = Application::Get()->GetWindow();
-        auto ret = util::MeasureText(thisRect.rect, text->font.GetAsset(), static_cast<int>(text->fontSize * window->GetContentScale()), text->text, true, text->wrap);
+        auto ret = util::MeasureText(thisRect.rect,
+            text->font.GetAsset(),
+            static_cast<int>(text->fontSize * window->GetContentScale()),
+            text->text,
+            true,
+            text->wrap);
         return ret;
     }
 }

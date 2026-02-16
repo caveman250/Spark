@@ -56,11 +56,11 @@ namespace se::ui
     {
         auto window = Application::Get()->GetWindow();
         auto ret = util::MeasureText(thisRect.rect,
-                                         text->font.GetAsset(),
-                                         static_cast<int>(text->fontSize * window->GetContentScale()),
-                                         text->inEditMode ? text->editText : text->text,
-                                         true,
-                                         text->wrap);
+            text->font.GetAsset(),
+            static_cast<int>(text->fontSize * window->GetContentScale()),
+            text->text,
+            true,
+            text->wrap);
         return ret;
     }
 }
