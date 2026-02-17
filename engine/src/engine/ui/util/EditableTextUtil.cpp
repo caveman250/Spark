@@ -63,7 +63,7 @@ namespace se::ui::util
         mouseInput->buttonMask = enabled ? 0xffffffff : 0;
     }
 
-    float GetCaretPosition(int pos, const EditableTextComponent& text)
+    float GetCaretPosition(size_t pos, const EditableTextComponent& text)
     {
         auto window = Application::Get()->GetWindow();
         const auto& verts = text.vertBuffer->GetVertexStreams().at(render::VertexStreamType::Position);
@@ -92,13 +92,20 @@ namespace se::ui::util
         }
     }
 
-    int CalcCaretPosition(const math::Vec2& mousePos,
+    size_t CalcCaretPosition(const math::Vec2& mousePos,
                           const EditableTextComponent& text,
                           const RectTransformComponent& rect)
     {
         auto window = Application::Get()->GetWindow();
         math::Vec2 localMousePos = mousePos - math::Vec2(rect.rect.topLeft);
-        return GetCharIndexForPosition(localMousePos, rect.rect, text.font.GetAsset(), text.fontSize * window->GetContentScale(), text.editText, true, text.wrap, text.alignment);
+        return GetCharIndexForPosition(localMousePos,
+            rect.rect,
+            text.font.GetAsset(),
+            static_cast<int>(text.fontSize * window->GetContentScale()),
+            text.editText,
+            true,
+            text.wrap,
+            text.alignment);
     }
 
     void BeginEditingText(ecs::System* system,
@@ -164,10 +171,10 @@ namespace se::ui::util
     }
 
     void SetCaretPos(EditableTextComponent& textComp,
-                     int pos)
+                     size_t pos)
     {
         int oldPos = textComp.caretPosition;
-        textComp.caretPosition = std::clamp<int>(pos, 0, (int)textComp.editText.size());
+        textComp.caretPosition = std::clamp<size_t>(pos, 0u, textComp.editText.size());
         if (textComp.caretPosition != oldPos)
         {
             textComp.onCaretMoved.Broadcast(textComp.caretPosition);

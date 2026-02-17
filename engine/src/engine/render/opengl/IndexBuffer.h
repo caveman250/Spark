@@ -20,6 +20,7 @@ namespace se::render::opengl
         void Bind() override;
     private:
         void Cleanup();
+        void Cleanup(GLuint resource);
 
         GLuint m_Resource = GL_INVALID_VALUE;
     };

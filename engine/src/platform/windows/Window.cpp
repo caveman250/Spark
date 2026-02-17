@@ -92,8 +92,8 @@ namespace se::windows
             }
             case WM_SIZE:
             {
-                window->OnResize(static_cast<float>(LOWORD(lParam)) / window->GetContentScale(),
-                    static_cast<float>(HIWORD(lParam)) / window->GetContentScale());
+                window->OnResize(static_cast<int>(LOWORD(lParam) / window->GetContentScale()),
+                    static_cast<int>(HIWORD(lParam) / window->GetContentScale()));
                 break;
             }
             case WM_CLOSE:
@@ -360,10 +360,10 @@ namespace se::windows
         float oldContentScale = m_ContentScale;
         m_ContentScale = contentScale;
         BOOL result = MoveWindow(m_Hwnd,
-            m_PosX / oldContentScale * m_ContentScale,
-            m_PosY / oldContentScale* m_ContentScale,
-            m_SizeX * m_ContentScale,
-            m_SizeY * m_ContentScale,
+            static_cast<int>(m_PosX / oldContentScale * m_ContentScale),
+            static_cast<int>(m_PosY / oldContentScale* m_ContentScale),
+            static_cast<int>(m_SizeX * m_ContentScale),
+            static_cast<int>(m_SizeY * m_ContentScale),
             false);
         SPARK_ASSERT(result);
     }

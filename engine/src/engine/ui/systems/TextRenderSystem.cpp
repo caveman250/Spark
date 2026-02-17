@@ -29,9 +29,8 @@ namespace se::ui::systems
         auto app = Application::Get();
         auto window = app->GetWindow();
         auto renderer = render::Renderer::Get<render::Renderer>();
-        auto updateMode = renderer->SupportsMultiThreadedRendering() ? ecs::UpdateMode::MultiThreaded : ecs::UpdateMode::SingleThreaded;
 
-        ecs::ForEachArcheType(results, updateMode, false, [window, renderer](const ecs::SystemUpdateData& updateData)
+        ecs::ForEachArcheType(results, ecs::UpdateMode::MultiThreaded, false, [window, renderer](const ecs::SystemUpdateData& updateData)
         {
             const auto& entities = updateData.GetEntities();
             const auto* widgetComps = updateData.GetComponentArray<const components::WidgetComponent>();

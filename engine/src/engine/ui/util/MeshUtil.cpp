@@ -358,7 +358,7 @@ namespace se::ui::util
         return max;
     }
 
-    int GetCharIndexForPosition(const math::Vec2& pos,
+    size_t GetCharIndexForPosition(const math::Vec2& pos,
         const Rect& bounds,
         const std::shared_ptr<asset::Font>& font,
         int fontSize,
@@ -431,7 +431,7 @@ namespace se::ui::util
                         if (std::abs(charBounds.topLeft.x + offset - pos.x) < halfFontSize &&
                             std::abs(charBounds.topLeft.y - pos.y) <= fontSize)
                         {
-                            return static_cast<int>(j);
+                            return j;
                         }
                     }
 
@@ -451,10 +451,10 @@ namespace se::ui::util
             if (std::abs(charBounds.topLeft.x + offset - pos.x) < halfFontSize &&
                 std::abs(charBounds.topLeft.y - pos.y) <= fontSize)
             {
-                return static_cast<int>(j);
+                return j;
             }
         }
 
-        return static_cast<int>(text.size());
+        return text.size();
     }
 }

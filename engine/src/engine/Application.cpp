@@ -24,6 +24,7 @@
 #include "render/components/PointLightComponent.h"
 #include "render/singleton_components/MeshRenderComponent.h"
 #include "../../../editor/src/editor/singleton_components/DragDropStateComponent.h"
+#include "threads/util/ThreadUtil.h"
 
 namespace se
 {
@@ -37,6 +38,7 @@ namespace se
 
     void Application::Init()
     {
+        threads::util::SetMainThread(std::this_thread::get_id());
         render::Renderer::Create();
         m_PrimaryWindow = IWindow::CreatePlatformWindow(1280, 720);
         m_TimeLastFrame = std::chrono::system_clock::now();

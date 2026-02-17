@@ -36,7 +36,7 @@ namespace se::ui::util
                               text::WrapMode wrap,
                               size_t endIndex);
 
-    int GetCharIndexForPosition(const math::Vec2& pos,
+    size_t GetCharIndexForPosition(const math::Vec2& pos,
                                 const Rect& bounds,
                                 const std::shared_ptr<asset::Font>& font,
                                 int fontSize,

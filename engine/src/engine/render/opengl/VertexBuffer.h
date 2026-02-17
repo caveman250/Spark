@@ -19,6 +19,7 @@ namespace se::render::opengl
         void Unbind() override;
     private:
         void Cleanup();
+        void Cleanup(GLuint vertexArrayId, const std::vector<GLuint>& resources);
 
         std::unordered_map<VertexStreamType, GLuint> m_GlResources;
         GLuint m_VertexArrayID = GL_INVALID_VALUE;

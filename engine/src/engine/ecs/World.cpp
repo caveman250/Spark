@@ -4,6 +4,7 @@
 #include <Widgets.generated.h>
 #include <easy/profiler.h>
 
+#include "engine/render/render_fwd.h"
 #include "SceneSaveData.h"
 #include "components/ParentComponent.h"
 #include "components/RootComponent.h"
@@ -19,6 +20,7 @@
 #include "engine/string/util/StringUtil.h"
 #include "engine/ui/components/RectTransformComponent.h"
 #include "SystemUtil.h"
+#include "engine/render/opengl/DeferredOpenGLOperations.h"
 
 namespace se::ecs
 {
@@ -465,6 +467,10 @@ namespace se::ecs
         ProcessAllPending();
         m_Running = true;
 
+#if OPENGL_RENDERER
+        auto deferredOps = render::opengl::DeferredOpenGLOperations::Get();
+#endif
+
         RunOnAllSystems([this](const Id& systemId)
         {
             EASY_BLOCK(systemId.name->c_str());
@@ -473,6 +479,10 @@ namespace se::ecs
                 system->Update();
             }
         }, m_EngineSystemUpdateGroups, true, true);
+
+#if OPENGL_RENDERER
+       deferredOps->ExecuteDeferredOps();
+#endif
 
 #if SPARK_EDITOR
         auto editor = Application::Get()->GetEditorRuntime();
@@ -491,6 +501,10 @@ namespace se::ecs
                 }, m_AppSystemUpdateGroups, true, true);
             }
         }
+
+#if OPENGL_RENDERER
+        deferredOps->ExecuteDeferredOps();
+#endif
 
         m_Running = false;
 

@@ -1,5 +1,8 @@
 #include "IndexBuffer.h"
 
+#include "engine/threads/util/ThreadUtil.h"
+#include "DeferredOpenGLOperations.h"
+
 #if OPENGL_RENDERER
 
 namespace se::render
@@ -8,7 +11,6 @@ namespace se::render
     {
         return std::make_shared<opengl::IndexBuffer>(mesh);
     }
-
 }
 namespace se::render::opengl
 {
@@ -24,13 +26,23 @@ namespace se::render::opengl
 
     void IndexBuffer::CreatePlatformResource()
     {
-        EASY_FUNCTION();
-        glGenBuffers(1, &m_Resource);
-        GL_CHECK_ERROR()
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_Resource);
-        GL_CHECK_ERROR()
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_Indices.size() * sizeof(uint32_t), &m_Indices[0], GL_STATIC_DRAW);
-        GL_CHECK_ERROR()
+        if (threads::util::IsMainThread())
+        {
+            EASY_FUNCTION();
+            glGenBuffers(1, &m_Resource);
+            GL_CHECK_ERROR()
+            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_Resource);
+            GL_CHECK_ERROR()
+            glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_Indices.size() * sizeof(uint32_t), &m_Indices[0], GL_STATIC_DRAW);
+            GL_CHECK_ERROR()
+        }
+        else
+        {
+            DeferredOpenGLOperations::Get()->AddDeferredOp([this]()
+            {
+                CreatePlatformResource();
+            });
+        }
     }
 
     void IndexBuffer::Bind()
@@ -41,10 +53,25 @@ namespace se::render::opengl
 
     void IndexBuffer::Cleanup()
     {
-        if (m_Resource != GL_INVALID_VALUE)
+        if (threads::util::IsMainThread())
         {
-            SPARK_ASSERT(m_Resource != 1);
-            glDeleteBuffers(1, &m_Resource);
+            Cleanup(m_Resource);
+        }
+        else
+        {
+            DeferredOpenGLOperations::Get()->AddDeferredOp([this]()
+            {
+                Cleanup(m_Resource);
+            });
+        }
+    }
+
+    void IndexBuffer::Cleanup(GLuint resource)
+    {
+        if (resource != GL_INVALID_VALUE)
+        {
+            SPARK_ASSERT(resource != 1);
+            glDeleteBuffers(1, &resource);
             GL_CHECK_ERROR()
         }
     }
