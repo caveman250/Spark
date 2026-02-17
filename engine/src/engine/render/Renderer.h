@@ -64,6 +64,9 @@ namespace se::render
 
         virtual void Render();
         virtual void EndFrame();
+
+        void PushScissor(const ui::Rect& rect);
+        std::optional<ui::Rect> PopScissor();
     protected:
 
         void SortDrawCommands();
@@ -81,6 +84,8 @@ namespace se::render
         threads::SpinLock m_RenderGroupMutex = {};
         threads::SpinLock m_RenderCommandMutex = {};
         threads::SpinLock m_LightsMutex = {};
+
+        std::vector<ui::Rect> m_ScissorStack = {};
 
         static Renderer* s_Renderer;
     };

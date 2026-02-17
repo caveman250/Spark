@@ -13,8 +13,17 @@ namespace se::ui
         EASY_BLOCK("GetDesiredSize - ScrollViewComponent");
         auto window = Application::Get()->GetWindow();
         math::IntVec2 rectSize = GetDesiredSizeFromRect(thisRect);
-        return math::IntVec2(std::max(rectSize.x, static_cast<int>(thisRect.minWidth * window->GetContentScale())),
+        auto ret = math::IntVec2(std::max(rectSize.x, static_cast<int>(thisRect.minWidth * window->GetContentScale())),
                              std::max(rectSize.y, static_cast<int>(thisRect.minHeight * window->GetContentScale())));
+        if (thisRect.maxWidth > 0)
+        {
+            ret.x = std::min(static_cast<int>(thisRect.maxWidth), ret.x);
+        }
+        if (thisRect.maxHeight > 0)
+        {
+            ret.x = std::min(static_cast<int>(thisRect.maxHeight), ret.x);
+        }
+        return ret;
     }
 
     template<>

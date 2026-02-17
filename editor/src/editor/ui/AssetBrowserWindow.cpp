@@ -375,16 +375,17 @@ namespace se::editor::ui
         label.text->font = font;
         label.text->fontSize = 12;
         label.text->text = file.fileName;
-        if (label.text->text.size() > 20)
+        if (label.text->text.size() > 18)
         {
-            label.text->text = label.text->text.substr(0, 20) + "...";
+            label.text->text = label.text->text.substr(0, 18) + "...";
         }
         label.text->alignment = se::ui::text::Alignment::Center;
         se::ui::util::SetEditTextMouseInputEnabled(label.mouseInput, false);
         auto textRect = world->AddComponent<se::ui::components::RectTransformComponent>(label.entity);
         textRect->anchors = { .left = 0.f, .right = 1.f, .top = 1.f, .bottom = 1.f };
         textRect->minY = 20;
-        label.text->onComitted.Subscribe([this, file, editor, assetManager](std::string newName)
+        textRect->maxWidth = 140;
+        label.text->onComitted.Subscribe([this, world, file, editor, assetManager, labelEntity = label.entity](std::string newName)
         {
             std::string newPath = std::format("{}/{}.sass", file.dir, newName);
             auto db = asset::binary::Database::Load(file.fullPath.data(), true);
@@ -393,6 +394,12 @@ namespace se::editor::ui
             if (editor->GetSelectedAsset() == asset)
             {
                 SelectFile(newPath);
+            }
+
+            auto* text = world->GetComponent<se::ui::components::EditableTextComponent>(labelEntity);
+            if (text->text.size() > 18)
+            {
+                text->text = text->text.substr(0, 18) + "...";
             }
         });
         world->AddChild(fileEntity, label.entity);
@@ -444,11 +451,15 @@ namespace se::editor::ui
                         .mousePos = { inputComp->mouseX, inputComp->mouseY },
                         .scene = Application::Get()->GetEditorRuntime()->GetEditorScene()
                     };
-                    params.AddOption("Rename", [world, labelEntity]()
+                    params.AddOption("Rename", [world, labelEntity, fileName = file.fileName]()
                     {
                         auto editText = world->GetComponent<se::ui::components::EditableTextComponent>(labelEntity);
+                        auto textRect = world->GetComponent<se::ui::components::RectTransformComponent>(labelEntity);
                         auto keyInputComp = world->GetComponent<se::ui::components::KeyInputComponent>(labelEntity);
                         se::ui::util::BeginEditingText(nullptr, labelEntity, *editText, *keyInputComp);
+                        // undo any truncation
+                        editText->editText = fileName;
+                        textRect->needsLayout = true;
                         se::ui::util::SetCaretPos(*editText, editText->text.size());
                     });
                     params.AddOption("Duplicate", [this, file]()

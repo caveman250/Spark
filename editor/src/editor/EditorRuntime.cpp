@@ -403,6 +403,11 @@ namespace se::editor
             std::string newMetaPath = metaManager->GetMetaPath(asset->m_Path);
             vfs.Rename(metaPath, newMetaPath);
         }
+
+        if (m_ScenePath == oldPath)
+        {
+            m_ScenePath = newPath;
+        }
     }
 
     void EditorRuntime::SaveScene()

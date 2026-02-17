@@ -80,9 +80,6 @@ namespace se::ui::util
 
         textComp.materialInstance->SetUniform("screenSize", asset::shader::ast::AstType::Vec2, 1, &windowSize);
 
-        auto command = renderer->AllocRenderCommand<render::commands::SubmitUI>(textComp.materialInstance, textComp.vertBuffer, textComp.indexBuffer);
-
-        SPARK_ASSERT(command->GetRenderStage() == render::commands::RenderStage::UI);
 #if SPARK_EDITOR
         auto editor = Application::Get()->GetEditorRuntime();
         bool isEditorEntity = *entity.scene == editor->GetEditorScene();
@@ -90,7 +87,25 @@ namespace se::ui::util
         constexpr bool isEditorEntity = false;
 #endif
         renderComp->mutex.lock();
+        if constexpr (std::is_same_v<T, EditableTextComponent>)
+        {
+            if (textComp.inEditMode)
+            {
+                auto pushScissor = renderer->AllocRenderCommand<render::commands::PushScissor>(transform.rect);
+                renderComp->entityPreRenderCommands[entity].push_back(UIRenderCommand(pushScissor, UILayerKey(transform.layer, isEditorEntity)));
+            }
+        }
+        auto command = renderer->AllocRenderCommand<render::commands::SubmitUI>(textComp.materialInstance, textComp.vertBuffer, textComp.indexBuffer);
+        SPARK_ASSERT(command->GetRenderStage() == render::commands::RenderStage::UI);
         renderComp->entityRenderCommands[entity].push_back(UIRenderCommand(command, UILayerKey(transform.layer, isEditorEntity)));
+        if constexpr (std::is_same_v<T, EditableTextComponent>)
+        {
+            if (textComp.inEditMode)
+            {
+                auto popScissor = renderer->AllocRenderCommand<render::commands::PopScissor>();
+                renderComp->entityPreRenderCommands[entity].push_back(UIRenderCommand(popScissor, UILayerKey(transform.layer, isEditorEntity)));
+            }
+        }
         renderComp->mutex.unlock();
     }
 }

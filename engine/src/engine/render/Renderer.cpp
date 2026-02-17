@@ -60,6 +60,23 @@ namespace se::render
         m_RenderCommandsArena.Reset();
     }
 
+    void Renderer::PushScissor(const ui::Rect& rect)
+    {
+        m_ScissorStack.push_back(rect);
+    }
+
+    std::optional<ui::Rect> Renderer::PopScissor()
+    {
+        m_ScissorStack.pop_back();
+        if (!m_ScissorStack.empty())
+        {
+            ui::Rect val = m_ScissorStack.back();
+            return val;
+        }
+
+        return std::nullopt;
+    }
+
     void Renderer::SortDrawCommands()
     {
         EASY_FUNCTION();

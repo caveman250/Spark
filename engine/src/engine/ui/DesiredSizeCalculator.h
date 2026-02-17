@@ -23,8 +23,9 @@ namespace se::ui
             auto window = Application::Get()->GetWindow();
             math::IntVec2 rectSize = GetDesiredSizeFromRect(thisRect);
             auto childrenSize = GetChildrenDesiredSize(system, entity, thisRect);
-            return math::IntVec2(std::max(std::max(rectSize.x, childrenSize.x), static_cast<int>(thisRect.minWidth * window->GetContentScale())),
+            auto ret = math::IntVec2(std::max(std::max(rectSize.x, childrenSize.x), static_cast<int>(thisRect.minWidth * window->GetContentScale())),
                                  std::max(std::max(rectSize.y, childrenSize.y), static_cast<int>(thisRect.minHeight * window->GetContentScale())));
+            return ret;
         }
 
         template<typename T>
@@ -59,7 +60,16 @@ namespace se::ui
             auto desired = GetDesiredSize(system, entity, thisRect, context);
             thisRect.desiredSize = anchorOffsets + desired;
             thisRect.cachedParentSize = parentRect.rect;
-            return anchorOffsets + desired;
+            auto window = Application::Get()->GetWindow();
+            if (thisRect.maxWidth > 0)
+            {
+                thisRect.desiredSize.x = std::min(thisRect.maxWidth * window->GetContentScale(), thisRect.desiredSize.x);
+            }
+            if (thisRect.maxHeight > 0)
+            {
+                thisRect.desiredSize.y = std::min(thisRect.maxHeight * window->GetContentScale(), thisRect.desiredSize.y);
+            }
+            return thisRect.desiredSize;
         }
 
         static math::IntVec2 GetDesiredSizeFromRect(const components::RectTransformComponent& transform)

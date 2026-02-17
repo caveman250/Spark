@@ -61,6 +61,9 @@ namespace se::render::commands
             return;
         }
 
+        auto renderer = Renderer::Get<Renderer>();
+        renderer->PushScissor(m_Rect);
+
         auto primaryWindow = Application::Get()->GetWindow();
         glEnable(GL_SCISSOR_TEST);
         GL_CHECK_ERROR()
@@ -75,8 +78,27 @@ namespace se::render::commands
     void PopScissor::Execute()
     {
         EASY_BLOCK("PopScissor");
-        glDisable(GL_SCISSOR_TEST); // TODO keep track of stack
-        GL_CHECK_ERROR()
+
+        auto renderer = Renderer::Get<Renderer>();
+        auto ret = renderer->PopScissor();
+        if (ret.has_value())
+        {
+            const auto& rect = ret.value();
+            auto primaryWindow = Application::Get()->GetWindow();
+            glScissor(rect.topLeft.x,
+                  primaryWindow->GetHeight() - (rect.topLeft.y + rect.size.y),
+                  rect.size.x,
+                  rect.size.y);
+            GL_CHECK_ERROR()
+        }
+        else
+        {
+            glDisable(GL_SCISSOR_TEST);
+            GL_CHECK_ERROR()
+        }
+
+
+
     }
 }
 

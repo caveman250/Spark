@@ -39,6 +39,12 @@ namespace se::ui::components
         SPARK_MEMBER(Serialized)
         float minHeight = 0;
 
+        SPARK_MEMBER(Serialized)
+        float maxWidth = 0;
+
+        SPARK_MEMBER(Serialized)
+        float maxHeight = 0;
+
         SPARK_MEMBER()
         Rect rect = {};
 
