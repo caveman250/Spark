@@ -55,7 +55,7 @@ namespace se::editor
         });
         m_ViewportWindow->ConstructUI();
 
-        m_AssetBrowserWindow = new ui::AssetBrowserWindow(this);
+        m_AssetBrowserWindow = new ui::asset_browser::AssetBrowserWindow(this);
         m_AssetBrowserWindow->ConstructUI();
 
         ecs::Id splitView1 = se::ui::util::AddSplitView(m_EditorScene,

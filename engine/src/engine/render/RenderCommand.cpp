@@ -51,6 +51,7 @@ namespace se::render::commands
 
     const RenderState& PushScissor::GetRenderState() const
     {
+        // Ensure UI commands aren't sorted by render state.
         static RenderState renderState;
         return renderState;
     }
@@ -61,6 +62,7 @@ namespace se::render::commands
 
     const RenderState& PopScissor::GetRenderState() const
     {
+        // Ensure UI commands aren't sorted by render state.
         static RenderState renderState;
         return renderState;
     }

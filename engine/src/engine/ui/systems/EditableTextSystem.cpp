@@ -455,6 +455,8 @@ namespace se::ui::systems
                     MouseCursorUtil::SetMouseCursor(MouseCursor::Arrow);
                 }
 
+                util::UpdateText(text, rectTransform, text.inEditMode ? text.editText : text.text);
+
                 if (text.inEditMode)
                 {
                     for (const auto& keyEvent: keyInput.keyEvents)
@@ -464,6 +466,7 @@ namespace se::ui::systems
                             if (keyEvent.key == input::Key::Escape)
                             {
                                 util::EndEditingText(this, entity, text, keyInput);
+                                break;
                             }
                             else
                             {
@@ -471,9 +474,30 @@ namespace se::ui::systems
                             }
                         }
                     }
-                }
 
-                util::UpdateText(text, rectTransform, text.inEditMode ? text.editText : text.text);
+                    if (text.inEditMode)
+                    {
+                        auto window = Application::Get()->GetWindow();
+                        constexpr float caretWidth = 2.f;
+                        float offset = (util::GetCaretPosition(text.caretPosition, text)) * window->GetContentScale();
+                        if (offset > 0.f)
+                        {
+                            //account for caret size
+                            offset += caretWidth * window->GetContentScale();
+                        }
+                        float localOffset = offset + text.renderOffset;
+                        if (localOffset > rectTransform.rect.size.x)
+                        {
+                            text.renderOffset = rectTransform.rect.size.x - offset;
+                            util::SetCaretPos(text, text.caretPosition);
+                        }
+                        else if (localOffset < 0)
+                        {
+                            text.renderOffset = -offset;
+                            util::SetCaretPos(text, text.caretPosition);
+                        }
+                    }
+                }
             }
         });
 #endif
@@ -514,7 +538,8 @@ namespace se::ui::systems
                                  windowSize,
                                  renderer,
                                  renderComp,
-                                 text.inEditMode ? text.editText : text.text);
+                                 text.inEditMode ? text.editText : text.text,
+                                 { text.renderOffset, 0.f });
             }
         });
 #endif

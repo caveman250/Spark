@@ -41,6 +41,7 @@ namespace se::ui::components
         std::shared_ptr<render::IndexBuffer> indexBuffer = { };
         int lastFontSize = { };
         std::string lastText = { };
+        float renderOffset = 0.f;
     };
 }
 

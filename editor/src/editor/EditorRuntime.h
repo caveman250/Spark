@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ui/AssetBrowserWindow.h"
+#include "ui/asset_browser/AssetBrowserWindow.h"
 #include "ui/ViewportWindow.h"
 #include "ui/PropertiesWindow.h"
 #include "startup/StartupManager.h"
@@ -65,7 +65,7 @@ namespace se::editor
         ui::OutlineWindow* m_OutlineWindow = nullptr;
         ui::PropertiesWindow* m_PropertiesWindow = nullptr;
         ui::ViewportWindow* m_ViewportWindow = nullptr;
-        ui::AssetBrowserWindow* m_AssetBrowserWindow = nullptr;
+        ui::asset_browser::AssetBrowserWindow* m_AssetBrowserWindow = nullptr;
 
         ecs::Id m_LoadedScene = ecs::s_InvalidEntity;
         std::string m_ScenePath = {};

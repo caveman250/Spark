@@ -59,7 +59,8 @@ namespace se::ui::util
                     const math::Vec2& windowSize,
                     render::Renderer* renderer,
                     singleton_components::UIRenderComponent* renderComp,
-                    const std::string& text)
+                    const std::string& text,
+                    const math::Vec2& renderOffset)
     {
         if (widget.visibility != Visibility::Visible || widget.parentVisibility != Visibility::Visible || text.size() == 0)
         {
@@ -72,7 +73,7 @@ namespace se::ui::util
         }
 
         const math::Vec2* materialPos = textComp.materialInstance->template GetUniform<math::Vec2>("pos");
-        auto floatVec = math::Vec2(transform.rect.topLeft);
+        auto floatVec = math::Vec2(transform.rect.topLeft) + renderOffset;
         if (!materialPos || *materialPos != floatVec)
         {
             textComp.materialInstance->SetUniform("pos", asset::shader::ast::AstType::Vec2, 1, &floatVec);
@@ -103,7 +104,7 @@ namespace se::ui::util
             if (textComp.inEditMode)
             {
                 auto popScissor = renderer->AllocRenderCommand<render::commands::PopScissor>();
-                renderComp->entityPreRenderCommands[entity].push_back(UIRenderCommand(popScissor, UILayerKey(transform.layer, isEditorEntity)));
+                renderComp->entityPostRenderCommands[entity].push_back(UIRenderCommand(popScissor, UILayerKey(transform.layer, isEditorEntity)));
             }
         }
         renderComp->mutex.unlock();

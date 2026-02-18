@@ -179,7 +179,7 @@ namespace se::editor::ui
                         if (!text->inEditMode)
                         {
                             se::ui::util::BeginEditingText(nullptr, textEntity, *text, *keyInput);
-                            se::ui::util::SetCaretPos(*text, text->text.size());
+                            se::ui::util::SetCaretPos(*text, static_cast<int>(text->text.size()));
                         }
                     }),
                 std::make_pair("Delete Entity",

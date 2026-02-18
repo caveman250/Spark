@@ -10,6 +10,7 @@ namespace se::ecs
 namespace se::ui::components
 {
     struct TreeViewComponent;
+    struct RectTransformComponent;
 }
 
 namespace se::editor::ui

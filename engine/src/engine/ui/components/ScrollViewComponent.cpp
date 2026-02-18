@@ -17,11 +17,11 @@ namespace se::ui
                              std::max(rectSize.y, static_cast<int>(thisRect.minHeight * window->GetContentScale())));
         if (thisRect.maxWidth > 0)
         {
-            ret.x = std::min(static_cast<int>(thisRect.maxWidth), ret.x);
+            ret.x = std::min(static_cast<int>(thisRect.maxWidth * window->GetContentScale()), ret.x);
         }
         if (thisRect.maxHeight > 0)
         {
-            ret.x = std::min(static_cast<int>(thisRect.maxHeight), ret.x);
+            ret.y = std::min(static_cast<int>(thisRect.maxHeight * window->GetContentScale()), ret.y);
         }
         return ret;
     }

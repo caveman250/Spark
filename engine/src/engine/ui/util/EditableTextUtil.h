@@ -40,9 +40,9 @@ namespace se::ui::util
 
     void SetEditTextMouseInputEnabled(components::MouseInputComponent* mouseInput, bool enabled);
 
-    float GetCaretPosition(size_t pos, const components::EditableTextComponent& text);
+    float GetCaretPosition(int pos, const components::EditableTextComponent& text);
 
-    size_t CalcCaretPosition(const math::Vec2& mousePos,
+    int CalcCaretPosition(const math::Vec2& mousePos,
                                    const components::EditableTextComponent& text,
                                    const components::RectTransformComponent& rect);
 
@@ -60,6 +60,6 @@ namespace se::ui::util
                    int delta);
 
     void SetCaretPos(components::EditableTextComponent& textComp,
-                     size_t pos);
+                     int pos);
 #endif
 }

@@ -87,7 +87,7 @@ namespace se::ui::systems
                         math::IntVec2(window->GetWidth(), window->GetHeight()) :
                         Application::Get()->GetGameViewportSize();
 
-                util::RenderText(entity, widget, transform, text, windowSize, renderer, renderComp, text.text);
+                util::RenderText(entity, widget, transform, text, windowSize, renderer, renderComp, text.text, {});
             }
         });
     }

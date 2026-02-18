@@ -56,13 +56,14 @@ namespace se::render::commands
     void PushScissor::Execute()
     {
         EASY_BLOCK("PushScissor");
+
+        auto renderer = Renderer::Get<Renderer>();
+        renderer->PushScissor(m_Rect);
+
         if (m_Rect.size.x <= 0 || m_Rect.size.y <= 0)
         {
             return;
         }
-
-        auto renderer = Renderer::Get<Renderer>();
-        renderer->PushScissor(m_Rect);
 
         auto primaryWindow = Application::Get()->GetWindow();
         glEnable(GL_SCISSOR_TEST);
@@ -84,6 +85,10 @@ namespace se::render::commands
         if (ret.has_value())
         {
             const auto& rect = ret.value();
+            if (rect.size.x <= 0 || rect.size.y <= 0)
+            {
+                return;
+            }
             auto primaryWindow = Application::Get()->GetWindow();
             glScissor(rect.topLeft.x,
                   primaryWindow->GetHeight() - (rect.topLeft.y + rect.size.y),
