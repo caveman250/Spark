@@ -184,7 +184,7 @@ namespace se::editor::ui::asset_browser
         }
     }
 
-    void AssetBrowserWindow::SetActiveFolder(const std::string& activeFolder, bool setSelection)
+    void AssetBrowserWindow::SetActiveFolder(const std::string& activeFolder, const bool setSelection)
     {
         auto world = Application::Get()->GetWorld();
         for (auto* fileWidget : m_FileWidgets)

@@ -5,6 +5,7 @@
 #include "engine/Application.h"
 #include <easy/profiler.h>
 
+#include "RectTransformSystem.h"
 #include "engine/ecs/util/SystemUtil.h"
 #include "engine/render/Renderer.h"
 #include "engine/ui/util/TextUtil.h"
@@ -21,16 +22,13 @@ namespace se::ui::systems
                     .WithComponent<const components::RectTransformComponent>()
                     .WithComponent<components::TextComponent>()
                     .WithComponent<const components::WidgetComponent>()
-                    .WithSingletonComponent<singleton_components::UIRenderComponent>();
+                    .WithSingletonComponent<singleton_components::UIRenderComponent>()
+                    .WithDependency<RectTransformSystem>();
     }
 
     void TextRenderSystem::OnUpdate(const ecs::QueryResults& results)
     {
-        auto app = Application::Get();
-        auto window = app->GetWindow();
-        auto renderer = render::Renderer::Get<render::Renderer>();
-
-        ecs::ForEachArcheType(results, ecs::UpdateMode::MultiThreaded, false, [window, renderer](const ecs::SystemUpdateData& updateData)
+        ecs::ForEachArcheType(results, ecs::UpdateMode::MultiThreaded, false, [](const ecs::SystemUpdateData& updateData)
         {
             const auto& entities = updateData.GetEntities();
             const auto* widgetComps = updateData.GetComponentArray<const components::WidgetComponent>();
