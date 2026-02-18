@@ -17,8 +17,8 @@ namespace se::ui::util
     struct NewComboBox
     {
         ecs::Id id;
-        ComboBoxComponent* comboBox;
-        RectTransformComponent* rectTransform;
+        components::ComboBoxComponent* comboBox;
+        components::RectTransformComponent* rectTransform;
     };
 
     struct ComboBoxParams
