@@ -14,9 +14,9 @@ namespace se::ui::util
         components::ScrollBoxComponent* scrollBox = nullptr;
         components::ScrollViewComponent* scrollView = nullptr;
         components::RectTransformComponent* transform = nullptr;
-        ecs::Id scrollBoxEntity = ecs::s_InvalidEntity;
-        ecs::Id scrollViewEntity = ecs::s_InvalidEntity;
-        ecs::Id scrollBarEntity = ecs::s_InvalidEntity;
+        ecs::Id scrollBoxEntity = ecs::InvalidEntity;
+        ecs::Id scrollViewEntity = ecs::InvalidEntity;
+        ecs::Id scrollBarEntity = ecs::InvalidEntity;
     };
 
     NewScrollBox CreateScrollBox(const ecs::Id& scene);

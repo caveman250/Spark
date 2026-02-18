@@ -9,7 +9,7 @@ namespace se::ui::util
         int fontSize = 14;
         int minWidth = 200;
         math::IntVec2 mousePos = {};
-        ecs::Id scene = ecs::s_InvalidEntity;
+        ecs::Id scene = ecs::InvalidEntity;
         std::vector<std::pair<std::string, std::function<void()>>> options = {};
         ecs::System* system = nullptr;
 

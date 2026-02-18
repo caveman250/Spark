@@ -104,9 +104,9 @@ namespace se::editor
 
             if (!m_GameMode)
             {
-                if (m_SelectedEntity != se::ecs::s_InvalidEntity && world->HasComponent<ecs::components::TransformComponent>(m_SelectedEntity))
+                if (m_SelectedEntity != se::ecs::InvalidEntity && world->HasComponent<ecs::components::TransformComponent>(m_SelectedEntity))
                 {
-                    if (m_Gizmo == ecs::s_InvalidEntity )
+                    if (m_Gizmo == ecs::InvalidEntity )
                     {
                         CreateGizmo();
                     }
@@ -115,7 +115,7 @@ namespace se::editor
                         SnapGizmoToSelectedEntity();
                     }
                 }
-                else if (m_Gizmo != ecs::s_InvalidEntity)
+                else if (m_Gizmo != ecs::InvalidEntity)
                 {
                     HideGizmo();
                 }
@@ -141,7 +141,7 @@ namespace se::editor
 
 
             auto inputComp = world->GetSingletonComponent<input::InputComponent>();
-            input::InputUtil::ProcessKeyEvents(ecs::s_InvalidEntity, inputComp, [this, inputComp](const input::KeyEvent& ev)
+            input::InputUtil::ProcessKeyEvents(ecs::InvalidEntity, inputComp, [this, inputComp](const input::KeyEvent& ev)
             {
                 if (ev.state == input::KeyState::Down &&
                     ev.key == input::Key::S)
@@ -188,7 +188,7 @@ namespace se::editor
     void EditorRuntime::LoadScene(const std::string& path)
     {
         auto world = Application::Get()->GetWorld();
-        if (m_LoadedScene != ecs::s_InvalidEntity)
+        if (m_LoadedScene != ecs::InvalidEntity)
         {
             world->UnloadScene(m_LoadedScene);
         }
@@ -216,7 +216,7 @@ namespace se::editor
 
     void EditorRuntime::SelectSingletonComponent(reflect::ObjectBase* comp, bool force)
     {
-        m_SelectedEntity = ecs::s_InvalidEntity;
+        m_SelectedEntity = ecs::InvalidEntity;
         m_SelectedSingletonComp = comp;
         m_SelectedAsset = nullptr;
         m_ForceSelection = force;
@@ -249,16 +249,16 @@ namespace se::editor
         }
         else
         {
-            if (m_Gizmo != ecs::s_InvalidEntity)
+            if (m_Gizmo != ecs::InvalidEntity)
             {
                 Application::Get()->GetWorld()->DestroyEntity(m_Gizmo);
-                m_Gizmo = ecs::s_InvalidEntity;
+                m_Gizmo = ecs::InvalidEntity;
             }
 
-            if (m_Plane != ecs::s_InvalidEntity)
+            if (m_Plane != ecs::InvalidEntity)
             {
                 Application::Get()->GetWorld()->DestroyEntity(m_Plane);
-                m_Plane = ecs::s_InvalidEntity;
+                m_Plane = ecs::InvalidEntity;
             }
 
             world->SaveSceneToTemp(m_LoadedScene);
@@ -267,7 +267,7 @@ namespace se::editor
 
     void EditorRuntime::SaveAll()
     {
-        if (m_LoadedScene != ecs::s_InvalidEntity)
+        if (m_LoadedScene != ecs::InvalidEntity)
         {
             SaveScene();
         }
@@ -506,7 +506,7 @@ namespace se::editor
         auto world = Application::Get()->GetWorld();
 
         auto selectedEntityTransform = world->GetComponent<ecs::components::TransformComponent>(m_SelectedEntity);
-        if (const ecs::Id& parent = world->GetParent(m_SelectedEntity); parent != ecs::s_InvalidEntity)
+        if (const ecs::Id& parent = world->GetParent(m_SelectedEntity); parent != ecs::InvalidEntity)
         {
             auto selectedEntityParentTransform = world->GetComponent<ecs::components::TransformComponent>(parent);
             auto localPos = math::Inverse(selectedEntityParentTransform->worldTransform) * math::Vec4(worldPos, 1);
@@ -522,7 +522,7 @@ namespace se::editor
 
     void EditorRuntime::SnapGizmoToSelectedEntity() const
     {
-        if (m_SelectedEntity == ecs::s_InvalidEntity)
+        if (m_SelectedEntity == ecs::InvalidEntity)
         {
             HideGizmo();
             return;
@@ -531,7 +531,7 @@ namespace se::editor
 
         const auto selectedEntityTransform = world->GetComponent<ecs::components::TransformComponent>(m_SelectedEntity);
         const auto gizmoTransform = world->GetComponent<ecs::components::TransformComponent>(m_Gizmo);
-        if (const ecs::Id& parent = world->GetParent(m_SelectedEntity); parent != ecs::s_InvalidEntity)
+        if (const ecs::Id& parent = world->GetParent(m_SelectedEntity); parent != ecs::InvalidEntity)
         {
             auto selectedEntityParentTransform = world->GetComponent<ecs::components::TransformComponent>(parent);
             auto localPos = selectedEntityParentTransform->worldTransform * math::Vec4(selectedEntityTransform->pos, 1);
@@ -571,7 +571,7 @@ namespace se::editor
 
     void EditorRuntime::SelectAsset(const std::shared_ptr<asset::Asset>& asset, bool force)
     {
-        m_SelectedEntity = ecs::s_InvalidEntity;
+        m_SelectedEntity = ecs::InvalidEntity;
         m_SelectedSingletonComp = nullptr;
         m_SelectedAsset = asset;
         m_ForceSelection = force;

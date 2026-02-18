@@ -3,7 +3,7 @@
 
 namespace se::ecs
 {
-    constexpr uint64_t s_InvalidEntity = 0;
+    constexpr uint64_t InvalidEntity = 0;
 
     enum class IdFlags : uint32_t
     {
@@ -55,7 +55,7 @@ namespace se::ecs
 
     struct NullComponentType
     {
-        static Id GetComponentId() { return s_InvalidEntity; }
+        static Id GetComponentId() { return InvalidEntity; }
     };
 
     bool IsEditorEntity(const Id& entity);

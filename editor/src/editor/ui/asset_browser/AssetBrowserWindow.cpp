@@ -152,9 +152,9 @@ namespace se::editor::ui::asset_browser
     {
         ToolWindow::Update();
 
-        auto world = Application::Get()->GetWorld();
-        auto inputComp = world->GetSingletonComponent<input::InputComponent>();
-        auto gridMouseInput = world->GetComponent<se::ui::components::MouseInputComponent>(m_GridBG);
+        const auto world = Application::Get()->GetWorld();
+        const auto inputComp = world->GetSingletonComponent<input::InputComponent>();
+        const auto gridMouseInput = world->GetComponent<se::ui::components::MouseInputComponent>(m_GridBG);
         for (const auto& event: gridMouseInput->mouseEvents)
         {
             if (event.state == input::KeyState::Up)
@@ -166,14 +166,14 @@ namespace se::editor::ui::asset_browser
                 };
                 params.AddOption("Create Scene", [this]()
                 {
-                    std::string fileName = m_ActiveFolder + "/new_scene.sass";
+                    const std::string fileName = m_ActiveFolder + "/new_scene.sass";
                     asset::AssetManager::Get()->CreateDataAsset<ecs::SceneSaveData>(fileName);
                     SetActiveFolder(m_ActiveFolder, false);
                     SelectFile(fileName);
                 });
                 params.AddOption("Create Material", [this]()
                 {
-                    std::string fileName = m_ActiveFolder + "/new_material.sass";
+                    const std::string fileName = m_ActiveFolder + "/new_material.sass";
                     asset::AssetManager::Get()->CreateDataAsset<render::Material>(fileName);
                     SetActiveFolder(m_ActiveFolder, false);
                     SelectFile(fileName);
@@ -187,7 +187,7 @@ namespace se::editor::ui::asset_browser
     void AssetBrowserWindow::SetActiveFolder(const std::string& activeFolder, const bool setSelection)
     {
         auto world = Application::Get()->GetWorld();
-        for (auto* fileWidget : m_FileWidgets)
+        for (const auto* fileWidget : m_FileWidgets)
         {
             world->DestroyEntity(fileWidget->GetId());
             delete fileWidget;
@@ -221,8 +221,8 @@ namespace se::editor::ui::asset_browser
                 firstFile = file.fullPath;
             }
 
-            auto fileWidget = FileWidget::CreateFileWidget(file, this);
-            if (fileWidget->GetId() != ecs::s_InvalidEntity)
+            auto* fileWidget = FileWidget::CreateFileWidget(file, this);
+            if (fileWidget->GetId() != ecs::InvalidEntity)
             {
                 world->AddChild(m_GridBoxEntity, fileWidget->GetId());
                 m_FileWidgets.push_back(fileWidget);
@@ -233,7 +233,7 @@ namespace se::editor::ui::asset_browser
             }
         }, false, true);
 
-        auto gridBox = world->GetComponent<se::ui::components::RectTransformComponent>(m_GridBoxEntity);
+        const auto gridBox = world->GetComponent<se::ui::components::RectTransformComponent>(m_GridBoxEntity);
         gridBox->needsLayout = true;
 
         CreatePathBar("/engine_assets/fonts/Arial.sass");
@@ -291,33 +291,33 @@ namespace se::editor::ui::asset_browser
                                             const std::string& path,
                                             const asset::AssetReference<asset::Font>& font)
     {
-        auto app = Application::Get();
-        auto editor = app->GetEditorRuntime();
+        const auto app = Application::Get();
+        const auto editor = app->GetEditorRuntime();
 
-        ecs::Id pathItemEntity = world->CreateEntity(editor->GetEditorScene(), "Path Item");
+        const ecs::Id pathItemEntity = world->CreateEntity(editor->GetEditorScene(), "Path Item");
         world->AddComponent<se::ui::components::RectTransformComponent>(pathItemEntity);
         world->AddComponent<se::ui::components::WidgetComponent>(pathItemEntity);
 
         world->AddChild(m_PathBarBox, pathItemEntity);
 
-        ecs::Id buttonEntity = world->CreateEntity(editor->GetEditorScene(), "Button");
-        auto buttonRect = world->AddComponent<se::ui::components::RectTransformComponent>(buttonEntity);
+        const ecs::Id buttonEntity = world->CreateEntity(editor->GetEditorScene(), "Button");
+        const auto buttonRect = world->AddComponent<se::ui::components::RectTransformComponent>(buttonEntity);
         buttonRect->anchors = { .left = 0.f, .right = 1.f, .top = 0.f, .bottom = 1.f };
-        auto buttonWidget = world->AddComponent<se::ui::components::WidgetComponent>(buttonEntity);
+        const auto buttonWidget = world->AddComponent<se::ui::components::WidgetComponent>(buttonEntity);
         buttonWidget->visibility = se::ui::Visibility::Hidden;
-        auto button = world->AddComponent<se::ui::components::ButtonComponent>(buttonEntity);
+        const auto button = world->AddComponent<se::ui::components::ButtonComponent>(buttonEntity);
         button->onReleased.Subscribe([this, path](input::MouseButton)
         {
             SetActiveFolder(path, false);
         });
 
-        auto labelEntity = world->CreateEntity(editor->GetEditorScene(), "Text");
-        auto labelText = world->AddComponent<se::ui::components::TextComponent>(labelEntity);
+        const auto labelEntity = world->CreateEntity(editor->GetEditorScene(), "Text");
+        const auto labelText = world->AddComponent<se::ui::components::TextComponent>(labelEntity);
         labelText->font = font;
         labelText->fontSize = 18;
         labelText->text = name;
         labelText->alignment = se::ui::text::Alignment::Center;
-        auto textRect = world->AddComponent<se::ui::components::RectTransformComponent>(labelEntity);
+        const auto textRect = world->AddComponent<se::ui::components::RectTransformComponent>(labelEntity);
         textRect->anchors = { .left = 0.f, .right = 1.f, .top = 0.f, .bottom = 1.f };
         world->AddComponent<se::ui::components::WidgetComponent>(labelEntity);
         world->AddChild(pathItemEntity, labelEntity);

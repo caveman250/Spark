@@ -46,10 +46,10 @@ namespace se::editor::ui::asset_browser
                             const std::string& path,
                             const asset::AssetReference<asset::Font>& font);
 
-        ecs::Id m_Window = ecs::s_InvalidEntity;
-        ecs::Id m_GridBoxEntity = ecs::s_InvalidEntity;
-        ecs::Id m_GridBG = ecs::s_InvalidEntity;
-        ecs::Id m_PathBarBox = ecs::s_InvalidEntity;
+        ecs::Id m_Window = ecs::InvalidEntity;
+        ecs::Id m_GridBoxEntity = ecs::InvalidEntity;
+        ecs::Id m_GridBG = ecs::InvalidEntity;
+        ecs::Id m_PathBarBox = ecs::InvalidEntity;
         std::vector<ecs::Id> m_PathBarItems = {};
         std::string m_ActiveFolder = "/assets";
         std::vector<FileWidget*> m_FileWidgets = {};

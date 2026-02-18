@@ -36,7 +36,7 @@ namespace se::ecs
         template<typename Func>
         void RunQueryOnChild(const Id& child, const HeirachyQueryDeclaration& declaration, Func&& func)
         {
-            Application::Get()->GetWorld()->HeirachyQuery(child, this, declaration, func);
+            Application::Get()->GetWorld()->HierarchyQuery(child, this, declaration, func);
         }
 
         template<typename Func>

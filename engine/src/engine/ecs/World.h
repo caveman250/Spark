@@ -10,7 +10,6 @@
 #include "SystemDeclaration.h"
 #include "SystemRecord.h"
 #include "SystemUpdateData.h"
-#include "UpdateMode.h"
 #include "engine/ecs/components/ParentComponent.h"
 #include "engine/memory/Arena.h"
 #include "engine/reflect/TypeResolver.h"
@@ -59,7 +58,7 @@ namespace se::ecs
     struct QueryArchetype
     {
         Archetype* archetype = nullptr;
-        Id variantCompType = s_InvalidEntity;
+        Id variantCompType = InvalidEntity;
     };
 
     class System;
@@ -217,7 +216,7 @@ namespace se::ecs
         };
 
         template<typename Func>
-        void HeirachyQuery(const Id& child,
+        void HierarchyQuery(const Id& child,
                            const System* system,
                            const HeirachyQueryDeclaration& declaration,
                            Func&& func);
@@ -318,7 +317,7 @@ namespace se::ecs
         uint64_t m_ArchetypeCounter = 0;
         uint64_t m_ObserverCounter = 1;
         std::vector<Id> m_FreeObservers = { };
-        Id m_DefaultScene = s_InvalidEntity;
+        Id m_DefaultScene = InvalidEntity;
 
         std::vector<std::vector<Id>> m_AppSystemUpdateGroups = { };
         std::vector<std::vector<Id>> m_AppSystemRenderGroups = { };
@@ -408,7 +407,7 @@ namespace se::ecs
                 id = NewEntity();
             }
 
-            reflect::Type* type = reflect::TypeResolver<T>::Get();
+            const reflect::Type* type = reflect::TypeResolver<T>::Get();
             m_IdMetaMap[id].name = type->name;
 
             T::s_ComponentId = id;
@@ -507,7 +506,7 @@ namespace se::ecs
         {
             for (const auto& type: declaration.variantComponentUsage.components)
             {
-                if (type == s_InvalidEntity)
+                if (type == InvalidEntity)
                 {
                     hasNullVariant = true;
                     break;
@@ -584,7 +583,7 @@ namespace se::ecs
     }
 
     template<typename Func>
-    void World::HeirachyQuery(const Id& child,
+    void World::HierarchyQuery(const Id& child,
                               [[maybe_unused]] const System* system,
                               const HeirachyQueryDeclaration& declaration,
                               Func&& func)
@@ -633,7 +632,7 @@ namespace se::ecs
         }
         if (!didFindVariant)
         {
-            updateData.AddComponentArray(s_InvalidEntity,
+            updateData.AddComponentArray(InvalidEntity,
                                          nullptr,
                                          ComponentMutability::Immutable);
         }
@@ -648,12 +647,12 @@ namespace se::ecs
                             Func&& func)
     {
         Id parent = GetParent(entity);
-        if (parent == s_InvalidEntity)
+        if (parent == InvalidEntity)
         {
             return;
         }
 
-        HeirachyQuery(parent, system, declaration, func);
+        HierarchyQuery(parent, system, declaration, func);
     }
 
     template<typename Func>
@@ -746,7 +745,7 @@ namespace se::ecs
             {
                 id = NewEntity();
             }
-            reflect::Type* type = reflect::TypeResolver<T>::Get();
+            const reflect::Type* type = reflect::TypeResolver<T>::Get();
             m_IdMetaMap[id].name = type->name;
 
             T::s_SystemId = id;

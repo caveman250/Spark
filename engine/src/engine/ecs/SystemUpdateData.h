@@ -115,7 +115,7 @@ namespace se::ecs
 #if !SPARK_DIST
             bool containsNullType = false;
             (VariantContainsNullType<Ts>(containsNullType), ...);
-            if (!SPARK_VERIFY(containsNullType || m_VariantComponentData.variant_type.id != s_InvalidEntity,
+            if (!SPARK_VERIFY(containsNullType || m_VariantComponentData.variant_type.id != InvalidEntity,
                          "SystemUpdateData::GetVariantComponentArray - Variant Component not set."))
             {
                 return std::variant<Ts*...>();
@@ -124,7 +124,7 @@ namespace se::ecs
 
             bool constVariant = true;
             (AreTypesConst<Ts>(constVariant), ...);
-            if (!SPARK_VERIFY(m_VariantComponentData.variant_type.id == s_InvalidEntity || (m_VariantComponentData.mutability == ComponentMutability::Immutable) == constVariant,
+            if (!SPARK_VERIFY(m_VariantComponentData.variant_type.id == InvalidEntity || (m_VariantComponentData.mutability == ComponentMutability::Immutable) == constVariant,
                          "SystemUpdateData::GetVariantComponentArray - Variant Component mutability mismatch"))
             {
                 return std::variant<Ts*...>();

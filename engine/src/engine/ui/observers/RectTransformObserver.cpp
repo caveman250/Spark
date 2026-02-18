@@ -9,7 +9,7 @@ namespace se::ui::observers
     {
         auto world = Application::Get()->GetWorld();
         if (!world->HasComponent<ecs::components::RootComponent>(entity) &&
-            world->GetParent(entity) == ecs::s_InvalidEntity)
+            world->GetParent(entity) == ecs::InvalidEntity)
         {
             world->AddComponent<ecs::components::RootComponent>(entity);
         }

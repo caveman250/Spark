@@ -67,14 +67,14 @@ namespace se::editor
         ui::ViewportWindow* m_ViewportWindow = nullptr;
         ui::asset_browser::AssetBrowserWindow* m_AssetBrowserWindow = nullptr;
 
-        ecs::Id m_LoadedScene = ecs::s_InvalidEntity;
+        ecs::Id m_LoadedScene = ecs::InvalidEntity;
         std::string m_ScenePath = {};
-        ecs::Id m_EditorScene = ecs::s_InvalidEntity;
-        ecs::Id m_Gizmo = ecs::s_InvalidEntity;
-        ecs::Id m_Plane = ecs::s_InvalidEntity;
+        ecs::Id m_EditorScene = ecs::InvalidEntity;
+        ecs::Id m_Gizmo = ecs::InvalidEntity;
+        ecs::Id m_Plane = ecs::InvalidEntity;
 
-        ecs::Id m_LastSelectedEntity = ecs::s_InvalidEntity;
-        ecs::Id m_SelectedEntity = ecs::s_InvalidEntity;
+        ecs::Id m_LastSelectedEntity = ecs::InvalidEntity;
+        ecs::Id m_SelectedEntity = ecs::InvalidEntity;
         reflect::ObjectBase* m_SelectedSingletonComp = nullptr;
         reflect::ObjectBase* m_LastSelectedSingletonComp = nullptr;
         std::shared_ptr<asset::Asset> m_SelectedAsset = nullptr;

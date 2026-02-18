@@ -26,6 +26,6 @@ namespace se::editor::ui::properties
         void* m_Value = nullptr;
         const se::reflect::Type_Container* m_VectorType = nullptr;
         std::vector<PropertyEditor*> m_Editors;
-        ecs::Id m_VerticalBox = ecs::s_InvalidEntity;
+        ecs::Id m_VerticalBox = ecs::InvalidEntity;
     };
 }

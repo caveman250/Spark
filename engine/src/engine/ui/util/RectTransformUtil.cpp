@@ -206,10 +206,10 @@ namespace se::ui::util
         };
 
         auto lastEntity = currentEntity;
-        while (currentEntity != ecs::s_InvalidEntity)
+        while (currentEntity != ecs::InvalidEntity)
         {
             auto parent = world->GetParent(currentEntity);
-            if (parent == ecs::s_InvalidEntity)
+            if (parent == ecs::InvalidEntity)
             {
                 world->ParentQuery(lastEntity, system, dec, rootFunc);
                 break;

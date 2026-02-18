@@ -65,7 +65,7 @@ namespace se::ecs
                 {
                     updateDataCopy.AddComponentArray(compUsage.id, world->GetComponent(archetype.archetype->entities[0], compUsage.id), compUsage.mutability);
                 }
-                if (archetype.variantCompType != s_InvalidEntity)
+                if (archetype.variantCompType != InvalidEntity)
                 {
                     updateDataCopy.AddVariantComponentArray(archetype.variantCompType, world->GetComponent(archetype.archetype->entities[0], archetype.variantCompType), queryResults.variantComponent.mutability);
                 }

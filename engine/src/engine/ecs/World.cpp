@@ -42,10 +42,10 @@ namespace se::ecs
             entityId = NewEntity();
         }
 
-        if (entityId == s_InvalidEntity)
+        if (entityId == InvalidEntity)
         {
             SPARK_ASSERT(false, "Max number of entities reached.");
-            return s_InvalidEntity;
+            return InvalidEntity;
         }
 
         int32_t flags = 0; // TODO remove?
@@ -158,7 +158,7 @@ namespace se::ecs
 
     void World::DestroyEntityInternal(const Id& entity)
     {
-        if (entity == s_InvalidEntity)
+        if (entity == InvalidEntity)
         {
             return;
         }
@@ -173,7 +173,7 @@ namespace se::ecs
         const auto editorRuntime = Application::Get()->GetEditorRuntime();
         if (entity == editorRuntime->GetSelectedEntity())
         {
-            editorRuntime->SelectEntity(s_InvalidEntity);
+            editorRuntime->SelectEntity(InvalidEntity);
         }
         const auto& scene = m_IdMetaMap[entity].scene;
         if (scene != editorRuntime->GetEditorScene())
@@ -197,7 +197,7 @@ namespace se::ecs
         }
 
         const Id parentId = record.parent;
-        if (parentId != s_InvalidEntity)
+        if (parentId != InvalidEntity)
         {
             auto& childrenRecord = m_EntityRecords[parentId].children;
             std::erase(childrenRecord, entity);
@@ -711,7 +711,7 @@ namespace se::ecs
         ret.reserve(m_ComponentRecords.size());
         for (const auto& [id, comp] : m_ComponentRecords)
         {
-            if (id != s_InvalidEntity && comp.type != nullptr)
+            if (id != InvalidEntity && comp.type != nullptr)
             {
                 ret.push_back(std::make_pair(id, comp.type));
             }
@@ -908,7 +908,7 @@ namespace se::ecs
 
     const std::string* World::GetName(const uint64_t id) const
     {
-        if (id == s_InvalidEntity || !m_IdMetaMap.contains(id))
+        if (id == InvalidEntity || !m_IdMetaMap.contains(id))
         {
             return nullptr;
         }
@@ -918,7 +918,7 @@ namespace se::ecs
 
     int32_t* World::GetFlags(const uint64_t id)
     {
-        if (id == s_InvalidEntity || !m_IdMetaMap.contains(id))
+        if (id == InvalidEntity || !m_IdMetaMap.contains(id))
         {
             return nullptr;
         }
@@ -928,7 +928,7 @@ namespace se::ecs
 
     const Id* World::GetScene(const uint64_t id) const
     {
-        if (id == s_InvalidEntity || !m_IdMetaMap.contains(id))
+        if (id == InvalidEntity || !m_IdMetaMap.contains(id))
         {
             return nullptr;
         }
@@ -954,7 +954,7 @@ namespace se::ecs
         for (const auto& variantUsage : comps)
         {
             Type type_copy = type;
-            if (variantUsage != s_InvalidEntity)
+            if (variantUsage != InvalidEntity)
             {
                 type_copy.set(variantUsage - 1);
             }
@@ -1131,7 +1131,7 @@ namespace se::ecs
         parentRecord.children.push_back(childEntity);
         m_EntityRecords.at(childEntity).parent = entity;
 
-        if (!HasComponent<components::RootComponent>(entity) && GetParent(entity) == s_InvalidEntity)
+        if (!HasComponent<components::RootComponent>(entity) && GetParent(entity) == InvalidEntity)
         {
             AddComponent<components::RootComponent>(entity);
         }
@@ -1153,7 +1153,7 @@ namespace se::ecs
             RemoveComponent<components::ParentComponent>(entity);
         }
 
-        m_EntityRecords.at(childEntity).parent = s_InvalidEntity;
+        m_EntityRecords.at(childEntity).parent = InvalidEntity;
     }
 
     void World::ProcessPendingComponents()
@@ -1359,13 +1359,13 @@ namespace se::ecs
             sceneId = NewEntity();
         }
 
-        if (sceneId == s_InvalidEntity)
+        if (sceneId == InvalidEntity)
         {
             SPARK_ASSERT(false, "Max number of scenes reached.");
-            return s_InvalidEntity;
+            return InvalidEntity;
         }
 
-        if (m_DefaultScene == s_InvalidEntity)
+        if (m_DefaultScene == InvalidEntity)
         {
             m_DefaultScene = sceneId;
         }
@@ -1392,7 +1392,7 @@ namespace se::ecs
         const auto it = m_EntityRecords.find(entity);
         if (it == m_EntityRecords.end())
         {
-            return s_InvalidEntity;
+            return InvalidEntity;
         }
         return it->second.parent;
     }
