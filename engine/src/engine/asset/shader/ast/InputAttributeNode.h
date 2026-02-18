@@ -1,8 +1,7 @@
 #pragma once
-#include "spark.h"
 #include "ASTNode.h"
 #include "InputNode.h"
-#include "Types.h"
+#include "spark.h"
 
 namespace se::asset::shader::ast
 {

@@ -30,10 +30,10 @@ namespace se::asset::shader::ast
         if (context.currentShader->GetType() == ShaderType::Vertex)
         {
             outShader.append("v2f vertex vertexMain(uint vertexId [[vertex_id]]");
-            for (const auto& input : context.currentShader->GetInputs())
+            for (const auto& val: context.currentShader->GetInputs() | std::views::values)
             {
                 outShader.append(",\n");
-                input.second->ToMtl(context, outShader);
+                val->ToMtl(context, outShader);
             }
             if (! context.currentShader->GetUniformVariables().empty())
             {

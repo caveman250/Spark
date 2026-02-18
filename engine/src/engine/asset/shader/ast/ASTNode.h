@@ -12,7 +12,7 @@ namespace se::asset::shader::ast
         SPARK_CLASS(Abstract)
     public:
         ASTNode() = default;
-        virtual ~ASTNode() = default;
+        ~ASTNode() override = default;
         ASTNode(const ASTNode& rhs);
 
 

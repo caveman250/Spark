@@ -8,14 +8,14 @@ namespace se::asset::binary
     class PolymorphicArray 
     {
     public:
-        uint32_t GetCount();
-        std::optional<Struct> GetObjectStruct(size_t i);
-        std::optional<uint32_t> GetObjectStructIndex(size_t i);
-        Object Get(size_t i);
-        void Set(size_t i, const Object& obj);
+        uint32_t GetCount() const;
+        std::optional<Struct> GetObjectStruct(size_t i) const;
+        std::optional<uint32_t> GetObjectStructIndex(size_t i) const;
+        Object Get(size_t i) const;
+        void Set(size_t i, const Object& obj) const;
     private:
         PolymorphicArray(uint32_t offset, Database* database);
-        std::optional<Object> GetObject(size_t i);
+        std::optional<Object> GetObject(size_t i) const;
         Array GetArray() const;
         bool IsObjectValid(size_t i) const;
 

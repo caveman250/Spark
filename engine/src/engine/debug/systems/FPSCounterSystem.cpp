@@ -2,7 +2,6 @@
 
 #if WITH_DEV_ONLY_CLASSES
 
-#include "engine/asset/AssetManager.h"
 #include "engine/debug/components/FPSCounterComponent.h"
 #include "engine/ecs/util/SystemUtil.h"
 #include "engine/ui/components/TextComponent.h"
@@ -20,13 +19,13 @@ namespace se::debug::systems
 
     void FPSCounterSystem::OnInit(const ecs::QueryResults&)
     {
-        auto world = Application::Get()->GetWorld();
-        ecs::Id fpsCounterEntity = world->CreateEntity("FPS Counter");
-        auto text = world->AddComponent<ui::components::TextComponent>(fpsCounterEntity);
+        const auto world = Application::Get()->GetWorld();
+        const ecs::Id fpsCounterEntity = world->CreateEntity("FPS Counter");
+        const auto text = world->AddComponent<ui::components::TextComponent>(fpsCounterEntity);
         text->font = "/engine_assets/fonts/Arial.sass";
         text->fontSize = 24;
         text->alignment = ui::text::Alignment::Right;
-        auto rect = world->AddComponent<ui::components::RectTransformComponent>(fpsCounterEntity);
+        const auto rect = world->AddComponent<ui::components::RectTransformComponent>(fpsCounterEntity);
         rect->anchors = { 1.f, 1.f, 0.f, 0.f };
         rect->minX = 60;
         rect->maxY = 50;
@@ -46,11 +45,11 @@ namespace se::debug::systems
                 auto& text = textComps[i];
                 auto& fpsCounter = fpsCounters[i];
 
-                clock_t timeThisFrame = clock();
-                clock_t delta = timeThisFrame - fpsCounter.timeLastFrame;
+                const clock_t timeThisFrame = clock();
+                const clock_t delta = timeThisFrame - fpsCounter.timeLastFrame;
                 fpsCounter.timeLastFrame = timeThisFrame;
                 constexpr float s_MillisecondsToSeconds = 1000.f;
-                double milliseconds = (delta/static_cast<double>(CLOCKS_PER_SEC)) * 1000.0;
+                const double milliseconds = (delta/static_cast<double>(CLOCKS_PER_SEC)) * 1000.0;
                 fpsCounter.frameTimeBuffer[fpsCounter.currentFrameIndex] = milliseconds;
                 fpsCounter.currentFrameIndex = (fpsCounter.currentFrameIndex + 1) % components::FPSCounterComponent::s_NumFramesToBuffer;
 

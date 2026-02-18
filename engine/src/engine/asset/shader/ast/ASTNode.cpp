@@ -10,7 +10,7 @@ namespace se::asset::shader::ast
             auto* objBase = static_cast<ObjectBase*>(child.get());
             if (SPARK_VERIFY(objBase))
             {
-                m_Children.push_back(std::shared_ptr<ASTNode>((ASTNode*)objBase->GetReflectType()->heap_copy_constructor(child.get())));
+                m_Children.push_back(std::shared_ptr<ASTNode>(static_cast<ASTNode*>(objBase->GetReflectType()->heap_copy_constructor(child.get()))));
                 m_Children.back()->m_Parent = this;
             }
         }
@@ -22,7 +22,7 @@ namespace se::asset::shader::ast
         return m_Children.emplace_back(std::shared_ptr<ASTNode>(node));
     }
 
-    void ASTNode::DebugPrint(int indent) const
+    void ASTNode::DebugPrint(const int indent) const
     {
         std::string str = "-";
         for (int i = 0; i < indent; ++i)

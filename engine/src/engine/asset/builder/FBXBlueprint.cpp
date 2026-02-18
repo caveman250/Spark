@@ -1,6 +1,6 @@
-#include "spark.h"
 #include "FBXBlueprint.h"
 #include "ofbx.h"
+#include "spark.h"
 #include "engine/asset/mesh/Model.h"
 #include "engine/asset/meta/MetaDataManager.h"
 #include "engine/io/VFS.h"
@@ -15,8 +15,8 @@ namespace se::asset::builder
 
     std::vector<BuiltAsset> FBXBlueprint::BuildAsset(const std::string& path, const std::string&) const
     {
-        auto metaManager = meta::MetaManager::Get();
-        auto metaData = metaManager->GetOrCreateMetaDataForAsset<meta::ModelMetaData>(path);
+        const auto metaManager = meta::MetaManager::Get();
+        const auto metaData = metaManager->GetOrCreateMetaDataForAsset<meta::ModelMetaData>(path);
 
         ofbx::LoadFlags flags =
                 //		ofbx::LoadFlags::IGNORE_MODELS |
@@ -36,10 +36,10 @@ namespace se::asset::builder
 
         size_t fileSize;
         char* data = io::VFS::Get().ReadBinary(path, fileSize);
-        ofbx::IScene* scene = ofbx::load((ofbx::u8*)data, fileSize, (ofbx::u16)flags);
-        auto model = Model::FromFBX(scene, metaData);
+        ofbx::IScene* scene = ofbx::load(reinterpret_cast<ofbx::u8*>(data), fileSize, static_cast<ofbx::u16>(flags));
+        const auto model = Model::FromFBX(scene, metaData);
         model->m_SourcePath = path;
-        auto db = reflect::SerialiseType<Model>(model.get());
+        const auto db = reflect::SerialiseType<Model>(model.get());
 
         std::free(data);
         scene->destroy();
@@ -52,8 +52,8 @@ namespace se::asset::builder
 
     bool FBXBlueprint::IsOutOfDate(const std::string& assetPath, const std::string& outputPath)
     {
-        auto metaManager = meta::MetaManager::Get();
-        auto metaData = metaManager->GetOrCreateMetaDataForAsset<meta::ModelMetaData>(assetPath);
+        const auto metaManager = meta::MetaManager::Get();
+        const auto metaData = metaManager->GetOrCreateMetaDataForAsset<meta::ModelMetaData>(assetPath);
         if (metaData->GetFormatVersion() < GetLatestVersion())
         {
             return true;

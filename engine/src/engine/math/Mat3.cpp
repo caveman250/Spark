@@ -12,13 +12,15 @@ namespace se::math
         *this = other;
     }
 
-    Mat3::Mat3(float scalar)
+    Mat3::Mat3(const float scalar)
         : m_Value { Vec3(scalar, 0, 0), Vec3(0, scalar, 0), Vec3(0, 0, scalar) }
     {
     }
 
-    Mat3::Mat3(float x0, float y0, float z0, float x1, float y1, float z1, float x2, float y2, float z2)
-                   : m_Value { Vec3(x0, y0, z0), Vec3(x1, y1, z1), Vec3(x2, y2, z2) }
+    Mat3::Mat3(const float x0, const float y0, const float z0,
+                 const float x1, const float y1, const float z1,
+                 const float x2, const float y2, const float z2)
+        : m_Value { Vec3(x0, y0, z0), Vec3(x1, y1, z1), Vec3(x2, y2, z2) }
     {
     }
 
@@ -27,12 +29,12 @@ namespace se::math
     {
     }
 
-    Vec3& Mat3::operator[](size_t i)
+    Vec3& Mat3::operator[](const size_t i)
     {
         return m_Value[i];
     }
 
-    const Vec3& Mat3::operator[](size_t i) const
+    const Vec3& Mat3::operator[](const size_t i) const
     {
         return m_Value[i];
     }
@@ -66,10 +68,10 @@ namespace se::math
 
     Mat3& Mat3::operator*=(const Mat3& m)
     {
-        return (*this = *this * m);
+        return *this = *this * m;
     }
 
-    Mat3& Mat3::operator*=(float scalar)
+    Mat3& Mat3::operator*=(const float scalar)
     {
         m_Value[0] *= scalar;
         m_Value[1] *= scalar;
@@ -82,7 +84,7 @@ namespace se::math
         return *this *= Inverse(m);
     }
 
-    Mat3& Mat3::operator/=(float scalar)
+    Mat3& Mat3::operator/=(const float scalar)
     {
         m_Value[0] /= scalar;
         m_Value[1] /= scalar;
@@ -102,7 +104,7 @@ namespace se::math
         return temp -= rhs;
     }
 
-    Mat3 operator*(const Mat3& lhs, float scalar)
+    Mat3 operator*(const Mat3& lhs, const float scalar)
     {
         Mat3 temp(lhs);
         return temp *= scalar;
@@ -114,7 +116,7 @@ namespace se::math
         return temp /= rhs;
     }
 
-    Mat3 operator/(const Mat3& lhs, float scalar)
+    Mat3 operator/(const Mat3& lhs, const float scalar)
     {
         Mat3 temp(lhs);
         return temp /= scalar;
@@ -125,15 +127,15 @@ namespace se::math
         return { -m[0], -m[1], -m[2] };
     }
 
-    Mat3 operator*(const Mat3& m1, const Mat3& m2)
+    Mat3 operator*(const Mat3& lhs, const Mat3& rhs)
     {
-        const Vec3& a0 = m1[0];
-        const Vec3& a1 = m1[1];
-        const Vec3& a2 = m1[2];
+        const Vec3& a0 = lhs[0];
+        const Vec3& a1 = lhs[1];
+        const Vec3& a2 = lhs[2];
 
-        const Vec3& b0 = m2[0];
-        const Vec3& b1 = m2[1];
-        const Vec3& b2 = m2[2];
+        const Vec3& b0 = rhs[0];
+        const Vec3& b1 = rhs[1];
+        const Vec3& b2 = rhs[2];
 
         Mat3 Result;
         Result[0] = a2 * b0.z + a1 * b0.y + a0 * b0.x;
@@ -142,19 +144,19 @@ namespace se::math
         return Result;
     }
 
-    bool operator==(const Mat3& m1, const Mat3& m2)
+    bool operator==(const Mat3& lhs, const Mat3& rhs)
     {
-        return (m1[0] == m2[0]) && (m1[1] == m2[1]) && (m1[2] == m2[2]);
+        return lhs[0] == rhs[0] && lhs[1] == rhs[1] && lhs[2] == rhs[2];
     }
 
-    bool operator!=(const Mat3& m1, const Mat3& m2)
+    bool operator!=(const Mat3& lhs, const Mat3& rhs)
     {
-        return (m1[0] != m2[0]) || (m1[1] != m2[1]) || (m1[2] != m2[2]);
+        return (lhs[0] != rhs[0]) || (lhs[1] != rhs[1]) || (lhs[2] != rhs[2]);
     }
 
     Mat3 Inverse(const Mat3& m)
     {
-        float oneOverDeterminant = 1.f / (
+        const float oneOverDeterminant = 1.f / (
         +m[0][0] * (m[1][1] * m[2][2] - m[2][1] * m[1][2])
         - m[1][0] * (m[0][1] * m[2][2] - m[2][1] * m[0][2])
         + m[2][0] * (m[0][1] * m[1][2] - m[1][1] * m[0][2]));

@@ -18,17 +18,17 @@ namespace se::asset::binary
         return *(reinterpret_cast<uint32_t*>(GetData()));
     }
 
-    const char* Struct::GetFieldName(uint32_t fieldIndex) const
+    const char* Struct::GetFieldName(const uint32_t fieldIndex) const
     {
-        uint32_t offset = s_StructHeaderSize + (s_StructRowSize * fieldIndex);
-        char* name = GetData() + offset;
+        const uint32_t offset = s_StructHeaderSize + (s_StructRowSize * fieldIndex);
+        const char* name = GetData() + offset;
         return name;
     }
 
-    Type Struct::GetFieldType(uint32_t fieldIndex) const
+    Type Struct::GetFieldType(const uint32_t fieldIndex) const
     {
-        uint32_t offset = s_StructHeaderSize + (s_StructRowSize * fieldIndex) + 64;
-        Type* name = reinterpret_cast<Type*>(GetData() + offset);
+        const uint32_t offset = s_StructHeaderSize + (s_StructRowSize * fieldIndex) + 64;
+        const Type* name = reinterpret_cast<Type*>(GetData() + offset);
         return *name;
     }
 
@@ -37,7 +37,7 @@ namespace se::asset::binary
         return GetFieldOffset(GetFieldCount());
     }
 
-    uint32_t Struct::GetFieldOffset(uint32_t fieldIndex) const
+    uint32_t Struct::GetFieldOffset(const uint32_t fieldIndex) const
     {
         uint32_t offset = s_ObjectHeaderSize;
         for (uint32_t i = 0; i < fieldIndex; ++i)
@@ -51,7 +51,7 @@ namespace se::asset::binary
     void Struct::FromJson(Database* db,
         const nlohmann::json& json)
     {
-        auto first_item = json.items().begin();
+        const auto first_item = json.items().begin();
         const auto& name = first_item.key();
         const auto& layoutJson = first_item.value();
         StructLayout layout = {};

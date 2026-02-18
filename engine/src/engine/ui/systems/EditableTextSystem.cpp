@@ -21,7 +21,7 @@ namespace se::ui::systems
         return ecs::SystemDeclaration("Editable Text System")
                     .WithComponent<const components::RectTransformComponent>()
                     .WithComponent<components::EditableTextComponent>()
-                    .WithComponent<components::WidgetComponent>()
+                    .WithComponent<const components::WidgetComponent>()
                     .WithComponent<const components::MouseInputComponent>()
                     .WithComponent<components::KeyInputComponent>()
                     .WithSingletonComponent<singleton_components::UIRenderComponent>()
@@ -31,9 +31,9 @@ namespace se::ui::systems
                     .WithDependency<UIKeyboardInputSystem>();
     }
 
-    char GetCharForKey(input::Key key, const input::InputComponent* inputComp)
+    char GetCharForKey(const input::Key key, const input::InputComponent* inputComp)
     {
-        bool shiftPressed = inputComp->keyStates[static_cast<int>(input::Key::LeftShift)] == input::KeyState::Down ||
+        const bool shiftPressed = inputComp->keyStates[static_cast<int>(input::Key::LeftShift)] == input::KeyState::Down ||
             inputComp->keyStates[static_cast<int>(input::Key::RightShift)] == input::KeyState::Down;
         switch (key)
         {
@@ -222,9 +222,11 @@ namespace se::ui::systems
         return 0;
     }
 
-    void AddChar(components::EditableTextComponent* text, input::Key key, const input::InputComponent* inputComp)
+    void AddChar(components::EditableTextComponent* text,
+                    const input::Key key,
+                    const input::InputComponent* inputComp)
     {
-        char c = GetCharForKey(key, inputComp);
+        const char c = GetCharForKey(key, inputComp);
         if (c != 0)
         {
             text->editText.insert(text->caretPosition, 1, c);
@@ -235,7 +237,7 @@ namespace se::ui::systems
     void EditableTextSystem::HandleKey([[maybe_unused]] const ecs::Id& entity,
                                        [[maybe_unused]] components::EditableTextComponent& text,
                                        [[maybe_unused]] components::KeyInputComponent& keyInput,
-                                       [[maybe_unused]] input::Key key,
+                                       [[maybe_unused]] const input::Key key,
                                        [[maybe_unused]] const input::InputComponent* inputComponent)
     {
 #if SPARK_EDITOR
@@ -400,12 +402,12 @@ namespace se::ui::systems
             const auto* transformComps = updateData.GetComponentArray<const components::RectTransformComponent>();
             const auto* mouseInputComps = updateData.GetComponentArray<const components::MouseInputComponent>();
             auto* keyInputComps = updateData.GetComponentArray<components::KeyInputComponent>();
-            auto* widgets = updateData.GetComponentArray<components::WidgetComponent>();
+            const auto* widgets = updateData.GetComponentArray<const components::WidgetComponent>();
             const auto* inputComp = updateData.GetSingletonComponent<const input::InputComponent>();
 
             for (size_t i = 0; i < entities.size(); ++i)
             {
-                components::WidgetComponent& widget = widgets[i];
+                const components::WidgetComponent& widget = widgets[i];
 
                 if (!widget.updateEnabled || !widget.parentUpdateEnabled)
                 {
@@ -477,15 +479,15 @@ namespace se::ui::systems
 
                     if (text.inEditMode)
                     {
-                        auto window = Application::Get()->GetWindow();
-                        constexpr float caretWidth = 2.f;
+                        const auto window = Application::Get()->GetWindow();
                         float offset = (util::GetCaretPosition(text.caretPosition, text)) * window->GetContentScale();
                         if (offset > 0.f)
                         {
+                            constexpr float caretWidth = 2.f;
                             //account for caret size
                             offset += caretWidth * window->GetContentScale();
                         }
-                        float localOffset = offset + text.renderOffset;
+                        const float localOffset = offset + text.renderOffset;
                         if (localOffset > rectTransform.rect.size.x)
                         {
                             text.renderOffset = rectTransform.rect.size.x - offset;
@@ -510,12 +512,12 @@ namespace se::ui::systems
 
         ecs::ForEachArcheType(results, ecs::UpdateMode::MultiThreaded, false, [](const ecs::SystemUpdateData& updateData)
         {
-            auto app = Application::Get();
-            auto renderer = render::Renderer::Get<render::Renderer>();
-            auto window = app->GetWindow();
+            const auto app = Application::Get();
+            const auto renderer = render::Renderer::Get<render::Renderer>();
+            const auto window = app->GetWindow();
 
             const auto& entities = updateData.GetEntities();
-            auto* widgetComps = updateData.GetComponentArray<components::WidgetComponent>();
+            const auto* widgetComps = updateData.GetComponentArray<const components::WidgetComponent>();
             const auto* transformComps = updateData.GetComponentArray<const components::RectTransformComponent>();
             auto* textComps = updateData.GetComponentArray<components::EditableTextComponent>();
             auto* renderComp = updateData.GetSingletonComponent<singleton_components::UIRenderComponent>();

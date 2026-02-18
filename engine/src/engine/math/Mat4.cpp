@@ -16,14 +16,16 @@ namespace se::math
         *this = other;
     }
 
-    Mat4::Mat4(float scalar)
+    Mat4::Mat4(const float scalar)
         : m_Value { Vec4(scalar, 0, 0, 0), Vec4(0, scalar, 0, 0), Vec4(0, 0, scalar, 0), Vec4(0, 0, 0, scalar) }
     {
     }
 
-    Mat4::Mat4(float x0, float y0, float z0, float w0, float x1, float y1, float z1, float w1, float x2, float y2,
-               float z2, float w2, float x3, float y3, float z3, float w3)
-                   : m_Value { Vec4(x0, y0, z0, w0), Vec4(x1, y1, z1, w1), Vec4(x2, y2, z2, w2), Vec4(x3, y3, z3, w3) }
+    Mat4::Mat4(const float x0, const float y0, const float z0, const float w0,
+                const float x1, const float y1, const float z1, const float w1,
+                const float x2, const float y2, const float z2, const float w2,
+                const float x3, const float y3, const float z3, const float w3)
+        : m_Value { Vec4(x0, y0, z0, w0), Vec4(x1, y1, z1, w1), Vec4(x2, y2, z2, w2), Vec4(x3, y3, z3, w3) }
     {
     }
 
@@ -32,12 +34,12 @@ namespace se::math
     {
     }
 
-    Vec4& Mat4::operator[](size_t i)
+    Vec4& Mat4::operator[](const size_t i)
     {
         return m_Value[i];
     }
 
-    const Vec4& Mat4::operator[](size_t i) const
+    const Vec4& Mat4::operator[](const size_t i) const
     {
         return m_Value[i];
     }
@@ -89,7 +91,7 @@ namespace se::math
         return (*this = *this * m);
     }
 
-    Mat4& Mat4::operator*=(float scalar)
+    Mat4& Mat4::operator*=(const float scalar)
     {
         m_Value[0] *= scalar;
         m_Value[1] *= scalar;
@@ -103,7 +105,7 @@ namespace se::math
         return *this *= Inverse(m);
     }
 
-    Mat4& Mat4::operator/=(float scalar)
+    Mat4& Mat4::operator/=(const float scalar)
     {
         m_Value[0] /= scalar;
         m_Value[1] /= scalar;
@@ -124,7 +126,7 @@ namespace se::math
         return temp -= rhs;
     }
 
-    Mat4 operator*(const Mat4& lhs, float scalar)
+    Mat4 operator*(const Mat4& lhs, const float scalar)
     {
         Mat4 temp(lhs);
         return temp *= scalar;
@@ -153,7 +155,7 @@ namespace se::math
         return temp /= rhs;
     }
 
-    Mat4 operator/(const Mat4& lhs, float scalar)
+    Mat4 operator/(const Mat4& lhs, const float scalar)
     {
         Mat4 temp(lhs);
         return temp /= scalar;
@@ -164,17 +166,17 @@ namespace se::math
         return { -m[0], -m[1], -m[2], -m[3] };
     }
 
-    Mat4 operator*(const Mat4& m1, const Mat4& m2)
+    Mat4 operator*(const Mat4& lhs, const Mat4& rhs)
     {
-        const Vec4& a0 = m1[0];
-        const Vec4& a1 = m1[1];
-        const Vec4& a2 = m1[2];
-        const Vec4& a3 = m1[3];
+        const Vec4& a0 = lhs[0];
+        const Vec4& a1 = lhs[1];
+        const Vec4& a2 = lhs[2];
+        const Vec4& a3 = lhs[3];
 
-        const Vec4& b0 = m2[0];
-        const Vec4& b1 = m2[1];
-        const Vec4& b2 = m2[2];
-        const Vec4& b3 = m2[3];
+        const Vec4& b0 = rhs[0];
+        const Vec4& b1 = rhs[1];
+        const Vec4& b2 = rhs[2];
+        const Vec4& b3 = rhs[3];
 
         Mat4 ret;
         ret[0] = a3 * b0.w + a2 * b0.z + a1 * b0.y + a0 * b0.x;
@@ -185,14 +187,14 @@ namespace se::math
         return ret;
     }
 
-    bool operator==(const Mat4& m1, const Mat4& m2)
+    bool operator==(const Mat4& lhs, const Mat4& rhs)
     {
-        return (m1[0] == m2[0]) && (m1[1] == m2[1]) && (m1[2] == m2[2]) && (m1[3] == m2[3]);
+        return (lhs[0] == rhs[0]) && (lhs[1] == rhs[1]) && (lhs[2] == rhs[2]) && (lhs[3] == rhs[3]);
     }
 
-    bool operator!=(const Mat4& m1, const Mat4& m2)
+    bool operator!=(const Mat4& lhs, const Mat4& rhs)
     {
-        return (m1[0] != m2[0]) || (m1[1] != m2[1]) || (m1[2] != m2[2]) || (m1[3] != m2[3]);
+        return (lhs[0] != rhs[0]) || (lhs[1] != rhs[1]) || (lhs[2] != rhs[2]) || (lhs[3] != rhs[3]);
     }
 
     Mat4 Inverse(const Mat4& m)
@@ -252,23 +254,26 @@ namespace se::math
         return inv * oneOverDeterminant;
     }
 
-    Mat4 Perspective(float fovy, float aspect, float zNear, float zFar)
+    Mat4 Perspective(const float fovY,
+                     const float aspect,
+                     const float zNear,
+                     const float zFar)
     {
         SPARK_ASSERT(!FloatEqual(aspect, 0.f));
 
-        float const tanHalfFovy = tan(fovy / 2.f);
+        float const tanHalfFovY = tan(fovY / 2.f);
 
         Mat4 ret(0.f);
-        ret[0][0] = 1.f / (aspect * tanHalfFovy);
-        ret[1][1] = 1.f / (tanHalfFovy);
+        ret[0][0] = 1.f / (aspect * tanHalfFovY);
+        ret[1][1] = 1.f / (tanHalfFovY);
         ret[2][2] = - (zFar + zNear) / (zFar - zNear);
         ret[2][3] = - 1.f;
         ret[3][2] = - (2.f * zFar * zNear) / (zFar - zNear);
 
-        auto renderer = render::Renderer::Get<render::Renderer>();
+        const auto renderer = render::Renderer::Get<render::Renderer>();
         if (renderer->GetRenderAPIType() == render::RenderAPI::Metal)
         {
-            Mat4 adjust = { 1.f, 0.f, 0.f,  0.f,
+            const Mat4 adjust = { 1.f, 0.f, 0.f,  0.f,
                                   0.f, 1.f, 0.f,  0.f,
                                   0.f, 0.f, 0.5f, 0.f,
                                   0.f, 0.f, 0.f,  1.f };
@@ -298,13 +303,12 @@ namespace se::math
         ret[3][1] = -Dot(u, eye);
         ret[3][2] = Dot(f, eye);
         return ret;
-        return ret;
     }
 
-    Mat4 Translation(const Vec3& v)
+    Mat4 Translation(const Vec3& translation)
     {
         Mat4 ret;
-        ret[3] = ret[0] * v[0] + ret[1] * v[1] + ret[2] * v[2] + ret[3];
+        ret[3] = ret[0] * translation[0] + ret[1] * translation[1] + ret[2] * translation[2] + ret[3];
         return ret;
     }
 
@@ -321,12 +325,12 @@ namespace se::math
         const Mat4& proj,
         const Vec4& viewport)
     {
-        Mat4 inverse = Inverse(proj * view);
+        const Mat4 inverse = Inverse(proj * view);
 
-        Vec4 tmp = Vec4(windowPos.x, windowPos.y, windowPos.z, 1.f);
+        auto tmp = Vec4(windowPos.x, windowPos.y, windowPos.z, 1.f);
         tmp.x = (tmp.x - viewport[0]) / viewport[2];
         tmp.y = (tmp.y - viewport[1]) / viewport[3];
-        tmp = tmp * 2.f - 1.f;
+        tmp = tmp * 2.f - Vec4(1.f);
 
         Vec4 obj = inverse * tmp;
         obj /= obj.w;

@@ -21,14 +21,15 @@ namespace se::reflect
             std::any func_ptr = nullptr;
         };
 
-        std::vector<Member> members;
+        std::vector<Member> members = {};
         std::vector<Function> functions = {};
 
         Class();
+        Class(const std::string& name, size_t size, asset::binary::Type binaryType);
 
         Type* GetMemberType(const std::string& fieldName);
         const Member* GetMember(const std::string& fieldName);
-        const char* GetMemberName(int i);
+        const char* GetMemberName(int i) const;
 
         asset::binary::StructLayout GetStructLayout(const void* obj) const override;
         bool IsClass() const override { return true; }

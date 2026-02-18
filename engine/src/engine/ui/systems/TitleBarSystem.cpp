@@ -30,7 +30,7 @@ namespace se::ui::systems
             auto* titleBars = updateData.GetComponentArray<components::TitleBarComponent>();
             const auto* transforms = updateData.GetComponentArray<const components::RectTransformComponent>();
             auto* mouseEventComps = updateData.GetComponentArray<components::MouseInputComponent>();
-            auto* inputComp = updateData.GetSingletonComponent<input::InputComponent>();
+            const auto* inputComp = updateData.GetSingletonComponent<input::InputComponent>();
 
             for (size_t i = 0; i < updateData.GetEntities().size(); ++i)
             {

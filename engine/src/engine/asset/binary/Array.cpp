@@ -16,13 +16,13 @@ namespace se::asset::binary
 
     Object Array::Get(size_t i)
     {
-        Struct st = GetStruct();
+        const Struct st = GetStruct();
         return Object(m_Offset + GetOffsetOf(i), m_DB, st);
     }
 
     Struct Array::GetStruct()
     {
-        auto structIndex = GetStructIndex();
+        const auto structIndex = GetStructIndex();
         return Struct(m_DB->GetStructName(structIndex), structIndex, m_DB);
     }
 
@@ -33,8 +33,8 @@ namespace se::asset::binary
         m_ElementSize = GetStruct().CalcObjectSize();
         if (initialiseObjects)
         {
-            uint32_t structIndex = GetStructIndex();
-            uint32_t numElements = GetCount();
+            const uint32_t structIndex = GetStructIndex();
+            const uint32_t numElements = GetCount();
             for (uint32_t i = 0; i < numElements; ++i)
             {
                 char *objData = GetData() + GetOffsetOf(i);
@@ -46,7 +46,7 @@ namespace se::asset::binary
 
     uint32_t Array::GetOffsetOf(size_t i)
     {
-        return s_ArrayHeaderSize + ((uint32_t)i * m_ElementSize);
+        return s_ArrayHeaderSize + (static_cast<uint32_t>(i) * m_ElementSize);
     }
 
     char* Array::GetData()

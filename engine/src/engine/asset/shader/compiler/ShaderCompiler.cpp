@@ -1,26 +1,23 @@
 #include "ShaderCompiler.h"
 
-#include <optional>
-#include <engine/asset/shader/ast/ShaderCompileContext.h>
-#include <engine/render/Renderer.h>
-
-#include "engine/asset/shader/ast/ASTNode.h"
-#include "engine/asset/shader/ast/InputAttributeNode.h"
-#include "engine/asset/shader/ast/OutputNode.h"
-#include "engine/asset/shader/Shader.h"
-#include "engine/asset/shader/ast/TypeUtil.h"
-#include "ShaderCombiner.h"
-#include "engine/memory/Arena.h"
 #include "Lexer.h"
 #include "Parser.h"
+#include "ShaderCombiner.h"
+#include "engine/asset/shader/Shader.h"
 #include "engine/asset/shader/ShaderSettings.h"
+#include "engine/asset/shader/ast/ASTNode.h"
+#include "engine/asset/shader/ast/OutputNode.h"
+#include "engine/asset/shader/ast/ShaderCompileContext.h"
+#include "engine/asset/shader/ast/TypeUtil.h"
+#include "engine/memory/Arena.h"
+#include "engine/render/Renderer.h"
 
 namespace se::asset::shader
 {
     std::optional<Shader> ShaderCompiler::CompileShader(const std::string& filePath)
     {
         debug::Log::Info("Compiling shader: {0}", filePath.c_str());
-        compiler::Lexer lexer(filePath);
+        const compiler::Lexer lexer(filePath);
         compiler::Parser parser(lexer);
         auto result = parser.Parse();
         if (std::holds_alternative<compiler::ParseError>(result))
@@ -30,7 +27,7 @@ namespace se::asset::shader
                                     parseError.pos, parseError.error);
             return std::nullopt;
         }
-        debug::Log::Info("Sucess");
+        debug::Log::Info("Success");
         return std::get<Shader>(result);
     }
 
@@ -93,7 +90,7 @@ namespace se::asset::shader
             context.fragShader = std::make_shared<Shader>(*context.currentShader);
         }
 
-        auto renderApiType = render::Renderer::Get<render::Renderer>()->GetRenderAPIType();
+        const auto renderApiType = render::Renderer::Get<render::Renderer>()->GetRenderAPIType();
         if (renderApiType == render::RenderAPI::OpenGL)
         {
             return AstToGlsl(newShader.value(), context);
@@ -111,7 +108,7 @@ namespace se::asset::shader
 
     bool ShaderCompiler::ResolveSettings(Shader& shader, const ShaderSettings& settings)
     {
-        for (const auto& [name, type] : shader.GetSettingVariables())
+        for (const auto& name: shader.GetSettingVariables() | std::views::keys)
         {
             if (!SPARK_VERIFY(settings.HasDefinition(name)))
             {
@@ -140,7 +137,7 @@ namespace se::asset::shader
                 }, value);
             }
 
-            for (auto& [uniformName, var] : shader.m_Uniforms)
+            for (auto& var: shader.m_Uniforms | std::views::values)
             {
                 if (var.arraySizeVariable == name)
                 {
@@ -149,7 +146,7 @@ namespace se::asset::shader
                 }
             }
 
-            for (auto& [uniformName, var] : shader.m_GlobalVariables)
+            for (auto& var: shader.m_GlobalVariables | std::views::values)
             {
                 if (var.arraySizeVariable == name)
                 {
@@ -158,7 +155,7 @@ namespace se::asset::shader
                 }
             }
 
-            for (auto& [inputName, input] : shader.m_Inputs)
+            for (const auto& input: shader.m_Inputs | std::views::values)
             {
                 if (input->GetVar().arraySizeVariable == name)
                 {
@@ -166,7 +163,7 @@ namespace se::asset::shader
                 }
             }
 
-            for (auto& [outputName, output] : shader.m_Outputs)
+            for (const auto& output: shader.m_Outputs | std::views::values)
             {
                 if (output->GetVar().arraySizeVariable == name)
                 {
@@ -178,7 +175,7 @@ namespace se::asset::shader
         return true;
     }
 
-    std::string ShaderCompiler::AstToGlsl(Shader &ast, ast::ShaderCompileContext& context)
+    std::string ShaderCompiler::AstToGlsl(const Shader &ast, ast::ShaderCompileContext& context)
     {
 #if 0
         for (const auto *node: ast.GetNodes())
@@ -188,18 +185,18 @@ namespace se::asset::shader
 #endif
 
         memory::Arena arena;
-        memory::ArenaAllocator<char> alloc(arena);
+        const memory::ArenaAllocator<char> alloc(arena);
         string::ArenaString shader(alloc);
 
         shader.append("#version 410\n");
 
 
-        for (const auto &[name, node]: ast.GetInputs())
+        for (const auto& node: ast.GetInputs() | std::views::values)
         {
             node->ToGlsl(context, shader);
         }
 
-        for (const auto &[name, node]: ast.GetOutputs())
+        for (const auto& node: ast.GetOutputs() | std::views::values)
         {
             node->ToGlsl(context, shader);
         }
@@ -228,7 +225,7 @@ namespace se::asset::shader
         return shader.c_str();
     }
 
-    std::string ShaderCompiler::AstToMtl(Shader& ast, ast::ShaderCompileContext& context)
+    std::string ShaderCompiler::AstToMtl(const Shader& ast, ast::ShaderCompileContext& context)
     {
 #if 0
         for (const auto *node: ast.GetNodes())
@@ -246,14 +243,14 @@ namespace se::asset::shader
         shader.append(string::ArenaFormat("struct v2f\n{{\nfloat4 {0} [[position]];\n", alloc, context.vertexPositionOutputName));
         if (ast.GetType() == ShaderType::Vertex)
         {
-            for (const auto& [name, node] : ast.GetOutputs())
+            for (const auto& node: ast.GetOutputs() | std::views::values)
             {
                 node->ToMtl(context, shader);
             }
         }
         else if (ast.GetType() == ShaderType::Fragment)
         {
-            for (const auto& [name, node] : ast.GetInputs())
+            for (const auto& node: ast.GetInputs() | std::views::values)
             {
                 node->ToMtl(context, shader);
             }

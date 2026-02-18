@@ -4,11 +4,11 @@ namespace se
 {
 #define UCHAR(x) (unsigned char) ((x) & 0xff)
 
-    memory::BinaryBlob asset::builder::util::CreateBitmapData(int width, int height)
+    memory::BinaryBlob asset::builder::util::CreateBitmapData(const int width, const int height)
     {
-        int pad = (-width * 3) & 3;
-        size_t size = s_BitmapHeaderSize + (width * 3 + pad) * height;
-        unsigned char *bitmap = static_cast<unsigned char *>(std::malloc(size));
+        const int pad = -width * 3 & 3;
+        const size_t size = s_BitmapHeaderSize + (width * 3 + pad) * height;
+        auto* bitmap = static_cast<unsigned char *>(std::malloc(size));
         bitmap[0] = UCHAR('B');
         bitmap[1] = UCHAR('M');
 

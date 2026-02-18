@@ -1,7 +1,6 @@
 #pragma once
 
 #include "engine/ecs/System.h"
-#include "InputComponent.h"
 
 namespace se::input
 {

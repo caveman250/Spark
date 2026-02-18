@@ -3,7 +3,6 @@
 #include "engine/asset/binary/Object.h"
 #include "engine/asset/binary/Type.h"
 #include "engine/asset/texture/Mipmap.h"
-#include "engine/asset/texture/Texture.h"
 
 namespace se::reflect
 {
@@ -11,12 +10,19 @@ namespace se::reflect
     {
     }
 
+    Class::Class(const std::string& name,
+                const size_t size,
+                const asset::binary::Type binaryType)
+        : Type{ name, size, binaryType }
+    {
+    }
+
     Type* Class::GetMemberType(const std::string& fieldName)
     {
-        auto it = std::ranges::find_if(members, [fieldName](const Member& member){ return member.name == fieldName; });
+        const auto it = std::ranges::find_if(members, [fieldName](const Member& member){ return member.name == fieldName; });
         if (it != members.end())
         {
-            return (*it).type;
+            return it->type;
         }
 
         return nullptr;
@@ -24,7 +30,7 @@ namespace se::reflect
 
     const Class::Member* Class::GetMember(const std::string& fieldName)
     {
-        auto it = std::ranges::find_if(members, [fieldName](const Member& member){ return member.name == fieldName; });
+        const auto it = std::ranges::find_if(members, [fieldName](const Member& member){ return member.name == fieldName; });
         if (it != members.end())
         {
             return &*it;
@@ -33,7 +39,7 @@ namespace se::reflect
         return nullptr;
     }
 
-    const char* Class::GetMemberName(int i)
+    const char* Class::GetMemberName(const int i) const
     {
         return members[i].name;
     }
@@ -57,9 +63,9 @@ namespace se::reflect
 
         if (!fieldName.empty()) // parent is an object
         {
-            asset::binary::StructLayout structLayout = GetStructLayout(nullptr);
-            auto db = parentObj.GetDatabase();
-            auto structIndex = db->GetOrCreateStruct(name, structLayout);
+            const asset::binary::StructLayout structLayout = GetStructLayout(nullptr);
+            const auto db = parentObj.GetDatabase();
+            const auto structIndex = db->GetOrCreateStruct(name, structLayout);
             binaryObj = db->CreateObject(structIndex);
         }
         else // parent is this

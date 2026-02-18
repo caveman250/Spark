@@ -8,7 +8,7 @@ namespace se::threads
         void Unlock() const noexcept;
 
     private:
-        mutable std::atomic<bool> lock = {0};
+        mutable std::atomic<bool> lock = { false };
     };
 
 }

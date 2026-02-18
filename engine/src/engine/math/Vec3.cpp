@@ -10,7 +10,7 @@ namespace se::math
 
     }
 
-    float& Vec3::operator[](size_t i)
+    float& Vec3::operator[](const size_t i)
     {
         SPARK_ASSERT(i <= 2);
         switch(i)
@@ -25,7 +25,7 @@ namespace se::math
         }
     }
 
-    const float& Vec3::operator[](size_t i) const
+    const float& Vec3::operator[](const size_t i) const
     {
         SPARK_ASSERT(i <= 2);
         switch(i)
@@ -48,7 +48,7 @@ namespace se::math
         return *this;
     }
 
-    Vec3& Vec3::operator+=(float scalar)
+    Vec3& Vec3::operator+=(const float scalar)
     {
         x += scalar;
         y += scalar;
@@ -64,7 +64,7 @@ namespace se::math
         return *this;
     }
 
-    Vec3& Vec3::operator-=(float scalar)
+    Vec3& Vec3::operator-=(const float scalar)
     {
         x -= scalar;
         y -= scalar;
@@ -80,7 +80,7 @@ namespace se::math
         return *this;
     }
 
-    Vec3& Vec3::operator*=(float scalar)
+    Vec3& Vec3::operator*=(const float scalar)
     {
         x *= scalar;
         y *= scalar;
@@ -96,7 +96,7 @@ namespace se::math
         return *this;
     }
 
-    Vec3& Vec3::operator/=(float scalar)
+    Vec3& Vec3::operator/=(const float scalar)
     {
         x /= scalar;
         y /= scalar;
@@ -124,7 +124,7 @@ namespace se::math
         return { lhs.x * rhs.x, lhs.y * rhs.y, lhs.z * rhs.z };
     }
 
-    Vec3 operator*(const Vec3& lhs, float scalar)
+    Vec3 operator*(const Vec3& lhs, const float scalar)
     {
         return { lhs.x * scalar, lhs.y * scalar, lhs.z * scalar };
     }
@@ -134,7 +134,7 @@ namespace se::math
         return { lhs.x / rhs.x, lhs.y / rhs.y, lhs.z / rhs.z };
     }
 
-    Vec3 operator/(const Vec3& lhs, float scalar)
+    Vec3 operator/(const Vec3& lhs, const float scalar)
     {
         const float div = 1.f / scalar;
         return { lhs.x * div, lhs.y * div, lhs.z * div };

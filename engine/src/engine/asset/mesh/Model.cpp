@@ -5,7 +5,7 @@
 
 namespace se::asset
 {
-    math::Vec3 ConvertPosition(int upAxis, const ofbx::Vec3& v, const std::shared_ptr<meta::ModelMetaData>& meta)
+    math::Vec3 ConvertPosition(const int upAxis, const ofbx::Vec3& v, const std::shared_ptr<meta::ModelMetaData>& meta)
     {
         switch (upAxis)
         {
@@ -40,7 +40,7 @@ namespace se::asset
         }
     }
 
-    math::Vec3 ConvertNormal(int upAxis, const ofbx::Vec3& v)
+    math::Vec3 ConvertNormal(const int upAxis, const ofbx::Vec3& v)
     {
         switch (upAxis)
         {
@@ -68,19 +68,19 @@ namespace se::asset
         return std::make_shared<meta::ModelMetaData>(m_Path);
     }
 
-    std::shared_ptr<Model> Model::FromFBX(ofbx::IScene* fbxScene, const std::shared_ptr<meta::ModelMetaData>& meta)
+    std::shared_ptr<Model> Model::FromFBX(const ofbx::IScene* fbxScene, const std::shared_ptr<meta::ModelMetaData>& meta)
     {
         auto ret = std::make_shared<Model>();
         StaticMesh& staticMesh = ret->m_Mesh;
 
         const ofbx::GlobalSettings* settings = fbxScene->getGlobalSettings();
-        int upAxis = settings->UpAxis;        // 0=X, 1=Y, 2=Z
+        const int upAxis = settings->UpAxis;        // 0=X, 1=Y, 2=Z
         // int upSign = settings->UpAxisSign;    // TODO usually +1
         // double unitScale = settings->UnitScaleFactor; TODO
 
         // i want 1, 1, 1
 
-        int mesh_count = fbxScene->getMeshCount();
+        const int mesh_count = fbxScene->getMeshCount();
 
         // output unindexed geometry
         for (int mesh_idx = 0; mesh_idx < mesh_count; ++mesh_idx)

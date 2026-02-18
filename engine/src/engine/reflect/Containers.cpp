@@ -5,17 +5,20 @@
 
 namespace se::reflect
 {
-    void SerializeArray(const void* obj, asset::binary::Object& parentObj, const std::string& fieldName, Type* itemType,
+    void SerializeArray(const void* obj,
+                        asset::binary::Object& parentObj,
+                        const std::string& fieldName,
+                        const Type* itemType,
                         size_t (*getSize)(const void*), const void*(*getItem)(const void*, size_t))
     {
-        size_t numItems = getSize(obj);
-        auto db = parentObj.GetDatabase();
+        const size_t numItems = getSize(obj);
+        const auto db = parentObj.GetDatabase();
         if (itemType->IsPolymorphic())
         {
-            auto array = db->CreatePolymorphicArray(numItems);
+            const auto array = db->CreatePolymorphicArray(numItems);
             for (size_t index = 0; index < numItems; index++)
             {
-                Type_StdSharedPtr<ObjectBase>* reflect = static_cast<Type_StdSharedPtr<ObjectBase>*>(TypeResolver<std::shared_ptr<ObjectBase>>::get());
+                const Type_StdSharedPtr<ObjectBase>* reflect = static_cast<Type_StdSharedPtr<ObjectBase>*>(TypeResolver<std::shared_ptr<ObjectBase>>::get());
                 auto* objBase = static_cast<const std::shared_ptr<ObjectBase>*>(getItem(obj, index));
                 asset::binary::Object arrayObj = db->CreateObject(
                     db->GetOrCreateStruct(reflect->GetTypeName(objBase), reflect->GetStructLayout(objBase)));
@@ -53,12 +56,15 @@ namespace se::reflect
         }
     }
 
-    void DeserializeArray(void* obj, asset::binary::Object& parentObj, const std::string& fieldName, Type* itemType,
-                            std::function<void*(void*, size_t)> getRawItem)
+    void DeserializeArray(void* obj,
+                            const asset::binary::Object& parentObj,
+                            const std::string& fieldName,
+                            const Type* itemType,
+                            const std::function<void*(void*, size_t)>& getRawItem)
     {
         if (itemType->IsPolymorphic())
         {
-            auto array = parentObj.Get<asset::binary::PolymorphicArray>(fieldName.empty() ? "val" : fieldName);
+            const auto array = parentObj.Get<asset::binary::PolymorphicArray>(fieldName.empty() ? "val" : fieldName);
             for (size_t i = 0; i < array.GetCount(); ++i)
             {
                 asset::binary::Object arrayObj = array.Get(i);
@@ -76,11 +82,15 @@ namespace se::reflect
         }
     }
 
-    void DeserializeVector(void* obj, asset::binary::Object& parentObj, const std::string& fieldName, Type* itemType, std::function<void*(const void* vecPtr, const std::string&)> emplace_back)
+    void DeserializeVector(void* obj,
+                             const asset::binary::Object& parentObj,
+                             const std::string& fieldName,
+                             const Type* itemType,
+                             const std::function<void*(void* vecPtr, const std::string&)>& emplace_back)
     {
         if (itemType->IsPolymorphic())
         {
-            auto array = parentObj.Get<asset::binary::PolymorphicArray>(fieldName.empty() ? "val" : fieldName);
+            const auto array = parentObj.Get<asset::binary::PolymorphicArray>(fieldName.empty() ? "val" : fieldName);
             for (size_t i = 0; i < array.GetCount(); ++i)
             {
                 asset::binary::Object arrayObj = array.Get(i);

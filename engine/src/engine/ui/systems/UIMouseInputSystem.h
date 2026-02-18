@@ -19,6 +19,6 @@ namespace se::ui::systems
         void OnUpdate(const ecs::QueryResults&) override;
 
     private:
-        bool TryConsumeEvent(const input::MouseEvent& keyEvent, components::MouseInputComponent& inputReceiver);
+        static bool TryConsumeEvent(const input::MouseEvent& mouseEvent, components::MouseInputComponent& inputReceiver);
     };
 }

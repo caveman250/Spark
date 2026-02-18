@@ -1,5 +1,7 @@
 #pragma once
 
+#include "spark.h"
+
 namespace se::asset::shader::compiler
 {
     enum class TokenType

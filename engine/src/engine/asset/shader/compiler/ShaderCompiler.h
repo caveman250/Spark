@@ -1,10 +1,8 @@
 #pragma once
-#include <engine/asset/shader/ast/ConstantNode.h>
-#include <engine/asset/shader/ast/VariableReferenceNode.h>
-
 #include "spark.h"
 #include "engine/asset/shader/ShaderSettings.h"
-#include "engine/render/TextureResource.h"
+#include "engine/asset/shader/ast/ConstantNode.h"
+#include "engine/asset/shader/ast/VariableReferenceNode.h"
 
 namespace se
 {
@@ -34,8 +32,8 @@ namespace se::asset::shader
         static bool ResolveSettings(Shader& shader, const ShaderSettings& settings);
         template <typename T>
         static void ReplaceSettingReferenceWithConstant(Shader& shader, ast::ASTNode* node, const std::string& settingName, T constantValue);
-        static std::string AstToGlsl(Shader& ast, ast::ShaderCompileContext& context);
-        static std::string AstToMtl(Shader& ast, ast::ShaderCompileContext& context);
+        static std::string AstToGlsl(const Shader& ast, ast::ShaderCompileContext& context);
+        static std::string AstToMtl(const Shader& ast, ast::ShaderCompileContext& context);
     };
 
     template<typename T>
@@ -44,10 +42,10 @@ namespace se::asset::shader
         static auto referenceType = reflect::TypeResolver<ast::VariableReferenceNode>::get();
         if (node->GetReflectType() == referenceType)
         {
-            auto referenceNode = static_cast<ast::VariableReferenceNode*>(node);
+            const auto referenceNode = static_cast<ast::VariableReferenceNode*>(node);
             if (strcmp(referenceNode->GetName().c_str(), settingName.data()) == 0)
             {
-                auto parent = node->m_Parent;
+                const auto parent = node->m_Parent;
                 auto it = std::ranges::find_if(parent->m_Children, [node](const auto& child){ return child.get() == node; });
                 std::shared_ptr<ast::ASTNode> newVal = std::make_shared<ast::ConstantNode<T>>(constantValue);
                 std::replace(parent->m_Children.begin(), parent->m_Children.end(), *it, newVal);

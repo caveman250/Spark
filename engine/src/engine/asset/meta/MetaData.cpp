@@ -1,5 +1,4 @@
 #include "MetaData.h"
-#include "TextureMetaData.h"
 
 namespace se::asset::meta
 {
@@ -13,7 +12,7 @@ namespace se::asset::meta
         return m_Version;
     }
 
-    void MetaData::SetFormatVersion(uint32_t version)
+    void MetaData::SetFormatVersion(const uint32_t version)
     {
         m_Version = version;
     }

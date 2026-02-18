@@ -12,7 +12,9 @@ namespace se::reflect
 
     struct Type_Container : Type
     {
-        Type_Container(const std::string& name, size_t size, asset::binary::Type binaryType)
+        Type_Container(const std::string& name,
+                         const size_t size,
+                         const asset::binary::Type binaryType)
                 : Type(name, size, binaryType)
         {}
 
@@ -30,7 +32,9 @@ namespace se::reflect
 
     struct Type_PtrBase : Type_Container
     {
-        Type_PtrBase(const std::string& name, size_t size, asset::binary::Type binaryType)
+        Type_PtrBase(const std::string& name,
+                     const size_t size,
+                     const asset::binary::Type binaryType)
             : Type_Container(name, size, binaryType)
         {}
 
@@ -48,15 +52,15 @@ namespace se::reflect
     template<typename T>
     struct Type_StdSharedPtr : Type_PtrBase
     {
-        Type_StdSharedPtr(T*)
-            : Type_PtrBase{"std::shared_ptr<>", sizeof(std::shared_ptr<T>), asset::binary::Type::Bool /* GetBinaryType will reirect to contained type */ }
+        explicit Type_StdSharedPtr(T*)
+            : Type_PtrBase{"std::shared_ptr<>", sizeof(std::shared_ptr<T>), asset::binary::Type::Bool /* GetBinaryType will redirect to contained type */ }
         {
         }
 
         std::string GetTypeName(const void*) const override;
         asset::binary::Type GetBinaryType() const override { return TypeResolver<T>::get()->GetBinaryType(); }
 
-        static Type* GetSerialisedType(asset::binary::Object& parentObj, const std::string& fieldName);
+        static Type* GetSerialisedType(const asset::binary::Object& parentObj, const std::string& fieldName);
         void Serialize(const void* obj, asset::binary::Object& parentObj, const std::string& fieldName) const override;
         void Deserialize(void* obj, asset::binary::Object& parentObj, const std::string& fieldName) const override;
         asset::binary::StructLayout GetStructLayout(const void*) const override;
@@ -84,7 +88,7 @@ namespace se::reflect
         void* Instantiate(const std::string& type, void* obj) const override
         {
             const Type* reflect = TypeFromString(type);
-            *(std::shared_ptr<T>*)obj = std::shared_ptr<T>(static_cast<T*>(reflect->heap_constructor()));
+            *static_cast<std::shared_ptr<T>*>(obj) = std::shared_ptr<T>(static_cast<T*>(reflect->heap_constructor()));
             return obj;
         }
     };
@@ -96,7 +100,7 @@ namespace se::reflect
         {
             static_assert(!T::s_IsPOD, "Pointer (Polymorphic) serialisation not supported for POD types.");
             auto* typed = static_cast<const std::shared_ptr<T>*>(obj);
-            auto* objBase = static_cast<ObjectBase*>(typed->get());
+            const auto* objBase = static_cast<ObjectBase*>(typed->get());
             if (SPARK_VERIFY(objBase))
             {
                 return objBase->GetTypeName();
@@ -109,10 +113,10 @@ namespace se::reflect
     }
 
     template <typename T>
-    Type* Type_StdSharedPtr<T>::GetSerialisedType(asset::binary::Object& parentObj, const std::string& fieldName)
+    Type* Type_StdSharedPtr<T>::GetSerialisedType(const asset::binary::Object& parentObj, const std::string& fieldName)
     {
-        asset::binary::Object thisObj = fieldName.empty() ? parentObj : parentObj.Get<asset::binary::Object>(fieldName);
-        auto typeName = thisObj.GetStruct().GetName();
+        const asset::binary::Object thisObj = fieldName.empty() ? parentObj : parentObj.Get<asset::binary::Object>(fieldName);
+        const auto typeName = thisObj.GetStruct().GetName();
         return TypeFromString(typeName);
     }
 
@@ -126,9 +130,9 @@ namespace se::reflect
         {
             if (!fieldName.empty()) // parent is an object
             {
-                asset::binary::StructLayout structLayout = GetStructLayout(obj);
-                auto db = parentObj.GetDatabase();
-                auto structIndex = db->GetOrCreateStruct(objBase->GetTypeName(), structLayout);
+                const asset::binary::StructLayout structLayout = GetStructLayout(obj);
+                const auto db = parentObj.GetDatabase();
+                const auto structIndex = db->GetOrCreateStruct(objBase->GetTypeName(), structLayout);
                 auto binaryObj = db->CreateObject(structIndex);
                 parentObj.Set(fieldName, binaryObj);
                 objBase->Serialize(typed->get(), binaryObj, {});
@@ -157,7 +161,7 @@ namespace se::reflect
     {
         static_assert(!T::s_IsPOD, "Pointer (Polymorphic) serialisation not supported for POD types.");
         auto* typed = static_cast<const std::shared_ptr<T>*>(obj);
-        auto* objBase = static_cast<ObjectBase*>(typed->get());
+        const auto* objBase = static_cast<ObjectBase*>(typed->get());
         if (SPARK_VERIFY(objBase))
         {
             return objBase->GetStructLayout(obj);
@@ -172,8 +176,7 @@ namespace se::reflect
         if (obj)
         {
             auto* typed = static_cast<const std::shared_ptr<T>*>(obj);
-            auto* objBase = static_cast<ObjectBase*>(typed->get());
-            if (objBase)
+            if (const auto* objBase = static_cast<ObjectBase*>(typed->get()))
             {
                 return objBase->GetReflectType();
             }
@@ -187,7 +190,7 @@ namespace se::reflect
     public:
         static Type* get()
         {
-            static Type_StdSharedPtr<T> typeDesc{(T*)nullptr};
+            static Type_StdSharedPtr<T> typeDesc{static_cast<T*>(nullptr)};
             return &typeDesc;
         }
     };
@@ -195,15 +198,15 @@ namespace se::reflect
     template<typename T>
     struct Type_RawPtr : Type_PtrBase
     {
-        Type_RawPtr(T*)
-            : Type_PtrBase{"*", sizeof(T*), asset::binary::Type::Bool /* GetBinaryType will reirect to contained type */ }
+        explicit Type_RawPtr(T*)
+            : Type_PtrBase{"*", sizeof(T*), asset::binary::Type::Bool /* GetBinaryType will redirect to contained type */ }
         {
         }
 
         std::string GetTypeName(const void*) const override;
         asset::binary::Type GetBinaryType() const override { return TypeResolver<T>::get()->GetBinaryType(); }
 
-        static Type* GetSerialisedType(asset::binary::Object& parentObj, const std::string& fieldName);
+        static Type* GetSerialisedType(const asset::binary::Object& parentObj, const std::string& fieldName);
         void Serialize(const void* obj, asset::binary::Object& parentObj, const std::string& fieldName) const override;
         void Deserialize(void* obj, asset::binary::Object& parentObj, const std::string& fieldName) const override;
         asset::binary::StructLayout GetStructLayout(const void*) const override;
@@ -258,10 +261,10 @@ namespace se::reflect
     }
 
     template <typename T>
-    Type* Type_RawPtr<T>::GetSerialisedType(asset::binary::Object& parentObj, const std::string& fieldName)
+    Type* Type_RawPtr<T>::GetSerialisedType(const asset::binary::Object& parentObj, const std::string& fieldName)
     {
-        asset::binary::Object thisObj = fieldName.empty() ? parentObj : parentObj.Get<asset::binary::Object>(fieldName);
-        auto typeName = thisObj.GetStruct().GetName();
+        const asset::binary::Object thisObj = fieldName.empty() ? parentObj : parentObj.Get<asset::binary::Object>(fieldName);
+        const auto typeName = thisObj.GetStruct().GetName();
         return TypeFromString(typeName);
     }
 
@@ -276,9 +279,9 @@ namespace se::reflect
         {
             if (!fieldName.empty()) // parent is an object
             {
-                asset::binary::StructLayout structLayout = GetStructLayout(obj);
-                auto db = parentObj.GetDatabase();
-                auto structIndex = db->GetOrCreateStruct(mutableObj->GetTypeName(), structLayout);
+                const asset::binary::StructLayout structLayout = GetStructLayout(obj);
+                const auto db = parentObj.GetDatabase();
+                const auto structIndex = db->GetOrCreateStruct(mutableObj->GetTypeName(), structLayout);
                 auto binaryObj = db->CreateObject(structIndex);
                 parentObj.Set(fieldName, binaryObj);
                 mutableObj->Serialize(*typed, binaryObj, {});
@@ -309,7 +312,7 @@ namespace se::reflect
         static_assert(!T::s_IsPOD, "Pointer (Polymorphic) serialisation not supported for POD types.");
         auto* typed = static_cast<T* const*>(obj);
         auto* constObj = static_cast<const ObjectBase*>(*typed);
-        auto* mutableObj = const_cast<ObjectBase*>(constObj);
+        const auto* mutableObj = const_cast<ObjectBase*>(constObj);
         if (SPARK_VERIFY(mutableObj))
         {
             return mutableObj->GetStructLayout(obj);
@@ -324,8 +327,7 @@ namespace se::reflect
         if (obj)
         {
             auto* typed = static_cast<T* const*>(obj);
-            auto* objBase = static_cast<const ObjectBase*>(*typed);
-            if (objBase)
+            if (auto* objBase = static_cast<const ObjectBase*>(*typed))
             {
                 return objBase->GetReflectType();
             }
@@ -353,7 +355,7 @@ namespace se::reflect
     T InstantiateContainerObj(const std::string& type)
     {
         const Type* reflect = TypeFromString(type);
-        T obj = std::shared_ptr<typename T::element_type>(static_cast<typename T::element_type*>(reflect->heap_constructor()));
+        T obj = std::shared_ptr<typename T::element_type>(static_cast<T::element_type*>(reflect->heap_constructor()));
         return obj;
     }
 
@@ -372,12 +374,19 @@ namespace se::reflect
         return obj;
     }
 
-    void SerializeArray(const void* obj, asset::binary::Object& parentObj, const std::string& fieldName, Type* itemType,
-                    size_t (*getSize)(const void*), const void* (*getItem)(const void*, size_t));
-    void DeserializeArray(void* obj, asset::binary::Object& parentObj, const std::string& fieldName, Type* itemType,
-                            std::function<void*(void*, size_t)> getRawItem);
-    void DeserializeVector(void* obj, asset::binary::Object& parentObj, const std::string& fieldName, Type* itemType,
-                        std::function<void*(const void* vecPtr, const std::string&)> emplace_back);
+    void SerializeArray(const void* obj,
+                        asset::binary::Object& parentObj,
+                        const std::string& fieldName,
+                        const Type* itemType,
+                        size_t (*getSize)(const void*), const void* (*getItem)(const void*, size_t));
+    void DeserializeArray(void* obj,
+                          const asset::binary::Object& parentObj, const std::string& fieldName,
+                          const Type* itemType,
+                          const std::function<void*(void*, size_t)>& getRawItem);
+    void DeserializeVector(void* obj,
+                           const asset::binary::Object& parentObj, const std::string& fieldName,
+                           const Type* itemType,
+                           const std::function<void*(void* vecPtr, const std::string&)>& emplace_back);
 
     template <typename T>
     struct Type_StdVector : Type_Container
@@ -386,9 +395,9 @@ namespace se::reflect
 
         size_t (*getSize)(const void*);
         const void* (*getItem)(const void*, size_t);
-        std::function<void*(const void* vecPtr, const std::string&)> emplace_back;
+        std::function<void*(void* vecPtr, const std::string&)> emplace_back;
 
-        Type_StdVector(T*)
+        explicit Type_StdVector(T*)
             : Type_Container{"std::vector<>", sizeof(std::vector<T>), asset::binary::Type::Array},
               itemType{TypeResolver<T>::get()}
         {
@@ -404,9 +413,9 @@ namespace se::reflect
                 return static_cast<const void*>(&vec.at(index));
             };
 
-            emplace_back = [](const void* vecPtr, const std::string& type) -> void*
+            emplace_back = [](void* vecPtr, const std::string& type) -> void*
             {
-                auto& vec = *(std::vector<T>*)vecPtr;
+                auto& vec = *static_cast<std::vector<T>*>(vecPtr);
                 return &vec.emplace_back(InstantiateContainerObj<T>(type));
             };
         }
@@ -506,7 +515,7 @@ namespace se::reflect
     public:
         static Type* get()
         {
-            static Type_StdVector<T> typeDesc{(T*)nullptr};
+            static Type_StdVector<T> typeDesc{static_cast<T*>(nullptr)};
             return &typeDesc;
         }
     };
@@ -519,7 +528,7 @@ namespace se::reflect
         const void* (*getItem)(const void*, size_t);
         std::function<void*(void*, size_t)> getRawItem;
 
-        Type_StdArray(T*)
+        explicit Type_StdArray(T*)
             : Type_Container{"std::array<>", sizeof(std::array<T, Size>), asset::binary::Type::Array},
               itemType{TypeResolver<T>::get()}
         {
@@ -535,7 +544,7 @@ namespace se::reflect
             };
 
             getRawItem = [](void* vecPtr, size_t index) -> void* {
-                auto& vec = *(std::array<T, Size>*)vecPtr;
+                auto& vec = *static_cast<std::array<T, Size>*>(vecPtr);
                 return &vec[index];
             };
         }
@@ -615,7 +624,7 @@ namespace se::reflect
     public:
         static Type* get()
         {
-            static Type_StdArray<T, Size> typeDesc{(T*)nullptr};
+            static Type_StdArray<T, Size> typeDesc{static_cast<T*>(nullptr)};
             return &typeDesc;
         }
     };
@@ -666,14 +675,14 @@ namespace se::reflect
     void Type_StdMap<T, Y>::Serialize(const void* obj, asset::binary::Object& parentObj,
         const std::string& fieldName) const
     {
-        size_t numItems = getSize(obj);
-        auto db = parentObj.GetDatabase();
+        const size_t numItems = getSize(obj);
+        asset::binary::Database* db = parentObj.GetDatabase();
 
-        asset::binary::StructLayout structLayout = {
+        const asset::binary::StructLayout structLayout = {
             {asset::binary::CreateFixedString64("key"), keyType->GetBinaryType() },
             {asset::binary::CreateFixedString64("value"), itemType->GetBinaryType() }
         };
-        std::map<T, Y>* map = (std::map<T, Y>*)obj;
+        const auto* map = static_cast<const std::map<T, Y>*>(obj);
         auto array = db->CreateArray(db->GetOrCreateStruct(
                                         std::format("Internal_MapItem{}_{}", TypeToString(keyType->GetBinaryType()), TypeToString(itemType->GetBinaryType())),
                                         structLayout),
@@ -700,7 +709,7 @@ namespace se::reflect
     template <typename T, typename Y>
     void Type_StdMap<T, Y>::Deserialize(void* obj, asset::binary::Object& parentObj, const std::string& fieldName) const
     {
-        std::map<T, Y>* map = (std::map<T, Y>*)obj;
+        std::map<T, Y>* map = static_cast<std::map<T, Y>*>(obj);
         map->clear();
 
         auto array = parentObj.Get<asset::binary::Array>(fieldName.empty() ? "val" : fieldName);
@@ -838,14 +847,14 @@ namespace se::reflect
     void Type_StdUnorderedMap<T, Y>::Serialize(const void* obj, asset::binary::Object& parentObj,
         const std::string& fieldName) const
     {
-        size_t numItems = getSize(obj);
-        auto db = parentObj.GetDatabase();
+        const size_t numItems = getSize(obj);
+        const auto db = parentObj.GetDatabase();
 
-        asset::binary::StructLayout structLayout = {
+        const asset::binary::StructLayout structLayout = {
             {asset::binary::CreateFixedString64("key"), keyType->GetBinaryType() },
             {asset::binary::CreateFixedString64("value"), itemType->GetBinaryType() }
         };
-        std::unordered_map<T, Y>* map = (std::unordered_map<T, Y>*)obj;
+        auto* map = static_cast<const std::unordered_map<T, Y>*>(obj);
         auto array = db->CreateArray(db->GetOrCreateStruct(
                                         std::format("Internal_MapItem{}_{}", TypeToString(keyType->GetBinaryType()), TypeToString(itemType->GetBinaryType())),
                                         structLayout),
@@ -872,7 +881,7 @@ namespace se::reflect
     template <typename T, typename Y>
     void Type_StdUnorderedMap<T, Y>::Deserialize(void* obj, asset::binary::Object& parentObj, const std::string& fieldName) const
     {
-        std::unordered_map<T, Y>* map = (std::unordered_map<T, Y>*)obj;
+        std::unordered_map<T, Y>* map = static_cast<std::unordered_map<T, Y>*>(obj);
         map->clear();
         auto array = parentObj.Get<asset::binary::Array>(fieldName.empty() ? "val" : fieldName);
         if (array.GetCount() == 0)

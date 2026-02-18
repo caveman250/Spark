@@ -13,11 +13,11 @@ namespace se::ui::util
     Rect CalculateScreenSpaceRect(const RectTransformComponent& transform,
                                   const Rect& parentRect)
     {
-        auto window = Application::Get()->GetWindow();
+        const auto window = Application::Get()->GetWindow();
 
-        math::IntVec2 parentBottomRight = parentRect.topLeft + parentRect.size;
-        int parentWidth = parentBottomRight.x - parentRect.topLeft.x;
-        int parentHeight = parentBottomRight.y - parentRect.topLeft.y;
+        const math::IntVec2 parentBottomRight = parentRect.topLeft + parentRect.size;
+        const int parentWidth = parentBottomRight.x - parentRect.topLeft.x;
+        const int parentHeight = parentBottomRight.y - parentRect.topLeft.y;
 
         Rect ret = { };
         if (transform.anchors.left > 0.5f)
@@ -60,22 +60,22 @@ namespace se::ui::util
         constexpr float aspectTolerance = 0.01f;
         if (transform.minAspectRatio != 0.f)
         {
-            float aspectRatio = (float)ret.size.x / (float)ret.size.y;
+            const float aspectRatio = static_cast<float>(ret.size.x) / static_cast<float>(ret.size.y);
             if (aspectRatio < transform.minAspectRatio - aspectTolerance)
             {
-                int newWidth = static_cast<int>(ret.size.y * transform.minAspectRatio);
+                const int newWidth = static_cast<int>(ret.size.y * transform.minAspectRatio);
                 if (newWidth > ret.size.x)
                 {
                     // shrink y
-                    int newHeight = static_cast<int>(ret.size.x / transform.minAspectRatio);
-                    int delta = ret.size.y - newHeight;
+                    const int newHeight = static_cast<int>(ret.size.x / transform.minAspectRatio);
+                    const int delta = ret.size.y - newHeight;
                     ret.topLeft.y += static_cast<int>(delta * 0.5f);
                     ret.size.y = newHeight;
                 }
                 else
                 {
                     // grow x
-                    int delta = ret.size.x - newWidth;
+                    const int delta = ret.size.x - newWidth;
                     ret.topLeft.x += static_cast<int>(delta * 0.5f);
                     ret.size.x = newWidth;
                 }
@@ -84,22 +84,22 @@ namespace se::ui::util
 
         if (transform.maxAspectRatio != 0.f)
         {
-            float aspectRatio = (float)ret.size.x / (float)ret.size.y;
+            const float aspectRatio = static_cast<float>(ret.size.x) / static_cast<float>(ret.size.y);
             if (aspectRatio > transform.maxAspectRatio + aspectTolerance)
             {
-                int newWidth = static_cast<int>(ret.size.y * transform.maxAspectRatio);
+                const int newWidth = static_cast<int>(ret.size.y * transform.maxAspectRatio);
                 if (newWidth > ret.size.x)
                 {
                     // shrink y
-                    int newHeight = static_cast<int>(ret.size.x / transform.maxAspectRatio);
-                    int delta = ret.size.y - newHeight;
+                    const int newHeight = static_cast<int>(ret.size.x / transform.maxAspectRatio);
+                    const int delta = ret.size.y - newHeight;
                     ret.topLeft.y += static_cast<int>(delta * 0.5f);
                     ret.size.y = newHeight;
                 }
                 else
                 {
                     // grow x
-                    int delta = ret.size.x - newWidth;
+                    const int delta = ret.size.x - newWidth;
                     ret.topLeft.x += static_cast<int>(delta * 0.5f);
                     ret.size.x = newWidth;
                 }
@@ -115,7 +115,7 @@ namespace se::ui::util
     {
         std::unordered_map<ecs::Id, ChildDesiredSizeInfo> ret = {};
 
-        auto dec = ecs::HeirachyQueryDeclaration()
+        const auto dec = ecs::HeirachyQueryDeclaration()
                 .WithComponent<RectTransformComponent>()
                 .WithComponent<const WidgetComponent>()
                 .WithVariantComponent<SPARK_CONST_WIDGET_TYPES_WITH_NULLTYPE>(
@@ -134,7 +134,7 @@ namespace se::ui::util
                 {
                     const auto &child = children[i];
                     auto &rectTransform = rectTransforms[i];
-                    math::IntVec2 childDesiredSize = DesiredSizeCalculator::GetDesiredSize(system, child, &widgets[i], transform, rectTransform, &value[i]);
+                    const math::IntVec2 childDesiredSize = DesiredSizeCalculator::GetDesiredSize(system, child, &widgets[i], transform, rectTransform, &value[i]);
                     ret[child] = ChildDesiredSizeInfo(&rectTransform, childDesiredSize);
                 }
             },updateData.GetVariantComponentArray<SPARK_CONST_WIDGET_TYPES_WITH_NULLTYPE>());
@@ -148,7 +148,7 @@ namespace se::ui::util
     {
         std::unordered_map<ecs::Id, RectTransformComponent*> ret = {};
 
-        auto dec = ecs::HeirachyQueryDeclaration()
+        const auto dec = ecs::HeirachyQueryDeclaration()
                 .WithComponent<RectTransformComponent>();
 
         system->RunChildQuery(entity, dec,
@@ -171,7 +171,7 @@ namespace se::ui::util
 
     void TranslateChildren(const ecs::Id& entity, ecs::System* system, const math::IntVec2& delta)
     {
-        auto dec = ecs::HeirachyQueryDeclaration()
+        const auto dec = ecs::HeirachyQueryDeclaration()
                 .WithComponent<RectTransformComponent>();
         system->RunRecursiveChildQuery(entity, dec,
         [delta](const ecs::SystemUpdateData& updateData)
@@ -183,23 +183,24 @@ namespace se::ui::util
         });
     }
 
-    void InvalidateParent(const ecs::Id& entity, ecs::System* system)
+    void InvalidateParent(const ecs::Id& entity,
+                            const ecs::System* system)
     {
         EASY_BLOCK("InvalidateParent");
-        auto world = Application::Get()->GetWorld();
+        const auto world = Application::Get()->GetWorld();
         auto currentEntity = entity;
-        auto dec = ecs::HeirachyQueryDeclaration()
+        const auto dec = ecs::HeirachyQueryDeclaration()
             .WithComponent<RectTransformComponent>();
 
         auto rootFunc = [](const ecs::SystemUpdateData& updateData)
         {
-            auto rectTransform = updateData.GetComponentArray<RectTransformComponent>();
+            const auto rectTransform = updateData.GetComponentArray<RectTransformComponent>();
             rectTransform->needsLayout = true;
         };
 
         auto func = [](const ecs::SystemUpdateData& updateData)
         {
-            auto rectTransform = updateData.GetComponentArray<RectTransformComponent>();
+            const auto rectTransform = updateData.GetComponentArray<RectTransformComponent>();
             rectTransform->desiredSize = {};
             rectTransform->cachedParentSize = {};
         };

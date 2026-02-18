@@ -1,12 +1,11 @@
-#include "engine/asset/meta/MetaData.h"
-#include "engine/io/VFS.h"
 #include "AssetBuilder.h"
 #include "Blueprint.h"
-#include "TextureBlueprint.h"
 #include "FBXBlueprint.h"
 #include "FontBlueprint.h"
 #include "JsonBlueprint.h"
 #include "ShaderBlueprint.h"
+#include "TextureBlueprint.h"
+#include "engine/io/VFS.h"
 #include "engine/string/util/StringUtil.h"
 
 namespace se::asset::builder
@@ -22,7 +21,7 @@ namespace se::asset::builder
 
     bool AssetBuilder::IsRelevantFile(const std::string &assetPath)
     {
-        std::string lowerAssetPath = string::util::ToLower(assetPath);
+        const std::string lowerAssetPath = string::util::ToLower(assetPath);
         for (const auto& bp : s_AssetBlueprints)
         {
             if (std::regex_match(lowerAssetPath, bp->GetFilePattern()))
@@ -66,7 +65,7 @@ namespace se::asset::builder
 
     void AssetBuilder::ProcessAsset(const std::string& path, const std::string& outputPath)
     {
-        auto* bp = asset::builder::AssetBuilder::GetBlueprintForAsset(path);
+        const auto* bp = GetBlueprintForAsset(path);
 
         debug::Log::Info("Processing asset {}...", path);
         for (const auto& builtAsset : bp->BuildAsset(path, outputPath))
@@ -74,7 +73,7 @@ namespace se::asset::builder
             if (!builtAsset.fileNameSuffix.empty())
             {
                 auto newOutputPath = outputPath;
-                auto extensionIt = newOutputPath.find_last_of(".");
+                const auto extensionIt = newOutputPath.find_last_of(".");
                 newOutputPath.insert(extensionIt, builtAsset.fileNameSuffix);
                 builtAsset.db->Save(newOutputPath);
 

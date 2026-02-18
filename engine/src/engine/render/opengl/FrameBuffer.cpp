@@ -1,9 +1,7 @@
 #include "FrameBuffer.h"
 
 #include "engine/Application.h"
-#include "engine/asset/texture/Texture.h"
 #include "engine/render/opengl/TextureResource.h"
-#include "platform/IWindow.h"
 
 #if OPENGL_RENDERER
 

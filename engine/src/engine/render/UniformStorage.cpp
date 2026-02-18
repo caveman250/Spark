@@ -1,12 +1,11 @@
 #include "UniformStorage.h"
 #include "MaterialInstance.h"
-#include "easy/profiler.h"
 
 namespace se
 {
     render::UniformStorage::~UniformStorage()
     {
-        for (const auto& [name, value] : m_Storage)
+        for (const auto& value: m_Storage | std::views::values)
         {
             delete value;
         }

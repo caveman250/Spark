@@ -23,7 +23,7 @@ namespace se::asset::binary
         bool HasField(const std::string& field) const;
 
         template<typename T>
-        const T Get(const std::string& field) const;
+        T Get(const std::string& field) const;
 
         std::string GetNativeTypeString(const std::string& field) const;
 
@@ -73,9 +73,9 @@ namespace se::asset::binary
     }
 
     template<typename T>
-    const T Object::Get(const std::string& field) const
+    T Object::Get(const std::string& field) const
     {
-        uint32_t fieldIndex = m_Struct.GetFieldIndex(field);
+        const uint32_t fieldIndex = m_Struct.GetFieldIndex(field);
 #if !SPARK_DIST
         CheckType<T>(m_Struct.GetFieldType(fieldIndex));
 #endif
@@ -93,12 +93,12 @@ namespace se::asset::binary
     }
 
     template<>
-    inline const Object Object::Get<Object>(const std::string& field) const
+    inline Object Object::Get<Object>(const std::string& field) const
     {
 #if !SPARK_DIST
         CheckType<Object>(m_Struct.GetFieldType(m_Struct.GetFieldIndex(field)));
 #endif
-        uint32_t offset = *reinterpret_cast<uint32_t*>(GetData() + m_Struct.GetFieldOffset(m_Struct.GetFieldIndex(field)));
+        const uint32_t offset = *reinterpret_cast<uint32_t*>(GetData() + m_Struct.GetFieldOffset(m_Struct.GetFieldIndex(field)));
         return GetObjectAt(offset);
     }
 
@@ -113,12 +113,12 @@ namespace se::asset::binary
     }
 
     template<>
-    inline const Array Object::Get<Array>(const std::string& field) const
+    inline Array Object::Get<Array>(const std::string& field) const
     {
 #if !SPARK_DIST
         CheckType<Array>(m_Struct.GetFieldType(m_Struct.GetFieldIndex(field)));
 #endif
-        uint32_t offset = *reinterpret_cast<uint32_t*>(GetData() + m_Struct.GetFieldOffset(m_Struct.GetFieldIndex(field)));
+        const uint32_t offset = *reinterpret_cast<uint32_t*>(GetData() + m_Struct.GetFieldOffset(m_Struct.GetFieldIndex(field)));
         return GetArrayAt(offset);
     }
 
@@ -132,12 +132,12 @@ namespace se::asset::binary
     }
 
     template<>
-    inline const PolymorphicArray Object::Get<PolymorphicArray>(const std::string& field) const
+    inline PolymorphicArray Object::Get<PolymorphicArray>(const std::string& field) const
     {
 #if !SPARK_DIST
         CheckType<PolymorphicArray>(m_Struct.GetFieldType(m_Struct.GetFieldIndex(field)));
 #endif
-        uint32_t offset = *reinterpret_cast<uint32_t*>(GetData() + m_Struct.GetFieldOffset(m_Struct.GetFieldIndex(field)));
+        const uint32_t offset = *reinterpret_cast<uint32_t*>(GetData() + m_Struct.GetFieldOffset(m_Struct.GetFieldIndex(field)));
         return GetPolymorphicArrayAt(offset);
     }
 
@@ -149,7 +149,7 @@ namespace se::asset::binary
     }
 
     template<>
-    inline const std::string Object::Get<std::string>(const std::string& field) const
+    inline std::string Object::Get<std::string>(const std::string& field) const
     {
         return GetString(field);
     }
@@ -161,23 +161,23 @@ namespace se::asset::binary
 #if !SPARK_DIST
         CheckType<Blob>(m_Struct.GetFieldType(m_Struct.GetFieldIndex(field)));
 #endif
-        uint32_t offset = GetBlobOffset(val);
+        const uint32_t offset = GetBlobOffset(val);
         Set(m_Struct.GetFieldIndex(field), reinterpret_cast<const char*>(&offset), sizeof(uint32_t));
     }
 
     template<>
-    inline const Blob Object::Get<Blob>(const std::string& field) const
+    inline Blob Object::Get<Blob>(const std::string& field) const
     {
 #if !SPARK_DIST
         CheckType<Blob>(m_Struct.GetFieldType(m_Struct.GetFieldIndex(field)));
 #endif
-        uint32_t offset = *reinterpret_cast<uint32_t*>(GetData() + m_Struct.GetFieldOffset(m_Struct.GetFieldIndex(field)));
+        const uint32_t offset = *reinterpret_cast<uint32_t*>(GetData() + m_Struct.GetFieldOffset(m_Struct.GetFieldIndex(field)));
         return GetBlobAt(offset);
     }
 
 #if !SPARK_DIST
     template<typename T>
-    void CheckType(Type type)
+    void CheckType(const Type type)
     {
         CheckType(type, typeid(T));
     }

@@ -27,13 +27,14 @@ namespace se::asset::shader::compiler
     {
     public:
         explicit ShaderCombiner(const render::VertexBuffer& vb);
-        Shader Combine(const Shader& left, const Shader& right);
-        void ResolveCombinedShaderPorts(Shader& shader, const ast::ShaderCompileContext& context);
+        static Shader Combine(const Shader& left, const Shader& right);
+        void ResolveCombinedShaderPorts(Shader& shader, const ast::ShaderCompileContext& context) const;
 
     private:
-        void ForEachChild(const std::shared_ptr<ast::ASTNode>& node, std::function<void(const std::shared_ptr<ast::ASTNode>& node)> func);
+        static void ForEachChild(const std::shared_ptr<ast::ASTNode>& node,
+                                 const std::function<void(const std::shared_ptr<ast::ASTNode>& node)>& func);
 
-        uint8_t GetInputLoc(const std::string& inputName);
+        uint8_t GetInputLoc(const std::string& inputName) const;
         const render::VertexBuffer& m_VertexBuffer;
         std::vector<std::string> m_ConsumedOutputs = {};
     };

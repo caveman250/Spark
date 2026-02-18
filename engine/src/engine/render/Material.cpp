@@ -11,8 +11,8 @@ namespace se::render
     void Material::Bind(const VertexBuffer& vb)
     {
         EASY_FUNCTION();
-        auto renderer = Renderer::Get<Renderer>();
-        auto boundMat = renderer->GetBoundMaterial();
+        const auto renderer = Renderer::Get<Renderer>();
+        const auto boundMat = renderer->GetBoundMaterial();
         if (boundMat == this)
         {
             return;
@@ -25,7 +25,7 @@ namespace se::render
             m_PlatformResources = CreateMaterialPlatformResources();
         }
 
-        auto rs = renderer->GetCachedRenderState();
+        const auto rs = renderer->GetCachedRenderState();
         if (rs.depthComp != m_RenderState.depthComp ||
             rs.stencilFunc != m_RenderState.stencilFunc ||
             rs.stencilReadMask != m_RenderState.stencilReadMask ||

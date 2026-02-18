@@ -59,7 +59,7 @@ namespace se::ui::systems
 
             for (size_t i = 0; i < entities.size(); ++i)
             {
-                auto entity = entities[i];
+                const auto entity = entities[i];
                 auto& inputReceiver = receivesInputComps[i];
                 const auto& rectTransform = rectTransforms[i];
 
@@ -74,7 +74,7 @@ namespace se::ui::systems
                 }
 
 #if SPARK_EDITOR
-                auto editor = Application::Get()->GetEditorRuntime();
+                const auto editor = Application::Get()->GetEditorRuntime();
                 if (*entity.scene == editor->GetEditorScene() && editor::util::PosWithinViewport(inputComp->mouseX, inputComp->mouseY))
                 {
                     continue;
@@ -95,10 +95,10 @@ namespace se::ui::systems
             input::InputUtil::ProcessMouseEvents(entity.id, inputComp, [this, &entity](const input::MouseEvent& mouseEvent)
             {
                 bool consumed = false;
-                auto declaration = ecs::HeirachyQueryDeclaration()
+                const auto declaration = ecs::HeirachyQueryDeclaration()
                         .WithComponent<components::MouseInputComponent>();
                 RunRecursiveChildQuery(entity.id, declaration,
-                [this, &consumed, mouseEvent](const ecs::SystemUpdateData& updateData)
+                [&consumed, mouseEvent](const ecs::SystemUpdateData& updateData)
                 {
                     if (consumed)
                     {

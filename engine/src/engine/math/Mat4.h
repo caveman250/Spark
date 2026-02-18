@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Vec4.h"
-#include "engine/reflect/Reflect.h"
 
 namespace se::math
 {
@@ -52,9 +51,9 @@ namespace se::math
     bool operator==(const Mat4& lhs, const Mat4 &rhs);
     bool operator!=(const Mat4& lhs, const Mat4 &rhs);
 
-    Mat4 Inverse(const Mat4& v);
+    Mat4 Inverse(const Mat4& m);
 
-    Mat4 Perspective(float fovy, float aspect, float zNear, float zFar);
+    Mat4 Perspective(float fovY, float aspect, float zNear, float zFar);
     Mat4 LookAt(const Vec3& eye, const Vec3& center, const Vec3& up);
     Mat4 Translation(const Vec3& translation);
     Mat4 Scale(const Vec3& scale);

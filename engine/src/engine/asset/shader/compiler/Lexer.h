@@ -9,28 +9,28 @@ namespace se::asset::shader::compiler
     class Lexer
     {
     public:
-        Lexer(const std::string& filePath);
+        explicit Lexer(const std::string& filePath);
 
-        bool Finished() { return !CanPeekChar(); }
+        bool Finished() const { return !CanPeekChar(); }
 
         std::variant<Token, std::string> PeekToken(int offset = 0);
         std::variant<Token, std::string> PeekTokenAt(int n);
         void ConsumeToken();
 
         int GetCharIndex() const { return m_CharIdx; }
-        void SetCharIndex(int charIndex) { m_CharIdx = charIndex; }
+        void SetCharIndex(const int charIndex) { m_CharIdx = charIndex; }
     private:
-        bool CanPeekChar();
-        char PeekChar();
-        bool CanPeekChar(int n);
-        char PeekChar(int n);
+        bool CanPeekChar() const;
+        char PeekChar() const;
+        bool CanPeekChar(int n) const;
+        char PeekChar(int n) const;
         void ConsumeChar();
         void ConsumeChar(int n);
 
-        std::variant<Token, std::string> ProcessStringLiteral(int offset);
-        std::variant<Token, std::string> ProcessNumericLiteral(int offset);
-        Token ProcessComplexSyntax(int offset);
-        std::variant<Token, std::string> ProcessIdentifierOrBuiltin(int offset);
+        std::variant<Token, std::string> ProcessStringLiteral(int offset) const;
+        std::variant<Token, std::string> ProcessNumericLiteral(int offset) const;
+        Token ProcessComplexSyntax(int offset) const;
+        std::variant<Token, std::string> ProcessIdentifierOrBuiltin(int offset) const;
 
         int ConsumeWhitespace(int offset);
 

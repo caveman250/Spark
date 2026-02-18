@@ -22,7 +22,7 @@ namespace se::reflect
 
     int Enum::FromString(const std::string& str) const
     {
-        auto it = std::ranges::find_if(values, [str](const EnumValue& value) { return value.name == str; });
+        const auto it = std::ranges::find_if(values, [str](const EnumValue& value) { return value.name == str; });
         if (it != values.end())
         {
             return it->value;
@@ -36,11 +36,11 @@ namespace se::reflect
     {
         if (!fieldName.empty())
         {
-            parentObj.Set(fieldName, ToString(*(int*)obj));
+            parentObj.Set(fieldName, ToString(*static_cast<const int*>(obj)));
         }
         else
         {
-            parentObj.Set("val", ToString(*(int*)obj));
+            parentObj.Set("val", ToString(*static_cast<const int*>(obj)));
         }
     }
 
@@ -48,11 +48,11 @@ namespace se::reflect
     {
         if (!fieldName.empty())
         {
-            *(int*)obj = FromString(parentObj.Get<std::string>(fieldName));
+            *static_cast<int*>(obj) = FromString(parentObj.Get<std::string>(fieldName));
         }
         else
         {
-            *(int*)obj = FromString(parentObj.Get<std::string>("val"));
+            *static_cast<int*>(obj) = FromString(parentObj.Get<std::string>("val"));
         }
     }
 

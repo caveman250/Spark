@@ -9,7 +9,7 @@ namespace se::ui::util
                                      const RectTransformComponent& rectTransform)
     {
         math::IntVec2 itemSize = {};
-        auto dec = ecs::HeirachyQueryDeclaration()
+        const auto dec = ecs::HeirachyQueryDeclaration()
                 .WithComponent<RectTransformComponent>()
                 .WithComponent<const WidgetComponent>()
                 .WithVariantComponent<SPARK_CONST_WIDGET_TYPES_WITH_NULLTYPE>(ecs::ComponentMutability::Immutable);
@@ -25,7 +25,7 @@ namespace se::ui::util
                 auto widgets = updateData.GetComponentArray<const WidgetComponent>();
                 for (size_t i = 0; i < entities.size(); ++i)
                 {
-                    math::IntVec2 childDesiredSize = DesiredSizeCalculator::GetDesiredSize(system,
+                    const math::IntVec2 childDesiredSize = DesiredSizeCalculator::GetDesiredSize(system,
                                                                                             entities[i],
                                                                                             &widgets[i],
                                                                                            rectTransform,

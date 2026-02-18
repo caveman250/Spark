@@ -1,11 +1,12 @@
 #include "MaterialInstance.h"
 
 #include "engine/render/Material.h"
+
+#if OPENGL_RENDERER
+
 #include "MaterialPlatformResources.h"
 #include "engine/asset/shader/ast/TypeUtil.h"
 #include "engine/render/Material.h"
-
-#if OPENGL_RENDERER
 
 namespace se::render
 {

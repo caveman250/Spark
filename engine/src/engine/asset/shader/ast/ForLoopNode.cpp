@@ -2,9 +2,9 @@
 
 #include "BinaryExpressionNode.h"
 #include "ConstantNode.h"
+#include "ShaderCompileContext.h"
 #include "VariableDeclarationNode.h"
 #include "VariableReferenceNode.h"
-#include "ShaderCompileContext.h"
 
 namespace se::asset::shader::ast
 {
@@ -17,20 +17,20 @@ namespace se::asset::shader::ast
             auto* objBase = static_cast<ObjectBase*>(child.get());
             if (SPARK_VERIFY(objBase))
             {
-                m_Declaration.push_back(std::shared_ptr<ASTNode>((ASTNode*)objBase->GetReflectType()->heap_copy_constructor(child.get())));
+                m_Declaration.push_back(std::shared_ptr<ASTNode>(static_cast<ASTNode*>(objBase->GetReflectType()->heap_copy_constructor(child.get()))));
             }
         }
 
         if (rhs.m_Condition)
         {
-            auto* objBase = static_cast<ObjectBase *>(rhs.m_Condition.get());
-            m_Condition = std::shared_ptr<ASTNode>((ASTNode *) objBase->GetReflectType()->heap_copy_constructor(rhs.m_Condition.get()));
+            const auto* objBase = static_cast<ObjectBase *>(rhs.m_Condition.get());
+            m_Condition = std::shared_ptr<ASTNode>(static_cast<ASTNode*>(objBase->GetReflectType()->heap_copy_constructor(rhs.m_Condition.get())));
         }
 
         if (rhs.m_Expression)
         {
-            auto* objBase = static_cast<ObjectBase *>(rhs.m_Expression.get());
-            m_Expression = std::shared_ptr<ASTNode>((ASTNode *) objBase->GetReflectType()->heap_copy_constructor(rhs.m_Expression.get()));
+            const auto* objBase = static_cast<ObjectBase *>(rhs.m_Expression.get());
+            m_Expression = std::shared_ptr<ASTNode>(static_cast<ASTNode*>(objBase->GetReflectType()->heap_copy_constructor(rhs.m_Expression.get())));
         }
     }
 
@@ -102,25 +102,27 @@ namespace se::asset::shader::ast
         {
             if (variableName.size() == 0)
             {
-                if (VariableDeclarationNode* decNode = dynamic_cast<VariableDeclarationNode*>(node.get()))
+                if (auto* decNode = dynamic_cast<VariableDeclarationNode*>(node.get()))
                 {
                     variableName = decNode->GetName();
                 }
             }
 
-            if (BinaryExpressionNode* binaryExpression = dynamic_cast<BinaryExpressionNode*>(node.get()))
+            if (auto* binaryExpression = dynamic_cast<BinaryExpressionNode*>(node.get()))
             {
                 SPARK_ASSERT(variableName.size() > 0);
                 // we expect the lhs to be variableName
-                [[maybe_unused]] VariableReferenceNode* refNode = dynamic_cast<VariableReferenceNode*>(binaryExpression->m_Children[0].get());
+                [[maybe_unused]] auto* refNode = dynamic_cast<VariableReferenceNode*>(binaryExpression->m_Children[0].get());
                 SPARK_ASSERT(refNode);
                 SPARK_ASSERT(strcmp(refNode->GetName().c_str(), variableName.data()) == 0);
 
                 // TODO support for more complex expressions (also parser should catch this)
-                ConstantNodeBase* constantNode = dynamic_cast<ConstantNodeBase*>(binaryExpression->m_Children[1].get());
-                SPARK_ASSERT(constantNode);
-
-                return constantNode->GetValue();
+                auto* constantNode = dynamic_cast<ConstantNodeBase*>(binaryExpression->m_Children[1].get());
+                if (SPARK_VERIFY(constantNode))
+                {
+                    return constantNode->GetValue();
+                }
+                return -1;
             }
         }
 
@@ -141,7 +143,7 @@ namespace se::asset::shader::ast
         std::string variableName = {};
         SPARK_ASSERT(expression->GetReflectType() == reflect::TypeResolver<BinaryExpressionNode>::get());
         auto* binaryExpression = static_cast<BinaryExpressionNode*>(expression.get());
-        VariableReferenceNode* refNode = dynamic_cast<VariableReferenceNode*>(binaryExpression->m_Children[0].get());
+        auto* refNode = dynamic_cast<VariableReferenceNode*>(binaryExpression->m_Children[0].get());
         if (!SPARK_VERIFY(refNode))
         {
             return { .opType = OperatorType::Add,  .lhs = "", .rhs = -1 };
@@ -152,7 +154,7 @@ namespace se::asset::shader::ast
 
         if (binaryExpression->m_Children.size() > 1)
         {
-            ConstantNode<int>* constantNode = dynamic_cast<ConstantNode<int>*>(binaryExpression->m_Children[1].get());
+            auto* constantNode = dynamic_cast<ConstantNode<int>*>(binaryExpression->m_Children[1].get());
             if (!SPARK_VERIFY(constantNode))
             {
                 return { .opType = OperatorType::Add, .lhs = "", .rhs = -1 };
@@ -171,7 +173,7 @@ namespace se::asset::shader::ast
         // TODO Much stricter parsing
 
         // metal does not support arrays being interpolated from vertex shaders to fragment shaders.
-        // this is a common occurance in glsl, and a pattern I would like to keep.
+        // this is a common occurrence in glsl, and a pattern I would like to keep.
         // to make this compatible with metal shaders, we replace arrays with multiple variables eg:
         // float3 var[2] becomes float3 var0, float3 var1;
         // to account for this, we also need to unroll our for loops at compile time

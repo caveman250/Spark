@@ -5,7 +5,8 @@
 
 namespace se::render::commands
 {
-    Clear::Clear(bool clearColour, bool clearDepth)
+    Clear::Clear(const bool clearColour,
+                 const bool clearDepth)
         : m_ClearColour(clearColour)
         , m_ClearDepth(clearDepth)
     {

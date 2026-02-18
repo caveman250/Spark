@@ -33,7 +33,7 @@ namespace se::asset::shader::ast
     void TextureSampleNode::ToMtl(ShaderCompileContext& context, string::ArenaString& outShader) const
     {
         auto alloc = outShader.get_allocator();
-        bool isInput = context.currentShader->FindInput(m_UVVariableName) != nullptr;
+        const bool isInput = context.currentShader->FindInput(m_UVVariableName) != nullptr;
         std::string varName = isInput ? std::format("in.{}", m_UVVariableName)
                                       : m_UVVariableName;
         outShader += string::ArenaFormat("{}.sample({}, {})", alloc, m_SamplerName, m_TempSamplerName, varName);

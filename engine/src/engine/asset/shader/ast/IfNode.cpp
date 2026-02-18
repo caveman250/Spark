@@ -1,8 +1,5 @@
 #include "IfNode.h"
 
-#include "BinaryExpressionNode.h"
-#include "ShaderCompileContext.h"
-
 namespace se::asset::shader::ast
 {
     IfNode::IfNode(const IfNode& rhs)
@@ -10,8 +7,8 @@ namespace se::asset::shader::ast
     {
         if (rhs.m_Condition)
         {
-            auto* objBase = static_cast<ObjectBase *>(rhs.m_Condition.get());
-            m_Condition = std::shared_ptr<ASTNode>((ASTNode *) objBase->GetReflectType()->heap_copy_constructor(rhs.m_Condition.get()));
+            const auto* objBase = static_cast<ObjectBase *>(rhs.m_Condition.get());
+            m_Condition = std::shared_ptr<ASTNode>(static_cast<ASTNode*>(objBase->GetReflectType()->heap_copy_constructor(rhs.m_Condition.get())));
         }
     }
 

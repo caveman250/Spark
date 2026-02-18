@@ -2,16 +2,16 @@
 #include "engine/render/render_fwd.h"
 
 #if METAL_RENDERER
-#include "engine/render/metal/MTL_fwd.h"
 #include "engine/render/VertexBuffer.h"
+#include "engine/render/metal/MTL_fwd.h"
 
 namespace se::render::metal
 {
     class VertexBuffer : public render::VertexBuffer
     {
     public:
-        VertexBuffer(const asset::StaticMesh& mesh);
-        ~VertexBuffer();
+        explicit VertexBuffer(const asset::StaticMesh& mesh);
+        ~VertexBuffer() override;
 
         void CreatePlatformResource() override;
         void Bind() override;

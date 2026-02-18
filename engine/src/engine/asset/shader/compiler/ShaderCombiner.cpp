@@ -1,20 +1,18 @@
 #include "ShaderCombiner.h"
 
-#include <engine/asset/shader/ast/ShaderCompileContext.h>
-#include <engine/render/Renderer.h>
-
 #include "spark.h"
-#include "engine/render/VertexBuffer.h"
-#include "engine/asset/shader/ast/EndOfExpressionNode.h"
-#include "engine/asset/shader/ast/MainNode.h"
-
-#include "engine/asset/shader/ast/InputAttributeNode.h"
-#include "engine/asset/shader/ast/OutputNode.h"
-#include "engine/asset/shader/ast/NameGenerator.h"
-#include "engine/asset/shader/ast/OutputPortNode.h"
 #include "engine/asset/shader/Shader.h"
+#include "engine/asset/shader/ast/EndOfExpressionNode.h"
+#include "engine/asset/shader/ast/InputAttributeNode.h"
+#include "engine/asset/shader/ast/MainNode.h"
+#include "engine/asset/shader/ast/NameGenerator.h"
+#include "engine/asset/shader/ast/OutputNode.h"
+#include "engine/asset/shader/ast/OutputPortNode.h"
+#include "engine/asset/shader/ast/ShaderCompileContext.h"
 #include "engine/asset/shader/ast/VariableDeclarationNode.h"
 #include "engine/asset/shader/ast/VariableReferenceNode.h"
+#include "engine/render/Renderer.h"
+#include "engine/render/VertexBuffer.h"
 
 namespace se::asset::shader::compiler
 {
@@ -22,17 +20,17 @@ namespace se::asset::shader::compiler
     {
         std::set<std::shared_ptr<ast::OutputPortNode>> outputPortsToRemove;
         std::map<std::string, std::string> ret;
-        auto main = left.FindMain();
+        const auto main = left.FindMain();
         for (const auto &[name, port]: left.GetOutputPorts())
         {
-            for (const auto &[otherName, otherPort]: right.GetInputPorts())
+            for (const auto& otherPort: right.GetInputPorts() | std::views::values)
             {
                 if (port->GetPortName() == otherPort->GetPortName())
                 {
                     auto newName = ast::NameGenerator::GetName();
                     ret[otherPort->GetPortName()] = newName;
 
-                    // replae all writes in current shader with new name
+                    // replace all writes in current shader with new name
                     std::map<std::string, std::string> renameMap = { {name.data(), newName} };
                     for (const auto& node: left.GetNodes())
                     {
@@ -66,15 +64,15 @@ namespace se::asset::shader::compiler
         {
             node->CollectUsedNames(nameMap);
         }
-        for (const auto &[name, port]: left.GetInputPorts())
+        for (const auto& port: left.GetInputPorts() | std::views::values)
         {
             port->CollectUsedNames(nameMap);
         }
-        for (const auto &[name, port]: left.GetOutputPorts())
+        for (const auto& port: left.GetOutputPorts() | std::views::values)
         {
             port->CollectUsedNames(nameMap);
         }
-        for (auto &[name, newName]: nameMap)
+        for (auto& newName: nameMap | std::views::values)
         {
             newName = ast::NameGenerator::GetName();
         }
@@ -82,11 +80,11 @@ namespace se::asset::shader::compiler
         {
             node->ApplyNameRemapping(nameMap);
         }
-        for (const auto &[name, port]: right.GetInputPorts())
+        for (const auto& port: right.GetInputPorts() | std::views::values)
         {
             port->ApplyNameRemapping(nameMap);
         }
-        for (const auto &[name, port]: right.GetOutputPorts())
+        for (const auto& port: right.GetOutputPorts() | std::views::values)
         {
             port->ApplyNameRemapping(nameMap);
         }
@@ -122,7 +120,7 @@ namespace se::asset::shader::compiler
         {
             if (nameMap.contains(port->GetPortName()))
             {
-                // replae all reads in current shader with new name
+                // replace all reads in current shader with new name
                 std::map<std::string, std::string> renameMap = { { name.data(), nameMap.at(port->GetPortName()) } };
                 for (const auto& node: left.GetNodes())
                 {
@@ -142,7 +140,7 @@ namespace se::asset::shader::compiler
 
     void ConnectPorts(Shader &left, Shader &right)
     {
-        auto portRemap = RemapOutputsToOthersInputs(left, right);
+        const auto portRemap = RemapOutputsToOthersInputs(left, right);
         ReplaceInputPortsWithPreviousStageLocalVars(right, portRemap);
     }
 
@@ -208,7 +206,7 @@ namespace se::asset::shader::compiler
     void CombineLogic(Shader &left, const Shader &right)
     {
         auto main = left.FindMain();
-        auto otherMain = right.FindMain();
+        const auto otherMain = right.FindMain();
         std::vector<std::shared_ptr<ast::ASTNode>> nodesBeforeMain = {};
         std::vector<std::shared_ptr<ast::ASTNode>> nodesAfterMain = {};
         bool hitMain = false;
@@ -252,18 +250,18 @@ namespace se::asset::shader::compiler
 
     void MergeRemainingPorts(Shader &left, const Shader &right)
     {
-        for (auto& [name, port] : right.GetInputPorts())
+        for (const auto& port: right.GetInputPorts() | std::views::values)
         {
             left.AddInputPort(port);
         }
 
-        for (auto& [name, port] : right.GetOutputPorts())
+        for (const auto& port: right.GetOutputPorts() | std::views::values)
         {
             left.AddOutputPort(port);
         }
     }
 
-    void ShaderCombiner::ResolveCombinedShaderPorts(Shader& shader, const ast::ShaderCompileContext& context)
+    void ShaderCombiner::ResolveCombinedShaderPorts(Shader& shader, const ast::ShaderCompileContext& context) const
     {
         auto renderType = render::Renderer::Get<render::Renderer>()->GetRenderAPIType();
         for (auto& [name, port] : shader.GetInputPorts())
@@ -332,7 +330,8 @@ namespace se::asset::shader::compiler
         }
     }
 
-    void ShaderCombiner::ForEachChild(const std::shared_ptr<ast::ASTNode>& node, std::function<void(const std::shared_ptr<ast::ASTNode>& node)> func)
+    void ShaderCombiner::ForEachChild(const std::shared_ptr<ast::ASTNode>& node,
+        const std::function<void(const std::shared_ptr<ast::ASTNode>& node)>& func)
     {
         for (const auto& child : node->m_Children)
         {
@@ -386,7 +385,7 @@ namespace se::asset::shader::compiler
         return leftCopy;
     }
 
-    uint8_t ShaderCombiner::GetInputLoc(const std::string& inputName)
+    uint8_t ShaderCombiner::GetInputLoc(const std::string& inputName) const
     {
         render::VertexStreamType targetType;
         if (inputName == "VertexPos")

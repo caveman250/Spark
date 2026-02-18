@@ -33,10 +33,10 @@ namespace se::asset::builder
 
     std::vector<BuiltAsset> TextureBlueprint::BuildAsset(const std::string& path, const std::string&) const
     {
-        auto metaManager = meta::MetaManager::Get();
-        auto metaData = metaManager->GetOrCreateMetaDataForAsset<meta::TextureMetaData>(path);
+        const auto metaManager = meta::MetaManager::Get();
+        const auto metaData = metaManager->GetOrCreateMetaDataForAsset<meta::TextureMetaData>(path);
 
-        auto imageData = LoadImage(path);
+        const auto imageData = LoadImage(path);
         if (!imageData.data)
         {
             debug::Log::Error("Failed to load image {}", path);
@@ -44,16 +44,16 @@ namespace se::asset::builder
         }
 
         SPARK_ASSERT(metaData->m_Format == texture::Format::BC7, "Non BC7 texture formats not supported currently.");
-        auto compressedData = Compress(imageData);
-        if (!compressedData.GetData())
+        const auto compressedData = Compress(imageData);
+        if (compressedData.GetData() == nullptr)
         {
             debug::Log::Error("Failed to compress image! {}", path);
             return { };
         }
 
-        auto texture = Texture::FromRawData(imageData.x, imageData.y, compressedData, metaData->m_Format, metaData->m_Usage);
+        const auto texture = Texture::FromRawData(imageData.x, imageData.y, compressedData, metaData->m_Format, metaData->m_Usage);
         texture->m_SourcePath = path;
-        auto db = reflect::SerialiseType<Texture>(texture.get());
+        const auto db = reflect::SerialiseType<Texture>(texture.get());
 
         FreeImage(imageData);
 
@@ -70,10 +70,10 @@ namespace se::asset::builder
         return LoadImageFromBytes(data, srcImageSize);
     }
 
-    RawImageData TextureBlueprint::LoadImageFromBytes(void *bytes, size_t size)
+    RawImageData TextureBlueprint::LoadImageFromBytes(void *bytes, const size_t size)
     {
         RawImageData ret = {};
-        ret.sourceData = reinterpret_cast<uint8_t*>(bytes);
+        ret.sourceData = static_cast<uint8_t*>(bytes);
         ret.data = reinterpret_cast<uint32_t*>(stbi_load_from_memory(ret.sourceData, static_cast<int>(size), &ret.x, &ret.y, &ret.numComponents, 4));
         return ret;
     }
@@ -117,8 +117,8 @@ namespace se::asset::builder
 
     bool TextureBlueprint::IsOutOfDate(const std::string& assetPath, const std::string& outputPath)
     {
-        auto metaManager = meta::MetaManager::Get();
-        auto metaData = metaManager->GetOrCreateMetaDataForAsset<meta::TextureMetaData>(assetPath);
+        const auto metaManager = meta::MetaManager::Get();
+        const auto metaData = metaManager->GetOrCreateMetaDataForAsset<meta::TextureMetaData>(assetPath);
         if (metaData->GetFormatVersion() < GetLatestVersion())
         {
             return true;

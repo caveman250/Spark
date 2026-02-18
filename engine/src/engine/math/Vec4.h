@@ -1,6 +1,6 @@
 #pragma once
 
-#include "engine/reflect/Reflect.h"
+#include "spark.h"
 
 namespace se::math
 {
@@ -9,17 +9,21 @@ namespace se::math
     {
         SPARK_POD_CLASS()
 
-        inline Vec4() : x(0.f), y(0.f), z(0.f), w(0.f)
+        Vec4() : x(0.f), y(0.f), z(0.f), w(0.f)
         {
         }
 
         Vec4(const Vec3& vec, float _w);
 
-        inline Vec4(float _x, float _y, float _z, float _w) : x(_x), y(_y), z(_z), w(_w)
+        Vec4(const float _x,
+             const float _y,
+             const float _z,
+             const float _w)
+            : x(_x), y(_y), z(_z), w(_w)
         {
         }
 
-        inline Vec4(float scalar) : x(scalar), y(scalar), z(scalar), w(scalar)
+        explicit Vec4(const float scalar) : x(scalar), y(scalar), z(scalar), w(scalar)
         {
         }
 
@@ -61,7 +65,7 @@ namespace se::math
 
 template <> struct std::formatter<se::math::Vec4>
 {
-    constexpr auto parse(std::format_parse_context& ctx)
+    static constexpr auto parse(const std::format_parse_context& ctx)
     {
         return ctx.begin();
     }

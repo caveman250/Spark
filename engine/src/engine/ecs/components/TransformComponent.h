@@ -7,7 +7,7 @@
 
 namespace se::ecs::components
 {
-    struct TransformComponent : ecs::Component
+    struct TransformComponent : Component
     {
         SPARK_COMPONENT()
 

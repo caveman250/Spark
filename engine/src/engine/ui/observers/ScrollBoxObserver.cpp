@@ -8,7 +8,7 @@ namespace se::ui::observers
 {
     void ScrollBoxObserver::OnAdded(const ecs::Id& entity, components::ScrollBoxComponent*)
     {
-        auto world = Application::Get()->GetWorld();
+        const auto world = Application::Get()->GetWorld();
         if (!world->HasComponent<components::WidgetComponent>(entity))
         {
             world->AddComponent<components::WidgetComponent>(entity);

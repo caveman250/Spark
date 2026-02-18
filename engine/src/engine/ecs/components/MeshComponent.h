@@ -2,10 +2,9 @@
 
 #include "spark.h"
 #include "engine/asset/AssetReference.h"
-#include "engine/reflect/Reflect.h"
 #include "engine/asset/mesh/Model.h"
-#include "engine/render/MaterialInstance.h"
 #include "engine/ecs/Component.h"
+#include "engine/render/MaterialInstance.h"
 
 namespace se::render
 {

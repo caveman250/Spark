@@ -1,8 +1,10 @@
 #include "PlatformRunLoop.h"
+
+#include "easy/profiler.h"
 #include "engine/Application.h"
 #include "engine/input/InputComponent.h"
-#include <easy/profiler.h>
 #include "engine/render/Renderer.h"
+#include "platform/IWindow.h"
 
 namespace se
 {
@@ -19,14 +21,14 @@ namespace se
 
     void PlatformRunLoop::Init()
     {
-        auto app = Application::Get();
+        const auto app = Application::Get();
         app->Init();
         m_Window = Application::Get()->GetWindow();
     }
 
     void PlatformRunLoop::Shutdown()
     {
-        auto app = Application::Get();
+        const auto app = Application::Get();
         app->Shutdown();
 #if SPARK_ENABLE_PROFILING
         profiler::dumpBlocksToFile(std::format("{}/save/profile.prof", APP_DIR).c_str());
@@ -42,11 +44,11 @@ namespace se
         app->Update();
         app->Render();
 
-        auto inputComp = app->GetWorld()->GetSingletonComponent<input::InputComponent>();
+        const auto inputComp = app->GetWorld()->GetSingletonComponent<input::InputComponent>();
         inputComp->keyEvents.clear();
         inputComp->mouseEvents.clear();
 
-        auto window = app->GetWindow();
+        auto* window = app->GetWindow();
         window->SetLastContentScale(window->GetContentScale());
     }
 }

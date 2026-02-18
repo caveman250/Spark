@@ -2,22 +2,22 @@
 
 namespace se::math
 {
-    bool FloatEqual(float a, float b)
+    bool FloatEqual(const float a, const float b)
     {
         return std::abs(a - b) <= FLT_EPSILON;
     }
 
-    float Radians(float degrees)
+    float Radians(const float degrees)
     {
         return degrees * 0.01745329251994329576923690768489f;
     }
 
-    float Degrees(float radians)
+    float Degrees(const float radians)
     {
         return radians * 57.295779513082320876798154814105f;
     }
 
-    float InverseSqrt(float f)
+    float InverseSqrt(const float f)
     {
         return 1.f / sqrtf(f);
     }
@@ -40,11 +40,11 @@ namespace se::math
                    0.f,                               0.f,                                0.f,                              1.f };
     }
 
-    Vec3 EularFromMat4(const Mat4& mat)
+    Vec3 EulerFromMat4(const Mat4& mat)
     {
-        auto beta = -std::asin(mat[2][0]);
-        auto alpha = std::atan2(mat[2][1] / std::cos(beta),mat[2][2] / std::cos(beta));
-        auto gamma = std::atan2(mat[1][0] / std::cos(beta),mat[0][0] / std::cos(beta));
+        const auto beta = -std::asin(mat[2][0]);
+        const auto alpha = std::atan2(mat[2][1] / std::cos(beta),mat[2][2] / std::cos(beta));
+        const auto gamma = std::atan2(mat[1][0] / std::cos(beta),mat[0][0] / std::cos(beta));
         return Vec3(alpha, beta, gamma);
     }
 }

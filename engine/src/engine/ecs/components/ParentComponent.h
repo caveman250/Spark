@@ -2,7 +2,6 @@
 
 #include "spark.h"
 #include "engine/ecs/Component.h"
-#include "engine/reflect/Reflect.h"
 
 namespace se::ecs::components
 {

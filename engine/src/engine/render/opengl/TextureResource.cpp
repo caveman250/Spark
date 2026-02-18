@@ -1,7 +1,7 @@
 #include "engine/render/TextureResource.h"
 #include "engine/render/render_fwd.h"
-#include "easy/profiler.h"
 #if OPENGL_RENDERER
+#include "easy/profiler.h"
 #include "TextureResource.h"
 #include "engine/asset/texture/Mipmap.h"
 #include "engine/asset/texture/Format.h"

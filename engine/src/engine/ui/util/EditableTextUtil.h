@@ -46,7 +46,7 @@ namespace se::ui::util
                                    const components::EditableTextComponent& text,
                                    const components::RectTransformComponent& rect);
 
-    void BeginEditingText(ecs::System* system,
+    void BeginEditingText(const ecs::System* system,
                           const ecs::Id& entity,
                           components::EditableTextComponent& textComp,
                           components::KeyInputComponent& keyInputComp);

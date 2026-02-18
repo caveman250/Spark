@@ -12,30 +12,21 @@ namespace se::reflect
     template<typename T>
     Type* getPrimitiveDescriptor();
 
+    template <typename T>
+    concept ClassWithGetReflection = requires
+    {
+        { T::GetReflection() } -> std::same_as<Class*>;
+    };
+
     struct DefaultResolver
     {
-        template<typename T>
-        static char func(decltype(&T::GetReflection));
-
-        template<typename T>
-        static int func(...);
-
-        template<typename T>
-        struct IsReflected
-        {
-            enum
-            {
-                value = (sizeof(func<T>(nullptr)) == sizeof(char))
-            };
-        };
-
-        template<typename T, typename std::enable_if<IsReflected<T>::value, int>::type = 0>
+        template<ClassWithGetReflection T>
         static Type* get()
         {
             return T::GetReflection();
         }
 
-        template<typename T, typename std::enable_if<!IsReflected<T>::value, int>::type = 0>
+        template<typename T>
         static Type* get()
         {
             return getPrimitiveDescriptor<T>();
@@ -57,7 +48,7 @@ namespace se::reflect
         static Class* get()
         {
 #if !SPARK_DIST
-            auto reflectClass = dynamic_cast<Class*>(DefaultResolver::get<T>());
+            const auto reflectClass = dynamic_cast<Class*>(DefaultResolver::get<T>());
             SPARK_ASSERT(reflectClass);
             return reflectClass;
 #else
@@ -72,7 +63,7 @@ namespace se::reflect
         static Enum* get()
         {
 #if !SPARK_DIST
-            auto reflectEnum = dynamic_cast<Enum*>(DefaultResolver::get<T>());
+            const auto reflectEnum = dynamic_cast<Enum*>(DefaultResolver::get<T>());
             SPARK_ASSERT(reflectEnum);
             return reflectEnum;
 #else

@@ -25,7 +25,7 @@ namespace se::asset
             }
         }
 
-        auto db = binary::Database::Load(path, true);
+        const auto db = binary::Database::Load(path, true);
         if (!SPARK_VERIFY(db))
         {
             return nullptr;
@@ -48,8 +48,8 @@ namespace se::asset
             auto& asset = m_AssetCache.at(path);
             if (!asset.expired())
             {
-                auto shared = asset.lock();
-                auto db = binary::Database::Load(path, true);
+                const auto shared = asset.lock();
+                const auto db = binary::Database::Load(path, true);
                 if (!SPARK_VERIFY(db))
                 {
                     return;

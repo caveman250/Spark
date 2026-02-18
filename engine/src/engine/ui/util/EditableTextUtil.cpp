@@ -15,13 +15,13 @@ namespace se::ui::util
 #if SPARK_EDITOR
     NewEditableText CreateEditableText(ecs::World* world,
                                const asset::AssetReference<asset::Font>& font,
-                               int fontSize)
+                               const int fontSize)
 
     {
         NewEditableText ret = {};
-        auto app = Application::Get();
-        auto editor = app->GetEditorRuntime();
-        auto assetManager = asset::AssetManager::Get();
+        const auto app = Application::Get();
+        const auto editor = app->GetEditorRuntime();
+        const auto assetManager = asset::AssetManager::Get();
 
         ret.entity = world->CreateEntity(editor->GetEditorScene(), "Label");
         ret.text = world->AddComponent<EditableTextComponent>(ret.entity);
@@ -30,24 +30,24 @@ namespace se::ui::util
         ret.mouseInput = world->AddComponent<MouseInputComponent>(ret.entity);
         ret.widget = world->AddComponent<WidgetComponent>(ret.entity);
         auto caretEntity = world->CreateEntity(editor->GetEditorScene(), "Caret");
-        auto caretRect = world->AddComponent<RectTransformComponent>(caretEntity);
+        const auto caretRect = world->AddComponent<RectTransformComponent>(caretEntity);
         caretRect->anchors = { 0.f, 0.f, 0.f, 1.f };
         caretRect->minY = 1;
         caretRect->maxY = 1;
         caretRect->maxX = 2;
         world->AddComponent<WidgetComponent>(caretEntity);
-        auto caretComp = world->AddComponent<TextCaretComponent>(caretEntity);
+        const auto caretComp = world->AddComponent<TextCaretComponent>(caretEntity);
         caretComp->active = false;
-        auto caretImage = world->AddComponent<ImageComponent>(caretEntity);
-        auto material = assetManager->GetAsset<render::Material>("/engine_assets/materials/editor_lightbg.sass");
+        const auto caretImage = world->AddComponent<ImageComponent>(caretEntity);
+        const auto material = assetManager->GetAsset<render::Material>("/engine_assets/materials/editor_lightbg.sass");
         caretImage->materialInstance = render::MaterialInstance::CreateMaterialInstance(material);
         world->AddChild(ret.entity, caretEntity);
-        std::function movedCb = [ret, world, caretEntity](int pos)
+        std::function movedCb = [ret, world, caretEntity](const int pos)
         {
-            auto* window = Application::Get()->GetWindow();
-            auto* editText = world->GetComponent<EditableTextComponent>(ret.entity);
-            auto* textRect = world->GetComponent<RectTransformComponent>(ret.entity);
-            float offset = GetCaretPosition(pos, *editText);
+            const auto* window = Application::Get()->GetWindow();
+            const auto* editText = world->GetComponent<EditableTextComponent>(ret.entity);
+            const auto* textRect = world->GetComponent<RectTransformComponent>(ret.entity);
+            const float offset = GetCaretPosition(pos, *editText);
 
             auto* caretRect = world->GetComponent<RectTransformComponent>(caretEntity);
             caretRect->minX = offset + editText->renderOffset / window->GetContentScale();
@@ -59,36 +59,37 @@ namespace se::ui::util
         return ret;
     }
 
-    void SetEditTextMouseInputEnabled(MouseInputComponent* mouseInput, bool enabled)
+    void SetEditTextMouseInputEnabled(MouseInputComponent* mouseInput,
+                                        const bool enabled)
     {
         mouseInput->buttonMask = enabled ? 0xffffffff : 0;
     }
 
-    float GetCaretPosition(int pos, const EditableTextComponent& text)
+    float GetCaretPosition(const int pos, const EditableTextComponent& text)
     {
-        auto window = Application::Get()->GetWindow();
+        const auto window = Application::Get()->GetWindow();
         const auto& verts = text.vertBuffer->GetVertexStreams().at(render::VertexStreamType::Position);
-        size_t numVerts = verts.data.size() / verts.stride;
+        const size_t numVerts = verts.data.size() / verts.stride;
 
-        if (pos == text.editText.length())
+        if (pos == static_cast<int>(text.editText.length()))
         {
             // get TR of last char
-            size_t vertex = numVerts - 2;
-            size_t index = vertex * verts.stride;
+            const size_t vertex = numVerts - 2;
+            const size_t index = vertex * verts.stride;
             SPARK_ASSERT(index < verts.data.size());
             // get x component
-            float ret = verts.data[index];
+            const float ret = verts.data[index];
             return ret / window->GetContentScale();
         }
         else
         {
             // get BL of pos
             constexpr uint8_t numVertsPerChar = 4;
-            size_t vertex = pos * numVertsPerChar;
-            size_t index = vertex * verts.stride;
+            const size_t vertex = pos * numVertsPerChar;
+            const size_t index = vertex * verts.stride;
             SPARK_ASSERT(index < verts.data.size());
             // get x component
-            float ret = verts.data[index];
+            const float ret = verts.data[index];
             return ret / window->GetContentScale();
         }
     }
@@ -97,8 +98,8 @@ namespace se::ui::util
                           const EditableTextComponent& text,
                           const RectTransformComponent& rect)
     {
-        auto window = Application::Get()->GetWindow();
-        math::Vec2 localMousePos = mousePos - math::Vec2(rect.rect.topLeft) - math::Vec2(text.renderOffset, 0.f);
+        const auto window = Application::Get()->GetWindow();
+        const math::Vec2 localMousePos = mousePos - math::Vec2(rect.rect.topLeft) - math::Vec2(text.renderOffset, 0.f);
         return static_cast<int>(GetCharIndexForPosition(localMousePos,
             rect.rect,
             text.font.GetAsset(),
@@ -109,7 +110,7 @@ namespace se::ui::util
             text.alignment));
     }
 
-    void BeginEditingText(ecs::System* system,
+    void BeginEditingText(const ecs::System* system,
                           const ecs::Id& entity,
                           EditableTextComponent& textComp,
                           KeyInputComponent& keyInputComp)
@@ -122,7 +123,7 @@ namespace se::ui::util
             keyInputComp.keyMask = static_cast<input::Key>(0xFFFFFFFF);
         }
 
-        auto dec = ecs::HeirachyQueryDeclaration()
+        const auto dec = ecs::HeirachyQueryDeclaration()
                 .WithComponent<TextCaretComponent>()
                 .WithComponent<WidgetComponent>();
         Application::Get()->GetWorld()->ChildEach(entity, system, dec, [](const ecs::SystemUpdateData& updateData)
@@ -146,7 +147,7 @@ namespace se::ui::util
         textComp.renderOffset = 0.f;
         keyInputComp.keyMask = static_cast<input::Key>(0);
 
-        auto dec = ecs::HeirachyQueryDeclaration()
+        const auto dec = ecs::HeirachyQueryDeclaration()
                 .WithComponent<TextCaretComponent>();
         system->RunChildQuery(entity, dec, [](const ecs::SystemUpdateData& updateData)
         {
@@ -163,15 +164,15 @@ namespace se::ui::util
     }
 
     void MoveCaret(EditableTextComponent& textComp,
-                   int delta)
+                   const int delta)
     {
         SetCaretPos(textComp, textComp.caretPosition + delta);
     }
 
     void SetCaretPos(EditableTextComponent& textComp,
-                     int pos)
+                     const int pos)
     {
-        int oldPos = textComp.caretPosition;
+        const int oldPos = textComp.caretPosition;
         textComp.caretPosition = std::clamp<int>(pos, 0, static_cast<int>(textComp.editText.size()));
 
         if (textComp.caretPosition != oldPos)

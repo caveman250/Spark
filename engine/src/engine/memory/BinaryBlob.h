@@ -5,9 +5,9 @@
 
 namespace se::reflect
 {
-    struct BinaryBlob : Type
+    struct BinaryBlob : Class
     {
-        BinaryBlob() : Type("BinaryBlob", 0, asset::binary::Type::Blob) {}
+        BinaryBlob() : Class("BinaryBlob", 0, asset::binary::Type::Blob) {}
         asset::binary::StructLayout GetStructLayout(const void* obj) const override;
         void Serialize(const void* obj, asset::binary::Object& parentObj, const std::string& fieldName) const override;
         void Deserialize(void* obj, asset::binary::Object& parentObj, const std::string& fieldName) const override;
@@ -20,7 +20,7 @@ namespace se::memory
     {
     public:
         static constexpr bool s_IsPOD = false;
-        static reflect::Type* GetReflection();
+        static reflect::Class* GetReflection();
         static size_t s_StaticId;
 
         reflect::Type* GetReflectType() const override;
@@ -35,7 +35,7 @@ namespace se::memory
         void Release();
 
         void SetData(void* val) { m_Data = val; }
-        void SetSize(size_t val) { m_Size = val; }
+        void SetSize(const size_t val) { m_Size = val; }
         void* GetData() const { return m_Data; }
         size_t GetSize() const { return m_Size; }
     private:

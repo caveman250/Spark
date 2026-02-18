@@ -64,7 +64,7 @@ namespace se::asset
             }
         }
 
-        auto db = binary::Database::Load(path, true);
+        const auto db = binary::Database::Load(path, true);
         if (!SPARK_VERIFY(db))
         {
             return nullptr;

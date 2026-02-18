@@ -36,7 +36,7 @@ namespace se::ui::systems
             auto* transforms = updateData.GetComponentArray<components::RectTransformComponent>();
             const auto* inputComps = updateData.GetComponentArray<const components::MouseInputComponent>();
             const auto* inputComp = updateData.GetSingletonComponent<const input::InputComponent>();
-            auto* appWindow = Application::Get()->GetWindow();
+            const auto* appWindow = Application::Get()->GetWindow();
 
             for (size_t i = 0; i < entities.size(); ++i)
             {
@@ -63,10 +63,10 @@ namespace se::ui::systems
                 {
                     if (input.hovered)
                     {
-                        bool hoveringTop = std::abs(inputComp->mouseY - transform.rect.topLeft.y) < 5;
-                        bool hoveringBottom = std::abs(inputComp->mouseY - (transform.rect.topLeft.y + transform.rect.size.y)) < 5;
-                        bool hoveringLeft = std::abs(inputComp->mouseX - transform.rect.topLeft.x) < 5;
-                        bool hoveringRight =  std::abs(inputComp->mouseX - (transform.rect.topLeft.x + transform.rect.size.x)) < 5;
+                        const bool hoveringTop = std::abs(inputComp->mouseY - transform.rect.topLeft.y) < 5;
+                        const bool hoveringBottom = std::abs(inputComp->mouseY - (transform.rect.topLeft.y + transform.rect.size.y)) < 5;
+                        const bool hoveringLeft = std::abs(inputComp->mouseX - transform.rect.topLeft.x) < 5;
+                        const bool hoveringRight =  std::abs(inputComp->mouseX - (transform.rect.topLeft.x + transform.rect.size.x)) < 5;
 
                         if (hoveringLeft || hoveringRight)
                         {
@@ -136,7 +136,7 @@ namespace se::ui::systems
                 {
                     if (!window.isResizing && !window.docked)
                     {
-                        float invContentScale = 1.f / appWindow->GetContentScale();
+                        const float invContentScale = 1.f / appWindow->GetContentScale();
                         transform.minX += window.pendingDeltaX * invContentScale;
                         transform.maxX += window.pendingDeltaX * invContentScale;
                         transform.minY += window.pendingDeltaY * invContentScale;

@@ -1,7 +1,5 @@
 #pragma once
 
-#include "engine/asset/binary/Database.h"
-#include "BuiltAsset.h"
 #include "Blueprint.h"
 
 namespace se::asset::meta

@@ -2,7 +2,7 @@
 
 namespace se::asset::shader::compiler
 {
-    std::string TokenTypeToString(TokenType token)
+    std::string TokenTypeToString(const TokenType token)
     {
         switch (token)
         {
@@ -22,7 +22,7 @@ namespace se::asset::shader::compiler
         }
     }
 
-    bool IsSyntax(char c)
+    bool IsSyntax(const char c)
     {
         switch (c)
         {

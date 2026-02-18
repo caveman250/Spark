@@ -234,7 +234,7 @@ namespace se::ecs
                              const HeirachyQueryDeclaration& declaration,
                              Func&& func);
 
-        static bool ValidateHeirachyQuery(const System* system,
+        static bool ValidateHierarchyQuery(const System* system,
                                           const HeirachyQueryDeclaration& declaration);
 
         void RunOnAllSystems(const std::function<void(const Id&)>& func,
@@ -492,7 +492,7 @@ namespace se::ecs
 #if !SPARK_DIST
         if (system)
         {
-            if (!ValidateHeirachyQuery(system, declaration))
+            if (!ValidateHierarchyQuery(system, declaration))
             {
                 return false;
             }
@@ -592,7 +592,7 @@ namespace se::ecs
 #if !SPARK_DIST
         if (system)
         {
-            if (!ValidateHeirachyQuery(system, declaration))
+            if (!ValidateHierarchyQuery(system, declaration))
             {
                 return;
             }

@@ -56,10 +56,10 @@ namespace se::ui::systems
     {
         EASY_BLOCK("TextRenderSystem::OnRender");
 
-        auto app = Application::Get();
+        const auto app = Application::Get();
         auto window = app->GetWindow();
         auto renderer = render::Renderer::Get<render::Renderer>();
-        auto updateMode = renderer->SupportsMultiThreadedRendering() ? ecs::UpdateMode::MultiThreaded : ecs::UpdateMode::SingleThreaded;
+        const auto updateMode = renderer->SupportsMultiThreadedRendering() ? ecs::UpdateMode::MultiThreaded : ecs::UpdateMode::SingleThreaded;
 
         ecs::ForEachArcheType(results, updateMode, false, [window, renderer](const ecs::SystemUpdateData& updateData)
         {

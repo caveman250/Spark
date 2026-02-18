@@ -123,17 +123,17 @@ return &typeDesc;\
         void Serialize(const void* obj, asset::binary::Object& parentObj, const std::string& fieldName) const override
         {
             if (!fieldName.empty())
-                parentObj.Set(fieldName, *(uint64_t*)obj);
+                parentObj.Set(fieldName, *static_cast<const uint64_t*>(obj));
             else
-                parentObj.Set("val", *(uint64_t*)obj);
+                parentObj.Set("val", *static_cast<const uint64_t*>(obj));
         }
 
         void Deserialize(void* obj, asset::binary::Object& parentObj, const std::string& fieldName) const override
         {
             if (!fieldName.empty())
-                *(uint64_t*)obj = parentObj.Get<uint64_t>(fieldName);
+                *static_cast<uint64_t*>(obj) = parentObj.Get<uint64_t>(fieldName);
             else
-                *(uint64_t*)obj = parentObj.Get<uint64_t>("val");
+                *static_cast<uint64_t*>(obj) = parentObj.Get<uint64_t>("val");
         }
 
         asset::binary::StructLayout GetStructLayout(const void*) const override

@@ -5,7 +5,7 @@
 
 namespace se::asset::shader::ast
 {
-    InputAttributeNode::InputAttributeNode(uint8_t location, const Variable& var, const std::string& name)
+    InputAttributeNode::InputAttributeNode(const uint8_t location, const Variable& var, const std::string& name)
         : InputNode(var, name)
         , m_Location(location)
     {

@@ -57,7 +57,7 @@ namespace se::windows
         }
 
         Application* app = Application::Get();
-        auto input = app->GetWorld()->GetSingletonComponent<input::InputComponent>();
+        const auto input = app->GetWorld()->GetSingletonComponent<input::InputComponent>();
         input::InputComponent& temp_input = window->GetTempInputComponent();
         temp_input.lastMouseX = input->lastMouseX;
         temp_input.lastMouseY = input->lastMouseY;

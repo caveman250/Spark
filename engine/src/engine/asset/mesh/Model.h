@@ -26,7 +26,7 @@ namespace se::asset
         bool UsesMetaData() const override { return true; }
         std::string GetSourceFileExtension() const override { return ".fbx"; }
 
-        static std::shared_ptr<Model> FromFBX(ofbx::IScene* fbxScene, const std::shared_ptr<meta::ModelMetaData>& meta);
+        static std::shared_ptr<Model> FromFBX(const ofbx::IScene* fbxScene, const std::shared_ptr<meta::ModelMetaData>& meta);
 
         const StaticMesh& GetMesh() { return m_Mesh; }
         bool HasMaterial() const { return m_Material.IsSet(); }

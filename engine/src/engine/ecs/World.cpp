@@ -1,14 +1,11 @@
 #include "World.h"
 
-
-#include <Widgets.generated.h>
-#include <easy/profiler.h>
-
-#include "engine/render/render_fwd.h"
 #include "SceneSaveData.h"
+#include "SystemUtil.h"
+#include "Widgets.generated.h"
 #include "components/ParentComponent.h"
 #include "components/RootComponent.h"
-#include "engine/bits/FlagUtil.h"
+#include "easy/profiler.h"
 #include "engine/containers/MapUtil.h"
 #include "engine/ecs/Signal.h"
 #include "engine/ecs/System.h"
@@ -16,11 +13,11 @@
 #include "engine/reflect/Reflect.h"
 #include "engine/reflect/Util.h"
 #include "engine/render/Renderer.h"
+#include "engine/render/render_fwd.h"
+#include "engine/render/opengl/DeferredOpenGLOperations.h"
 #include "engine/render/singleton_components/MeshRenderComponent.h"
 #include "engine/string/util/StringUtil.h"
 #include "engine/ui/components/RectTransformComponent.h"
-#include "SystemUtil.h"
-#include "engine/render/opengl/DeferredOpenGLOperations.h"
 
 namespace se::ecs
 {
@@ -83,7 +80,7 @@ namespace se::ecs
         const std::string& name)
     {
         auto guard = std::lock_guard(m_EntityMutex);
-        auto it = m_IdMetaMap.find(entity);
+        const auto it = m_IdMetaMap.find(entity);
         if (SPARK_VERIFY(it != m_IdMetaMap.end()))
         {
             it->second.name = name;
@@ -133,11 +130,11 @@ namespace se::ecs
 
     void* World::GetComponent(const Id& entity, const Id& component)
     {
-        EntityRecord& record = m_EntityRecords.at(entity);
+        const EntityRecord& record = m_EntityRecords.at(entity);
         auto& compInfo = m_ComponentRecords.at(component);
-        Archetype* archetype = record.archetype;
-        auto it = compInfo.archetypeRecords.find(archetype->id);
-        bool hasComp = it != compInfo.archetypeRecords.end();
+        const Archetype* archetype = record.archetype;
+        const auto it = compInfo.archetypeRecords.find(archetype->id);
+        const bool hasComp = it != compInfo.archetypeRecords.end();
 
         if (!hasComp)
         {
@@ -153,8 +150,8 @@ namespace se::ecs
             return nullptr;
         }
 
-        ArchetypeComponentKey& a_record = it->second;
-        const auto& compList = archetype->components.at(a_record);
+        const ArchetypeComponentKey& archetypeRecord = it->second;
+        const auto& compList = archetype->components.at(archetypeRecord);
         void* comp = compList.GetComponent(record.entity_idx);
         return comp;
     }
@@ -173,7 +170,7 @@ namespace se::ecs
         }
 
 #if SPARK_EDITOR
-        auto editorRuntime = Application::Get()->GetEditorRuntime();
+        const auto editorRuntime = Application::Get()->GetEditorRuntime();
         if (entity == editorRuntime->GetSelectedEntity())
         {
             editorRuntime->SelectEntity(s_InvalidEntity);
@@ -185,7 +182,7 @@ namespace se::ecs
         }
 #endif
 
-        auto& record = it->second;
+        const auto& record = it->second;
 
         auto safeCopy = record.children;
         for (const auto& child: safeCopy)
@@ -199,7 +196,7 @@ namespace se::ecs
             RemoveComponentInternal(entity, comp);
         }
 
-        Id parentId = record.parent;
+        const Id parentId = record.parent;
         if (parentId != s_InvalidEntity)
         {
             auto& childrenRecord = m_EntityRecords[parentId].children;
@@ -216,8 +213,8 @@ namespace se::ecs
 
     bool World::HasComponent(const Id& entity, const Id& component)
     {
-        EntityRecord& record = m_EntityRecords.at(entity);
-        Archetype* archetype = record.archetype;
+        const EntityRecord& record = m_EntityRecords.at(entity);
+        const Archetype* archetype = record.archetype;
         if (!archetype)
         {
             return false;
@@ -382,7 +379,7 @@ namespace se::ecs
         CreateArchetype({});
     }
 
-    Archetype* World::GetNextArchetype(Archetype* archetype, Id component, bool add, bool createIfMissing)
+    Archetype* World::GetNextArchetype(Archetype* archetype, Id component, const bool add, const bool createIfMissing)
     {
         if (!archetype->edges.contains(component))
         {
@@ -407,7 +404,7 @@ namespace se::ecs
                 edge.remove = GetArchetype(removeType, createIfMissing);
             }
         }
-        auto ret = add ? edge.add : edge.remove;
+        const auto ret = add ? edge.add : edge.remove;
         return ret;
     }
 
@@ -432,7 +429,7 @@ namespace se::ecs
          }
     }
 
-    Archetype* World::GetArchetype(const Type& type, bool createIfMissing)
+    Archetype* World::GetArchetype(const Type& type, const bool createIfMissing)
     {
         if (!HasArchetype(type))
         {
@@ -444,8 +441,8 @@ namespace se::ecs
             CreateArchetype(type);
         }
 
-        auto lookup = m_ArchetypeTypeLookup.at(type);
-        auto ret = &m_Archetypes.at(lookup);
+        const auto lookup = m_ArchetypeTypeLookup.at(type);
+        const auto ret = &m_Archetypes.at(lookup);
         SPARK_ASSERT(ret);
         return ret;
     }
@@ -485,7 +482,7 @@ namespace se::ecs
 #endif
 
 #if SPARK_EDITOR
-        auto editor = Application::Get()->GetEditorRuntime();
+        const auto editor = Application::Get()->GetEditorRuntime();
         if (editor->InGameMode())
 #endif
         {
@@ -508,7 +505,7 @@ namespace se::ecs
 
         m_Running = false;
 
-        auto safeCopy = m_PendingSignals;
+        const auto safeCopy = m_PendingSignals;
         m_PendingSignals.clear();
         for (auto* signal: safeCopy)
         {
@@ -526,7 +523,7 @@ namespace se::ecs
         }
 #endif
 
-        //DumpWidgetHeirachy();
+        //DumpWidgetHierarchy();
     }
 
     void World::Render()
@@ -535,8 +532,8 @@ namespace se::ecs
 
         m_Running = true;
 
-        auto renderer = render::Renderer::Get<render::Renderer>();
-        bool parallel = renderer->SupportsMultiThreadedRendering();
+        const auto renderer = render::Renderer::Get<render::Renderer>();
+        const bool parallel = renderer->SupportsMultiThreadedRendering();
 
         RunOnAllSystems([this](auto&& systemId)
         {
@@ -664,7 +661,7 @@ namespace se::ecs
 
     void World::UnloadScene(const Id& scene)
     {
-        auto it = m_SceneRecords.find(scene);
+        const auto it = m_SceneRecords.find(scene);
         if (!SPARK_VERIFY(it != m_SceneRecords.end()))
         {
             return;
@@ -682,11 +679,11 @@ namespace se::ecs
 #if SPARK_EDITOR
     void World::SaveSceneToTemp(const Id& id)
     {
-        auto it = m_SceneRecords.find(id);
+        const auto it = m_SceneRecords.find(id);
         if (it != m_SceneRecords.end())
         {
             const auto& record = it->second;
-            auto lastSlashIndex = record.path.find_last_of("/");
+            const auto lastSlashIndex = record.path.find_last_of("/");
             auto fileName = record.path.substr(lastSlashIndex + 1);
             SaveScene(it->first, std::format("/tmp/editor_scene_{}", fileName), true);
         }
@@ -695,10 +692,10 @@ namespace se::ecs
     Id World::ReloadSceneFromTemp(const Id& id)
     {
         std::string fileName = {};
-        auto it = m_SceneRecords.find(id);
+        const auto it = m_SceneRecords.find(id);
         if (it != m_SceneRecords.end())
         {
-            auto lastSlashIndex = it->second.path.find_last_of("/");
+            const auto lastSlashIndex = it->second.path.find_last_of("/");
             fileName = it->second.path.substr(lastSlashIndex + 1);
             UnloadScene(it->first);
         }
@@ -784,8 +781,8 @@ namespace se::ecs
         {
             if (world->HasComponent<ui::components::RectTransformComponent>(child))
             {
-                auto rectTransform = world->GetComponent<ui::components::RectTransformComponent>(child);
-                auto db = reflect::SerialiseType<ui::components::RectTransformComponent>(rectTransform);
+                const auto rectTransform = world->GetComponent<ui::components::RectTransformComponent>(child);
+                const auto db = reflect::SerialiseType<ui::components::RectTransformComponent>(rectTransform);
                 nlohmann::ordered_json json;
                 auto dbJson = db->ToJson();
                 json["id"] = child.id;
@@ -909,7 +906,7 @@ namespace se::ecs
         }
     }
 
-    const std::string* World::GetName(uint64_t id) const
+    const std::string* World::GetName(const uint64_t id) const
     {
         if (id == s_InvalidEntity || !m_IdMetaMap.contains(id))
         {
@@ -919,7 +916,7 @@ namespace se::ecs
         return &m_IdMetaMap.at(id).name;
     }
 
-    int32_t* World::GetFlags(uint64_t id)
+    int32_t* World::GetFlags(const uint64_t id)
     {
         if (id == s_InvalidEntity || !m_IdMetaMap.contains(id))
         {
@@ -929,7 +926,7 @@ namespace se::ecs
         return &m_IdMetaMap.at(id).flags;
     }
 
-    const Id* World::GetScene(uint64_t id) const
+    const Id* World::GetScene(const uint64_t id) const
     {
         if (id == s_InvalidEntity || !m_IdMetaMap.contains(id))
         {
@@ -993,7 +990,7 @@ namespace se::ecs
         }
     }
 
-    bool World::ValidateHeirachyQuery(const System* system,
+    bool World::ValidateHierarchyQuery(const System* system,
                                    const HeirachyQueryDeclaration& declaration)
     {
         const auto& systemDec = system->GetDeclaration();
@@ -1012,10 +1009,12 @@ namespace se::ecs
     }
 
     void World::RunOnAllSystems(const std::function<void(const Id&)>& func,
-                                const std::vector<std::vector<Id>>& systemUpdateGroups, bool parallel, bool processPending)
+                                const std::vector<std::vector<Id>>& systems,
+                                const bool parallel,
+                                const bool processPending)
     {
         EASY_BLOCK("World::RunOnAllSystems");
-        for (const auto& updateGroup: systemUpdateGroups)
+        for (const auto& updateGroup: systems)
         {
             if (parallel && updateGroup.size() > 1)
             {
@@ -1073,7 +1072,7 @@ namespace se::ecs
 
         auto editor = Application::Get()->GetEditorRuntime();
 
-        std::vector dec = {
+        const std::vector dec = {
             ComponentUsage(components::RootComponent::GetComponentId(), ComponentMutability::Immutable),
             ComponentUsage(ui::components::WidgetComponent::GetComponentId(), ComponentMutability::Mutable)
         };
@@ -1160,7 +1159,7 @@ namespace se::ecs
     void World::ProcessPendingComponents()
     {
         EASY_BLOCK("World::ProcessPendingComponents");
-        auto creationsCopy = m_PendingComponentCreations;
+        const auto creationsCopy = m_PendingComponentCreations;
         m_PendingComponentCreations.clear();
         for (const auto& pendingComp: creationsCopy)
         {
@@ -1200,7 +1199,7 @@ namespace se::ecs
                                       std::vector<std::vector<Id>>& systemUpdateGroups,
                                       std::vector<std::vector<Id>>& systemRenderGroups)
     {
-        bool shouldRebuildUpdateGroups = !pendingCreations.empty() || !pendingDeletions.empty(); {
+        const bool shouldRebuildUpdateGroups = !pendingCreations.empty() || !pendingDeletions.empty(); {
             auto safeCopy = pendingCreations;
             pendingCreations.clear();
             for (const auto& [systemId, relationships]: safeCopy)
@@ -1209,7 +1208,7 @@ namespace se::ecs
                 systemRecords.at(systemId).instance->Init();
             }
         } {
-            auto safeCopy = pendingDeletions;
+            const auto safeCopy = pendingDeletions;
             pendingDeletions.clear();
             for (Id system: safeCopy)
             {
@@ -1220,8 +1219,8 @@ namespace se::ecs
 
         if (shouldRebuildUpdateGroups)
         {
-            RebuildSystemUpdateGroups(systemUpdateGroups, systemRecords, [](System* system){ return system->ImplementsUpdateMethod(); });
-            RebuildSystemUpdateGroups(systemRenderGroups, systemRecords, [](System* system){ return system->ImplementsRenderMethod(); });
+            RebuildSystemUpdateGroups(systemUpdateGroups, systemRecords, [](const System* system){ return system->ImplementsUpdateMethod(); });
+            RebuildSystemUpdateGroups(systemRenderGroups, systemRecords, [](const System* system){ return system->ImplementsRenderMethod(); });
         }
     }
 
@@ -1254,7 +1253,7 @@ namespace se::ecs
     {
         if (SPARK_VERIFY(systemMap.contains(system)))
         {
-            auto& systemRecord = systemMap.at(system);
+            const auto& systemRecord = systemMap.at(system);
             delete systemRecord.instance;
             systemMap.erase(system);
         }
@@ -1325,7 +1324,7 @@ namespace se::ecs
     void World::ProcessPendingEntityDeletions()
     {
         EASY_FUNCTION();
-        auto safeCopy = m_PendingEntityDeletions;
+        const auto safeCopy = m_PendingEntityDeletions;
         m_PendingEntityDeletions.clear();
         for (const Id& entity: safeCopy)
         {
@@ -1379,7 +1378,7 @@ namespace se::ecs
 
     const std::vector<Id>& World::GetChildren(const Id& entity) const
     {
-        auto it = m_EntityRecords.find(entity);
+        const auto it = m_EntityRecords.find(entity);
         if (it == m_EntityRecords.end())
         {
             static std::vector<Id> empty = {};
@@ -1390,7 +1389,7 @@ namespace se::ecs
 
     Id World::GetParent(const Id& entity) const
     {
-        auto it = m_EntityRecords.find(entity);
+        const auto it = m_EntityRecords.find(entity);
         if (it == m_EntityRecords.end())
         {
             return s_InvalidEntity;

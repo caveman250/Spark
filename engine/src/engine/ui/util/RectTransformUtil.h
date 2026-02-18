@@ -21,5 +21,6 @@ namespace se::ui::util
 
     void TranslateChildren(const ecs::Id& entity, ecs::System* system, const math::IntVec2& delta);
 
-    void InvalidateParent(const ecs::Id& entity, ecs::System* system);
+    void InvalidateParent(const ecs::Id& entity,
+ const ecs::System* system);
 }

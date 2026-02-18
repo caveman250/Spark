@@ -5,11 +5,11 @@
 namespace se::math
 {
     Vec4::Vec4(const Vec3& vec,
-        float _w): x(vec.x), y(vec.y), z(vec.z), w(_w)
+        const float _w): x(vec.x), y(vec.y), z(vec.z), w(_w)
     {
     }
 
-    float& Vec4::operator[](size_t i)
+    float& Vec4::operator[](const size_t i)
     {
         SPARK_ASSERT(i <= 3u);
         switch(i)
@@ -26,7 +26,7 @@ namespace se::math
         }
     }
 
-    const float& Vec4::operator[](size_t i) const
+    const float& Vec4::operator[](const size_t i) const
     {
         SPARK_ASSERT(i <= 3);
         switch(i)
@@ -52,7 +52,7 @@ namespace se::math
         return *this;
     }
 
-    Vec4& Vec4::operator+=(float scalar)
+    Vec4& Vec4::operator+=(const float scalar)
     {
         x += scalar;
         y += scalar;
@@ -70,7 +70,7 @@ namespace se::math
         return *this;
     }
 
-    Vec4& Vec4::operator-=(float scalar)
+    Vec4& Vec4::operator-=(const float scalar)
     {
         x -= scalar;
         y -= scalar;
@@ -88,7 +88,7 @@ namespace se::math
         return *this;
     }
 
-    Vec4& Vec4::operator*=(float scalar)
+    Vec4& Vec4::operator*=(const float scalar)
     {
         x *= scalar;
         y *= scalar;
@@ -106,7 +106,7 @@ namespace se::math
         return *this;
     }
 
-    Vec4& Vec4::operator/=(float scalar)
+    Vec4& Vec4::operator/=(const float scalar)
     {
         x /= scalar;
         y /= scalar;
@@ -135,7 +135,7 @@ namespace se::math
         return { lhs.x * rhs.x, lhs.y * rhs.y, lhs.z * rhs.z, lhs.w * rhs.w };
     }
 
-    Vec4 operator*(const Vec4& lhs, float scalar)
+    Vec4 operator*(const Vec4& lhs, const float scalar)
     {
         return { lhs.x * scalar, lhs.y * scalar, lhs.z * scalar, lhs.w * scalar };
     }
@@ -145,7 +145,7 @@ namespace se::math
         return { lhs.x / rhs.x, lhs.y / rhs.y, lhs.z / rhs.z, lhs.w / rhs.w };
     }
 
-    Vec4 operator/(const Vec4& lhs, float scalar)
+    Vec4 operator/(const Vec4& lhs, const float scalar)
     {
         const float div = 1.f / scalar;
         return { lhs.x * div, lhs.y * div, lhs.z * div, lhs.w * div };

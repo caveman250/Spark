@@ -1,6 +1,6 @@
 #pragma once
 
-#include "engine/reflect/Reflect.h"
+#include "spark.h"
 
 namespace se::input
 {

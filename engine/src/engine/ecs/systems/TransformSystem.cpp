@@ -1,15 +1,12 @@
-#include "spark.h"
-
-#include "engine/math/Mat4.h"
-#include "engine/ecs/components/MeshComponent.h"
 #include "TransformSystem.h"
 
+#include "RootTransformSystem.h"
+#include "spark.h"
+#include "easy/profiler.h"
 #include "engine/Application.h"
 #include "engine/ecs/components/TransformComponent.h"
-#include <easy/profiler.h>
-
-#include "RootTransformSystem.h"
 #include "engine/ecs/util/SystemUtil.h"
+#include "engine/math/Mat4.h"
 
 using namespace se;
 using namespace se::ecs::components;
@@ -27,7 +24,7 @@ namespace se::ecs::systems
     {
         EASY_BLOCK("TransformSystem::OnUpdate");
 
-        ForEachArcheType(results, ecs::UpdateMode::MultiThreaded, false, [](const ecs::SystemUpdateData& updateData)
+        ForEachArcheType(results, UpdateMode::MultiThreaded, false, [](const SystemUpdateData& updateData)
         {
             auto* transform = updateData.GetComponentArray<TransformComponent>();
 

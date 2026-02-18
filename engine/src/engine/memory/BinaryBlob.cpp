@@ -15,13 +15,13 @@ namespace se::reflect
         if (!fieldName.empty())
         {
             const auto* blob = static_cast<const memory::BinaryBlob*>(obj);
-            auto assetBlob = parentObj.GetDatabase()->CreateBlob(static_cast<const char*>(blob->GetData()), static_cast<uint32_t>(blob->GetSize()));
+            const auto assetBlob = parentObj.GetDatabase()->CreateBlob(static_cast<const char*>(blob->GetData()), static_cast<uint32_t>(blob->GetSize()));
             parentObj.Set(fieldName, assetBlob);
         }
         else
         {
             const auto* blob = static_cast<const memory::BinaryBlob*>(obj);
-            auto assetBlob = parentObj.GetDatabase()->CreateBlob(static_cast<const char*>(blob->GetData()), static_cast<uint32_t>(blob->GetSize()));
+            const auto assetBlob = parentObj.GetDatabase()->CreateBlob(static_cast<const char*>(blob->GetData()), static_cast<uint32_t>(blob->GetSize()));
             parentObj.Set("val", assetBlob);
         }
     }
@@ -33,7 +33,7 @@ namespace se::reflect
             auto binaryObj = parentObj.Get<asset::binary::Blob>(fieldName);
             void* newData = malloc(binaryObj.GetSize());
             memcpy(newData, binaryObj.GetData(), binaryObj.GetSize());
-            memory::BinaryBlob* blob = (memory::BinaryBlob*)obj;
+            memory::BinaryBlob* blob = static_cast<memory::BinaryBlob*>(obj);
             blob->SetData(newData);
             blob->SetSize(binaryObj.GetSize());
         }
@@ -42,7 +42,7 @@ namespace se::reflect
             auto binaryObj = parentObj.Get<asset::binary::Blob>("val");
             void* newData = malloc(binaryObj.GetSize());
             memcpy(newData, binaryObj.GetData(), binaryObj.GetSize());
-            memory::BinaryBlob* blob = (memory::BinaryBlob*)obj;
+            memory::BinaryBlob* blob = static_cast<memory::BinaryBlob*>(obj);
             blob->SetData(newData);
             blob->SetSize(binaryObj.GetSize());
         }
@@ -53,7 +53,7 @@ namespace se::memory
 {
     size_t BinaryBlob::s_StaticId = typeid(BinaryBlob).hash_code();
 
-    reflect::Type* BinaryBlob::GetReflection()
+    reflect::Class* BinaryBlob::GetReflection()
     {
         static reflect::BinaryBlob* s_Instance = nullptr;
         if (!s_Instance)
@@ -100,7 +100,8 @@ namespace se::memory
     {
     }
 
-    BinaryBlob::BinaryBlob(void* data, size_t size)
+    BinaryBlob::BinaryBlob(void* data,
+                            const size_t size)
         : m_Data(data)
         , m_Size(size)
     {

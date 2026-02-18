@@ -2,14 +2,14 @@
 
 #include "MeshRenderSystem.h"
 #include "engine/Application.h"
+#include "engine/asset/mesh/Model.h"
 #include "engine/asset/shader/ast/Types.h"
 #include "engine/camera/ActiveCameraComponent.h"
 #include "engine/ecs/components/MeshComponent.h"
 #include "engine/ecs/components/TransformComponent.h"
+#include "engine/ecs/util/SystemUtil.h"
 #include "engine/render/MaterialInstance.h"
 #include "engine/render/Renderer.h"
-#include "engine/asset/mesh/Model.h"
-#include "engine/ecs/util/SystemUtil.h"
 #include "engine/render/VertexBuffer.h"
 #include "engine/render/singleton_components/MeshRenderComponent.h"
 
@@ -30,8 +30,8 @@ namespace se::render::systems
     void MeshRenderSystem::OnUpdate(const ecs::QueryResults& results)
     {
         EASY_BLOCK("MeshRenderSystem::OnUpdate");
-        auto renderer = Renderer::Get<Renderer>();
-        auto updateMode = renderer->SupportsMultiThreadedRendering() ? ecs::UpdateMode::MultiThreaded : ecs::UpdateMode::SingleThreaded;
+        const auto renderer = Renderer::Get<Renderer>();
+        const auto updateMode = renderer->SupportsMultiThreadedRendering() ? ecs::UpdateMode::MultiThreaded : ecs::UpdateMode::SingleThreaded;
         ecs::ForEachArcheType(results, updateMode, false, [](const ecs::SystemUpdateData& updateData)
         {
             auto* meshes = updateData.GetComponentArray<MeshComponent>();
@@ -46,7 +46,7 @@ namespace se::render::systems
             {
                 auto& mesh = meshes[i];
                 auto& transform = transforms[i];
-                size_t modelHash = std::hash<asset::AssetReference<asset::Model>>()(mesh.model);
+                const size_t modelHash = std::hash<asset::AssetReference<asset::Model>>()(mesh.model);
                 bool buffersValid = mesh.vertBuffer && mesh.modelHash == modelHash;
     #if SPARK_EDITOR
                 if (std::ranges::contains(meshRenderComp->invalidatedMeshAssets, mesh.model))
@@ -100,7 +100,7 @@ namespace se::render::systems
     {
         EASY_BLOCK("MeshRenderSystem::OnRender");
         auto renderer = Renderer::Get<Renderer>();
-        auto updateMode = renderer->SupportsMultiThreadedRendering() ? ecs::UpdateMode::MultiThreaded : ecs::UpdateMode::SingleThreaded;
+        const auto updateMode = renderer->SupportsMultiThreadedRendering() ? ecs::UpdateMode::MultiThreaded : ecs::UpdateMode::SingleThreaded;
 
         ecs::ForEachArcheType(results, updateMode, false, [renderer](const ecs::SystemUpdateData& updateData)
         {
@@ -108,9 +108,9 @@ namespace se::render::systems
             auto* meshRenderComp = updateData.GetSingletonComponent<singleton_components::MeshRenderComponent>();
 
     #if SPARK_EDITOR
-            size_t defaultRenderGroup = Application::Get()->GetEditorRuntime()->GetOffscreenRenderGroup();
+            const size_t defaultRenderGroup = Application::Get()->GetEditorRuntime()->GetOffscreenRenderGroup();
     #else
-            size_t defaultRenderGroup = renderer->GetDefaultRenderGroup();
+            const size_t defaultRenderGroup = renderer->GetDefaultRenderGroup();
     #endif
 
             for (size_t i = 0; i < updateData.GetEntities().size(); ++i)

@@ -1,5 +1,4 @@
 #include "Font.h"
-#include "engine/asset/AssetManager.h"
 #include "engine/asset/builder/FontBlueprint.h"
 #include "engine/asset/texture/Texture.h"
 
@@ -15,7 +14,7 @@ namespace se::asset
         return m_Texture;
     }
 
-    const CharData& Font::GetCharData(char c) const
+    const CharData& Font::GetCharData(const char c) const
     {
         if (!SPARK_VERIFY(m_CharData.contains(c)))
         {
@@ -26,22 +25,22 @@ namespace se::asset
         return m_CharData.at(c);
     }
 
-    float Font::GetLineHeight(int fontSize) const
+    float Font::GetLineHeight(const int fontSize) const
     {
-        float scale = static_cast<float>(fontSize) / builder::FontBlueprint::s_Scale;
-        float height = m_Ascent - m_Descent + m_LineGap;
+        const float scale = static_cast<float>(fontSize) / builder::FontBlueprint::s_Scale;
+        const float height = m_Ascent - m_Descent + m_LineGap;
         return height * scale;
     }
 
-    float Font::GetAscent(int fontSize) const
+    float Font::GetAscent(const int fontSize) const
     {
-        float scale = static_cast<float>(fontSize) / builder::FontBlueprint::s_Scale;
+        const float scale = static_cast<float>(fontSize) / builder::FontBlueprint::s_Scale;
         return m_Ascent * scale;
     }
 
-    float Font::GetDescent(int fontSize) const
+    float Font::GetDescent(const int fontSize) const
     {
-        float scale = static_cast<float>(fontSize) / builder::FontBlueprint::s_Scale;
+        const float scale = static_cast<float>(fontSize) / builder::FontBlueprint::s_Scale;
         return m_Descent * scale;
     }
 }

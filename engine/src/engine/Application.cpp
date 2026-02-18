@@ -108,7 +108,7 @@ namespace se
     {
         EASY_BLOCK("Application::Update");
         const auto now = std::chrono::system_clock::now();
-        std::chrono::duration<float> elapsed_seconds = now - m_TimeLastFrame;
+        const std::chrono::duration<float> elapsed_seconds = now - m_TimeLastFrame;
         m_DeltaTime = elapsed_seconds.count();
         m_TimeLastFrame = now;
 

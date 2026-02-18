@@ -8,16 +8,16 @@ namespace se::asset::texture
     struct Mipmap : reflect::ObjectBase
     {
         SPARK_CLASS()
-        Mipmap();
-        Mipmap(memory::BinaryBlob m_Data, uint32_t sizeX, uint32_t sizeY);
+        Mipmap() = default;
+        Mipmap(const memory::BinaryBlob& data, uint32_t sizeX, uint32_t sizeY);
 
         SPARK_MEMBER(Serialized)
-        memory::BinaryBlob m_Data;
+        memory::BinaryBlob m_Data = {};
 
         SPARK_MEMBER(Serialized)
-        uint32_t m_SizeX;
+        uint32_t m_SizeX = 0;
 
         SPARK_MEMBER(Serialized)
-        uint32_t m_SizeY;
+        uint32_t m_SizeY = 0;
     };
 }

@@ -18,11 +18,11 @@ namespace se::render
             const auto& lightSetup = Renderer::Get<Renderer>()->GetLightSetup();
             std::vector<math::Vec3> pos;
             pos.resize(lightSetup.pointLights.size());
-            std::transform(lightSetup.pointLights.begin(), lightSetup.pointLights.end(), pos.begin(), [](const PointLight& light){ return light.pos; });
+            std::ranges::transform(lightSetup.pointLights, pos.begin(), [](const PointLight& light){ return light.pos; });
 
             std::vector<math::Vec3> color;
             color.resize(lightSetup.pointLights.size());
-            std::transform(lightSetup.pointLights.begin(), lightSetup.pointLights.end(), color.begin(), [](const PointLight& light){ return light.color; });
+            std::ranges::transform(lightSetup.pointLights, color.begin(), [](const PointLight& light){ return light.color; });
 
             SetUniform("lightPos", asset::shader::ast::AstType::Vec3, static_cast<int>(pos.size()), pos.data());
             SetUniform("lightColor", asset::shader::ast::AstType::Vec3, static_cast<int>(color.size()), color.data());

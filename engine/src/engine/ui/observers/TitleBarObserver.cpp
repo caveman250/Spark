@@ -14,14 +14,14 @@ namespace se::ui::observers
 {
     void TitleBarObserver::OnAdded(const ecs::Id& entity, components::TitleBarComponent*)
     {
-        auto world = Application::Get()->GetWorld();
+        const auto world = Application::Get()->GetWorld();
 
         //background
         if (!world->HasComponent<components::ImageComponent>(entity))
         {
-            auto assetManager = asset::AssetManager::Get();
-            auto image = world->AddComponent<components::ImageComponent>(entity);
-            auto material = assetManager->GetAsset<render::Material>("/engine_assets/materials/editor_darkbg.sass");
+            const auto assetManager = asset::AssetManager::Get();
+            const auto image = world->AddComponent<components::ImageComponent>(entity);
+            const auto material = assetManager->GetAsset<render::Material>("/engine_assets/materials/editor_darkbg.sass");
             image->materialInstance = render::MaterialInstance::CreateMaterialInstance(material);
         }
 

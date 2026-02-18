@@ -12,8 +12,7 @@ namespace se::asset::shader::compiler
 
     std::variant<Token, std::string> Lexer::PeekToken(int offset)
     {
-        char c = PeekChar(offset);
-        switch (c)
+        switch (char c = PeekChar(offset))
         {
             case '\"':
                 return ProcessStringLiteral(offset);
@@ -156,29 +155,29 @@ namespace se::asset::shader::compiler
 
     void Lexer::ConsumeToken()
     {
-        auto peek = PeekToken();
+        const auto peek = PeekToken();
         if (SPARK_VERIFY(std::holds_alternative<Token>(peek)))
         {
             ConsumeChar(static_cast<int>(std::get<Token>(peek).value.size()));
         }
     }
 
-    bool Lexer::CanPeekChar()
+    bool Lexer::CanPeekChar() const
     {
         return m_CharIdx < static_cast<int>(m_Code.size());
     }
 
-    char Lexer::PeekChar()
+    char Lexer::PeekChar() const
     {
         return m_Code[m_CharIdx];
     }
 
-    bool Lexer::CanPeekChar(int n)
+    bool Lexer::CanPeekChar(const int n) const
     {
         return m_CharIdx + n < static_cast<int>(m_Code.size());
     }
 
-    char Lexer::PeekChar(int n)
+    char Lexer::PeekChar(const int n) const
     {
         return m_Code[m_CharIdx + n];
     }
@@ -188,12 +187,12 @@ namespace se::asset::shader::compiler
         m_CharIdx++;
     }
 
-    void Lexer::ConsumeChar(int n)
+    void Lexer::ConsumeChar(const int n)
     {
         m_CharIdx += n;
     }
 
-    std::variant<Token, std::string> Lexer::ProcessStringLiteral(int offset)
+    std::variant<Token, std::string> Lexer::ProcessStringLiteral(const int offset) const
     {
         std::string result = {};
         int lookahead = offset;
@@ -220,7 +219,7 @@ namespace se::asset::shader::compiler
         }
     }
 
-    std::variant<Token, std::string> Lexer::ProcessNumericLiteral(int offset)
+    std::variant<Token, std::string> Lexer::ProcessNumericLiteral(const int offset) const
     {
         std::string result = {};
         int lookahead = offset;
@@ -247,10 +246,10 @@ namespace se::asset::shader::compiler
         }
     }
 
-    Token Lexer::ProcessComplexSyntax(int offset)
+    Token Lexer::ProcessComplexSyntax(const int offset) const
     {
         std::string result = {};
-        char c1 = PeekChar(offset);
+        const char c1 = PeekChar(offset);
         result += c1;
         if (!CanPeekChar(offset + 1))
         {
@@ -258,7 +257,7 @@ namespace se::asset::shader::compiler
                 static_cast<uint32_t>(m_CharIdx + m_CurrLinePosOffset)};
         }
 
-        char c2 = PeekChar(offset + 1);
+        const char c2 = PeekChar(offset + 1);
         static std::map<char, char> s_AllowedPairs =
         {
             {'<', '='},
@@ -286,7 +285,7 @@ namespace se::asset::shader::compiler
                 static_cast<uint32_t>(m_CharIdx + m_CurrLinePosOffset)};
     }
 
-    std::variant<Token, std::string> Lexer::ProcessIdentifierOrBuiltin(int offset)
+    std::variant<Token, std::string> Lexer::ProcessIdentifierOrBuiltin(const int offset) const
     {
         std::string result = {};
         int lookahead = offset;
@@ -332,7 +331,7 @@ namespace se::asset::shader::compiler
 
     int Lexer::ConsumeWhitespace(int offset)
     {
-        bool canConsume  = offset == 0;
+        const bool canConsume  = offset == 0;
         std::string result = {};
         char c = PeekChar(offset);
 
