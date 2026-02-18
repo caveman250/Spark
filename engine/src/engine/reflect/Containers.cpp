@@ -18,7 +18,7 @@ namespace se::reflect
             const auto array = db->CreatePolymorphicArray(numItems);
             for (size_t index = 0; index < numItems; index++)
             {
-                const Type_StdSharedPtr<ObjectBase>* reflect = static_cast<Type_StdSharedPtr<ObjectBase>*>(TypeResolver<std::shared_ptr<ObjectBase>>::get());
+                const Type_StdSharedPtr<ObjectBase>* reflect = static_cast<Type_StdSharedPtr<ObjectBase>*>(TypeResolver<std::shared_ptr<ObjectBase>>::Get());
                 auto* objBase = static_cast<const std::shared_ptr<ObjectBase>*>(getItem(obj, index));
                 asset::binary::Object arrayObj = db->CreateObject(
                     db->GetOrCreateStruct(reflect->GetTypeName(objBase), reflect->GetStructLayout(objBase)));

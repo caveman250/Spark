@@ -73,22 +73,22 @@ namespace se::memory
 
     reflect::Type* BinaryBlob::GetReflectType() const
     {
-        return reflect::TypeResolver<BinaryBlob>::get();
+        return reflect::TypeResolver<BinaryBlob>::Get();
     }
 
     void BinaryBlob::Serialize(const void* obj, asset::binary::Object& parentObj, const std::string& fieldName)
     {
-        reflect::TypeResolver<BinaryBlob>::get()->Serialize(obj, parentObj, fieldName);
+        reflect::TypeResolver<BinaryBlob>::Get()->Serialize(obj, parentObj, fieldName);
     }
 
     void BinaryBlob::Deserialize(void* obj, asset::binary::Object& parentObj, const std::string& fieldName)
     {
-        reflect::TypeResolver<BinaryBlob>::get()->Deserialize(obj, parentObj, fieldName);
+        reflect::TypeResolver<BinaryBlob>::Get()->Deserialize(obj, parentObj, fieldName);
     }
 
     asset::binary::StructLayout BinaryBlob::GetStructLayout(const void* obj) const
     {
-        return reflect::TypeResolver<BinaryBlob>::get()->GetStructLayout(obj);
+        return reflect::TypeResolver<BinaryBlob>::Get()->GetStructLayout(obj);
     }
 
     std::string BinaryBlob::GetTypeName() const

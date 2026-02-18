@@ -54,7 +54,7 @@ namespace se::editor::ui::properties
         verticalBox->spacing = 5;
         world->AddChild(listBG, verticalBoxEntity);
 
-        reflect::Type* stringType = reflect::TypeResolver<std::string>::get();
+        reflect::Type* stringType = reflect::TypeResolver<std::string>::Get();
         size_t numElements = m_VectorType->GetNumContainedElements(m_Value);
         if (numElements == 0)
         {

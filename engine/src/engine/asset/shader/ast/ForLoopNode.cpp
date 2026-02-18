@@ -141,7 +141,7 @@ namespace se::asset::shader::ast
     ForLoopExpression EvaluateForLoopCondition(const std::shared_ptr<ASTNode>& expression)
     {
         std::string variableName = {};
-        SPARK_ASSERT(expression->GetReflectType() == reflect::TypeResolver<BinaryExpressionNode>::get());
+        SPARK_ASSERT(expression->GetReflectType() == reflect::TypeResolver<BinaryExpressionNode>::Get());
         auto* binaryExpression = static_cast<BinaryExpressionNode*>(expression.get());
         auto* refNode = dynamic_cast<VariableReferenceNode*>(binaryExpression->m_Children[0].get());
         if (!SPARK_VERIFY(refNode))

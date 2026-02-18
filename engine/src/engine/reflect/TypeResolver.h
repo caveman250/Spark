@@ -10,7 +10,7 @@ namespace se::reflect
     struct Class;
 
     template<typename T>
-    Type* getPrimitiveDescriptor();
+    Type* GetPrimitiveDescriptor();
 
     template <typename T>
     concept ClassWithGetReflection = requires
@@ -21,38 +21,38 @@ namespace se::reflect
     struct DefaultResolver
     {
         template<ClassWithGetReflection T>
-        static Type* get()
+        static Type* Get()
         {
             return T::GetReflection();
         }
 
         template<typename T>
-        static Type* get()
+        static Type* Get()
         {
-            return getPrimitiveDescriptor<T>();
+            return GetPrimitiveDescriptor<T>();
         }
     };
 
     template<typename T>
     struct TypeResolver
     {
-        static Type* get()
+        static Type* Get()
         {
-            return DefaultResolver::get<T>();
+            return DefaultResolver::Get<T>();
         }
     };
 
     template<typename T>
     struct ClassResolver
     {
-        static Class* get()
+        static Class* Get()
         {
 #if !SPARK_DIST
-            const auto reflectClass = dynamic_cast<Class*>(DefaultResolver::get<T>());
+            const auto reflectClass = dynamic_cast<Class*>(DefaultResolver::Get<T>());
             SPARK_ASSERT(reflectClass);
             return reflectClass;
 #else
-            return static_cast<Class*>(DefaultResolver::get<T>());
+            return static_cast<Class*>(DefaultResolver::Get<T>());
 #endif
         }
     };
@@ -60,14 +60,14 @@ namespace se::reflect
     template<typename T>
     struct EnumResolver
     {
-        static Enum* get()
+        static Enum* Get()
         {
 #if !SPARK_DIST
-            const auto reflectEnum = dynamic_cast<Enum*>(DefaultResolver::get<T>());
+            const auto reflectEnum = dynamic_cast<Enum*>(DefaultResolver::Get<T>());
             SPARK_ASSERT(reflectEnum);
             return reflectEnum;
 #else
-            return static_cast<Enum*>(DefaultResolver::get<T>());
+            return static_cast<Enum*>(DefaultResolver::Get<T>());
 #endif
         }
     };

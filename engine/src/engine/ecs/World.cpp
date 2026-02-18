@@ -605,7 +605,7 @@ namespace se::ecs
     Id World::LoadScene(std::string path)
     {
         auto db = asset::binary::Database::Load(path, true);
-        auto type = reflect::TypeResolver<SceneSaveData>::get();
+        auto type = reflect::TypeResolver<SceneSaveData>::Get();
         SceneSaveData obj = {};
         auto root = db->GetRoot();
         type->Deserialize(&obj, root, {});
@@ -735,7 +735,7 @@ namespace se::ecs
         }
 
         auto db = asset::binary::Database::Create(false);
-        auto type = reflect::TypeResolver<SceneSaveData>::get();
+        auto type = reflect::TypeResolver<SceneSaveData>::Get();
         db->SetRootStruct(db->GetOrCreateStruct(type->GetTypeName(nullptr), type->GetStructLayout(nullptr)));
         SceneSaveData saveData = {};
 

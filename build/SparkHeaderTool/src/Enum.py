@@ -42,7 +42,7 @@ def DefineEnumBegin(enum):
 namespace se::reflect 
 {{ 
     template <> 
-    Type* getPrimitiveDescriptor<{full_enum_name}>() 
+    Type* GetPrimitiveDescriptor<{full_enum_name}>() 
     {{ 
         static se::reflect::Enum* s_Instance = nullptr; 
         if (!s_Instance) 

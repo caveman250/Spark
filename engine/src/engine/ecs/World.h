@@ -408,7 +408,7 @@ namespace se::ecs
                 id = NewEntity();
             }
 
-            reflect::Type* type = reflect::TypeResolver<T>::get();
+            reflect::Type* type = reflect::TypeResolver<T>::Get();
             m_IdMetaMap[id].name = type->name;
 
             T::s_ComponentId = id;
@@ -419,7 +419,7 @@ namespace se::ecs
             m_ComponentRecords.insert(std::make_pair(T::GetComponentId(),
                                                      ComponentRecord
                                                      {
-                                                         .type = reflect::ClassResolver<T>::get(),
+                                                         .type = reflect::ClassResolver<T>::Get(),
                                                          .archetypeRecords = { },
                                                      }));
         }
@@ -728,7 +728,7 @@ namespace se::ecs
         m_PendingEngineSystemCreations.push_back({ T::GetSystemId(), systemReg });
         if (SPARK_VERIFY(!m_EngineSystems.contains(T::GetSystemId())))
         {
-            m_EngineSystems.insert(std::make_pair(T::GetSystemId(), SystemRecord { reflect::ClassResolver<T>::get(), nullptr }));
+            m_EngineSystems.insert(std::make_pair(T::GetSystemId(), SystemRecord { reflect::ClassResolver<T>::Get(), nullptr }));
         }
     }
 
@@ -746,7 +746,7 @@ namespace se::ecs
             {
                 id = NewEntity();
             }
-            reflect::Type* type = reflect::TypeResolver<T>::get();
+            reflect::Type* type = reflect::TypeResolver<T>::Get();
             m_IdMetaMap[id].name = type->name;
 
             T::s_SystemId = id;
@@ -761,7 +761,7 @@ namespace se::ecs
         m_PendingAppSystemCreations.push_back({ T::GetSystemId(), systemReg });
         if (SPARK_VERIFY(!m_AppSystems.contains(T::GetSystemId())))
         {
-            m_AppSystems.insert(std::make_pair(T::GetSystemId(), SystemRecord { reflect::ClassResolver<T>::get(), nullptr }));
+            m_AppSystems.insert(std::make_pair(T::GetSystemId(), SystemRecord { reflect::ClassResolver<T>::Get(), nullptr }));
         }
     }
 

@@ -9,7 +9,7 @@ namespace se::reflect
     template<typename T>
     std::shared_ptr<asset::binary::Database> SerialiseType(const void* obj)
     {
-        const Type* reflect = TypeResolver<T>::get();
+        const Type* reflect = TypeResolver<T>::Get();
         auto db = asset::binary::Database::Create(false);
         db->SetRootStruct(db->GetOrCreateStruct(reflect->GetTypeName(obj), reflect->GetStructLayout(obj)));
         auto root = db->GetRoot();
@@ -41,7 +41,7 @@ namespace se::reflect
     T DeserialiseType(const std::shared_ptr<asset::binary::Database>& db)
     {
         T obj;
-        const Type* reflect = TypeResolver<T>::get();
+        const Type* reflect = TypeResolver<T>::Get();
         auto root = db->GetRoot();
         reflect->Deserialize(&obj, root, {});
         return obj;
@@ -50,7 +50,7 @@ namespace se::reflect
     template<typename T>
     void DeserialiseType(const std::shared_ptr<asset::binary::Database>& db, T& obj)
     {
-        const Type* reflect = TypeResolver<T>::get();
+        const Type* reflect = TypeResolver<T>::Get();
         auto root = db->GetRoot();
         reflect->Deserialize(&obj, root, {});
     }

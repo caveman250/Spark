@@ -23,7 +23,7 @@ namespace se::reflect
     template <typename T>
     void AddFunctionArgType(std::vector<Type*>& arg_list)
     {
-        arg_list.push_back(TypeResolver<T>::get());
+        arg_list.push_back(TypeResolver<T>::Get());
     }
 
     template <typename... Args>

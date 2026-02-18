@@ -28,7 +28,7 @@ asset::binary::StructLayout GetStructLayout(const void*) const override\
 }\
 };\
 template<>\
-Type* getPrimitiveDescriptor<type>(){\
+Type* GetPrimitiveDescriptor<type>(){\
 static Type_##type typeDesc;\
 return &typeDesc;\
 }
@@ -76,7 +76,7 @@ return &typeDesc;\
     };
 
     template <>
-    Type* getPrimitiveDescriptor<void>()
+    Type* GetPrimitiveDescriptor<void>()
     {
         static Type_Void typeDesc;
         return &typeDesc;
@@ -107,7 +107,7 @@ return &typeDesc;\
     };
 
     template <>
-    Type* getPrimitiveDescriptor<ObjectBase>()
+    Type* GetPrimitiveDescriptor<ObjectBase>()
     {
         static Type_ObjectBase typeDesc;
         return &typeDesc;
@@ -144,7 +144,7 @@ return &typeDesc;\
     };
 
     template <>
-    Type* getPrimitiveDescriptor<ecs::Id>()
+    Type* GetPrimitiveDescriptor<ecs::Id>()
     {
         static Type_Id typeDesc;
         return &typeDesc;

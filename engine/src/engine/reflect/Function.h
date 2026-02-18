@@ -14,7 +14,7 @@ namespace se::reflect
     template <typename ReturnType, typename ClassType, typename... ArgTypes>
     ReturnType InvokeFunction(ClassType* instance, const std::string& func_name, ArgTypes&&... args)
     {
-        auto class_type = ClassResolver<ClassType>::get();
+        auto class_type = ClassResolver<ClassType>::Get();
         auto func = std::ranges::find_if(class_type->functions, [&func_name](const Class::Function& func)
         {
             return func.name == func_name;

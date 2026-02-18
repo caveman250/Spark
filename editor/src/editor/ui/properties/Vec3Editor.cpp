@@ -28,7 +28,7 @@ namespace se::editor::ui::properties
 
         m_XEditor.SetValue(&m_Value->x, nullptr);
         m_XEditor.ConstructUI(PropertyEditorParams("X",
-            reflect::TypeResolver<float>::get(),
+            reflect::TypeResolver<float>::Get(),
             &m_Value->x,
             { 0.f, 0.33f, 0.f, 1.f },
             false,
@@ -41,7 +41,7 @@ namespace se::editor::ui::properties
 
         m_YEditor.SetValue(&m_Value->x, nullptr);
         m_YEditor.ConstructUI(PropertyEditorParams("Y",
-           reflect::TypeResolver<float>::get(),
+           reflect::TypeResolver<float>::Get(),
            &m_Value->y,
            { 0.33f, 0.66f, 0.f, 1.f },
            false,
@@ -54,7 +54,7 @@ namespace se::editor::ui::properties
 
         m_ZEditor.SetValue(&m_Value->z, nullptr);
         m_ZEditor.ConstructUI(PropertyEditorParams("Z",
-           reflect::TypeResolver<float>::get(),
+           reflect::TypeResolver<float>::Get(),
            &m_Value->z,
            { 0.66f, 1.f, 0.f, 1.f },
            false,

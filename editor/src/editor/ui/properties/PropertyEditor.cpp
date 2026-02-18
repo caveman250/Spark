@@ -187,7 +187,7 @@ namespace se::editor::ui::properties
         {
             if (params.type->IsClass())
             {
-                editor_type = reflect::TypeResolver<ClassEditor>::get();
+                editor_type = reflect::TypeResolver<ClassEditor>::Get();
             }
             else
             {

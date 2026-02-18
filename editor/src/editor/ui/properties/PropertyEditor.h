@@ -36,13 +36,13 @@ namespace se::editor::ui::properties
 #define DEFINE_PROPERTY_EDITOR(Type, PropertyEditorType, UnqualifiedName)\
     static PropertyEditorRegister SPARK_CAT(PropertyEditor_, SPARK_CAT(UnqualifiedName, _Register))([](){\
         auto& map = se::editor::ui::properties::GetPropertyEditorTypes();\
-        map.insert(std::make_pair(reflect::TypeResolver<Type>::get(), reflect::TypeResolver<PropertyEditorType>::get()));\
+        map.insert(std::make_pair(reflect::TypeResolver<Type>::Get(), reflect::TypeResolver<PropertyEditorType>::Get()));\
     });                                                 \
 
 #define DEFINE_CONTAINER_PROPERTY_EDITOR(Type, PropertyEditorType)\
     static PropertyEditorRegister SPARK_CAT(SPARK_CAT(PropertyEditorType, _Register), __COUNTER__)([](){\
         auto& map = se::editor::ui::properties::GetContainerPropertyEditorTypes();\
-        map.insert(std::make_pair(Type, reflect::TypeResolver<PropertyEditorType>::get()));\
+        map.insert(std::make_pair(Type, reflect::TypeResolver<PropertyEditorType>::Get()));\
     });
 
 #if SPARK_PLATFORM_MAC || SPARK_PLATFORM_LINUX

@@ -58,7 +58,7 @@ namespace se::reflect
         }
 
         std::string GetTypeName(const void*) const override;
-        asset::binary::Type GetBinaryType() const override { return TypeResolver<T>::get()->GetBinaryType(); }
+        asset::binary::Type GetBinaryType() const override { return TypeResolver<T>::Get()->GetBinaryType(); }
 
         static Type* GetSerialisedType(const asset::binary::Object& parentObj, const std::string& fieldName);
         void Serialize(const void* obj, asset::binary::Object& parentObj, const std::string& fieldName) const override;
@@ -109,7 +109,7 @@ namespace se::reflect
             return "";
         }
 
-        return std::string("std::shared_ptr<") + TypeResolver<T>::get()->GetTypeName(nullptr) + ">";
+        return std::string("std::shared_ptr<") + TypeResolver<T>::Get()->GetTypeName(nullptr) + ">";
     }
 
     template <typename T>
@@ -181,14 +181,14 @@ namespace se::reflect
                 return objBase->GetReflectType();
             }
         }
-        return TypeResolver<T>::get();
+        return TypeResolver<T>::Get();
     }
 
     template <typename T>
     struct TypeResolver<std::shared_ptr<T>>
     {
     public:
-        static Type* get()
+        static Type* Get()
         {
             static Type_StdSharedPtr<T> typeDesc{static_cast<T*>(nullptr)};
             return &typeDesc;
@@ -204,7 +204,7 @@ namespace se::reflect
         }
 
         std::string GetTypeName(const void*) const override;
-        asset::binary::Type GetBinaryType() const override { return TypeResolver<T>::get()->GetBinaryType(); }
+        asset::binary::Type GetBinaryType() const override { return TypeResolver<T>::Get()->GetBinaryType(); }
 
         static Type* GetSerialisedType(const asset::binary::Object& parentObj, const std::string& fieldName);
         void Serialize(const void* obj, asset::binary::Object& parentObj, const std::string& fieldName) const override;
@@ -257,7 +257,7 @@ namespace se::reflect
             return "";
         }
 
-        return std::string("std::shared_ptr<") + TypeResolver<T>::get()->GetTypeName(nullptr) + ">";
+        return std::string("std::shared_ptr<") + TypeResolver<T>::Get()->GetTypeName(nullptr) + ">";
     }
 
     template <typename T>
@@ -332,14 +332,14 @@ namespace se::reflect
                 return objBase->GetReflectType();
             }
         }
-        return TypeResolver<T>::get();
+        return TypeResolver<T>::Get();
     }
 
     template <typename T>
     struct TypeResolver<T*>
     {
     public:
-        static Type* get()
+        static Type* Get()
         {
             static Type_RawPtr<T> typeDesc{static_cast<T*>(nullptr)};
             return &typeDesc;
@@ -399,7 +399,7 @@ namespace se::reflect
 
         explicit Type_StdVector(T*)
             : Type_Container{"std::vector<>", sizeof(std::vector<T>), asset::binary::Type::Array},
-              itemType{TypeResolver<T>::get()}
+              itemType{TypeResolver<T>::Get()}
         {
             getSize = [](const void* vecPtr)
             {
@@ -428,7 +428,7 @@ namespace se::reflect
         asset::binary::StructLayout GetStructLayout(const void*) const override;
         bool IsContainer() const override { return "true"; }
         std::string GetContainerTypeName() const override { return "std::vector<>"; }
-        Type * GetContainedValueType(const void*) const override { return TypeResolver<T>::get(); }
+        Type * GetContainedValueType(const void*) const override { return TypeResolver<T>::Get(); }
         void* GetContainedValueByIndex(void* obj, size_t i) const override;
         size_t GetNumContainedElements(void* obj) const override;
         void AddElement(void*) const override;
@@ -513,7 +513,7 @@ namespace se::reflect
     struct TypeResolver<std::vector<T>>
     {
     public:
-        static Type* get()
+        static Type* Get()
         {
             static Type_StdVector<T> typeDesc{static_cast<T*>(nullptr)};
             return &typeDesc;
@@ -530,7 +530,7 @@ namespace se::reflect
 
         explicit Type_StdArray(T*)
             : Type_Container{"std::array<>", sizeof(std::array<T, Size>), asset::binary::Type::Array},
-              itemType{TypeResolver<T>::get()}
+              itemType{TypeResolver<T>::Get()}
         {
             getSize = [](const void* arrayPtr)
             {
@@ -622,7 +622,7 @@ namespace se::reflect
     struct TypeResolver<std::array<T, Size>>
     {
     public:
-        static Type* get()
+        static Type* Get()
         {
             static Type_StdArray<T, Size> typeDesc{static_cast<T*>(nullptr)};
             return &typeDesc;
@@ -640,8 +640,8 @@ namespace se::reflect
 
         Type_StdMap(T*, Y*)
             : Type_Container{"std::map<>", sizeof(std::map<T, Y>), asset::binary::Type::Array}
-            , keyType(TypeResolver<T>::get())
-            , itemType(TypeResolver<Y>::get())
+            , keyType(TypeResolver<T>::Get())
+            , itemType(TypeResolver<Y>::Get())
         {
             getSize = [](const void* vecPtr)
             {
@@ -657,8 +657,8 @@ namespace se::reflect
         asset::binary::StructLayout GetStructLayout(const void*) const override;
         bool IsContainer() const override { return "true"; }
         std::string GetContainerTypeName() const override { return "std::map<>"; }
-        Type * GetContainedKeyType() const override { return TypeResolver<T>::get(); }
-        Type* GetContainedValueType(const void*) const override { return TypeResolver<Y>::get(); }
+        Type * GetContainedKeyType() const override { return TypeResolver<T>::Get(); }
+        Type* GetContainedValueType(const void*) const override { return TypeResolver<Y>::Get(); }
         void * GetContainedValueByIndex(void*, size_t i) const override;
         const void * GetContainedKeyByIndex(void*, size_t) const override;
         size_t GetNumContainedElements(void* obj) const override;
@@ -794,7 +794,7 @@ namespace se::reflect
     struct TypeResolver<std::map<T, Y>>
     {
     public:
-        static Type* get()
+        static Type* Get()
         {
             static Type_StdMap<T, Y> typeDesc{nullptr, nullptr};
             return &typeDesc;
@@ -812,8 +812,8 @@ namespace se::reflect
 
         Type_StdUnorderedMap(T*, Y*)
             : Type_Container{"std::unordered_map<>", sizeof(std::unordered_map<T, Y>), asset::binary::Type::Array}
-            , keyType(TypeResolver<T>::get())
-            , itemType(TypeResolver<Y>::get())
+            , keyType(TypeResolver<T>::Get())
+            , itemType(TypeResolver<Y>::Get())
         {
             getSize = [](const void* vecPtr)
             {
@@ -829,8 +829,8 @@ namespace se::reflect
         asset::binary::StructLayout GetStructLayout(const void*) const override;
         bool IsContainer() const override { return "true"; }
         std::string GetContainerTypeName() const override { return "std::unordered_map<>"; }
-        Type * GetContainedKeyType() const override { return TypeResolver<T>::get(); }
-        Type* GetContainedValueType(const void*) const override { return TypeResolver<Y>::get(); }
+        Type * GetContainedKeyType() const override { return TypeResolver<T>::Get(); }
+        Type* GetContainedValueType(const void*) const override { return TypeResolver<Y>::Get(); }
         void* GetContainedValueByIndex(void *, size_t i) const override;
         const void * GetContainedKeyByIndex(void *, size_t) const override;
         size_t GetNumContainedElements(void* obj) const override;
@@ -965,7 +965,7 @@ namespace se::reflect
     struct TypeResolver<std::unordered_map<T, Y>>
     {
     public:
-        static Type* get()
+        static Type* Get()
         {
             static Type_StdUnorderedMap<T, Y> typeDesc{nullptr, nullptr};
             return &typeDesc;

@@ -39,7 +39,7 @@ namespace se::asset::shader
     template<typename T>
     void ShaderCompiler::ReplaceSettingReferenceWithConstant(Shader& shader, ast::ASTNode* node, const std::string& settingName, T constantValue)
     {
-        static auto referenceType = reflect::TypeResolver<ast::VariableReferenceNode>::get();
+        static auto referenceType = reflect::TypeResolver<ast::VariableReferenceNode>::Get();
         if (node->GetReflectType() == referenceType)
         {
             const auto referenceNode = static_cast<ast::VariableReferenceNode*>(node);
