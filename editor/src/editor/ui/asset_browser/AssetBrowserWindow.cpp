@@ -311,7 +311,7 @@ namespace se::editor::ui::asset_browser
             SetActiveFolder(path, false);
         });
 
-        const auto labelEntity = world->CreateEntity(editor->GetEditorScene(), "Text");
+        const auto labelEntity = world->CreateEntity(editor->GetEditorScene(), "Path Item Text");
         const auto labelText = world->AddComponent<se::ui::components::TextComponent>(labelEntity);
         labelText->font = font;
         labelText->fontSize = 18;

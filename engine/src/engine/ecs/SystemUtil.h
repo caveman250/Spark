@@ -1,5 +1,7 @@
 #pragma once
+
 #include "UpdateMode.h"
+#include "engine/Application.h"
 
 namespace se::ecs
 {

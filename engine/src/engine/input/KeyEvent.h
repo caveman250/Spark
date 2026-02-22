@@ -1,6 +1,7 @@
 #pragma once
 #include "Key.h"
 #include "KeyState.h"
+#include "engine/reflect/Object.h"
 
 namespace se::input
 {

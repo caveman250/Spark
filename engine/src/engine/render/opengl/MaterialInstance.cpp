@@ -25,7 +25,7 @@ namespace se::render::opengl
 
     }
 
-    void MaterialInstance::Bind(const VertexBuffer& vb)
+    void MaterialInstance::Bind(const render::VertexBuffer& vb)
     {
         EASY_FUNCTION();
 
@@ -210,6 +210,11 @@ namespace se::render::opengl
                 EASY_BLOCK("asset::shader::ast::AstType::Sampler2DReference");
                 SPARK_ASSERT(count == 1, "Setting arrays of texture uniforms not supported.");
                 const auto* texture = reinterpret_cast<const asset::AssetReference<asset::Texture>*>(value);
+                if (!texture->IsSet())
+                {
+                    debug::Log::Error("Material::SetUniform - Unset texture reference: {}!", name);
+                    return;
+                }
                 const auto& platformResource = texture->GetAsset()->GetPlatformResource();
                 auto it = std::ranges::find_if(m_Textures, [name](const auto& kvp){ return kvp.first == name; });
                 if (it != m_Textures.end())

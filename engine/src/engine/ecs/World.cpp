@@ -42,6 +42,11 @@ namespace se::ecs
             entityId = NewEntity();
         }
 
+        if (entityId == 125)
+        {
+            int lol =1;
+        }
+
         if (entityId == InvalidEntity)
         {
             SPARK_ASSERT(false, "Max number of entities reached.");
@@ -268,7 +273,7 @@ namespace se::ecs
         {
             SPARK_ASSERT(compType.name != nullptr);
             auto& compInfo = m_ComponentRecords[compType];
-            archetype.components.emplace_back(compInfo.type->size);
+            archetype.components.emplace_back(compInfo.type);
         }
 
         m_Archetypes.insert(std::make_pair(archetype.id, archetype));
@@ -1286,9 +1291,10 @@ namespace se::ecs
         record.archetype = next_archetype;
         SPARK_ASSERT(record.archetype);
         void* compData = GetComponent(pendingComp.entity, pendingComp.comp);
+
         if (pendingComp.tempData)
         {
-            m_ComponentRecords[pendingComp.comp].type->inplace_copy_constructor(compData, pendingComp.tempData);
+            m_ComponentRecords[pendingComp.comp].type->inplace_move_constructor(compData, pendingComp.tempData);
         }
         else
         {

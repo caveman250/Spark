@@ -1,6 +1,7 @@
 #include "ContextMenuSystem.h"
 
 #include "ResetMouseInputSystem.h"
+#include "RootRectTransformSystem.h"
 #include "engine/input/InputComponent.h"
 #include "engine/ui/components/ContextMenuComponent.h"
 #include "engine/ui/components/MouseInputComponent.h"

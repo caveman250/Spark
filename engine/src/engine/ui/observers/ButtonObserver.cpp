@@ -13,13 +13,13 @@ namespace se::ui::observers
 {
     void ButtonObserver::OnAdded(const ecs::Id& entity, components::ButtonComponent *component)
     {
-        auto world = Application::Get()->GetWorld();
+        const auto world = Application::Get()->GetWorld();
 
         if (!world->HasComponent<components::ImageComponent>(entity))
         {
-            auto image = world->AddComponent<components::ImageComponent>(entity);
+            auto* image = world->AddComponent<components::ImageComponent>(entity);
 
-            auto alphaTexture = asset::AssetManager::Get()->GetAsset<render::Material>("/engine_assets/materials/ui_alpha_texture.sass");
+            const auto alphaTexture = asset::AssetManager::Get()->GetAsset<render::Material>("/engine_assets/materials/ui_alpha_texture.sass");
             image->materialInstance = render::MaterialInstance::CreateMaterialInstance(alphaTexture);
             image->materialInstance->SetUniform("Texture", asset::shader::ast::AstType::Sampler2DReference, 1, &component->image);
         }

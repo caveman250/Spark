@@ -1,6 +1,7 @@
 #include "spark.h"
 #include "InputComponent.h"
 #include "MouseButton.h"
+#include "engine/reflect/Enum.h"
 
 namespace se::input
 {

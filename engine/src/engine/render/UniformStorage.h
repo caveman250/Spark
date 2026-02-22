@@ -3,6 +3,8 @@
 #include "spark.h"
 #include "engine/asset/shader/ast/Types.h"
 #include "engine/reflect/Reflect.h"
+#include "engine/asset/texture/Texture.h"
+#include "engine/asset/AssetReference.h"
 
 namespace se::render
 {

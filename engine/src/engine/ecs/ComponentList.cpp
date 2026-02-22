@@ -1,22 +1,23 @@
 #include "ComponentList.h"
+#include "engine/ui/components/TextComponent.h"
 
 namespace se::ecs
 {
-    ComponentList::ComponentList(size_t elemSize)
-        : m_ElemSize(elemSize)
+    ComponentList::ComponentList(reflect::Type* type)
+        : m_ElementType(type)
     {
-        m_Data = static_cast<uint8_t*>(std::malloc(1000 * elemSize)); // TODO
+        m_Data = static_cast<uint8_t*>(std::malloc(1000 * type->GetTypeSize())); // TODO
     }
 
     uint8_t* ComponentList::GetComponent(size_t index) const
     {
-        return m_Data + index * m_ElemSize;
+        return m_Data + index * m_ElementType->GetTypeSize();
     }
 
     void ComponentList::AddComponent(uint8_t* data)
     {
         uint8_t* comp = GetComponent(m_Count);
-        std::memcpy(comp, data, m_ElemSize);
+        m_ElementType->inplace_move_constructor(comp, data);
         m_Count++;
     }
 
@@ -25,15 +26,13 @@ namespace se::ecs
         if (SPARK_VERIFY(index < m_Count))
         {
             const uint64_t lastIndex = m_Count - 1;
-            if (index < lastIndex)
+            for (; index < lastIndex; ++index)
             {
-                const uint64_t fragIndex = index + 1;
-                uint8_t* fragStart = GetComponent(fragIndex);
-                uint64_t fragSize = GetComponent(m_Count) - fragStart;
+                const uint64_t oldIndex = index + 1;
+                uint8_t* oldData = GetComponent(oldIndex);
 
                 uint8_t* dest = GetComponent(index);
-
-                std::memmove(dest, fragStart, fragSize);
+                m_ElementType->inplace_move_constructor(dest, oldData);
             }
             m_Count--;
         }

@@ -2,6 +2,7 @@
 #include "spark.h"
 #include "engine/asset/shader/ShaderSettings.h"
 #include "engine/asset/shader/ast/ConstantNode.h"
+#include "engine/asset/shader/ast/Variable.h"
 #include "engine/asset/shader/ast/VariableReferenceNode.h"
 
 namespace se

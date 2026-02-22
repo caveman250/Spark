@@ -19,7 +19,7 @@ namespace se::render::opengl
 
     void MaterialPlatformResources::CreatePlatformResources(const std::string& vert,
                                                             const std::string& frag,
-                                                            const RenderState& rs)
+                                                            [[maybe_unused]] const RenderState& rs)
     {
         m_VertexShader = glCreateShader(GL_VERTEX_SHADER);
         GL_CHECK_ERROR()

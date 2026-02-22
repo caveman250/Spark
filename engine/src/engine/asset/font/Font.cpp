@@ -14,8 +14,16 @@ namespace se::asset
         return m_Texture;
     }
 
-    const CharData& Font::GetCharData(const char c) const
+    const CharData& Font::GetCharData(char c) const
     {
+#if SPARK_PLATFORM_LINUX
+        if (c == 0)
+        {
+            // Linux treats trailing spaces as null. just trust that they were supposed to be spaces.
+            c = ' ';
+        }
+#endif
+
         if (!SPARK_VERIFY(m_CharData.contains(c)))
         {
             static CharData nullCharData = {};

@@ -566,6 +566,7 @@ def DefineAbstractClassBegin(class_name):
             s_Reflection->inplace_constructor = nullptr;
             s_Reflection->heap_copy_constructor = nullptr;
             s_Reflection->inplace_copy_constructor = nullptr;
+            s_Reflection->inplace_move_constructor = nullptr;
             s_Reflection->destructor = nullptr;
             s_Reflection->members = {{}};
         }}
@@ -576,10 +577,12 @@ def DefineClassBeginCommon(class_name, is_pod, is_copyable):
     copy_constructors = ""
     if is_copyable:
         copy_constructors = f"""            s_Reflection->heap_copy_constructor = [](void* other){{ return new {class_name}(*reinterpret_cast<{class_name}*>(other)); }}; 
-            s_Reflection->inplace_copy_constructor = [](void* mem, void* other){{ return new(mem) {class_name}(*reinterpret_cast<{class_name}*>(other)); }};"""
+            s_Reflection->inplace_copy_constructor = [](void* mem, void* other){{ return new(mem) {class_name}(*reinterpret_cast<{class_name}*>(other)); }};
+            s_Reflection->inplace_move_constructor = [](void* mem, void* other){{ return new(mem) {class_name}(std::move(*reinterpret_cast<{class_name}*>(other))); }};"""
     else:
         copy_constructors = f"""            s_Reflection->heap_copy_constructor = nullptr; 
-            s_Reflection->inplace_copy_constructor = nullptr;"""
+            s_Reflection->inplace_copy_constructor = nullptr;
+            s_Reflection->inplace_move_constructor = nullptr;"""
     ret = ""
     if not is_pod:
         ret += f"""\n    reflect::Type* {class_name}::GetReflectType() const
@@ -724,6 +727,7 @@ def DefineTemplateClassBegin(class_name, template_types, template_params):
             s_Reflection->inplace_constructor = [](void* mem){{ return new(mem) {class_name}<{template_types}>(); }}; 
             s_Reflection->heap_copy_constructor = [](void* other){{ return new {class_name}<{template_types}>(*reinterpret_cast<{class_name}<{template_types}>*>(other)); }}; 
             s_Reflection->inplace_copy_constructor = [](void* mem, void* other){{ return new(mem) {class_name}<{template_types}>(*reinterpret_cast<{class_name}<{template_types}>*>(other)); }}; 
+            s_Reflection->inplace_move_constructor = [](void* mem, void* other){{ return new(mem) {class_name}<{template_types}>(std::move(*reinterpret_cast<{class_name}<{template_types}>*>(other))); }};
             s_Reflection->destructor = [](void* data){{ reinterpret_cast<{class_name}<{template_types}>*>(data)->~{class_name}<{template_types}>(); }}; 
             s_Reflection->members = {{}};
         }} 
@@ -797,6 +801,7 @@ def DefineSystemBegin(class_name):
             CreateDefaultConstructorMethods<{class_name}>(s_Reflection);
             s_Reflection->heap_copy_constructor = [](void* other){{ return new {class_name}(*reinterpret_cast<{class_name}*>(other)); }}; 
             s_Reflection->inplace_copy_constructor = [](void* mem, void* other){{ return new(mem) {class_name}(*reinterpret_cast<{class_name}*>(other)); }};
+            s_Reflection->inplace_move_constructor = [](void* mem, void* other){{ return new(mem) {class_name}(std::move(*reinterpret_cast<{class_name}*>(other))); }};
             s_Reflection->destructor = [](void* data){{ reinterpret_cast<{class_name}*>(data)->~{class_name}(); }};
             s_Reflection->GetStaticId = [](){{ return {class_name}::GetSystemId(); }};
             s_Reflection->members = {{}};

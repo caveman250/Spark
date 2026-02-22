@@ -422,6 +422,7 @@ namespace se::asset::binary
                 const auto& db = GetDatabase();
                 Set<Blob>(fieldName, db->CreateBlob(temp, static_cast<uint32_t>(array.size())));
                 delete[] temp;
+                break;
             }
             case Type::Array:
             {

@@ -19,6 +19,7 @@ namespace se::reflect
         std::function<void*(void*)> inplace_constructor;
         std::function<void*(void*)> heap_copy_constructor;
         std::function<void*(void*, void*)> inplace_copy_constructor;
+        std::function<void*(void*, void*)> inplace_move_constructor;
         std::function<void(void*)> destructor;
 
         Type(const std::string& name, size_t size, asset::binary::Type binaryType) : name(name), size(size), binaryType(binaryType) {}

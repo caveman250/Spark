@@ -13,6 +13,8 @@ namespace se::asset
         SPARK_CLASS_TEMPLATED()
 
         AssetReference() = default;
+        AssetReference(const AssetReference& rhs) = default;
+        AssetReference(AssetReference&& rhs) = default;
         AssetReference(const std::string& path);
         AssetReference(const char* path);
         void Set(const std::string& path);
@@ -23,6 +25,7 @@ namespace se::asset
 
         void operator=(const std::string& path);
         void operator=(const char* path);
+        void operator=(const AssetReference<T>& rhs);
         bool operator==(const std::shared_ptr<Asset>& asset) const;
         bool operator==(const AssetReference<T>& asset) const;
 
@@ -90,6 +93,13 @@ namespace se::asset
     void AssetReference<T>::operator=(const char* path)
     {
         *this = AssetReference(path);
+    }
+
+    template<typename T>
+    void AssetReference<T>::operator=(const AssetReference<T>& rhs)
+    {
+        this->m_AssetPath = rhs.m_AssetPath;
+        this->m_Instance = rhs.m_Instance;
     }
 
     template<typename T>

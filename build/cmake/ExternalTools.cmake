@@ -1,4 +1,4 @@
-if (UNIX AND APPLE)
+if (UNIX)
     set(PYTHON_EXE python3)
 else()
     set(PYTHON_EXE python)

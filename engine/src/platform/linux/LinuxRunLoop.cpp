@@ -9,7 +9,7 @@
 
 namespace se
 {
-    PlatformRunLoop* PlatformRunLoopstatic_cast<int>(::s_Instance = nullptr;
+    PlatformRunLoop* PlatformRunLoop::s_Instance = nullptr;
 
     PlatformRunLoop* PlatformRunLoop::CreatePlatformRunloop()
     {
@@ -30,8 +30,6 @@ namespace se::linux
         while (!ShouldExit())
         {
             Update();
-            PROFILE_BEGIN_FRAME()
-            PROFILE_BEGIN_THREAD()
         }
     }
 
