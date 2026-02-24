@@ -46,6 +46,41 @@ namespace se::editor::ui::properties
     SPARK_INSTANTIATE_TEMPLATE(NumberEditor, float);
     SPARK_INSTANTIATE_TEMPLATE(NumberEditor, double);
 
+#if SPARK_PLATFORM_LINUX
+    template <typename T>
+    concept Char = std::is_same_v<T, char>;
+
+    template <typename T>
+    concept UnsignedIntLessThan32 = std::is_integral_v<T> && std::is_unsigned_v<T> && sizeof(T) * CHAR_BIT < 32;
+
+    template <typename T>
+    concept SignedIntLessThan32 = std::is_integral_v<T> && !std::is_same_v<T, char> && std::is_signed_v<T> && sizeof(T) * CHAR_BIT < 32;
+
+    template <Char I>
+    char CreateScanfVal()
+    {
+        return 0;
+    }
+
+    template <UnsignedIntLessThan32 I>
+    unsigned int CreateScanfVal()
+    {
+        return 0u;
+    }
+
+    template <SignedIntLessThan32 I>
+    int CreateScanfVal()
+    {
+        return 0;
+    }
+#endif
+
+    template <typename T>
+    T CreateScanfVal()
+    {
+        return T();
+    }
+
     template <Number N>
     void NumberEditor<N>::SetValue(void* value, const reflect::Type*)
     {
@@ -96,7 +131,8 @@ namespace se::editor::ui::properties
         editText.text->text = std::format("{}", *m_Value);
         std::function cb = [this](std::string newVal)
         {
-            N i;
+            auto i = CreateScanfVal<N>();
+
             if constexpr (std::is_same_v<N, char>)
             {
                 if (SSCANF(newVal.data(), "%c", &i, 1) == 1)

@@ -400,7 +400,7 @@ namespace se::asset::binary
             case Type::Object:
             {
                 const auto& db = GetDatabase();
-                const std::string& structName = json[fieldName].items().begin().key();
+                std::string structName = json[fieldName].items().begin().key();
                 uint32_t structIndex = db->GetStruct(structName);
                 Object obj = GetDatabase()->CreateObject(structIndex);
                 obj.FromJson(json[fieldName][structName]);
@@ -450,7 +450,7 @@ namespace se::asset::binary
                 for (size_t j = 0; j < array.size(); ++j)
                 {
                     nlohmann::ordered_json itemJson = array[j];
-                    const std::string& structName = array[j].items().begin().key();
+                    std::string structName = array[j].items().begin().key();
                     uint32_t structIndex = db->GetStruct(structName);
                     Object obj = db->CreateObject(structIndex);
                     obj.FromJson(itemJson[structName]);

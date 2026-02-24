@@ -42,11 +42,6 @@ namespace se::ecs
             entityId = NewEntity();
         }
 
-        if (entityId == 125)
-        {
-            int lol =1;
-        }
-
         if (entityId == InvalidEntity)
         {
             SPARK_ASSERT(false, "Max number of entities reached.");
