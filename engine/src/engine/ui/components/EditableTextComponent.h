@@ -33,11 +33,16 @@ namespace se::ui::components
         int caretPosition = 0;
         ecs::Signal<std::string> onComitted = {};
         ecs::Signal<int> onCaretMoved = {};
+        int selectionStart = -1;
+        int selectionEnd = -1;
 
         // internal
         std::shared_ptr<render::MaterialInstance> materialInstance = { };
+        std::shared_ptr<render::MaterialInstance> selectionMaterialInstance = { };
         std::shared_ptr<render::VertexBuffer> vertBuffer = { };
         std::shared_ptr<render::IndexBuffer> indexBuffer = { };
+        std::shared_ptr<render::VertexBuffer> selectionVertBuffer = {};
+        std::shared_ptr<render::IndexBuffer> selectionIndexBuffer = {};
         int lastFontSize = { };
         std::string lastText = { };
         float renderOffset = 0.f;

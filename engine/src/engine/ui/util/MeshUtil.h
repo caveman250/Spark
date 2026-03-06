@@ -4,6 +4,11 @@
 #include "engine/ui/text/Alignment.h"
 #include "engine/ui/text/WrapMode.h"
 
+namespace se::ui::components
+{
+    struct EditableTextComponent;
+}
+
 namespace se::asset
 {
     class Font;
@@ -22,11 +27,11 @@ namespace se::ui::util
         bool applyKerning = {};
         text::WrapMode wrap = {};
         text::Alignment justification = {};
-        int selectionStart = -1;
-        int selectionEnd = -1;
     };
 
     asset::StaticMesh CreateTextMesh(const TextMeshParams& params);
+    asset::StaticMesh CreateTextSelectionMesh(const components::EditableTextComponent& text,
+                                              const components::RectTransformComponent& rect);
 
     math::Vec2 MeasureText(const Rect* bounds,
                               const asset::Font* font,

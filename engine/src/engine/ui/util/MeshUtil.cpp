@@ -1,7 +1,10 @@
 #include "MeshUtil.h"
 
+#include "EditableTextUtil.h"
 #include "engine/asset/builder/FontBlueprint.h"
 #include "engine/asset/font/Font.h"
+#include "engine/ui/components/RectTransformComponent.h"
+#include "engine/ui/components/EditableTextComponent.h"
 
 namespace se::ui::util
 {
@@ -275,12 +278,40 @@ namespace se::ui::util
         return mesh;
     }
 
+    asset::StaticMesh CreateTextSelectionMesh(const components::EditableTextComponent& text,
+                                              const components::RectTransformComponent& rect)
+    {
+        auto window = Application::Get()->GetWindow();
+
+        asset::StaticMesh mesh = {};
+
+        float startX = GetCaretPosition(text.selectionStart, text) * window->GetContentScale();
+        float endX = GetCaretPosition(text.selectionEnd, text) * window->GetContentScale();
+
+        math::Vec2 TL = { startX, 2.f };
+        math::Vec2 BR = { endX, rect.rect.size.y - 4.f };
+
+        mesh.vertices.push_back({ TL.x, BR.y, 0 });
+        mesh.vertices.push_back({ BR.x, BR.y, 0 });
+        mesh.vertices.push_back({ BR.x, TL.y, 0 });
+        mesh.vertices.push_back({ TL.x, TL.y, 0 });
+
+        mesh.indices.insert(mesh.indices.end(), { 1, 3, 0, 3, 1, 2 });
+
+        mesh.uvs.push_back({ 0.f, 0.f});
+        mesh.uvs.push_back({ 0.f, 0.f});
+        mesh.uvs.push_back({ 0.f, 0.f});
+        mesh.uvs.push_back({ 0.f, 0.f});
+
+        return mesh;
+    }
+
     math::Vec2 MeasureText(const Rect* bounds,
-                              const asset::Font* font,
-                              const int fontSize,
-                              const std::string* text,
-                              const bool applyKerning,
-                              const text::WrapMode wrap)
+                           const asset::Font* font,
+                           const int fontSize,
+                           const std::string* text,
+                           const bool applyKerning,
+                           const text::WrapMode wrap)
     {
         return MeasureText(bounds, font, fontSize, text, applyKerning, wrap, text->size());
     }

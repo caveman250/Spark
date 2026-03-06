@@ -28,10 +28,11 @@ namespace se::ui::util
             textComp.materialInstance->SetUniform("smoothing", asset::shader::ast::AstType::Float, 1, &smoothing);
         }
 
-        if (!textComp.vertBuffer ||
-            transform.lastRect.size != transform.rect.size ||
+        bool invalidate = transform.lastRect.size != transform.rect.size ||
             textComp.lastText != text ||
-            textComp.lastFontSize != textComp.fontSize)
+            textComp.lastFontSize != textComp.fontSize;
+
+        if (!textComp.vertBuffer || invalidate)
         {
             const auto window = Application::Get()->GetWindow();
             const TextMeshParams params = {
@@ -43,12 +44,36 @@ namespace se::ui::util
                 .wrap = textComp.wrap,
                 .justification = textComp.alignment
             };
-            asset::StaticMesh mesh = util::CreateTextMesh(params);
+            const asset::StaticMesh mesh = util::CreateTextMesh(params);
             textComp.vertBuffer = render::VertexBuffer::CreateVertexBuffer(mesh);
             textComp.vertBuffer->CreatePlatformResource();
             textComp.indexBuffer = render::IndexBuffer::CreateIndexBuffer(mesh);
             textComp.indexBuffer->CreatePlatformResource();
+        }
 
+        if constexpr (std::is_same_v<T, EditableTextComponent>)
+        {
+            if ((!textComp.selectionVertBuffer || invalidate) &&
+                textComp.inEditMode &&
+                textComp.selectionStart != -1 &&
+                textComp.selectionEnd != -1)
+            {
+                const asset::StaticMesh selectionMesh = util::CreateTextSelectionMesh(textComp, transform);
+                textComp.selectionVertBuffer = render::VertexBuffer::CreateVertexBuffer(selectionMesh);
+                textComp.selectionVertBuffer->CreatePlatformResource();
+                textComp.selectionIndexBuffer = render::IndexBuffer::CreateIndexBuffer(selectionMesh);
+                textComp.selectionIndexBuffer->CreatePlatformResource();
+            }
+
+            if (!textComp.selectionMaterialInstance && textComp.inEditMode)
+            {
+                auto textMaterial = asset::AssetManager::Get()->GetAsset<render::Material>("/engine_assets/materials/editable_text_selection.sass");
+                textComp.selectionMaterialInstance = render::MaterialInstance::CreateMaterialInstance(textMaterial);
+            }
+        }
+
+        if (invalidate)
+        {
             textComp.lastFontSize = textComp.fontSize;
             textComp.lastText = text;
         }
@@ -97,6 +122,22 @@ namespace se::ui::util
             {
                 auto pushScissor = renderer->AllocRenderCommand<render::commands::PushScissor>(transform.rect);
                 renderComp->entityPreRenderCommands[entity].push_back(UIRenderCommand(pushScissor, UILayerKey(transform.layer, isEditorEntity)));
+
+                if (textComp.selectionMaterialInstance && textComp.selectionStart != -1 && textComp.selectionEnd != -1)
+                {
+                    const math::Vec2* selectionMaterialPos = textComp.selectionMaterialInstance->template GetUniform<math::Vec2>("pos");
+                    auto selectionFloatVec = math::Vec2(transform.rect.topLeft) + renderOffset;
+                    if (!selectionMaterialPos || *selectionMaterialPos != selectionFloatVec)
+                    {
+                        textComp.selectionMaterialInstance->SetUniform("pos", asset::shader::ast::AstType::Vec2, 1, &selectionFloatVec);
+                    }
+                    textComp.selectionMaterialInstance->SetUniform("screenSize", asset::shader::ast::AstType::Vec2, 1, &windowSize);
+
+                    auto command = renderer->AllocRenderCommand<render::commands::SubmitUI>(textComp.selectionMaterialInstance,
+                        textComp.selectionVertBuffer,
+                        textComp.selectionIndexBuffer);
+                    renderComp->entityRenderCommands[entity].push_back(UIRenderCommand(command, UILayerKey(transform.layer, isEditorEntity)));
+                }
             }
         }
         auto command = renderer->AllocRenderCommand<render::commands::SubmitUI>(textComp.materialInstance, textComp.vertBuffer, textComp.indexBuffer);
