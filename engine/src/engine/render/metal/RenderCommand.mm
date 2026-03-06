@@ -52,6 +52,9 @@ namespace se::render::commands
 
     void PushScissor::Execute()
     {
+        auto renderer = Renderer::Get<Renderer>();
+        renderer->PushScissor(m_Rect);
+
         if (m_Rect.size.x < 0 || m_Rect.size.y < 0)
         {
             return;
@@ -71,12 +74,34 @@ namespace se::render::commands
     {
         auto primaryWindow = Application::Get()->GetWindow();
         auto commandEncoder = Renderer::Get<metal::MetalRenderer>()->GetCurrentCommandEncoder();
-        MTLScissorRect scissor;
-        scissor.x = 0;
-        scissor.y = 0;
-        scissor.width = primaryWindow->GetWidth();
-        scissor.height = primaryWindow->GetHeight();
-        [commandEncoder setScissorRect:scissor];
+
+        auto renderer = Renderer::Get<Renderer>();
+        auto ret = renderer->PopScissor();
+
+        if (ret.has_value())
+        {
+            const auto& rect = ret.value();
+            if (rect.size.x <= 0 || rect.size.y <= 0)
+            {
+                return;
+            }
+
+            MTLScissorRect scissor;
+            scissor.x = std::max(0, rect.topLeft.x);
+            scissor.y = std::max(0, rect.topLeft.y);
+            scissor.width = std::min(rect.size.x, primaryWindow->GetWidth() - static_cast<int>(scissor.x));
+            scissor.height = std::min(rect.size.y, primaryWindow->GetHeight() - static_cast<int>(scissor.y));
+            [commandEncoder setScissorRect:scissor];
+        }
+        else
+        {
+            MTLScissorRect scissor;
+            scissor.x = 0;
+            scissor.y = 0;
+            scissor.width = primaryWindow->GetWidth();
+            scissor.height = primaryWindow->GetHeight();
+            [commandEncoder setScissorRect:scissor];
+        }
     }
 }
 

@@ -16,7 +16,7 @@ namespace se::ui::systems
     {
         return ecs::SystemDeclaration("ScrollViewUpdateSystem")
                     .WithComponent<components::ScrollViewComponent>()
-                    .WithComponent<const components::RectTransformComponent>()
+                    .WithComponent<components::RectTransformComponent>()
                     .WithComponent<const components::MouseInputComponent>()
                     .WithDependency<UIMouseInputSystem>()
                     .WithDependency<RectTransformSystem>()
@@ -31,7 +31,7 @@ namespace se::ui::systems
         {
             const auto& entities = updateData.GetEntities();
             auto* scrollViews = updateData.GetComponentArray<components::ScrollViewComponent>();
-            const auto* rectTransforms = updateData.GetComponentArray<const components::RectTransformComponent>();
+            const auto* rectTransforms = updateData.GetComponentArray<components::RectTransformComponent>();
             const auto* mouseComps = updateData.GetComponentArray<const components::MouseInputComponent>();
 
             for (size_t i = 0; i < entities.size(); ++i)

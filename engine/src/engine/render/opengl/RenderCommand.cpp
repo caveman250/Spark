@@ -101,9 +101,6 @@ namespace se::render::commands
             glDisable(GL_SCISSOR_TEST);
             GL_CHECK_ERROR()
         }
-
-
-
     }
 }
 
