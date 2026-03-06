@@ -54,7 +54,7 @@ namespace se::ui::util
         world->AddComponent<MouseInputComponent>(ret.entity);
 
 
-        auto editText = CreateEditableText(world, "/engine_assets/fonts/Arial.sass", 14);
+        auto editText = CreateEditableText(world, "/engine_assets/fonts/Arial.sass", 14, params.scene);
         ret.textEntity = editText.entity;
         ret.text = editText.text;
         SetEditTextMouseInputEnabled(editText.mouseInput, false);

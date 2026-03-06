@@ -26,7 +26,6 @@ namespace se::ui::components
 
 namespace se::ui::util
 {
-#if SPARK_EDITOR
     struct NewEditableText
     {
         ecs::Id entity = {};
@@ -36,7 +35,8 @@ namespace se::ui::util
     };
     NewEditableText CreateEditableText(ecs::World* world,
                                const asset::AssetReference<asset::Font>& font,
-                               int fontSize);
+                               int fontSize,
+                               const ecs::Id& scene);
 
     void SetEditTextMouseInputEnabled(components::MouseInputComponent* mouseInput, bool enabled);
 
@@ -61,5 +61,4 @@ namespace se::ui::util
 
     void SetCaretPos(components::EditableTextComponent& textComp,
                      int pos);
-#endif
 }

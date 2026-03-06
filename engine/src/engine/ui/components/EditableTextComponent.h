@@ -3,7 +3,6 @@
 #include "spark.h"
 #include "engine/asset/font/Font.h"
 #include "engine/ecs/Signal.h"
-#include "engine/reflect/Reflect.h"
 #include "engine/render/VertexBuffer.h"
 #include "engine/render/IndexBuffer.h"
 #include "engine/render/MaterialInstance.h"
@@ -55,11 +54,11 @@ namespace se::ui
                                                                                                   components::RectTransformComponent& thisRect,
                                                                                                   const components::EditableTextComponent* text)
     {
-        auto window = Application::Get()->GetWindow();
-        auto ret = util::MeasureText(thisRect.rect,
-            text->font.GetAsset(),
+        const auto window = Application::Get()->GetWindow();
+        const auto ret = util::MeasureText(&thisRect.rect,
+            text->font.GetAsset().get(),
             static_cast<int>(text->fontSize * window->GetContentScale()),
-            text->text,
+            &text->text,
             true,
             text->wrap);
         return ret;

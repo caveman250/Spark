@@ -74,7 +74,7 @@ namespace se::editor::ui::properties
         innerTransform->minX = innerTransform->maxX = innerTransform->minY = innerTransform->maxY = borderSize;
         world->AddChild(bg, innerImageEntity);
 
-        auto editText = se::ui::util::CreateEditableText(world, "/engine_assets/fonts/Arial.sass", fontSize);
+        auto editText = se::ui::util::CreateEditableText(world, "/engine_assets/fonts/Arial.sass", fontSize, editor->GetEditorScene());
         m_Label = editText.entity;
         editText.text->text = std::format("{}", *m_Value);
         std::function cb = [this](std::string newVal)

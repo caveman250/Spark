@@ -222,9 +222,9 @@ namespace se::ui::systems
         return 0;
     }
 
-    void AddChar(components::EditableTextComponent* text,
-                    const input::Key key,
-                    const input::InputComponent* inputComp)
+    void AddChar([[maybe_unused]] components::EditableTextComponent* text,
+                    [[maybe_unused]] const input::Key key,
+                    [[maybe_unused]] const input::InputComponent* inputComp)
     {
         const char c = GetCharForKey(key, inputComp);
         if (c != 0)
@@ -240,7 +240,6 @@ namespace se::ui::systems
                                        [[maybe_unused]] const input::Key key,
                                        [[maybe_unused]] const input::InputComponent* inputComponent)
     {
-#if SPARK_EDITOR
         switch (key)
         {
             case input::Key::Space:
@@ -389,12 +388,10 @@ namespace se::ui::systems
             case input::Key::Unknown:
                 break;
         }
-#endif
     }
 
     void EditableTextSystem::OnUpdate([[maybe_unused]] const ecs::QueryResults& results)
     {
-#if SPARK_EDITOR
         ecs::ForEachArcheType(results, ecs::UpdateMode::MultiThreaded, false, [this](const ecs::SystemUpdateData& updateData)
         {
             const auto& entities = updateData.GetEntities();
@@ -502,12 +499,10 @@ namespace se::ui::systems
                 }
             }
         });
-#endif
     }
 
     void EditableTextSystem::OnRender([[maybe_unused]] const ecs::QueryResults& results)
     {
-#if SPARK_EDITOR
         EASY_BLOCK("EditableTextSystem::OnRender");
 
         ecs::ForEachArcheType(results, ecs::UpdateMode::MultiThreaded, false, [](const ecs::SystemUpdateData& updateData)
@@ -544,6 +539,5 @@ namespace se::ui::systems
                                  { text.renderOffset, 0.f });
             }
         });
-#endif
     }
 }

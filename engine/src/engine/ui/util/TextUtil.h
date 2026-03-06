@@ -33,14 +33,17 @@ namespace se::ui::util
             textComp.lastText != text ||
             textComp.lastFontSize != textComp.fontSize)
         {
-            auto window = Application::Get()->GetWindow();
-            asset::StaticMesh mesh = util::CreateTextMesh(transform.rect,
-                                                          textComp.font.GetAsset(),
-                                                          static_cast<int>(textComp.fontSize * window->GetContentScale()),
-                                                          text,
-                                                          true,
-                                                          textComp.wrap,
-                                                          textComp.alignment);
+            const auto window = Application::Get()->GetWindow();
+            const TextMeshParams params = {
+                .rect = &transform.rect,
+                .font = textComp.font.GetAsset().get(),
+                .fontSize = static_cast<int>(textComp.fontSize * window->GetContentScale()),
+                .text = &text,
+                .applyKerning = true,
+                .wrap = textComp.wrap,
+                .justification = textComp.alignment
+            };
+            asset::StaticMesh mesh = util::CreateTextMesh(params);
             textComp.vertBuffer = render::VertexBuffer::CreateVertexBuffer(mesh);
             textComp.vertBuffer->CreatePlatformResource();
             textComp.indexBuffer = render::IndexBuffer::CreateIndexBuffer(mesh);

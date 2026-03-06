@@ -13,34 +13,41 @@ namespace se::ui::util
 {
     asset::StaticMesh CreateMeshFromRect(const Rect& rect);
 
-    asset::StaticMesh CreateTextMesh(const Rect& rect,
-                                     const std::shared_ptr<asset::Font>& font,
-                                     int fontSize,
-                                     const std::string& text,
-                                     bool applyKerning,
-                                     text::WrapMode wrap,
-                                     text::Alignment justification);
+    struct TextMeshParams
+    {
+        const Rect* rect = nullptr;
+        const asset::Font* font = nullptr;
+        int fontSize = {};
+        const std::string* text = nullptr;
+        bool applyKerning = {};
+        text::WrapMode wrap = {};
+        text::Alignment justification = {};
+        int selectionStart = -1;
+        int selectionEnd = -1;
+    };
 
-    math::Vec2 MeasureText(const Rect& bounds,
-                              const std::shared_ptr<asset::Font>& font,
+    asset::StaticMesh CreateTextMesh(const TextMeshParams& params);
+
+    math::Vec2 MeasureText(const Rect* bounds,
+                              const asset::Font* font,
                               int fontSize,
-                              const std::string& text,
+                              const std::string* text,
                               bool applyKerning,
                               text::WrapMode wrap);
 
-    math::Vec2 MeasureText(const Rect& bounds,
-                              const std::shared_ptr<asset::Font>& font,
+    math::Vec2 MeasureText(const Rect* bounds,
+                              const asset::Font* font,
                               int fontSize,
-                              const std::string& text,
+                              const std::string* text,
                               bool applyKerning,
                               text::WrapMode wrap,
                               size_t endIndex);
 
     size_t GetCharIndexForPosition(const math::Vec2& pos,
-                                const Rect& bounds,
-                                const std::shared_ptr<asset::Font>& font,
+                                const Rect* bounds,
+                                const asset::Font* font,
                                 int fontSize,
-                                const std::string& text,
+                                const std::string* text,
                                 bool applyKerning,
                                 text::WrapMode wrap,
                                 text::Alignment justification);

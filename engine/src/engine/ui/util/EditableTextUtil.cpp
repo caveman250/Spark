@@ -12,24 +12,22 @@
 
 namespace se::ui::util
 {
-#if SPARK_EDITOR
     NewEditableText CreateEditableText(ecs::World* world,
                                const asset::AssetReference<asset::Font>& font,
-                               const int fontSize)
+                               const int fontSize,
+                               const ecs::Id& scene)
 
     {
         NewEditableText ret = {};
-        const auto app = Application::Get();
-        const auto editor = app->GetEditorRuntime();
         const auto assetManager = asset::AssetManager::Get();
 
-        ret.entity = world->CreateEntity(editor->GetEditorScene(), "Label");
+        ret.entity = world->CreateEntity(scene, "Label");
         ret.text = world->AddComponent<EditableTextComponent>(ret.entity);
         ret.text->font = font;
         ret.text->fontSize = fontSize;
         ret.mouseInput = world->AddComponent<MouseInputComponent>(ret.entity);
         ret.widget = world->AddComponent<WidgetComponent>(ret.entity);
-        auto caretEntity = world->CreateEntity(editor->GetEditorScene(), "Caret");
+        auto caretEntity = world->CreateEntity(scene, "Caret");
         const auto caretRect = world->AddComponent<RectTransformComponent>(caretEntity);
         caretRect->anchors = { 0.f, 0.f, 0.f, 1.f };
         caretRect->minY = 1;
@@ -101,10 +99,10 @@ namespace se::ui::util
         const auto window = Application::Get()->GetWindow();
         const math::Vec2 localMousePos = mousePos - math::Vec2(rect.rect.topLeft) - math::Vec2(text.renderOffset, 0.f);
         return static_cast<int>(GetCharIndexForPosition(localMousePos,
-            rect.rect,
-            text.font.GetAsset(),
+            &rect.rect,
+            text.font.GetAsset().get(),
             static_cast<int>(text.fontSize * window->GetContentScale()),
-            text.editText,
+            &text.editText,
             true,
             text.wrap,
             text.alignment));
@@ -180,5 +178,4 @@ namespace se::ui::util
             textComp.onCaretMoved.Broadcast(textComp.caretPosition);
         }
     }
-#endif
 }

@@ -36,7 +36,7 @@ namespace se::ui::components
         ecs::Signal<input::MouseButton> onPressed = {};
 
         SPARK_MEMBER(Serialized)
-        ecs::Signal<input::MouseButton> onDoubleClick = {};
+        ecs::Signal<const input::MouseButton> onDoubleClick = {};
 
         math::IntVec2 pressedPosition = {};
         bool isDragging = false;
