@@ -12,10 +12,13 @@ namespace se::reflect
     template<typename T>
     Type* GetPrimitiveDescriptor();
 
+    template<typename T>
+    using RealType = std::remove_pointer_t<std::decay_t<T>>;
+
     template <typename T>
     concept ClassWithGetReflection = requires
     {
-        { T::GetReflection() } -> std::same_as<Class*>;
+        { RealType<T>::GetReflection() } -> std::same_as<Class*>;
     };
 
     struct DefaultResolver
@@ -23,13 +26,13 @@ namespace se::reflect
         template<ClassWithGetReflection T>
         static Type* Get()
         {
-            return T::GetReflection();
+            return RealType<T>::GetReflection();
         }
 
         template<typename T>
         static Type* Get()
         {
-            return GetPrimitiveDescriptor<T>();
+            return GetPrimitiveDescriptor<RealType<T>>();
         }
     };
 
