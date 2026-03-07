@@ -21,7 +21,7 @@ namespace se::ui::systems
         return ecs::SystemDeclaration("Editable Text System")
                     .WithComponent<const components::RectTransformComponent>()
                     .WithComponent<components::EditableTextComponent>()
-                    .WithComponent<const components::WidgetComponent>()
+                    .WithComponent<components::WidgetComponent>()
                     .WithComponent<const components::MouseInputComponent>()
                     .WithComponent<components::KeyInputComponent>()
                     .WithSingletonComponent<singleton_components::UIRenderComponent>()
@@ -399,7 +399,7 @@ namespace se::ui::systems
             const auto* transformComps = updateData.GetComponentArray<const components::RectTransformComponent>();
             const auto* mouseInputComps = updateData.GetComponentArray<const components::MouseInputComponent>();
             auto* keyInputComps = updateData.GetComponentArray<components::KeyInputComponent>();
-            const auto* widgets = updateData.GetComponentArray<const components::WidgetComponent>();
+            const auto* widgets = updateData.GetComponentArray<components::WidgetComponent>();
             const auto* inputComp = updateData.GetSingletonComponent<const input::InputComponent>();
 
             for (size_t i = 0; i < entities.size(); ++i)
@@ -417,6 +417,15 @@ namespace se::ui::systems
                 const components::MouseInputComponent& mouseInput = mouseInputComps[i];
                 const components::RectTransformComponent& rectTransform = transformComps[i];
 
+                int charPos = 0;
+                if (text.inEditMode)
+                {
+                    charPos = util::CalcCaretPosition(
+                                          math::Vec2(static_cast<float>(inputComp->mouseX), static_cast<float>(inputComp->mouseY)),
+                                          text,
+                                          rectTransform);
+                }
+
                 if (mouseInput.hovered)
                 {
                     if (mouseInput.buttonMask != 0)
@@ -427,26 +436,76 @@ namespace se::ui::systems
                         {
                             if (mouseEvent.button == input::MouseButton::Left)
                             {
-                                if (mouseEvent.state == input::KeyState::Up)
+                                if (mouseEvent.state == input::KeyState::Down)
                                 {
                                     if (!text.inEditMode)
                                     {
                                         util::BeginEditingText(this, entity, text, keyInput);
                                     }
 
-                                    util::SetCaretPos(text,
-                                                      util::CalcCaretPosition(
-                                                          math::Vec2(static_cast<float>(inputComp->mouseX), static_cast<float>(inputComp->mouseY)),
-                                                          text,
-                                                          rectTransform));
+                                    text.mouseDown = true;
+                                    text.isDragging = false;
+                                    text.selectionStart = -1;
+                                    text.selectionEnd = -1;
+                                    text.selectionStart = charPos;
+                                    util::SetCaretPos(text, charPos);
+                                }
+                                else if (mouseEvent.state == input::KeyState::Up)
+                                {
+                                    text.mouseDown = false;
+                                    if (!text.isDragging)
+                                    {
+                                        text.selectionStart = -1;
+                                        text.selectionEnd = -1;
+                                    }
+                                    text.isDragging = false;
                                 }
                             }
                         }
                     }
                 }
-                else if (inputComp->mouseButtonStates[static_cast<int>(input::MouseButton::Left)] == input::KeyState::Down)
+                else if (inputComp->mouseButtonStates[static_cast<int>(input::MouseButton::Left)] == input::KeyState::Down &&
+                         !text.isDragging)
                 {
                     util::EndEditingText(this, entity, text, keyInput);
+                    text.mouseDown = false;
+                }
+
+                if (text.mouseDown)
+                {
+                    if (!text.isDragging)
+                    {
+                        text.isDragging = charPos != text.caretPosition;
+                    }
+
+                    if (text.isDragging)
+                    {
+                        util::SetCaretPos(text, charPos);
+
+                        if (charPos < text.lastCaretPosition)
+                        {
+                            if (charPos > text.selectionStart)
+                            {
+                                text.selectionEnd = charPos;
+                            }
+                            else
+                            {
+                                text.selectionEnd = std::max(text.selectionStart, text.selectionEnd);
+                                text.selectionStart = charPos;
+                            }
+                        }
+                        else if (charPos > text.lastCaretPosition)
+                        {
+                            if (charPos < text.selectionEnd)
+                            {
+                                text.selectionStart = charPos;
+                            }
+                            else
+                            {
+                                text.selectionEnd = charPos;
+                            }
+                        }
+                    }
                 }
 
                 if (!mouseInput.hovered && mouseInput.lastHovered)
@@ -481,7 +540,6 @@ namespace se::ui::systems
                         if (offset > 0.f)
                         {
                             constexpr float caretWidth = 2.f;
-                            //account for caret size
                             offset += caretWidth * window->GetContentScale();
                         }
                         const float localOffset = offset + text.renderOffset;
@@ -497,6 +555,8 @@ namespace se::ui::systems
                         }
                     }
                 }
+
+                text.lastCaretPosition = text.caretPosition;
             }
         });
     }
@@ -512,7 +572,7 @@ namespace se::ui::systems
             const auto window = app->GetWindow();
 
             const auto& entities = updateData.GetEntities();
-            const auto* widgetComps = updateData.GetComponentArray<const components::WidgetComponent>();
+            const auto* widgetComps = updateData.GetComponentArray<components::WidgetComponent>();
             const auto* transformComps = updateData.GetComponentArray<const components::RectTransformComponent>();
             auto* textComps = updateData.GetComponentArray<components::EditableTextComponent>();
             auto* renderComp = updateData.GetSingletonComponent<singleton_components::UIRenderComponent>();

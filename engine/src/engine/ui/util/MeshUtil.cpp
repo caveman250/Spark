@@ -469,9 +469,11 @@ namespace se::ui::util
                                                    cursorPos.x,
                                                    bounds);
         const float halfFontSize = fontSize * .5f;
+        float minX = std::numeric_limits<float>::max();
         for (size_t j = lineStart; j < text->size(); ++j)
         {
             const auto& charBounds = boundingBoxes[j];
+            minX = std::min(minX, charBounds.topLeft.x + offset);
             if (std::abs(charBounds.topLeft.x + offset - pos.x) < halfFontSize &&
                 std::abs(charBounds.topLeft.y - pos.y) <= fontSize)
             {
@@ -479,6 +481,6 @@ namespace se::ui::util
             }
         }
 
-        return text->size();
+        return pos.x < minX ? 0 : text->size();
     }
 }

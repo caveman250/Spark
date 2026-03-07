@@ -13,9 +13,9 @@
 namespace se::ui::util
 {
     template<typename T>
-    concept TextTypeConcept = std::is_same_v<TextComponent, T> || std::is_same_v<EditableTextComponent, T>;
+    concept TextComponentType = std::is_same_v<TextComponent, T> || std::is_same_v<EditableTextComponent, T>;
 
-    template<TextTypeConcept T>
+    template <TextComponentType T>
     void UpdateText(T& textComp, const RectTransformComponent& transform, const std::string& text)
     {
         if (!textComp.materialInstance && textComp.font.IsSet())
@@ -53,7 +53,9 @@ namespace se::ui::util
 
         if constexpr (std::is_same_v<T, EditableTextComponent>)
         {
-            if ((!textComp.selectionVertBuffer || invalidate) &&
+            bool invalidateSelection = textComp.selectionStart != textComp.lastSelectionStart ||
+                                        textComp.selectionEnd != textComp.lastSelectionEnd;
+            if ((!textComp.selectionVertBuffer || invalidate || invalidateSelection) &&
                 textComp.inEditMode &&
                 textComp.selectionStart != -1 &&
                 textComp.selectionEnd != -1)
@@ -63,6 +65,9 @@ namespace se::ui::util
                 textComp.selectionVertBuffer->CreatePlatformResource();
                 textComp.selectionIndexBuffer = render::IndexBuffer::CreateIndexBuffer(selectionMesh);
                 textComp.selectionIndexBuffer->CreatePlatformResource();
+
+                textComp.lastSelectionStart = textComp.selectionStart;
+                textComp.lastSelectionEnd = textComp.selectionEnd;
             }
 
             if (!textComp.selectionMaterialInstance && textComp.inEditMode)
@@ -79,7 +84,7 @@ namespace se::ui::util
         }
     }
 
-    template<TextTypeConcept T>
+    template <TextComponentType T>
     void RenderText(const ecs::Id& entity,
                     const WidgetComponent& widget,
                     const RectTransformComponent& transform,
@@ -110,8 +115,8 @@ namespace se::ui::util
         textComp.materialInstance->SetUniform("screenSize", asset::shader::ast::AstType::Vec2, 1, &windowSize);
 
 #if SPARK_EDITOR
-        auto editor = Application::Get()->GetEditorRuntime();
-        bool isEditorEntity = *entity.scene == editor->GetEditorScene();
+        const auto editor = Application::Get()->GetEditorRuntime();
+        const bool isEditorEntity = *entity.scene == editor->GetEditorScene();
 #else
         constexpr bool isEditorEntity = false;
 #endif
@@ -120,7 +125,7 @@ namespace se::ui::util
         {
             if (textComp.inEditMode)
             {
-                auto pushScissor = renderer->AllocRenderCommand<render::commands::PushScissor>(transform.rect);
+                const auto pushScissor = renderer->AllocRenderCommand<render::commands::PushScissor>(transform.rect);
                 renderComp->entityPreRenderCommands[entity].push_back(UIRenderCommand(pushScissor, UILayerKey(transform.layer, isEditorEntity)));
 
                 if (textComp.selectionMaterialInstance && textComp.selectionStart != -1 && textComp.selectionEnd != -1)
@@ -147,7 +152,7 @@ namespace se::ui::util
         {
             if (textComp.inEditMode)
             {
-                auto popScissor = renderer->AllocRenderCommand<render::commands::PopScissor>();
+                const auto popScissor = renderer->AllocRenderCommand<render::commands::PopScissor>();
                 renderComp->entityPostRenderCommands[entity].push_back(UIRenderCommand(popScissor, UILayerKey(transform.layer, isEditorEntity)));
             }
         }

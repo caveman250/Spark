@@ -29,12 +29,17 @@ namespace se::ui::components
         // edit mode
         bool enabled = true;
         bool inEditMode = false;
+        bool mouseDown = false;
+        bool isDragging = false;
         std::string editText = { };
         int caretPosition = 0;
+        int lastCaretPosition = 0;
         ecs::Signal<std::string> onComitted = {};
         ecs::Signal<int> onCaretMoved = {};
         int selectionStart = -1;
         int selectionEnd = -1;
+        int lastSelectionStart = -1;
+        int lastSelectionEnd = -1;
 
         // internal
         std::shared_ptr<render::MaterialInstance> materialInstance = { };
