@@ -30,6 +30,7 @@ namespace se::ui::util
         ret.scrollView = world->AddComponent<components::ScrollViewComponent>(ret.scrollViewEntity);
         const auto scrollViewTransform = world->AddComponent<components::RectTransformComponent>(ret.scrollViewEntity);
         scrollViewTransform->anchors = { .left = 0.f, .right = 1.f, .top = 0.f, .bottom = 1.f };
+        scrollViewTransform->maxX = 10;
         const auto scrollViewMouseEventComp = world->AddComponent<components::MouseInputComponent>(ret.scrollViewEntity);
         scrollViewMouseEventComp->receivesScrollEvents = true;
         scrollViewMouseEventComp->buttonMask = 0;
