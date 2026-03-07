@@ -61,4 +61,8 @@ namespace se::ui::util
 
     void SetCaretPos(components::EditableTextComponent& textComp,
                      int pos);
+
+    bool HasSelection(const components::EditableTextComponent* text);
+    void ResetSelection(components::EditableTextComponent* text);
+    void EraseSelection(components::EditableTextComponent* text);
 }

@@ -226,6 +226,8 @@ namespace se::ui::systems
                     [[maybe_unused]] const input::Key key,
                     [[maybe_unused]] const input::InputComponent* inputComp)
     {
+        util::EraseSelection(text);
+
         const char c = GetCharForKey(key, inputComp);
         if (c != 0)
         {
@@ -312,25 +314,36 @@ namespace se::ui::systems
                 break;
             case input::Key::Tab:
                 text.editText.insert(text.caretPosition, "    ");
+                util::EraseSelection(&text);
                 util::MoveCaret(text, 4);
                 break;
             case input::Key::Backspace:
-                if (text.caretPosition > 0)
+                if (util::HasSelection(&text))
+                {
+                    util::EraseSelection(&text);
+                }
+                else if (text.caretPosition > 0)
                 {
                     text.editText.erase(text.caretPosition - 1, 1);
                     util::MoveCaret(text, -1);
                 }
                 break;
             case input::Key::Delete:
-                if (text.caretPosition < static_cast<int>(text.editText.size()))
+                if (util::HasSelection(&text))
+                {
+                    util::EraseSelection(&text);
+                }
+                else if (text.caretPosition < static_cast<int>(text.editText.size()))
                 {
                     text.editText.erase(text.caretPosition, 1);
                 }
                 break;
             case input::Key::Right:
+                util::ResetSelection(&text);
                 util::MoveCaret(text, 1);
                 break;
             case input::Key::Left:
+                util::ResetSelection(&text);
                 util::MoveCaret(text, -1);
                 break;
             case input::Key::Down:
@@ -441,12 +454,15 @@ namespace se::ui::systems
                                     if (!text.inEditMode)
                                     {
                                         util::BeginEditingText(this, entity, text, keyInput);
+                                        charPos = util::CalcCaretPosition(
+                                          math::Vec2(static_cast<float>(inputComp->mouseX), static_cast<float>(inputComp->mouseY)),
+                                          text,
+                                          rectTransform);
                                     }
 
                                     text.mouseDown = true;
                                     text.isDragging = false;
-                                    text.selectionStart = -1;
-                                    text.selectionEnd = -1;
+                                    util::ResetSelection(&text);
                                     text.selectionStart = charPos;
                                     util::SetCaretPos(text, charPos);
                                 }
@@ -455,8 +471,7 @@ namespace se::ui::systems
                                     text.mouseDown = false;
                                     if (!text.isDragging)
                                     {
-                                        text.selectionStart = -1;
-                                        text.selectionEnd = -1;
+                                        util::ResetSelection(&text);
                                     }
                                     text.isDragging = false;
                                 }
@@ -467,6 +482,7 @@ namespace se::ui::systems
                 else if (inputComp->mouseButtonStates[static_cast<int>(input::MouseButton::Left)] == input::KeyState::Down &&
                          !text.isDragging)
                 {
+                    text.onCancelled.Broadcast();
                     util::EndEditingText(this, entity, text, keyInput);
                     text.mouseDown = false;
                 }
@@ -513,8 +529,6 @@ namespace se::ui::systems
                     MouseCursorUtil::SetMouseCursor(MouseCursor::Arrow);
                 }
 
-                util::UpdateText(text, rectTransform, text.inEditMode ? text.editText : text.text);
-
                 if (text.inEditMode)
                 {
                     for (const auto& keyEvent: keyInput.keyEvents)
@@ -523,6 +537,7 @@ namespace se::ui::systems
                         {
                             if (keyEvent.key == input::Key::Escape)
                             {
+                                text.onCancelled.Broadcast();
                                 util::EndEditingText(this, entity, text, keyInput);
                                 break;
                             }
@@ -532,6 +547,8 @@ namespace se::ui::systems
                             }
                         }
                     }
+
+                    util::UpdateText(text, rectTransform, text.inEditMode ? text.editText : text.text);
 
                     if (text.inEditMode)
                     {
@@ -554,6 +571,10 @@ namespace se::ui::systems
                             util::SetCaretPos(text, text.caretPosition);
                         }
                     }
+                }
+                else
+                {
+                    util::UpdateText(text, rectTransform, text.inEditMode ? text.editText : text.text);
                 }
 
                 text.lastCaretPosition = text.caretPosition;

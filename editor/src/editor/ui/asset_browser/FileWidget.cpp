@@ -81,6 +81,11 @@ namespace se::editor::ui::asset_browser
             auto* mouseInput = world->GetComponent<se::ui::components::MouseInputComponent>(labelEntity);
             se::ui::util::SetEditTextMouseInputEnabled(mouseInput, false);
         });
+        label.text->onCancelled.Subscribe([world, labelEntity = label.entity]()
+        {
+            auto* mouseInput = world->GetComponent<se::ui::components::MouseInputComponent>(labelEntity);
+            se::ui::util::SetEditTextMouseInputEnabled(mouseInput, false);
+        });
         world->AddChild(fileWidget->m_Id, label.entity);
 
         const ecs::Id buttonEntity = world->CreateEntity(editor->GetEditorScene(), "Button");

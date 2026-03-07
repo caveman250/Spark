@@ -159,6 +159,8 @@ namespace se::ui::util
 
             return true;
         });
+
+        ResetSelection(&textComp);
     }
 
     void MoveCaret(EditableTextComponent& textComp,
@@ -170,12 +172,34 @@ namespace se::ui::util
     void SetCaretPos(EditableTextComponent& textComp,
                      const int pos)
     {
-        const int oldPos = textComp.caretPosition;
         textComp.caretPosition = std::clamp<int>(pos, 0, static_cast<int>(textComp.editText.size()));
+        textComp.onCaretMoved.Broadcast(textComp.caretPosition);
+    }
 
-        if (textComp.caretPosition != oldPos)
+    bool HasSelection(const components::EditableTextComponent* text)
+    {
+        return text->selectionStart != -1 && text->selectionEnd != -1;
+    }
+
+    void ResetSelection(components::EditableTextComponent* text)
+    {
+        text->selectionStart = -1;
+        text->selectionEnd = -1;
+    }
+
+    void EraseSelection(components::EditableTextComponent* text)
+    {
+        if (HasSelection(text))
         {
-            textComp.onCaretMoved.Broadcast(textComp.caretPosition);
+            const int length = text->selectionEnd - text->selectionStart;
+            text->editText.erase(text->selectionStart, length);
+            if (text->selectionEnd == text->caretPosition)
+            {
+                text->caretPosition -= length;
+            }
+
+            ResetSelection(text);
+            util::MoveCaret(*text, 0);
         }
     }
 }

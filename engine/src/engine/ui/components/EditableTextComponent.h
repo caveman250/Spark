@@ -35,6 +35,7 @@ namespace se::ui::components
         int caretPosition = 0;
         int lastCaretPosition = 0;
         ecs::Signal<std::string> onComitted = {};
+        ecs::Signal<> onCancelled = {};
         ecs::Signal<int> onCaretMoved = {};
         int selectionStart = -1;
         int selectionEnd = -1;

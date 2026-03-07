@@ -31,6 +31,7 @@ namespace se::editor::ui
 
         ecs::Id m_Window;
         ecs::Id m_TreeViewEntity;
+        std::unordered_map<ecs::Id, ecs::Id> m_TreeNodes = {};
         std::unordered_map<ecs::Id, ecs::Id> m_EntityTexts = {};
         bool m_Valid = false;
     };

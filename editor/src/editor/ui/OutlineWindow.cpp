@@ -175,6 +175,12 @@ namespace se::editor::ui
                         const auto& textEntity = m_EntityTexts.at(entity);
                         auto* text = world->GetComponent<se::ui::components::EditableTextComponent>(textEntity);
                         auto* keyInput = world->GetComponent<se::ui::components::KeyInputComponent>(textEntity);
+                        auto* mouseComp = world->GetComponent<se::ui::components::MouseInputComponent>(textEntity);
+                        se::ui::util::SetEditTextMouseInputEnabled(mouseComp, true);
+
+                        const auto& treeNodeEntity = m_TreeNodes.at(entity);
+                        mouseComp = world->GetComponent<se::ui::components::MouseInputComponent>(treeNodeEntity);
+                        mouseComp->enabled = false;
 
                         if (!text->inEditMode)
                         {
@@ -190,16 +196,35 @@ namespace se::editor::ui
             },
         };
         auto treeNode = se::ui::util::InsertTreeNode(params);
-        treeNode.text->onComitted.Subscribe([entity, world, editor](const std::string& newName)
+        treeNode.text->onComitted.Subscribe([this, entity, world, editor](const std::string& newName)
         {
             world->RenameEntity(entity, newName);
             if (editor->GetSelectedEntity() == entity)
             {
                 editor->SelectEntity(entity, true);
             }
+
+            const auto& textEntity = m_EntityTexts.at(entity);
+            auto* mouseComp = world->GetComponent<se::ui::components::MouseInputComponent>(textEntity);
+            se::ui::util::SetEditTextMouseInputEnabled(mouseComp, false);
+
+            const auto& treeNodeEntity = m_TreeNodes.at(entity);
+            mouseComp = world->GetComponent<se::ui::components::MouseInputComponent>(treeNodeEntity);
+            mouseComp->enabled = true;
+        });
+        treeNode.text->onCancelled.Subscribe([this, entity, world]()
+        {
+            const auto& textEntity = m_EntityTexts.at(entity);
+            auto* mouseComp = world->GetComponent<se::ui::components::MouseInputComponent>(textEntity);
+            se::ui::util::SetEditTextMouseInputEnabled(mouseComp, false);
+
+            const auto& treeNodeEntity = m_TreeNodes.at(entity);
+            mouseComp = world->GetComponent<se::ui::components::MouseInputComponent>(treeNodeEntity);
+            mouseComp->enabled = true;
         });
         treeNode.text->text = *entity.name;
         m_EntityTexts[entity] = treeNode.textEntity;
+        m_TreeNodes[entity] = treeNode.entity;
 
         std::function<void()> selectedCb = [entity, this]()
         {
