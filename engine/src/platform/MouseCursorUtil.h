@@ -16,6 +16,8 @@ namespace se
     class MouseCursorUtil
     {
     public:
+        static void InitCursors();
         static void SetMouseCursor(MouseCursor cursor);
+        static void FreeCursors();
     };
 }

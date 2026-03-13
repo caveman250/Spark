@@ -24,6 +24,7 @@
 #include "render/components/PointLightComponent.h"
 #include "render/singleton_components/MeshRenderComponent.h"
 #include "../../../editor/src/editor/singleton_components/DragDropStateComponent.h"
+#include "platform/MouseCursorUtil.h"
 #include "threads/util/ThreadUtil.h"
 
 namespace se
@@ -42,6 +43,8 @@ namespace se
         render::Renderer::Create();
         m_PrimaryWindow = IWindow::CreatePlatformWindow(1280, 720);
         m_TimeLastFrame = std::chrono::system_clock::now();
+
+        MouseCursorUtil::InitCursors();
 
 #if SPARK_EDITOR
         io::VFS::Get().Mount(std::format("{}/{}", ENGINE_DIR, "engine_assets"), "/engine_source_assets", false);
@@ -93,6 +96,7 @@ namespace se
 
     void Application::Shutdown()
     {
+        MouseCursorUtil::FreeCursors();
     }
 
     math::IntVec2 Application::GetGameViewportSize()
