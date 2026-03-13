@@ -85,8 +85,8 @@ namespace se::editor::systems
 
                 if (camera.mouseDown)
                 {
-                    auto dt = app->GetDeltaTime();
-                    transform.rot = transform.rot + math::Vec3(dy * dt, dx * dt, 0.0f);
+                    constexpr float co = 0.005f;
+                    transform.rot = transform.rot + math::Vec3(dy * co, dx * co, 0.0f);
                 }
 
                 math::Vec3 forward(cos(transform.rot.x) * sin(transform.rot.y),
