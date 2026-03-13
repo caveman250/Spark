@@ -3,6 +3,8 @@
 #include "engine/Application.h"
 #include "GL_fwd.h"
 #include "engine/render/Material.h"
+#include "engine/render/MaterialInstance.h"
+#include "engine/render/Renderer.h"
 #include "engine/render/VertexBuffer.h"
 #include "platform/IWindow.h"
 

@@ -1,8 +1,11 @@
 #include "RectTransformSystem.h"
 
 #include <easy/profiler.h>
+
+#include "RootRectTransformSystem.h"
 #include "Widgets.generated.h"
 #include "engine/Application.h"
+#include "engine/ecs/util/SystemUtil.h"
 #include "engine/ui/util/RectTransformUtil.h"
 
 using namespace se;

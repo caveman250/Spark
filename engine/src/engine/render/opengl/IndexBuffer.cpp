@@ -2,6 +2,7 @@
 
 #include "engine/threads/util/ThreadUtil.h"
 #include "DeferredOpenGLOperations.h"
+#include "easy/profiler.h"
 
 #if OPENGL_RENDERER
 

@@ -2,6 +2,8 @@
 #include "engine/ui/util/GridBoxUtil.h"
 #include "GridBoxComponent.h"
 
+#include "engine/ui/util/WidgetUtil.h"
+
 namespace se::ui
 {
     math::IntVec2 GetGridBoxChildrenDesiredSize(ecs::System* system,

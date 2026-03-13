@@ -8,6 +8,7 @@
 #include "engine/input/InputComponent.h"
 #include <easy/profiler.h>
 
+#include "UIMouseInputSystem.h"
 #include "engine/ecs/util/SystemUtil.h"
 #include "engine/ui/components/SplitViewComponent.h"
 #include "engine/ui/components/TextComponent.h"
