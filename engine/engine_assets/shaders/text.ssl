@@ -8,8 +8,10 @@ uniform float smoothing;
 
 void main()
 {
-    float edgeDistance = 0.5;
-    float dist = texture(Texture, inUV).r;
-    float opacity = smoothstep(edgeDistance - smoothing, edgeDistance + smoothing, dist);
+    float cutoff = 0.5f;
+    float dist = cutoff - texture(Texture, inUV).r;
+    vec2 ddist = vec2(dfdx(dist), dfdy(dist));
+    float pixelDist = dist / length(ddist);
+    float opacity = clamp(0.5 - pixelDist, 0.0, 1.0);
     color = vec4(1, 1, 1, opacity);
 }

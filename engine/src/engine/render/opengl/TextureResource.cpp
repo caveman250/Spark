@@ -92,16 +92,9 @@ namespace se::render::opengl
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         GL_CHECK_ERROR()
 
-        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, 4.f);
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, 16.f);
         GL_CHECK_ERROR()
         EASY_END_BLOCK
-
-        if (!m_MipData.empty())
-        {
-            //EASY_BLOCK("glGenerateMipmap")
-            //glGenerateMipmap(GL_TEXTURE_2D);
-            //GL_CHECK_ERROR()
-        }
     }
 
     GLuint TextureResource::TextureFormatToGLInternalFormat(asset::texture::Format format)

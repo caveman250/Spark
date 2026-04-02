@@ -12,7 +12,7 @@
 
 namespace se::asset::builder
 {
-    constexpr int s_SDFPadding = 3;
+    constexpr int s_SDFPadding = 16;
     constexpr int s_SDFOneEdge = 128;
 
     constexpr const char* s_FontMapChars =
@@ -24,11 +24,6 @@ namespace se::asset::builder
             "ASDFGHJKL:\"|"
             "zxcvbnm,./`"
             "ZXCVBNM<>?~/ ";
-
-    static std::vector<unsigned> s_FontSizes =
-    {
-        32,
-    };
 
     std::regex FontBlueprint::GetFilePattern() const
     {
@@ -78,8 +73,8 @@ namespace se::asset::builder
             char c = s_FontMapChars[boundingBoxes[i].second];
             auto& charData = charDataMap[c];
             charData.rect = boundingBoxes[i].first;
-            charData.rect.size -= math::Vec2(s_SDFPadding, s_SDFPadding);
-            charData.rect.topLeft += math::Vec2(s_SDFPadding, s_SDFPadding);
+            //charData.rect.size -= math::Vec2(s_SDFPadding, s_SDFPadding);
+            //charData.rect.topLeft += math::Vec2(s_SDFPadding, s_SDFPadding);
 
             CollectCharMetrics(info, c, scale, static_cast<float>(ascent), charData);
             PackChar(charData.rect, placedBoundingBoxes, imageWidth, imageHeight, interval);
@@ -91,10 +86,10 @@ namespace se::asset::builder
             const auto& FloatRect = placedBoundingBoxes[i];
             auto& charData = charDataMap[c];
             // calculate Uvs now that the image size is stable
-            charData.uvTopLeft = math::Vec2(static_cast<float>(FloatRect.topLeft.x + s_SDFPadding) / imageWidth,
-                                            static_cast<float>(FloatRect.topLeft.y + s_SDFPadding) / imageHeight);
-            charData.uvBottomRight = math::Vec2((static_cast<float>(FloatRect.topLeft.x) + static_cast<float>(FloatRect.size.x) - s_SDFPadding) / imageWidth,
-                                                (static_cast<float>(FloatRect.topLeft.y) + static_cast<float>(FloatRect.size.y) - s_SDFPadding) / imageHeight);
+            charData.uvTopLeft = math::Vec2(static_cast<float>(FloatRect.topLeft.x) / imageWidth,
+                                            static_cast<float>(FloatRect.topLeft.y) / imageHeight);
+            charData.uvBottomRight = math::Vec2((static_cast<float>(FloatRect.topLeft.x) + static_cast<float>(FloatRect.size.x)) / imageWidth,
+                                                (static_cast<float>(FloatRect.topLeft.y) + static_cast<float>(FloatRect.size.y)) / imageHeight);
         }
 
         font.m_CharData = charDataMap;
@@ -144,7 +139,7 @@ namespace se::asset::builder
                                   s_FontMapChars[i],
                                   s_SDFPadding,
                                   s_SDFOneEdge,
-                                  s_Scale,
+                                  8,
                                   &sizeX,
                                   &sizeY,
                                   &xOff,
@@ -192,7 +187,7 @@ namespace se::asset::builder
                                  int& scanlineDelta)
     {
         FloatRect.topLeft = { 0, 0 };
-        FloatRect.size += { s_SDFPadding * 2, s_SDFPadding * 2 };
+        FloatRect.size += { 0, 0 };
 
         while (true)
         {
@@ -260,7 +255,7 @@ namespace se::asset::builder
                                                     s_FontMapChars[boundingBoxes[i].second],
                                                     s_SDFPadding,
                                                     s_SDFOneEdge,
-                                                    s_Scale,
+                                                    8,
                                                     &sizeX,
                                                     &sizeY,
                                                     &xOff,
