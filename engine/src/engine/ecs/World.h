@@ -127,6 +127,9 @@ namespace se::ecs
 
         void AddChild(const Id& entity,
                       const Id& childEntity);
+        void InsertChild(const Id& entity,
+                      const Id& childEntity,
+                      size_t index);
         void RemoveChild(const Id& entity,
                          const Id& childEntity);
         const std::vector<Id>& GetChildren(const Id& entity) const;
@@ -198,6 +201,9 @@ namespace se::ecs
                  Func&& func);
     private:
         bool IsRunning() const { return m_Running; }
+
+        void AddChildCommon(const Id& entity,
+                      const Id& childEntity);
 
 
         void CollectArchetypes(const std::vector<ComponentUsage>& components,

@@ -33,6 +33,26 @@ namespace se::linux
         }
     }
 
+    input::MouseButton SDLMouseButtonToSparkButton(int button)
+    {
+        switch (button)
+        {
+            case SDL_BUTTON_LEFT:
+                return input::MouseButton::Left;
+            case SDL_BUTTON_RIGHT:
+                return input::MouseButton::Right;
+            case SDL_BUTTON_MIDDLE:
+                return input::MouseButton::Middle;
+            case SDL_BUTTON_X1:
+                return input::MouseButton::Btn4;
+            case SDL_BUTTON_X2:
+                return input::MouseButton::Btn5;
+            default:
+                SPARK_ASSERT(false);
+                return input::MouseButton::Unknown;
+        }
+    }
+
     void LinuxRunLoop::Update()
     {
         auto app = Application::Get();
@@ -70,7 +90,7 @@ namespace se::linux
                     inputComp->mouseButtonStates[ev.button.button] = input::KeyState::Down;
 
                     input::MouseEvent mouseEvent;
-                    mouseEvent.button = static_cast<input::MouseButton>(ev.button.button);
+                    mouseEvent.button = SDLMouseButtonToSparkButton(ev.button.button);
                     mouseEvent.state = input::KeyState::Down;
                     inputComp->mouseEvents.push_back(mouseEvent);
                     break;
@@ -80,7 +100,7 @@ namespace se::linux
                     inputComp->mouseButtonStates[ev.button.button] = input::KeyState::Up;
 
                     input::MouseEvent mouseEvent;
-                    mouseEvent.button = static_cast<input::MouseButton>(ev.button.button);
+                    mouseEvent.button = SDLMouseButtonToSparkButton(ev.button.button);
                     mouseEvent.state = input::KeyState::Up;
                     inputComp->mouseEvents.push_back(mouseEvent);
                     break;

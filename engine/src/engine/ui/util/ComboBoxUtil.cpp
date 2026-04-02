@@ -20,13 +20,11 @@ namespace se::ui::util
         bgTransform->anchors = { .left = 0.f, .right = 1.f, .top = 0.f, .bottom = 1.f };
         world->AddComponent<WidgetComponent>(ret.comboBox->collapsedEntity);
         auto image = world->AddComponent<ImageComponent>(ret.comboBox->collapsedEntity);
-        auto bgMaterial = assetManager->GetAsset<render::Material>("/engine_assets/materials/editor_lightbg.sass");
-        image->materialInstance = render::MaterialInstance::CreateMaterialInstance(bgMaterial);
+        image->materialInstance = std::make_shared<render::MaterialInstance>("/engine_assets/materials/editor_lightbg.sass");
 
         auto innerImageEntity = world->CreateEntity(params.scene, "Border");
         auto innerImage = world->AddComponent<ImageComponent>(innerImageEntity);
-        auto innerMaterial = assetManager->GetAsset<render::Material>("/engine_assets/materials/editor_darkbg.sass");
-        innerImage->materialInstance = render::MaterialInstance::CreateMaterialInstance(innerMaterial);
+        innerImage->materialInstance = std::make_shared<render::MaterialInstance>("/engine_assets/materials/editor_darkbg.sass");
         auto innerTransform = world->AddComponent<RectTransformComponent>(innerImageEntity);
         innerTransform->anchors = { .left = 0.f, .right = 1.f, .top = 0.f, .bottom = 1.f };
         innerTransform->minX = innerTransform->maxX = innerTransform->minY = innerTransform->maxY = borderSize;
@@ -65,7 +63,7 @@ namespace se::ui::util
             indicatorMaterial->SetRenderState(rs);
         }
         static asset::AssetReference<asset::Texture> expanded_indicator_texture = "/engine_assets/textures/tree_node_indicator_expanded.sass";
-        indicatorImage->materialInstance = render::MaterialInstance::CreateMaterialInstance(indicatorMaterial);
+        indicatorImage->materialInstance = std::make_shared<render::MaterialInstance>(indicatorMaterial);
         indicatorImage->materialInstance->SetUniform("Texture",
                                                      asset::shader::ast::AstType::Sampler2DReference,
                                                      1,
@@ -87,12 +85,12 @@ namespace se::ui::util
         world->AddComponent<WidgetComponent>(ret.comboBox->expandedEntity);
         auto image = world->AddComponent<ImageComponent>(ret.comboBox->expandedEntity);
         auto bgMaterial = assetManager->GetAsset<render::Material>("/engine_assets/materials/editor_lightbg.sass");
-        image->materialInstance = render::MaterialInstance::CreateMaterialInstance(bgMaterial);
+        image->materialInstance = std::make_shared<render::MaterialInstance>(bgMaterial);
 
         auto innerImageEntity = world->CreateEntity(params.scene, "Border");
         auto innerImage = world->AddComponent<ImageComponent>(innerImageEntity);
         auto innerMaterial = assetManager->GetAsset<render::Material>("/engine_assets/materials/editor_darkbg.sass");
-        innerImage->materialInstance = render::MaterialInstance::CreateMaterialInstance(innerMaterial);
+        innerImage->materialInstance = std::make_shared<render::MaterialInstance>(innerMaterial);
         auto innerTransform = world->AddComponent<RectTransformComponent>(innerImageEntity);
         innerTransform->anchors = { .left = 0.f, .right = 1.f, .top = 0.f, .bottom = 1.f };
         innerTransform->minX = innerTransform->maxX = innerTransform->minY = innerTransform->maxY = borderSize;

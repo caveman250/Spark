@@ -31,6 +31,7 @@ namespace se::asset
         const StaticMesh& GetMesh() { return m_Mesh; }
         bool HasMaterial() const { return m_Material.IsSet(); }
         const std::shared_ptr<render::Material>& GetMaterial() { return m_Material.GetAsset(); }
+        const asset::AssetReference<render::Material>& GetMaterialReference() { return m_Material; }
     private:
         SPARK_MEMBER(Serialized)
         StaticMesh m_Mesh;

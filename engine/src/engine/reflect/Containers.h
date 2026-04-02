@@ -25,8 +25,9 @@ namespace se::reflect
         virtual void* GetContainedValue(void*) const { SPARK_ASSERT(false, "GetContainedValue - Not implemented for type."); return nullptr; }
         virtual const void* GetContainedKeyByIndex(void*, size_t) const { SPARK_ASSERT(false, "GetContainedKeyByIndex - Not implemented for type."); return nullptr; }
         virtual void* GetContainedValueByIndex(void*, size_t) const { SPARK_ASSERT(false, "GetContainedValueByIndex - Not implemented for type."); return nullptr; }
+        virtual void* GetContainedValueByKey(void*, const std::any&) const { SPARK_ASSERT(false, "GetContainedValueByKey - Not implemented for type."); return nullptr; }
         virtual size_t GetNumContainedElements(void*) const = 0;
-        virtual void AddElement(void*) const = 0;
+        virtual std::any AddElement(void*, Type* type = nullptr) const = 0;
         virtual void RemoveElementByIndex(void*, size_t) const { SPARK_ASSERT(false, "GetContainedValueByIndex - Not implemented for type."); }
     };
 
@@ -38,14 +39,10 @@ namespace se::reflect
             : Type_Container(name, size, binaryType)
         {}
 
-        bool RequiresExplicitInstantiation() const override
-        {
-            return true;
-        }
-
-        void AddElement(void*) const override
+        std::any AddElement(void*, Type*) const override
         {
             SPARK_ASSERT(false, "Cant add element to a pointer.");
+            return nullptr;
         }
     };
 
@@ -68,6 +65,7 @@ namespace se::reflect
         bool IsContainer() const override { return true; }
         std::string GetContainerTypeName() const override { return "std::shared_ptr<>"; }
         Type* GetContainedValueType(const void* obj) const override;
+        const std::vector<Type*>& GetDerivedTypes() const override;
 
         void* GetContainedValue(void* obj) const override
         {
@@ -184,6 +182,12 @@ namespace se::reflect
         return TypeResolver<T>::Get();
     }
 
+    template<typename T>
+    const std::vector<Type*>& Type_StdSharedPtr<T>::GetDerivedTypes() const
+    {
+        return TypeResolver<T>::Get()->GetDerivedTypes();
+    }
+
     template <typename T>
     struct TypeResolver<std::shared_ptr<T>>
     {
@@ -214,6 +218,7 @@ namespace se::reflect
         bool IsContainer() const override { return true; }
         std::string GetContainerTypeName() const override { return "*"; }
         Type* GetContainedValueType(const void* obj) const override;
+        const std::vector<Type*>& GetDerivedTypes() const override;
 
         void* GetContainedValue(void* obj) const override
         {
@@ -335,6 +340,12 @@ namespace se::reflect
         return TypeResolver<T>::Get();
     }
 
+    template<typename T>
+    const std::vector<Type*>& Type_RawPtr<T>::GetDerivedTypes() const
+    {
+        return TypeResolver<T>::Get()->GetDerivedTypes();
+    }
+
     template <typename T>
     struct TypeResolver<T*>
     {
@@ -431,7 +442,7 @@ namespace se::reflect
         Type * GetContainedValueType(const void*) const override { return TypeResolver<T>::Get(); }
         void* GetContainedValueByIndex(void* obj, size_t i) const override;
         size_t GetNumContainedElements(void* obj) const override;
-        void AddElement(void*) const override;
+        std::any AddElement(void*, Type*) const override;
         void RemoveElementByIndex(void*, size_t) const override;
     };
 
@@ -489,13 +500,28 @@ namespace se::reflect
     }
 
     template<typename T>
-    void Type_StdVector<T>::AddElement(void* obj) const
+    std::any Type_StdVector<T>::AddElement(void* obj, Type* type) const
     {
+        Type* containedType = GetContainedValueType(nullptr);
+        SPARK_ASSERT(!type || containedType->IsPolymorphic());
         if (SPARK_VERIFY(obj))
         {
             auto* typed = static_cast<std::vector<T>*>(obj);
+
+            if constexpr (std::is_pointer_v<T>)
+            {
+                if (GetContainedValueType(nullptr)->IsPolymorphic())
+                {
+                    typed->emplace_back(static_cast<T>(type ? type->heap_constructor() : containedType->heap_constructor()));
+                    return typed->size() - 1;
+                }
+            }
+
             typed->emplace_back(T());
+            return typed->size() - 1;
         }
+
+        return nullptr;
     }
 
     template<typename T>
@@ -559,7 +585,7 @@ namespace se::reflect
         Type * GetContainedValueType(const void*) const override { return itemType; }
         void* GetContainedValueByIndex(void* obj, size_t i) const override;
         size_t GetNumContainedElements(void*) const override;
-        void AddElement(void*) const override;
+        std::any AddElement(void*, Type*) const override;
     };
 
     template<typename T, size_t Size>
@@ -613,9 +639,10 @@ namespace se::reflect
     }
 
     template<typename T, size_t Size>
-    void Type_StdArray<T, Size>::AddElement(void*) const
+    std::any Type_StdArray<T, Size>::AddElement(void*, Type*) const
     {
         SPARK_ASSERT(false, "Can't add element to an array.");
+        return nullptr;
     }
 
     template <typename T, size_t Size>
@@ -660,9 +687,10 @@ namespace se::reflect
         Type * GetContainedKeyType() const override { return TypeResolver<T>::Get(); }
         Type* GetContainedValueType(const void*) const override { return TypeResolver<Y>::Get(); }
         void * GetContainedValueByIndex(void*, size_t i) const override;
+        void* GetContainedValueByKey(void*, const std::any&) const override;
         const void * GetContainedKeyByIndex(void*, size_t) const override;
         size_t GetNumContainedElements(void* obj) const override;
-        void AddElement(void*) const override;
+        std::any AddElement(void*, Type*) const override;
     };
 
     template <typename T, typename Y>
@@ -754,6 +782,23 @@ namespace se::reflect
     }
 
     template<typename T, typename Y>
+    void* Type_StdMap<T, Y>::GetContainedValueByKey(void* obj,
+        const std::any& key) const
+    {
+        if (SPARK_VERIFY(obj))
+        {
+            auto* typed = static_cast<std::map<T, Y>*>(obj);
+            auto it = typed->find(std::any_cast<T>(key));
+            if (it != typed->end())
+            {
+                return &it->second;
+            }
+        }
+
+        return nullptr;
+    }
+
+    template<typename T, typename Y>
     const void* Type_StdMap<T, Y>::GetContainedKeyByIndex(void* obj,
                                                       size_t i) const
     {
@@ -780,14 +825,52 @@ namespace se::reflect
         return 0;
     }
 
-    template<typename T, typename Y>
-    void Type_StdMap<T, Y>::AddElement(void* obj) const
+    template<typename T>
+    concept String = std::is_same_v<std::decay_t<T>, std::string>;
+
+    template <String S>
+    void IncKey(S& s)
     {
+        int i = 0;
+        if (!s.empty())
+            i = std::stoi(s) + 1;
+        s = std::to_string(i);
+    }
+
+    template <typename T>
+    void IncKey(T& t)
+    {
+        ++t;
+    }
+
+    template<typename T, typename Y>
+    std::any Type_StdMap<T, Y>::AddElement(void* obj, Type* type) const
+    {
+        auto* containedType = GetContainedValueType(nullptr);
+        SPARK_ASSERT(!type || containedType->IsPolymorphic());
         if (SPARK_VERIFY(obj))
         {
             auto* typed = static_cast<std::map<T, Y>*>(obj);
-            typed->insert(std::make_pair(T(), Y()));
+            T key = T();
+            while (typed->find(key) != typed->end())
+            {
+                IncKey(key);
+            }
+
+            if constexpr (std::is_pointer_v<Y>)
+            {
+                if (containedType->IsPolymorphic())
+                {
+                    typed->insert(std::make_pair(key, static_cast<Y>(type ? type->heap_constructor() : containedType->heap_constructor())));
+                    return key;
+                }
+            }
+
+            typed->insert(std::make_pair(key, Y()));
+            return key;
         }
+
+        return nullptr;
     }
 
     template <typename T, typename Y>
@@ -833,8 +916,9 @@ namespace se::reflect
         Type* GetContainedValueType(const void*) const override { return TypeResolver<Y>::Get(); }
         void* GetContainedValueByIndex(void *, size_t i) const override;
         const void * GetContainedKeyByIndex(void *, size_t) const override;
+        void* GetContainedValueByKey(void*, const std::any&) const override;
         size_t GetNumContainedElements(void* obj) const override;
-        void AddElement(void*) const override;
+        std::any AddElement(void*, Type*) const override;
     };
 
     template <typename T, typename Y>
@@ -940,6 +1024,23 @@ namespace se::reflect
     }
 
     template<typename T, typename Y>
+    void* Type_StdUnorderedMap<T, Y>::GetContainedValueByKey(void* obj,
+        const std::any& key) const
+    {
+        if (SPARK_VERIFY(obj))
+        {
+            auto* typed = static_cast<std::unordered_map<T, Y>*>(obj);
+            auto it = typed->find(std::any_cast<T>(key));
+            if (it != typed->end())
+            {
+                return &it->second;
+            }
+        }
+
+        return nullptr;
+    }
+
+    template<typename T, typename Y>
     size_t Type_StdUnorderedMap<T, Y>::GetNumContainedElements(void* obj) const
     {
         if (SPARK_VERIFY(obj))
@@ -952,13 +1053,33 @@ namespace se::reflect
     }
 
     template<typename T, typename Y>
-    void Type_StdUnorderedMap<T, Y>::AddElement(void* obj) const
+    std::any Type_StdUnorderedMap<T, Y>::AddElement(void* obj, Type* type) const
     {
+        auto* containedType = GetContainedValueType(nullptr);
+        SPARK_ASSERT(!type || containedType->IsPolymorphic());
         if (SPARK_VERIFY(obj))
         {
             auto* typed = static_cast<std::unordered_map<T, Y>*>(obj);
-            typed->insert(std::make_pair(T(), Y()));
+            T key = T();
+            while (typed->find(key) != typed->end())
+            {
+                IncKey(key);
+            }
+
+            if constexpr (std::is_pointer_v<Y>)
+            {
+                if (containedType->IsPolymorphic())
+                {
+                    typed->insert(std::make_pair(key, static_cast<Y>(type ? type->heap_constructor() : containedType->heap_constructor())));
+                    return key;
+                }
+            }
+
+            typed->insert(std::make_pair(key, Y()));
+            return key;
         }
+
+        return nullptr;
     }
 
     template <typename T, typename Y>

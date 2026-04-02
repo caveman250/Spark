@@ -77,11 +77,11 @@ namespace se::render::systems
                     EASY_BLOCK("Create Material Instance")
                     if (mesh.material.IsSet())
                     {
-                        mesh.materialInstance = MaterialInstance::CreateMaterialInstance(mesh.material.GetAsset());
+                        mesh.materialInstance = std::make_shared<MaterialInstance>(mesh.material);
                     }
                     else if (mesh.model.IsSet() && mesh.model.GetAsset()->HasMaterial())
                     {
-                        mesh.materialInstance = MaterialInstance::CreateMaterialInstance(mesh.model.GetAsset()->GetMaterial());
+                        mesh.materialInstance = std::make_shared<MaterialInstance>(mesh.model.GetAsset()->GetMaterialReference());
                     }
                 }
 

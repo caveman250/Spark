@@ -113,13 +113,13 @@ namespace se::editor::ui::properties
         auto image = world->AddComponent<ImageComponent>(bg);
 
         auto material = asset::AssetManager::Get()->GetAsset<render::Material>("/engine_assets/materials/editor_lightbg.sass");
-        image->materialInstance = render::MaterialInstance::CreateMaterialInstance(material);
+        image->materialInstance = std::make_shared<render::MaterialInstance>(material);
         world->AddChild(m_Content, bg);
 
         auto innerImageEntity = world->CreateEntity(editor->GetEditorScene(), "Border");
         auto innerImage = world->AddComponent<ImageComponent>(innerImageEntity);
         auto innerMaterial = asset::AssetManager::Get()->GetAsset<render::Material>("/engine_assets/materials/editor_darkbg.sass");
-        innerImage->materialInstance = render::MaterialInstance::CreateMaterialInstance(innerMaterial);
+        innerImage->materialInstance = std::make_shared<render::MaterialInstance>(innerMaterial);
         auto innerTransform = world->AddComponent<RectTransformComponent>(innerImageEntity);
         innerTransform->anchors = { .left = 0.f, .right = 1.f, .top = 0.f, .bottom = 1.f };
         innerTransform->minX = innerTransform->maxX = innerTransform->minY = innerTransform->maxY = borderSize;

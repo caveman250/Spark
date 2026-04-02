@@ -89,7 +89,7 @@ namespace se::editor::ui::properties
             world->AddComponent<WidgetComponent>(previewInnerContainer);
             auto image = world->AddComponent<ImageComponent>(previewInnerContainer);
             auto imageMaterial = asset::AssetManager::Get()->GetAsset<render::Material>("/engine_assets/materials/editor_darkbg.sass");
-            image->materialInstance = render::MaterialInstance::CreateMaterialInstance(imageMaterial);
+            image->materialInstance = std::make_shared<render::MaterialInstance>(imageMaterial);
             world->AddChild(previewContainer, previewInnerContainer);
 
             auto preview = world->CreateEntity(editor->GetEditorScene(), "Preview");
@@ -99,7 +99,7 @@ namespace se::editor::ui::properties
             previewRect->maxAspectRatio = static_cast<float>(m_Value->GetTextureAsset()->GetWidth() / m_Value->GetTextureAsset()->GetHeight());
             auto previewImage = world->AddComponent<ImageComponent>(preview);
             auto alphaTexture = asset::AssetManager::Get()->GetAsset<render::Material>("/engine_assets/materials/ui_alpha_texture.sass");
-            previewImage->materialInstance = render::MaterialInstance::CreateMaterialInstance(alphaTexture);
+            previewImage->materialInstance = std::make_shared<render::MaterialInstance>(alphaTexture);
             previewImage->materialInstance->SetUniform("Texture", asset::shader::ast::AstType::Sampler2D, 1, &m_Value->GetTextureAsset());
             world->AddChild(previewInnerContainer, preview);
 

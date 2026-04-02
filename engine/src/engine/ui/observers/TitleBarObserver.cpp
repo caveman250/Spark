@@ -19,10 +19,8 @@ namespace se::ui::observers
         //background
         if (!world->HasComponent<components::ImageComponent>(entity))
         {
-            const auto assetManager = asset::AssetManager::Get();
             const auto image = world->AddComponent<components::ImageComponent>(entity);
-            const auto material = assetManager->GetAsset<render::Material>("/engine_assets/materials/editor_darkbg.sass");
-            image->materialInstance = render::MaterialInstance::CreateMaterialInstance(material);
+            image->materialInstance = std::make_shared<render::MaterialInstance>("/engine_assets/materials/editor_darkbg.sass");
         }
 
         if (!world->HasComponent<components::WidgetComponent>(entity))

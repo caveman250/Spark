@@ -13,6 +13,7 @@ namespace se::ecs
 
 namespace se::render
 {
+    class MaterialInstance;
     class Material;
 }
 
@@ -22,7 +23,9 @@ namespace se::asset
 }
 
 template <typename T>
-concept DataAsset = std::is_same_v<T, se::render::Material> || std::is_same_v<T, se::ecs::SceneSaveData>;
+concept DataAsset = std::is_same_v<T, se::render::Material> ||
+    std::is_same_v<T, se::render::MaterialInstance> ||
+    std::is_same_v<T, se::ecs::SceneSaveData>;
 
 namespace se::asset
 {

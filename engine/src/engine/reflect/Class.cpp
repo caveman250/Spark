@@ -103,7 +103,7 @@ namespace se::reflect
 
             if (member.serialized)
             {
-                if (member.type->RequiresExplicitInstantiation())
+                if (member.type->IsPolymorphic())
                 {
                     auto binaryObj = thisObj.Get<asset::binary::Object>(member.name);
                     std::string typeName = binaryObj.GetStruct().GetName();

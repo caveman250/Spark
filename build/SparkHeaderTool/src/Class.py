@@ -527,53 +527,60 @@ def DefineNonPODType(class_name):
     return f"""static_assert(std::is_convertible<{class_name}*, se::reflect::ObjectBase*>::value, "Reflectable types must inherit from reflect::ObjectBase");
     size_t {class_name}::s_StaticId = typeid({class_name}).hash_code();\n"""
 
-def DefineAbstractClassBegin(class_name):
-    return DefineNonPODType(class_name) + f"""\n    reflect::Type* {class_name}::GetReflectType() const
+def DefineAbstractClassBegin(classobj, derived_types):
+
+    return DefineNonPODType(classobj.name) + f"""\n    reflect::Type* {classobj.name}::GetReflectType() const
     {{
-        return reflect::TypeResolver<{class_name}>::Get();
+        return reflect::TypeResolver<{classobj.name}>::Get();
     }}
     
-    void {class_name}::Serialize(const void* obj, asset::binary::Object& parentObj, const std::string& fieldName)
+    void {classobj.name}::Serialize(const void* obj, asset::binary::Object& parentObj, const std::string& fieldName)
     {{
-        reflect::TypeResolver<{class_name}>::Get()->Serialize(obj, parentObj, fieldName);
+        reflect::TypeResolver<{classobj.name}>::Get()->Serialize(obj, parentObj, fieldName);
     }}
     
-    void {class_name}::Deserialize(void* obj, asset::binary::Object& parentObj, const std::string& fieldName)
+    void {classobj.name}::Deserialize(void* obj, asset::binary::Object& parentObj, const std::string& fieldName)
     {{
-        reflect::TypeResolver<{class_name}>::Get()->Deserialize(obj, parentObj, fieldName);
+        reflect::TypeResolver<{classobj.name}>::Get()->Deserialize(obj, parentObj, fieldName);
     }}
     
-    asset::binary::StructLayout {class_name}::GetStructLayout(const void*) const
+    asset::binary::StructLayout {classobj.name}::GetStructLayout(const void*) const
     {{
-        return reflect::TypeResolver<{class_name}>::Get()->GetStructLayout(nullptr);
+        return reflect::TypeResolver<{classobj.name}>::Get()->GetStructLayout(nullptr);
     }}
     
-    std::string {class_name}::GetTypeName() const
+    std::string {classobj.name}::GetTypeName() const
     {{
-        return reflect::TypeResolver<{class_name}>::Get()->GetTypeName(nullptr);
+        return reflect::TypeResolver<{classobj.name}>::Get()->GetTypeName(nullptr);
     }}
     
-    se::reflect::Class* {class_name}::GetReflection()
+    se::reflect::Class* {classobj.name}::GetReflection()
     {{
         static se::reflect::Class* s_Reflection = nullptr;
         if (!s_Reflection)
         {{
             s_Reflection = new se::reflect::Class();
-            se::reflect::TypeLookup::GetTypeMap()["{class_name}"] = s_Reflection;
-            s_Reflection->name = \"{class_name}\";
-            s_Reflection->size = sizeof({class_name});
+            se::reflect::TypeLookup::GetTypeMap()["{classobj.name}"] = s_Reflection;
+            s_Reflection->name = \"{classobj.name}\";
+            s_Reflection->size = sizeof({classobj.name});
             s_Reflection->heap_constructor = nullptr;
             s_Reflection->inplace_constructor = nullptr;
             s_Reflection->heap_copy_constructor = nullptr;
             s_Reflection->inplace_copy_constructor = nullptr;
             s_Reflection->inplace_move_constructor = nullptr;
             s_Reflection->destructor = nullptr;
+            s_Reflection->get_derived_types = []() -> const std::vector<reflect::Type*>& {{
+                static std::vector<reflect::Type*> types = {{ 
+                    {derived_types} 
+                }};
+                return types;
+            }};
             s_Reflection->members = {{}};
         }}
         return s_Reflection;
     }}\n"""
 
-def DefineClassBeginCommon(class_name, is_pod, is_copyable):
+def DefineClassBeginCommon(class_name, is_pod, is_copyable, derived_types):
     copy_constructors = ""
     if is_copyable:
         copy_constructors = f"""            s_Reflection->heap_copy_constructor = [](void* other){{ return new {class_name}(*reinterpret_cast<{class_name}*>(other)); }}; 
@@ -583,6 +590,7 @@ def DefineClassBeginCommon(class_name, is_pod, is_copyable):
         copy_constructors = f"""            s_Reflection->heap_copy_constructor = nullptr; 
             s_Reflection->inplace_copy_constructor = nullptr;
             s_Reflection->inplace_move_constructor = nullptr;"""
+
     ret = ""
     if not is_pod:
         ret += f"""\n    reflect::Type* {class_name}::GetReflectType() const
@@ -621,6 +629,10 @@ def DefineClassBeginCommon(class_name, is_pod, is_copyable):
             s_Reflection->has_default_constructor = std::is_default_constructible<{class_name}>::value; 
             CreateDefaultConstructorMethods<{class_name}>(s_Reflection);
             {copy_constructors}
+            s_Reflection->get_derived_types = []() -> const std::vector<reflect::Type*>&  {{
+                static std::vector<reflect::Type*> types = {{ {derived_types} }};
+                return types;
+            }};
             s_Reflection->destructor = [](void* data){{ reinterpret_cast<{class_name}*>(data)->~{class_name}(); }};
             s_Reflection->members = {{}};
         }}
@@ -645,8 +657,8 @@ def EndFunctions():
     return "        };\n    }\n\n"
 
 
-def DefineClassBegin(class_name):
-    return f"    " + DefineNonPODType(class_name) + DefineClassBeginCommon(class_name, False, True)
+def DefineClassBegin(class_name, derived_types):
+    return f"    " + DefineNonPODType(class_name) + DefineClassBeginCommon(class_name, False, True, derived_types)
 
 def DefineTemplateClassBegin(class_name, template_types, template_params):
     is_variadic = False
@@ -746,10 +758,10 @@ def DefineClassEnd(class_name):
 """
 
 def DefinePODClassBegin(class_name):
-    return f"    size_t {class_name}::s_StaticId = typeid({class_name}).hash_code();\n" + DefineClassBeginCommon(class_name, True, True)
+    return f"    size_t {class_name}::s_StaticId = typeid({class_name}).hash_code();\n" + DefineClassBeginCommon(class_name, True, True, "")
 
-def DefineComponentBegin(class_name, is_copyable):
-    return f"    " + DefineNonPODType(class_name) + f"    se::ecs::Id {class_name}::s_ComponentId = {{}};\n" + DefineClassBeginCommon(class_name, False, is_copyable)
+def DefineComponentBegin(class_name, is_copyable, derived_types):
+    return f"    " + DefineNonPODType(class_name) + f"    se::ecs::Id {class_name}::s_ComponentId = {{}};\n" + DefineClassBeginCommon(class_name, False, is_copyable, derived_types)
 
 def DefineSystemBegin(class_name):
     ret = f"    " + DefineNonPODType(class_name) + f"    se::ecs::Id {class_name}::s_SystemId = {{}};\n"
@@ -985,7 +997,7 @@ def CreateSystemInstantiationFiles(source_dirs, classes):
             output_handle.write(init_systems_cpp_content)
             output_handle.close()
 
-def DefineClass(classobj, full_name, classes, base_class_map):
+def DefineClass(classobj, full_name, classes, base_class_map, template_instantiations):
     contents = f"#include \"spark.h\"\n#include \"engine/reflect/Reflect.h\"\n#include \"{classobj.path}\"\n"
 
     includes = []
@@ -1011,23 +1023,55 @@ def DefineClass(classobj, full_name, classes, base_class_map):
     for include in includes:
         contents += f"#include \"{include}\"\n"
 
+    derived_types = ""
+    for key, value in base_class_map.items():
+        if value == full_name:
+            if derived_types:
+                derived_types += ",\n                    "
+            other_class = classes[key]
+            if other_class.is_template:
+                for template_instantiation in template_instantiations:
+                    if template_instantiation.class_name == other_class.name:
+                        if derived_types:
+                            derived_types += ",\n                    "
+                        template_types_string = ""
+                        for template_type in template_instantiation.template_types:
+                            template_pure_type = RemoveTemplateParams(template_type)
+                            if template_pure_type in classes:
+                                if includes.count(classes[template_pure_type].path) == 0:
+                                    contents += f"#include \"{classes[template_pure_type].path}\"\n"
+                            template_params = GetTemplateTypes(template_type)
+                            for template_param in template_params:
+                                if template_param in classes:
+                                    if includes.count(classes[template_param].path) == 0:
+                                        contents += f"#include \"{classes[template_param].path}\"\n"
+
+                            if template_types_string:
+                                template_types_string += ", "
+                            template_types_string += template_type
+                        derived_types += f"se::reflect::TypeResolver<{key}<{template_types_string}>>::Get()"
+
+            else:
+                derived_types += f"se::reflect::TypeResolver<{key}>::Get()"
+            contents += f"#include \"{classes[key].path}\"\n"
+
     contents += f"\nnamespace {classobj.namespace}\n{{\n"
 
     if classobj.type == ClassType.CLASS:
         if classobj.abstract:
-            contents += DefineAbstractClassBegin(classobj.name)
+            contents += DefineAbstractClassBegin(classobj, derived_types)
         else:
-            contents += DefineClassBegin(classobj.name)
+            contents += DefineClassBegin(classobj.name, derived_types)
     elif classobj.type == ClassType.SYSTEM:
         contents += DefineSystemBegin(classobj.name)
     elif classobj.type == ClassType.POD_CLASS:
         contents += DefinePODClassBegin(classobj.name)
     elif classobj.type ==  ClassType.COMPONENT:
-        contents += DefineComponentBegin(classobj.name, True)
+        contents += DefineComponentBegin(classobj.name, True, derived_types)
     elif classobj.type == ClassType.WIDGET_COMPONENT:
-        contents += DefineComponentBegin(classobj.name, True)
+        contents += DefineComponentBegin(classobj.name, True, derived_types)
     elif classobj.type == ClassType.SINGLETON_COMPONENT:
-        contents += DefineComponentBegin(classobj.name, False)
+        contents += DefineComponentBegin(classobj.name, False, derived_types)
 
     contents += BeginMembers(classobj.name)
     current_type = full_name
@@ -1195,6 +1239,6 @@ def WriteClassFiles(classes, enum_list, base_class_map, template_instantiations)
             if classobj.is_template:
                 DefineTemplateClass(classobj, full_name, classes, base_class_map)
             else:
-                DefineClass(classobj, full_name, classes, base_class_map)
+                DefineClass(classobj, full_name, classes, base_class_map, template_instantiations)
 
     WriteTemplateInstantiations(template_instantiations, classes)

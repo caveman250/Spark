@@ -16,8 +16,12 @@ namespace se::editor::ui::properties
         void Update() override;
 
     private:
+        void InstantiateElementUI(size_t i);
+        void InstantiateElementUI(const std::any& key, void* element);
+
         void* m_Value = nullptr;
-        const se::reflect::Type_Container* m_VectorType = nullptr;
-        std::vector<PropertyEditor*> m_Editors;
+        const se::reflect::Type_Container* m_MapType = nullptr;
+        std::unordered_map<ecs::Id, PropertyEditor*> m_Editors;
+        ecs::Id m_VerticalBox = ecs::InvalidEntity;
     };
 }

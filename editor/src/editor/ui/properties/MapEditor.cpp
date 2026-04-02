@@ -10,7 +10,9 @@
 #include "engine/io/VFS.h"
 #include "engine/render/Material.h"
 #include "engine/render/MaterialInstance.h"
+#include "engine/ui/components/ButtonComponent.h"
 #include "engine/ui/components/TextComponent.h"
+#include "engine/ui/util/ContextMenuUtil.h"
 
 namespace se::editor::ui::properties
 {
@@ -21,7 +23,7 @@ namespace se::editor::ui::properties
     {
         if (SPARK_VERIFY(type->IsContainer()))
         {
-            m_VectorType = static_cast<const reflect::Type_Container*>(type);
+            m_MapType = static_cast<const reflect::Type_Container*>(type);
             m_Value = value;
         }
     }
@@ -38,24 +40,64 @@ namespace se::editor::ui::properties
         auto listBG = world->CreateEntity(editor->GetEditorScene(), "Vector Editor BG");
         auto* listRect = world->AddComponent<RectTransformComponent>(listBG);
         world->AddComponent<WidgetComponent>(listBG);
-        listRect->anchors = {0.f, 1.f, 0.f, 0.f };
+        listRect->anchors = { 0.f, 1.f, 0.f, 0.f };
         listRect->minX = 5;
         listRect->maxX = 5;
         auto listBGImage = world->AddComponent<ImageComponent>(listBG);
         std::shared_ptr<render::Material> bgMaterial = assetManager->GetAsset<render::Material>("/engine_assets/materials/editor_containerbg.sass");
-        listBGImage->materialInstance = render::MaterialInstance::CreateMaterialInstance(bgMaterial);
+        listBGImage->materialInstance = std::make_shared<render::MaterialInstance>(bgMaterial);
         world->AddChild(m_Content, listBG);
 
-        ecs::Id verticalBoxEntity = world->CreateEntity(editor->GetEditorScene(), "Vector Editor Vertical Box");
-        auto* verticalBoxRect = world->AddComponent<RectTransformComponent>(verticalBoxEntity);
+        m_VerticalBox = world->CreateEntity(editor->GetEditorScene(), "Vector Editor Vertical Box");
+        auto* verticalBoxRect = world->AddComponent<RectTransformComponent>(m_VerticalBox);
         verticalBoxRect->anchors = { .left = 0.f, .right = 1.f, .top = 0.f, .bottom = 0.f };
-        world->AddComponent<WidgetComponent>(verticalBoxEntity);
-        auto verticalBox = world->AddComponent<VerticalBoxComponent>(verticalBoxEntity);
+        world->AddComponent<WidgetComponent>(m_VerticalBox);
+        auto verticalBox = world->AddComponent<VerticalBoxComponent>(m_VerticalBox);
         verticalBox->spacing = 5;
-        world->AddChild(listBG, verticalBoxEntity);
+        world->AddChild(listBG, m_VerticalBox);
 
-        reflect::Type* stringType = reflect::TypeResolver<std::string>::Get();
-        size_t numElements = m_VectorType->GetNumContainedElements(m_Value);
+        auto buttonContainer = world->CreateEntity(editor->GetEditorScene(), "New Button Container");
+        auto* buttonRect = world->AddComponent<RectTransformComponent>(buttonContainer);
+        world->AddComponent<WidgetComponent>(buttonContainer);
+        buttonRect->anchors = { 0.f, 1.f, 0.f, 0.f };
+        world->AddChild(m_VerticalBox, buttonContainer);
+
+        auto newButtonEntity = world->CreateEntity(editor->GetEditorScene(), "New Button");
+        world->AddComponent<WidgetComponent>(newButtonEntity);
+        auto newButton = world->AddComponent<ButtonComponent>(newButtonEntity);
+        newButton->image = "/engine_assets/textures/editor_plus.sass";
+        newButton->pressedImage = "/engine_assets/textures/editor_plus.sass";
+        newButton->hoveredImage = "/engine_assets/textures/editor_plus.sass";
+        newButton->onReleased.Subscribe([this, world](input::MouseButton)
+        {
+            auto inputComp = world->GetSingletonComponent<input::InputComponent>();
+            const auto& derivedTypes = m_MapType->GetContainedValueType(nullptr)->GetDerivedTypes();
+            se::ui::util::ContextMenuParams params = {
+                .fontSize = 14,
+                .mousePos = { inputComp->mouseX, inputComp->mouseY },
+                .scene = Application::Get()->GetEditorRuntime()->GetEditorScene()
+            };
+            for (auto* type : derivedTypes)
+            {
+                params.AddOption(type->GetTypeName(nullptr), [this, world, type]()
+                {
+                    std::any key = m_MapType->AddElement(m_Value, type);
+                    InstantiateElementUI(key, m_MapType->GetContainedValueByKey(m_Value, key));
+                    auto* transform = world->GetComponent<RectTransformComponent>(m_VerticalBox);
+                    transform->needsLayout = true;
+                    se::ui::util::InvalidateParent(m_VerticalBox, nullptr);
+                });
+            }
+
+            se::ui::util::CreateContextMenu(params);
+        });
+        auto newButtonRect = world->AddComponent<RectTransformComponent>(newButtonEntity);
+        newButtonRect->anchors = { .left = 1.f, .right = 1.f, .top = 0.f, .bottom = 0.f };
+        newButtonRect->minX = 20;
+        newButtonRect->maxY = 20;
+        world->AddChild(buttonContainer, newButtonEntity);
+
+        size_t numElements = m_MapType->GetNumContainedElements(m_Value);
         if (numElements == 0)
         {
             auto textEntity = world->CreateEntity(editor->GetEditorScene(), "Title");
@@ -67,60 +109,88 @@ namespace se::editor::ui::properties
             auto textRect = world->AddComponent<RectTransformComponent>(textEntity);
             textRect->anchors = { .left = 0.f, .right = 1.f, .top = 0.f, .bottom = 0.f };
             textRect->minX = 5;
-            world->AddChild(verticalBoxEntity, textEntity);
+            world->AddChild(m_VerticalBox, textEntity);
         }
         else
         {
             for (size_t i = 0; i < numElements; ++i)
             {
-                void* obj = m_VectorType->GetContainedValueByIndex(m_Value, i);
-                auto containedType = m_VectorType->GetContainedValueType(obj);
-
-                std::string propName = std::format("{}", i);
-                if (m_VectorType->GetContainedKeyType() == stringType)
-                {
-                    const void* value = m_VectorType->GetContainedKeyByIndex(m_Value, i);
-                    propName = *((std::string*)value);
-                }
-
-                auto entity = world->CreateEntity(editor->GetEditorScene(), propName);
-                auto rect = world->AddComponent<RectTransformComponent>(entity);
-                rect->anchors = { .left = 0.f, .right = 1.f, .top = 0.f, .bottom = 0.f };
-                rect->minX = 2;
-                rect->maxX = 15;
-                world->AddComponent<WidgetComponent>(entity);
-
-                PropertyEditorParams propertyParams = {
-                    .name = propName + ": " + containedType->GetTypeName(m_VectorType->GetContainedValueByIndex(m_Value, i)),
-                    .type = containedType,
-                    .value = obj,
-                    .anchors = se::ui::Anchors(0.f, 1.f, 0.f, 0.f),
-                    .collapsed = true,
-                    .withBackground = false,
-                    .constructTitle = true
-                };
-                auto propertyEditor = CreatePropertyEditor(propertyParams);
-                if (!propertyEditor)
-                {
-                    auto text = util::CreateMissingPropertyEditorText(containedType, 0.f, 0);
-                    world->AddChild(entity, text);
-                }
-                else
-                {
-                    world->AddChild(entity, propertyEditor->GetWidgetId());
-                    m_Editors.push_back(propertyEditor);
-                }
-
-                world->AddChild(verticalBoxEntity, entity);
+                InstantiateElementUI(i);
             }
         }
     }
 
     void MapEditor::Update()
     {
-        for (auto* editor : m_Editors)
+        for (auto* editor : m_Editors | std::ranges::views::values)
         {
             editor->Update();
         }
+    }
+
+    void MapEditor::InstantiateElementUI(size_t i)
+    {
+        reflect::Type* stringType = reflect::TypeResolver<std::string>::Get();
+        std::string propName = std::format("{}", i);
+        if (m_MapType->GetContainedKeyType() == stringType)
+        {
+            const void* value = m_MapType->GetContainedKeyByIndex(m_Value, i);
+            propName = *(std::string*)value;
+        }
+
+        InstantiateElementUI(propName, m_MapType->GetContainedValueByIndex(m_Value, i));
+    }
+
+    void MapEditor::InstantiateElementUI(const std::any& key, void* element)
+    {
+        auto app = Application::Get();
+        auto world = app->GetWorld();
+        auto editor = app->GetEditorRuntime();
+
+        // only supporting string keys until I have a need for other types.
+        const auto& propName = std::any_cast<std::string>(key);
+
+        auto containedType = m_MapType->GetContainedValueType(element);
+
+        auto entity = world->CreateEntity(editor->GetEditorScene(), propName);
+        auto rect = world->AddComponent<RectTransformComponent>(entity);
+        rect->anchors = { .left = 0.f, .right = 1.f, .top = 0.f, .bottom = 0.f };
+        rect->minX = 2;
+        rect->maxX = 15;
+        world->AddComponent<WidgetComponent>(entity);
+
+        PropertyEditorParams propertyParams = {
+            .name = propName + ": " + containedType->GetTypeName(element),
+            .type = containedType,
+            .value = element,
+            .anchors = se::ui::Anchors(0.f, 1.f, 0.f, 0.f),
+            .collapsed = true,
+            .withBackground = false,
+            .constructTitle = true,
+            .editableTitle = m_MapType->GetContainedKeyType() == reflect::TypeResolver<std::string>::Get(),
+            .contextOptions = {
+                std::make_pair("Rename", [this, entity]()
+                {
+                    auto it = m_Editors.find(entity);
+                    if (it != m_Editors.end())
+                    {
+                        it->second->BeginRename();
+                    }
+                })
+            }
+        };
+        auto propertyEditor = CreatePropertyEditor(propertyParams);
+        if (!propertyEditor)
+        {
+            auto text = util::CreateMissingPropertyEditorText(containedType, 0.f, 0);
+            world->AddChild(entity, text);
+        }
+        else
+        {
+            world->AddChild(entity, propertyEditor->GetWidgetId());
+            m_Editors.insert(std::make_pair(entity, propertyEditor));
+        }
+
+        world->AddChild(m_VerticalBox, entity);
     }
 }

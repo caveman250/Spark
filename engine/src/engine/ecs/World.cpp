@@ -937,8 +937,8 @@ namespace se::ecs
     }
 
     void World::CollectArchetypes(const std::vector<ComponentUsage>& components,
-                                    const VariantComponentUsage& variantComponent,
-                                    std::vector<QueryArchetype>& archetypes)
+                                  const VariantComponentUsage& variantComponent,
+                                  std::vector<QueryArchetype>& archetypes)
     {
         Type type = {};
         for (const auto& comp: components)
@@ -1120,16 +1120,13 @@ namespace se::ecs
         return tempComp;
     }
 
-    void World::AddChild(const Id& entity, const Id& childEntity)
+    void World::AddChildCommon(const Id& entity,
+        const Id& childEntity)
     {
         if (!HasComponent<components::ParentComponent>(entity))
         {
             AddComponent<components::ParentComponent>(entity);
         }
-
-        auto& parentRecord =  m_EntityRecords.at(entity);
-        parentRecord.children.push_back(childEntity);
-        m_EntityRecords.at(childEntity).parent = entity;
 
         if (!HasComponent<components::RootComponent>(entity) && GetParent(entity) == InvalidEntity)
         {
@@ -1140,6 +1137,27 @@ namespace se::ecs
         {
             RemoveComponent<components::RootComponent>(childEntity);
         }
+
+        m_EntityRecords.at(childEntity).parent = entity;
+    }
+
+
+    void World::AddChild(const Id& entity, const Id& childEntity)
+    {
+        AddChildCommon(entity, childEntity);
+
+        auto& parentRecord =  m_EntityRecords.at(entity);
+        parentRecord.children.push_back(childEntity);
+    }
+
+    void World::InsertChild(const Id& entity,
+                  const Id& childEntity,
+                  size_t index)
+    {
+        AddChildCommon(entity, childEntity);
+
+        auto& parentRecord =  m_EntityRecords.at(entity);
+        parentRecord.children.insert(parentRecord.children.begin() + index, childEntity);
     }
 
     void World::RemoveChild(const Id& entity, const Id& childEntity)

@@ -84,14 +84,14 @@ namespace se::editor::ui::properties
         world->AddComponent<WidgetComponent>(m_Root);
         auto image = world->AddComponent<ImageComponent>(m_Root);
         auto material = assetManager->GetAsset<render::Material>("/engine_assets/materials/editor_runtime_flat_color.sass");
-        image->materialInstance = render::MaterialInstance::CreateMaterialInstance(material);
+        image->materialInstance = std::make_shared<render::MaterialInstance>(material);
         image->materialInstance->SetUniform("uniform_color", asset::shader::ast::AstType::Vec3, 1, &s_DefaultColor);
         world->AddChild(m_Content, m_Root);
 
         auto innerImageEntity = world->CreateEntity(editor->GetEditorScene(), "Border");
         auto innerImage = world->AddComponent<ImageComponent>(innerImageEntity);
         auto innerMaterial = asset::AssetManager::Get()->GetAsset<render::Material>("/engine_assets/materials/editor_darkbg.sass");
-        innerImage->materialInstance = render::MaterialInstance::CreateMaterialInstance(innerMaterial);
+        innerImage->materialInstance = std::make_shared<render::MaterialInstance>(innerMaterial);
         auto innerTransform = world->AddComponent<RectTransformComponent>(innerImageEntity);
         innerTransform->anchors = { .left = 0.f, .right = 1.f, .top = 0.f, .bottom = 1.f };
         innerTransform->minX = innerTransform->maxX = innerTransform->minY = innerTransform->maxY = borderSize;
@@ -100,7 +100,7 @@ namespace se::editor::ui::properties
         m_Icon = world->CreateEntity(editor->GetEditorScene(), "Icon");
         auto iconImage = world->AddComponent<ImageComponent>(m_Icon);
         auto iconMaterial = assetManager->GetAsset<render::Material>("/engine_assets/materials/ui_alpha_texture.sass");
-        iconImage->materialInstance = render::MaterialInstance::CreateMaterialInstance(iconMaterial);
+        iconImage->materialInstance = std::make_shared<render::MaterialInstance>(iconMaterial);
         if (m_Value->IsSet())
         {
             auto fileImage = asset::AssetReference<asset::Texture>("/engine_assets/textures/default_file.sass");

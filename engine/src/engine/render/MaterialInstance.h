@@ -1,6 +1,7 @@
 #pragma once
 #include "UniformStorage.h"
 #include "engine/asset/shader/ast/Types.h"
+#include "Material.h"
 
 namespace se::asset::shader::ast
 {
@@ -9,20 +10,21 @@ namespace se::asset::shader::ast
 
 namespace se::render
 {
+    class MaterialInstancePlatformResources;
     class VertexBuffer;
-    class Material;
 
-    class MaterialInstance : public reflect::ObjectBase
+    class MaterialInstance : public asset::Asset
     {
-        SPARK_CLASS(Abstract)
+        SPARK_CLASS()
     public:
-        static std::shared_ptr<MaterialInstance> CreateMaterialInstance(const std::shared_ptr<Material>& material);
+        MaterialInstance() = default;
+        ~MaterialInstance() override;
+        explicit MaterialInstance(const asset::AssetReference<Material>& material);
+        explicit MaterialInstance(const std::shared_ptr<Material>& material);
 
-        virtual ~MaterialInstance() = default;
+        static std::shared_ptr<MaterialInstancePlatformResources> CreateMaterialInstancePlatformResources(const std::shared_ptr<Material>& material);
 
         virtual void Bind(const VertexBuffer& vb);
-        virtual void CreatePlatformResources();
-        virtual void DestroyPlatformResources();
 
         template <typename T>
         void SetUniform(const std::string& name, asset::shader::ast::AstType type, int count, const T* value);
@@ -30,18 +32,18 @@ namespace se::render
         template <typename T>
         const T* GetUniform(const std::string& name);
 
-        const std::shared_ptr<Material>& GetMaterial() const { return m_Material; }
+        const std::shared_ptr<Material>& GetMaterial();
+        const std::shared_ptr<MaterialInstancePlatformResources>& GetPlatformResources() const { return m_PlatformResources; }
     protected:
-        MaterialInstance(const std::shared_ptr<Material>& material);
-        virtual void SetUniformInternal(const std::string& name, asset::shader::ast::AstType type, int count, const void* value) = 0;
+        SPARK_MEMBER(Serialized)
+        asset::AssetReference<Material> m_Material = {};
 
-        const std::shared_ptr<Material> m_Material = nullptr;
+        std::shared_ptr<Material> m_MaterialHandle = {};
 
         SPARK_MEMBER(Serialized)
         UniformStorage m_UniformStorage = {};
 
-        SPARK_MEMBER()
-        bool m_PlatformResourcesCreated = false;
+        std::shared_ptr<MaterialInstancePlatformResources> m_PlatformResources = nullptr;
 
         friend class UniformStorage;
     };

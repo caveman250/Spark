@@ -42,7 +42,7 @@ namespace se::editor::ui::properties
         listRect->maxX = 5;
         auto listBGImage = world->AddComponent<ImageComponent>(listBG);
         std::shared_ptr<render::Material> bgMaterial = assetManager->GetAsset<render::Material>("/engine_assets/materials/editor_containerbg.sass");
-        listBGImage->materialInstance = render::MaterialInstance::CreateMaterialInstance(bgMaterial);
+        listBGImage->materialInstance = std::make_shared<render::MaterialInstance>(bgMaterial);
         world->AddChild(m_Content, listBG);
 
         m_VerticalBox = world->CreateEntity(editor->GetEditorScene(), "Vector Editor Vertical Box");

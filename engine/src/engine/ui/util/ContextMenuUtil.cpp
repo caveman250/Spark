@@ -43,8 +43,7 @@ namespace se::ui::util
         world->AddComponent<MouseInputComponent>(contextMenu);
         world->AddComponent<ContextMenuComponent>(contextMenu);
         auto image = world->AddComponent<ImageComponent>(contextMenu);
-        auto bgMaterial = assetManager->GetAsset<render::Material>("/engine_assets/materials/editor_context_menu.sass");
-        image->materialInstance = render::MaterialInstance::CreateMaterialInstance(bgMaterial);
+        image->materialInstance = std::make_shared<render::MaterialInstance>("/engine_assets/materials/editor_context_menu.sass");
 
         auto verticalBox = world->CreateEntity(params.scene, "Vertical Box");
         auto verticalBoxComp = world->AddComponent<VerticalBoxComponent>(verticalBox);

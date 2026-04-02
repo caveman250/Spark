@@ -43,7 +43,7 @@ namespace se::editor::ui::properties
         world->AddComponent<WidgetComponent>(previewInnerContainer);
         auto image = world->AddComponent<ImageComponent>(previewInnerContainer);
         auto imageMaterial = asset::AssetManager::Get()->GetAsset<render::Material>("/engine_assets/materials/editor_darkbg.sass");
-        image->materialInstance = render::MaterialInstance::CreateMaterialInstance(imageMaterial);
+        image->materialInstance = std::make_shared<render::MaterialInstance>(imageMaterial);
         world->AddChild(previewContainer, previewInnerContainer);
 
         auto preview = world->CreateEntity(editor->GetEditorScene(), "Preview");

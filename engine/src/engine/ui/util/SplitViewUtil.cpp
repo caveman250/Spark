@@ -45,7 +45,7 @@ namespace se::ui::util
         world->AddComponent<WidgetComponent>(splitViewComp->sliderEntity);
         auto bgMaterial = assetManager->GetAsset<render::Material>("/engine_assets/materials/editor_splitview_slider.sass");
         auto sliderImage = world->AddComponent<ImageComponent>(splitViewComp->sliderEntity);
-        sliderImage->materialInstance = render::MaterialInstance::CreateMaterialInstance(bgMaterial);
+        sliderImage->materialInstance = std::make_shared<render::MaterialInstance>(bgMaterial);
         world->AddChild(splitView, splitViewComp->sliderEntity);
 
         world->AddChild(splitView, window2);

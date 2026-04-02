@@ -69,7 +69,7 @@ namespace se::editor::ui::asset_browser
         treeViewRect->maxX = 195;
         auto treeViewBGImage = world->AddComponent<se::ui::components::ImageComponent>(treeViewBG);
         auto bgMaterial = assetManager->GetAsset<render::Material>("/engine_assets/materials/editor_asset_browser_bg.sass");
-        treeViewBGImage->materialInstance = render::MaterialInstance::CreateMaterialInstance(bgMaterial);
+        treeViewBGImage->materialInstance = std::make_shared<render::MaterialInstance>(bgMaterial);
         world->AddChild(verticalBoxEntity, treeViewBG);
 
         se::ui::components::RectTransformComponent* transformComp = nullptr;
@@ -104,7 +104,7 @@ namespace se::editor::ui::asset_browser
         pathBarBGRect->maxY = 30;
         pathBarBGRect->minX = 200;
         auto pathBarBGImage = world->AddComponent<se::ui::components::ImageComponent>(pathBarBG);
-        pathBarBGImage->materialInstance = render::MaterialInstance::CreateMaterialInstance(bgMaterial);
+        pathBarBGImage->materialInstance = std::make_shared<render::MaterialInstance>(bgMaterial);
         world->AddChild(verticalBoxEntity, pathBarBG);
 
         auto arial = assetManager->GetAsset<asset::Font>("/engine_assets/fonts/Arial.sass");
@@ -123,7 +123,7 @@ namespace se::editor::ui::asset_browser
         gridBGRect->minY = 35;
         gridBGRect->minX = 200;
         auto gridBGImage = world->AddComponent<se::ui::components::ImageComponent>(m_GridBG);
-        gridBGImage->materialInstance = render::MaterialInstance::CreateMaterialInstance(bgMaterial);
+        gridBGImage->materialInstance = std::make_shared<render::MaterialInstance>(bgMaterial);
         auto gridMouseInput = world->AddComponent<se::ui::components::MouseInputComponent>(m_GridBG);
         gridMouseInput->buttonMask = std::to_underlying(se::input::MouseButton::Right);
         world->AddChild(verticalBoxEntity, m_GridBG);
@@ -175,6 +175,13 @@ namespace se::editor::ui::asset_browser
                 {
                     const std::string fileName = m_ActiveFolder + "/new_material.sass";
                     asset::AssetManager::Get()->CreateDataAsset<render::Material>(fileName);
+                    SetActiveFolder(m_ActiveFolder, false);
+                    SelectFile(fileName);
+                });
+                params.AddOption("Create Material Instance", [this]()
+                {
+                    const std::string fileName = m_ActiveFolder + "/new_material_instance.sass";
+                    asset::AssetManager::Get()->CreateDataAsset<render::MaterialInstance>(fileName);
                     SetActiveFolder(m_ActiveFolder, false);
                     SelectFile(fileName);
                 });

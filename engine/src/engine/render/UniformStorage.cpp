@@ -1,5 +1,6 @@
 #include "UniformStorage.h"
 #include "MaterialInstance.h"
+#include "MaterialInstancePlatformResources.h"
 
 namespace se
 {
@@ -16,7 +17,7 @@ namespace se
     {
         for (const auto& [name, value] : m_Storage)
         {
-            material->SetUniformInternal(name, value->type, value->valueCount, value->GetValue());
+            material->GetPlatformResources()->SetUniformInternal(name, value->type, value->valueCount, value->GetValue(), material->GetMaterial());
         }
 
         m_Stale = false;

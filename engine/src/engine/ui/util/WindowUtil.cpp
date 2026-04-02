@@ -21,7 +21,6 @@ namespace se::ui::util
                          const ecs::Id& scene)
     {
         const auto world = Application::Get()->GetWorld();
-        auto* assetManager = asset::AssetManager::Get();
 
         ecs::Id entity = world->CreateEntity(scene, "Window");
         *transform = world->AddComponent<RectTransformComponent>(entity);
@@ -31,9 +30,7 @@ namespace se::ui::util
         if (!world->HasComponent<ImageComponent>(entity))
         {
             const auto image = world->AddComponent<ImageComponent>(entity);
-
-            const auto material = assetManager->GetAsset<render::Material>("/engine_assets/materials/editor_window_bg.sass");
-            image->materialInstance = render::MaterialInstance::CreateMaterialInstance(material);
+            image->materialInstance = std::make_shared<render::MaterialInstance>("/engine_assets/materials/editor_window_bg.sass");
         }
 
         if (!world->HasComponent<MouseInputComponent>(entity))

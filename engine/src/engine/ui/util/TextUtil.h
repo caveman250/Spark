@@ -21,10 +21,10 @@ namespace se::ui::util
         if (!textComp.materialInstance && textComp.font.IsSet())
         {
             auto textMaterial = asset::AssetManager::Get()->GetAsset<render::Material>("/engine_assets/materials/text.sass");
-            textComp.materialInstance = render::MaterialInstance::CreateMaterialInstance(textMaterial);
+            textComp.materialInstance = std::make_shared<render::MaterialInstance>(textMaterial);
             auto texture = textComp.font.GetAsset()->GetTextureAsset();
             textComp.materialInstance->SetUniform("Texture", asset::shader::ast::AstType::Sampler2D, 1, &texture);
-            float smoothing = textComp.fontSize > 50 ? 0.01f : 0.5f;
+            float smoothing = textComp.fontSize > 50 ? 0.01f : 0.6f;
             textComp.materialInstance->SetUniform("smoothing", asset::shader::ast::AstType::Float, 1, &smoothing);
         }
 
@@ -73,7 +73,7 @@ namespace se::ui::util
             if (!textComp.selectionMaterialInstance && textComp.inEditMode)
             {
                 auto textMaterial = asset::AssetManager::Get()->GetAsset<render::Material>("/engine_assets/materials/editable_text_selection.sass");
-                textComp.selectionMaterialInstance = render::MaterialInstance::CreateMaterialInstance(textMaterial);
+                textComp.selectionMaterialInstance = std::make_shared<render::MaterialInstance>(textMaterial);
             }
         }
 

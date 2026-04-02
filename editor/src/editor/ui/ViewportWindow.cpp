@@ -93,7 +93,7 @@ namespace se::editor::ui
 #endif
         }
 
-        imageComp->materialInstance = render::MaterialInstance::CreateMaterialInstance(material);
+        imageComp->materialInstance = std::make_shared<render::MaterialInstance>(material);
         const auto& viewportTexture = app->GetEditorRuntime()->GetFrameBuffer()->GetColorTexture();
         imageComp->materialInstance->SetUniform("Texture", asset::shader::ast::AstType::Sampler2D, 1, &viewportTexture);
         world->AddChild(contentArea, m_Viewport);
@@ -108,7 +108,7 @@ namespace se::editor::ui
         playPauseBgRect->maxY = 28;
         auto playPauseBgImage = world->AddComponent<se::ui::components::ImageComponent>(playPauseBg);
         auto bgMaterial = asset::AssetManager::Get()->GetAsset<render::Material>("/engine_assets/materials/ui_alpha_texture.sass");
-        playPauseBgImage->materialInstance = render::MaterialInstance::CreateMaterialInstance(bgMaterial);
+        playPauseBgImage->materialInstance = std::make_shared<render::MaterialInstance>(bgMaterial);
         asset::AssetReference<asset::Texture> bgImage = "/engine_assets/textures/editor_play_pause_bg.sass";
         playPauseBgImage->materialInstance->SetUniform("Texture", asset::shader::ast::AstType::Sampler2DReference, 1, &bgImage);
         world->AddChild(titleArea, playPauseBg);

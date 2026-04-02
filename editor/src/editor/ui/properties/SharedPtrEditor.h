@@ -15,6 +15,7 @@ namespace se::editor::ui::properties
         void Update() override;
         PropertyTitleMode GetTitleMode() const override { return m_WrappedEditor ? m_WrappedEditor->GetTitleMode() : PropertyEditor::GetTitleMode(); }
         ecs::Id GetWidgetId() const override { return m_WrappedEditor ? m_WrappedEditor->GetWidgetId() : PropertyEditor::GetWidgetId(); }
+        void BeginRename() override { m_WrappedEditor->BeginRename(); }
     private:
         void* m_Value = nullptr;
         const se::reflect::Type_Container* m_Type = nullptr;

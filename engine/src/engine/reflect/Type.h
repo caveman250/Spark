@@ -21,6 +21,7 @@ namespace se::reflect
         std::function<void*(void*, void*)> inplace_copy_constructor;
         std::function<void*(void*, void*)> inplace_move_constructor;
         std::function<void(void*)> destructor;
+        std::function<const std::vector<Type*>&()> get_derived_types;
 
         Type(const std::string& name, size_t size, asset::binary::Type binaryType) : name(name), size(size), binaryType(binaryType) {}
         virtual ~Type() {}
@@ -32,7 +33,7 @@ namespace se::reflect
         virtual bool IsEnum() const { return false; }
         virtual bool IsClass() const { return false; }
         virtual void* Instantiate(const std::string&, void*) const { return nullptr; }
-        virtual bool RequiresExplicitInstantiation() const { return false; }
+        virtual const std::vector<Type*>& GetDerivedTypes() const { return get_derived_types(); }
 
         virtual void Serialize(const void* obj, asset::binary::Object& parentObj, const std::string& fieldName) const = 0;
         virtual void Deserialize(void* obj, asset::binary::Object& parentObj, const std::string& fieldName) const = 0;

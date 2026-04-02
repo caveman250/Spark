@@ -18,7 +18,6 @@ namespace se::ui::util
         NewScrollBox ret = {};
 
         const auto world = Application::Get()->GetWorld();
-        const auto assetManager = asset::AssetManager::Get();
 
         ret.scrollBoxEntity = world->CreateEntity(scene, "ScrollBox");
         ret.scrollBox = world->AddComponent<components::ScrollBoxComponent>(ret.scrollBoxEntity);
@@ -37,8 +36,7 @@ namespace se::ui::util
 
         ret.scrollBarEntity = world->CreateEntity(scene, "Scroll Bar");
         const auto scrollBarImage = world->AddComponent<components::ImageComponent>(ret.scrollBarEntity);
-        const std::shared_ptr<render::Material> material = assetManager->GetAsset<render::Material>("/engine_assets/materials/editor_scroll_bar.sass");
-        scrollBarImage->materialInstance = render::MaterialInstance::CreateMaterialInstance(material);
+        scrollBarImage->materialInstance = std::make_shared<render::MaterialInstance>("/engine_assets/materials/editor_scroll_bar.sass");
         const auto scrollBarRect = world->AddComponent<components::RectTransformComponent>(ret.scrollBarEntity);
         scrollBarRect->anchors = { 1.f, 1.f, 0.f, 0.f };
         scrollBarRect->minX = 10;

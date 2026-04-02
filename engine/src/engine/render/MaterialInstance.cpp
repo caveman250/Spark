@@ -1,17 +1,27 @@
 #include "MaterialInstance.h"
 #include "Material.h"
+#include "MaterialInstancePlatformResources.h"
 #include "Renderer.h"
 #include "easy/profiler.h"
 
 namespace se::render
 {
+    MaterialInstance::~MaterialInstance()
+    {
+        if (m_PlatformResources)
+        {
+            m_PlatformResources->DestroyPlatformResources();
+        }
+    }
+
     void MaterialInstance::Bind(const VertexBuffer& vb)
     {
         EASY_FUNCTION();
 
-        m_Material->Bind(vb);
+        const auto& material = GetMaterial();
+        material->Bind(vb);
 
-        if (m_Material->GetRenderState().lit)
+        if (material->GetRenderState().lit)
         {
             EASY_BLOCK("Apply Lights");
 
@@ -28,10 +38,9 @@ namespace se::render
             SetUniform("lightColor", asset::shader::ast::AstType::Vec3, static_cast<int>(color.size()), color.data());
         }
 
-        if (!m_PlatformResourcesCreated)
+        if (!m_PlatformResources)
         {
-            CreatePlatformResources();
-            m_PlatformResourcesCreated = true;
+            m_PlatformResources = CreateMaterialInstancePlatformResources(material);
         }
 
         if (m_UniformStorage.IsStale())
@@ -39,22 +48,29 @@ namespace se::render
             EASY_BLOCK("Apply Uniforms");
             m_UniformStorage.Apply(this);
         }
+
+        m_PlatformResources->Bind(vb);
     }
 
-    void MaterialInstance::CreatePlatformResources()
+    const std::shared_ptr<Material>& MaterialInstance::GetMaterial()
     {
-        m_PlatformResourcesCreated = true;
+        if (!m_MaterialHandle && m_Material.IsSet())
+        {
+            m_MaterialHandle = m_Material.GetAsset();
+        }
+        return m_MaterialHandle;
     }
 
-    void MaterialInstance::DestroyPlatformResources()
+    MaterialInstance::MaterialInstance(const asset::AssetReference<Material>& material)
+        : m_Material(material)
     {
-        m_PlatformResourcesCreated = false;
+        material.GetAsset()->GetUniformDefaults().ApplyTo(m_UniformStorage);
     }
 
     MaterialInstance::MaterialInstance(const std::shared_ptr<Material>& material)
-        : m_Material(material)
+        : m_MaterialHandle(material)
     {
-        material->GetUniformDefaults().ApplyTo(m_UniformStorage);
+
     }
 }
 

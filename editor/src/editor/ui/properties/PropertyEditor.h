@@ -60,6 +60,7 @@ namespace se::editor::ui::properties
         bool collapsed = false;
         bool withBackground = false;
         bool constructTitle = false;
+        bool editableTitle = false;
         std::vector<std::pair<std::string, std::function<void()>>> contextOptions = {};
     };
 
@@ -75,6 +76,8 @@ namespace se::editor::ui::properties
         void UpdateName(const std::string& name);
         virtual void Update() = 0;
         virtual PropertyTitleMode GetTitleMode() const { return PropertyTitleMode::Inline; }
+
+        virtual void BeginRename();
 
         virtual ecs::Id GetWidgetId() const { return m_WidgetId; }
         virtual ecs::Id GetContentId() const { return m_Content; }

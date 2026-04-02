@@ -7,6 +7,7 @@
 #include "engine/render/MaterialInstance.h"
 #include "engine/time/TimeUtil.h"
 #include "engine/ui/components/ImageComponent.h"
+#include "engine/ui/components/WidgetComponent.h"
 #include "engine/ui/components/MouseInputComponent.h"
 
 using namespace se;
@@ -20,6 +21,7 @@ namespace se::ui::systems
                     .WithComponent<components::ButtonComponent>()
                     .WithComponent<components::ImageComponent>()
                     .WithComponent<const ui::components::MouseInputComponent>()
+                    .WithComponent<const ui::components::WidgetComponent>()
                     .WithSingletonComponent<const input::InputComponent>()
                     .WithDependency<UIMouseInputSystem>();
     }
@@ -34,6 +36,7 @@ namespace se::ui::systems
             auto* buttons = updateData.GetComponentArray<components::ButtonComponent>();
             auto* images = updateData.GetComponentArray<components::ImageComponent>();
             const auto* mouseEventComps = updateData.GetComponentArray<const components::MouseInputComponent>();
+            const auto* widgets = updateData.GetComponentArray<const components::WidgetComponent>();
             const auto* inputComp = updateData.GetSingletonComponent<const input::InputComponent>();
 
             for (size_t i = 0; i < entities.size(); ++i)
@@ -41,7 +44,13 @@ namespace se::ui::systems
                 [[maybe_unused]] const auto& entity = entities[i];
                 auto& button = buttons[i];
                 auto& image = images[i];
-                auto& mouseEventComp = mouseEventComps[i];
+                const auto& mouseEventComp = mouseEventComps[i];
+                const auto& widget = widgets[i];
+
+                if (!widget.updateEnabled || !widget.parentUpdateEnabled)
+                {
+                    continue;
+                }
 
                 if (!image.materialInstance)
                 {
@@ -53,7 +62,7 @@ namespace se::ui::systems
                     rs.dstBlend = render::BlendMode::OneMinusSrcAlpha;
                     material->SetRenderState(rs);
 
-                    image.materialInstance = render::MaterialInstance::CreateMaterialInstance(material);
+                    image.materialInstance = std::make_shared<render::MaterialInstance>(material);
                     image.materialInstance->SetUniform("Texture", asset::shader::ast::AstType::Sampler2DReference, 1, &button.image);
                 }
 

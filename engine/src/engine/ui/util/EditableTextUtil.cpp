@@ -19,7 +19,6 @@ namespace se::ui::util
 
     {
         NewEditableText ret = {};
-        const auto assetManager = asset::AssetManager::Get();
 
         ret.entity = world->CreateEntity(scene, "Label");
         ret.text = world->AddComponent<EditableTextComponent>(ret.entity);
@@ -37,8 +36,7 @@ namespace se::ui::util
         const auto caretComp = world->AddComponent<TextCaretComponent>(caretEntity);
         caretComp->active = false;
         const auto caretImage = world->AddComponent<ImageComponent>(caretEntity);
-        const auto material = assetManager->GetAsset<render::Material>("/engine_assets/materials/editor_lightbg.sass");
-        caretImage->materialInstance = render::MaterialInstance::CreateMaterialInstance(material);
+        caretImage->materialInstance = std::make_shared<render::MaterialInstance>("/engine_assets/materials/editor_lightbg.sass");
         world->AddChild(ret.entity, caretEntity);
         std::function movedCb = [ret, world, caretEntity](const int pos)
         {

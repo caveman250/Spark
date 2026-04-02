@@ -1,36 +1,23 @@
-#include "MaterialInstance.h"
-
-#include "engine/render/Material.h"
-
-#if OPENGL_RENDERER
-
+#include "MaterialInstancePlatformResources.h"
+#include "GL_fwd.h"
 #include "MaterialPlatformResources.h"
 #include "engine/asset/shader/ast/TypeUtil.h"
-#include "engine/render/Material.h"
+#include "engine/render/MaterialInstance.h"
 
 namespace se::render
 {
-    std::shared_ptr<MaterialInstance> MaterialInstance::CreateMaterialInstance(const std::shared_ptr<render::Material>& material)
+    std::shared_ptr<MaterialInstancePlatformResources> MaterialInstance::CreateMaterialInstancePlatformResources(const std::shared_ptr<Material>& material)
     {
-        SPARK_ASSERT(material);
-        return std::make_shared<opengl::MaterialInstance>(material);
+        auto platformResources = std::make_shared<opengl::MaterialInstancePlatformResources>();
+        platformResources->CreatePlatformResources(material);
+        return platformResources;
     }
 }
 
 namespace se::render::opengl
 {
-    MaterialInstance::MaterialInstance(const std::shared_ptr<render::Material> &material)
-        : render::MaterialInstance(material)
+    void MaterialInstancePlatformResources::Bind(const VertexBuffer&)
     {
-
-    }
-
-    void MaterialInstance::Bind(const render::VertexBuffer& vb)
-    {
-        EASY_FUNCTION();
-
-        render::MaterialInstance::Bind(vb);
-
         glUseProgram(m_CompiledProgram);
         GL_CHECK_ERROR()
 
@@ -88,12 +75,9 @@ namespace se::render::opengl
         }
     }
 
-    void MaterialInstance::CreatePlatformResources()
+    void MaterialInstancePlatformResources::CreatePlatformResources(const std::shared_ptr<Material>& material)
     {
-        EASY_FUNCTION();
-        render::MaterialInstance::CreatePlatformResources();
-
-        MaterialPlatformResources* materialResources = static_cast<MaterialPlatformResources*>(m_Material->GetPlatformResources().get());
+        auto materialResources = static_cast<MaterialPlatformResources*>(material->GetPlatformResources().get());
 
         m_CompiledProgram = glCreateProgram();
         glAttachShader(m_CompiledProgram, materialResources->GetVertShader());
@@ -124,10 +108,8 @@ namespace se::render::opengl
         GL_CHECK_ERROR()
     }
 
-    void MaterialInstance::DestroyPlatformResources()
+    void MaterialInstancePlatformResources::DestroyPlatformResources()
     {
-        render::MaterialInstance::DestroyPlatformResources();
-
         if (m_CompiledProgram != GL_INVALID_VALUE)
         {
             glDeleteProgram(m_CompiledProgram);
@@ -136,22 +118,18 @@ namespace se::render::opengl
         }
     }
 
-    void MaterialInstance::SetUniformInternal(const std::string &name,
-                                              asset::shader::ast::AstType type,
-                                              int count,
-                                              const void *value)
+    void MaterialInstancePlatformResources::SetUniformInternal(const std::string& name,
+                                                                                   asset::shader::ast::AstType type,
+                                                                                   int count,
+                                                                                   const void* value,
+                                                                                   const std::shared_ptr<Material>& material)
     {
-        if (!m_PlatformResourcesCreated)
-        {
-            return;
-        }
-
-        auto platformResources = std::static_pointer_cast<opengl::MaterialPlatformResources>(m_Material->GetPlatformResources());
+        auto platformResources = std::static_pointer_cast<MaterialPlatformResources>(material->GetPlatformResources());
 
 
         glUseProgram(m_CompiledProgram);
         GL_CHECK_ERROR()
-        GLuint uniformLoc = {};
+        GLuint uniformLoc = { };
         if (type != asset::shader::ast::AstType::Sampler2D)
         {
             uniformLoc = glGetUniformLocation(m_CompiledProgram, name.data());
@@ -194,7 +172,7 @@ namespace se::render::opengl
                 SPARK_ASSERT(count == 1, "Setting arrays of texture uniforms not supported.");
                 const auto& texture = *reinterpret_cast<const std::shared_ptr<asset::Texture>*>(value);
                 const auto& platformResource = texture->GetPlatformResource();
-                auto it = std::ranges::find_if(m_Textures, [name](const auto& kvp){ return kvp.first == name; });
+                auto it = std::ranges::find_if(m_Textures, [name](const auto& kvp) { return kvp.first == name; });
                 if (it != m_Textures.end())
                 {
                     it->second = platformResource;
@@ -216,7 +194,7 @@ namespace se::render::opengl
                     return;
                 }
                 const auto& platformResource = texture->GetAsset()->GetPlatformResource();
-                auto it = std::ranges::find_if(m_Textures, [name](const auto& kvp){ return kvp.first == name; });
+                auto it = std::ranges::find_if(m_Textures, [name](const auto& kvp) { return kvp.first == name; });
                 if (it != m_Textures.end())
                 {
                     it->second = platformResource;
@@ -233,5 +211,3 @@ namespace se::render::opengl
         }
     }
 }
-
-#endif

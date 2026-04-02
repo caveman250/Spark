@@ -104,7 +104,7 @@ namespace se::editor::ui::asset_browser
         imageRect->maxAspectRatio = 1.f;
         const auto image = world->AddComponent<se::ui::components::ImageComponent>(imageEntity);
         const std::shared_ptr<render::Material> material = assetManager->GetAsset<render::Material>("/engine_assets/materials/ui_alpha_texture.sass");
-        image->materialInstance = render::MaterialInstance::CreateMaterialInstance(material);
+        image->materialInstance = std::make_shared<render::MaterialInstance>(material);
         if (file.isDirectory)
         {
             image->materialInstance->SetUniform("Texture", asset::shader::ast::AstType::Sampler2DReference, 1, &FolderTexture);
@@ -129,7 +129,7 @@ namespace se::editor::ui::asset_browser
                 rect->layer = -1;
                 auto* image = world->AddComponent<se::ui::components::ImageComponent>(entity);
                 const std::shared_ptr<render::Material> material = assetManager->GetAsset<render::Material>("/engine_assets/materials/ui_alpha_texture.sass");
-                image->materialInstance = render::MaterialInstance::CreateMaterialInstance(material);
+                image->materialInstance = std::make_shared<render::MaterialInstance>(material);
                 image->materialInstance->SetUniform("Texture", asset::shader::ast::AstType::Sampler2DReference, 1, &FileTexture);
 
                 const auto db = asset::binary::Database::Load(fileWidget->GetFile().fullPath.data(), true);

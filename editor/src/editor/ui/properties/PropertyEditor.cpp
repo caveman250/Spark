@@ -6,6 +6,8 @@
 #include "engine/asset/AssetManager.h"
 #include "engine/ui/components/ButtonComponent.h"
 #include "engine/ui/components/CollapsingHeaderComponent.h"
+#include "engine/ui/components/EditableTextComponent.h"
+#include "engine/ui/components/KeyInputComponent.h"
 #include "engine/ui/components/MouseInputComponent.h"
 #include "engine/ui/components/RectTransformComponent.h"
 #include "engine/ui/components/TextComponent.h"
@@ -14,6 +16,7 @@
 #include "engine/ui/text/WrapMode.h"
 #include "engine/ui/util/CollapsingHeaderUtil.h"
 #include "engine/ui/util/ContextMenuUtil.h"
+#include "engine/ui/util/EditableTextUtil.h"
 
 namespace se::ui::components
 {
@@ -54,7 +57,7 @@ namespace se::editor::ui::properties
 
             if (!params.contextOptions.empty())
             {
-                auto contextButton = world->CreateEntity(editor->GetEditorScene(), "Contyext Button");
+                auto contextButton = world->CreateEntity(editor->GetEditorScene(), "Context Button");
                 auto button = world->AddComponent<ButtonComponent>(contextButton);
                 button->image = "/engine_assets/textures/editor_context.sass";
                 button->pressedImage = "/engine_assets/textures/editor_context.sass";
@@ -103,12 +106,24 @@ namespace se::editor::ui::properties
 
         if (params.constructTitle)
         {
-            m_Title = world->CreateEntity(editor->GetEditorScene(), std::format("Property Title ({})", params.name));
-            auto titleText = world->AddComponent<TextComponent>(m_Title);
-            titleText->font = "/engine_assets/fonts/Arial.sass";
-            titleText->fontSize = titleFontSize;
-            titleText->text = m_Name;
-            titleText->wrap = se::ui::text::WrapMode::Char;
+            if (params.editableTitle)
+            {
+                auto newText = se::ui::util::CreateEditableText(world, "/engine_assets/fonts/Arial.sass", titleFontSize, editor->GetEditorScene());
+                m_Title = newText.entity;
+                newText.text->text = m_Name;
+                newText.text->wrap = se::ui::text::WrapMode::Char;
+                se::ui::util::SetEditTextMouseInputEnabled(newText.mouseInput, false);
+            }
+            else
+            {
+                m_Title = world->CreateEntity(editor->GetEditorScene(), std::format("Property Title ({})", params.name));
+                auto titleText = world->AddComponent<TextComponent>(m_Title);
+                titleText->font = "/engine_assets/fonts/Arial.sass";
+                titleText->fontSize = titleFontSize;
+                titleText->text = m_Name;
+                titleText->wrap = se::ui::text::WrapMode::Char;
+            }
+
             auto titleRect = world->AddComponent<RectTransformComponent>(m_Title);
             titleRect->anchors = {
                 .left = 0.f,
@@ -116,6 +131,8 @@ namespace se::editor::ui::properties
                 .top = 0.f,
                 .bottom = 1.f
             };
+
+
             world->AddChild(titleContainer, m_Title);
 
             if (GetTitleMode() == PropertyTitleMode::Inline && !params.contextOptions.empty())
@@ -163,6 +180,30 @@ namespace se::editor::ui::properties
         auto text = Application::Get()->GetWorld()->GetComponent<TextComponent>(m_Title);
         text->text = name;
 
+    }
+
+    void PropertyEditor::BeginRename()
+    {
+        auto world = Application::Get()->GetWorld();
+        if (GetTitleMode() == PropertyTitleMode::NextLine)
+        {
+            CollapsingHeaderComponent* collapsingHeader = world->GetComponent<CollapsingHeaderComponent>(m_WidgetId);
+            WidgetComponent* buttonWidget = world->GetComponent<WidgetComponent>(collapsingHeader->titleButton);
+            EditableTextComponent* text = world->GetComponent<EditableTextComponent>(m_Title);
+            KeyInputComponent* keyInput = world->GetComponent<KeyInputComponent>(m_Title);
+
+            se::ui::util::BeginEditingText(nullptr, m_Title, *text, *keyInput);
+            auto* mouseInput = world->GetComponent<se::ui::components::MouseInputComponent>(m_Title);
+            se::ui::util::SetEditTextMouseInputEnabled(mouseInput, true);
+            se::ui::util::SetCaretPos(*text, static_cast<int>(text->editText.size()));
+
+            buttonWidget->updateEnabled = false;
+            buttonWidget->visibility = se::ui::Visibility::Collapsed;
+        }
+        else
+        {
+
+        }
     }
 
     PropertyEditor* CreatePropertyEditor(const PropertyEditorParams& params)

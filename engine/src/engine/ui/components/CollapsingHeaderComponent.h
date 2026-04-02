@@ -15,6 +15,7 @@ namespace se::ui::components
         bool lastCollapsed = false;
         size_t fontSize = 16;
         ecs::Id titleEntity = {};
+        ecs::Id titleButton = {};
         ecs::Id contentsEntity = {};
     };
 }
