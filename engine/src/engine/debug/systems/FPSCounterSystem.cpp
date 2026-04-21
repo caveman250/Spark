@@ -45,11 +45,9 @@ namespace se::debug::systems
                 auto& text = textComps[i];
                 auto& fpsCounter = fpsCounters[i];
 
-                const clock_t timeThisFrame = clock();
-                const clock_t delta = timeThisFrame - fpsCounter.timeLastFrame;
-                fpsCounter.timeLastFrame = timeThisFrame;
                 constexpr float s_MillisecondsToSeconds = 1000.f;
-                const double milliseconds = (delta/static_cast<double>(CLOCKS_PER_SEC)) * 1000.0;
+                const float delta = Application::Get()->GetDeltaTime();
+                const double milliseconds = delta * 1000.f;
                 fpsCounter.frameTimeBuffer[fpsCounter.currentFrameIndex] = milliseconds;
                 fpsCounter.currentFrameIndex = (fpsCounter.currentFrameIndex + 1) % components::FPSCounterComponent::s_NumFramesToBuffer;
 
