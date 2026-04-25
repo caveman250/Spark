@@ -24,7 +24,7 @@ namespace se::ui::components
         int fontSize = 0;
         std::string text = { };
         text::Alignment alignment = text::Alignment::Left;
-        text::WrapMode wrap = text::WrapMode::None;
+        text::WrapMode wrap = text::WrapMode::Crop;
 
         // edit mode
         bool enabled = true;

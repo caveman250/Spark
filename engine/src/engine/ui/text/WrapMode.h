@@ -8,6 +8,7 @@ namespace se::ui::text
         Word,
         Char,
         WordChar,
+        Crop,
         None
     };
 }

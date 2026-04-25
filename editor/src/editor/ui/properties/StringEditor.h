@@ -82,6 +82,7 @@ namespace se::editor::ui::properties
             *m_Value = newVal.data();
         };
         editText.text->onComitted.Subscribe(std::move(cb));
+        editText.text->wrap = se::ui::text::WrapMode::Crop;
 
         auto labelRect = world->AddComponent<RectTransformComponent>(m_Label);
         labelRect->anchors = { .left = 0.f, .right = 1.f, .top = 0.f, .bottom = 1.f };

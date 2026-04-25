@@ -122,6 +122,7 @@ namespace se::editor::ui::properties
         auto text = world->AddComponent<TextComponent>(m_Label);
         text->font = "/engine_assets/fonts/Arial.sass";
         text->fontSize = 14;
+        text->wrap = se::ui::text::WrapMode::Crop;
         if (m_Value->IsSet())
         {
             text->text = GetAssetName(m_Value->GetAssetPath());
