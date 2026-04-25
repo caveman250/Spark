@@ -739,15 +739,21 @@ namespace se::ecs
         db->SetRootStruct(db->GetOrCreateStruct(type->GetTypeName(nullptr), type->GetStructLayout(nullptr)));
         SceneSaveData saveData = {};
 
+        uint64_t entityCounter = 0;
+        std::map<Id, uint64_t> entityMap = {};
+        for (const Id& entity : it->second.entities)
+        {
+            entityMap.insert(std::make_pair(entity.id, entityCounter++));
+        }
         for (const Id& entity : it->second.entities)
         {
             SceneEntityData entityData = {};
-            entityData.entity = entity;
+            entityData.entity = entityMap.at(entity.id);
             entityData.name = *entity.name;
             entityData.flags = *entity.flags;
             for (const auto& child : GetChildren(entity))
             {
-                entityData.children.push_back(child.id);
+                entityData.children.push_back(entityMap.at(child.id));
             }
 
             EntityRecord& record = m_EntityRecords.at(entity);
