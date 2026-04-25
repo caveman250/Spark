@@ -4,6 +4,7 @@
 #include "engine/Application.h"
 #include "engine/ui/components/RectTransformComponent.h"
 #include "engine/ui/components/ImageComponent.h"
+#include "engine/ui/components/EditableTextComponent.h"
 #include "engine/ui/components/WidgetComponent.h"
 #include "engine/ui/components/VerticalBoxComponent.h"
 #include "engine/asset/AssetManager.h"
@@ -169,13 +170,40 @@ namespace se::editor::ui::properties
             .constructTitle = true,
             .editableTitle = m_MapType->GetContainedKeyType() == reflect::TypeResolver<std::string>::Get(),
             .contextOptions = {
-                std::make_pair("Rename", [this, entity]()
+                std::make_pair("Rename", [this, entity, propName]()
                 {
                     auto it = m_Editors.find(entity);
                     if (it != m_Editors.end())
                     {
-                        it->second->BeginRename();
+                        auto onComitted = [this, entity](const std::string& newText, EditableTextComponent* textComp)
+                        {
+                            const auto nameIt = m_ElementNames.find(entity);
+                            m_MapType->ChangeKey(m_Value, nameIt->second, newText);
+                            const void* element = m_MapType->GetContainedValueByKey(m_Value, newText);
+                            nameIt->second = newText;
+                            textComp->text = nameIt->second + ": " + m_MapType->GetContainedValueType(element)->GetTypeName(element);
+                        };
+                        auto onCancelled = [this, entity](EditableTextComponent* textComp)
+                        {
+                            const auto nameIt = m_ElementNames.find(entity);
+                            const void* element = m_MapType->GetContainedValueByKey(m_Value, nameIt->second);
+                            textComp->text = nameIt->second + ": " + m_MapType->GetContainedValueType(element)->GetTypeName(element);
+                        };
+                        it->second->BeginRename(propName, onComitted, onCancelled);
                     }
+                }),
+                std::make_pair("Delete", [this, entity, world]
+                {
+                    const auto nameIt = m_ElementNames.find(entity);
+                    m_MapType->RemoveElementByKey(m_Value, nameIt->second);
+                    m_ElementNames.erase(nameIt);
+                    auto editor = m_Editors.find(entity);
+                    editor->second->DestroyUI();
+                    m_Editors.erase(editor);
+
+                    auto* transform = world->GetComponent<RectTransformComponent>(m_VerticalBox);
+                    transform->needsLayout = true;
+                    se::ui::util::InvalidateParent(m_VerticalBox, nullptr);
                 })
             }
         };
@@ -189,6 +217,7 @@ namespace se::editor::ui::properties
         {
             world->AddChild(entity, propertyEditor->GetWidgetId());
             m_Editors.insert(std::make_pair(entity, propertyEditor));
+            m_ElementNames.insert(std::make_pair(entity, propName));
         }
 
         world->AddChild(m_VerticalBox, entity);

@@ -72,12 +72,26 @@ namespace se::render::systems
                     mesh.modelHash = modelHash;
                 }
 
-                if (!mesh.materialInstance || mesh.materialInstance->GetMaterial() != mesh.material)
+                bool isOutOfDate = !mesh.materialInstance;
+                if (!isOutOfDate && mesh.materialInstanceAsset.IsSet())
+                {
+                    isOutOfDate = mesh.materialInstance != mesh.materialInstanceAsset.GetAsset();
+                }
+                else if (!isOutOfDate && mesh.materialAsset.IsSet())
+                {
+                    isOutOfDate = mesh.materialInstance->GetMaterial() != mesh.materialAsset.GetAsset();
+                }
+
+                if (isOutOfDate)
                 {
                     EASY_BLOCK("Create Material Instance")
-                    if (mesh.material.IsSet())
+                    if (mesh.materialInstanceAsset.IsSet())
                     {
-                        mesh.materialInstance = std::make_shared<MaterialInstance>(mesh.material);
+                        mesh.materialInstance = mesh.materialInstanceAsset.GetAsset();
+                    }
+                    else if (mesh.materialAsset.IsSet())
+                    {
+                        mesh.materialInstance = std::make_shared<MaterialInstance>(mesh.materialAsset);
                     }
                     else if (mesh.model.IsSet() && mesh.model.GetAsset()->HasMaterial())
                     {

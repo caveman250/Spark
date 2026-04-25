@@ -1,5 +1,5 @@
 #include <editor/ui/properties/util/PropertyUtil.h>
-#include "SharedPtrEditor.h"
+#include "PtrEditor.h"
 
 #include "engine/Application.h"
 #include "engine/ui/components/RectTransformComponent.h"
@@ -7,10 +7,10 @@
 
 namespace se::editor::ui::properties
 {
-    DEFINE_CONTAINER_PROPERTY_EDITOR("*", SharedPtrEditor)
-    DEFINE_CONTAINER_PROPERTY_EDITOR("std::shared_ptr<>", SharedPtrEditor)
+    DEFINE_CONTAINER_PROPERTY_EDITOR("*", PtrEditor)
+    DEFINE_CONTAINER_PROPERTY_EDITOR("std::shared_ptr<>", PtrEditor)
 
-    void SharedPtrEditor::SetValue(void* value, const reflect::Type* type)
+    void PtrEditor::SetValue(void* value, const reflect::Type* type)
     {
         if (SPARK_VERIFY(type->IsContainer()))
         {
@@ -19,7 +19,7 @@ namespace se::editor::ui::properties
         }
     }
 
-    void SharedPtrEditor::ConstructUI(const PropertyEditorParams& params)
+    void PtrEditor::ConstructUI(const PropertyEditorParams& params)
     {
         auto containedType = m_Type->GetContainedValueType(m_Value);
         auto wrappedParams = params;
@@ -51,8 +51,20 @@ namespace se::editor::ui::properties
         }
     }
 
-    void SharedPtrEditor::Update()
+    void PtrEditor::Update()
     {
         m_WrappedEditor->Update();
+    }
+
+    void PtrEditor::BeginRename(const std::string_view editText,
+        const std::function<void(const std::string&, EditableTextComponent*)>& onComitted,
+        const std::function<void(EditableTextComponent*)>& onCancelled)
+    {
+        m_WrappedEditor->BeginRename(editText, onComitted, onCancelled);
+    }
+
+    void PtrEditor::DestroyUI()
+    {
+        m_WrappedEditor->DestroyUI();
     }
 }

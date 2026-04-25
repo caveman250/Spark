@@ -1,5 +1,6 @@
 #include "PropertyEditor.h"
 
+#include "engine/ecs/Signal.h"
 #include "ClassEditor.h"
 #include "EnumEditor.h"
 #include "engine/Application.h"
@@ -182,23 +183,40 @@ namespace se::editor::ui::properties
 
     }
 
-    void PropertyEditor::BeginRename()
+    void PropertyEditor::BeginRename(const std::string_view editText,
+                                     const std::function<void(const std::string&, EditableTextComponent*)>& onComitted,
+                                     const std::function<void(EditableTextComponent*)>& onCancelled)
     {
-        auto world = Application::Get()->GetWorld();
+        const auto world = Application::Get()->GetWorld();
         if (GetTitleMode() == PropertyTitleMode::NextLine)
         {
-            CollapsingHeaderComponent* collapsingHeader = world->GetComponent<CollapsingHeaderComponent>(m_WidgetId);
+            const CollapsingHeaderComponent* collapsingHeader = world->GetComponent<CollapsingHeaderComponent>(m_WidgetId);
             WidgetComponent* buttonWidget = world->GetComponent<WidgetComponent>(collapsingHeader->titleButton);
             EditableTextComponent* text = world->GetComponent<EditableTextComponent>(m_Title);
             KeyInputComponent* keyInput = world->GetComponent<KeyInputComponent>(m_Title);
 
             se::ui::util::BeginEditingText(nullptr, m_Title, *text, *keyInput);
+            text->editText = editText;
             auto* mouseInput = world->GetComponent<se::ui::components::MouseInputComponent>(m_Title);
             se::ui::util::SetEditTextMouseInputEnabled(mouseInput, true);
             se::ui::util::SetCaretPos(*text, static_cast<int>(text->editText.size()));
 
             buttonWidget->updateEnabled = false;
             buttonWidget->visibility = se::ui::Visibility::Collapsed;
+
+            m_RenameComittedHandle = text->onComitted.Subscribe([this, world, onComitted](std::string newText)
+            {
+                EditableTextComponent* text = world->GetComponent<EditableTextComponent>(m_Title);
+                onComitted(newText, text);
+                text->onComitted.Unsubscribe(m_RenameComittedHandle);
+            });
+
+            m_RenameCancelledHandle = text->onCancelled.Subscribe([this, world, onCancelled]()
+            {
+                EditableTextComponent* text = world->GetComponent<EditableTextComponent>(m_Title);
+                onCancelled(text);
+                text->onCancelled.Unsubscribe(m_RenameCancelledHandle);
+            });
         }
         else
         {

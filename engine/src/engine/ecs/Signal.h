@@ -84,7 +84,7 @@ namespace se::ecs
     template <typename... Cs>
     void Signal<Cs...>::Unsubscribe(RuntimeSignalHandle handle)
     {
-        auto it = std::ranges::find(m_RegisteredRuntimeHandles, handle);
+        auto it = std::ranges::find_if(m_RegisteredRuntimeHandles, [handle](const auto& pair){ return pair.first == handle; });
         if (it != m_RegisteredRuntimeHandles.end())
         {
             m_RegisteredRuntimeHandles.erase(it);

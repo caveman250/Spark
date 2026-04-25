@@ -1,4 +1,5 @@
 #pragma once
+
 #include "engine/reflect/Object.h"
 #include "engine/ui/Anchors.h"
 
@@ -8,6 +9,7 @@ namespace se::ui
 
     namespace components
     {
+        struct EditableTextComponent;
         struct RectTransformComponent;
     }
 }
@@ -77,7 +79,9 @@ namespace se::editor::ui::properties
         virtual void Update() = 0;
         virtual PropertyTitleMode GetTitleMode() const { return PropertyTitleMode::Inline; }
 
-        virtual void BeginRename();
+        virtual void BeginRename(const std::string_view editText,
+                                 const std::function<void(const std::string&, EditableTextComponent*)>& onComitted,
+                                 const std::function<void(EditableTextComponent*)>& onCancelled);
 
         virtual ecs::Id GetWidgetId() const { return m_WidgetId; }
         virtual ecs::Id GetContentId() const { return m_Content; }
@@ -88,6 +92,8 @@ namespace se::editor::ui::properties
         ecs::Id m_Title;
         RectTransformComponent* m_RectTransform = nullptr;
         std::string m_Name = {};
+        uint64_t m_RenameComittedHandle = {};
+        uint64_t m_RenameCancelledHandle = {};
     };
 
     PropertyEditor* CreatePropertyEditor(const PropertyEditorParams& params);

@@ -429,7 +429,7 @@ namespace se::editor
 
         auto entityZ = world->CreateEntity(GetEditorScene(), "Translate Gizmo Z");
         auto meshZ = world->AddComponent<ecs::components::MeshComponent>(entityZ);
-        meshZ->material = "/engine_assets/materials/gizmo.sass";
+        meshZ->materialAsset = "/engine_assets/materials/gizmo.sass";
         meshZ->model = "/engine_assets/models/translate_handle.sass";
         meshZ->renderLayer = -1;
         auto zTransform = world->AddComponent<ecs::components::TransformComponent>(entityZ);
@@ -452,7 +452,7 @@ namespace se::editor
 
         auto entityX = world->CreateEntity(GetEditorScene(), "Translate Gizmo X");
         auto meshX = world->AddComponent<ecs::components::MeshComponent>(entityX);
-        meshX->material = "/engine_assets/materials/gizmo.sass";
+        meshX->materialAsset = "/engine_assets/materials/gizmo.sass";
         meshX->model = "/engine_assets/models/translate_handle.sass";
         meshX->renderLayer = -1;
         auto xTransform = world->AddComponent<ecs::components::TransformComponent>(entityX);
@@ -476,7 +476,7 @@ namespace se::editor
 
         auto entityY = world->CreateEntity(GetEditorScene(), "Translate Gizmo Y");
         auto meshY = world->AddComponent<ecs::components::MeshComponent>(entityY);
-        meshY->material = "/engine_assets/materials/gizmo.sass";
+        meshY->materialAsset = "/engine_assets/materials/gizmo.sass";
         meshY->model = "/engine_assets/models/translate_handle.sass";
         meshY->renderLayer = -1;
         auto yTransform = world->AddComponent<ecs::components::TransformComponent>(entityY);
@@ -561,7 +561,7 @@ namespace se::editor
         planeTransform->scale = 100;
         auto planeModel = world->AddComponent<ecs::components::MeshComponent>(m_Plane);
         planeModel->model = "/engine_assets/models/plane.sass";
-        planeModel->material = "/engine_assets/materials/editor_plane.sass";
+        planeModel->materialAsset = "/engine_assets/materials/editor_plane.sass";
     }
 
     const std::shared_ptr<asset::Asset>& EditorRuntime::GetSelectedAsset() const

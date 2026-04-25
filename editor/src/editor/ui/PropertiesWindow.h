@@ -22,6 +22,11 @@ namespace se::ui::components
 
 namespace se::editor::ui
 {
+    namespace properties
+    {
+        class PropertyEditor;
+    }
+
     class PropertiesWindow : public ToolWindow
     {
     public:

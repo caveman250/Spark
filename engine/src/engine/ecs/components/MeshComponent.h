@@ -25,7 +25,10 @@ namespace se::ecs::components
         asset::AssetReference<asset::Model> model = {};
 
         SPARK_MEMBER(Serialized)
-        asset::AssetReference<render::Material> material = {};
+        asset::AssetReference<render::Material> materialAsset = {};
+
+        SPARK_MEMBER(Serialized)
+        asset::AssetReference<render::MaterialInstance> materialInstanceAsset = {};
 
         SPARK_MEMBER(Serialized)
         int renderLayer = 0;
