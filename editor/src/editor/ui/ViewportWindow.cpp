@@ -39,7 +39,7 @@ namespace se::editor::ui
             m_OnViewportSizeChanged(viewportRect->rect.size.x, viewportRect->rect.size.y);
             const auto& viewportTexture = editor->GetFrameBuffer()->GetColorTexture();
             auto imageComp = world->GetComponent<se::ui::components::ImageComponent>(m_Viewport);
-            imageComp->materialInstance->SetUniform("Texture", asset::shader::ast::AstType::Sampler2D, 1, &viewportTexture);
+            imageComp->materialInstance->SetUniform("Texture", 1, &viewportTexture);
         }
         m_ViewportRect = viewportRect->rect;
 
@@ -95,7 +95,7 @@ namespace se::editor::ui
 
         imageComp->materialInstance = std::make_shared<render::MaterialInstance>(material);
         const auto& viewportTexture = app->GetEditorRuntime()->GetFrameBuffer()->GetColorTexture();
-        imageComp->materialInstance->SetUniform("Texture", asset::shader::ast::AstType::Sampler2D, 1, &viewportTexture);
+        imageComp->materialInstance->SetUniform("Texture", 1, &viewportTexture);
         world->AddChild(contentArea, m_Viewport);
         m_Valid = true;
 
@@ -110,7 +110,7 @@ namespace se::editor::ui
         auto bgMaterial = asset::AssetManager::Get()->GetAsset<render::Material>("/engine_assets/materials/ui_alpha_texture.sass");
         playPauseBgImage->materialInstance = std::make_shared<render::MaterialInstance>(bgMaterial);
         asset::AssetReference<asset::Texture> bgImage = "/engine_assets/textures/editor_play_pause_bg.sass";
-        playPauseBgImage->materialInstance->SetUniform("Texture", asset::shader::ast::AstType::Sampler2DReference, 1, &bgImage);
+        playPauseBgImage->materialInstance->SetUniform("Texture", 1, &bgImage);
         world->AddChild(titleArea, playPauseBg);
 
         m_PlayButton = world->CreateEntity(editor->GetEditorScene(), "Editor Play Button");

@@ -73,7 +73,6 @@ namespace se::ui::util
         }
         indicatorImage->materialInstance = std::make_shared<render::MaterialInstance>(material);
         indicatorImage->materialInstance->SetUniform("Texture",
-                                                     asset::shader::ast::AstType::Sampler2DReference,
                                                      1,
                                                      collapsed ? &collapsed_indicator_texture : &expanded_indicator_texture);
         world->AddChild(title, titleIndicator);
@@ -92,7 +91,6 @@ namespace se::ui::util
 
             components::ImageComponent* image = world->GetComponent<components::ImageComponent>(titleIndicator);
             image->materialInstance->SetUniform("Texture",
-                                                asset::shader::ast::AstType::Sampler2DReference,
                                                 1,
                                                 collapsingHeader->collapsed ? &collapsed_indicator_texture : &expanded_indicator_texture);
         });

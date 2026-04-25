@@ -59,7 +59,7 @@ namespace se::ui::systems
                 if (!image.materialInstance && image.texture.IsSet())
                 {
                     image.materialInstance = std::make_shared<render::MaterialInstance>("/engine_assets/materials/ui_alpha_texture.sass");
-                    image.materialInstance->SetUniform("Texture", asset::shader::ast::AstType::Sampler2DReference, 1, &image.texture);
+                    image.materialInstance->SetUniform("Texture", 1, &image.texture);
                 }
 
                 if (image.materialInstance)
@@ -67,7 +67,7 @@ namespace se::ui::systems
                     if (transform.rect.topLeft != image.lastRect.topLeft)
                     {
                         auto floatVec = math::Vec2(transform.rect.topLeft);
-                        image.materialInstance->SetUniform("pos", asset::shader::ast::AstType::Vec2, 1, &floatVec);
+                        image.materialInstance->SetUniform("pos", 1, &floatVec);
                     }
 
                     if (!image.vertBuffer || image.lastRect.size != transform.rect.size)
@@ -88,7 +88,7 @@ namespace se::ui::systems
                     const math::Vec2* screenSizeUniform = image.materialInstance->GetUniform<math::Vec2>("screenSize");
                     if (!screenSizeUniform || *screenSizeUniform != windowSize)
                     {
-                        image.materialInstance->SetUniform("screenSize", asset::shader::ast::AstType::Vec2, 1, &windowSize);
+                        image.materialInstance->SetUniform("screenSize", 1, &windowSize);
                     }
 
                     auto command = renderer->AllocRenderCommand<render::commands::SubmitUI>(image.materialInstance, image.vertBuffer,

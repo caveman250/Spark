@@ -74,7 +74,7 @@ namespace se::editor::systems
                 if (geo::util::RayCastAABB(ray, transform))
                 {
                     math::Vec3 yellow = math::Vec3(1.f, 1.f, 0.f);
-                    mesh.materialInstance->SetUniform("uniform_color", asset::shader::ast::AstType::Vec3, 1, &yellow);
+                    mesh.materialInstance->SetUniform("uniform_color", 1, &yellow);
 
                     input::InputUtil::ProcessMouseEvents(entity, inputComp, [&gizmo](const input::MouseEvent& mouseEvent)
                     {
@@ -93,7 +93,7 @@ namespace se::editor::systems
                 }
                 else if (!gizmo.mouseDown)
                 {
-                    mesh.materialInstance->SetUniform("uniform_color", asset::shader::ast::AstType::Vec3, 1, &gizmo.color);
+                    mesh.materialInstance->SetUniform("uniform_color", 1, &gizmo.color);
                 }
 
                 if (gizmo.mouseDown)

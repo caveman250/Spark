@@ -85,7 +85,7 @@ namespace se::editor::ui::properties
         auto image = world->AddComponent<ImageComponent>(m_Root);
         auto material = assetManager->GetAsset<render::Material>("/engine_assets/materials/editor_runtime_flat_color.sass");
         image->materialInstance = std::make_shared<render::MaterialInstance>(material);
-        image->materialInstance->SetUniform("uniform_color", asset::shader::ast::AstType::Vec3, 1, &s_DefaultColor);
+        image->materialInstance->SetUniform("uniform_color", 1, &s_DefaultColor);
         world->AddChild(m_Content, m_Root);
 
         auto innerImageEntity = world->CreateEntity(editor->GetEditorScene(), "Border");
@@ -104,12 +104,12 @@ namespace se::editor::ui::properties
         if (m_Value->IsSet())
         {
             auto fileImage = asset::AssetReference<asset::Texture>("/engine_assets/textures/default_file.sass");
-            iconImage->materialInstance->SetUniform("Texture", asset::shader::ast::AstType::Sampler2DReference, 1, &fileImage);
+            iconImage->materialInstance->SetUniform("Texture", 1, &fileImage);
         }
         else
         {
             auto fileImage = asset::AssetReference<asset::Texture>("/engine_assets/textures/no_file.sass");
-            iconImage->materialInstance->SetUniform("Texture", asset::shader::ast::AstType::Sampler2DReference, 1, &fileImage);
+            iconImage->materialInstance->SetUniform("Texture", 1, &fileImage);
         }
         auto iconTransform = world->AddComponent<RectTransformComponent>(m_Icon);
         iconTransform->anchors = { .left = 0.f, .right = 0.f, .top = 0.f, .bottom = 0.f };
@@ -153,7 +153,7 @@ namespace se::editor::ui::properties
         {
             if (m_IsHighlighted)
             {
-                image->materialInstance->SetUniform("uniform_color", asset::shader::ast::AstType::Vec3, 1, &s_DefaultColor);
+                image->materialInstance->SetUniform("uniform_color", 1, &s_DefaultColor);
             }
 
             return;
@@ -168,11 +168,11 @@ namespace se::editor::ui::properties
                 m_IsHighlighted = true;
                 if (isValid)
                 {
-                    image->materialInstance->SetUniform("uniform_color", asset::shader::ast::AstType::Vec3, 1, &s_GreenColor);
+                    image->materialInstance->SetUniform("uniform_color", 1, &s_GreenColor);
                 }
                 else
                 {
-                    image->materialInstance->SetUniform("uniform_color", asset::shader::ast::AstType::Vec3, 1, &s_RedColor);
+                    image->materialInstance->SetUniform("uniform_color", 1, &s_RedColor);
                 }
             }
 
@@ -187,13 +187,13 @@ namespace se::editor::ui::properties
 
                     auto fileImage = asset::AssetReference<asset::Texture>("/engine_assets/textures/default_file.sass");
                     auto* iconImage = world->GetComponent<ImageComponent>(m_Icon);
-                    iconImage->materialInstance->SetUniform("Texture", asset::shader::ast::AstType::Sampler2DReference, 1, &fileImage);
+                    iconImage->materialInstance->SetUniform("Texture", 1, &fileImage);
                 }
             }
         }
         else if (m_IsHighlighted)
         {
-            image->materialInstance->SetUniform("uniform_color", asset::shader::ast::AstType::Vec3, 1, &s_DefaultColor);
+            image->materialInstance->SetUniform("uniform_color", 1, &s_DefaultColor);
             m_IsHighlighted = false;
         }
     }

@@ -23,9 +23,9 @@ namespace se::ui::util
             auto textMaterial = asset::AssetManager::Get()->GetAsset<render::Material>("/engine_assets/materials/text.sass");
             textComp.materialInstance = std::make_shared<render::MaterialInstance>(textMaterial);
             auto texture = textComp.font.GetAsset()->GetTextureAsset();
-            textComp.materialInstance->SetUniform("Texture", asset::shader::ast::AstType::Sampler2D, 1, &texture);
+            textComp.materialInstance->SetUniform("Texture", 1, &texture);
             float smoothing = 0.1f;
-            textComp.materialInstance->SetUniform("smoothing", asset::shader::ast::AstType::Float, 1, &smoothing);
+            textComp.materialInstance->SetUniform("smoothing", 1, &smoothing);
         }
 
         bool invalidate = transform.lastRect.size != transform.rect.size ||
@@ -109,10 +109,10 @@ namespace se::ui::util
         auto floatVec = math::Vec2(transform.rect.topLeft) + renderOffset;
         if (!materialPos || *materialPos != floatVec)
         {
-            textComp.materialInstance->SetUniform("pos", asset::shader::ast::AstType::Vec2, 1, &floatVec);
+            textComp.materialInstance->SetUniform("pos", 1, &floatVec);
         }
 
-        textComp.materialInstance->SetUniform("screenSize", asset::shader::ast::AstType::Vec2, 1, &windowSize);
+        textComp.materialInstance->SetUniform("screenSize", 1, &windowSize);
 
 #if SPARK_EDITOR
         const auto editor = Application::Get()->GetEditorRuntime();
@@ -134,9 +134,9 @@ namespace se::ui::util
                     auto selectionFloatVec = math::Vec2(transform.rect.topLeft) + renderOffset;
                     if (!selectionMaterialPos || *selectionMaterialPos != selectionFloatVec)
                     {
-                        textComp.selectionMaterialInstance->SetUniform("pos", asset::shader::ast::AstType::Vec2, 1, &selectionFloatVec);
+                        textComp.selectionMaterialInstance->SetUniform("pos", 1, &selectionFloatVec);
                     }
-                    textComp.selectionMaterialInstance->SetUniform("screenSize", asset::shader::ast::AstType::Vec2, 1, &windowSize);
+                    textComp.selectionMaterialInstance->SetUniform("screenSize", 1, &windowSize);
 
                     auto command = renderer->AllocRenderCommand<render::commands::SubmitUI>(textComp.selectionMaterialInstance,
                         textComp.selectionVertBuffer,

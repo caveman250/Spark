@@ -63,7 +63,7 @@ namespace se::ui::systems
                     material->SetRenderState(rs);
 
                     image.materialInstance = std::make_shared<render::MaterialInstance>(material);
-                    image.materialInstance->SetUniform("Texture", asset::shader::ast::AstType::Sampler2DReference, 1, &button.image);
+                    image.materialInstance->SetUniform("Texture", 1, &button.image);
                 }
 
     #if SPARK_EDITOR
@@ -116,7 +116,7 @@ namespace se::ui::systems
                     auto* currentTexture = image.materialInstance->GetUniform<asset::AssetReference<asset::Texture>>("Texture");
                     if (*currentTexture != *desiredTexture)
                     {
-                        image.materialInstance->SetUniform("Texture", asset::shader::ast::AstType::Sampler2DReference, 1, desiredTexture);
+                        image.materialInstance->SetUniform("Texture", 1, desiredTexture);
                     }
                 }
 

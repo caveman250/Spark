@@ -20,7 +20,7 @@ namespace se::ui::observers
             auto* image = world->AddComponent<components::ImageComponent>(entity);
 
             image->materialInstance = std::make_shared<render::MaterialInstance>("/engine_assets/materials/ui_alpha_texture.sass");
-            image->materialInstance->SetUniform("Texture", asset::shader::ast::AstType::Sampler2DReference, 1, &component->image);
+            image->materialInstance->SetUniform("Texture", 1, &component->image);
         }
 
         if (!world->HasComponent<components::MouseInputComponent>(entity))

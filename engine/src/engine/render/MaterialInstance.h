@@ -27,7 +27,7 @@ namespace se::render
         virtual void Bind(const VertexBuffer& vb);
 
         template <typename T>
-        void SetUniform(const std::string& name, asset::shader::ast::AstType type, int count, const T* value);
+        void SetUniform(const std::string& name, int count, const T* value);
 
         template <typename T>
         const T* GetUniform(const std::string& name);
@@ -49,9 +49,9 @@ namespace se::render
     };
 
     template <typename T>
-    void MaterialInstance::SetUniform(const std::string& name, asset::shader::ast::AstType type, int count, const T* value)
+    void MaterialInstance::SetUniform(const std::string& name, int count, const T* value)
     {
-        m_UniformStorage.SetValue(name, type, count, value);
+        m_UniformStorage.SetValue(name, count, value);
     }
 
     template<typename T>

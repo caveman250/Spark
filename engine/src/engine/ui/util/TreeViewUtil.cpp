@@ -99,11 +99,11 @@ namespace se::ui::util
             const auto image = Application::Get()->GetWorld()->GetComponent<ImageComponent>(statusIcon);
             if (collapsed)
             {
-                image->materialInstance->SetUniform("Texture", asset::shader::ast::AstType::Sampler2DReference, 1, &collapsed_indicator_texture);
+                image->materialInstance->SetUniform("Texture", 1, &collapsed_indicator_texture);
             }
             else
             {
-                image->materialInstance->SetUniform("Texture", asset::shader::ast::AstType::Sampler2DReference, 1, &expanded_indicator_texture);
+                image->materialInstance->SetUniform("Texture", 1, &expanded_indicator_texture);
             }
         };
         ret.treeNode->onCollapsedStateChange.Subscribe(std::move(collapsedImageCb));

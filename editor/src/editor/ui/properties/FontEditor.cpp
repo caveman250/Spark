@@ -100,7 +100,7 @@ namespace se::editor::ui::properties
             auto previewImage = world->AddComponent<ImageComponent>(preview);
             auto alphaTexture = asset::AssetManager::Get()->GetAsset<render::Material>("/engine_assets/materials/ui_alpha_texture.sass");
             previewImage->materialInstance = std::make_shared<render::MaterialInstance>(alphaTexture);
-            previewImage->materialInstance->SetUniform("Texture", asset::shader::ast::AstType::Sampler2D, 1, &m_Value->GetTextureAsset());
+            previewImage->materialInstance->SetUniform("Texture", 1, &m_Value->GetTextureAsset());
             world->AddChild(previewInnerContainer, preview);
 
             world->AddChild(m_Content, previewContainer);

@@ -65,7 +65,6 @@ namespace se::ui::util
         static asset::AssetReference<asset::Texture> expanded_indicator_texture = "/engine_assets/textures/tree_node_indicator_expanded.sass";
         indicatorImage->materialInstance = std::make_shared<render::MaterialInstance>(indicatorMaterial);
         indicatorImage->materialInstance->SetUniform("Texture",
-                                                     asset::shader::ast::AstType::Sampler2DReference,
                                                      1,
                                                      &expanded_indicator_texture);
         world->AddChild(innerImageEntity, titleIndicator);

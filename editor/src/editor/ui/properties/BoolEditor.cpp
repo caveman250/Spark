@@ -77,7 +77,7 @@ namespace se::editor::ui::properties
 
             if (auto image = Application::Get()->GetWorld()->GetComponent<ImageComponent>(m_Tickbox))
             {
-                image->materialInstance->SetUniform("Texture", asset::shader::ast::AstType::Sampler2DReference, 1, &texture);
+                image->materialInstance->SetUniform("Texture", 1, &texture);
             }
             m_LastValue = *m_Value;
         }

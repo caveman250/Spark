@@ -107,11 +107,11 @@ namespace se::editor::ui::asset_browser
         image->materialInstance = std::make_shared<render::MaterialInstance>(material);
         if (file.isDirectory)
         {
-            image->materialInstance->SetUniform("Texture", asset::shader::ast::AstType::Sampler2DReference, 1, &FolderTexture);
+            image->materialInstance->SetUniform("Texture", 1, &FolderTexture);
         }
         else
         {
-            image->materialInstance->SetUniform("Texture", asset::shader::ast::AstType::Sampler2DReference, 1, &FileTexture);
+            image->materialInstance->SetUniform("Texture", 1, &FileTexture);
         }
         world->AddChild(fileWidget->m_Id, imageEntity);
 
@@ -130,7 +130,7 @@ namespace se::editor::ui::asset_browser
                 auto* image = world->AddComponent<se::ui::components::ImageComponent>(entity);
                 const std::shared_ptr<render::Material> material = assetManager->GetAsset<render::Material>("/engine_assets/materials/ui_alpha_texture.sass");
                 image->materialInstance = std::make_shared<render::MaterialInstance>(material);
-                image->materialInstance->SetUniform("Texture", asset::shader::ast::AstType::Sampler2DReference, 1, &FileTexture);
+                image->materialInstance->SetUniform("Texture", 1, &FileTexture);
 
                 const auto db = asset::binary::Database::Load(fileWidget->GetFile().fullPath.data(), true);
                 dragDropStateComponent->dragDropAsset = assetManager->GetAsset(fileWidget->GetFile().fullPath.data(), reflect::TypeFromString(db->GetRoot().GetStruct().GetName()));

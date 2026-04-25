@@ -136,7 +136,7 @@ namespace se::editor
             auto planeModel = world->GetComponent<ecs::components::MeshComponent>(m_Plane);
             if (planeModel->materialInstance)
             {
-                planeModel->materialInstance->SetUniform("cameraPos", asset::shader::ast::AstType::Vec3, 1, &activeCamera->pos);
+                planeModel->materialInstance->SetUniform("cameraPos", 1, &activeCamera->pos);
             }
 
 

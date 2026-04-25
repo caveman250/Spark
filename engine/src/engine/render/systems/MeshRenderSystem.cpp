@@ -102,9 +102,9 @@ namespace se::render::systems
                 if (const auto& material = mesh.materialInstance)
                 {
                     EASY_BLOCK("Set Uniforms")
-                    material->SetUniform("model", asset::shader::ast::AstType::Mat4, 1, &transforms[i].worldTransform);
-                    material->SetUniform("view", asset::shader::ast::AstType::Mat4, 1, &camera->view);
-                    material->SetUniform("proj", asset::shader::ast::AstType::Mat4, 1, &camera->proj);
+                    material->SetUniform("model", 1, &transforms[i].worldTransform);
+                    material->SetUniform("view", 1, &camera->view);
+                    material->SetUniform("proj", 1, &camera->proj);
                 }
             }
         });
