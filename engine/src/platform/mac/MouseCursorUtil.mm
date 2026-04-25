@@ -4,6 +4,16 @@
 
 namespace se
 {
+    void MouseCursorUtil::InitCursors()
+    {
+        // nothing to do.
+    }
+
+    void MouseCursorUtil::FreeCursors()
+    {
+        // nothing to do.
+    }
+
     void MouseCursorUtil::SetMouseCursor(MouseCursor cursor)
     {
         mac::Window* window = static_cast<mac::Window*>(Application::Get()->GetWindow());

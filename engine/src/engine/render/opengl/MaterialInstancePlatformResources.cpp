@@ -4,6 +4,8 @@
 #include "engine/asset/shader/ast/TypeUtil.h"
 #include "engine/render/MaterialInstance.h"
 
+#if OPENGL_RENDERER
+
 namespace se::render
 {
     std::shared_ptr<MaterialInstancePlatformResources> MaterialInstance::CreateMaterialInstancePlatformResources(const std::shared_ptr<Material>& material)
@@ -211,3 +213,5 @@ namespace se::render::opengl
         }
     }
 }
+
+#endif
