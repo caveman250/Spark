@@ -41,7 +41,8 @@ namespace se::ui::util
         ret.treeNode->contextOptions = params.contextOptions;
         std::function collapsedTreeViewCb = [params](bool)
         {
-            const auto treeView = Application::Get()->GetWorld()->GetComponent<TreeViewComponent>(params.treeViewEntity);
+            auto world = Application::Get()->GetWorld();
+            const auto treeView = world->GetComponent<TreeViewComponent>(params.treeViewEntity);
             treeView->dirty = true;
         };
         ret.treeNode->onCollapsedStateChange.Subscribe(std::move(collapsedTreeViewCb));
@@ -83,12 +84,15 @@ namespace se::ui::util
 
             const auto treeView = world->GetComponent<TreeViewComponent>(params.treeViewEntity);
             const auto treeNode = world->GetComponent<TreeNodeComponent>(entity);
+            const auto transform = world->GetComponent<RectTransformComponent>(params.treeViewEntity);
+
             treeNode->collapsed = !treeNode->collapsed;
             const auto& texture = treeNode->collapsed ? collapsed_indicator_texture : expanded_indicator_texture;
             buttonComp->image = texture;
             buttonComp->hoveredImage = texture;
             buttonComp->pressedImage = texture;
             treeView->dirty = true;
+            transform->needsLayout = true;
         };
         button->onPressed.Subscribe(std::move(statusIconCallback));
 
