@@ -75,8 +75,8 @@ namespace se::editor::ui::properties
         });
         auto newButtonRect = world->AddComponent<RectTransformComponent>(newButtonEntity);
         newButtonRect->anchors = { .left = 1.f, .right = 1.f, .top = 0.f, .bottom = 0.f };
-        newButtonRect->minX = 20;
-        newButtonRect->maxY = 20;
+        newButtonRect->minX = 15;
+        newButtonRect->maxY = 15;
         world->AddChild(buttonContainer, newButtonEntity);
 
         size_t numElements = m_VectorType->GetNumContainedElements(m_Value);
@@ -171,7 +171,7 @@ namespace se::editor::ui::properties
             auto text = util::CreateMissingPropertyEditorText(containedType, 0.f, 0);
             world->AddChild(entity, text);
         }
-        else
+        else if (propertyEditor->GetWidgetId() != ecs::InvalidEntity)
         {
             world->AddChild(entity, propertyEditor->GetWidgetId());
             m_Editors.push_back(propertyEditor);

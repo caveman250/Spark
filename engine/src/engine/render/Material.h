@@ -38,9 +38,6 @@ namespace se::render
         const RenderState& GetRenderState() const { return m_RenderState; }
         const std::shared_ptr<MaterialPlatformResources>& GetPlatformResources() const { return m_PlatformResources; }
 
-        template <typename T>
-        void SetUniform(const std::string& name, asset::shader::ast::AstType type, int count, const T* value);
-
         const UniformStorage& GetUniformDefaults();
 
         const std::map<std::string, asset::shader::ast::Variable>& GetVertUniforms() const { return m_VertUniforms; }
@@ -68,11 +65,4 @@ namespace se::render
         std::map<std::string, asset::shader::ast::Variable> m_VertUniforms = {};
         std::map<std::string, asset::shader::ast::Variable> m_FragUniforms = {};
     };
-
-    template <typename T>
-    void Material::SetUniform(const std::string& name, asset::shader::ast::AstType type, int count, const T* value)
-    {
-        SPARK_ASSERT(type != asset::shader::ast::AstType::Sampler2D, "Sampler2D not supported in uniform defaults. use Sampler2DReference instead.");
-        m_UniformDefaults.SetValue(name, type, count, value);
-    }
 }

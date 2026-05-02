@@ -190,14 +190,14 @@ namespace se::editor::ui::properties
         const auto world = Application::Get()->GetWorld();
         if (GetTitleMode() == PropertyTitleMode::NextLine)
         {
-            const CollapsingHeaderComponent* collapsingHeader = world->GetComponent<CollapsingHeaderComponent>(m_WidgetId);
+            const CollapsingHeaderComponent* collapsingHeader = world->GetComponent<CollapsingHeaderComponent>(GetWidgetId());
             WidgetComponent* buttonWidget = world->GetComponent<WidgetComponent>(collapsingHeader->titleButton);
-            EditableTextComponent* text = world->GetComponent<EditableTextComponent>(m_Title);
-            KeyInputComponent* keyInput = world->GetComponent<KeyInputComponent>(m_Title);
+            EditableTextComponent* text = world->GetComponent<EditableTextComponent>(GetTitleId());
+            KeyInputComponent* keyInput = world->GetComponent<KeyInputComponent>(GetTitleId());
 
-            se::ui::util::BeginEditingText(nullptr, m_Title, *text, *keyInput);
+            se::ui::util::BeginEditingText(nullptr, GetTitleId(), *text, *keyInput);
             text->editText = editText;
-            auto* mouseInput = world->GetComponent<se::ui::components::MouseInputComponent>(m_Title);
+            auto* mouseInput = world->GetComponent<se::ui::components::MouseInputComponent>(GetTitleId());
             se::ui::util::SetEditTextMouseInputEnabled(mouseInput, true);
             se::ui::util::SetCaretPos(*text, static_cast<int>(text->editText.size()));
 
@@ -206,16 +206,24 @@ namespace se::editor::ui::properties
 
             m_RenameComittedHandle = text->onComitted.Subscribe([this, world, onComitted](std::string newText)
             {
-                EditableTextComponent* text = world->GetComponent<EditableTextComponent>(m_Title);
+                EditableTextComponent* text = world->GetComponent<EditableTextComponent>(GetTitleId());
+                KeyInputComponent* keyInput = world->GetComponent<KeyInputComponent>(GetTitleId());
+                MouseInputComponent* mouseInput = world->GetComponent<MouseInputComponent>(GetTitleId());
                 onComitted(newText, text);
                 text->onComitted.Unsubscribe(m_RenameComittedHandle);
+                se::ui::util::EndEditingText(nullptr, GetTitleId(), *text, *keyInput);
+                se::ui::util::SetEditTextMouseInputEnabled(mouseInput, false);
             });
 
             m_RenameCancelledHandle = text->onCancelled.Subscribe([this, world, onCancelled]()
             {
-                EditableTextComponent* text = world->GetComponent<EditableTextComponent>(m_Title);
+                EditableTextComponent* text = world->GetComponent<EditableTextComponent>(GetTitleId());
+                KeyInputComponent* keyInput = world->GetComponent<KeyInputComponent>(GetTitleId());
+                MouseInputComponent* mouseInput = world->GetComponent<MouseInputComponent>(GetTitleId());
                 onCancelled(text);
                 text->onCancelled.Unsubscribe(m_RenameCancelledHandle);
+                se::ui::util::EndEditingText(nullptr, GetTitleId(), *text, *keyInput);
+                se::ui::util::SetEditTextMouseInputEnabled(mouseInput, false);
             });
         }
         else

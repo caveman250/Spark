@@ -13,7 +13,6 @@
 #include "engine/ui/components/WidgetComponent.h"
 #include "engine/ui/util/EditableTextUtil.h"
 
-
 namespace se::ui::util
 {
     ecs::Id CreateTreeView(TreeViewComponent** outTreeView, RectTransformComponent** outTransform, const ecs::Id& scene)

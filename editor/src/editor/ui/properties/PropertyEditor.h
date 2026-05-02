@@ -84,6 +84,7 @@ namespace se::editor::ui::properties
                                  const std::function<void(EditableTextComponent*)>& onCancelled);
 
         virtual ecs::Id GetWidgetId() const { return m_WidgetId; }
+        virtual ecs::Id GetTitleId() const { return m_Title; }
         virtual ecs::Id GetContentId() const { return m_Content; }
         RectTransformComponent* GetRectTransform() { return m_RectTransform; }
     protected:

@@ -29,7 +29,7 @@ namespace se
         {
             if (other.m_Storage.contains(name))
             {
-                other.m_Storage.at(name)->SetValue(value->GetValue(), value->GetValueCount());
+                other.m_Storage.at(name)->SetValue(value->GetValue(), value->GetValueCount(), value->internal);
             }
             else
             {

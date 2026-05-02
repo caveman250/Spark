@@ -21,8 +21,10 @@ namespace se::render
         virtual const void* GetValue() const = 0;
         virtual size_t GetValueCount() const = 0;
         virtual asset::shader::ast::AstType GetShaderType() const = 0;
-        virtual void SetValue(const void* val, int count) = 0;
+        virtual void SetValue(const void* val, int count, bool internal) = 0;
         virtual UniformValueBase* Copy() = 0;
+
+        bool internal = false;
     };
 
     template <typename T>
@@ -32,11 +34,13 @@ namespace se::render
         const void* GetValue() const override { return static_cast<const void*>(value.data()); }
         size_t GetValueCount() const override { return value.size(); }
         asset::shader::ast::AstType GetShaderType() const override;
-        void SetValue(const void* val, int count) override;
+        void SetValue(const void* val, int count, bool internal) override;
         UniformValueBase* Copy() override;
 
         SPARK_MEMBER(Serialized)
         std::vector<T> value = {};
+
+
     };
 
     template<typename T>
@@ -84,7 +88,7 @@ namespace se::render
     public:
         ~UniformStorage() override;
         template <typename T>
-        void SetValue(const std::string& name, int count, const T* value);
+        void SetValue(const std::string& name, int count, const T* value, bool internal);
         template<typename T>
         const T* GetValue(const std::string& name);
         void Apply(MaterialInstance* material);
@@ -105,7 +109,7 @@ namespace se::render
     }
 
     template<typename T>
-    void UniformValue<T>::SetValue(const void *val, int count)
+    void UniformValue<T>::SetValue(const void *val, int count, bool _internal)
     {
         value.clear();
         const T* typedVal = static_cast<const T*>(val);
@@ -114,6 +118,7 @@ namespace se::render
         {
             value.push_back(typedVal[i]);
         }
+        internal = _internal;
     }
 
     template<typename T>
@@ -123,21 +128,21 @@ namespace se::render
     }
 
     template <typename T>
-    void UniformStorage::SetValue(const std::string& name, int count, const T* value)
+    void UniformStorage::SetValue(const std::string& name, int count, const T* value, bool internal)
     {
         if (m_Storage.contains(name))
         {
             const void* oldVal = m_Storage.at(name)->GetValue();
             if (memcmp(static_cast<const void*>(value), oldVal, sizeof(T) * count) != 0)
             {
-                m_Storage.at(name)->SetValue(value, count);
+                m_Storage.at(name)->SetValue(value, count, internal);
                 m_Stale = true;
             }
         }
         else
         {
             auto* uniformVal = new UniformValue<T>();
-            uniformVal->SetValue(value, count);
+            uniformVal->SetValue(value, count, internal);
             m_Storage.insert(std::make_pair(name, uniformVal));
             m_Stale = true;
         }

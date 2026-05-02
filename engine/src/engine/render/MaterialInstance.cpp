@@ -34,8 +34,8 @@ namespace se::render
             color.resize(lightSetup.pointLights.size());
             std::ranges::transform(lightSetup.pointLights, color.begin(), [](const PointLight& light){ return light.color; });
 
-            SetUniform("lightPos", static_cast<int>(pos.size()), pos.data());
-            SetUniform("lightColor", static_cast<int>(color.size()), color.data());
+            SetUniform("lightPos", static_cast<int>(pos.size()), pos.data(), true);
+            SetUniform("lightColor", static_cast<int>(color.size()), color.data(), true);
         }
 
         if (!m_PlatformResources)
