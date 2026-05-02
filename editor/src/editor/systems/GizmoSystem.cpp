@@ -26,14 +26,6 @@ namespace se::editor::systems
             .WithSingletonComponent<input::InputComponent>();
     }
 
-    math::Vec3 ScreenToWorldPoint(const math::Vec2& screenPos, const math::Mat4& view,
-             const math::Mat4& projection, const math::Vec4& viewport)
-    {
-        math::Vec3 win(screenPos.x, viewport.w - screenPos.y, 0.0f);
-        math::Vec3 point = math::UnProject(win, view, projection, viewport);
-        return point;
-    }
-
     void GizmoSystem::OnUpdate(const ecs::QueryResults& results)
     {
         auto editor = Application::Get()->GetEditorRuntime();
@@ -49,10 +41,10 @@ namespace se::editor::systems
 
             auto mousePos = util::ScreenSpaceToGameViewportSpace(inputComp->mouseX, inputComp->mouseY);
             auto viewportRect = editor->GetViewportRect();
-            math::Vec3 mouseWorldPos = ScreenToWorldPoint(mousePos
-               , cameraComp->view
-               , cameraComp->proj
-               , math::Vec4(0.f, 0.f, static_cast<float>(viewportRect.size.x), static_cast<float>(viewportRect.size.y)));
+            math::Vec3 mouseWorldPos = util::ScreenToWorldPoint(mousePos
+                                                                , cameraComp->view
+                                                                , cameraComp->proj
+                                                                , math::Vec4(0.f, 0.f, static_cast<float>(viewportRect.size.x), static_cast<float>(viewportRect.size.y)));
             math::Vec3 direction = math::Normalized(mouseWorldPos - cameraComp->pos);
             geo::Ray ray = geo::Ray(cameraComp->pos, direction);
 

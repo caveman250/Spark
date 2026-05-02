@@ -33,4 +33,14 @@ namespace se::editor::util
                mouseX >= viewportRect.topLeft.x &&
                mouseY >= viewportRect.topLeft.y;
     }
+
+    math::Vec3 ScreenToWorldPoint(const math::Vec2& screenPos,
+                                  const math::Mat4& view,
+                                  const math::Mat4& projection,
+                                  const math::Vec4& viewport)
+    {
+        math::Vec3 win(screenPos.x, viewport.w - screenPos.y, 0.0f);
+        math::Vec3 point = math::UnProject(win, view, projection, viewport);
+        return point;
+    }
 }
