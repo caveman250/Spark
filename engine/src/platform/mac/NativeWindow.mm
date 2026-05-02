@@ -180,4 +180,26 @@
     inputComp->mouseY = ([[self contentView] frame].size.height - locationInView.y) * window->GetContentScale();
 }
 
+- (void)rightMouseDragged:(NSEvent*)event
+{
+    se::debug::Log::Error("Mouse dragged");
+    auto app = se::Application::Get();
+    auto window = app->GetWindow();
+    auto inputComp = app->GetWorld()->GetSingletonComponent<se::input::InputComponent>();
+
+    if (inputComp->mouseButtonStates[static_cast<int>(se::input::MouseButton::Right)] != se::input::KeyState::Down)
+    {
+        inputComp->mouseButtonStates[static_cast<int>(se::input::MouseButton::Right)] = se::input::KeyState::Down;
+
+        se::input::MouseEvent mouseEvent;
+        mouseEvent.button = se::input::MouseButton::Right;
+        mouseEvent.state = se::input::KeyState::Down;
+        inputComp->mouseEvents.push_back(mouseEvent);
+    }
+
+    NSPoint locationInView = [[self contentView] convertPoint:[event locationInWindow] fromView:nil];
+    inputComp->mouseX = locationInView.x * window->GetContentScale();
+    inputComp->mouseY = ([[self contentView] frame].size.height - locationInView.y) * window->GetContentScale();
+}
+
 @end
