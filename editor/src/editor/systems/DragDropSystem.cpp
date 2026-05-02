@@ -20,6 +20,12 @@ namespace se::editor::systems
     void DragDropSystem::OnUpdate(const ecs::QueryResults& results)
     {
         auto app = Application::Get();
+        auto editor = app->GetEditorRuntime();
+        if (editor->InGameMode())
+        {
+            return;
+        }
+
         auto window = app->GetWindow();
         auto world = app->GetWorld();
         ecs::ForEachArcheType(results, ecs::UpdateMode::MultiThreaded, false, [window, world](const ecs::SystemUpdateData& updateData)

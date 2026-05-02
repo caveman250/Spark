@@ -30,6 +30,10 @@ namespace se::editor::systems
     void EditorPickSystem::OnUpdate(const ecs::QueryResults& results)
     {
         auto editor = Application::Get()->GetEditorRuntime();
+        if (editor->InGameMode())
+        {
+            return;
+        }
 
         ecs::ForEachArcheType(results, ecs::UpdateMode::MultiThreaded, false, [editor](const ecs::SystemUpdateData& updateData)
         {
