@@ -36,9 +36,5 @@ namespace se::ecs::components
         // Runtime
         SPARK_MEMBER()
         std::shared_ptr<render::MaterialInstance> materialInstance = {};
-
-        size_t modelHash = 0;
-        std::shared_ptr<render::VertexBuffer> vertBuffer = {};
-        std::shared_ptr<render::IndexBuffer> indexBuffer = {};
     };
 }

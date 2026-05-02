@@ -47,7 +47,7 @@ namespace se::asset
 #endif
 
     private:
-        std::unordered_map<std::string, std::weak_ptr<Asset>> m_AssetCache;
+        std::unordered_map<std::string, std::shared_ptr<Asset>> m_AssetCache;
         std::mutex m_Mutex;
     };
 
@@ -60,11 +60,7 @@ namespace se::asset
         const auto it = m_AssetCache.find(path);
         if (it != m_AssetCache.end())
         {
-            auto& asset = m_AssetCache.at(path);
-            if (!asset.expired())
-            {
-                return std::static_pointer_cast<T>(asset.lock());
-            }
+            return std::static_pointer_cast<T>(m_AssetCache.at(path));
         }
 
         const auto db = binary::Database::Load(path, true);

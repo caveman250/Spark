@@ -19,10 +19,7 @@ namespace se::asset
         const auto it = m_AssetCache.find(path);
         if (it != m_AssetCache.end())
         {
-            if (!it->second.expired())
-            {
-                return it->second.lock();
-            }
+            return it->second;
         }
 
         const auto db = binary::Database::Load(path, true);
@@ -46,19 +43,15 @@ namespace se::asset
         if (m_AssetCache.contains(path))
         {
             auto& asset = m_AssetCache.at(path);
-            if (!asset.expired())
+            const auto db = binary::Database::Load(path, true);
+            if (!SPARK_VERIFY(db))
             {
-                const auto shared = asset.lock();
-                const auto db = binary::Database::Load(path, true);
-                if (!SPARK_VERIFY(db))
-                {
-                    return;
-                }
-                auto root = db->GetRoot();
-                type->Deserialize(shared.get(), root, {});
-                auto* meshRenderComp = Application::Get()->GetWorld()->GetSingletonComponent<render::singleton_components::MeshRenderComponent>();
-                meshRenderComp->invalidatedMeshAssets.push_back(asset::AssetReference<Model>(path));
+                return;
             }
+            auto root = db->GetRoot();
+            type->Deserialize(asset.get(), root, {});
+            auto* meshRenderComp = Application::Get()->GetWorld()->GetSingletonComponent<render::singleton_components::MeshRenderComponent>();
+            meshRenderComp->invalidatedMeshAssets.push_back(asset::AssetReference<Model>(path));
         }
     }
 #endif

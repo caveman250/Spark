@@ -46,8 +46,8 @@ namespace se::render::systems
             {
                 auto& mesh = meshes[i];
                 auto& transform = transforms[i];
-                const size_t modelHash = std::hash<asset::AssetReference<asset::Model>>()(mesh.model);
-                bool buffersValid = mesh.vertBuffer && mesh.modelHash == modelHash;
+                const auto& modelAsset = mesh.model.GetAsset();
+                bool buffersValid = modelAsset->GetVertexBuffer().get();
     #if SPARK_EDITOR
                 if (std::ranges::contains(meshRenderComp->invalidatedMeshAssets, mesh.model))
                 {
@@ -62,14 +62,16 @@ namespace se::render::systems
                     {
                         continue;
                     }
-                    const auto& modelAsset = mesh.model.GetAsset();
+                    modelAsset->LockBufferMutex(true);
                     auto staticMesh = modelAsset->GetMesh();
-                    mesh.vertBuffer = VertexBuffer::CreateVertexBuffer(staticMesh);
-                    mesh.vertBuffer->CreatePlatformResource();
-                    mesh.indexBuffer = IndexBuffer::CreateIndexBuffer(staticMesh);
-                    mesh.indexBuffer->CreatePlatformResource();
+                    auto vertBuffer = VertexBuffer::CreateVertexBuffer(staticMesh);
+                    vertBuffer->CreatePlatformResource();
+                    modelAsset->SetVertexBuffer(vertBuffer);
+                    auto indexBuffer = IndexBuffer::CreateIndexBuffer(staticMesh);
+                    indexBuffer->CreatePlatformResource();
+                    modelAsset->SetIndexBuffer(indexBuffer);
+                    modelAsset->LockBufferMutex(false);
                     transform.aabb = staticMesh.aabb;
-                    mesh.modelHash = modelHash;
                 }
 
                 bool isOutOfDate = !mesh.materialInstance;
@@ -148,9 +150,13 @@ namespace se::render::systems
                     renderGroup = it->second;
                 }
 
-                if (meshComp.materialInstance && meshComp.vertBuffer && meshComp.indexBuffer)
+                const auto& modelAsset = meshComp.model.GetAsset();
+                const auto& vertBuffer = modelAsset->GetVertexBuffer();
+                const auto& indexBuffer = modelAsset->GetIndexBuffer();
+
+                if (meshComp.materialInstance && vertBuffer && indexBuffer)
                 {
-                    renderer->Submit<commands::SubmitGeo>(renderGroup, meshComp.materialInstance, meshComp.vertBuffer, meshComp.indexBuffer);
+                    renderer->Submit<commands::SubmitGeo>(renderGroup, meshComp.materialInstance, vertBuffer, indexBuffer);
                 }
             }
         });

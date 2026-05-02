@@ -63,6 +63,12 @@ namespace se::asset
         }
     }
 
+    Model::Model(const Model& other)
+    {
+        m_Mesh = other.m_Mesh;
+        m_Material = other.m_Material;
+    }
+
     std::shared_ptr<meta::MetaData> Model::CreateMetaData() const
     {
         return std::make_shared<meta::ModelMetaData>(m_Path);
@@ -188,5 +194,35 @@ namespace se::asset
         }
 
         return ret;
+    }
+
+    const std::shared_ptr<render::VertexBuffer>& Model::GetVertexBuffer()
+    {
+        auto guard = std::lock_guard(m_BufferMutex);
+        return m_VertexBuffer;
+    }
+
+    const std::shared_ptr<render::IndexBuffer>& Model::GetIndexBuffer()
+    {
+        auto guard = std::lock_guard(m_BufferMutex);
+        return m_IndexBuffer;
+    }
+
+    void Model::SetVertexBuffer(const std::shared_ptr<render::VertexBuffer>& buffer)
+    {
+        m_VertexBuffer = buffer;
+    }
+
+    void Model::SetIndexBuffer(const std::shared_ptr<render::IndexBuffer>& buffer)
+    {
+        m_IndexBuffer = buffer;
+    }
+
+    void Model::LockBufferMutex(bool locked)
+    {
+        if (locked)
+            m_BufferMutex.lock();
+        else
+            m_BufferMutex.unlock();
     }
 }
