@@ -18,6 +18,8 @@ namespace se::input
 
         static bool IsAnyModifierKeyDown(const InputComponent* input);
 
+        static bool IsMouseButtonDown(const InputComponent* input, MouseButton button);
+
     private:
         static void ConsumeKeyEvent(InputComponent* input, int index);
         static void ConsumeMouseEvent(InputComponent* input, int index);

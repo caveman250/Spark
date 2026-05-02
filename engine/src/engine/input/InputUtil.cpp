@@ -74,6 +74,11 @@ namespace se::input
                input->keyStates[static_cast<int>(Key::RightShift)] == KeyState::Down;
     }
 
+    bool InputUtil::IsMouseButtonDown(const InputComponent* input, MouseButton button)
+    {
+        return input->mouseButtonStates[static_cast<int>(button)] == KeyState::Down;
+    }
+
     void InputUtil::ConsumeKeyEvent(InputComponent* input,
                                     int index)
     {
