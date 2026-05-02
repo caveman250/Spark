@@ -182,7 +182,6 @@
 
 - (void)rightMouseDragged:(NSEvent*)event
 {
-    se::debug::Log::Error("Mouse dragged");
     auto app = se::Application::Get();
     auto window = app->GetWindow();
     auto inputComp = app->GetWorld()->GetSingletonComponent<se::input::InputComponent>();
