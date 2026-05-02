@@ -67,7 +67,7 @@ namespace se::editor::systems
                 {
                     input::InputUtil::ProcessMouseEvents(entity, input, [&camera](const input::MouseEvent& mouseEvent)
                     {
-                        if (mouseEvent.button == input::MouseButton::Left)
+                        if (mouseEvent.button == input::MouseButton::Right)
                         {
                             if (mouseEvent.state == input::KeyState::Down)
                             {
