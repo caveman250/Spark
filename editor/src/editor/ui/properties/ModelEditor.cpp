@@ -28,6 +28,10 @@ namespace se::editor::ui::properties
         wrappedParams.type = metaType;
         wrappedParams.value = meta.get();
         m_WrappedEditor = CreatePropertyEditor(wrappedParams);
+
+        m_TitleMode = params.titleModeOverride != PropertyTitleMode::None ?
+            params.titleModeOverride :
+            GetDefaultTitleMode();
     }
 
     void ModelEditor::Update()

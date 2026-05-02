@@ -28,6 +28,10 @@ namespace se::editor::ui::properties
         wrappedParams.value = m_Type->members[0].get(m_Value);
         m_WrappedEditor = CreatePropertyEditor(wrappedParams);
 
+        m_TitleMode = params.titleModeOverride != PropertyTitleMode::None ?
+            params.titleModeOverride :
+            GetDefaultTitleMode();
+
         if (!m_WrappedEditor)
         {
             PropertyEditor::ConstructUI(params);

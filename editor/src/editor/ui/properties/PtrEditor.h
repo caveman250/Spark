@@ -14,6 +14,7 @@ namespace se::editor::ui::properties
         void ConstructUI(const PropertyEditorParams& params) override;
         void Update() override;
         PropertyTitleMode GetDefaultTitleMode() const override { return m_WrappedEditor ? m_WrappedEditor->GetDefaultTitleMode() : PropertyEditor::GetDefaultTitleMode(); }
+        ecs::Id GetTitleId() const override;
         ecs::Id GetWidgetId() const override { return m_WrappedEditor ? m_WrappedEditor->GetWidgetId() : PropertyEditor::GetWidgetId(); }
         void BeginRename(const std::string_view editText,
                          const std::function<void(const std::string&, EditableTextComponent*)>& onComitted,

@@ -12,6 +12,8 @@
 #include "engine/render/Material.h"
 #include "engine/render/MaterialInstance.h"
 #include "engine/ui/components/ButtonComponent.h"
+#include "engine/ui/components/CollapsingHeaderComponent.h"
+#include "engine/ui/components/MouseInputComponent.h"
 #include "engine/ui/components/TextComponent.h"
 #include "engine/ui/util/ContextMenuUtil.h"
 
@@ -171,26 +173,40 @@ namespace se::editor::ui::properties
             .titleModeOverride = PropertyTitleMode::NextLine,
             .editableTitle = m_MapType->GetContainedKeyType() == reflect::TypeResolver<std::string>::Get(),
             .contextOptions = {
-                std::make_pair("Rename", [this, entity, propName]()
+                std::make_pair("Rename", [this, world, entity]()
                 {
                     auto it = m_Editors.find(entity);
                     if (it != m_Editors.end())
                     {
-                        auto onComitted = [this, entity](const std::string& newText, EditableTextComponent* textComp)
+                        auto onComitted = [this, world, entity](const std::string& newText, EditableTextComponent* textComp)
                         {
                             const auto nameIt = m_ElementNames.find(entity);
                             m_MapType->ChangeKey(m_Value, nameIt->second, newText);
                             const void* element = m_MapType->GetContainedValueByKey(m_Value, newText);
                             nameIt->second = newText;
                             textComp->text = nameIt->second + ": " + m_MapType->GetContainedValueType(element)->GetTypeName(element);
+
+                            auto it = m_Editors.find(entity);
+                            const CollapsingHeaderComponent* collapsingHeader = world->GetComponent<CollapsingHeaderComponent>(it->second->GetWidgetId());
+                            WidgetComponent* buttonWidget = world->GetComponent<WidgetComponent>(collapsingHeader->titleButton);
+                            buttonWidget->updateEnabled = true;
+                            buttonWidget->visibility = se::ui::Visibility::Hidden;
                         };
-                        auto onCancelled = [this, entity](EditableTextComponent* textComp)
+                        auto onCancelled = [this, world, entity](EditableTextComponent* textComp)
                         {
                             const auto nameIt = m_ElementNames.find(entity);
                             const void* element = m_MapType->GetContainedValueByKey(m_Value, nameIt->second);
                             textComp->text = nameIt->second + ": " + m_MapType->GetContainedValueType(element)->GetTypeName(element);
+
+                            auto it = m_Editors.find(entity);
+                            const CollapsingHeaderComponent* collapsingHeader = world->GetComponent<CollapsingHeaderComponent>(it->second->GetWidgetId());
+                            WidgetComponent* buttonWidget = world->GetComponent<WidgetComponent>(collapsingHeader->titleButton);
+                            buttonWidget->updateEnabled = true;
+                            buttonWidget->visibility = se::ui::Visibility::Hidden;
                         };
-                        it->second->BeginRename(propName, onComitted, onCancelled);
+
+                        const auto nameIt = m_ElementNames.find(entity);
+                        it->second->BeginRename(nameIt->second, onComitted, onCancelled);
                     }
                 }),
                 std::make_pair("Delete", [this, entity, world]

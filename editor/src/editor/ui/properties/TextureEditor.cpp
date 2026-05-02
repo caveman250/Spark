@@ -29,6 +29,10 @@ namespace se::editor::ui::properties
         wrappedParams.value = meta.get();
         m_WrappedEditor = CreatePropertyEditor(wrappedParams);
 
+        m_TitleMode = params.titleModeOverride != PropertyTitleMode::None ?
+            params.titleModeOverride :
+            GetDefaultTitleMode();
+
         auto world = Application::Get()->GetWorld();
 
         auto previewContainer = world->CreateEntity(editor->GetEditorScene(), "Preview Container");

@@ -27,6 +27,10 @@ namespace se::editor::ui::properties
         wrappedParams.value = m_Type->GetContainedValue(m_Value);
         m_WrappedEditor = CreatePropertyEditor(wrappedParams);
 
+        m_TitleMode = params.titleModeOverride != PropertyTitleMode::None ?
+            params.titleModeOverride :
+            GetDefaultTitleMode();
+
         if (!m_WrappedEditor)
         {
             PropertyEditor::ConstructUI(params);
@@ -56,9 +60,14 @@ namespace se::editor::ui::properties
         m_WrappedEditor->Update();
     }
 
+    ecs::Id PtrEditor::GetTitleId() const
+    {
+        return m_WrappedEditor->GetTitleId();
+    }
+
     void PtrEditor::BeginRename(const std::string_view editText,
-        const std::function<void(const std::string&, EditableTextComponent*)>& onComitted,
-        const std::function<void(EditableTextComponent*)>& onCancelled)
+                                const std::function<void(const std::string&, EditableTextComponent*)>& onComitted,
+                                const std::function<void(EditableTextComponent*)>& onCancelled)
     {
         m_WrappedEditor->BeginRename(editText, onComitted, onCancelled);
     }

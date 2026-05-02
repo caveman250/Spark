@@ -218,10 +218,11 @@ namespace se::editor::ui::properties
                 EditableTextComponent* text = world->GetComponent<EditableTextComponent>(GetTitleId());
                 KeyInputComponent* keyInput = world->GetComponent<KeyInputComponent>(GetTitleId());
                 MouseInputComponent* mouseInput = world->GetComponent<MouseInputComponent>(GetTitleId());
-                onComitted(newText, text);
-                text->onComitted.Unsubscribe(m_RenameComittedHandle);
                 se::ui::util::EndEditingText(nullptr, GetTitleId(), *text, *keyInput);
                 se::ui::util::SetEditTextMouseInputEnabled(mouseInput, false);
+                onComitted(newText, text);
+                text->onComitted.Unsubscribe(m_RenameComittedHandle);
+                text->onCancelled.Unsubscribe(m_RenameCancelledHandle);
             });
 
             m_RenameCancelledHandle = text->onCancelled.Subscribe([this, world, onCancelled]()
@@ -229,10 +230,12 @@ namespace se::editor::ui::properties
                 EditableTextComponent* text = world->GetComponent<EditableTextComponent>(GetTitleId());
                 KeyInputComponent* keyInput = world->GetComponent<KeyInputComponent>(GetTitleId());
                 MouseInputComponent* mouseInput = world->GetComponent<MouseInputComponent>(GetTitleId());
-                onCancelled(text);
-                text->onCancelled.Unsubscribe(m_RenameCancelledHandle);
                 se::ui::util::EndEditingText(nullptr, GetTitleId(), *text, *keyInput);
                 se::ui::util::SetEditTextMouseInputEnabled(mouseInput, false);
+
+                onCancelled(text);
+                text->onComitted.Unsubscribe(m_RenameComittedHandle);
+                text->onCancelled.Unsubscribe(m_RenameCancelledHandle);
             });
         }
         else

@@ -20,7 +20,7 @@ namespace se::editor::ui::properties
 
     void BoolEditor::ConstructUI(const PropertyEditorParams& params)
     {
-       PropertyEditor::ConstructUI(params);
+        PropertyEditor::ConstructUI(params);
 
         auto app = Application::Get();
         auto world = app->GetWorld();

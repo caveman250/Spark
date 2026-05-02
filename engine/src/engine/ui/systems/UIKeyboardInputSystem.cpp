@@ -5,7 +5,7 @@
 #include "ResetKeyInputSystem.h"
 #include "engine/input/InputUtil.h"
 #include <easy/profiler.h>
-#include "engine/ui/components/RectTransformComponent.h"
+#include "engine/ui/components/WidgetComponent.h"
 #include "engine/input/InputComponent.h"
 
 using namespace se;
@@ -18,6 +18,7 @@ namespace se::ui::systems
         return ecs::SystemDeclaration("UIKeyboardInputSystem")
                     .WithComponent<const RootComponent>()
                     .WithComponent<components::KeyInputComponent>()
+                    .WithComponent<const components::WidgetComponent>()
                     .WithSingletonComponent<input::InputComponent>()
                     .WithDependency<ResetKeyInputSystem>();
     }
@@ -32,11 +33,18 @@ namespace se::ui::systems
             const auto& entities = updateData.GetEntities();
             auto* receivesInputComps = updateData.GetComponentArray<components::KeyInputComponent>();
             auto* inputComp = updateData.GetSingletonComponent<input::InputComponent>();
+            const auto* widgets = updateData.GetComponentArray<const components::WidgetComponent>();
 
             for (size_t i = 0; i < entities.size(); ++i)
             {
                 auto entity = entities[i];
                 auto& inputReceiver = receivesInputComps[i];
+                const auto& widget = widgets[i];
+
+                if (widget.visibility != Visibility::Visible || widget.parentVisibility != Visibility::Visible)
+                {
+                    continue;
+                }
 
                 if (world->HasComponent<ParentComponent>(entity) || inputReceiver.keyMask != input::Key::Unknown)
                 {
