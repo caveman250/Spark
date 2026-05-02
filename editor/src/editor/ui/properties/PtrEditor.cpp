@@ -43,7 +43,7 @@ namespace se::editor::ui::properties
             world->AddComponent<WidgetComponent>(entity);
             world->AddChild(m_Content, entity);
 
-            auto titleMode = m_WrappedEditor ? m_WrappedEditor->GetTitleMode() : PropertyTitleMode::Inline;
+            auto titleMode = m_WrappedEditor ? m_WrappedEditor->GetTitleMode() : GetDefaultTitleMode();
             auto text = properties::util::CreateMissingPropertyEditorText(containedType,
                                                                           titleMode == PropertyTitleMode::Inline ? 0.35f : 1.f,
                                                                           0);

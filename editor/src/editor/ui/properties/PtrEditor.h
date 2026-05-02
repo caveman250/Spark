@@ -13,7 +13,7 @@ namespace se::editor::ui::properties
         void* GetValue() const override { return m_Value; }
         void ConstructUI(const PropertyEditorParams& params) override;
         void Update() override;
-        PropertyTitleMode GetTitleMode() const override { return m_WrappedEditor ? m_WrappedEditor->GetTitleMode() : PropertyEditor::GetTitleMode(); }
+        PropertyTitleMode GetDefaultTitleMode() const override { return m_WrappedEditor ? m_WrappedEditor->GetDefaultTitleMode() : PropertyEditor::GetDefaultTitleMode(); }
         ecs::Id GetWidgetId() const override { return m_WrappedEditor ? m_WrappedEditor->GetWidgetId() : PropertyEditor::GetWidgetId(); }
         void BeginRename(const std::string_view editText,
                          const std::function<void(const std::string&, EditableTextComponent*)>& onComitted,

@@ -19,6 +19,7 @@ namespace se::editor::ui::properties
     SPARK_ENUM()
     enum class PropertyTitleMode
     {
+        None,
         Inline,
         NextLine
     };
@@ -62,6 +63,7 @@ namespace se::editor::ui::properties
         bool collapsed = false;
         bool withBackground = false;
         bool constructTitle = false;
+        PropertyTitleMode titleModeOverride = PropertyTitleMode::None;
         bool editableTitle = false;
         std::vector<std::pair<std::string, std::function<void()>>> contextOptions = {};
     };
@@ -77,7 +79,8 @@ namespace se::editor::ui::properties
         virtual void SetName(const std::string& name) { m_Name = name; }
         void UpdateName(const std::string& name);
         virtual void Update() = 0;
-        virtual PropertyTitleMode GetTitleMode() const { return PropertyTitleMode::Inline; }
+        PropertyTitleMode GetTitleMode() const;
+        virtual PropertyTitleMode GetDefaultTitleMode() const { return PropertyTitleMode::Inline; }
 
         virtual void BeginRename(const std::string_view editText,
                                  const std::function<void(const std::string&, EditableTextComponent*)>& onComitted,
@@ -95,6 +98,7 @@ namespace se::editor::ui::properties
         std::string m_Name = {};
         uint64_t m_RenameComittedHandle = {};
         uint64_t m_RenameCancelledHandle = {};
+        PropertyTitleMode m_TitleMode = PropertyTitleMode::Inline;
     };
 
     PropertyEditor* CreatePropertyEditor(const PropertyEditorParams& params);

@@ -168,6 +168,7 @@ namespace se::editor::ui::properties
             .collapsed = true,
             .withBackground = false,
             .constructTitle = true,
+            .titleModeOverride = PropertyTitleMode::NextLine,
             .editableTitle = m_MapType->GetContainedKeyType() == reflect::TypeResolver<std::string>::Get(),
             .contextOptions = {
                 std::make_pair("Rename", [this, entity, propName]()

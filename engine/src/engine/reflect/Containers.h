@@ -91,6 +91,8 @@ namespace se::reflect
             *static_cast<std::shared_ptr<T>*>(obj) = std::shared_ptr<T>(static_cast<T*>(reflect->heap_constructor()));
             return obj;
         }
+
+        std::shared_ptr<T> Instantiate(Type* type);
     };
 
     template <typename T>
@@ -101,12 +103,12 @@ namespace se::reflect
             static_assert(!T::s_IsPOD, "Pointer (Polymorphic) serialisation not supported for POD types.");
             auto* typed = static_cast<const std::shared_ptr<T>*>(obj);
             const auto* objBase = static_cast<ObjectBase*>(typed->get());
-            if (SPARK_VERIFY(objBase))
+            if (objBase)
             {
                 return objBase->GetTypeName();
             }
 
-            return "";
+            return TypeResolver<T>::Get()->GetTypeName(nullptr);
         }
 
         return std::string("std::shared_ptr<") + TypeResolver<T>::Get()->GetTypeName(nullptr) + ">";
@@ -188,6 +190,12 @@ namespace se::reflect
     const std::vector<Type*>& Type_StdSharedPtr<T>::GetDerivedTypes() const
     {
         return TypeResolver<T>::Get()->GetDerivedTypes();
+    }
+
+    template<typename T>
+    std::shared_ptr<T> Type_StdSharedPtr<T>::Instantiate(Type* type)
+    {
+        return std::shared_ptr<T>(static_cast<T*>(type->heap_constructor()));
     }
 
     template <typename T>
@@ -358,11 +366,6 @@ namespace se::reflect
             return &typeDesc;
         }
     };
-
-    template <typename T> struct is_shared_ptr : std::false_type {};
-    template <typename T> struct is_shared_ptr<std::shared_ptr<T>> : std::true_type {};
-    template <typename T> concept SharedPtr = is_shared_ptr<T>::value;
-    template <typename T> concept RawPtr = std::is_pointer_v<T>;
 
     template<SharedPtr T>
     T InstantiateContainerObj(const std::string& type)
@@ -836,9 +839,10 @@ namespace se::reflect
     void IncKey(S& s)
     {
         int i = 0;
+        s = s.substr(strlen("new_item"));
         if (!s.empty())
             i = std::stoi(s) + 1;
-        s = std::to_string(i);
+        s = "new_item" + std::to_string(i);
     }
 
     template <typename T>
@@ -1091,7 +1095,15 @@ namespace se::reflect
         if (SPARK_VERIFY(obj))
         {
             auto* typed = static_cast<std::unordered_map<T, Y>*>(obj);
-            T key = T();
+            T key;
+            if constexpr (std::is_same_v<std::string, T>)
+            {
+                key = "new_item";
+            }
+            else
+            {
+                key = T();
+            }
             while (typed->find(key) != typed->end())
             {
                 IncKey(key);
@@ -1102,6 +1114,15 @@ namespace se::reflect
                 if (containedType->IsPolymorphic())
                 {
                     typed->insert(std::make_pair(key, static_cast<Y>(type ? type->heap_constructor() : containedType->heap_constructor())));
+                    return key;
+                }
+            }
+            else if constexpr (is_shared_ptr_v<Y>)
+            {
+                if (containedType->IsPolymorphic())
+                {
+                    auto* sharedPtrType = static_cast<Type_StdSharedPtr<remove_shared_ptr_t<Y>>*>(TypeResolver<Y>::Get());
+                    typed->insert(std::make_pair(key, type ? sharedPtrType->Instantiate(type) : sharedPtrType->Instantiate(containedType)));
                     return key;
                 }
             }

@@ -13,7 +13,7 @@ namespace se::editor::ui::properties
         void* GetValue() const override { return m_Value; }
         void ConstructUI(const PropertyEditorParams& params) override;
         void Update() override;
-        PropertyTitleMode GetTitleMode() const override;
+        PropertyTitleMode GetDefaultTitleMode() const override;
         ecs::Id GetWidgetId() const override;
         ecs::Id GetTitleId() const override;
         void DestroyUI() override;

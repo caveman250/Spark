@@ -47,6 +47,10 @@ namespace se::editor::ui::properties
 
         m_Name = params.name;
 
+        m_TitleMode = params.titleModeOverride != PropertyTitleMode::None ?
+            params.titleModeOverride :
+            GetDefaultTitleMode();
+
         ecs::Id titleContainer = { };
         if (GetTitleMode() == PropertyTitleMode::NextLine)
         {
@@ -181,6 +185,11 @@ namespace se::editor::ui::properties
         auto text = Application::Get()->GetWorld()->GetComponent<TextComponent>(m_Title);
         text->text = name;
 
+    }
+
+    PropertyTitleMode PropertyEditor::GetTitleMode() const
+    {
+        return m_TitleMode;
     }
 
     void PropertyEditor::BeginRename(const std::string_view editText,
