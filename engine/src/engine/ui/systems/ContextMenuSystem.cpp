@@ -3,6 +3,7 @@
 #include "ResetMouseInputSystem.h"
 #include "RootRectTransformSystem.h"
 #include "engine/input/InputComponent.h"
+#include "engine/input/InputUtil.h"
 #include "engine/ui/components/ContextMenuComponent.h"
 #include "engine/ui/components/MouseInputComponent.h"
 
@@ -23,7 +24,8 @@ namespace se::ui::systems
         ecs::ForEachArcheType(results, ecs::UpdateMode::MultiThreaded, false, [](const ecs::SystemUpdateData& updateData)
         {
             const auto* inputComp = updateData.GetSingletonComponent<const input::InputComponent>();
-            if (inputComp->mouseButtonStates[static_cast<int>(input::MouseButton::Left)] == input::KeyState::Down)
+            if (input::InputUtil::IsMouseButtonDown(inputComp, input::MouseButton::Left) ||
+                input::InputUtil::IsMouseButtonDown(inputComp, input::MouseButton::Right))
             {
                 auto world = Application::Get()->GetWorld();
 
