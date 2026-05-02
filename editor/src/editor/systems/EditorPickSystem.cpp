@@ -1,5 +1,6 @@
 #include "EditorPickSystem.h"
 
+#include "GizmoSystem.h"
 #include "editor/components/GizmoComponent.h"
 #include "editor/util/ViewportUtil.h"
 #include "engine/camera/ActiveCameraComponent.h"
@@ -22,7 +23,8 @@ namespace se::editor::systems
             .WithComponent<ecs::components::TransformComponent>()
             .WithComponent<ecs::components::MeshComponent>()
             .WithSingletonComponent<const camera::ActiveCameraComponent>()
-            .WithSingletonComponent<input::InputComponent>();
+            .WithSingletonComponent<input::InputComponent>()
+            .WithDependency<GizmoSystem>();
     }
 
     void EditorPickSystem::OnUpdate(const ecs::QueryResults& results)
@@ -72,9 +74,8 @@ namespace se::editor::systems
                             if (mouseEvent.state == input::KeyState::Down)
                             {
                                 Application::Get()->GetEditorRuntime()->SelectEntity(entity);
+                                return true;
                             }
-
-                            return true;
                         }
 
                         return false;

@@ -71,7 +71,6 @@ namespace se::render::systems
                     indexBuffer->CreatePlatformResource();
                     modelAsset->SetIndexBuffer(indexBuffer);
                     modelAsset->LockBufferMutex(false);
-                    transform.aabb = staticMesh.aabb;
                 }
 
                 bool isOutOfDate = !mesh.materialInstance;
@@ -86,6 +85,8 @@ namespace se::render::systems
 
                 if (isOutOfDate)
                 {
+                    transform.aabb = modelAsset->GetMesh().aabb;
+
                     EASY_BLOCK("Create Material Instance")
                     if (mesh.materialInstanceAsset.IsSet())
                     {

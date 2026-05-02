@@ -75,9 +75,8 @@ namespace se::editor::systems
                             if (mouseEvent.state == input::KeyState::Down)
                             {
                                 gizmo.mouseDown = true;
+                                return true;
                             }
-
-                            return true;
                         }
 
                         return false;
