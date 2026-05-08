@@ -125,7 +125,7 @@ namespace se::ui::util
         mesh.aabb = geo::AABB
         {
             .pos = min,
-            .size = max - min
+            .size = max - min + math::Vec3(0.f, 0.f, 0.1f)
         };
 
         return mesh;

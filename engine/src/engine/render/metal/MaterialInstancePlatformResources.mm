@@ -112,7 +112,7 @@ namespace se::render::metal
                                                                                    asset::shader::ast::AstType type,
                                                                                    int count,
                                                                                    const void* value,
-                                                                                   const std::shared_ptr<Material>& material)
+                                                                                   const std::shared_ptr<Material>&)
     {
         switch (type)
         {

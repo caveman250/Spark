@@ -14,6 +14,7 @@
 #include "engine/camera/ActiveCameraComponent.h"
 #include "engine/ecs/components/MeshComponent.h"
 #include "engine/ecs/components/TransformComponent.h"
+#include "engine/ecs/util/MeshUtil.h"
 #include "engine/input/InputComponent.h"
 #include "engine/input/InputUtil.h"
 #include "engine/io/VFS.h"
@@ -528,12 +529,9 @@ namespace se::editor
         auto entityZ = world->CreateEntity(GetEditorScene(), "Rotation Gizmo Z");
         auto meshZ = world->AddComponent<ecs::components::MeshComponent>(entityZ);
         meshZ->materialAsset = "/engine_assets/materials/gizmo.sass";
-        meshZ->vertexBuffer = render::VertexBuffer::CreateVertexBuffer(mesh);
-        meshZ->vertexBuffer->CreatePlatformResource();
-        meshZ->indexBuffer = render::IndexBuffer::CreateIndexBuffer(mesh);
-        meshZ->indexBuffer->CreatePlatformResource();
+        ecs::util::InitMeshComponentFromMesh(meshZ, mesh);
         meshZ->renderLayer = -1;
-        auto zTransform = world->AddComponent<ecs::components::TransformComponent>(entityZ);
+        world->AddComponent<ecs::components::TransformComponent>(entityZ);
         auto gizmoZ = world->AddComponent<components::RotationGizmoComponent>(entityZ);
         gizmoZ->color = math::Vec4(0.f, 0.f, 1.f, .6f);
         gizmoZ->axis = components::RotationAxis::Z;
@@ -542,10 +540,7 @@ namespace se::editor
         auto entityX = world->CreateEntity(GetEditorScene(), "Rotation Gizmo X");
         auto meshX = world->AddComponent<ecs::components::MeshComponent>(entityX);
         meshX->materialAsset = "/engine_assets/materials/gizmo.sass";
-        meshX->vertexBuffer = render::VertexBuffer::CreateVertexBuffer(mesh);
-        meshX->vertexBuffer->CreatePlatformResource();
-        meshX->indexBuffer = render::IndexBuffer::CreateIndexBuffer(mesh);
-        meshX->indexBuffer->CreatePlatformResource();
+        ecs::util::InitMeshComponentFromMesh(meshX, mesh);
         meshX->renderLayer = -1;
         auto xTransform = world->AddComponent<ecs::components::TransformComponent>(entityX);
         xTransform->rot.x = 90;
@@ -557,10 +552,7 @@ namespace se::editor
         auto entityY = world->CreateEntity(GetEditorScene(), "Rotation Gizmo Y");
         auto meshY = world->AddComponent<ecs::components::MeshComponent>(entityY);
         meshY->materialAsset = "/engine_assets/materials/gizmo.sass";
-        meshY->vertexBuffer = render::VertexBuffer::CreateVertexBuffer(mesh);
-        meshY->vertexBuffer->CreatePlatformResource();
-        meshY->indexBuffer = render::IndexBuffer::CreateIndexBuffer(mesh);
-        meshY->indexBuffer->CreatePlatformResource();
+        ecs::util::InitMeshComponentFromMesh(meshY, mesh);
         meshY->renderLayer = -1;
         auto yTransform = world->AddComponent<ecs::components::TransformComponent>(entityY);
         yTransform->rot.y = -90;
