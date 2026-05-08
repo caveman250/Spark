@@ -40,6 +40,11 @@ namespace se::render
             m_PlatformResources->ApplyBlendMode(m_RenderState.srcBlend, m_RenderState.dstBlend);
         }
 
+        if (rs.cullMode != m_RenderState.cullMode)
+        {
+            m_PlatformResources->ApplyCullMode(m_RenderState.cullMode);
+        }
+
         renderer->SetLastRenderState(m_RenderState);
 
         if (m_RenderState.lit)

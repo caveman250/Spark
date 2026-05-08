@@ -13,6 +13,10 @@ namespace se::math
         {
         }
 
+        Vec2(float scalar) : x(scalar), y(scalar)
+        {
+        }
+
         Vec2(float _x, float _y) : x(_x), y(_y)
         {
         }
@@ -38,6 +42,8 @@ namespace se::math
     float MagnitudeSquared(const Vec2& vec);
     Vec2 Normalized(const Vec2& vec);
     float Dot(const Vec2& v1, const Vec2& v2);
+    Vec2 Min(const Vec2& a, const Vec2& b);
+    Vec2 Max(const Vec2& a, const Vec2& b);
 
     Vec2 operator-(const Vec2 &lhs);
     Vec2 operator+(const Vec2& lhs, const Vec2 &rhs);

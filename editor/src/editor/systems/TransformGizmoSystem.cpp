@@ -1,6 +1,6 @@
-#include "GizmoSystem.h"
+#include "TransformGizmoSystem.h"
 
-#include "editor/components/GizmoComponent.h"
+#include "editor/components/TransformGizmoComponent.h"
 #include "editor/util/ViewportUtil.h"
 #include "engine/camera/ActiveCameraComponent.h"
 #include "engine/ecs/components/MeshComponent.h"
@@ -16,17 +16,17 @@
 
 namespace se::editor::systems
 {
-    ecs::SystemDeclaration GizmoSystem::GetSystemDeclaration()
+    ecs::SystemDeclaration TransformGizmoSystem::GetSystemDeclaration()
     {
         return ecs::SystemDeclaration()
-            .WithComponent<components::GizmoComponent>()
+            .WithComponent<components::TransformGizmoComponent>()
             .WithComponent<ecs::components::TransformComponent>()
             .WithComponent<ecs::components::MeshComponent>()
             .WithSingletonComponent<const camera::ActiveCameraComponent>()
             .WithSingletonComponent<input::InputComponent>();
     }
 
-    void GizmoSystem::OnUpdate(const ecs::QueryResults& results)
+    void TransformGizmoSystem::OnUpdate(const ecs::QueryResults& results)
     {
         auto editor = Application::Get()->GetEditorRuntime();
         if (editor->InGameMode())
@@ -39,7 +39,7 @@ namespace se::editor::systems
             const auto& entities = updateData.GetEntities();
             auto cameraComp = updateData.GetSingletonComponent<const camera::ActiveCameraComponent>();
             auto inputComp = updateData.GetSingletonComponent<input::InputComponent>();
-            auto* gizmos = updateData.GetComponentArray<components::GizmoComponent>();
+            auto* gizmos = updateData.GetComponentArray<components::TransformGizmoComponent>();
             auto* transforms = updateData.GetComponentArray<ecs::components::TransformComponent>();
             auto* meshes = updateData.GetComponentArray<ecs::components::MeshComponent>();
 
@@ -69,7 +69,7 @@ namespace se::editor::systems
 
                 if (geo::util::RayCastAABB(ray, transform))
                 {
-                    math::Vec3 yellow = math::Vec3(1.f, 1.f, 0.f);
+                    math::Vec4 yellow = math::Vec4(1.f, 1.f, 0.f, 1.f);
                     mesh.materialInstance->SetUniform("uniform_color", 1, &yellow);
 
                     input::InputUtil::ProcessMouseEvents(entity, inputComp, [&gizmo](const input::MouseEvent& mouseEvent)

@@ -107,6 +107,25 @@ namespace se::render::metal
         [commandEncoder setDepthStencilState:m_DepthStencilState];
     }
 
+    MTLCullMode CullModeToMTLCullMode(CullMode mode)
+    {
+        switch (mode)
+        {
+            case CullMode::Back:
+                return MTLCullModeBack;
+            case CullMode::Front:
+                return MTLCullModeFront;
+            case CullMode::None:
+                return MTLCullModeNone;
+        }
+    }
+
+    void MaterialPlatformResources::ApplyCullMode(CullMode cull)
+    {
+        auto commandEncoder = (id<MTLRenderCommandEncoder>)Renderer::Get<MetalRenderer>()->GetCurrentCommandEncoder();
+        [commandEncoder setCullMode:CullModeToMTLCullMode(cull)];
+    }
+
     void MaterialPlatformResources::ApplyBlendMode(BlendMode, BlendMode)
     {
         // nothing to do here. Has to be done as part of the pipeline state creation.

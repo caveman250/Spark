@@ -35,9 +35,9 @@ namespace se::editor::ui::properties
         ecs::Id m_Icon = {};
         bool m_IsHighlighted = false;
 
-        inline static const math::Vec3 s_DefaultColor = math::Vec3(0.6f, 0.6f, 0.6f);
-        inline static const math::Vec3 s_GreenColor = math::Vec3(0.f, 1.f, 0.f);
-        inline static const math::Vec3 s_RedColor = math::Vec3(1.f, 0.f, 0.f);
+        inline static const math::Vec4 s_DefaultColor = math::Vec4(0.6f, 0.6f, 0.6f, 1.f);
+        inline static const math::Vec4 s_GreenColor = math::Vec4(0.f, 1.f, 0.f, 1.f);
+        inline static const math::Vec4 s_RedColor = math::Vec4(1.f, 0.f, 0.f, 1.f);
     };
 
     SPARK_INSTANTIATE_TEMPLATE(AssetReferenceEditor, asset::Texture);

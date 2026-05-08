@@ -19,6 +19,12 @@ namespace se::render
 
 namespace se::editor
 {
+    enum class GizmoType
+    {
+        Translate,
+        Rotate
+    };
+
     class EditorRuntime
     {
     public:
@@ -54,11 +60,14 @@ namespace se::editor
     private:
         void SaveAll();
         void SaveScene();
-        void CreateGizmo();
         void UpdateSelectedEntityTranslation(const math::Vec3& worldPos) const;
         void SnapGizmoToSelectedEntity() const;
         void HideGizmo() const;
         void CreateEditorPlane();
+
+        void CreateGizmo();
+        void CreateTranslateGizmo();
+        void CreateRotationGizmo();
 
         startup::StartupManager m_StartupManager;
 
@@ -71,6 +80,7 @@ namespace se::editor
         std::string m_ScenePath = {};
         ecs::Id m_EditorScene = ecs::InvalidEntity;
         ecs::Id m_Gizmo = ecs::InvalidEntity;
+        GizmoType m_GizmoType = GizmoType::Rotate;
         ecs::Id m_Plane = ecs::InvalidEntity;
 
         ecs::Id m_LastSelectedEntity = ecs::InvalidEntity;

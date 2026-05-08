@@ -17,5 +17,6 @@ namespace se::render
         virtual void DestroyPlatformResources() = 0;
         virtual void ApplyDepthStencil(const RenderState& rs) = 0;
         virtual void ApplyBlendMode(BlendMode src, BlendMode dest) = 0;
+        virtual void ApplyCullMode(CullMode cull) = 0;
     };
 }

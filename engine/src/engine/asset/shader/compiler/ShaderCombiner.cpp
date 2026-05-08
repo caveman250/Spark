@@ -269,7 +269,6 @@ namespace se::asset::shader::compiler
             if (shader.GetType() == ShaderType::Vertex)
             {
                 uint8_t loc = GetInputLoc(port->GetPortName());
-                loc = GetInputLoc(port->GetPortName());
                 shader.AddInput(std::make_shared<ast::InputAttributeNode>(loc, port->GetVar(), name.data()));
             }
             else if (shader.GetType() == ShaderType::Fragment)
@@ -406,6 +405,9 @@ namespace se::asset::shader::compiler
             SPARK_ASSERT(false);
         }
 
-        return static_cast<uint8_t>(std::distance(std::begin(m_VertexBuffer.GetVertexStreams()), m_VertexBuffer.GetVertexStreams().find(targetType)));
+        auto it = m_VertexBuffer.GetVertexStreams().find(targetType);
+        SPARK_ASSERT(it != m_VertexBuffer.GetVertexStreams().end());
+
+        return static_cast<uint8_t>(std::distance(m_VertexBuffer.GetVertexStreams().begin(), it));
     }
 }

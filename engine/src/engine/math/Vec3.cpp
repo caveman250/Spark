@@ -171,4 +171,16 @@ namespace se::math
                     v1.z * v2.x - v2.z * v1.x,
                     v1.x * v2.y - v2.x * v1.y);
     }
+
+    Vec3 Min(const Vec3& a,
+    const Vec3& b)
+    {
+        return Vec3(std::min(a.x, b.x), std::min(a.y, b.y), std::min(a.z, b.z));
+    }
+
+    Vec3 Max(const Vec3& a,
+        const Vec3& b)
+    {
+        return Vec3(std::max(a.x, b.x), std::max(a.y, b.y), std::max(a.z, b.z));
+    }
 }

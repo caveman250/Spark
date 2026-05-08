@@ -72,7 +72,7 @@ namespace se::ui::systems
 
                     if (!image.vertBuffer || image.lastRect.size != transform.rect.size)
                     {
-                        asset::StaticMesh mesh = util::CreateMeshFromRect(transform.rect);
+                        asset::StaticMesh mesh = util::CreateRectMesh(transform.rect);
                         image.vertBuffer = render::VertexBuffer::CreateVertexBuffer(mesh);
                         image.vertBuffer->CreatePlatformResource();
                         image.indexBuffer = render::IndexBuffer::CreateIndexBuffer(mesh);

@@ -16,7 +16,9 @@ namespace se::asset
 
 namespace se::ui::util
 {
-    asset::StaticMesh CreateMeshFromRect(const Rect& rect);
+    asset::StaticMesh CreateRectMesh(const Rect& rect);
+    asset::StaticMesh CreateCircleMesh(float radius, size_t steps, size_t startIndex = 0, size_t endIndex = std::numeric_limits<size_t>::max());
+    asset::StaticMesh CreateCircleMesh(float radius, float innerRadius, size_t steps, size_t startIndex = 0, size_t endIndex = std::numeric_limits<size_t>::max());
 
     struct TextMeshParams
     {

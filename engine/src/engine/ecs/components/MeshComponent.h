@@ -36,5 +36,9 @@ namespace se::ecs::components
         // Runtime
         SPARK_MEMBER()
         std::shared_ptr<render::MaterialInstance> materialInstance = {};
+
+        std::shared_ptr<render::VertexBuffer> vertexBuffer = {};
+        std::shared_ptr<render::IndexBuffer> indexBuffer = {};
+        geo::AABB aabb = {};
     };
 }

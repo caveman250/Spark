@@ -3,7 +3,8 @@
 #include "../generated/Classes.generated.h"
 #include "../generated/Systems.generated.h"
 #include "components/EditorCameraComponent.h"
-#include "components/GizmoComponent.h"
+#include "components/RotationGizmoComponent.h"
+#include "components/TransformGizmoComponent.h"
 #include "engine/Application.h"
 #include "engine/asset/AssetManager.h"
 #include "engine/asset/builder/AssetBuilder.h"
@@ -24,6 +25,7 @@
 #include "engine/ui/components/MouseInputComponent.h"
 #include "engine/ui/components/SplitViewComponent.h"
 #include "engine/ui/components/WindowComponent.h"
+#include "engine/ui/util/MeshUtil.h"
 #include "engine/ui/util/SplitViewUtil.h"
 
 namespace se::editor
@@ -422,8 +424,24 @@ namespace se::editor
 
     void EditorRuntime::CreateGizmo()
     {
-        auto world = Application::Get()->GetWorld();
+        switch (m_GizmoType)
+        {
+            case GizmoType::Translate:
+                CreateTranslateGizmo();
+                break;
+            case GizmoType::Rotate:
+                CreateRotationGizmo();
+                break;
+            default:
+                SPARK_ASSERT(false, "EditorRuntime::CreateGizmo - Unsupported gizmo type.");
+        }
 
+        SnapGizmoToSelectedEntity();
+    }
+
+    void EditorRuntime::CreateTranslateGizmo()
+    {
+        auto world = Application::Get()->GetWorld();
         m_Gizmo = world->CreateEntity(GetEditorScene(), "Translate Gizmo");
         world->AddComponent<ecs::components::TransformComponent>(m_Gizmo);
 
@@ -435,8 +453,8 @@ namespace se::editor
         auto zTransform = world->AddComponent<ecs::components::TransformComponent>(entityZ);
         zTransform->pos.z = .5f;
         zTransform->scale = .5f;
-        auto gizmoZ = world->AddComponent<components::GizmoComponent>(entityZ);
-        gizmoZ->color = math::Vec3(0.f, 0.f, 1.f);
+        auto gizmoZ = world->AddComponent<components::TransformGizmoComponent>(entityZ);
+        gizmoZ->color = math::Vec4(0.f, 0.f, 1.f, 1.f);
         gizmoZ->axis = components::GizmoAxis::Forward;
         gizmoZ->onMove.Subscribe([this, world](math::Vec3 worldPos)
         {
@@ -459,8 +477,8 @@ namespace se::editor
         xTransform->rot.y = 90;
         xTransform->pos.x = .5f;
         xTransform->scale = .5f;
-        auto gizmoX = world->AddComponent<components::GizmoComponent>(entityX);
-        gizmoX->color = math::Vec3(1.f, 0.f, 0.f);
+        auto gizmoX = world->AddComponent<components::TransformGizmoComponent>(entityX);
+        gizmoX->color = math::Vec4(1.f, 0.f, 0.f, 1.f);
         gizmoX->axis = components::GizmoAxis::Right;
         gizmoX->onMove.Subscribe([this, world](math::Vec3 worldPos)
         {
@@ -483,8 +501,8 @@ namespace se::editor
         yTransform->rot.x = 270;
         yTransform->pos.y = .5f;
         yTransform->scale = .5f;
-        auto gizmoY = world->AddComponent<components::GizmoComponent>(entityY);
-        gizmoY->color = math::Vec3(0.f, 1.f, 0.f);
+        auto gizmoY = world->AddComponent<components::TransformGizmoComponent>(entityY);
+        gizmoY->color = math::Vec4(0.f, 1.f, 0.f, 1.f);
         gizmoY->axis = components::GizmoAxis::Up;
         gizmoY->onMove.Subscribe([this, world](math::Vec3 worldPos)
         {
@@ -497,8 +515,59 @@ namespace se::editor
             UpdateSelectedEntityTranslation(worldPos);
         });
         world->AddChild(m_Gizmo, entityY);
+    }
 
-        SnapGizmoToSelectedEntity();
+    void EditorRuntime::CreateRotationGizmo()
+    {
+        auto world = Application::Get()->GetWorld();
+        m_Gizmo = world->CreateEntity(GetEditorScene(), "Rotation Gizmo");
+        world->AddComponent<ecs::components::TransformComponent>(m_Gizmo);
+
+        asset::StaticMesh mesh = se::ui::util::CreateCircleMesh(1.f, 0.7f, 24, 0, 6);
+
+        auto entityZ = world->CreateEntity(GetEditorScene(), "Rotation Gizmo Z");
+        auto meshZ = world->AddComponent<ecs::components::MeshComponent>(entityZ);
+        meshZ->materialAsset = "/engine_assets/materials/gizmo.sass";
+        meshZ->vertexBuffer = render::VertexBuffer::CreateVertexBuffer(mesh);
+        meshZ->vertexBuffer->CreatePlatformResource();
+        meshZ->indexBuffer = render::IndexBuffer::CreateIndexBuffer(mesh);
+        meshZ->indexBuffer->CreatePlatformResource();
+        meshZ->renderLayer = -1;
+        auto zTransform = world->AddComponent<ecs::components::TransformComponent>(entityZ);
+        auto gizmoZ = world->AddComponent<components::RotationGizmoComponent>(entityZ);
+        gizmoZ->color = math::Vec4(0.f, 0.f, 1.f, .6f);
+        gizmoZ->axis = components::RotationAxis::Z;
+        world->AddChild(m_Gizmo, entityZ);
+
+        auto entityX = world->CreateEntity(GetEditorScene(), "Rotation Gizmo X");
+        auto meshX = world->AddComponent<ecs::components::MeshComponent>(entityX);
+        meshX->materialAsset = "/engine_assets/materials/gizmo.sass";
+        meshX->vertexBuffer = render::VertexBuffer::CreateVertexBuffer(mesh);
+        meshX->vertexBuffer->CreatePlatformResource();
+        meshX->indexBuffer = render::IndexBuffer::CreateIndexBuffer(mesh);
+        meshX->indexBuffer->CreatePlatformResource();
+        meshX->renderLayer = -1;
+        auto xTransform = world->AddComponent<ecs::components::TransformComponent>(entityX);
+        xTransform->rot.x = 90;
+        auto gizmoX = world->AddComponent<components::RotationGizmoComponent>(entityX);
+        gizmoX->color = math::Vec4(1.f, 0.f, 0.f, .6f);
+        gizmoX->axis = components::RotationAxis::X;
+        world->AddChild(m_Gizmo, entityX);
+
+        auto entityY = world->CreateEntity(GetEditorScene(), "Rotation Gizmo Y");
+        auto meshY = world->AddComponent<ecs::components::MeshComponent>(entityY);
+        meshY->materialAsset = "/engine_assets/materials/gizmo.sass";
+        meshY->vertexBuffer = render::VertexBuffer::CreateVertexBuffer(mesh);
+        meshY->vertexBuffer->CreatePlatformResource();
+        meshY->indexBuffer = render::IndexBuffer::CreateIndexBuffer(mesh);
+        meshY->indexBuffer->CreatePlatformResource();
+        meshY->renderLayer = -1;
+        auto yTransform = world->AddComponent<ecs::components::TransformComponent>(entityY);
+        yTransform->rot.y = -90;
+        auto gizmoY = world->AddComponent<components::RotationGizmoComponent>(entityY);
+        gizmoY->color = math::Vec4(0.f, 1.f, 0.f, .6f);
+        gizmoY->axis = components::RotationAxis::Y;
+        world->AddChild(m_Gizmo, entityY);
     }
 
     void EditorRuntime::UpdateSelectedEntityTranslation(const math::Vec3& worldPos) const

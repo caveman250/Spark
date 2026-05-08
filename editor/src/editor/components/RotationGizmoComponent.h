@@ -7,19 +7,19 @@
 
 namespace se::editor::components 
 {
-    enum class GizmoAxis
+    enum class RotationAxis
     {
-        Forward,
-        Right,
-        Up
+        X,
+        Y,
+        Z
     };
 
-    struct GizmoComponent : ecs::Component
+    struct RotationGizmoComponent : ecs::Component
     {
         SPARK_COMPONENT(EditorOnly)
 
-        math::Vec3 color = {};
-        GizmoAxis axis = GizmoAxis::Forward;
+        math::Vec4 color = {};
+        RotationAxis axis = RotationAxis::X;
         bool mouseDown = false;
         ecs::Signal<math::Vec3> onMove = {};
     };

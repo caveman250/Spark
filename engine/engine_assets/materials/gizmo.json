@@ -23,7 +23,8 @@
         "srcBlend": "String",
         "stencilFunc": "String",
         "stencilReadMask": "Uint32",
-        "stencilWriteMask": "Uint32"
+        "stencilWriteMask": "Uint32",
+        "cullMode": "String"
       }
     },
     {
@@ -68,7 +69,7 @@
       }
     },
     {
-      "UniformValue<Vec3>": {
+      "UniformValue<Vec4>": {
         "type": "String",
         "value": "Array",
         "valueCount": "Int32"
@@ -100,12 +101,13 @@
       "m_RenderState": {
         "RenderState": {
           "depthComp": "None",
-          "srcBlend": "One",
-          "dstBlend": "Zero",
+          "srcBlend": "SrcAlpha",
+          "dstBlend": "OneMinusSrcAlpha",
           "stencilWriteMask": 0,
           "stencilFunc": "None",
           "stencilReadMask": 0,
-          "lit": false
+          "lit": false,
+          "cullMode": "None"
         }
       },
       "m_ShaderSettings": {
@@ -126,15 +128,16 @@
                 "Internal_MapItemString_Object": {
                   "key": "uniform_color",
                   "value": {
-                    "UniformValue<Vec3>": {
+                    "UniformValue<Vec4>": {
                       "value": {
-                        "struct": "Vec3",
+                        "struct": "Vec4",
                         "contents": [
                           {
                             "Vec3": {
                               "x": 1,
                               "y": 0,
-                              "z": 0
+                              "z": 0,
+                              "w": 1
                             }
                           }
                         ]

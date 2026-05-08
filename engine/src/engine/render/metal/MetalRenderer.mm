@@ -40,7 +40,6 @@ namespace se::render::metal
         EASY_END_BLOCK;
 
         EASY_BLOCK("Set Render State");
-        [m_CommandEncoder setCullMode:MTLCullModeBack];
         [m_CommandEncoder setFrontFacingWinding:MTLWindingCounterClockwise];
         EASY_END_BLOCK;
 

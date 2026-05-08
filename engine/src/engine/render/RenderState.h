@@ -16,8 +16,8 @@ namespace se::render
     };
 
     SPARK_ENUM()
-enum class BlendMode
-{
+    enum class BlendMode
+    {
         Zero,
         One,
         SrcColor,
@@ -32,14 +32,22 @@ enum class BlendMode
     };
 
     SPARK_ENUM()
-enum class StencilFunc
-{
+    enum class StencilFunc
+    {
         Less,
         LessEqual,
         Equal,
         Greater,
         GreaterEqual,
         None
+    };
+
+    SPARK_ENUM()
+    enum class CullMode
+    {
+        Back,
+        Front,
+        None,
     };
 
     struct RenderState : reflect::ObjectBase
@@ -66,6 +74,9 @@ enum class StencilFunc
 
         SPARK_MEMBER(Serialized)
         bool lit = false;
+
+        SPARK_MEMBER(Serialized)
+        CullMode cullMode = CullMode::Back;
     };
 
     bool operator==(const RenderState& lhs, const RenderState& rhs);

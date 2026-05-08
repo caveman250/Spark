@@ -59,6 +59,8 @@ namespace se::math
     Vec3 Normalized(const Vec3& vec);
     float Dot(const Vec3& v1, const Vec3& v2);
     Vec3 Cross(const Vec3& v1, const Vec3& v2);
+    Vec3 Min(const Vec3& a, const Vec3& b);
+    Vec3 Max(const Vec3& a, const Vec3& b);
 }
 
 template <>

@@ -46,8 +46,7 @@ namespace se::render::systems
             {
                 auto& mesh = meshes[i];
                 auto& transform = transforms[i];
-                const auto& modelAsset = mesh.model.GetAsset();
-                bool buffersValid = modelAsset->GetVertexBuffer().get();
+                bool buffersValid = mesh.vertexBuffer.get();
     #if SPARK_EDITOR
                 if (std::ranges::contains(meshRenderComp->invalidatedMeshAssets, mesh.model))
                 {
@@ -62,15 +61,32 @@ namespace se::render::systems
                     {
                         continue;
                     }
-                    modelAsset->LockBufferMutex(true);
-                    auto staticMesh = modelAsset->GetMesh();
-                    auto vertBuffer = VertexBuffer::CreateVertexBuffer(staticMesh);
-                    vertBuffer->CreatePlatformResource();
-                    modelAsset->SetVertexBuffer(vertBuffer);
-                    auto indexBuffer = IndexBuffer::CreateIndexBuffer(staticMesh);
-                    indexBuffer->CreatePlatformResource();
-                    modelAsset->SetIndexBuffer(indexBuffer);
-                    modelAsset->LockBufferMutex(false);
+                    const auto& modelAsset = mesh.model.GetAsset();
+                    const auto& vertBuffer = modelAsset->GetVertexBuffer();
+                    const auto& indexBuffer = modelAsset->GetIndexBuffer();
+
+                    if (!vertBuffer.get())
+                    {
+                        modelAsset->LockBufferMutex(true);
+                        const auto& staticMesh = modelAsset->GetMesh();
+                        auto newVertBuffer = VertexBuffer::CreateVertexBuffer(staticMesh);
+                        newVertBuffer->CreatePlatformResource();
+                        modelAsset->SetVertexBuffer(newVertBuffer);
+                        auto newIndexBuffer = IndexBuffer::CreateIndexBuffer(staticMesh);
+                        newIndexBuffer->CreatePlatformResource();
+                        modelAsset->SetIndexBuffer(newIndexBuffer);
+                        modelAsset->LockBufferMutex(false);
+
+                        mesh.vertexBuffer = newVertBuffer;
+                        mesh.indexBuffer = newIndexBuffer;
+                        mesh.aabb = staticMesh.aabb;
+                    }
+                    else
+                    {
+                        mesh.vertexBuffer = vertBuffer;
+                        mesh.indexBuffer = indexBuffer;
+                        mesh.aabb = modelAsset->GetMesh().aabb;
+                    }
                 }
 
                 bool isOutOfDate = !mesh.materialInstance;
@@ -85,7 +101,7 @@ namespace se::render::systems
 
                 if (isOutOfDate)
                 {
-                    transform.aabb = modelAsset->GetMesh().aabb;
+                    transform.aabb = mesh.aabb;
 
                     EASY_BLOCK("Create Material Instance")
                     if (mesh.materialInstanceAsset.IsSet())
@@ -105,6 +121,7 @@ namespace se::render::systems
                 if (const auto& material = mesh.materialInstance)
                 {
                     EASY_BLOCK("Set Uniforms")
+
                     material->SetUniform("model", 1, &transforms[i].worldTransform, true);
                     material->SetUniform("view", 1, &camera->view, true);
                     material->SetUniform("proj", 1, &camera->proj, true);
@@ -151,13 +168,9 @@ namespace se::render::systems
                     renderGroup = it->second;
                 }
 
-                const auto& modelAsset = meshComp.model.GetAsset();
-                const auto& vertBuffer = modelAsset->GetVertexBuffer();
-                const auto& indexBuffer = modelAsset->GetIndexBuffer();
-
-                if (meshComp.materialInstance && vertBuffer && indexBuffer)
+                if (meshComp.materialInstance && meshComp.vertexBuffer && meshComp.indexBuffer)
                 {
-                    renderer->Submit<commands::SubmitGeo>(renderGroup, meshComp.materialInstance, vertBuffer, indexBuffer);
+                    renderer->Submit<commands::SubmitGeo>(renderGroup, meshComp.materialInstance, meshComp.vertexBuffer, meshComp.indexBuffer);
                 }
             }
         });

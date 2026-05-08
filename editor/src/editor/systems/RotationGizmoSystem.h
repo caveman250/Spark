@@ -5,7 +5,7 @@
 
 namespace se::editor::systems 
 {
-    class GizmoSystem : public ecs::EngineSystem
+    class RotationGizmoSystem : public ecs::EngineSystem
     {
         SPARK_SYSTEM()
         

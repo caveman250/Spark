@@ -19,6 +19,7 @@ namespace se::render::metal
     private:
         void ApplyDepthStencil(const RenderState& rs) override;
         void ApplyBlendMode(BlendMode src, BlendMode dest) override;
+        void ApplyCullMode(CullMode cull) override;
 
         RenderPipelineStatePtr m_RenderPipelineState = nullptr;
         MTLDepthStencilStatePtr m_DepthStencilState = nullptr;
