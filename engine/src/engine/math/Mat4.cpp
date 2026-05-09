@@ -320,10 +320,70 @@ namespace se::math
                    0.f,         0.f,            0.f,        1.f };
     }
 
+    Mat4 Rotation(const Vec3& euler)
+    {
+        float c1 = std::cos(Radians(-euler.x));
+        float c2 = std::cos(Radians(-euler.y));
+        float c3 = std::cos(Radians(-euler.z));
+        float s1 = std::sin(Radians(-euler.x));
+        float s2 = std::sin(Radians(-euler.y));
+        float s3 = std::sin(Radians(-euler.z));
+
+        Mat4 rot;
+        rot[0][0] = c2 * c3;
+        rot[0][1] =-c1 * s3 + s1 * s2 * c3;
+        rot[0][2] = s1 * s3 + c1 * s2 * c3;
+        rot[0][3] = 0.f;
+        rot[1][0] = c2 * s3;
+        rot[1][1] = c1 * c3 + s1 * s2 * s3;
+        rot[1][2] =-s1 * c3 + c1 * s2 * s3;
+        rot[1][3] = 0.f;
+        rot[2][0] =-s2;
+        rot[2][1] = s1 * c2;
+        rot[2][2] = c1 * c2;
+        rot[2][3] = 0.f;
+        rot[3][0] = 0.f;
+        rot[3][1] = 0.f;
+        rot[3][2] = 0.f;
+        rot[3][3] = 1.f;
+
+        return rot;
+    }
+
+    Mat4 Rotate(const Mat4& m, const float angle, const Vec3& v)
+    {
+        const float a = angle;
+        const float c = cos(a);
+        const float s = sin(a);
+
+        Vec3 axis(Normalized(v));
+        Vec3 temp((1.f - c) * axis);
+
+        Mat4 rot;
+        rot[0][0] = c + temp[0] * axis[0];
+        rot[0][1] = temp[0] * axis[1] + s * axis[2];
+        rot[0][2] = temp[0] * axis[2] - s * axis[1];
+
+        rot[1][0] = temp[1] * axis[0] - s * axis[2];
+        rot[1][1] = c + temp[1] * axis[1];
+        rot[1][2] = temp[1] * axis[2] + s * axis[0];
+
+        rot[2][0] = temp[2] * axis[0] + s * axis[1];
+        rot[2][1] = temp[2] * axis[1] - s * axis[0];
+        rot[2][2] = c + temp[2] * axis[2];
+
+        Mat4 ret;
+        ret[0] = m[0] * rot[0][0] + m[1] * rot[0][1] + m[2] * rot[0][2];
+        ret[1] = m[0] * rot[1][0] + m[1] * rot[1][1] + m[2] * rot[1][2];
+        ret[2] = m[0] * rot[2][0] + m[1] * rot[2][1] + m[2] * rot[2][2];
+        ret[3] = m[3];
+        return ret;
+    }
+
     Vec3 UnProject(const Vec3& windowPos,
-        const Mat4& view,
-        const Mat4& proj,
-        const Vec4& viewport)
+                   const Mat4& view,
+                   const Mat4& proj,
+                   const Vec4& viewport)
     {
         const Mat4 inverse = Inverse(proj * view);
 

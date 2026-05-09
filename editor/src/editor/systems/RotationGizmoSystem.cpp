@@ -65,20 +65,33 @@ namespace se::editor::systems
                     continue;
                 }
 
+                math::Vec3 forward(cos(cameraComp->rot.x) * sin(cameraComp->rot.y),
+                             sin(cameraComp->rot.x),
+                             cos(cameraComp->rot.x) * cos(cameraComp->rot.y));
+                math::Vec3 worldPos = { transform.worldTransform[3].x, transform.worldTransform[3].y, transform.worldTransform[3].z };
+                geo::Plane plane =
+                {
+                    .normal = forward,
+                    .distSquared = math::Dot(forward, worldPos)
+                };
+
                 gizmo.mouseDown &= inputComp->mouseButtonStates[static_cast<int>(input::MouseButton::Left)] == input::KeyState::Down;
 
-                if (geo::util::RayCastAABB(ray, transform))
+                auto hit = geo::util::RayCastAABB(ray, transform);
+                if (hit.has_value())
                 {
+                    gizmo.wasHovered = true;
                     math::Vec4 yellow = math::Vec4(1.f, 1.f, 0.f, 1.f);
                     mesh.materialInstance->SetUniform("uniform_color", 1, &yellow);
 
-                    input::InputUtil::ProcessMouseEvents(entity, inputComp, [&gizmo](const input::MouseEvent& mouseEvent)
+                    input::InputUtil::ProcessMouseEvents(entity, inputComp, [&gizmo, ray, plane](const input::MouseEvent& mouseEvent)
                     {
                         if (mouseEvent.button == input::MouseButton::Left)
                         {
                             if (mouseEvent.state == input::KeyState::Down)
                             {
                                 gizmo.mouseDown = true;
+                                gizmo.initialClickPos = geo::util::RayCastPlane(ray, plane).value().intersectionPoint;
                                 return true;
                             }
                         }
@@ -88,36 +101,53 @@ namespace se::editor::systems
                 }
                 else if (!gizmo.mouseDown)
                 {
-                    mesh.materialInstance->SetUniform("uniform_color", 1, &gizmo.color);
+                    if (gizmo.wasHovered)
+                    {
+                        mesh.materialInstance->SetUniform("uniform_color", 1, &gizmo.color);
+                        gizmo.wasHovered = false;
+                    }
+                    if (gizmo.wasMouseDown)
+                    {
+                        gizmo.onFinshRotate.Broadcast();
+                        gizmo.wasMouseDown = false;
+                    }
                 }
 
                 if (gizmo.mouseDown)
                 {
-                    math::Vec3 forward(cos(cameraComp->rot.x) * sin(cameraComp->rot.y),
-                             sin(cameraComp->rot.x),
-                             cos(cameraComp->rot.x) * cos(cameraComp->rot.y));
-                    math::Vec3 worldPos = { transform.worldTransform[3].x, transform.worldTransform[3].y, transform.worldTransform[3].z };
-                    geo::Plane plane = {
-                        .normal = forward,
-                        .distSquared = math::Dot(forward, worldPos)
-                    };
+                    gizmo.wasMouseDown = true;
                     auto hit = geo::util::RayCastPlane(ray, plane);
                     SPARK_ASSERT(hit.has_value());
+                    math::Vec3 hitPoint = hit.value().intersectionPoint;
+                    float dist = math::MagnitudeSquared(hitPoint - gizmo.initialClickPos);
+                    dist = sqrtf(dist);
                     switch (gizmo.axis)
                     {
                         case components::RotationAxis::Z:
                         {
-                            gizmo.onMove.Broadcast(math::Vec3(0.f, 0.f, hit.value().intersectionPoint.z));
+                            if (hitPoint.x < worldPos.x)
+                            {
+                                dist *= -1.f;
+                            }
+                            gizmo.onRotate.Broadcast(dist);
                             break;
                         }
                         case components::RotationAxis::X:
                         {
-                            gizmo.onMove.Broadcast(math::Vec3(hit.value().intersectionPoint.x, 0.f, 0.f));
+                            if (hitPoint.z > worldPos.z)
+                            {
+                                dist *= -1.f;
+                            }
+                            gizmo.onRotate.Broadcast(dist);
                             break;
                         }
                         case components::RotationAxis::Y:
                         {
-                            gizmo.onMove.Broadcast(math::Vec3(0.f, hit.value().intersectionPoint.y, 0.f));
+                            if (hitPoint.x < worldPos.x)
+                            {
+                                dist *= -1.f;
+                            }
+                            gizmo.onRotate.Broadcast(dist);
                             break;
                         }
                     }

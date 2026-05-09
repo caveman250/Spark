@@ -20,7 +20,11 @@ namespace se::editor::components
 
         math::Vec4 color = {};
         RotationAxis axis = RotationAxis::X;
+        math::Vec3 initialClickPos = {};
+        bool wasHovered = true;
+        bool wasMouseDown = false;
         bool mouseDown = false;
-        ecs::Signal<math::Vec3> onMove = {};
+        ecs::Signal<float> onRotate = {};
+        ecs::Signal<> onFinshRotate = {};
     };
 }

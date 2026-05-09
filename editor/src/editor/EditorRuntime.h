@@ -19,6 +19,11 @@ namespace se::render
 
 namespace se::editor
 {
+    namespace components
+    {
+        enum class RotationAxis;
+    }
+
     enum class GizmoType
     {
         Translate,
@@ -60,8 +65,9 @@ namespace se::editor
     private:
         void SaveAll();
         void SaveScene();
-        void UpdateSelectedEntityTranslation(const math::Vec3& worldPos) const;
-        void SnapGizmoToSelectedEntity() const;
+        void UpdateSelectedEntityTranslation(const math::Vec3& worldPos);
+        void UpdateSelectedEntityRotation(components::RotationAxis axis, float dist);
+        void SnapGizmoToSelectedEntity();
         void HideGizmo() const;
         void CreateEditorPlane();
 
@@ -85,6 +91,7 @@ namespace se::editor
 
         ecs::Id m_LastSelectedEntity = ecs::InvalidEntity;
         ecs::Id m_SelectedEntity = ecs::InvalidEntity;
+        math::Vec3 m_SelectedEntityInitialRotation = {};
         reflect::ObjectBase* m_SelectedSingletonComp = nullptr;
         reflect::ObjectBase* m_LastSelectedSingletonComp = nullptr;
         std::shared_ptr<asset::Asset> m_SelectedAsset = nullptr;

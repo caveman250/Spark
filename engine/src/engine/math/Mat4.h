@@ -56,6 +56,8 @@ namespace se::math
     Mat4 Perspective(float fovY, float aspect, float zNear, float zFar);
     Mat4 LookAt(const Vec3& eye, const Vec3& center, const Vec3& up);
     Mat4 Translation(const Vec3& translation);
+    Mat4 Rotation(const Vec3& euler);
+    Mat4 Rotate(const Mat4& m, float angle, const Vec3& v);
     Mat4 Scale(const Vec3& scale);
     Vec3 UnProject(const Vec3& windowPos, const Mat4& view, const Mat4& proj, const Vec4& viewport);
 }

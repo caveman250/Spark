@@ -42,9 +42,13 @@ namespace se::math
 
     Vec3 EulerFromMat4(const Mat4& mat)
     {
-        const auto beta = -std::asin(mat[2][0]);
-        const auto alpha = std::atan2(mat[2][1] / std::cos(beta),mat[2][2] / std::cos(beta));
-        const auto gamma = std::atan2(mat[1][0] / std::cos(beta),mat[0][0] / std::cos(beta));
-        return Vec3(alpha, beta, gamma);
+        const float T1 = std::atan2(mat[2][1], mat[2][2]);
+        const float C2 = std::sqrt(mat[0][0]*mat[0][0] + mat[1][0]*mat[1][0]);
+        const float T2 = std::atan2(-mat[2][0], C2);
+        const float S1 = std::sin(T1);
+        const float C1 = std::cos(T1);
+        const float T3 = std::atan2(S1*mat[0][2] - C1*mat[0][1], C1*mat[1][1] - S1*mat[1][2  ]);
+
+        return { Degrees(-T1), Degrees(-T2), Degrees(-T3) };
     }
 }
