@@ -48,9 +48,12 @@ namespace se::editor::systems
             math::Vec3 mouseWorldPos = util::ScreenToWorldPoint(mousePos
                                                                 , cameraComp->view
                                                                 , cameraComp->proj
-                                                                , math::Vec4(0.f, 0.f, static_cast<float>(viewportRect.size.x), static_cast<float>(viewportRect.size.y)));
+                                                                , math::Vec4(0.f,
+                                                                    0.f,
+                                                                    static_cast<float>(viewportRect.size.x),
+                                                                    static_cast<float>(viewportRect.size.y)));
             math::Vec3 direction = math::Normalized(mouseWorldPos - cameraComp->pos);
-            geo::Ray ray = geo::Ray(cameraComp->pos, direction);
+            auto ray = geo::Ray(cameraComp->pos, direction);
 
             for (size_t i = 0; i < entities.size(); ++i)
             {
@@ -81,17 +84,26 @@ namespace se::editor::systems
                 if (hit.has_value())
                 {
                     gizmo.wasHovered = true;
-                    math::Vec4 yellow = math::Vec4(1.f, 1.f, 0.f, 1.f);
-                    mesh.materialInstance->SetUniform("uniform_color", 1, &yellow);
 
-                    input::InputUtil::ProcessMouseEvents(entity, inputComp, [&gizmo, ray, plane](const input::MouseEvent& mouseEvent)
+                    if (!gizmo.mouseDown)
+                    {
+                        auto yellow = math::Vec4(1.f, 1.f, 0.f, 1.f);
+                        mesh.materialInstance->SetUniform("uniform_color", 1, &yellow);
+                    }
+
+                    input::InputUtil::ProcessMouseEvents(entity, inputComp, [&gizmo, &mesh, ray, plane](const input::MouseEvent& mouseEvent)
                     {
                         if (mouseEvent.button == input::MouseButton::Left)
                         {
                             if (mouseEvent.state == input::KeyState::Down)
                             {
                                 gizmo.mouseDown = true;
+                                mesh.vertexBuffer = gizmo.fullVertBuffer;
+                                mesh.indexBuffer = gizmo.fullIndexBuffer;
+                                mesh.aabb = gizmo.fullAABB;
                                 gizmo.initialClickPos = geo::util::RayCastPlane(ray, plane).value().intersectionPoint;
+                                mesh.materialInstance->SetUniform("uniform_color", 1, &gizmo.color);
+                                gizmo.onBeginRotate.Broadcast();
                                 return true;
                             }
                         }
@@ -99,18 +111,18 @@ namespace se::editor::systems
                         return false;
                     });
                 }
-                else if (!gizmo.mouseDown)
+                else if (!gizmo.mouseDown && gizmo.wasMouseDown)
                 {
-                    if (gizmo.wasHovered)
-                    {
-                        mesh.materialInstance->SetUniform("uniform_color", 1, &gizmo.color);
-                        gizmo.wasHovered = false;
-                    }
-                    if (gizmo.wasMouseDown)
-                    {
-                        gizmo.onFinshRotate.Broadcast();
-                        gizmo.wasMouseDown = false;
-                    }
+                    gizmo.onFinishRotate.Broadcast();
+                    gizmo.wasMouseDown = false;
+                    mesh.vertexBuffer = gizmo.quarterVertBuffer;
+                    mesh.indexBuffer = gizmo.quarterIndexBuffer;
+                    mesh.aabb = gizmo.quarterAABB;
+                }
+                else if (gizmo.wasHovered)
+                {
+                    mesh.materialInstance->SetUniform("uniform_color", 1, &gizmo.color);
+                    gizmo.wasHovered = false;
                 }
 
                 if (gizmo.mouseDown)
@@ -125,28 +137,16 @@ namespace se::editor::systems
                     {
                         case components::RotationAxis::Z:
                         {
-                            if (hitPoint.x < worldPos.x)
-                            {
-                                dist *= -1.f;
-                            }
                             gizmo.onRotate.Broadcast(dist);
                             break;
                         }
                         case components::RotationAxis::X:
                         {
-                            if (hitPoint.z > worldPos.z)
-                            {
-                                dist *= -1.f;
-                            }
                             gizmo.onRotate.Broadcast(dist);
                             break;
                         }
                         case components::RotationAxis::Y:
                         {
-                            if (hitPoint.x < worldPos.x)
-                            {
-                                dist *= -1.f;
-                            }
                             gizmo.onRotate.Broadcast(dist);
                             break;
                         }

@@ -47,6 +47,7 @@ namespace se::render::systems
                 auto& mesh = meshes[i];
                 auto& transform = transforms[i];
                 bool buffersValid = mesh.vertexBuffer.get();
+
     #if SPARK_EDITOR
                 if (std::ranges::contains(meshRenderComp->invalidatedMeshAssets, mesh.model))
                 {
@@ -150,6 +151,11 @@ namespace se::render::systems
             for (size_t i = 0; i < updateData.GetEntities().size(); ++i)
             {
                 const auto& meshComp = meshes[i];
+
+                if (!meshComp.visible)
+                {
+                    continue;
+                }
 
                 size_t renderGroup = defaultRenderGroup;
                 if (meshComp.renderLayer != 0)

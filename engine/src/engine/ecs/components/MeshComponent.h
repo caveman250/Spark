@@ -33,6 +33,9 @@ namespace se::ecs::components
         SPARK_MEMBER(Serialized)
         int renderLayer = 0;
 
+        SPARK_MEMBER(Serialized)
+        bool visible = true;
+
         // Runtime
         SPARK_MEMBER()
         std::shared_ptr<render::MaterialInstance> materialInstance = {};

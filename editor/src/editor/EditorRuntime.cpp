@@ -520,85 +520,107 @@ namespace se::editor
 
     void EditorRuntime::CreateRotationGizmo()
     {
-        auto world = Application::Get()->GetWorld();
-        auto selectedEntityTransform = world->GetComponent<ecs::components::TransformComponent>(m_SelectedEntity);
+        const auto world = Application::Get()->GetWorld();
         m_Gizmo = world->CreateEntity(GetEditorScene(), "Rotation Gizmo");
         world->AddComponent<ecs::components::TransformComponent>(m_Gizmo);
 
-        asset::StaticMesh mesh = se::ui::util::CreateCircleMesh(1.f, 0.7f, 24, 0, 6);
+        const asset::StaticMesh quarterMesh = se::ui::util::CreateCircleMesh(1.f, 0.7f, 24, 0, 6);
+        const asset::StaticMesh fullMesh = se::ui::util::CreateCircleMesh(1.f, 0.7f, 24);
 
-        auto entityZ = world->CreateEntity(GetEditorScene(), "Rotation Gizmo Z");
-        auto meshZ = world->AddComponent<ecs::components::MeshComponent>(entityZ);
-        meshZ->materialAsset = "/engine_assets/materials/gizmo.sass";
-        ecs::util::InitMeshComponentFromMesh(meshZ, mesh);
-        meshZ->renderLayer = -1;
-        world->AddComponent<ecs::components::TransformComponent>(entityZ);
-        auto gizmoZ = world->AddComponent<components::RotationGizmoComponent>(entityZ);
-        gizmoZ->color = math::Vec4(0.f, 0.f, 1.f, .6f);
-        gizmoZ->axis = components::RotationAxis::Z;
-        gizmoZ->onRotate.Subscribe([this](float dist)
-        {
-            UpdateSelectedEntityRotation(components::RotationAxis::Z, dist);
-        });
-        gizmoZ->onFinshRotate.Subscribe([this, world]()
-        {
-            auto selectedEntityTransform = world->GetComponent<ecs::components::TransformComponent>(m_SelectedEntity);
-            m_SelectedEntityInitialRotation = selectedEntityTransform->rot;
-        });
-        world->AddChild(m_Gizmo, entityZ);
+        CreateRotationGizmoAxis(components::RotationAxis::X, quarterMesh, fullMesh);
+        CreateRotationGizmoAxis(components::RotationAxis::Y, quarterMesh, fullMesh);
+        CreateRotationGizmoAxis(components::RotationAxis::Z, quarterMesh, fullMesh);
+    }
 
-        auto entityX = world->CreateEntity(GetEditorScene(), "Rotation Gizmo X");
-        auto meshX = world->AddComponent<ecs::components::MeshComponent>(entityX);
-        meshX->materialAsset = "/engine_assets/materials/gizmo.sass";
-        ecs::util::InitMeshComponentFromMesh(meshX, mesh);
-        meshX->renderLayer = -1;
-        auto xTransform = world->AddComponent<ecs::components::TransformComponent>(entityX);
-        xTransform->rot.y = -90;
-        auto gizmoX = world->AddComponent<components::RotationGizmoComponent>(entityX);
-        gizmoX->color = math::Vec4(1.f, 0.f, 0.f, .6f);
-        gizmoX->axis = components::RotationAxis::X;
-        gizmoX->onRotate.Subscribe([this](float dist)
+    void EditorRuntime::CreateRotationGizmoAxis(components::RotationAxis axis,
+        const asset::StaticMesh& quarterMesh,
+        const asset::StaticMesh& fullMesh)
+    {
+        auto world = Application::Get()->GetWorld();
+        const auto entity = world->CreateEntity(GetEditorScene(), std::format("Rotation Gizmo {}", reflect::EnumResolver<components::RotationAxis>::Get()->ToString(static_cast<int>(axis))));
+        const auto mesh = world->AddComponent<ecs::components::MeshComponent>(entity);
+        mesh->materialAsset = "/engine_assets/materials/gizmo.sass";
+        mesh->renderLayer = -1;
+        const auto transform = world->AddComponent<ecs::components::TransformComponent>(entity);
+        const auto gizmo = world->AddComponent<components::RotationGizmoComponent>(entity);
+        switch (axis)
         {
-            UpdateSelectedEntityRotation(components::RotationAxis::X, dist);
-        });
-        gizmoX->onFinshRotate.Subscribe([this, world]()
-        {
-            auto selectedEntityTransform = world->GetComponent<ecs::components::TransformComponent>(m_SelectedEntity);
-            m_SelectedEntityInitialRotation = selectedEntityTransform->rot;
-        });
-        world->AddChild(m_Gizmo, entityX);
+            case components::RotationAxis::X:
+                gizmo->color = math::Vec4(1.f, 0.f, 0.f, .6f);
+                transform->rot.y = -90;
+                break;
+            case components::RotationAxis::Y:
+                gizmo->color = math::Vec4(0.f, 1.f, 0.f, .6f);
+                transform->rot.x = 90;
+                break;
+            case components::RotationAxis::Z:
+                gizmo->color = math::Vec4(0.f, 0.f, 1.f, .6f);
+                break;
+        }
 
-        auto entityY = world->CreateEntity(GetEditorScene(), "Rotation Gizmo Y");
-        auto meshY = world->AddComponent<ecs::components::MeshComponent>(entityY);
-        meshY->materialAsset = "/engine_assets/materials/gizmo.sass";
-        ecs::util::InitMeshComponentFromMesh(meshY, mesh);
-        meshY->renderLayer = -1;
-        auto yTransform = world->AddComponent<ecs::components::TransformComponent>(entityY);
-        yTransform->rot.x = 90;
-        auto gizmoY = world->AddComponent<components::RotationGizmoComponent>(entityY);
-        gizmoY->color = math::Vec4(0.f, 1.f, 0.f, .6f);
-        gizmoY->axis = components::RotationAxis::Y;
-        gizmoY->onRotate.Subscribe([this](float dist)
+        gizmo->axis = axis;
+        gizmo->onRotate.Subscribe([this, axis](float dist)
         {
-            UpdateSelectedEntityRotation(components::RotationAxis::Y, dist);
+            UpdateSelectedEntityRotation(axis, dist);
         });
-        gizmoY->onFinshRotate.Subscribe([this, world]()
+        gizmo->onBeginRotate.Subscribe([this, axis]
         {
-            auto selectedEntityTransform = world->GetComponent<ecs::components::TransformComponent>(m_SelectedEntity);
+            SetHideOtherGizmoAxis(axis, false);
+        });
+        gizmo->onFinishRotate.Subscribe([this, world, axis]()
+        {
+            const auto selectedEntityTransform = world->GetComponent<ecs::components::TransformComponent>(m_SelectedEntity);
             m_SelectedEntityInitialRotation = selectedEntityTransform->rot;
+            SetHideOtherGizmoAxis(axis, true);
         });
-        world->AddChild(m_Gizmo, entityY);
+
+        gizmo->quarterVertBuffer = render::VertexBuffer::CreateVertexBuffer(quarterMesh);
+        gizmo->quarterVertBuffer->CreatePlatformResource();
+        gizmo->quarterIndexBuffer = render::IndexBuffer::CreateIndexBuffer(quarterMesh);
+        gizmo->quarterIndexBuffer->CreatePlatformResource();
+        gizmo->quarterAABB = quarterMesh.aabb;
+
+        gizmo->fullVertBuffer = render::VertexBuffer::CreateVertexBuffer(fullMesh);
+        gizmo->fullVertBuffer->CreatePlatformResource();
+        gizmo->fullIndexBuffer = render::IndexBuffer::CreateIndexBuffer(fullMesh);
+        gizmo->fullIndexBuffer->CreatePlatformResource();
+        gizmo->fullAABB = fullMesh.aabb;
+
+        mesh->vertexBuffer = gizmo->quarterVertBuffer;
+        mesh->indexBuffer = gizmo->quarterIndexBuffer;
+        mesh->aabb = gizmo->quarterAABB;
+
+        world->AddChild(m_Gizmo, entity);
+        m_GizmoAxisEntities.push_back(entity);
+    }
+
+    void EditorRuntime::SetHideOtherGizmoAxis(components::RotationAxis axis, bool visible)
+    {
+        auto* world = Application::Get()->GetWorld();
+        for (const auto& entity : m_GizmoAxisEntities)
+        {
+            const auto* gizmoComp = world->GetComponent<components::RotationGizmoComponent>(entity);
+            auto* meshComp = world->GetComponent<ecs::components::MeshComponent>(entity);
+
+            if (gizmoComp->axis == axis)
+            {
+                meshComp->visible = true;
+                continue;
+            }
+
+            meshComp->visible = visible;
+        }
     }
 
     void EditorRuntime::UpdateSelectedEntityTranslation(const math::Vec3& worldPos)
     {
-        auto world = Application::Get()->GetWorld();
+        auto* world = Application::Get()->GetWorld();
 
-        auto selectedEntityTransform = world->GetComponent<ecs::components::TransformComponent>(m_SelectedEntity);
+        auto* selectedEntityTransform = world->GetComponent<ecs::components::TransformComponent>(m_SelectedEntity);
         if (const ecs::Id& parent = world->GetParent(m_SelectedEntity); parent != ecs::InvalidEntity)
         {
-            auto selectedEntityParentTransform = world->GetComponent<ecs::components::TransformComponent>(parent);
-            auto localPos = math::Inverse(selectedEntityParentTransform->worldTransform) * math::Vec4(worldPos, 1);
+            const auto* selectedEntityParentTransform = world->GetComponent<ecs::components::TransformComponent>(parent);
+            const auto localPos = math::Inverse(selectedEntityParentTransform->worldTransform) * math::Vec4(worldPos, 1);
             selectedEntityTransform->pos = localPos;
         }
         else
@@ -611,8 +633,8 @@ namespace se::editor
 
     void EditorRuntime::UpdateSelectedEntityRotation(components::RotationAxis axis, float dist)
     {
-        auto world = Application::Get()->GetWorld();
-        auto selectedEntityTransform = world->GetComponent<ecs::components::TransformComponent>(m_SelectedEntity);
+        const auto world = Application::Get()->GetWorld();
+        const auto selectedEntityTransform = world->GetComponent<ecs::components::TransformComponent>(m_SelectedEntity);
 
         math::Vec3 vectorAxis;
         switch (axis)

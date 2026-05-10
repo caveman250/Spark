@@ -9,6 +9,7 @@
 
 namespace se::asset
 {
+    struct StaticMesh;
     class Asset;
 }
 
@@ -74,6 +75,10 @@ namespace se::editor
         void CreateGizmo();
         void CreateTranslateGizmo();
         void CreateRotationGizmo();
+        void CreateRotationGizmoAxis(components::RotationAxis axis,
+                                        const asset::StaticMesh& quarterMesh,
+                                        const asset::StaticMesh& fullMesh);
+        void SetHideOtherGizmoAxis(components::RotationAxis axis, bool visible);
 
         startup::StartupManager m_StartupManager;
 
@@ -87,6 +92,7 @@ namespace se::editor
         ecs::Id m_EditorScene = ecs::InvalidEntity;
         ecs::Id m_Gizmo = ecs::InvalidEntity;
         GizmoType m_GizmoType = GizmoType::Rotate;
+        std::vector<ecs::Id> m_GizmoAxisEntities = {};
         ecs::Id m_Plane = ecs::InvalidEntity;
 
         ecs::Id m_LastSelectedEntity = ecs::InvalidEntity;
