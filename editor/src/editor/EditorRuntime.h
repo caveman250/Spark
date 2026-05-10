@@ -67,7 +67,7 @@ namespace se::editor
         void SaveAll();
         void SaveScene();
         void UpdateSelectedEntityTranslation(const math::Vec3& worldPos);
-        void UpdateSelectedEntityRotation(components::RotationAxis axis, float dist);
+        void UpdateSelectedEntityRotation(components::RotationAxis axis, float angle);
         void SnapGizmoToSelectedEntity();
         void HideGizmo() const;
         void CreateEditorPlane();

@@ -559,9 +559,9 @@ namespace se::editor
         }
 
         gizmo->axis = axis;
-        gizmo->onRotate.Subscribe([this, axis](float dist)
+        gizmo->onRotate.Subscribe([this, axis](float angle)
         {
-            UpdateSelectedEntityRotation(axis, dist);
+            UpdateSelectedEntityRotation(axis, angle);
         });
         gizmo->onBeginRotate.Subscribe([this, axis]
         {
@@ -631,10 +631,12 @@ namespace se::editor
         SnapGizmoToSelectedEntity();
     }
 
-    void EditorRuntime::UpdateSelectedEntityRotation(components::RotationAxis axis, float dist)
+    void EditorRuntime::UpdateSelectedEntityRotation(components::RotationAxis axis, float angle)
     {
         const auto world = Application::Get()->GetWorld();
         const auto selectedEntityTransform = world->GetComponent<ecs::components::TransformComponent>(m_SelectedEntity);
+
+        debug::Log::Info("{}", math::Degrees(angle));
 
         math::Vec3 vectorAxis;
         switch (axis)
@@ -651,7 +653,7 @@ namespace se::editor
         }
 
         math::Mat4 mat = math::Rotation(m_SelectedEntityInitialRotation);
-        const math::Mat4 axisRotationMatrix = math::Rotate(math::Mat4(), -dist, vectorAxis);
+        const math::Mat4 axisRotationMatrix = math::Rotate(math::Mat4(), angle, vectorAxis);
         mat = axisRotationMatrix * mat;
         selectedEntityTransform->rot = math::EulerFromMat4(mat);
     }

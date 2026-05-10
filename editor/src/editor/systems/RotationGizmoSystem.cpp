@@ -131,26 +131,23 @@ namespace se::editor::systems
                     auto hit = geo::util::RayCastPlane(ray, plane);
                     SPARK_ASSERT(hit.has_value());
                     math::Vec3 hitPoint = hit.value().intersectionPoint;
-                    float dist = math::MagnitudeSquared(hitPoint - gizmo.initialClickPos);
-                    dist = sqrtf(dist);
+                    //project to circle
+                    math::Vec2 hitPoint2;
+                    auto twelveoClock = math::Vec2(0.f,  1.f);
                     switch (gizmo.axis)
                     {
-                        case components::RotationAxis::Z:
-                        {
-                            gizmo.onRotate.Broadcast(dist);
-                            break;
-                        }
                         case components::RotationAxis::X:
-                        {
-                            gizmo.onRotate.Broadcast(dist);
+                            hitPoint2 = math::Normalized(math::Vec2(hitPoint.y, hitPoint.z) - math::Vec2(worldPos.y, worldPos.z));
                             break;
-                        }
                         case components::RotationAxis::Y:
-                        {
-                            gizmo.onRotate.Broadcast(dist);
+                            hitPoint2 = math::Normalized(math::Vec2(hitPoint.z, hitPoint.x) - math::Vec2(worldPos.z, worldPos.x));
                             break;
-                        }
+                        case components::RotationAxis::Z:
+                            hitPoint2 = math::Normalized(math::Vec2(hitPoint.x, hitPoint.y) - math::Vec2(worldPos.x, worldPos.y));
+                            break;
                     }
+                    float angle = atan2(hitPoint2.y - twelveoClock.y, hitPoint2.x - twelveoClock.x);
+                    gizmo.onRotate.Broadcast(angle * 2.f);
                 }
             }
         });

@@ -155,6 +155,11 @@ namespace se::math
         return Dot(vec, vec);
     }
 
+    float Magnitude(const Vec3& vec)
+    {
+        return sqrt(MagnitudeSquared(vec));
+    }
+
     Vec3 Normalized(const Vec3& vec)
     {
         return vec * InverseSqrt(Dot(vec, vec));
