@@ -23,6 +23,7 @@ namespace se::editor::components
         SPARK_COMPONENT(EditorOnly)
 
         math::Vec4 color = {};
+        math::Vec4 selectedColor = {};
         RotationAxis axis = RotationAxis::X;
         math::Vec3 initialClickPos = {};
         bool wasHovered = true;

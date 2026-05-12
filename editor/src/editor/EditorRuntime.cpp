@@ -547,14 +547,17 @@ namespace se::editor
         {
             case components::RotationAxis::X:
                 gizmo->color = math::Vec4(1.f, 0.f, 0.f, .6f);
+                gizmo->selectedColor = math::Vec4(1.f, 0.f, 0.f, .3f);
                 transform->rot.y = -90;
                 break;
             case components::RotationAxis::Y:
                 gizmo->color = math::Vec4(0.f, 1.f, 0.f, .6f);
+                gizmo->selectedColor = math::Vec4(0.f, 1.f, 0.f, .3f);
                 transform->rot.x = 90;
                 break;
             case components::RotationAxis::Z:
                 gizmo->color = math::Vec4(0.f, 0.f, 1.f, .6f);
+                gizmo->selectedColor = math::Vec4(0.f, 0.f, 1.f, .3f);
                 break;
         }
 

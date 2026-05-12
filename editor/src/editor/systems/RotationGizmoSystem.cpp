@@ -146,7 +146,7 @@ namespace se::editor::systems
                                 mesh.indexBuffer = gizmo.fullIndexBuffer;
                                 mesh.aabb = gizmo.fullAABB;
                                 gizmo.initialClickPos = geo::util::RayCastPlane(ray, plane).value().intersectionPoint;
-                                mesh.materialInstance->SetUniform("uniform_color", 1, &gizmo.color);
+                                mesh.materialInstance->SetUniform("uniform_color", 1, &gizmo.selectedColor);
                                 gizmo.onBeginRotate.Broadcast();
                                 return true;
                             }
@@ -163,7 +163,7 @@ namespace se::editor::systems
                     mesh.indexBuffer = gizmo.quarterIndexBuffer;
                     mesh.aabb = gizmo.quarterAABB;
                 }
-                else if (gizmo.wasHovered)
+                else if (gizmo.wasHovered && !gizmo.mouseDown)
                 {
                     mesh.materialInstance->SetUniform("uniform_color", 1, &gizmo.color);
                     gizmo.wasHovered = false;
