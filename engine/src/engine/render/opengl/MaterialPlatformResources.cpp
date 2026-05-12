@@ -219,6 +219,21 @@ namespace se::render::opengl
         glBlendFunc(BlendModeToGLBlendMode(src), BlendModeToGLBlendMode(dest));
         GL_CHECK_ERROR()
     }
+
+    void MaterialPlatformResources::ApplyCullMode(CullMode cull)
+    {
+        switch (cull)
+        {
+            case CullMode::Back:
+                glEnable(GL_CULL_FACE);
+                return glCullFace(GL_BACK);
+            case CullMode::Front:
+                glEnable(GL_CULL_FACE);
+                return glCullFace(GL_FRONT);
+            case CullMode::None:
+                glDisable(GL_CULL_FACE);
+        }
+    }
 }
 
 #endif

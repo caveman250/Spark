@@ -24,6 +24,7 @@ namespace se::render::opengl
     private:
         void ApplyDepthStencil(const RenderState& rs) override;
         void ApplyBlendMode(BlendMode src, BlendMode dest) override;
+        void ApplyCullMode(CullMode cull) override;
 
         GLuint m_VertexShader = GL_INVALID_VALUE;
         GLuint m_FragmentShader = GL_INVALID_VALUE;
