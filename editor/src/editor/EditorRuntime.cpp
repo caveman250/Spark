@@ -636,8 +636,6 @@ namespace se::editor
         const auto world = Application::Get()->GetWorld();
         const auto selectedEntityTransform = world->GetComponent<ecs::components::TransformComponent>(m_SelectedEntity);
 
-        debug::Log::Info("{}", math::Degrees(angle));
-
         math::Vec3 vectorAxis;
         switch (axis)
         {
