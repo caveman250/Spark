@@ -68,10 +68,54 @@ namespace se::editor::systems
                     continue;
                 }
 
+                // Update facing angle
+                // TODO make this a util method
+                math::Vec3 worldPos = { transform.worldTransform[3].x, transform.worldTransform[3].y, transform.worldTransform[3].z };
+                math::Vec3 cameraDir = math::Normalized(cameraComp->pos - worldPos);
+                switch (gizmo.axis)
+                {
+                    case components::RotationAxis::X:
+                        if (cameraDir.z < 0)
+                        {
+                            transform.rot.y = 90;
+                        }
+                        else
+                        {
+                            transform.rot.y = 270;
+                        }
+                        break;
+                    case components::RotationAxis::Y:
+                        if (cameraDir.x < 0)
+                        {
+                            transform.rot.z = 180;
+                            transform.rot.x = 270;
+                        }
+                        else
+                        {
+                            transform.rot.z = 0;
+                            transform.rot.x = 90;
+                        }
+                        if (cameraDir.z < 0)
+                        {
+                            transform.rot.x += 180;
+                        }
+
+                        break;
+                    case components::RotationAxis::Z:
+                        if (cameraDir.x < 0)
+                        {
+                            transform.rot.y = 180;
+                        }
+                        else
+                        {
+                            transform.rot.y = 0;
+                        }
+                        break;
+                }
+
                 math::Vec3 forward(cos(cameraComp->rot.x) * sin(cameraComp->rot.y),
                              sin(cameraComp->rot.x),
                              cos(cameraComp->rot.x) * cos(cameraComp->rot.y));
-                math::Vec3 worldPos = { transform.worldTransform[3].x, transform.worldTransform[3].y, transform.worldTransform[3].z };
                 geo::Plane plane =
                 {
                     .normal = forward,
