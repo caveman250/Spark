@@ -132,22 +132,27 @@ namespace se::editor::systems
                     SPARK_ASSERT(hit.has_value());
                     math::Vec3 hitPoint = hit.value().intersectionPoint;
                     //project to circle
+                    math::Vec2 initialHitPoint2;
                     math::Vec2 hitPoint2;
                     auto twelveoClock = math::Vec2(0.f,  1.f);
                     switch (gizmo.axis)
                     {
                         case components::RotationAxis::X:
+                            initialHitPoint2 = math::Normalized(math::Vec2(gizmo.initialClickPos.y, gizmo.initialClickPos.z) - math::Vec2(worldPos.y, worldPos.z));
                             hitPoint2 = math::Normalized(math::Vec2(hitPoint.y, hitPoint.z) - math::Vec2(worldPos.y, worldPos.z));
                             break;
                         case components::RotationAxis::Y:
+                            initialHitPoint2 = math::Normalized(math::Vec2(gizmo.initialClickPos.z, gizmo.initialClickPos.x) - math::Vec2(worldPos.z, worldPos.x));
                             hitPoint2 = math::Normalized(math::Vec2(hitPoint.z, hitPoint.x) - math::Vec2(worldPos.z, worldPos.x));
                             break;
                         case components::RotationAxis::Z:
+                            initialHitPoint2 = math::Normalized(math::Vec2(gizmo.initialClickPos.x, gizmo.initialClickPos.y) - math::Vec2(worldPos.x, worldPos.y));
                             hitPoint2 = math::Normalized(math::Vec2(hitPoint.x, hitPoint.y) - math::Vec2(worldPos.x, worldPos.y));
                             break;
                     }
                     float angle = atan2(hitPoint2.y - twelveoClock.y, hitPoint2.x - twelveoClock.x);
-                    gizmo.onRotate.Broadcast(angle * 2.f);
+                    float angle2 = atan2(initialHitPoint2.y - twelveoClock.y, initialHitPoint2.x - twelveoClock.x);
+                    gizmo.onRotate.Broadcast((angle - angle2) * 2.f);
                 }
             }
         });
