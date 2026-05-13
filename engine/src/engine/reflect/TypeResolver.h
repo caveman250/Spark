@@ -6,6 +6,7 @@
 
 namespace se::reflect
 {
+    template <typename T>
     struct Enum;
     struct Class;
 
@@ -63,14 +64,14 @@ namespace se::reflect
     template<typename T>
     struct EnumResolver
     {
-        static Enum* Get()
+        static Enum<T>* Get()
         {
 #if !SPARK_DIST
-            const auto reflectEnum = dynamic_cast<Enum*>(DefaultResolver::Get<T>());
+            const auto reflectEnum = dynamic_cast<Enum<T>*>(DefaultResolver::Get<T>());
             SPARK_ASSERT(reflectEnum);
             return reflectEnum;
 #else
-            return static_cast<Enum*>(DefaultResolver::Get<T>());
+            return static_cast<Enum<T>*>(DefaultResolver::Get<T>());
 #endif
         }
     };
