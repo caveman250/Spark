@@ -32,6 +32,8 @@ def ProcessEnum(next_line, enum_list, lines, line_index, namespace_stack, filepa
             val = val[:-1]
         if val.endswith(","):
             val = val[:-1]
+        if val.endswith(" "):
+            val = val[:-1]
         values.append(val)
 
     enum_list.append(Enum(enum, filepath, namespace, values, source_dir))
@@ -44,10 +46,10 @@ namespace se::reflect
     template <> 
     Type* GetPrimitiveDescriptor<{full_enum_name}>() 
     {{ 
-        static se::reflect::Enum* s_Instance = nullptr; 
+        static se::reflect::Enum<{full_enum_name}>* s_Instance = nullptr; 
         if (!s_Instance) 
         {{
-            s_Instance = new se::reflect::Enum(); 
+            s_Instance = new se::reflect::Enum<{full_enum_name}>(); 
             se::reflect::TypeLookup::GetTypeMap()["{full_enum_name}"] = s_Instance; 
             s_Instance->name = "{full_enum_name}"; 
             s_Instance->size = sizeof({full_enum_name}); 
@@ -56,7 +58,7 @@ namespace se::reflect
 
 def DefineEnumValue(enum, value):
     full_enum_name = enum.namespace + "::" + enum.name
-    return f"            {{\"{value}\", static_cast<int>({full_enum_name}::{value})}},\n"
+    return f"            {{\"{value}\", {full_enum_name}::{value}}},\n"
 
 def DefineEnumEnd():
     return f"""            }};

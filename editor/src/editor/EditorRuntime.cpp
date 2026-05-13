@@ -537,7 +537,7 @@ namespace se::editor
         const asset::StaticMesh& fullMesh)
     {
         auto world = Application::Get()->GetWorld();
-        const auto entity = world->CreateEntity(GetEditorScene(), std::format("Rotation Gizmo {}", reflect::EnumResolver<components::RotationAxis>::Get()->ToString(static_cast<int>(axis))));
+        const auto entity = world->CreateEntity(GetEditorScene(), std::format("Rotation Gizmo {}", reflect::EnumResolver<components::RotationAxis>::Get()->ToString(axis)));
         const auto mesh = world->AddComponent<ecs::components::MeshComponent>(entity);
         mesh->materialAsset = "/engine_assets/materials/gizmo.sass";
         mesh->renderLayer = -1;

@@ -15,9 +15,8 @@ namespace se::editor::ui::properties
         void Update() override;
 
     private:
-        int* m_Value = nullptr;
-        int m_LastValue = 0;
+        void* m_Value = nullptr;
         ecs::Id m_ComboBox = {};
-        const reflect::Enum* m_EnumType = nullptr;
+        const reflect::EnumBase* m_EnumType = nullptr;
     };
 }

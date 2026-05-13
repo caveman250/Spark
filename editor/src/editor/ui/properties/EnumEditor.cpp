@@ -12,8 +12,8 @@ namespace se::editor::ui::properties
 {
     void EnumEditor::SetValue(void* value, const reflect::Type* type)
     {
-        m_Value = static_cast<int*>(value);
-        m_EnumType = static_cast<const reflect::Enum*>(type);
+        m_Value = value;
+        m_EnumType = static_cast<const reflect::EnumBase*>(type);
     }
 
     void EnumEditor::ConstructUI(const PropertyEditorParams& params)
@@ -30,13 +30,14 @@ namespace se::editor::ui::properties
         {
             .fontSize = 14,
             .options = { },
-            .onItemSelected = [this](int item) { *m_Value = item; },
-            .selectedIndex = *m_Value,
+            .onItemSelected = [this](int item) { m_EnumType->SetValueFromIndex(item, m_Value); },
+            .selectedIndex = static_cast<int>(m_EnumType->GetIndexForValue(m_Value)),
             .scene = editor->GetEditorScene(),
         };
-        for (const auto& value : m_EnumType->values)
+
+        for (const auto& name : m_EnumType->GetValueNames())
         {
-            comboBoxParams.options.push_back(value.name);
+            comboBoxParams.options.push_back(*name);
         }
 
         auto comboBox = se::ui::util::CreateComboBox(comboBoxParams);
