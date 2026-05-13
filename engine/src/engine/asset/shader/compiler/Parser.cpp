@@ -372,34 +372,72 @@ namespace se::asset::shader::compiler
         else if (token.value == "length")
         {
             returnType = ast::AstType::Float;
-            return ProcessLengthFunc(token, outError);
+            return ProcessFunc<ast::LengthNode>(token,
+                outError,
+                std::array {
+                    ast::AstType::Int | ast::AstType::Float | ast::AstType::Vec2 | ast::AstType::Vec3 | ast::AstType::Vec4
+                });
         }
         else if (token.value == "normalize")
         {
-            return ProcessNormalizeFunc(token, returnType, outError);
+            return ProcessFuncVariableReturn<ast::NormalizeNode>(token,
+                        returnType,
+                        outError,
+                        std::array {
+                            ast::AstType::Int | ast::AstType::Float | ast::AstType::Vec2 | ast::AstType::Vec3 | ast::AstType::Vec4
+                        });
         }
         else if (token.value == "smoothstep")
         {
-            return ProcessSmoothstepFunc(token, returnType, outError);
+            return ProcessFuncVariableReturn<ast::SmoothstepNode>(token,
+                        returnType,
+                        outError,
+                        std::array {
+                            ast::AstType::Float | ast::AstType::Vec2 | ast::AstType::Vec3 | ast::AstType::Vec4,
+                            ast::AstType::Float | ast::AstType::Vec2 | ast::AstType::Vec3 | ast::AstType::Vec4,
+                            ast::AstType::Float | ast::AstType::Vec2 | ast::AstType::Vec3 | ast::AstType::Vec4
+                        });
         }
         else if (token.value == "clamp")
         {
-            returnType = ast::AstType::Float;
-            return ProcessClampFunc(token, outError);
+            return ProcessFuncVariableReturn<ast::ClampNode>(token,
+                        returnType,
+                        outError,
+                        std::array {
+                            ast::AstType::Float | ast::AstType::Int,
+                            ast::AstType::Float | ast::AstType::Int,
+                            ast::AstType::Float | ast::AstType::Int,
+                        });
         }
         else if (token.value == "dot")
         {
             returnType = ast::AstType::Float;
-            return ProcessDotFunc(token, outError);
+            return ProcessFunc<ast::DotNode>(token,
+                outError,
+                std::array {
+                    ast::AstType::Vec2 | ast::AstType::Vec3 | ast::AstType::Vec4,
+                    ast::AstType::Vec2 | ast::AstType::Vec3 | ast::AstType::Vec4
+                });
         }
         else if (token.value == "reflect")
         {
-            return ProcessReflectFunc(token, returnType, outError);
+            return ProcessFuncVariableReturn<ast::ReflectNode>(token,
+                    returnType,
+                    outError,
+                    std::array {
+                        ast::AstType::Vec2 | ast::AstType::Vec3 | ast::AstType::Vec4,
+                        ast::AstType::Vec2 | ast::AstType::Vec3 | ast::AstType::Vec4,
+                    });
         }
         else if (token.value == "pow")
         {
             returnType = ast::AstType::Float;
-            return ProcessPowFunc(token, outError);
+            return ProcessFunc<ast::PowNode>(token,
+                outError,
+                std::array {
+                    ast::AstType::Int | ast::AstType::Float,
+                    ast::AstType::Int | ast::AstType::Float
+                });
         }
         else if (token.value == "for")
         {
@@ -419,41 +457,86 @@ namespace se::asset::shader::compiler
         else if (token.value == "dfdx")
         {
             returnType = ast::AstType::Float;
-            return ProcessDFDXStatement(token, outError);
+            return ProcessFunc<ast::DFDXNode>(token,
+                outError,
+                std::array {
+                    ast::AstType::Int | ast::AstType::Float
+                });
         }
         else if (token.value == "dfdy")
         {
             returnType = ast::AstType::Float;
-            return ProcessDFDYStatement(token, outError);
+            return ProcessFunc<ast::DFDYNode>(token,
+                outError,
+                std::array {
+                    ast::AstType::Int | ast::AstType::Float
+                });
         }
         else if (token.value == "mod")
         {
-            return ProcessModFunc(token, returnType, outError);
+            return ProcessFuncVariableReturn<ast::ModNode>(token,
+                    returnType,
+                    outError,
+                    std::array {
+                        ast::AstType::Float | ast::AstType::Vec2 | ast::AstType::Vec3 | ast::AstType::Vec4,
+                        ast::AstType::Float | ast::AstType::Vec2 | ast::AstType::Vec3 | ast::AstType::Vec4,
+                    });
         }
         else if (token.value == "abs")
         {
-            return ProcessAbsFunc(token, returnType, outError);
+            return ProcessFuncVariableReturn<ast::AbsNode>(token,
+                    returnType,
+                    outError,
+                    std::array {
+                        ast::AstType::Float | ast::AstType::Vec2 | ast::AstType::Vec3 | ast::AstType::Vec4
+                    });
         }
         else if (token.value == "fwidth")
         {
-            return ProcessFWidthFunc(token, returnType, outError);
+            return ProcessFuncVariableReturn<ast::FWidthNode>(token,
+                    returnType,
+                    outError,
+                    std::array {
+                        ast::AstType::Float | ast::AstType::Vec2
+                    });
         }
         else if (token.value == "inverse")
         {
-            return ProcessInverseFunc(token, returnType, outError);
+            return ProcessFuncVariableReturn<ast::InverseNode>(token,
+                    returnType,
+                    outError,
+                    std::array {
+                        ast::AstType::Mat3 | ast::AstType::Mat4
+                    });
         }
         else if (token.value == "min")
         {
-            return ProcessMinFunc(token, returnType, outError);
+            return ProcessFuncVariableReturn<ast::MinNode>(token,
+                    returnType,
+                    outError,
+                    std::array {
+                        ast::AstType::Float,
+                        ast::AstType::Float
+                    });
         }
         else if (token.value == "max")
         {
-            return ProcessMaxFunc(token, returnType, outError);
+            return ProcessFuncVariableReturn<ast::MaxNode>(token,
+                     returnType,
+                     outError,
+                     std::array {
+                         ast::AstType::Float,
+                         ast::AstType::Float
+                     });
         }
         else if (token.value == "sqrt")
         {
             returnType = ast::AstType::Float;
-            return ProcessSqrtFunc(token, outError);
+            return ProcessFunc<ast::SqrtNode>(token,
+                      outError,
+                      std::array {
+                          ast::AstType::Float,
+                      });
         }
 
         outError = {token.line, token.pos, std::format("Unexpected token {}", token.value)};
@@ -1324,140 +1407,6 @@ namespace se::asset::shader::compiler
         return true;
     }
 
-    bool Parser::ProcessDFDXStatement(const Token& token, ParseError& outError)
-    {
-        if (!ExpectAndConsume({TokenType::Syntax}, {"("}, outError))
-        {
-            return false;
-        }
-
-        auto dfdx = m_Shader.AddNode<ast::DFDXNode>();
-        m_Shader.PushScope(dfdx);
-
-        int argumentsAccountedFor = 0;
-        Token nextToken;
-        while (true)
-        {
-            if (Peek({TokenType::Syntax}, {")"}))
-            {
-                break;
-            }
-
-            ast::AstType argType;
-            if (!ProcessExpression(argType, outError))
-            {
-                return false;
-            }
-
-            switch (argType)
-            {
-                case ast::AstType::Float:
-                    argumentsAccountedFor++;
-                    break;
-                default:
-                    outError = {
-                    token.line, token.pos,
-                    std::format("Unexpected type {}", ast::TypeUtil::TypeToGlsl(argType))
-                };
-                    return false;
-            }
-
-            if (Peek({TokenType::Syntax}, {")"}))
-            {
-                break;
-            }
-
-            if (!ExpectedGetAndConsume({TokenType::Syntax}, {","}, nextToken, outError))
-            {
-                return false;
-            }
-        }
-
-        if (!ExpectedGetAndConsume({TokenType::Syntax}, {")"}, nextToken, outError))
-        {
-            return false;
-        }
-
-        if (argumentsAccountedFor != 1)
-        {
-            outError = {
-                nextToken.line, nextToken.pos, "Incorrect number of arguments for function call dfdx"
-            };
-            return false;
-        }
-
-        m_Shader.PopScope();
-
-        return true;
-    }
-
-    bool Parser::ProcessDFDYStatement(const Token& token, ParseError& outError)
-    {
-        if (!ExpectAndConsume({TokenType::Syntax}, {"("}, outError))
-        {
-            return false;
-        }
-
-        auto dfdy = m_Shader.AddNode<ast::DFDYNode>();
-        m_Shader.PushScope(dfdy);
-
-        int argumentsAccountedFor = 0;
-        Token nextToken;
-        while (true)
-        {
-            if (Peek({TokenType::Syntax}, {")"}))
-            {
-                break;
-            }
-
-            ast::AstType argType;
-            if (!ProcessExpression(argType, outError))
-            {
-                return false;
-            }
-
-            switch (argType)
-            {
-                case ast::AstType::Float:
-                    argumentsAccountedFor++;
-                    break;
-                default:
-                    outError = {
-                    token.line, token.pos,
-                    std::format("Unexpected type {}", ast::TypeUtil::TypeToGlsl(argType))
-                };
-                    return false;
-            }
-
-            if (Peek({TokenType::Syntax}, {")"}))
-            {
-                break;
-            }
-
-            if (!ExpectedGetAndConsume({TokenType::Syntax}, {","}, nextToken, outError))
-            {
-                return false;
-            }
-        }
-
-        if (!ExpectedGetAndConsume({TokenType::Syntax}, {")"}, nextToken, outError))
-        {
-            return false;
-        }
-
-        if (argumentsAccountedFor != 1)
-        {
-            outError = {
-                nextToken.line, nextToken.pos, "Incorrect number of arguments for function call dfdx"
-            };
-            return false;
-        }
-
-        m_Shader.PopScope();
-
-        return true;
-    }
-
     bool Parser::ProcessTextureRead(const Token&, ParseError& outError)
     {
         if (!ExpectAndConsume({TokenType::Syntax}, {"("}, outError))
@@ -1527,521 +1476,6 @@ namespace se::asset::shader::compiler
         return true;
     }
 
-    bool Parser::ProcessLengthFunc(const Token& token, ParseError& outError)
-    {
-        if (!ExpectAndConsume({TokenType::Syntax}, {"("}, outError))
-        {
-            return false;
-        }
-
-        auto length = m_Shader.AddNode<ast::LengthNode>();
-        m_Shader.PushScope(length);
-
-        int componentsAccountedFor = 0;
-        Token nextToken;
-        while (true)
-        {
-            if (Peek({TokenType::Syntax}, {")"}))
-            {
-                break;
-            }
-
-            ast::AstType argType;
-            if (!ProcessExpression(argType, outError))
-            {
-                return false;
-            }
-
-            switch (argType)
-            {
-            case ast::AstType::Int:
-            case ast::AstType::Float:
-                componentsAccountedFor++;
-                break;
-            case ast::AstType::Vec2:
-                componentsAccountedFor += 2;
-                break;
-            case ast::AstType::Vec3:
-                componentsAccountedFor += 3;
-                break;
-            case ast::AstType::Vec4:
-                componentsAccountedFor += 4;
-                break;
-            default:
-                outError = {
-                    token.line, token.pos,
-                    std::format("Unexpected type {}", ast::TypeUtil::TypeToGlsl(argType))
-                };
-                return false;
-            }
-
-            if (Peek({TokenType::Syntax}, {")"}))
-            {
-                break;
-            }
-
-            if (!ExpectedGetAndConsume({TokenType::Syntax}, {","}, nextToken, outError))
-            {
-                return false;
-            }
-        }
-
-        if (!ExpectedGetAndConsume({TokenType::Syntax}, {")"}, nextToken, outError))
-        {
-            return false;
-        }
-
-        if (componentsAccountedFor > 4)
-        {
-            outError = {
-                nextToken.line, nextToken.pos, "Too many arguments for function call length"
-            };
-            return false;
-        }
-
-        m_Shader.PopScope();
-
-        return true;
-    }
-
-    bool Parser::ProcessPowFunc(const Token& token, ParseError& outError)
-    {
-        if (!ExpectAndConsume({TokenType::Syntax}, {"("}, outError))
-        {
-            return false;
-        }
-
-        auto pow = m_Shader.AddNode<ast::PowNode>();
-        m_Shader.PushScope(pow);
-
-        int argumentsAccountedFor = 0;
-        Token nextToken;
-        while (true)
-        {
-            if (Peek({TokenType::Syntax}, {")"}))
-            {
-                break;
-            }
-
-            ast::AstType argType;
-            if (!ProcessExpression(argType, outError))
-            {
-                return false;
-            }
-
-            switch (argType)
-            {
-            case ast::AstType::Int:
-            case ast::AstType::Float:
-                argumentsAccountedFor ++;
-                break;
-            default:
-                outError = {
-                    token.line, token.pos,
-                    std::format("Unexpected type {}", ast::TypeUtil::TypeToGlsl(argType))
-                };
-                return false;
-            }
-
-            if (Peek({TokenType::Syntax}, {")"}))
-            {
-                break;
-            }
-
-            if (!ExpectedGetAndConsume({TokenType::Syntax}, {","}, nextToken, outError))
-            {
-                return false;
-            }
-        }
-
-        if (!ExpectedGetAndConsume({TokenType::Syntax}, {")"}, nextToken, outError))
-        {
-            return false;
-        }
-
-        if (argumentsAccountedFor != 2)
-        {
-            outError = {
-                nextToken.line, nextToken.pos, "Too many arguments for function call length"
-            };
-            return false;
-        }
-
-        m_Shader.PopScope();
-
-        return true;
-    }
-
-    bool Parser::ProcessNormalizeFunc(const Token& token, ast::AstType& returnType, ParseError& outError)
-    {
-        if (!ExpectAndConsume({TokenType::Syntax}, {"("}, outError))
-        {
-            return false;
-        }
-
-        auto normalize = m_Shader.AddNode<ast::NormalizeNode>();
-        m_Shader.PushScope(normalize);
-
-        int argumentsAccountedFor = 0;
-        Token nextToken;
-        while (true)
-        {
-            if (Peek({TokenType::Syntax}, {")"}))
-            {
-                break;
-            }
-
-            ast::AstType argType;
-            if (!ProcessExpression(argType, outError))
-            {
-                return false;
-            }
-
-            switch (argType)
-            {
-            case ast::AstType::Vec2:
-                returnType = ast::AstType::Vec2;
-                argumentsAccountedFor ++;
-                break;
-            case ast::AstType::Vec3:
-                returnType = ast::AstType::Vec3;
-                argumentsAccountedFor ++;
-                break;
-            case ast::AstType::Vec4:
-                returnType = ast::AstType::Vec4;
-                argumentsAccountedFor ++;
-                break;
-            default:
-                outError = {
-                    token.line, token.pos,
-                    std::format("Unexpected type {}", ast::TypeUtil::TypeToGlsl(argType))
-                };
-                return false;
-            }
-
-            if (Peek({TokenType::Syntax}, {")"}))
-            {
-                break;
-            }
-
-            if (!ExpectedGetAndConsume({TokenType::Syntax}, {","}, nextToken, outError))
-            {
-                return false;
-            }
-        }
-
-        if (!ExpectedGetAndConsume({TokenType::Syntax}, {")"}, nextToken, outError))
-        {
-            return false;
-        }
-
-        if (argumentsAccountedFor != 1)
-        {
-            outError = {
-                nextToken.line, nextToken.pos, "Too many arguments for function call length"
-            };
-            return false;
-        }
-
-        m_Shader.PopScope();
-
-        return true;
-    }
-
-    bool Parser::ProcessSmoothstepFunc(const Token& token,
-                                       ast::AstType& returnType,
-                                       ParseError& outError)
-    {
-        if (!ExpectAndConsume({TokenType::Syntax}, {"("}, outError))
-        {
-            return false;
-        }
-
-        auto smoothstep = m_Shader.AddNode<ast::SmoothstepNode>();
-        m_Shader.PushScope(smoothstep);
-
-        int argumentsAccountedFor = 0;
-        Token nextToken;
-        while (true)
-        {
-            if (Peek({TokenType::Syntax}, {")"}))
-            {
-                break;
-            }
-
-            ast::AstType argType;
-            if (!ProcessExpression(argType, outError))
-            {
-                return false;
-            }
-
-            switch (argType)
-            {
-                case ast::AstType::Float:
-                    if (argumentsAccountedFor == 2)
-                    {
-                        returnType = ast::AstType::Float;
-                    }
-                    argumentsAccountedFor++;
-                    break;
-                case ast::AstType::Vec2:
-                    if (argumentsAccountedFor == 2)
-                    {
-                        returnType = ast::AstType::Vec2;
-                    }
-                    argumentsAccountedFor++;
-                    break;
-                default:
-                    outError = {
-                            token.line, token.pos,
-                            std::format("Unexpected type {}", ast::TypeUtil::TypeToGlsl(argType))
-                    };
-                    return false;
-            }
-
-            if (Peek({TokenType::Syntax}, {")"}))
-            {
-                break;
-            }
-
-            if (!ExpectedGetAndConsume({TokenType::Syntax}, {","}, nextToken, outError))
-            {
-                return false;
-            }
-        }
-
-        if (!ExpectedGetAndConsume({TokenType::Syntax}, {")"}, nextToken, outError))
-        {
-            return false;
-        }
-
-        if (argumentsAccountedFor != 3)
-        {
-            outError = {
-                    nextToken.line, nextToken.pos, "Incorrect number of arguments for function call smoothstep"
-            };
-            return false;
-        }
-
-        m_Shader.PopScope();
-
-        return true;
-    }
-
-    bool Parser::ProcessReflectFunc(const Token& token, ast::AstType& returnType, ParseError& outError)
-    {
-        if (!ExpectAndConsume({TokenType::Syntax}, {"("}, outError))
-        {
-            return false;
-        }
-
-        auto reflect = m_Shader.AddNode<ast::ReflectNode>();
-        m_Shader.PushScope(reflect);
-
-        int argumentsAccountedFor = 0;
-        Token nextToken;
-        while (true)
-        {
-            if (Peek({TokenType::Syntax}, {")"}))
-            {
-                break;
-            }
-
-            ast::AstType argType;
-            if (!ProcessExpression(argType, outError))
-            {
-                return false;
-            }
-
-            switch (argType)
-            {
-            case ast::AstType::Vec2:
-                returnType = ast::AstType::Vec2;
-                argumentsAccountedFor ++;
-                break;
-            case ast::AstType::Vec3:
-                returnType = ast::AstType::Vec3;
-                argumentsAccountedFor ++;
-                break;
-            case ast::AstType::Vec4:
-                returnType = ast::AstType::Vec4;
-                argumentsAccountedFor ++;
-                break;
-            default:
-                outError = {
-                    token.line, token.pos,
-                    std::format("Unexpected type {}", ast::TypeUtil::TypeToGlsl(argType))
-                };
-                return false;
-                break;
-            }
-
-            if (Peek({TokenType::Syntax}, {")"}))
-            {
-                break;
-            }
-
-            if (!ExpectedGetAndConsume({TokenType::Syntax}, {","}, nextToken, outError))
-            {
-                return false;
-            }
-        }
-
-        if (!ExpectedGetAndConsume({TokenType::Syntax}, {")"}, nextToken, outError))
-        {
-            return false;
-        }
-
-        if (argumentsAccountedFor != 2)
-        {
-            outError = {
-                nextToken.line, nextToken.pos, "Too many arguments for function call length"
-            };
-            return false;
-        }
-
-        m_Shader.PopScope();
-
-        return true;
-    }
-
-    bool Parser::ProcessClampFunc(const Token& token, ParseError& outError)
-    {
-        if (!ExpectAndConsume({TokenType::Syntax}, {"("}, outError))
-        {
-            return false;
-        }
-
-        auto clamp = m_Shader.AddNode<ast::ClampNode>();
-        m_Shader.PushScope(clamp);
-
-        Token nextToken;
-        int componentsAccountedFor = 0;
-        while (true)
-        {
-            if (Peek({TokenType::Syntax}, {")"}))
-            {
-                break;
-            }
-
-            ast::AstType argType;
-            if (!ProcessExpression(argType, outError))
-            {
-                return false;
-            }
-
-            switch (argType)
-            {
-            case ast::AstType::Int:
-            case ast::AstType::Float:
-                componentsAccountedFor++;
-                break;
-            default:
-                outError = {
-                    token.line, token.pos,
-                    std::format("Unexpected type {}", ast::TypeUtil::TypeToGlsl(argType))
-                };
-                return false;
-            }
-
-            if (Peek({TokenType::Syntax}, {")"}))
-            {
-                break;
-            }
-
-            if (!ExpectedGetAndConsume({TokenType::Syntax}, {","}, nextToken, outError))
-            {
-                return false;
-            }
-        }
-
-        if (componentsAccountedFor != 3)
-        {
-            outError = {
-                nextToken.line, nextToken.pos, "wrong number of arguments for function call clamp"
-            };
-            return false;
-        }
-
-        if (!ExpectedGetAndConsume({TokenType::Syntax}, {")"}, nextToken, outError))
-        {
-            return false;
-        }
-
-        m_Shader.PopScope();
-
-        return true;
-    }
-
-    bool Parser::ProcessDotFunc(const Token& token, ParseError& outError)
-    {
-        if (!ExpectAndConsume({TokenType::Syntax}, {"("}, outError))
-        {
-            return false;
-        }
-
-        auto dot = m_Shader.AddNode<ast::DotNode>();
-        m_Shader.PushScope(dot);
-
-        Token nextToken;
-        int argumentsAccountedFor = 0;
-        while (true)
-        {
-            if (Peek({TokenType::Syntax}, {")"}))
-            {
-                break;
-            }
-
-            ast::AstType argType;
-            if (!ProcessExpression(argType, outError))
-            {
-                return false;
-            }
-
-            switch (argType)
-            {
-            case ast::AstType::Vec2:
-            case ast::AstType::Vec3:
-            case ast::AstType::Vec4:
-                argumentsAccountedFor++;
-                break;
-            default:
-                outError = {
-                token.line, token.pos,
-                std::format("Unexpected type {}", ast::TypeUtil::TypeToGlsl(argType))
-            };
-                return false;
-            }
-
-            if (Peek({TokenType::Syntax}, {")"}))
-            {
-                break;
-            }
-
-            if (!ExpectedGetAndConsume({TokenType::Syntax}, {","}, nextToken, outError))
-            {
-                return false;
-            }
-        }
-
-        if (argumentsAccountedFor != 2)
-        {
-            outError = {
-                nextToken.line, nextToken.pos, "wrong number of arguments for function call clamp"
-            };
-            return false;
-        }
-
-        if (!ExpectedGetAndConsume({TokenType::Syntax}, {")"}, nextToken, outError))
-        {
-            return false;
-        }
-
-        m_Shader.PopScope();
-
-        return true;
-    }
-
     bool Parser::ProcessPropertyAccess(const Token&, ast::AstType& returnType, ParseError& outError)
     {
         if (!ExpectAndConsume({TokenType::Syntax}, {"."}, outError))
@@ -2087,532 +1521,6 @@ namespace se::asset::shader::compiler
 
         auto propertyAccessNode = m_Shader.AddNode<ast::PropertyAccessNode>(propertyNameToken.value);
         m_Shader.PushScope(propertyAccessNode);
-        return true;
-    }
-
-    bool Parser::ProcessModFunc(const Token& token,
-        ast::AstType& returnType,
-        ParseError& outError)
-    {
-        if (!ExpectAndConsume({TokenType::Syntax}, {"("}, outError))
-        {
-            return false;
-        }
-
-        auto mod = m_Shader.AddNode<ast::ModNode>();
-        m_Shader.PushScope(mod);
-
-        int argumentsAccountedFor = 0;
-        Token nextToken;
-        while (true)
-        {
-            if (Peek({TokenType::Syntax}, {")"}))
-            {
-                break;
-            }
-
-            ast::AstType argType;
-            if (!ProcessExpression(argType, outError))
-            {
-                return false;
-            }
-
-            switch (argType)
-            {
-                case ast::AstType::Float:
-                    returnType = ast::AstType::Float;
-                    argumentsAccountedFor ++;
-                    break;
-                case ast::AstType::Vec2:
-                    returnType = ast::AstType::Vec2;
-                    argumentsAccountedFor ++;
-                    break;
-                case ast::AstType::Vec3:
-                    returnType = ast::AstType::Vec3;
-                    argumentsAccountedFor ++;
-                    break;
-                case ast::AstType::Vec4:
-                    returnType = ast::AstType::Vec4;
-                    argumentsAccountedFor ++;
-                    break;
-                default:
-                    outError = {
-                    token.line, token.pos,
-                    std::format("Unexpected type {}", ast::TypeUtil::TypeToGlsl(argType))
-                };
-                    return false;
-                    break;
-            }
-
-            if (Peek({TokenType::Syntax}, {")"}))
-            {
-                break;
-            }
-
-            if (!ExpectedGetAndConsume({TokenType::Syntax}, {","}, nextToken, outError))
-            {
-                return false;
-            }
-        }
-
-        if (!ExpectedGetAndConsume({TokenType::Syntax}, {")"}, nextToken, outError))
-        {
-            return false;
-        }
-
-        if (argumentsAccountedFor != 2)
-        {
-            outError = {
-                nextToken.line, nextToken.pos, "Too many arguments for function call mod"
-            };
-            return false;
-        }
-
-        m_Shader.PopScope();
-
-        return true;
-    }
-
-    bool Parser::ProcessAbsFunc(const Token& token,
-        ast::AstType& returnType,
-        ParseError& outError)
-    {
-        if (!ExpectAndConsume({TokenType::Syntax}, {"("}, outError))
-        {
-            return false;
-        }
-
-        auto abs = m_Shader.AddNode<ast::AbsNode>();
-        m_Shader.PushScope(abs);
-
-        int argumentsAccountedFor = 0;
-        Token nextToken;
-        while (true)
-        {
-            if (Peek({TokenType::Syntax}, {")"}))
-            {
-                break;
-            }
-
-            ast::AstType argType;
-            if (!ProcessExpression(argType, outError))
-            {
-                return false;
-            }
-
-            switch (argType)
-            {
-                case ast::AstType::Float:
-                    returnType = ast::AstType::Float;
-                    argumentsAccountedFor ++;
-                    break;
-                case ast::AstType::Vec2:
-                    returnType = ast::AstType::Vec2;
-                    argumentsAccountedFor ++;
-                    break;
-                case ast::AstType::Vec3:
-                    returnType = ast::AstType::Vec3;
-                    argumentsAccountedFor ++;
-                    break;
-                case ast::AstType::Vec4:
-                    returnType = ast::AstType::Vec4;
-                    argumentsAccountedFor ++;
-                    break;
-                default:
-                    outError = {
-                    token.line, token.pos,
-                    std::format("Unexpected type {}", ast::TypeUtil::TypeToGlsl(argType))
-                };
-                    return false;
-                    break;
-            }
-
-            if (Peek({TokenType::Syntax}, {")"}))
-            {
-                break;
-            }
-
-            if (!ExpectedGetAndConsume({TokenType::Syntax}, {","}, nextToken, outError))
-            {
-                return false;
-            }
-        }
-
-        if (!ExpectedGetAndConsume({TokenType::Syntax}, {")"}, nextToken, outError))
-        {
-            return false;
-        }
-
-        if (argumentsAccountedFor != 1)
-        {
-            outError = {
-                nextToken.line, nextToken.pos, "Too many arguments for function call abs"
-            };
-            return false;
-        }
-
-        m_Shader.PopScope();
-
-        return true;
-    }
-
-    bool Parser::ProcessFWidthFunc(const Token& token,
-        ast::AstType& returnType,
-        ParseError& outError)
-    {
-        if (!ExpectAndConsume({TokenType::Syntax}, {"("}, outError))
-        {
-            return false;
-        }
-
-        auto fwidth = m_Shader.AddNode<ast::FWidthNode>();
-        m_Shader.PushScope(fwidth);
-
-        int argumentsAccountedFor = 0;
-        Token nextToken;
-        while (true)
-        {
-            if (Peek({TokenType::Syntax}, {")"}))
-            {
-                break;
-            }
-
-            ast::AstType argType;
-            if (!ProcessExpression(argType, outError))
-            {
-                return false;
-            }
-
-            switch (argType)
-            {
-                case ast::AstType::Float:
-                    returnType = ast::AstType::Float;
-                    argumentsAccountedFor++;
-                    break;
-                case ast::AstType::Vec2:
-                    returnType = ast::AstType::Vec2;
-                    argumentsAccountedFor ++;
-                    break;
-                default:
-                    outError = {
-                        token.line, token.pos,
-                        std::format("Unexpected type {}", ast::TypeUtil::TypeToGlsl(argType))
-                    };
-                    return false;
-            }
-
-            if (Peek({TokenType::Syntax}, {")"}))
-            {
-                break;
-            }
-
-            if (!ExpectedGetAndConsume({TokenType::Syntax}, {","}, nextToken, outError))
-            {
-                return false;
-            }
-        }
-
-        if (!ExpectedGetAndConsume({TokenType::Syntax}, {")"}, nextToken, outError))
-        {
-            return false;
-        }
-
-        if (argumentsAccountedFor != 1)
-        {
-            outError = {
-                nextToken.line, nextToken.pos, "Too many arguments for function call abs"
-            };
-            return false;
-        }
-
-        m_Shader.PopScope();
-
-        return true;
-    }
-
-    bool Parser::ProcessInverseFunc(const Token& token,
-        ast::AstType& returnType,
-        ParseError& outError)
-    {
-        if (!ExpectAndConsume({TokenType::Syntax}, {"("}, outError))
-        {
-            return false;
-        }
-
-        auto inverse = m_Shader.AddNode<ast::InverseNode>();
-        m_Shader.PushScope(inverse);
-
-        int argumentsAccountedFor = 0;
-        Token nextToken;
-        while (true)
-        {
-            if (Peek({TokenType::Syntax}, {")"}))
-            {
-                break;
-            }
-
-            ast::AstType argType;
-            if (!ProcessExpression(argType, outError))
-            {
-                return false;
-            }
-
-            switch (argType)
-            {
-                case ast::AstType::Mat3:
-                    returnType = ast::AstType::Mat3;
-                    argumentsAccountedFor++;
-                    break;
-                case ast::AstType::Mat4:
-                    returnType = ast::AstType::Mat4;
-                    argumentsAccountedFor++;
-                    break;
-                default:
-                    outError = {
-                    token.line, token.pos,
-                    std::format("Unexpected type {}", ast::TypeUtil::TypeToGlsl(argType))
-                };
-                    return false;
-                    break;
-            }
-
-            if (Peek({TokenType::Syntax}, {")"}))
-            {
-                break;
-            }
-
-            if (!ExpectedGetAndConsume({TokenType::Syntax}, {","}, nextToken, outError))
-            {
-                return false;
-            }
-        }
-
-        if (!ExpectedGetAndConsume({TokenType::Syntax}, {")"}, nextToken, outError))
-        {
-            return false;
-        }
-
-        if (argumentsAccountedFor != 1)
-        {
-            outError = {
-                nextToken.line, nextToken.pos, "Too many arguments for function call inverse"
-            };
-            return false;
-        }
-
-        m_Shader.PopScope();
-
-        return true;
-    }
-
-    bool Parser::ProcessMinFunc(const Token& token,
-        ast::AstType& returnType,
-        ParseError& outError)
-    {
-        if (!ExpectAndConsume({TokenType::Syntax}, {"("}, outError))
-        {
-            return false;
-        }
-
-        auto min = m_Shader.AddNode<ast::MinNode>();
-        m_Shader.PushScope(min);
-
-        int argumentsAccountedFor = 0;
-        Token nextToken;
-        while (true)
-        {
-            if (Peek({TokenType::Syntax}, {")"}))
-            {
-                break;
-            }
-
-            ast::AstType argType;
-            if (!ProcessExpression(argType, outError))
-            {
-                return false;
-            }
-
-            switch (argType)
-            {
-                case ast::AstType::Float:
-                    returnType = ast::AstType::Float;
-                    argumentsAccountedFor++;
-                    break;
-                default:
-                    outError = {
-                    token.line, token.pos,
-                    std::format("Unexpected type {}", ast::TypeUtil::TypeToGlsl(argType))
-                };
-                    return false;
-                    break;
-            }
-
-            if (Peek({TokenType::Syntax}, {")"}))
-            {
-                break;
-            }
-
-            if (!ExpectedGetAndConsume({TokenType::Syntax}, {","}, nextToken, outError))
-            {
-                return false;
-            }
-        }
-
-        if (!ExpectedGetAndConsume({TokenType::Syntax}, {")"}, nextToken, outError))
-        {
-            return false;
-        }
-
-        if (argumentsAccountedFor != 2)
-        {
-            outError = {
-                nextToken.line, nextToken.pos, "Too many arguments for function call min"
-            };
-            return false;
-        }
-
-        m_Shader.PopScope();
-
-        return true;
-    }
-
-    bool Parser::ProcessMaxFunc(const Token& token,
-        ast::AstType& returnType,
-        ParseError& outError)
-    {
-        if (!ExpectAndConsume({TokenType::Syntax}, {"("}, outError))
-        {
-            return false;
-        }
-
-        auto max = m_Shader.AddNode<ast::MaxNode>();
-        m_Shader.PushScope(max);
-
-        int argumentsAccountedFor = 0;
-        Token nextToken;
-        while (true)
-        {
-            if (Peek({TokenType::Syntax}, {")"}))
-            {
-                break;
-            }
-
-            ast::AstType argType;
-            if (!ProcessExpression(argType, outError))
-            {
-                return false;
-            }
-
-            switch (argType)
-            {
-                case ast::AstType::Float:
-                    returnType = ast::AstType::Float;
-                    argumentsAccountedFor++;
-                    break;
-                default:
-                    outError = {
-                    token.line, token.pos,
-                    std::format("Unexpected type {}", ast::TypeUtil::TypeToGlsl(argType))
-                };
-                    return false;
-                    break;
-            }
-
-            if (Peek({TokenType::Syntax}, {")"}))
-            {
-                break;
-            }
-
-            if (!ExpectedGetAndConsume({TokenType::Syntax}, {","}, nextToken, outError))
-            {
-                return false;
-            }
-        }
-
-        if (!ExpectedGetAndConsume({TokenType::Syntax}, {")"}, nextToken, outError))
-        {
-            return false;
-        }
-
-        if (argumentsAccountedFor != 2)
-        {
-            outError = {
-                nextToken.line, nextToken.pos, "Too many arguments for function call max"
-            };
-            return false;
-        }
-
-        m_Shader.PopScope();
-
-        return true;
-    }
-
-    bool Parser::ProcessSqrtFunc(const Token& token,
-        ParseError& outError)
-    {
-        if (!ExpectAndConsume({TokenType::Syntax}, {"("}, outError))
-        {
-            return false;
-        }
-
-        auto max = m_Shader.AddNode<ast::SqrtNode>();
-        m_Shader.PushScope(max);
-
-        int argumentsAccountedFor = 0;
-        Token nextToken;
-        while (true)
-        {
-            if (Peek({TokenType::Syntax}, {")"}))
-            {
-                break;
-            }
-
-            ast::AstType argType;
-            if (!ProcessExpression(argType, outError))
-            {
-                return false;
-            }
-
-            switch (argType)
-            {
-                case ast::AstType::Float:
-                    argumentsAccountedFor++;
-                    break;
-                default:
-                    outError = {
-                    token.line, token.pos,
-                    std::format("Unexpected type {}", ast::TypeUtil::TypeToGlsl(argType))
-                };
-                    return false;
-                    break;
-            }
-
-            if (Peek({TokenType::Syntax}, {")"}))
-            {
-                break;
-            }
-
-            if (!ExpectedGetAndConsume({TokenType::Syntax}, {","}, nextToken, outError))
-            {
-                return false;
-            }
-        }
-
-        if (!ExpectedGetAndConsume({TokenType::Syntax}, {")"}, nextToken, outError))
-        {
-            return false;
-        }
-
-        if (argumentsAccountedFor != 1)
-        {
-            outError = {
-                nextToken.line, nextToken.pos, "Too many arguments for function call sqrt"
-            };
-            return false;
-        }
-
-        m_Shader.PopScope();
-
         return true;
     }
 }
