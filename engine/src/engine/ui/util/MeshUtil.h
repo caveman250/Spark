@@ -7,6 +7,7 @@
 namespace se::ui::components
 {
     struct EditableTextComponent;
+    struct RectTransformComponent;
 }
 
 namespace se::asset

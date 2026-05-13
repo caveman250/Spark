@@ -44,7 +44,7 @@ namespace se::editor::ui::asset_browser
         rect->minHeight = 100;
         world->AddComponent<se::ui::components::WidgetComponent>(fileWidget->m_Id);
 
-        auto label= se::ui::util::CreateEditableText(world, "/engine_assets/fonts/Arial.sass", 12, editor->GetEditorScene());
+        auto label= se::ui::util::CreateEditableText(world, "/engine_assets/fonts/Arial.sass", 14, editor->GetEditorScene());
         label.text->text = file.fileName;
         if (label.text->text.size() > 18)
         {
