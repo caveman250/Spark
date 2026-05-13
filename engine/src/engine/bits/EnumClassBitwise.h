@@ -25,4 +25,4 @@ inline Enum& operator&=(Enum& lhs, Enum rhs)\
 {\
     lhs = lhs & rhs;\
     return lhs;\
-}\
+}
