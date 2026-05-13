@@ -28,6 +28,7 @@
 #include "engine/asset/shader/ast/OutputPortNode.h"
 #include "engine/asset/shader/ast/PowNode.h"
 #include "engine/asset/shader/ast/ReflectNode.h"
+#include "engine/asset/shader/ast/SqrtNode.h"
 #include "engine/asset/shader/ast/Types.h"
 #include "engine/asset/shader/ast/TypeUtil.h"
 #include "engine/asset/shader/ast/VariableDeclarationNode.h"
@@ -448,6 +449,11 @@ namespace se::asset::shader::compiler
         else if (token.value == "max")
         {
             return ProcessMaxFunc(token, returnType, outError);
+        }
+        else if (token.value == "sqrt")
+        {
+            returnType = ast::AstType::Float;
+            return ProcessSqrtFunc(token, outError);
         }
 
         outError = {token.line, token.pos, std::format("Unexpected token {}", token.value)};
@@ -2254,8 +2260,6 @@ namespace se::asset::shader::compiler
         ast::AstType& returnType,
         ParseError& outError)
     {
-        returnType = ast::AstType::Vec2;
-
         if (!ExpectAndConsume({TokenType::Syntax}, {"("}, outError))
         {
             return false;
@@ -2281,16 +2285,20 @@ namespace se::asset::shader::compiler
 
             switch (argType)
             {
+                case ast::AstType::Float:
+                    returnType = ast::AstType::Float;
+                    argumentsAccountedFor++;
+                    break;
                 case ast::AstType::Vec2:
+                    returnType = ast::AstType::Vec2;
                     argumentsAccountedFor ++;
                     break;
                 default:
                     outError = {
-                    token.line, token.pos,
-                    std::format("Unexpected type {}", ast::TypeUtil::TypeToGlsl(argType))
-                };
+                        token.line, token.pos,
+                        std::format("Unexpected type {}", ast::TypeUtil::TypeToGlsl(argType))
+                    };
                     return false;
-                    break;
             }
 
             if (Peek({TokenType::Syntax}, {")"}))
@@ -2530,6 +2538,75 @@ namespace se::asset::shader::compiler
         {
             outError = {
                 nextToken.line, nextToken.pos, "Too many arguments for function call max"
+            };
+            return false;
+        }
+
+        m_Shader.PopScope();
+
+        return true;
+    }
+
+    bool Parser::ProcessSqrtFunc(const Token& token,
+        ParseError& outError)
+    {
+        if (!ExpectAndConsume({TokenType::Syntax}, {"("}, outError))
+        {
+            return false;
+        }
+
+        auto max = m_Shader.AddNode<ast::SqrtNode>();
+        m_Shader.PushScope(max);
+
+        int argumentsAccountedFor = 0;
+        Token nextToken;
+        while (true)
+        {
+            if (Peek({TokenType::Syntax}, {")"}))
+            {
+                break;
+            }
+
+            ast::AstType argType;
+            if (!ProcessExpression(argType, outError))
+            {
+                return false;
+            }
+
+            switch (argType)
+            {
+                case ast::AstType::Float:
+                    argumentsAccountedFor++;
+                    break;
+                default:
+                    outError = {
+                    token.line, token.pos,
+                    std::format("Unexpected type {}", ast::TypeUtil::TypeToGlsl(argType))
+                };
+                    return false;
+                    break;
+            }
+
+            if (Peek({TokenType::Syntax}, {")"}))
+            {
+                break;
+            }
+
+            if (!ExpectedGetAndConsume({TokenType::Syntax}, {","}, nextToken, outError))
+            {
+                return false;
+            }
+        }
+
+        if (!ExpectedGetAndConsume({TokenType::Syntax}, {")"}, nextToken, outError))
+        {
+            return false;
+        }
+
+        if (argumentsAccountedFor != 1)
+        {
+            outError = {
+                nextToken.line, nextToken.pos, "Too many arguments for function call sqrt"
             };
             return false;
         }

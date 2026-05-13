@@ -58,6 +58,9 @@ namespace se::render
         DepthCompare depthComp = DepthCompare::None;
 
         SPARK_MEMBER(Serialized)
+        bool depthWrite = true;
+
+        SPARK_MEMBER(Serialized)
         BlendMode srcBlend = BlendMode::One;
 
         SPARK_MEMBER(Serialized)

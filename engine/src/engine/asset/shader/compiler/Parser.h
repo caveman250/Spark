@@ -44,6 +44,7 @@ namespace se::asset::shader::compiler
         bool ProcessInverseFunc(const Token& token, ast::AstType& returnType, ParseError& outError);
         bool ProcessMinFunc(const Token& token, ast::AstType& returnType, ParseError& outError);
         bool ProcessMaxFunc(const Token& token, ast::AstType& returnType, ParseError& outError);
+        bool ProcessSqrtFunc(const Token& token, ParseError& outError);
 
         bool ProcessVec2(const Token& token, ParseError& error);
         bool ProcessVec3(const Token& token, ParseError& error);

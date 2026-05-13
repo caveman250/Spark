@@ -85,7 +85,9 @@ namespace se::render::opengl
 
     void MaterialPlatformResources::ApplyDepthStencil(const RenderState& rs)
     {
-         if (rs.depthComp == DepthCompare::None)
+        glDepthMask(rs.depthWrite);
+
+        if (rs.depthComp == DepthCompare::None)
         {
             glDisable(GL_DEPTH_TEST);
             GL_CHECK_ERROR()

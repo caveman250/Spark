@@ -1,0 +1,41 @@
+#include "SqrtNode.h"
+
+namespace se::asset::shader::ast
+{
+    std::string SqrtNode::GetDebugString() const
+    {
+        return "SqrtNode";
+    }
+
+    void SqrtNode::ToGlsl(ShaderCompileContext& context, string::ArenaString& outShader) const
+    {
+        auto alloc = outShader.get_allocator();
+        outShader.append("sqrt(");
+        for (size_t i = 0; i < m_Children.size(); ++i)
+        {
+            const auto& child = m_Children[i];
+            child->ToGlsl(context, outShader);
+            if (i < m_Children.size() - 1 && outShader.back() != '-')
+            {
+                outShader.append(",");
+            }
+        }
+        outShader.append(")");
+    }
+
+    void SqrtNode::ToMtl(ShaderCompileContext& context, string::ArenaString& outShader) const
+    {
+        auto alloc = outShader.get_allocator();
+        outShader.append("sqrt(");
+        for (size_t i = 0; i < m_Children.size(); ++i)
+        {
+            const auto& child = m_Children[i];
+            child->ToMtl(context, outShader);
+            if (i < m_Children.size() - 1 && outShader.back() != '-')
+            {
+                outShader.append(",");
+            }
+        }
+        outShader.append(")");
+    }
+}

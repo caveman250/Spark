@@ -312,6 +312,33 @@ namespace se::asset::shader::compiler
                     });
                 }
             }
+            else if (port->GetPortName() == "FinalFragDepth")
+            {
+                for (const auto& node : shader.GetNodes())
+                {
+                    ForEachChild(node, [port, renderType, context](const std::shared_ptr<ast::ASTNode>& child)
+                    {
+                        if (const auto& varRefNode = std::dynamic_pointer_cast<ast::VariableReferenceNode>(child))
+                        {
+                            if (varRefNode->GetName() == port->GetName())
+                            {
+                                if (renderType == render::RenderAPI::OpenGL)
+                                {
+                                    varRefNode->SetName("gl_FragDepth");
+                                }
+                                else if (renderType == render::RenderAPI::Metal)
+                                {
+                                    SPARK_ASSERT(false, "Not implemented.");
+                                }
+                                else
+                                {
+                                    SPARK_ASSERT(false, "Unhandled render api type in shader generation.");
+                                }
+                            }
+                        }
+                    });
+                }
+            }
             else if (shader.GetType() == ShaderType::Fragment)
             {
                 shader.AddOutput(std::make_shared<ast::OutputNode>(port->GetVar(), name.data()));
