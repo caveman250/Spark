@@ -1,16 +1,27 @@
-#include "ClampNode.h"
+#include "AbstractFunctionNode.h"
 
 namespace se::asset::shader::ast
 {
-    std::string ClampNode::GetDebugString() const
+    AbstractFunctionNode::AbstractFunctionNode(const std::string& name,
+        const std::string& glslName,
+        const std::string& metalName)
+        : m_Name(name)
+        , m_GlslName(glslName)
+        , m_MetalName(metalName)
     {
-        return "ClampNode";
     }
 
-    void ClampNode::ToGlsl(ShaderCompileContext& context, string::ArenaString& outShader) const
+    std::string AbstractFunctionNode::GetDebugString() const
+    {
+        return m_Name;
+    }
+
+    void AbstractFunctionNode::ToGlsl(ShaderCompileContext& context,
+        string::ArenaString& outShader) const
     {
         auto alloc = outShader.get_allocator();
-        outShader.append("clamp(");
+        outShader.append(m_GlslName);
+        outShader.append("(");
         for (size_t i = 0; i < m_Children.size(); ++i)
         {
             const auto& child = m_Children[i];
@@ -23,10 +34,12 @@ namespace se::asset::shader::ast
         outShader.append(")");
     }
 
-    void ClampNode::ToMtl(ShaderCompileContext& context, string::ArenaString& outShader) const
+    void AbstractFunctionNode::ToMtl(ShaderCompileContext& context,
+        string::ArenaString& outShader) const
     {
         auto alloc = outShader.get_allocator();
-        outShader.append("clamp(");
+        outShader.append(m_MetalName);
+        outShader.append("(");
         for (size_t i = 0; i < m_Children.size(); ++i)
         {
             const auto& child = m_Children[i];
