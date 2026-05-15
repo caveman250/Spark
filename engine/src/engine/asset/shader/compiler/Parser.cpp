@@ -522,6 +522,46 @@ namespace se::asset::shader::compiler
                           ast::AstType::Float,
                       });
         }
+        else if (token.value == "atan2")
+        {
+            returnType = ast::AstType::Float;
+            return ProcessFunc<ast::Atan2Node>(token,
+                      outError,
+                      std::array {
+                          ast::AstType::Float,
+                          ast::AstType::Float,
+                      });
+        }
+        else if (token.value == "fract")
+        {
+            returnType = ast::AstType::Float;
+            return ProcessFunc<ast::FractNode>(token,
+                      outError,
+                      std::array {
+                          ast::AstType::Float,
+                      });
+        }
+        else if (token.value == "step")
+        {
+            returnType = ast::AstType::Float;
+            return ProcessFunc<ast::StepNode>(token,
+                      outError,
+                      std::array {
+                          ast::AstType::Float,
+                          ast::AstType::Float,
+                      });
+        }
+        else if (token.value == "lerp")
+        {
+            return ProcessFuncVariableReturn<ast::LerpNode>(token,
+                        returnType,
+                      outError,
+                      std::array {
+                          ast::AstType::Float | ast::AstType::Vec2 | ast::AstType::Vec3 | ast::AstType::Vec4,
+                          ast::AstType::Float | ast::AstType::Vec2 | ast::AstType::Vec3 | ast::AstType::Vec4,
+                          ast::AstType::Float
+                      });
+        }
 
         outError = {token.line, token.pos, std::format("Unexpected token {}", token.value)};
         SPARK_ASSERT(false);
@@ -1485,7 +1525,11 @@ namespace se::asset::shader::compiler
             returnType = ast::AstType::Float;
         }
         else if (propertyNameToken.value == "xy" ||
-                 propertyNameToken.value == "xz")
+                 propertyNameToken.value == "xz" ||
+                 propertyNameToken.value == "yx" ||
+                 propertyNameToken.value == "zx" ||
+                 propertyNameToken.value == "yz" ||
+                 propertyNameToken.value == "zy")
         {
             returnType = ast::AstType::Vec2;
         }

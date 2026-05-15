@@ -119,4 +119,28 @@ namespace se::asset::shader::ast
         SPARK_CLASS()
         SqrtNode() : AbstractFunctionNode("SqrtNode", "sqrt", "sqrt") {}
     };
+
+    class Atan2Node : public AbstractFunctionNode
+    {
+        SPARK_CLASS()
+        Atan2Node() : AbstractFunctionNode("Atan2Node", "atan", "atan2") {}
+    };
+
+    class FractNode : public AbstractFunctionNode
+    {
+        SPARK_CLASS()
+        FractNode() : AbstractFunctionNode("FractNode", "fract", "fract") {}
+    };
+
+    class StepNode : public AbstractFunctionNode
+    {
+        SPARK_CLASS()
+        StepNode() : AbstractFunctionNode("StepNode", "step", "step") {}
+    };
+
+    class LerpNode : public AbstractFunctionNode
+    {
+        SPARK_CLASS()
+        LerpNode() : AbstractFunctionNode("LerpNode", "mix", "mix") {}
+    };
 }
