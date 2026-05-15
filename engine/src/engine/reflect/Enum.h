@@ -70,7 +70,7 @@ namespace se::reflect
         }
 
         SPARK_ASSERT(false);
-        static constexpr std::string empty = {};
+        static const std::string empty = {};
         return empty;
     }
 
