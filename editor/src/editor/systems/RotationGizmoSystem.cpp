@@ -142,14 +142,18 @@ namespace se::editor::systems
                         {
                             if (mouseEvent.state == input::KeyState::Down)
                             {
-                                gizmo.mouseDown = true;
-                                mesh.vertexBuffer = gizmo.fullVertBuffer;
-                                mesh.indexBuffer = gizmo.fullIndexBuffer;
-                                mesh.aabb = gizmo.fullAABB;
-                                gizmo.initialClickPos = geo::util::RayCastPlane(ray, plane).value().intersectionPoint;
-                                mesh.materialInstance->SetUniform("uniform_color", 1, &gizmo.selectedColor);
-                                gizmo.onBeginRotate.Broadcast();
-                                return true;
+                                auto planeHit = geo::util::RayCastPlane(ray, plane);
+                                if (planeHit.has_value())
+                                {
+                                    gizmo.mouseDown = true;
+                                    mesh.vertexBuffer = gizmo.fullVertBuffer;
+                                    mesh.indexBuffer = gizmo.fullIndexBuffer;
+                                    mesh.aabb = gizmo.fullAABB;
+                                    gizmo.initialClickPos = planeHit.value().intersectionPoint;
+                                    mesh.materialInstance->SetUniform("uniform_color", 1, &gizmo.selectedColor);
+                                    gizmo.onBeginRotate.Broadcast();
+                                    return true;
+                                }
                             }
                         }
 
