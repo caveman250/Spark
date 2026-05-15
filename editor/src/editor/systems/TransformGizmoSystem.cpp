@@ -99,7 +99,7 @@ namespace se::editor::systems
                     math::Vec3 worldPos = { transform.worldTransform[3].x, transform.worldTransform[3].y, transform.worldTransform[3].z };
                     geo::Plane plane = {
                         .normal = forward,
-                        .distSquared = math::Dot(forward, worldPos)
+                        .center = worldPos
                     };
                     auto hit = geo::util::RayCastPlane(ray, plane);
                     SPARK_ASSERT(hit.has_value());

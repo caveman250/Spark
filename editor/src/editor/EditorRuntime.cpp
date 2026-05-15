@@ -14,7 +14,7 @@
 #include "engine/camera/ActiveCameraComponent.h"
 #include "engine/ecs/components/MeshComponent.h"
 #include "engine/ecs/components/TransformComponent.h"
-#include "engine/ecs/util/MeshUtil.h"
+#include "engine/geo/util/MeshUtil.h"
 #include "engine/input/InputComponent.h"
 #include "engine/input/InputUtil.h"
 #include "engine/io/VFS.h"
@@ -524,8 +524,8 @@ namespace se::editor
         m_Gizmo = world->CreateEntity(GetEditorScene(), "Rotation Gizmo");
         world->AddComponent<ecs::components::TransformComponent>(m_Gizmo);
 
-        const asset::StaticMesh quarterMesh = se::ui::util::CreateCircleMesh(1.f, 0.7f, 24, 0, 6);
-        const asset::StaticMesh fullMesh = se::ui::util::CreateCircleMesh(1.f, 0.7f, 24);
+        const asset::StaticMesh quarterMesh = geo::util::CreateCircleMesh(1.f, 0.7f, 24, 0, 6);
+        const asset::StaticMesh fullMesh = geo::util::CreateCircleMesh(1.f, 0.7f, 24);
 
         CreateRotationGizmoAxis(components::RotationAxis::X, quarterMesh, fullMesh);
         CreateRotationGizmoAxis(components::RotationAxis::Y, quarterMesh, fullMesh);

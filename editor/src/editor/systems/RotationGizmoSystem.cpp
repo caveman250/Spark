@@ -68,9 +68,16 @@ namespace se::editor::systems
                     continue;
                 }
 
-                // Update facing angle
                 // TODO make this a util method
                 math::Vec3 worldPos = { transform.worldTransform[3].x, transform.worldTransform[3].y, transform.worldTransform[3].z };
+
+                geo::Plane plane =
+                {
+                    .normal = { 0.f, 0.f, 1.f },
+                    .center = worldPos
+                };
+
+                // Update facing angle
                 mesh.materialInstance->SetUniform("world_pos", 1, &worldPos);
                 math::Vec3 cameraDir = math::Normalized(cameraComp->pos - worldPos);
                 switch (gizmo.axis)
@@ -84,6 +91,7 @@ namespace se::editor::systems
                         {
                             transform.rot.y = 270;
                         }
+                        plane.normal = { 1.f, 0.f, 0.f };
                         break;
                     case components::RotationAxis::Y:
                         if (cameraDir.x < 0)
@@ -100,7 +108,7 @@ namespace se::editor::systems
                         {
                             transform.rot.x += 180;
                         }
-
+                        plane.normal = { 0.f, 1.f, 0.f };
                         break;
                     case components::RotationAxis::Z:
                         if (cameraDir.x < 0)
@@ -111,17 +119,9 @@ namespace se::editor::systems
                         {
                             transform.rot.y = 0;
                         }
+                        plane.normal = { 0.f, 0.f, 1.f };
                         break;
                 }
-
-                math::Vec3 forward(cos(cameraComp->rot.x) * sin(cameraComp->rot.y),
-                             sin(cameraComp->rot.x),
-                             cos(cameraComp->rot.x) * cos(cameraComp->rot.y));
-                geo::Plane plane =
-                {
-                    .normal = forward,
-                    .distSquared = math::Dot(forward, worldPos)
-                };
 
                 gizmo.mouseDown &= inputComp->mouseButtonStates[static_cast<int>(input::MouseButton::Left)] == input::KeyState::Down;
 
