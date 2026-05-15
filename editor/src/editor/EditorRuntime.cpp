@@ -256,6 +256,7 @@ namespace se::editor
             {
                 Application::Get()->GetWorld()->DestroyEntity(m_Gizmo);
                 m_Gizmo = ecs::InvalidEntity;
+                m_GizmoAxisEntities.clear();
             }
 
             if (m_Plane != ecs::InvalidEntity)
