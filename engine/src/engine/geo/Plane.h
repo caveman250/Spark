@@ -10,6 +10,6 @@ namespace se::geo
         SPARK_POD_CLASS()
 
         math::Vec3 normal = {};
-        float distSquared = {};
+        math::Vec3 center = {};
     };
 }

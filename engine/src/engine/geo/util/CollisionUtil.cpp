@@ -29,15 +29,16 @@ namespace se::geo::util
     std::optional<RayCastHit> RayCastPlane(const Ray& ray,
                        const Plane& plane)
     {
-        const float numer = math::Dot(plane.normal, ray.origin) - plane.distSquared;
         const float denom = math::Dot(plane.normal, ray.direction);
 
-        if (std::abs(denom) < FLT_EPSILON)
+        if (std::abs(denom) < 1e-6f * std::max(1.0f, math::Magnitude(plane.center)))
         {
             return std::nullopt;
         }
 
-        const float dist = -(numer / denom);
-        return RayCastHit(ray.origin + ray.direction * dist);
+        const float t = math::Dot(plane.normal, plane.center - ray.origin) / denom;
+        return RayCastHit(ray.origin + ray.direction * t);
+
+       return std::nullopt;
     }
 }
