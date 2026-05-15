@@ -1,0 +1,33 @@
+SSL_FRAGMENT
+
+port(FragmentUV) in vec2 uv;
+port(FragmentWorldPos) in vec3 worldPos;
+
+port(FragColor) out vec4 color;
+
+uniform vec4 uniform_color;
+uniform vec3 gizmo_data;
+uniform vec3 world_pos;
+
+void main()
+{
+    float radius = 1.0;
+    vec4 filled_color = vec4(1.0, 0.8, 0.0, 0.5);
+
+    vec2 d = worldPos.xy - world_pos.xy;
+    vec2 pos = normalize(d);
+
+    float angle = atan2(pos.y - 1.0, pos.x);
+    angle = angle / 3.14159265;
+    angle = angle + step(angle, 0.0);
+    angle -= gizmo_data.y;
+    angle = angle + step(angle, 0.0);
+
+    float real_angle = gizmo_data.x - gizmo_data.y;
+    real_angle = real_angle + step(real_angle, 0.0);
+
+    float insideAngle = step(angle, real_angle);
+    insideAngle = lerp(insideAngle, 1.0 - insideAngle, gizmo_data.z);
+
+    color = lerp(uniform_color, filled_color, insideAngle);
+}

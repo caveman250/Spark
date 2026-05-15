@@ -29,6 +29,8 @@ namespace se::editor::components
         bool wasHovered = true;
         bool wasMouseDown = false;
         bool mouseDown = false;
+        bool hasSetVisualisationDir = false;
+        float visualisationDir = 0.f;
         ecs::Signal<float> onRotate = {};
         ecs::Signal<> onBeginRotate = {};
         ecs::Signal<> onFinishRotate = {};

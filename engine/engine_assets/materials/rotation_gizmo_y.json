@@ -1,0 +1,171 @@
+{
+    "structs": [
+        {
+            "Material": {
+                "m_FragShaders": "Array",
+                "m_RenderState": "Object",
+                "m_ShaderSettings": "Object",
+                "m_SourcePath": "String",
+                "m_UniformDefaults": "Object",
+                "m_VertShaders": "Array"
+            }
+        },
+        {
+            "AssetReference<Shader>": {
+                "m_AssetPath": "String"
+            }
+        },
+        {
+            "RenderState": {
+                "cullMode": "String",
+                "depthComp": "String",
+                "depthWrite": "bool",
+                "dstBlend": "String",
+                "lit": "bool",
+                "srcBlend": "String",
+                "stencilFunc": "String",
+                "stencilReadMask": "Uint32",
+                "stencilWriteMask": "Uint32"
+            }
+        },
+        {
+            "ShaderSettings": {
+                "m_Settings": "Array"
+            }
+        },
+        {
+            "Internal_MapItemString_Object": {
+                "key": "String",
+                "value": "Object"
+            }
+        },
+        {
+            "UniformStorage": {
+                "m_Storage": "Array"
+            }
+        },
+        {
+            "UniformValue<Vec3>": {
+                "value": "Array"
+            }
+        },
+        {
+            "Vec3": {
+                "x": "Float",
+                "y": "Float",
+                "z": "Float"
+            }
+        },
+        {
+            "UniformValue<Vec4>": {
+                "value": "Array"
+            }
+        },
+        {
+            "Vec4": {
+                "w": "Float",
+                "x": "Float",
+                "y": "Float",
+                "z": "Float"
+            }
+        }
+    ],
+    "root": {
+        "Material": {
+            "m_VertShaders": {
+                "struct": "AssetReference<Shader>",
+                "contents": [
+                    {
+                        "AssetReference<Shader>": {
+                            "m_AssetPath": "/engine_assets/shaders/simple_vertex.sass"
+                        }
+                    }
+                ]
+            },
+            "m_FragShaders": {
+                "struct": "AssetReference<Shader>",
+                "contents": [
+                    {
+                        "AssetReference<Shader>": {
+                            "m_AssetPath": "/engine_assets/shaders/rotation_gizmo_y.sass"
+                        }
+                    }
+                ]
+            },
+            "m_RenderState": {
+                "RenderState": {
+                    "depthComp": "None",
+                    "depthWrite": true,
+                    "srcBlend": "SrcAlpha",
+                    "dstBlend": "OneMinusSrcAlpha",
+                    "stencilWriteMask": 0,
+                    "stencilFunc": "None",
+                    "stencilReadMask": 0,
+                    "lit": false,
+                    "cullMode": "None"
+                }
+            },
+            "m_ShaderSettings": {
+                "ShaderSettings": {
+                    "m_Settings": {
+                        "struct": "Internal_MapItemString_Object",
+                        "contents": null
+                    }
+                }
+            },
+            "m_UniformDefaults": {
+                "UniformStorage": {
+                    "m_Storage": {
+                        "struct": "Internal_MapItemString_Object",
+                        "contents": [
+                            {
+                                "Internal_MapItemString_Object": {
+                                    "key": "gizmo_data",
+                                    "value": {
+                                        "UniformValue<Vec3>": {
+                                            "value": {
+                                                "struct": "Vec3",
+                                                "contents": [
+                                                    {
+                                                        "Vec3": {
+                                                            "x": 0.0,
+                                                            "y": 1.0,
+                                                            "z": 0.0
+                                                        }
+                                                    }
+                                                ]
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            {
+                                "Internal_MapItemString_Object": {
+                                    "key": "uniform_color",
+                                    "value": {
+                                        "UniformValue<Vec4>": {
+                                            "value": {
+                                                "struct": "Vec4",
+                                                "contents": [
+                                                    {
+                                                        "Vec4": {
+                                                            "x": 0.0,
+                                                            "y": 0.0,
+                                                            "z": 0.0,
+                                                            "w": 0.0
+                                                        }
+                                                    }
+                                                ]
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        ]
+                    }
+                }
+            },
+            "m_SourcePath": "/engine_source_assets/materials/rotation_gizmo.json"
+        }
+    }
+}

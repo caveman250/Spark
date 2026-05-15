@@ -71,6 +71,7 @@ namespace se::editor::systems
                 // Update facing angle
                 // TODO make this a util method
                 math::Vec3 worldPos = { transform.worldTransform[3].x, transform.worldTransform[3].y, transform.worldTransform[3].z };
+                mesh.materialInstance->SetUniform("world_pos", 1, &worldPos);
                 math::Vec3 cameraDir = math::Normalized(cameraComp->pos - worldPos);
                 switch (gizmo.axis)
                 {
@@ -155,15 +156,22 @@ namespace se::editor::systems
                         return false;
                     });
                 }
-                else if (!gizmo.mouseDown && gizmo.wasMouseDown)
+
+                if (!gizmo.mouseDown && gizmo.wasMouseDown)
                 {
                     gizmo.onFinishRotate.Broadcast();
                     gizmo.wasMouseDown = false;
                     mesh.vertexBuffer = gizmo.quarterVertBuffer;
                     mesh.indexBuffer = gizmo.quarterIndexBuffer;
                     mesh.aabb = gizmo.quarterAABB;
+                    math::Vec3 gizmoData = {0.f, 1.f, 0.f };
+                    mesh.materialInstance->SetUniform("gizmo_data", 1, &gizmoData);
+                    gizmo.hasSetVisualisationDir = false;
+
+                    auto yellow = math::Vec4(1.f, 1.f, 0.f, 1.f);
+                    mesh.materialInstance->SetUniform("uniform_color", 1, gizmo.wasHovered ? &yellow : &gizmo.color);
                 }
-                else if (gizmo.wasHovered && !gizmo.mouseDown)
+                else if (!hit.has_value() && gizmo.wasHovered && !gizmo.mouseDown)
                 {
                     mesh.materialInstance->SetUniform("uniform_color", 1, &gizmo.color);
                     gizmo.wasHovered = false;
@@ -196,7 +204,37 @@ namespace se::editor::systems
                     }
                     float angle = atan2(hitPoint2.y - twelveoClock.y, hitPoint2.x - twelveoClock.x);
                     float angle2 = atan2(initialHitPoint2.y - twelveoClock.y, initialHitPoint2.x - twelveoClock.x);
-                    gizmo.onRotate.Broadcast((angle - angle2) * 2.f);
+                    if (!gizmo.hasSetVisualisationDir && std::abs(angle - angle2) > math::Radians(2))
+                    {
+                        if (angle < angle2)
+                        {
+                            gizmo.visualisationDir = 1.f;
+                        }
+                        else
+                        {
+                            gizmo.visualisationDir = 0.f;
+                        }
+                        gizmo.hasSetVisualisationDir = true;
+                    }
+
+                    if (gizmo.hasSetVisualisationDir)
+                    {
+                        math::Vec3 gizmoData = { angle, angle2, gizmo.visualisationDir };
+                        if (gizmoData.x < 0)
+                        {
+                            gizmoData.x += M_PI;
+                        }
+                        if (gizmoData.y < 0)
+                        {
+                            gizmoData.y += M_PI;
+                        }
+                        gizmoData.x /= M_PI;
+                        gizmoData.y /= M_PI;
+                        mesh.materialInstance->SetUniform("gizmo_data", 1, &gizmoData);
+                    }
+
+                    angle = (angle - angle2);
+                    gizmo.onRotate.Broadcast(angle * 2.f);
                 }
             }
         });

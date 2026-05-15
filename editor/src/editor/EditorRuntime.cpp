@@ -539,7 +539,6 @@ namespace se::editor
         auto world = Application::Get()->GetWorld();
         const auto entity = world->CreateEntity(GetEditorScene(), std::format("Rotation Gizmo {}", reflect::EnumResolver<components::RotationAxis>::Get()->ToString(axis)));
         const auto mesh = world->AddComponent<ecs::components::MeshComponent>(entity);
-        mesh->materialAsset = "/engine_assets/materials/gizmo.sass";
         mesh->renderLayer = -1;
         const auto transform = world->AddComponent<ecs::components::TransformComponent>(entity);
         const auto gizmo = world->AddComponent<components::RotationGizmoComponent>(entity);
@@ -549,15 +548,18 @@ namespace se::editor
                 gizmo->color = math::Vec4(1.f, 0.f, 0.f, .6f);
                 gizmo->selectedColor = math::Vec4(1.f, 0.f, 0.f, .3f);
                 transform->rot.y = -90;
+                mesh->materialAsset = "/engine_assets/materials/rotation_gizmo_x.sass";
                 break;
             case components::RotationAxis::Y:
                 gizmo->color = math::Vec4(0.f, 1.f, 0.f, .6f);
                 gizmo->selectedColor = math::Vec4(0.f, 1.f, 0.f, .3f);
                 transform->rot.x = 90;
+                mesh->materialAsset = "/engine_assets/materials/rotation_gizmo_y.sass";
                 break;
             case components::RotationAxis::Z:
                 gizmo->color = math::Vec4(0.f, 0.f, 1.f, .6f);
                 gizmo->selectedColor = math::Vec4(0.f, 0.f, 1.f, .3f);
+                mesh->materialAsset = "/engine_assets/materials/rotation_gizmo_z.sass";
                 break;
         }
 
