@@ -3,6 +3,8 @@
 #include "engine/Application.h"
 #include "engine/input/InputComponent.h"
 #include "engine/input/InputUtil.h"
+#include "engine/ui/systems/EditableTextSystem.h"
+#include "engine/ui/systems/UIKeyboardInputSystem.h"
 
 namespace se::editor::systems
 {
@@ -10,7 +12,8 @@ namespace se::editor::systems
     {
         return ecs::SystemDeclaration("Editor Shortcuts System")
             .WithSingletonComponent<singleton_components::EditorShortcutsComponent>()
-            .WithSingletonComponent<input::InputComponent>();
+            .WithSingletonComponent<input::InputComponent>()
+            .WithDependency<se::ui::systems::UIKeyboardInputSystem>();
     }
 
     void EditorShortcutsSystem::OnUpdate(const ecs::QueryResults& results)
