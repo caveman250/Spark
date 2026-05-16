@@ -33,6 +33,10 @@ namespace se::mac
         m_Window = [[NativeWindow alloc] initWithContentRect:frame styleMask:styleMask backing:backing defer:NO];
         [(NativeWindow*)m_Window initKeyReceiver];
         [m_Window setAcceptsMouseMovedEvents:YES];
+        //[m_Window setTitlebarAppearsTransparent: true];
+        //NSColor* bg = [NSColor colorWithCalibratedRed:0.13f green:0.13f blue:0.13f alpha:1.0f];
+        //[m_Window setBackgroundColor: bg];
+        [m_Window setAppearance: [NSAppearance appearanceNamed:NSAppearanceNameVibrantDark]];
         [m_Window center];
 
         auto renderer = se::render::Renderer::Get<se::render::metal::MetalRenderer>();
