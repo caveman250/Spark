@@ -1,5 +1,6 @@
 #pragma once
 
+#include "GizmoManager.h"
 #include "singleton_components/EditorShortcutsComponent.h"
 #include "ui/asset_browser/AssetBrowserWindow.h"
 #include "ui/ViewportWindow.h"
@@ -25,12 +26,6 @@ namespace se::editor
     {
         enum class RotationAxis;
     }
-
-    enum class GizmoType
-    {
-        Translate,
-        Rotate
-    };
 
     class EditorRuntime
     {
@@ -67,23 +62,10 @@ namespace se::editor
     private:
         void SaveAll();
         void SaveScene();
-        void UpdateSelectedEntityTranslation(const math::Vec3& worldPos);
-        void UpdateSelectedEntityRotation(components::RotationAxis axis, float angle);
-        void SnapGizmoToSelectedEntity();
-        void HideGizmo() const;
         void CreateEditorPlane();
 
-        void CreateGizmo();
-        void DestroyGizmo();
-        void SetGizmoType(GizmoType type);
-        void CreateTranslateGizmo();
-        void CreateRotationGizmo();
-        void CreateRotationGizmoAxis(components::RotationAxis axis,
-                                        const asset::StaticMesh& quarterMesh,
-                                        const asset::StaticMesh& fullMesh);
-        void SetHideOtherGizmoAxis(components::RotationAxis axis, bool visible);
-
         startup::StartupManager m_StartupManager;
+        GizmoManager m_GizmoManager;
 
         ui::OutlineWindow* m_OutlineWindow = nullptr;
         ui::PropertiesWindow* m_PropertiesWindow = nullptr;
@@ -93,14 +75,10 @@ namespace se::editor
         ecs::Id m_LoadedScene = ecs::InvalidEntity;
         std::string m_ScenePath = {};
         ecs::Id m_EditorScene = ecs::InvalidEntity;
-        ecs::Id m_Gizmo = ecs::InvalidEntity;
-        GizmoType m_GizmoType = GizmoType::Translate;
-        std::vector<ecs::Id> m_GizmoAxisEntities = {};
         ecs::Id m_Plane = ecs::InvalidEntity;
 
         ecs::Id m_LastSelectedEntity = ecs::InvalidEntity;
         ecs::Id m_SelectedEntity = ecs::InvalidEntity;
-        math::Vec3 m_SelectedEntityInitialRotation = {};
         reflect::ObjectBase* m_SelectedSingletonComp = nullptr;
         reflect::ObjectBase* m_LastSelectedSingletonComp = nullptr;
         std::shared_ptr<asset::Asset> m_SelectedAsset = nullptr;
