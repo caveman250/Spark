@@ -1,4 +1,4 @@
-#include "TransformGizmoSystem.h"
+#include "TranslationGizmoSystem.h"
 
 #include "editor/components/TransformGizmoComponent.h"
 #include "editor/util/ViewportUtil.h"
@@ -16,7 +16,7 @@
 
 namespace se::editor::systems
 {
-    ecs::SystemDeclaration TransformGizmoSystem::GetSystemDeclaration()
+    ecs::SystemDeclaration TranslationGizmoSystem::GetSystemDeclaration()
     {
         return ecs::SystemDeclaration()
             .WithComponent<components::TransformGizmoComponent>()
@@ -26,7 +26,7 @@ namespace se::editor::systems
             .WithSingletonComponent<input::InputComponent>();
     }
 
-    void TransformGizmoSystem::OnUpdate(const ecs::QueryResults& results)
+    void TranslationGizmoSystem::OnUpdate(const ecs::QueryResults& results)
     {
         auto editor = Application::Get()->GetEditorRuntime();
         if (editor->InGameMode())

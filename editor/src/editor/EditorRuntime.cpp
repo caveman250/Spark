@@ -511,7 +511,7 @@ namespace se::editor
         zTransform->pos.z = .5f;
         zTransform->scale = .5f;
         auto gizmoZ = world->AddComponent<components::TransformGizmoComponent>(entityZ);
-        gizmoZ->color = math::Vec4(0.f, 0.f, 1.f, 1.f);
+        gizmoZ->color = math::Vec4(0.f, 0.f, 1.f, .6f);
         gizmoZ->axis = components::GizmoAxis::Forward;
         gizmoZ->onMove.Subscribe([this, world](math::Vec3 worldPos)
         {
@@ -535,7 +535,7 @@ namespace se::editor
         xTransform->pos.x = .5f;
         xTransform->scale = .5f;
         auto gizmoX = world->AddComponent<components::TransformGizmoComponent>(entityX);
-        gizmoX->color = math::Vec4(1.f, 0.f, 0.f, 1.f);
+        gizmoX->color = math::Vec4(1.f, 0.f, 0.f, .6f);
         gizmoX->axis = components::GizmoAxis::Right;
         gizmoX->onMove.Subscribe([this, world](math::Vec3 worldPos)
         {
@@ -559,7 +559,7 @@ namespace se::editor
         yTransform->pos.y = .5f;
         yTransform->scale = .5f;
         auto gizmoY = world->AddComponent<components::TransformGizmoComponent>(entityY);
-        gizmoY->color = math::Vec4(0.f, 1.f, 0.f, 1.f);
+        gizmoY->color = math::Vec4(0.f, 1.f, 0.f, .6f);
         gizmoY->axis = components::GizmoAxis::Up;
         gizmoY->onMove.Subscribe([this, world](math::Vec3 worldPos)
         {

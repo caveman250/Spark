@@ -2,7 +2,7 @@
 
 #include <engine/math/math.h>
 
-#include "TransformGizmoSystem.h"
+#include "TranslationGizmoSystem.h"
 #include "RotationGizmoSystem.h"
 #include "EditorPickSystem.h"
 #include "editor/components/EditorCameraComponent.h"
@@ -25,7 +25,7 @@ namespace se::editor::systems
             .WithComponent<ecs::components::TransformComponent>()
             .WithSingletonComponent<camera::ActiveCameraComponent>()
             .WithSingletonComponent<input::InputComponent>()
-            .WithDependency<TransformGizmoSystem>()
+            .WithDependency<TranslationGizmoSystem>()
             .WithDependency<RotationGizmoSystem>()
             .WithDependency<EditorPickSystem>();
     }

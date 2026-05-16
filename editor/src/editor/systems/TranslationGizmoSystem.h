@@ -5,7 +5,7 @@
 
 namespace se::editor::systems 
 {
-    class TransformGizmoSystem : public ecs::EngineSystem
+    class TranslationGizmoSystem : public ecs::EngineSystem
     {
         SPARK_SYSTEM()
         
