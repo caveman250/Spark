@@ -125,6 +125,16 @@ namespace se::editor
         {
             m_GizmoManager.SetGizmoType(GizmoType::Rotate);
         });
+
+        util::RegisterShortcut(shortcutsComp, input::Key::Escape, singleton_components::ShortcutModifier::None,
+            []()
+            {
+                return true;
+            },
+            [this]()
+            {
+                DeSelectAll();
+            });
     }
 
     void EditorRuntime::Update()
@@ -144,10 +154,7 @@ namespace se::editor
 
             if (!m_GameMode)
             {
-                if (m_SelectedEntity != ecs::InvalidEntity)
-                {
-                    m_GizmoManager.OnSelectEntity(m_SelectedEntity);
-                }
+                m_GizmoManager.OnSelectEntity(m_SelectedEntity);
             }
 
             m_PropertiesWindow->RebuildProperties();
@@ -423,6 +430,13 @@ namespace se::editor
         {
             m_ScenePath = newPath;
         }
+    }
+
+    void EditorRuntime::DeSelectAll()
+    {
+        m_SelectedEntity = ecs::InvalidEntity;
+        m_SelectedSingletonComp = nullptr;
+        m_SelectedAsset = nullptr;
     }
 
     void EditorRuntime::SaveScene()

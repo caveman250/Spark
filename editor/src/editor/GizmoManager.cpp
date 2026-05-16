@@ -62,7 +62,7 @@ namespace se::editor
     void GizmoManager::OnSelectEntity(const ecs::Id& entity)
     {
         auto* world = Application::Get()->GetWorld();
-        if (world->HasComponent<ecs::components::TransformComponent>(entity))
+        if (entity != ecs::InvalidEntity && world->HasComponent<ecs::components::TransformComponent>(entity))
         {
             if (m_Gizmo == ecs::InvalidEntity)
             {

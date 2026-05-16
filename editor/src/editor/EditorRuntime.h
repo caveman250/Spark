@@ -60,6 +60,8 @@ namespace se::editor
         void RenameAsset(const std::shared_ptr<asset::Asset>& asset, const std::string& newPath);
 
     private:
+        void DeSelectAll();
+
         void SaveAll();
         void SaveScene();
         void CreateEditorPlane();
