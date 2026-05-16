@@ -21,10 +21,10 @@ namespace se::ecs::components
         math::Vec3 scale = math::Vec3(1.f, 1.f, 1.f);
 
         SPARK_MEMBER()
-        math::Mat4 transform = {};
+        math::Mat4 transform = math::Translation(math::Vec3::Max());
 
         SPARK_MEMBER()
-        math::Mat4 worldTransform = {};
+        math::Mat4 worldTransform = math::Translation(math::Vec3::Max());
 
         SPARK_MEMBER()
         geo::AABB aabb = {};

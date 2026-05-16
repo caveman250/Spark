@@ -43,6 +43,8 @@ namespace se::math
         Vec3& operator*=(float scalar);
         Vec3& operator/=(const Vec3& rhs);
         Vec3& operator/=(float scalar);
+
+        static Vec3 Max() { return Vec3(std::numeric_limits<float>::max()); }
     };
 
     Vec3 operator-(const Vec3& lhs);
