@@ -88,20 +88,20 @@ namespace se::editor
         m_Gizmo = world->CreateEntity(editor->GetEditorScene(), "Translate Gizmo");
         world->AddComponent<ecs::components::TransformComponent>(m_Gizmo);
 
-        auto entityZ = world->CreateEntity(editor->GetEditorScene(), "Translate Gizmo Z");
-        auto meshZ = world->AddComponent<ecs::components::MeshComponent>(entityZ);
+        const auto entityZ = world->CreateEntity(editor->GetEditorScene(), "Translate Gizmo Z");
+        const auto meshZ = world->AddComponent<ecs::components::MeshComponent>(entityZ);
         meshZ->materialAsset = "/engine_assets/materials/gizmo.sass";
         meshZ->model = "/engine_assets/models/translate_handle.sass";
         meshZ->renderLayer = -1;
-        auto zTransform = world->AddComponent<ecs::components::TransformComponent>(entityZ);
+        const auto zTransform = world->AddComponent<ecs::components::TransformComponent>(entityZ);
         zTransform->pos.z = .5f;
         zTransform->scale = .5f;
-        auto gizmoZ = world->AddComponent<components::TransformGizmoComponent>(entityZ);
+        const auto gizmoZ = world->AddComponent<components::TransformGizmoComponent>(entityZ);
         gizmoZ->color = math::Vec4(0.f, 0.f, 1.f, .6f);
         gizmoZ->axis = components::GizmoAxis::Forward;
         gizmoZ->onMove.Subscribe([this, world](math::Vec3 worldPos)
         {
-            auto transform = world->GetComponent<ecs::components::TransformComponent>(m_Gizmo);
+            const auto transform = world->GetComponent<ecs::components::TransformComponent>(m_Gizmo);
 
             worldPos.x = transform->pos.x;
             worldPos.y = transform->pos.y;
@@ -111,21 +111,21 @@ namespace se::editor
         });
         world->AddChild(m_Gizmo, entityZ);
 
-        auto entityX = world->CreateEntity(editor->GetEditorScene(), "Translate Gizmo X");
-        auto meshX = world->AddComponent<ecs::components::MeshComponent>(entityX);
+        const auto entityX = world->CreateEntity(editor->GetEditorScene(), "Translate Gizmo X");
+        const auto meshX = world->AddComponent<ecs::components::MeshComponent>(entityX);
         meshX->materialAsset = "/engine_assets/materials/gizmo.sass";
         meshX->model = "/engine_assets/models/translate_handle.sass";
         meshX->renderLayer = -1;
-        auto xTransform = world->AddComponent<ecs::components::TransformComponent>(entityX);
+        const auto xTransform = world->AddComponent<ecs::components::TransformComponent>(entityX);
         xTransform->rot.y = 90;
         xTransform->pos.x = .5f;
         xTransform->scale = .5f;
-        auto gizmoX = world->AddComponent<components::TransformGizmoComponent>(entityX);
+        const auto gizmoX = world->AddComponent<components::TransformGizmoComponent>(entityX);
         gizmoX->color = math::Vec4(1.f, 0.f, 0.f, .6f);
         gizmoX->axis = components::GizmoAxis::Right;
         gizmoX->onMove.Subscribe([this, world](math::Vec3 worldPos)
         {
-            auto transform = world->GetComponent<ecs::components::TransformComponent>(m_Gizmo);
+            const auto transform = world->GetComponent<ecs::components::TransformComponent>(m_Gizmo);
 
             worldPos.y = transform->pos.y;
             worldPos.z = transform->pos.z;
@@ -135,21 +135,21 @@ namespace se::editor
         });
         world->AddChild(m_Gizmo, entityX);
 
-        auto entityY = world->CreateEntity(editor->GetEditorScene(), "Translate Gizmo Y");
-        auto meshY = world->AddComponent<ecs::components::MeshComponent>(entityY);
+        const auto entityY = world->CreateEntity(editor->GetEditorScene(), "Translate Gizmo Y");
+        const auto meshY = world->AddComponent<ecs::components::MeshComponent>(entityY);
         meshY->materialAsset = "/engine_assets/materials/gizmo.sass";
         meshY->model = "/engine_assets/models/translate_handle.sass";
         meshY->renderLayer = -1;
-        auto yTransform = world->AddComponent<ecs::components::TransformComponent>(entityY);
+        const auto yTransform = world->AddComponent<ecs::components::TransformComponent>(entityY);
         yTransform->rot.x = 270;
         yTransform->pos.y = .5f;
         yTransform->scale = .5f;
-        auto gizmoY = world->AddComponent<components::TransformGizmoComponent>(entityY);
+        const auto gizmoY = world->AddComponent<components::TransformGizmoComponent>(entityY);
         gizmoY->color = math::Vec4(0.f, 1.f, 0.f, .6f);
         gizmoY->axis = components::GizmoAxis::Up;
         gizmoY->onMove.Subscribe([this, world](math::Vec3 worldPos)
         {
-            auto transform = world->GetComponent<ecs::components::TransformComponent>(m_Gizmo);
+            const auto transform = world->GetComponent<ecs::components::TransformComponent>(m_Gizmo);
 
             worldPos.x = transform->pos.x;
             worldPos.y -= .5f;
@@ -248,7 +248,7 @@ namespace se::editor
     }
 
     void GizmoManager::SetHideOtherGizmoAxis(const components::RotationAxis axis,
-                                             const bool visible)
+                                             const bool visible) const
     {
         auto* world = Application::Get()->GetWorld();
         for (const auto& entity: m_GizmoAxisEntities)
@@ -288,7 +288,7 @@ namespace se::editor
     }
 
     void GizmoManager::UpdateSelectedEntityRotation(const components::RotationAxis axis,
-                                                    const float angle)
+                                                    const float angle) const
     {
         auto* app = Application::Get();
         auto* world = app->GetWorld();
@@ -332,8 +332,8 @@ namespace se::editor
         const auto gizmoTransform = world->GetComponent<ecs::components::TransformComponent>(m_Gizmo);
         if (const ecs::Id& parent = world->GetParent(editor->GetSelectedEntity()); parent != ecs::InvalidEntity)
         {
-            auto selectedEntityParentTransform = world->GetComponent<ecs::components::TransformComponent>(parent);
-            auto localPos = selectedEntityParentTransform->worldTransform * math::Vec4(selectedEntityTransform->pos, 1);
+            const auto selectedEntityParentTransform = world->GetComponent<ecs::components::TransformComponent>(parent);
+            const auto localPos = selectedEntityParentTransform->worldTransform * math::Vec4(selectedEntityTransform->pos, 1);
             gizmoTransform->pos = localPos;
         }
         else
@@ -349,7 +349,7 @@ namespace se::editor
     {
         const auto world = Application::Get()->GetWorld();
 
-        auto transform = world->GetComponent<ecs::components::TransformComponent>(m_Gizmo);
+        const auto transform = world->GetComponent<ecs::components::TransformComponent>(m_Gizmo);
         transform->pos = math::Vec3(std::numeric_limits<float>::max());
     }
 }

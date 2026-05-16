@@ -36,10 +36,10 @@ namespace se::editor
         void CreateRotationGizmoAxis(components::RotationAxis axis,
                                         const asset::StaticMesh& quarterMesh,
                                         const asset::StaticMesh& fullMesh);
-        void SetHideOtherGizmoAxis(components::RotationAxis axis, bool visible);
+        void SetHideOtherGizmoAxis(components::RotationAxis axis, bool visible) const;
 
         void UpdateSelectedEntityTranslation(const math::Vec3& worldPos);
-        void UpdateSelectedEntityRotation(components::RotationAxis axis, float angle);
+        void UpdateSelectedEntityRotation(components::RotationAxis axis, float angle) const;
         void SnapGizmoToSelectedEntity();
         void HideGizmo() const;
 
