@@ -33,10 +33,10 @@ namespace se::render
 
     void Renderer::AddPointLight(const PointLight &light)
     {
-        m_LightsMutex.Lock();
+        m_LightsMutex.lock();
         m_LightSetup.pointLights
                 .push_back(light);
-        m_LightsMutex.Unlock();
+        m_LightsMutex.unlock();
     }
 
     void Renderer::Update()
@@ -160,24 +160,24 @@ namespace se::render
 
     void Renderer::Submit(size_t group, commands::RenderCommand *renderCommand)
     {
-        m_RenderCommandMutex.Lock();
+        m_RenderCommandMutex.lock();
         m_RenderGroups[group].renderCommands.push_back(renderCommand);
-        m_RenderCommandMutex.Unlock();
+        m_RenderCommandMutex.unlock();
     }
 
     size_t Renderer::AllocRenderGroup(int layer)
     {
-        m_RenderGroupMutex.Lock();
+        m_RenderGroupMutex.lock();
         auto& renderGroup = m_RenderGroups.emplace_back();
-        m_RenderGroupMutex.Unlock();
+        m_RenderGroupMutex.unlock();
         renderGroup.layer = layer;
         return m_RenderGroups.size() - 1;
     }
 
     void Renderer::SetFrameBuffer(size_t group, const std::shared_ptr<FrameBuffer>& fb)
     {
-        m_RenderGroupMutex.Lock();
+        m_RenderGroupMutex.lock();
         m_RenderGroups[group].frameBuffer = fb;
-        m_RenderGroupMutex.Unlock();
+        m_RenderGroupMutex.unlock();
     }
 }

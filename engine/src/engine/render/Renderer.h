@@ -6,7 +6,6 @@
 #include "RenderState.h"
 #include "spark.h"
 #include "RenderGroup.h"
-#include "engine/threads/SpinLock.h"
 
 namespace se::render
 {
@@ -81,9 +80,9 @@ namespace se::render
         size_t m_DefaultRenderGroup = 0;
         size_t m_ActiveRenderGroup = 0;
 
-        threads::SpinLock m_RenderGroupMutex = {};
-        threads::SpinLock m_RenderCommandMutex = {};
-        threads::SpinLock m_LightsMutex = {};
+        std::mutex m_RenderGroupMutex = {};
+        std::mutex m_RenderCommandMutex = {};
+        std::mutex m_LightsMutex = {};
 
         std::vector<ui::Rect> m_ScissorStack = {};
 
@@ -93,9 +92,9 @@ namespace se::render
     template<ARenderCommand T, typename... Args>
     T* Renderer::AllocRenderCommand(Args &&... args)
     {
-        m_RenderCommandMutex.Lock();
+        m_RenderCommandMutex.lock();
         T* ret = m_RenderCommandsArena.Alloc<T>(std::forward<Args>(args)...);
-        m_RenderCommandMutex.Unlock();
+        m_RenderCommandMutex.unlock();
         return ret;
     }
 
