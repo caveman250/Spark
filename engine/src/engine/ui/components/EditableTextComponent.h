@@ -30,6 +30,8 @@ namespace se::ui::components
         bool enabled = true;
         bool inEditMode = false;
         bool mouseDown = false;
+        bool didDoubleClick = false;
+        uint64_t lastClickTime = 0;
         bool isDragging = false;
         std::string editText = { };
         int caretPosition = 0;

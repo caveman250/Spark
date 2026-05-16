@@ -463,19 +463,32 @@ namespace se::ui::systems
                                           rectTransform);
                                     }
 
+                                    auto unixTimestamp = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+                                    if (unixTimestamp - text.lastClickTime < 200)
+                                    {
+                                        text.selectionStart = 0;
+                                        text.selectionEnd = text.text.size();
+                                        text.didDoubleClick = true;
+                                    }
+                                    else
+                                    {
+                                        util::ResetSelection(&text);
+                                        text.selectionStart = charPos;
+                                        util::SetCaretPos(text, charPos);
+                                    }
+                                    text.lastClickTime = unixTimestamp;
+
                                     text.mouseDown = true;
                                     text.isDragging = false;
-                                    util::ResetSelection(&text);
-                                    text.selectionStart = charPos;
-                                    util::SetCaretPos(text, charPos);
                                 }
                                 else if (mouseEvent.state == input::KeyState::Up)
                                 {
                                     text.mouseDown = false;
-                                    if (!text.isDragging)
+                                    if (!text.isDragging && !text.didDoubleClick)
                                     {
                                         util::ResetSelection(&text);
                                     }
+                                    text.didDoubleClick = false;
                                     text.isDragging = false;
                                 }
                             }
