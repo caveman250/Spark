@@ -5,6 +5,7 @@
 #include "TranslationGizmoSystem.h"
 #include "RotationGizmoSystem.h"
 #include "EditorPickSystem.h"
+#include "EditorShortcutsSystem.h"
 #include "editor/components/EditorCameraComponent.h"
 #include "editor/util/ViewportUtil.h"
 #include "engine/Application.h"
@@ -27,7 +28,8 @@ namespace se::editor::systems
             .WithSingletonComponent<input::InputComponent>()
             .WithDependency<TranslationGizmoSystem>()
             .WithDependency<RotationGizmoSystem>()
-            .WithDependency<EditorPickSystem>();
+            .WithDependency<EditorPickSystem>()
+            .WithDependency<EditorShortcutsSystem>();
     }
 
     void EditorCameraSystem::OnUpdate(const ecs::QueryResults& results)
