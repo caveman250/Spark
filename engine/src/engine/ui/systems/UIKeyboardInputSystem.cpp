@@ -81,7 +81,7 @@ namespace se::ui::systems
                             return false;
                         });
 
-                        return false;
+                        return consumed;
                     });
                 }
             }
