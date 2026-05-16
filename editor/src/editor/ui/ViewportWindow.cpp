@@ -24,7 +24,7 @@ namespace se::editor::ui
         }
 
         auto app = Application::Get();
-        auto editor = app->GetEditorRuntime();
+        auto editor = app->GetEditor();
         auto world = app->GetWorld();
         se::ui::components::RectTransformComponent* viewportRect = world->GetComponent<se::ui::components::RectTransformComponent>(m_Viewport);
 
@@ -55,7 +55,7 @@ namespace se::editor::ui
     {
         auto app = Application::Get();
         auto world = app->GetWorld();
-        auto editor = app->GetEditorRuntime();
+        auto editor = app->GetEditor();
 
         se::ui::components::RectTransformComponent *windowTransform;
         se::ui::components::WindowComponent *windowComp;
@@ -94,7 +94,7 @@ namespace se::editor::ui
         }
 
         imageComp->materialInstance = std::make_shared<render::MaterialInstance>(material);
-        const auto& viewportTexture = app->GetEditorRuntime()->GetFrameBuffer()->GetColorTexture();
+        const auto& viewportTexture = app->GetEditor()->GetFrameBuffer()->GetColorTexture();
         imageComp->materialInstance->SetUniform("Texture", 1, &viewportTexture);
         world->AddChild(contentArea, m_Viewport);
         m_Valid = true;
@@ -149,7 +149,7 @@ namespace se::editor::ui
         pauseButton->hoveredImage = "/engine_assets/textures/editor_pause_hovered.sass";
         pauseButton->onReleased.Subscribe([this, world](input::MouseButton)
         {
-            auto editor = Application::Get()->GetEditorRuntime();
+            auto editor = Application::Get()->GetEditor();
             if (!world->Paused() && !editor->InGameMode())
             {
                 return;
@@ -208,7 +208,7 @@ namespace se::editor::ui
     {
         auto app = Application::Get();
         auto world = app->GetWorld();
-        auto editor = app->GetEditorRuntime();
+        auto editor = app->GetEditor();
         auto playButton = world->GetComponent<se::ui::components::ButtonComponent>(m_PlayButton);
         if (!editor->InGameMode())
         {

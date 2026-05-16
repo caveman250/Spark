@@ -30,7 +30,7 @@ namespace se::editor::ui
     class PropertiesWindow : public ToolWindow
     {
     public:
-        PropertiesWindow(EditorRuntime* editor) : ToolWindow(editor) {}
+        PropertiesWindow(Editor* editor) : ToolWindow(editor) {}
         void Update() override;
         void ConstructUI() override;
         void DestroyUI() override;

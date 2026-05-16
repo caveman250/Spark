@@ -67,7 +67,7 @@ namespace se::ui::systems
                 }
 
     #if SPARK_EDITOR
-                auto editor = Application::Get()->GetEditorRuntime();
+                auto editor = Application::Get()->GetEditor();
                 if (editor->InGameMode() || *entity.scene == editor->GetEditorScene())
 #endif
                 {

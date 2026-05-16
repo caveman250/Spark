@@ -35,7 +35,7 @@ namespace se::editor::ui
     {
         auto app = Application::Get();
         auto world = app->GetWorld();
-        auto editor = app->GetEditorRuntime();
+        auto editor = app->GetEditor();
 
         se::ui::components::RectTransformComponent *windowTransform;
         se::ui::components::WindowComponent *windowComp;
@@ -119,7 +119,7 @@ namespace se::editor::ui
                                                ecs::World* world,
                                                const asset::AssetReference<asset::Font>& font)
     {
-        auto editor = Application::Get()->GetEditorRuntime();
+        auto editor = Application::Get()->GetEditor();
 
         const auto &selectedEntityRecord = world->m_EntityRecords.at(entity);
         {
@@ -186,7 +186,7 @@ namespace se::editor::ui
                             .fontSize = 14,
                             .minWidth = 250,
                             .mousePos = { inputComp->mouseX, inputComp->mouseY },
-                            .scene = Application::Get()->GetEditorRuntime()->GetEditorScene(),
+                            .scene = Application::Get()->GetEditor()->GetEditorScene(),
                         };
 
                         for (const auto& [id, type] : world->GetAllComponentTypes())
@@ -230,7 +230,7 @@ namespace se::editor::ui
     {
         auto app = Application::Get();
         auto world = app->GetWorld();
-        auto editor = app->GetEditorRuntime();
+        auto editor = app->GetEditor();
 
         auto filePathEntity = world->CreateEntity(editor->GetEditorScene(), "File Path");
         auto filePathText = world->AddComponent<se::ui::components::TextComponent>(filePathEntity);
@@ -272,7 +272,7 @@ namespace se::editor::ui
                                               ecs::World* world,
                                               const asset::AssetReference<asset::Font>& font)
     {
-        auto editor = Application::Get()->GetEditorRuntime();
+        auto editor = Application::Get()->GetEditor();
 
         auto reflectClass = static_cast<reflect::Class *>(asset->GetReflectType());
 

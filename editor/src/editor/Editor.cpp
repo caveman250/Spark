@@ -1,4 +1,4 @@
-#include "EditorRuntime.h"
+#include "Editor.h"
 #include "engine/render/Renderer.h"
 #include "../generated/Classes.generated.h"
 #include "../generated/Systems.generated.h"
@@ -32,7 +32,7 @@
 
 namespace se::editor
 {
-    void EditorRuntime::Init()
+    void Editor::Init()
     {
         auto world = Application::Get()->GetWorld();
 
@@ -137,7 +137,7 @@ namespace se::editor
             });
     }
 
-    void EditorRuntime::Update()
+    void Editor::Update()
     {
         auto* meshRenderComp = Application::Get()->GetWorld()->GetSingletonComponent<render::singleton_components::MeshRenderComponent>();
         meshRenderComp->invalidatedMeshAssets.clear();
@@ -183,7 +183,7 @@ namespace se::editor
         }
     }
 
-    void EditorRuntime::Render()
+    void Editor::Render()
     {
         auto* renderer = render::Renderer::Get<render::Renderer>();
         m_OffscreenRenderGroup = renderer->AllocRenderGroup(0);
@@ -192,21 +192,21 @@ namespace se::editor
         renderer->Submit<render::commands::Clear>(m_OffscreenRenderGroup, true, true);
     }
 
-    void EditorRuntime::Shutdown()
+    void Editor::Shutdown()
     {
     }
 
-    const ecs::Id& EditorRuntime::GetEditorScene() const
+    const ecs::Id& Editor::GetEditorScene() const
     {
         return m_EditorScene;
     }
 
-    const ecs::Id& EditorRuntime::GetLoadedScene() const
+    const ecs::Id& Editor::GetLoadedScene() const
     {
         return m_LoadedScene;
     }
 
-    void EditorRuntime::LoadScene(const std::string& path)
+    void Editor::LoadScene(const std::string& path)
     {
         auto world = Application::Get()->GetWorld();
         if (m_LoadedScene != ecs::InvalidEntity)
@@ -217,12 +217,12 @@ namespace se::editor
         m_ScenePath = path;
     }
 
-    const ecs::Id& EditorRuntime::GetSelectedEntity() const
+    const ecs::Id& Editor::GetSelectedEntity() const
     {
         return m_SelectedEntity;
     }
 
-    void EditorRuntime::SelectEntity(const ecs::Id& id, bool force)
+    void Editor::SelectEntity(const ecs::Id& id, bool force)
     {
         m_SelectedEntity = id;
         m_SelectedSingletonComp = nullptr;
@@ -230,12 +230,12 @@ namespace se::editor
         m_ForceSelection = force;
     }
 
-    reflect::ObjectBase* EditorRuntime::GetSelectedSingletonComponent() const
+    reflect::ObjectBase* Editor::GetSelectedSingletonComponent() const
     {
         return m_SelectedSingletonComp;
     }
 
-    void EditorRuntime::SelectSingletonComponent(reflect::ObjectBase* comp, bool force)
+    void Editor::SelectSingletonComponent(reflect::ObjectBase* comp, bool force)
     {
         m_SelectedEntity = ecs::InvalidEntity;
         m_SelectedSingletonComp = comp;
@@ -243,12 +243,12 @@ namespace se::editor
         m_ForceSelection = force;
     }
 
-    void EditorRuntime::OnEntitiesChanged() const
+    void Editor::OnEntitiesChanged() const
     {
         m_OutlineWindow->RebuildOutline();
     }
 
-    void EditorRuntime::OnViewportSizeChanged(int x, int y)
+    void Editor::OnViewportSizeChanged(int x, int y)
     {
         if (m_FrameBuffer)
         {
@@ -257,7 +257,7 @@ namespace se::editor
         m_FrameBuffer = render::FrameBuffer::CreateFrameBuffer({ x, y });
     }
 
-    void EditorRuntime::ToggleGameMode()
+    void Editor::ToggleGameMode()
     {
         auto world = Application::Get()->GetWorld();
         m_GameMode = !m_GameMode;
@@ -282,7 +282,7 @@ namespace se::editor
         }
     }
 
-    void EditorRuntime::SaveAll()
+    void Editor::SaveAll()
     {
         if (m_GameMode)
         {
@@ -300,7 +300,7 @@ namespace se::editor
         }
     }
 
-    std::string EditorRuntime::DuplicateAsset(const std::shared_ptr<asset::Asset>& asset)
+    std::string Editor::DuplicateAsset(const std::shared_ptr<asset::Asset>& asset)
     {
         auto type = asset->GetReflectType();
         auto& vfs = io::VFS::Get();
@@ -338,7 +338,7 @@ namespace se::editor
         return newPath;
     }
 
-    void EditorRuntime::SaveAsset(const std::shared_ptr<asset::Asset>& asset)
+    void Editor::SaveAsset(const std::shared_ptr<asset::Asset>& asset)
     {
         auto metaManager = asset::meta::MetaManager::Get();
         if (asset->UsesMetaData())
@@ -384,7 +384,7 @@ namespace se::editor
         }
     }
 
-    void EditorRuntime::DeleteAsset(const std::shared_ptr<asset::Asset>& asset)
+    void Editor::DeleteAsset(const std::shared_ptr<asset::Asset>& asset)
     {
         auto& vfs = io::VFS::Get();
         if (asset->UsesMetaData())
@@ -397,7 +397,7 @@ namespace se::editor
         vfs.Delete(asset->m_SourcePath);
     }
 
-    void EditorRuntime::RenameAsset(const std::shared_ptr<asset::Asset>& asset,
+    void Editor::RenameAsset(const std::shared_ptr<asset::Asset>& asset,
         const std::string& newPath)
     {
         auto metaManager = asset::meta::MetaManager::Get();
@@ -432,14 +432,14 @@ namespace se::editor
         }
     }
 
-    void EditorRuntime::DeSelectAll()
+    void Editor::DeSelectAll()
     {
         m_SelectedEntity = ecs::InvalidEntity;
         m_SelectedSingletonComp = nullptr;
         m_SelectedAsset = nullptr;
     }
 
-    void EditorRuntime::SaveScene()
+    void Editor::SaveScene()
     {
         if (SPARK_VERIFY(m_LoadedScene))
         {
@@ -449,7 +449,7 @@ namespace se::editor
         }
     }
 
-    void EditorRuntime::CreateEditorPlane()
+    void Editor::CreateEditorPlane()
     {
         auto world = Application::Get()->GetWorld();
 
@@ -462,12 +462,12 @@ namespace se::editor
         planeModel->materialAsset = "/engine_assets/materials/editor_plane.sass";
     }
 
-    const std::shared_ptr<asset::Asset>& EditorRuntime::GetSelectedAsset() const
+    const std::shared_ptr<asset::Asset>& Editor::GetSelectedAsset() const
     {
         return m_SelectedAsset;
     }
 
-    void EditorRuntime::SelectAsset(const std::shared_ptr<asset::Asset>& asset, bool force)
+    void Editor::SelectAsset(const std::shared_ptr<asset::Asset>& asset, bool force)
     {
         m_SelectedEntity = ecs::InvalidEntity;
         m_SelectedSingletonComp = nullptr;

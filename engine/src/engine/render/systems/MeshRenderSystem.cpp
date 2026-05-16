@@ -143,7 +143,7 @@ namespace se::render::systems
             auto* meshRenderComp = updateData.GetSingletonComponent<singleton_components::MeshRenderComponent>();
 
     #if SPARK_EDITOR
-            const size_t defaultRenderGroup = Application::Get()->GetEditorRuntime()->GetOffscreenRenderGroup();
+            const size_t defaultRenderGroup = Application::Get()->GetEditor()->GetOffscreenRenderGroup();
     #else
             const size_t defaultRenderGroup = renderer->GetDefaultRenderGroup();
     #endif
@@ -166,7 +166,7 @@ namespace se::render::systems
                     {
                         it = meshRenderComp->layerRenderGroups.insert(std::make_pair(meshComp.renderLayer, renderer->AllocRenderGroup(meshComp.renderLayer))).first;
     #if SPARK_EDITOR
-                        renderer->SetFrameBuffer(it->second, Application::Get()->GetEditorRuntime()->GetFrameBuffer());
+                        renderer->SetFrameBuffer(it->second, Application::Get()->GetEditor()->GetFrameBuffer());
     #endif
                     }
                     meshRenderComp->mutex.unlock();

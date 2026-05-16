@@ -1,6 +1,6 @@
 #include "OutlineWindow.h"
 
-#include "editor/EditorRuntime.h"
+#include "editor/Editor.h"
 #include "engine/Application.h"
 #include "engine/input/InputComponent.h"
 #include "engine/ui/components/EditableTextComponent.h"
@@ -24,7 +24,7 @@ namespace se::editor::ui
     {
         auto app = Application::Get();
         auto world = app->GetWorld();
-        auto editor = app->GetEditorRuntime();
+        auto editor = app->GetEditor();
 
         se::ui::components::RectTransformComponent* windowTransform;
         se::ui::components::WindowComponent* windowComp;
@@ -75,7 +75,7 @@ namespace se::editor::ui
 
         auto app = Application::Get();
         auto world = app->GetWorld();
-        auto editor = app->GetEditorRuntime();
+        auto editor = app->GetEditor();
 
         for (const auto& child : world->GetChildren(m_TreeViewEntity))
         {
@@ -144,11 +144,11 @@ namespace se::editor::ui
                 se::ui::util::ContextMenuParams params = {
                     .fontSize = 14,
                     .mousePos = { inputComp->mouseX, inputComp->mouseY },
-                    .scene = Application::Get()->GetEditorRuntime()->GetEditorScene()
+                    .scene = Application::Get()->GetEditor()->GetEditorScene()
                 };
                 params.AddOption("Create Entity", []()
                 {
-                    auto editor = Application::Get()->GetEditorRuntime();
+                    auto editor = Application::Get()->GetEditor();
                     Application::Get()->GetWorld()->CreateEntity(editor->GetLoadedScene(), "New Entity");
                 });
 
@@ -159,7 +159,7 @@ namespace se::editor::ui
 
     void OutlineWindow::AddEntityUI(ecs::World* world, const ecs::Id& entity, const ecs::Id& parent, se::ui::components::RectTransformComponent* treeViewRect)
     {
-        auto editor = Application::Get()->GetEditorRuntime();
+        auto editor = Application::Get()->GetEditor();
 
         se::ui::util::TreeNodeParams params = {
             .treeViewEntity = m_TreeViewEntity,

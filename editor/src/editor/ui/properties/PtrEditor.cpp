@@ -37,7 +37,7 @@ namespace se::editor::ui::properties
 
             auto app = Application::Get();
             auto world = app->GetWorld();
-            auto editor = app->GetEditorRuntime();
+            auto editor = app->GetEditor();
 
             auto entity = world->CreateEntity(editor->GetEditorScene(), params.name);
             auto rect = world->AddComponent<RectTransformComponent>(entity);

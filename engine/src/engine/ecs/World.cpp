@@ -66,7 +66,7 @@ namespace se::ecs
         SPARK_ASSERT(record.archetype);
 
 #if SPARK_EDITOR
-        auto editorRuntime = Application::Get()->GetEditorRuntime();
+        auto editorRuntime = Application::Get()->GetEditor();
         if (scene != editorRuntime->GetEditorScene().id)
         {
             m_EntitiesChangedThisFrame = true;
@@ -170,7 +170,7 @@ namespace se::ecs
         }
 
 #if SPARK_EDITOR
-        const auto editorRuntime = Application::Get()->GetEditorRuntime();
+        const auto editorRuntime = Application::Get()->GetEditor();
         if (entity == editorRuntime->GetSelectedEntity())
         {
             editorRuntime->SelectEntity(InvalidEntity);
@@ -482,7 +482,7 @@ namespace se::ecs
 #endif
 
 #if SPARK_EDITOR
-        const auto editor = Application::Get()->GetEditorRuntime();
+        const auto editor = Application::Get()->GetEditor();
         if (editor->InGameMode())
 #endif
         {
@@ -517,7 +517,7 @@ namespace se::ecs
 #if SPARK_EDITOR
         if (m_EntitiesChangedThisFrame)
         {
-            Application::Get()->GetEditorRuntime()->OnEntitiesChanged();
+            Application::Get()->GetEditor()->OnEntitiesChanged();
             ProcessAllPending();
             m_EntitiesChangedThisFrame = false;
         }
@@ -1076,7 +1076,7 @@ namespace se::ecs
     {
         SPARK_ASSERT(!m_Running);
 
-        auto editor = Application::Get()->GetEditorRuntime();
+        auto editor = Application::Get()->GetEditor();
 
         const std::vector dec = {
             ComponentUsage(components::RootComponent::GetComponentId(), ComponentMutability::Immutable),

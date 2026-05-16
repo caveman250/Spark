@@ -13,7 +13,7 @@ namespace se::input
                                        const std::function<bool(const MouseEvent&)>& func)
     {
 #if SPARK_EDITOR
-        auto editor = Application::Get()->GetEditorRuntime();
+        auto editor = Application::Get()->GetEditor();
         if (entity != ecs::InvalidEntity && *entity.scene != editor->GetEditorScene() &&
             !editor::util::PosWithinViewport(input->mouseX, input->mouseY))
         {
@@ -39,7 +39,7 @@ namespace se::input
                                      const std::function<bool(const KeyEvent&)>& func)
     {
 #if SPARK_EDITOR
-        auto editor = Application::Get()->GetEditorRuntime();
+        auto editor = Application::Get()->GetEditor();
         if (entity != ecs::InvalidEntity &&
             *entity.scene != editor->GetEditorScene() &&
             !editor::util::PosWithinViewport(input->mouseX, input->mouseY))

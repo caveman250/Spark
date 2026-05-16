@@ -115,7 +115,7 @@ namespace se::ui::util
         textComp.materialInstance->SetUniform("screenSize", 1, &windowSize);
 
 #if SPARK_EDITOR
-        const auto editor = Application::Get()->GetEditorRuntime();
+        const auto editor = Application::Get()->GetEditor();
         const bool isEditorEntity = *entity.scene == editor->GetEditorScene();
 #else
         constexpr bool isEditorEntity = false;

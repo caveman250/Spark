@@ -74,7 +74,7 @@ namespace se::ui::systems
                 }
 
 #if SPARK_EDITOR
-                const auto editor = Application::Get()->GetEditorRuntime();
+                const auto editor = Application::Get()->GetEditor();
                 if (*entity.scene == editor->GetEditorScene() && editor::util::PosWithinViewport(inputComp->mouseX, inputComp->mouseY))
                 {
                     continue;

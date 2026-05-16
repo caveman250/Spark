@@ -24,7 +24,7 @@ namespace se::editor::ui::properties
 
         auto app = Application::Get();
         auto world = app->GetWorld();
-        auto editor = app->GetEditorRuntime();
+        auto editor = app->GetEditor();
 
         int numSerialisedMembers = 0;
         for (const auto &member: m_Type->members)

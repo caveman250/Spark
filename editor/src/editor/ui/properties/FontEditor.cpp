@@ -20,7 +20,7 @@ namespace se::editor::ui::properties
 
         auto app = Application::Get();
         auto world = app->GetWorld();
-        auto editor = app->GetEditorRuntime();
+        auto editor = app->GetEditor();
 
         {
             auto textEntity = world->CreateEntity(editor->GetEditorScene(), "FontEditor Text");

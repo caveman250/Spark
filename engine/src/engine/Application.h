@@ -5,7 +5,7 @@
 #include "math/IntVec2.h"
 
 #if SPARK_EDITOR
-#include "editor/EditorRuntime.h"
+#include "editor/Editor.h"
 #endif
 
 namespace se
@@ -30,7 +30,7 @@ namespace se
         ecs::World* GetWorld() { return &m_World; }
 
 #if SPARK_EDITOR
-        editor::EditorRuntime* GetEditorRuntime() { return &m_EditorRuntime; }
+        editor::Editor* GetEditor() { return &m_Editor; }
 #endif
 
     protected:
@@ -50,7 +50,7 @@ namespace se
         friend class PlatformRunLoop;
 
 #if SPARK_EDITOR
-        editor::EditorRuntime m_EditorRuntime;
+        editor::Editor m_Editor;
 #endif
     };
 

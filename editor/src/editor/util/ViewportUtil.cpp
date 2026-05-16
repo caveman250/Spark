@@ -1,6 +1,6 @@
 #include "ViewportUtil.h"
 
-#include "editor/EditorRuntime.h"
+#include "editor/Editor.h"
 #include "engine/Application.h"
 #include "engine/math/math.h"
 #include "engine/render/Renderer.h"
@@ -12,7 +12,7 @@ namespace se::editor::util
                                                  int mouseY)
     {
         auto app = Application::Get();
-        auto editor = app->GetEditorRuntime();
+        auto editor = app->GetEditor();
 
         se::ui::Rect viewportRect = editor->GetViewportRect();
         math::IntVec2 renderTargetSize = editor->GetFrameBuffer()->GetSize();
@@ -26,7 +26,7 @@ namespace se::editor::util
                            int mouseY)
     {
         auto app = Application::Get();
-        auto editor = app->GetEditorRuntime();
+        auto editor = app->GetEditor();
         se::ui::Rect viewportRect = editor->GetViewportRect();
         return mouseX <= viewportRect.topLeft.x + viewportRect.size.x &&
                mouseY <= viewportRect.topLeft.y + viewportRect.size.y &&

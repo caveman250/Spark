@@ -29,7 +29,7 @@ namespace se::editor::ui::asset_browser
         fileWidget->m_File = file;
 
         const auto app = Application::Get();
-        auto editor = app->GetEditorRuntime();
+        auto editor = app->GetEditor();
         auto world = app->GetWorld();
         auto assetManager = asset::AssetManager::Get();
 
@@ -119,7 +119,7 @@ namespace se::editor::ui::asset_browser
         {
             button->onDragged.Subscribe([fileWidget, world](input::MouseButton)
             {
-                const auto editor = Application::Get()->GetEditorRuntime();
+                const auto editor = Application::Get()->GetEditor();
                 const auto dragDropStateComponent = world->GetSingletonComponent<singleton_components::DragDropStateComponent>();
                 const auto assetManager = asset::AssetManager::Get();
 
@@ -161,7 +161,7 @@ namespace se::editor::ui::asset_browser
                     se::ui::util::ContextMenuParams params = {
                         .fontSize = 14,
                         .mousePos = { inputComp->mouseX, inputComp->mouseY },
-                        .scene = Application::Get()->GetEditorRuntime()->GetEditorScene()
+                        .scene = Application::Get()->GetEditor()->GetEditorScene()
                     };
                     params.AddOption("Rename", [world, labelEntity, fileName = file.fileName]()
                     {
@@ -182,7 +182,7 @@ namespace se::editor::ui::asset_browser
 
                         const std::shared_ptr<asset::Asset> asset = asset::AssetManager::Get()->GetAsset(file.fullPath,
                                                                                                     reflect::TypeFromString(db->GetRoot().GetStruct().GetName()));
-                        const std::string newPath = EditorRuntime::DuplicateAsset(asset);
+                        const std::string newPath = Editor::DuplicateAsset(asset);
                         assetBrowser->SetActiveFolder(assetBrowser->GetActiveFolder(), false);
                         SelectFile(newPath);
                     });
@@ -192,7 +192,7 @@ namespace se::editor::ui::asset_browser
 
                         const std::shared_ptr<asset::Asset> asset = asset::AssetManager::Get()->GetAsset(file.fullPath,
                                                                                                     reflect::TypeFromString(db->GetRoot().GetStruct().GetName()));
-                        EditorRuntime::DeleteAsset(asset);
+                        Editor::DeleteAsset(asset);
                         assetBrowser->SetActiveFolder(assetBrowser->GetActiveFolder(), true);
                     });
                     se::ui::util::CreateContextMenu(params);

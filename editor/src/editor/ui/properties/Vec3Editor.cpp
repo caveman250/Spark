@@ -18,7 +18,7 @@ namespace se::editor::ui::properties
 
         auto app = Application::Get();
         auto world = app->GetWorld();
-        auto editor = app->GetEditorRuntime();
+        auto editor = app->GetEditor();
 
         auto box = world->CreateEntity(editor->GetEditorScene(), "Vect3 Editor Box");
         auto* boxRect = world->AddComponent<se::ui::components::RectTransformComponent>(box);

@@ -8,7 +8,7 @@ namespace se::editor::ui::asset_browser
     void SelectFile(const std::string& file)
     {
         auto app = Application::Get();
-        EditorRuntime* runtime = app->GetEditorRuntime();
+        Editor* runtime = app->GetEditor();
         auto db = asset::binary::Database::Load(file, true);
 
         std::shared_ptr<asset::Asset> asset = asset::AssetManager::Get()->GetAsset(file,
@@ -20,7 +20,7 @@ namespace se::editor::ui::asset_browser
     void OpenFile(const std::string& file)
     {
         auto app = Application::Get();
-        EditorRuntime* runtime = app->GetEditorRuntime();
+        Editor* runtime = app->GetEditor();
         auto db = asset::binary::Database::Load(file, true);
 
         std::shared_ptr<asset::Asset> asset = asset::AssetManager::Get()->GetAsset(file,

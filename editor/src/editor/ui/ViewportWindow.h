@@ -9,7 +9,7 @@ namespace se::editor::ui
     class ViewportWindow : public ToolWindow
     {
     public:
-        ViewportWindow(EditorRuntime* editor, const std::function<void(int, int)>& onViewportSizeChanged)
+        ViewportWindow(Editor* editor, const std::function<void(int, int)>& onViewportSizeChanged)
             : ToolWindow(editor)
             , m_OnViewportSizeChanged (onViewportSizeChanged)
         {}

@@ -64,7 +64,7 @@ namespace se
         engine_InitSystems(&m_World);
 
 #if SPARK_EDITOR
-        m_EditorRuntime.Init();
+        m_Editor.Init();
 #endif
 
         CreateInitialObservers();
@@ -105,7 +105,7 @@ namespace se
     math::IntVec2 Application::GetGameViewportSize()
     {
 #if SPARK_EDITOR
-        return m_EditorRuntime.GetFrameBuffer()->GetSize() * m_PrimaryWindow->GetContentScale();
+        return m_Editor.GetFrameBuffer()->GetSize() * m_PrimaryWindow->GetContentScale();
 #else
         return math::IntVec2(m_PrimaryWindow->GetWidth(), m_PrimaryWindow->GetHeight());
 #endif
@@ -122,7 +122,7 @@ namespace se
         m_World.Update();
 
 #if SPARK_EDITOR
-        m_EditorRuntime.Update();
+        m_Editor.Update();
 #endif
     }
 
@@ -131,7 +131,7 @@ namespace se
         EASY_BLOCK("Application::Render");
 
 #if SPARK_EDITOR
-        m_EditorRuntime.Render();
+        m_Editor.Render();
 #endif
 
         m_World.Render();

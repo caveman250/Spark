@@ -20,7 +20,7 @@ namespace se::editor::systems
     void DragDropSystem::OnUpdate(const ecs::QueryResults& results)
     {
         auto app = Application::Get();
-        auto editor = app->GetEditorRuntime();
+        auto editor = app->GetEditor();
         if (editor->InGameMode())
         {
             return;

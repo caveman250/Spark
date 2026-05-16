@@ -45,7 +45,7 @@ namespace se::editor
 
         m_GizmoType = type;
 
-        const auto* editor = Application::Get()->GetEditorRuntime();
+        const auto* editor = Application::Get()->GetEditor();
         if (!editor->InGameMode())
         {
             if (m_Gizmo == ecs::InvalidEntity)
@@ -83,7 +83,7 @@ namespace se::editor
     {
         auto* app = Application::Get();
         auto* world = app->GetWorld();
-        const auto* editor = app->GetEditorRuntime();
+        const auto* editor = app->GetEditor();
 
         m_Gizmo = world->CreateEntity(editor->GetEditorScene(), "Translate Gizmo");
         world->AddComponent<ecs::components::TransformComponent>(m_Gizmo);
@@ -164,7 +164,7 @@ namespace se::editor
     {
         auto* app = Application::Get();
         auto* world = app->GetWorld();
-        const auto* editor = app->GetEditorRuntime();
+        const auto* editor = app->GetEditor();
 
         m_Gizmo = world->CreateEntity(editor->GetEditorScene(), "Rotation Gizmo");
         world->AddComponent<ecs::components::TransformComponent>(m_Gizmo);
@@ -183,7 +183,7 @@ namespace se::editor
     {
         auto* app = Application::Get();
         auto* world = app->GetWorld();
-        auto* editor = app->GetEditorRuntime();
+        auto* editor = app->GetEditor();
 
         const auto entity = world->CreateEntity(editor->GetEditorScene(), std::format("Rotation Gizmo {}", reflect::EnumResolver<components::RotationAxis>::Get()->ToString(axis)));
         const auto mesh = world->AddComponent<ecs::components::MeshComponent>(entity);
@@ -270,7 +270,7 @@ namespace se::editor
     {
         auto* app = Application::Get();
         auto* world = app->GetWorld();
-        const auto* editor = app->GetEditorRuntime();
+        const auto* editor = app->GetEditor();
 
         auto* selectedEntityTransform = world->GetComponent<ecs::components::TransformComponent>(editor->GetSelectedEntity());
         if (const ecs::Id& parent = world->GetParent(editor->GetSelectedEntity()); parent != ecs::InvalidEntity)
@@ -292,7 +292,7 @@ namespace se::editor
     {
         auto* app = Application::Get();
         auto* world = app->GetWorld();
-        const auto* editor = app->GetEditorRuntime();
+        const auto* editor = app->GetEditor();
 
         const auto selectedEntityTransform = world->GetComponent<ecs::components::TransformComponent>(editor->GetSelectedEntity());
 
@@ -320,7 +320,7 @@ namespace se::editor
     {
         auto* app = Application::Get();
         auto* world = app->GetWorld();
-        const auto* editor = app->GetEditorRuntime();
+        const auto* editor = app->GetEditor();
 
         if (editor->GetSelectedEntity() == ecs::InvalidEntity)
         {

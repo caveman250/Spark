@@ -9,7 +9,7 @@ namespace se::editor::ui::properties::util
     ecs::Id CreateMissingPropertyEditorText(reflect::Type* type, float leftAnchor, int minY)
     {
         auto app = Application::Get();
-        auto editor = app->GetEditorRuntime();
+        auto editor = app->GetEditor();
         auto world = app->GetWorld();
         auto textEntity = world->CreateEntity(editor->GetEditorScene(), "MissingPropertyEditorText");
         auto text = world->AddComponent<se::ui::components::TextComponent>(textEntity);

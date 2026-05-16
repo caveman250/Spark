@@ -20,7 +20,7 @@ namespace se::ui::systems
 #if SPARK_EDITOR
             if (!layer.editor)
             {
-                editor::EditorRuntime* editor = Application::Get()->GetEditorRuntime();
+                editor::Editor* editor = Application::Get()->GetEditor();
                 renderer->SetFrameBuffer(it->second, editor->GetFrameBuffer());
             }
 #endif
@@ -98,7 +98,7 @@ namespace se::ui::systems
 
             renderComp->LayerToRenderGroupMap.clear();
     #if SPARK_EDITOR
-            auto* editorRuntime = Application::Get()->GetEditorRuntime();
+            auto* editorRuntime = Application::Get()->GetEditor();
             renderComp->LayerToRenderGroupMap.insert(std::make_pair(UILayerKey(0), editorRuntime->GetOffscreenRenderGroup()));
             renderComp->LayerToRenderGroupMap.insert(std::make_pair(UILayerKey(0, true), renderer->GetDefaultRenderGroup()));
     #else

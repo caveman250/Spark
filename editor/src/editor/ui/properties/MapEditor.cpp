@@ -37,7 +37,7 @@ namespace se::editor::ui::properties
 
         auto app = Application::Get();
         auto world = app->GetWorld();
-        auto editor = app->GetEditorRuntime();
+        auto editor = app->GetEditor();
         auto assetManager = asset::AssetManager::Get();
 
         auto listBG = world->CreateEntity(editor->GetEditorScene(), "Vector Editor BG");
@@ -78,7 +78,7 @@ namespace se::editor::ui::properties
             se::ui::util::ContextMenuParams params = {
                 .fontSize = 14,
                 .mousePos = { inputComp->mouseX, inputComp->mouseY },
-                .scene = Application::Get()->GetEditorRuntime()->GetEditorScene()
+                .scene = Application::Get()->GetEditor()->GetEditorScene()
             };
             for (auto* type : derivedTypes)
             {
@@ -148,7 +148,7 @@ namespace se::editor::ui::properties
     {
         auto app = Application::Get();
         auto world = app->GetWorld();
-        auto editor = app->GetEditorRuntime();
+        auto editor = app->GetEditor();
 
         // only supporting string keys until I have a need for other types.
         const auto& propName = std::any_cast<std::string>(key);

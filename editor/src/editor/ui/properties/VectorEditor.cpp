@@ -31,7 +31,7 @@ namespace se::editor::ui::properties
 
         auto app = Application::Get();
         auto world = app->GetWorld();
-        auto editor = app->GetEditorRuntime();
+        auto editor = app->GetEditor();
         auto assetManager = asset::AssetManager::Get();
 
         auto listBG = world->CreateEntity(editor->GetEditorScene(), "Vector Editor BG");
@@ -121,7 +121,7 @@ namespace se::editor::ui::properties
     {
         auto app = Application::Get();
         auto world = app->GetWorld();
-        auto editor = app->GetEditorRuntime();
+        auto editor = app->GetEditor();
 
         void* obj = m_VectorType->GetContainedValueByIndex(m_Value, i);
         auto containedType = m_VectorType->GetContainedValueType(obj);

@@ -99,7 +99,7 @@ namespace se::editor::ui::properties
 
         auto app = Application::Get();
         auto world = app->GetWorld();
-        auto editor = app->GetEditorRuntime();
+        auto editor = app->GetEditor();
         auto assetManager = asset::AssetManager::Get();
         auto ariel = assetManager->GetAsset<asset::Font>("/engine_assets/fonts/Arial.sass");
 

@@ -32,7 +32,7 @@ namespace se::editor::ui::asset_browser
     {
         auto app = Application::Get();
         auto world = app->GetWorld();
-        auto editor = app->GetEditorRuntime();
+        auto editor = app->GetEditor();
         auto assetManager = asset::AssetManager::Get();
 
         se::ui::components::RectTransformComponent* windowTransform;
@@ -162,7 +162,7 @@ namespace se::editor::ui::asset_browser
                 se::ui::util::ContextMenuParams params = {
                     .fontSize = 14,
                     .mousePos = { inputComp->mouseX, inputComp->mouseY },
-                    .scene = Application::Get()->GetEditorRuntime()->GetEditorScene()
+                    .scene = Application::Get()->GetEditor()->GetEditorScene()
                 };
                 params.AddOption("Create Scene", [this]()
                 {
@@ -255,7 +255,7 @@ namespace se::editor::ui::asset_browser
     {
         auto app = Application::Get();
         auto world = app->GetWorld();
-        auto editor = app->GetEditorRuntime();
+        auto editor = app->GetEditor();
 
         std::string cumulativePath = { };
         std::string lhs, rhs;
@@ -299,7 +299,7 @@ namespace se::editor::ui::asset_browser
                                             const asset::AssetReference<asset::Font>& font)
     {
         const auto app = Application::Get();
-        const auto editor = app->GetEditorRuntime();
+        const auto editor = app->GetEditor();
 
         const ecs::Id pathItemEntity = world->CreateEntity(editor->GetEditorScene(), "Path Item");
         world->AddComponent<se::ui::components::RectTransformComponent>(pathItemEntity);

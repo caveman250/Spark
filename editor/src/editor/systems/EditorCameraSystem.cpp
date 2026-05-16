@@ -32,7 +32,7 @@ namespace se::editor::systems
 
     void EditorCameraSystem::OnUpdate(const ecs::QueryResults& results)
     {
-        auto editor = Application::Get()->GetEditorRuntime();
+        auto editor = Application::Get()->GetEditor();
         if (editor->InGameMode())
         {
             return;

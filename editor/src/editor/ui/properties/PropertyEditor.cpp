@@ -43,7 +43,7 @@ namespace se::editor::ui::properties
         constexpr int titleFontSize = 14;
         auto app = Application::Get();
         auto world = app->GetWorld();
-        auto editor = app->GetEditorRuntime();
+        auto editor = app->GetEditor();
 
         m_Name = params.name;
 

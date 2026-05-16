@@ -21,7 +21,7 @@ namespace se::editor::ui::properties
     {
         auto metaManager = asset::meta::MetaManager::Get();
         auto meta = metaManager->GetOrCreateMetaDataForAsset(m_Value);
-        auto editor = Application::Get()->GetEditorRuntime();
+        auto editor = Application::Get()->GetEditor();
 
         auto metaType = meta->GetReflectType();
         auto wrappedParams = params;

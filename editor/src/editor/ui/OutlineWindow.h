@@ -18,7 +18,7 @@ namespace se::editor::ui
     class OutlineWindow : public ToolWindow
     {
     public:
-        OutlineWindow(EditorRuntime* editor) : ToolWindow(editor) {}
+        OutlineWindow(Editor* editor) : ToolWindow(editor) {}
         void ConstructUI() override;
         void DestroyUI() override;
         void RebuildOutline();

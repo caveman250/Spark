@@ -31,7 +31,7 @@ namespace se::editor::systems
 
     void EditorPickSystem::OnUpdate(const ecs::QueryResults& results)
     {
-        auto editor = Application::Get()->GetEditorRuntime();
+        auto editor = Application::Get()->GetEditor();
         if (editor->InGameMode())
         {
             return;
@@ -79,7 +79,7 @@ namespace se::editor::systems
                         {
                             if (mouseEvent.state == input::KeyState::Down)
                             {
-                                Application::Get()->GetEditorRuntime()->SelectEntity(entity);
+                                Application::Get()->GetEditor()->SelectEntity(entity);
                                 return true;
                             }
                         }

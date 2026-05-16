@@ -27,7 +27,7 @@ namespace se::editor
         enum class RotationAxis;
     }
 
-    class EditorRuntime
+    class Editor
     {
     public:
         void Init();
