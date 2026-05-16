@@ -89,52 +89,7 @@ namespace se::editor
 
         CreateEditorPlane();
 
-#if SPARK_PLATFORM_MAC
-        constexpr auto primaryModifier = singleton_components::ShortcutModifier::Super;
-#else
-        ShortcutModifier primaryModifier = singleton_components::ShortcutModifier::Ctrl;
-#endif
-
-        auto* shortcutsComp = world->GetSingletonComponent<singleton_components::EditorShortcutsComponent>();
-        util::RegisterShortcut(shortcutsComp, input::Key::S, primaryModifier,
-            []()
-            {
-                return true;
-            },
-            [this]()
-            {
-                SaveAll();
-            });
-
-        util::RegisterShortcut(shortcutsComp, input::Key::W, singleton_components::ShortcutModifier::None,
-            [this]()
-            {
-                return m_SelectedEntity != ecs::InvalidEntity && m_GizmoManager.GetGizmoType() != GizmoType::Translate;
-            },
-            [this]()
-            {
-                m_GizmoManager.SetGizmoType(GizmoType::Translate);
-            });
-
-        util::RegisterShortcut(shortcutsComp, input::Key::E, singleton_components::ShortcutModifier::None,
-        [this]()
-        {
-            return m_SelectedEntity != ecs::InvalidEntity && m_GizmoManager.GetGizmoType() != GizmoType::Rotate;
-        },
-        [this]()
-        {
-            m_GizmoManager.SetGizmoType(GizmoType::Rotate);
-        });
-
-        util::RegisterShortcut(shortcutsComp, input::Key::Escape, singleton_components::ShortcutModifier::None,
-            []()
-            {
-                return true;
-            },
-            [this]()
-            {
-                DeSelectAll();
-            });
+        EditorShortcutsManager::RegisterShortcuts();
     }
 
     void Editor::Update()

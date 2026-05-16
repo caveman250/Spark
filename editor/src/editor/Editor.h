@@ -44,6 +44,7 @@ namespace se::editor
         void SelectSingletonComponent(reflect::ObjectBase* comp, bool force = false);
         const std::shared_ptr<asset::Asset>& GetSelectedAsset() const;
         void SelectAsset(const std::shared_ptr<asset::Asset>& asset, bool force = false);
+        void DeSelectAll();
         void OnEntitiesChanged() const;
 
         size_t GetOffscreenRenderGroup() const { return m_OffscreenRenderGroup; }
@@ -54,15 +55,15 @@ namespace se::editor
         void ToggleGameMode();
         bool InGameMode() const { return m_GameMode; }
 
+        GizmoManager& GetGizmoManager() { return m_GizmoManager; }
+
         static std::string DuplicateAsset(const std::shared_ptr<asset::Asset>& asset);
         static void SaveAsset(const std::shared_ptr<asset::Asset>& asset);
         static void DeleteAsset(const std::shared_ptr<asset::Asset>& asset);
         void RenameAsset(const std::shared_ptr<asset::Asset>& asset, const std::string& newPath);
+        void SaveAll();
 
     private:
-        void DeSelectAll();
-
-        void SaveAll();
         void SaveScene();
         void CreateEditorPlane();
 
