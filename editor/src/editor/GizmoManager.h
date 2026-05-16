@@ -29,8 +29,8 @@ namespace se::editor
         GizmoType GetGizmoType() const { return m_GizmoType; }
         void SetGizmoType(GizmoType type);
         void OnSelectEntity(const ecs::Id& entity);
-    private:
 
+    private:
         void CreateTranslateGizmo();
         void CreateRotationGizmo();
         void CreateRotationGizmoAxis(components::RotationAxis axis,
@@ -43,7 +43,6 @@ namespace se::editor
         void SnapGizmoToSelectedEntity();
         void HideGizmo() const;
 
-    private:
         ecs::Id m_Gizmo = ecs::InvalidEntity;
         GizmoType m_GizmoType = GizmoType::Translate;
         std::vector<ecs::Id> m_GizmoAxisEntities = {};
