@@ -1,6 +1,17 @@
 #pragma once
 
+#include "engine/geo/Ray.h"
 #include "engine/math/math.h"
+
+namespace se::camera
+{
+    struct ActiveCameraComponent;
+}
+
+namespace se::input
+{
+    struct InputComponent;
+}
 
 namespace se::editor::util
 {
@@ -12,4 +23,7 @@ namespace se::editor::util
                                   const math::Mat4& view,
                                   const math::Mat4& projection,
                                   const math::Vec4& viewport);
+
+    geo::Ray GetEditorMouseRay(const input::InputComponent* inputComp,
+                               const camera::ActiveCameraComponent* cameraComp);
 }

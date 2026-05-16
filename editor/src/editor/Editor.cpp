@@ -1,34 +1,26 @@
 #include "Editor.h"
-#include "engine/render/Renderer.h"
 #include "../generated/Classes.generated.h"
 #include "../generated/Systems.generated.h"
 #include "components/EditorCameraComponent.h"
-#include "components/RotationGizmoComponent.h"
-#include "components/TransformGizmoComponent.h"
 #include "engine/Application.h"
 #include "engine/asset/AssetManager.h"
 #include "engine/asset/builder/AssetBuilder.h"
 #include "engine/asset/meta/MetaDataManager.h"
-#include "engine/asset/shader/Shader.h"
 #include "engine/asset/util/AssetUtil.h"
 #include "engine/camera/ActiveCameraComponent.h"
 #include "engine/ecs/components/MeshComponent.h"
 #include "engine/ecs/components/TransformComponent.h"
-#include "engine/geo/util/MeshUtil.h"
+#include "engine/geo/Plane.h"
+#include "engine/geo/util/CollisionUtil.h"
 #include "engine/input/InputComponent.h"
-#include "engine/input/InputUtil.h"
 #include "engine/io/VFS.h"
-#include "engine/render/Material.h"
+#include "engine/render/Renderer.h"
 #include "engine/render/singleton_components/MeshRenderComponent.h"
-#include "engine/string/util/StringUtil.h"
 #include "engine/ui/components/ImageComponent.h"
 #include "engine/ui/components/KeyInputComponent.h"
-#include "engine/ui/components/MouseInputComponent.h"
 #include "engine/ui/components/SplitViewComponent.h"
-#include "engine/ui/components/WindowComponent.h"
-#include "engine/ui/util/MeshUtil.h"
 #include "engine/ui/util/SplitViewUtil.h"
-#include "util/ShortcutsUtil.h"
+#include "util/ViewportUtil.h"
 
 namespace se::editor
 {
@@ -201,6 +193,50 @@ namespace se::editor
     void Editor::OnEntitiesChanged() const
     {
         m_OutlineWindow->RebuildOutline();
+    }
+
+    void Editor::Copy()
+    {
+        if (m_SelectedEntity != ecs::InvalidEntity)
+        {
+            m_EntityToCopy = m_SelectedEntity;
+        }
+    }
+
+    void Editor::Paste()
+    {
+        if (m_EntityToCopy != ecs::InvalidEntity)
+        {
+            auto* world = Application::Get()->GetWorld();
+            ecs::Id newEntity = world->DuplicateEntity(m_EntityToCopy);
+            if (auto* transform = world->GetComponent<ecs::components::TransformComponent>(newEntity))
+            {
+                auto ray = util::GetEditorMouseRay(world->GetSingletonComponent<input::InputComponent>(),
+                                                    world->GetSingletonComponent<camera::ActiveCameraComponent>());
+                geo::Plane plane = {
+                    .normal = { 0.f, 1.f, 0.f },
+                    .center = transform->pos
+                };
+                const auto hit = geo::util::RayCastPlane(ray, plane);
+                if (hit.has_value())
+                {
+                    transform->pos = hit.value().intersectionPoint;
+                }
+            }
+
+            SelectEntity(newEntity);
+        }
+    }
+
+    bool Editor::HasValidCopySelection() const
+    {
+        return m_SelectedEntity != ecs::InvalidEntity ||
+                m_SelectedAsset;
+    }
+
+    bool Editor::HasValidCopyTarget() const
+    {
+        return m_EntityToCopy != ecs::InvalidEntity;
     }
 
     void Editor::OnViewportSizeChanged(int x, int y)

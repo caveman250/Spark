@@ -21,6 +21,7 @@ namespace se::render
         ~MaterialInstance() override;
         explicit MaterialInstance(const asset::AssetReference<Material>& material);
         explicit MaterialInstance(const std::shared_ptr<Material>& material);
+        MaterialInstance(const MaterialInstance& other);
 
         static std::shared_ptr<MaterialInstancePlatformResources> CreateMaterialInstancePlatformResources(const std::shared_ptr<Material>& material);
 
@@ -34,6 +35,7 @@ namespace se::render
 
         const std::shared_ptr<Material>& GetMaterial();
         const std::shared_ptr<MaterialInstancePlatformResources>& GetPlatformResources() const { return m_PlatformResources; }
+
     protected:
         SPARK_MEMBER(Serialized)
         asset::AssetReference<Material> m_Material = {};

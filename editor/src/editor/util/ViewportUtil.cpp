@@ -1,7 +1,10 @@
 #include "ViewportUtil.h"
 
 #include "editor/Editor.h"
+#include "editor/components/EditorCameraComponent.h"
 #include "engine/Application.h"
+#include "engine/camera/ActiveCameraComponent.h"
+#include "engine/input/InputComponent.h"
 #include "engine/math/math.h"
 #include "engine/render/Renderer.h"
 #include "platform/IWindow.h"
@@ -42,5 +45,20 @@ namespace se::editor::util
         math::Vec3 win(screenPos.x, viewport.w - screenPos.y, 0.0f);
         math::Vec3 point = math::UnProject(win, view, projection, viewport);
         return point;
+    }
+
+    geo::Ray GetEditorMouseRay(const input::InputComponent* inputComp, const camera::ActiveCameraComponent* cameraComp)
+    {
+        const auto mousePos = util::ScreenSpaceToGameViewportSpace(inputComp->mouseX, inputComp->mouseY);
+        const auto viewportRect = Application::Get()->GetEditor()->GetViewportRect();
+        const math::Vec3 mouseWorldPos = util::ScreenToWorldPoint(mousePos
+                                                            , cameraComp->view
+                                                            , cameraComp->proj
+                                                            , math::Vec4(0.f,
+                                                                0.f,
+                                                                static_cast<float>(viewportRect.size.x),
+                                                                static_cast<float>(viewportRect.size.y)));
+        const math::Vec3 direction = math::Normalized(mouseWorldPos - cameraComp->pos);
+        return geo::Ray(cameraComp->pos, direction);
     }
 }

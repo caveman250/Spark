@@ -11,6 +11,6 @@ namespace se::editor::util
         Condition&& condition,
         Func&& func)
     {
-        shortcuts->m_Shortcuts[modifiers][key] = { condition, func };
+        shortcuts->shortcuts[modifiers][key] = { condition, func };
     }
 }

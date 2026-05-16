@@ -31,7 +31,7 @@ namespace se::editor::singleton_components
         SPARK_SINGLETON_COMPONENT(EditorOnly)
 
         typedef std::unordered_map<input::Key, EditorShortcut> Shortcuts;
-        std::unordered_map<ShortcutModifier, Shortcuts> m_Shortcuts;
+        std::unordered_map<ShortcutModifier, Shortcuts> shortcuts;
         std::vector<std::function<void()>> pendingShortcuts = {};
     };
 }

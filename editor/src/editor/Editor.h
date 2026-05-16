@@ -47,6 +47,11 @@ namespace se::editor
         void DeSelectAll();
         void OnEntitiesChanged() const;
 
+        void Copy();
+        void Paste();
+        bool HasValidCopySelection() const;
+        bool HasValidCopyTarget() const;
+
         size_t GetOffscreenRenderGroup() const { return m_OffscreenRenderGroup; }
         const std::shared_ptr<render::FrameBuffer>& GetFrameBuffer() const { return m_FrameBuffer; }
         se::ui::Rect GetViewportRect() const { return m_ViewportWindow->GetViewportScreenspaceRect(); }
@@ -92,5 +97,8 @@ namespace se::editor
         std::shared_ptr<render::FrameBuffer> m_FrameBuffer = nullptr;
 
         bool m_GameMode = false;
+
+        // cut/copy/paste
+        ecs::Id m_EntityToCopy = ecs::InvalidEntity;
     };
 }

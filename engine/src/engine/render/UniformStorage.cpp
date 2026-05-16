@@ -13,6 +13,15 @@ namespace se
         m_Storage.clear();
     }
 
+    render::UniformStorage::UniformStorage(const UniformStorage& other)
+        : m_Stale(true)
+    {
+        for (const auto& [key, value] : other.m_Storage)
+        {
+            m_Storage.insert(std::make_pair(key, value->Copy()));
+        }
+    }
+
     void render::UniformStorage::Apply(MaterialInstance* material)
     {
         for (const auto& [name, value] : m_Storage)

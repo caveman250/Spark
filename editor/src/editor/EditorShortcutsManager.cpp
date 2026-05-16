@@ -64,6 +64,26 @@ namespace se
                                {
                                    editor->DeSelectAll();
                                });
+
+        util::RegisterShortcut(shortcuts, input::Key::C, PrimaryModifier,
+                       [editor]()
+                       {
+                           return editor->HasValidCopySelection();
+                       },
+                       [editor]()
+                       {
+                           editor->Copy();
+                       });
+
+        util::RegisterShortcut(shortcuts, input::Key::V, PrimaryModifier,
+               [editor]()
+               {
+                   return editor->HasValidCopyTarget();
+               },
+               [editor]()
+               {
+                   editor->Paste();
+               });
     }
 
 #if SPARK_PLATFORM_MAC

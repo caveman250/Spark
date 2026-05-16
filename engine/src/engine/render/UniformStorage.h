@@ -39,8 +39,6 @@ namespace se::render
 
         SPARK_MEMBER(Serialized)
         std::vector<T> value = {};
-
-
     };
 
     template<typename T>
@@ -87,6 +85,8 @@ namespace se::render
         SPARK_CLASS()
     public:
         ~UniformStorage() override;
+        UniformStorage() = default;
+        UniformStorage(const UniformStorage& other);
         template <typename T>
         void SetValue(const std::string& name, int count, const T* value, bool internal);
         template<typename T>

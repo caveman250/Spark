@@ -1,6 +1,7 @@
 #include "AssetManager.h"
 #include "Asset.h"
 #include "engine/Application.h"
+#include "engine/render/MaterialInstance.h"
 #include "engine/render/singleton_components/MeshRenderComponent.h"
 
 namespace se::asset
@@ -19,6 +20,11 @@ namespace se::asset
         const auto it = m_AssetCache.find(path);
         if (it != m_AssetCache.end())
         {
+            if (type == reflect::TypeResolver<render::MaterialInstance>::Get())
+            {
+                return std::make_shared<render::MaterialInstance>(*static_cast<render::MaterialInstance*>(it->second.get()));
+            }
+
             return it->second;
         }
 
@@ -33,6 +39,11 @@ namespace se::asset
         asset->m_Path = path;
         type->Deserialize(asset.get(), root, {});
         m_AssetCache.insert(std::make_pair(path,asset));
+
+        if (type == reflect::TypeResolver<render::MaterialInstance>::Get())
+        {
+            return std::make_shared<render::MaterialInstance>(*static_cast<render::MaterialInstance*>(asset.get()));
+        }
 
         return asset;
     }

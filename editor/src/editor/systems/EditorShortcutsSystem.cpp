@@ -47,7 +47,7 @@ namespace se::editor::systems
             modifierMask |= singleton_components::ShortcutModifier::Super;
         }
 
-        const auto& shortcuts = shortcutsComp->m_Shortcuts[modifierMask];
+        const auto& shortcuts = shortcutsComp->shortcuts[modifierMask];
 
         input::InputUtil::ProcessKeyEvents(ecs::InvalidEntity, inputComp, [shortcuts, shortcutsComp](const input::KeyEvent& ev)
         {

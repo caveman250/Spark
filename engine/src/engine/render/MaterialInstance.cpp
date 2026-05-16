@@ -72,6 +72,14 @@ namespace se::render
     {
 
     }
+
+    MaterialInstance::MaterialInstance(const MaterialInstance& other)
+        : Asset(other)
+        , m_Material(other.m_Material)
+        , m_MaterialHandle(other.m_MaterialHandle)
+        , m_UniformStorage(other.m_UniformStorage)
+    {
+    }
 }
 
 

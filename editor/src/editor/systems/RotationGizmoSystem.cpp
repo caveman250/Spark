@@ -34,7 +34,7 @@ namespace se::editor::systems
             return;
         }
 
-        ecs::ForEachArcheType(results, ecs::UpdateMode::MultiThreaded, false, [editor](const ecs::SystemUpdateData& updateData)
+        ecs::ForEachArcheType(results, ecs::UpdateMode::MultiThreaded, false, [](const ecs::SystemUpdateData& updateData)
         {
             const auto& entities = updateData.GetEntities();
             auto cameraComp = updateData.GetSingletonComponent<const camera::ActiveCameraComponent>();
@@ -43,17 +43,7 @@ namespace se::editor::systems
             auto* transforms = updateData.GetComponentArray<ecs::components::TransformComponent>();
             auto* meshes = updateData.GetComponentArray<ecs::components::MeshComponent>();
 
-            auto mousePos = util::ScreenSpaceToGameViewportSpace(inputComp->mouseX, inputComp->mouseY);
-            auto viewportRect = editor->GetViewportRect();
-            math::Vec3 mouseWorldPos = util::ScreenToWorldPoint(mousePos
-                                                                , cameraComp->view
-                                                                , cameraComp->proj
-                                                                , math::Vec4(0.f,
-                                                                    0.f,
-                                                                    static_cast<float>(viewportRect.size.x),
-                                                                    static_cast<float>(viewportRect.size.y)));
-            math::Vec3 direction = math::Normalized(mouseWorldPos - cameraComp->pos);
-            auto ray = geo::Ray(cameraComp->pos, direction);
+            auto ray = util::GetEditorMouseRay(inputComp, cameraComp);
 
             for (size_t i = 0; i < entities.size(); ++i)
             {

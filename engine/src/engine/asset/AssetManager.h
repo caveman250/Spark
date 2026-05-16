@@ -60,7 +60,12 @@ namespace se::asset
         const auto it = m_AssetCache.find(path);
         if (it != m_AssetCache.end())
         {
-            return std::static_pointer_cast<T>(m_AssetCache.at(path));
+            if constexpr (std::is_same_v<render::MaterialInstance, T>)
+            {
+                return std::make_shared<render::MaterialInstance>(*static_cast<T*>(it->second.get()));
+            }
+
+            return std::static_pointer_cast<T>(it->second);
         }
 
         const auto db = binary::Database::Load(path, true);
@@ -72,6 +77,11 @@ namespace se::asset
         reflect::DeserialiseType<T>(db, *asset);
         asset->m_Path = path;
         m_AssetCache.insert(std::make_pair(path,asset));
+
+        if constexpr (std::is_same_v<render::MaterialInstance, T>)
+        {
+            return std::make_shared<render::MaterialInstance>(*asset.get());
+        }
 
         return asset;
     }

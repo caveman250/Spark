@@ -20,6 +20,21 @@ namespace se::ecs::components
         SPARK_COMPONENT()
 
         MeshComponent() = default;
+        MeshComponent(const MeshComponent& other)
+        {
+            model = other.model.GetAssetPath();
+            materialAsset = other.materialAsset.GetAssetPath();
+            materialInstanceAsset = other.materialInstanceAsset.GetAssetPath();
+            renderLayer = other.renderLayer;
+            visible = other.visible;
+            if (other.materialInstance)
+            {
+                materialInstance = std::make_shared<render::MaterialInstance>(*other.materialInstance.get());
+            }
+            vertexBuffer = other.vertexBuffer;
+            indexBuffer = other.indexBuffer;
+            aabb = other.aabb;
+        }
 
         SPARK_MEMBER(Serialized)
         asset::AssetReference<asset::Model> model = {};

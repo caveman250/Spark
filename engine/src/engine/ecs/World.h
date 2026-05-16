@@ -105,6 +105,8 @@ namespace se::ecs
         void RenameEntity(const Id& entity,
                         const std::string& name);
         void DestroyEntity(const Id& entity);
+        Id DuplicateEntity(const Id& entity);
+        void DuplicateChildren(const Id& entity, const Id& newEntity);
         std::vector<Id> GetEntities() const;
         std::vector<Id> GetRootEntities();
 #if SPARK_EDITOR
@@ -252,6 +254,7 @@ namespace se::ecs
             Id entity;
             Id comp;
             void* tempData;
+            bool move = true;
         };
 
         void AddComponentInternal(const PendingComponent& pendingComp);

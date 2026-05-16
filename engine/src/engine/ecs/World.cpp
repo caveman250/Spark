@@ -1046,6 +1046,43 @@ namespace se::ecs
         m_PendingEntityDeletions.push_back(entity);
     }
 
+    Id World::DuplicateEntity(const Id& entity)
+    {
+        SPARK_ASSERT(!m_Running, "Duplicating while ecs running not currently supported.");
+        Id newEntity = CreateEntity(*entity.scene, *entity.name + " (Copy)");
+        const auto& entityRecord = m_EntityRecords.at(entity);
+        for (const auto& comp : entityRecord.archetype->typeVector)
+        {
+            if (comp == components::RootComponent::GetComponentId())
+            {
+                continue;
+            }
+
+            PendingComponent pending = {
+                .entity = newEntity,
+                .comp = comp,
+                .tempData = GetComponent(entity, comp),
+                .move = false
+            };
+            AddComponentInternal(pending);
+        }
+
+        DuplicateChildren(entity, newEntity);
+
+        return newEntity;
+    }
+
+    void World::DuplicateChildren(const Id& entity,
+        const Id& newEntity)
+    {
+        for (const auto& child : GetChildren(entity))
+        {
+            Id newChild = DuplicateEntity(child);
+            AddChild(newEntity, newChild);
+            DuplicateChildren(child, newChild);
+        }
+    }
+
     std::vector<Id> World::GetEntities() const
     {
         return ::se::util::ToKeyArray<Id>(m_EntityRecords);
@@ -1313,7 +1350,14 @@ namespace se::ecs
 
         if (pendingComp.tempData)
         {
-            m_ComponentRecords[pendingComp.comp].type->inplace_move_constructor(compData, pendingComp.tempData);
+            if (pendingComp.move)
+            {
+                m_ComponentRecords[pendingComp.comp].type->inplace_move_constructor(compData, pendingComp.tempData);
+            }
+            else
+            {
+                m_ComponentRecords[pendingComp.comp].type->inplace_copy_constructor(compData, pendingComp.tempData);
+            }
         }
         else
         {
