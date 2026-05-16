@@ -8,6 +8,7 @@
 #include "engine/asset/meta/MetaDataManager.h"
 #include "engine/asset/util/AssetUtil.h"
 #include "engine/camera/ActiveCameraComponent.h"
+#include "engine/ecs/Prefab.h"
 #include "engine/ecs/components/MeshComponent.h"
 #include "engine/ecs/components/TransformComponent.h"
 #include "engine/geo/Plane.h"
@@ -203,12 +204,31 @@ namespace se::editor
         }
     }
 
+    void Editor::Cut()
+    {
+        auto world = Application::Get()->GetWorld();
+        m_CutEntity = world->CreatePrefabFromEntity(m_SelectedEntity);
+        world->DestroyEntity(m_SelectedEntity);
+        m_SelectedEntity = ecs::InvalidEntity;
+        m_EntityToCopy = ecs::InvalidEntity;
+    }
+
     void Editor::Paste()
     {
+        auto* world = Application::Get()->GetWorld();
+
+        ecs::Id newEntity = {};
         if (m_EntityToCopy != ecs::InvalidEntity)
         {
-            auto* world = Application::Get()->GetWorld();
-            ecs::Id newEntity = world->DuplicateEntity(m_EntityToCopy);
+            newEntity = world->DuplicateEntity(m_EntityToCopy);
+        }
+        else if (!m_CutEntity.m_Entities.empty())
+        {
+            newEntity = world->InstantiatePrefab(GetLoadedScene(), m_CutEntity);
+        }
+
+        if (newEntity != ecs::InvalidEntity)
+        {
             if (auto* transform = world->GetComponent<ecs::components::TransformComponent>(newEntity))
             {
                 auto ray = util::GetEditorMouseRay(world->GetSingletonComponent<input::InputComponent>(),
@@ -234,9 +254,9 @@ namespace se::editor
                 m_SelectedAsset;
     }
 
-    bool Editor::HasValidCopyTarget() const
+    bool Editor::HasValidPasteTarget() const
     {
-        return m_EntityToCopy != ecs::InvalidEntity;
+        return m_EntityToCopy != ecs::InvalidEntity || !m_CutEntity.m_Entities.empty();
     }
 
     void Editor::OnViewportSizeChanged(int x, int y)

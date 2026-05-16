@@ -1,6 +1,7 @@
 #pragma once
 
 #include "GizmoManager.h"
+#include "engine/ecs/Prefab.h"
 #include "singleton_components/EditorShortcutsComponent.h"
 #include "ui/asset_browser/AssetBrowserWindow.h"
 #include "ui/ViewportWindow.h"
@@ -48,9 +49,10 @@ namespace se::editor
         void OnEntitiesChanged() const;
 
         void Copy();
+        void Cut();
         void Paste();
         bool HasValidCopySelection() const;
-        bool HasValidCopyTarget() const;
+        bool HasValidPasteTarget() const;
 
         size_t GetOffscreenRenderGroup() const { return m_OffscreenRenderGroup; }
         const std::shared_ptr<render::FrameBuffer>& GetFrameBuffer() const { return m_FrameBuffer; }
@@ -100,5 +102,6 @@ namespace se::editor
 
         // cut/copy/paste
         ecs::Id m_EntityToCopy = ecs::InvalidEntity;
+        ecs::Prefab m_CutEntity = {};
     };
 }

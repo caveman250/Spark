@@ -75,10 +75,20 @@ namespace se
                            editor->Copy();
                        });
 
+        util::RegisterShortcut(shortcuts, input::Key::X, PrimaryModifier,
+                      [editor]()
+                      {
+                          return editor->HasValidCopySelection();
+                      },
+                      [editor]()
+                      {
+                          editor->Cut();
+                      });
+
         util::RegisterShortcut(shortcuts, input::Key::V, PrimaryModifier,
                [editor]()
                {
-                   return editor->HasValidCopyTarget();
+                   return editor->HasValidPasteTarget();
                },
                [editor]()
                {
