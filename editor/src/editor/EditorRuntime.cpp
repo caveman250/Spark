@@ -28,6 +28,7 @@
 #include "engine/ui/components/WindowComponent.h"
 #include "engine/ui/util/MeshUtil.h"
 #include "engine/ui/util/SplitViewUtil.h"
+#include "util/ShortcutsUtil.h"
 
 namespace se::editor
 {
@@ -89,14 +90,40 @@ namespace se::editor
         CreateEditorPlane();
 
 #if SPARK_PLATFORM_MAC
-        constexpr auto primaryModifier = ShortcutModifier::Super;
+        constexpr auto primaryModifier = singleton_components::ShortcutModifier::Super;
 #else
-        ShortcutModifier primaryModifier = ShortcutModifier::Ctrl;
+        ShortcutModifier primaryModifier = singleton_components::ShortcutModifier::Ctrl;
 #endif
 
-        m_Shortcuts.RegisterShortcut(input::Key::S, primaryModifier, [this]()
+        auto* shortcutsComp = world->GetSingletonComponent<singleton_components::EditorShortcutsComponent>();
+        util::RegisterShortcut(shortcutsComp, input::Key::S, primaryModifier,
+            []()
+            {
+                return true;
+            },
+            [this]()
+            {
+                SaveAll();
+            });
+
+        util::RegisterShortcut(shortcutsComp, input::Key::W, singleton_components::ShortcutModifier::None,
+            [this]()
+            {
+                return m_SelectedEntity != ecs::InvalidEntity && m_GizmoType != GizmoType::Translate;
+            },
+            [this]()
+            {
+                SetGizmoType(GizmoType::Translate);
+            });
+
+        util::RegisterShortcut(shortcutsComp, input::Key::E, singleton_components::ShortcutModifier::None,
+        [this]()
         {
-            SaveAll();
+            return m_SelectedEntity != ecs::InvalidEntity && m_GizmoType != GizmoType::Rotate;
+        },
+        [this]()
+        {
+            SetGizmoType(GizmoType::Rotate);
         });
     }
 
@@ -154,8 +181,11 @@ namespace se::editor
             }
         }
 
-        auto* inputComp = world->GetSingletonComponent<input::InputComponent>();
-        m_Shortcuts.ProcessInput(inputComp);
+        const auto* shortcutsComp = world->GetSingletonComponent<singleton_components::EditorShortcutsComponent>();
+        for (const auto& func : shortcutsComp->pendingShortcuts)
+        {
+            func();
+        }
     }
 
     void EditorRuntime::Render()
@@ -247,9 +277,7 @@ namespace se::editor
         {
             if (m_Gizmo != ecs::InvalidEntity)
             {
-                Application::Get()->GetWorld()->DestroyEntity(m_Gizmo);
-                m_Gizmo = ecs::InvalidEntity;
-                m_GizmoAxisEntities.clear();
+                DestroyGizmo();
             }
 
             if (m_Plane != ecs::InvalidEntity)
@@ -437,6 +465,35 @@ namespace se::editor
         }
 
         SnapGizmoToSelectedEntity();
+    }
+
+    void EditorRuntime::DestroyGizmo()
+    {
+        Application::Get()->GetWorld()->DestroyEntity(m_Gizmo);
+        m_Gizmo = ecs::InvalidEntity;
+        m_GizmoAxisEntities.clear();
+    }
+
+    void EditorRuntime::SetGizmoType(GizmoType type)
+    {
+        if (m_Gizmo != ecs::InvalidEntity && m_GizmoType != type)
+        {
+            DestroyGizmo();
+        }
+
+        m_GizmoType = type;
+
+        if (!m_GameMode)
+        {
+            if (m_Gizmo == ecs::InvalidEntity )
+            {
+                CreateGizmo();
+            }
+            else
+            {
+                SnapGizmoToSelectedEntity();
+            }
+        }
     }
 
     void EditorRuntime::CreateTranslateGizmo()

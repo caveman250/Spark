@@ -60,11 +60,12 @@ namespace se
 
         m_World.CreateScene("Default");
 
+        CreateInitialSingletonComponents();
+
 #if SPARK_EDITOR
         m_EditorRuntime.Init();
 #endif
 
-        CreateInitialSingletonComponents();
         CreateInitialObservers();
         engine_InitSystems(&m_World);
         m_World.Init();
@@ -79,6 +80,7 @@ namespace se
 
 #if SPARK_EDITOR
         m_World.AddSingletonComponent<editor::singleton_components::DragDropStateComponent>();
+        m_World.AddSingletonComponent<editor::singleton_components::EditorShortcutsComponent>();
 #endif
     }
 

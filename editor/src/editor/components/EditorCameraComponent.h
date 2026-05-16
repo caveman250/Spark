@@ -12,5 +12,10 @@ namespace se::editor::components
 
         SPARK_MEMBER()
         bool mouseDown = false;
+
+        bool forwardDown = false;
+        bool backDown = false;
+        bool leftDown = false;
+        bool rightDown = false;
     };
 }

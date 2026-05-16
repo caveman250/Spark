@@ -104,26 +104,43 @@ namespace se::editor::systems
 
                 math::Vec3 up = math::Cross(right, forward);
 
+                input::InputUtil::ProcessKeyEvents(entity, input, [&camera](const input::KeyEvent& ev)
+                {
+                    switch (ev.key)
+                    {
+                        case input::Key::W:
+                            camera.forwardDown = ev.state == input::KeyState::Down;
+                            return true;
+                        case input::Key::S:
+                            camera.backDown = ev.state == input::KeyState::Down;
+                            return true;
+                        case input::Key::A:
+                            camera.leftDown = ev.state == input::KeyState::Down;
+                            return true;
+                        case input::Key::D:
+                            camera.rightDown = ev.state == input::KeyState::Down;
+                            return true;
+                        default:
+                            return false;
+                    }
+                });
+
                 if (util::PosWithinViewport(input->mouseX, input->mouseY) &&
                     !input::InputUtil::IsAnyModifierKeyDown(input))
                 {
-                    // Movement
-                    if (input->keyStates.at(static_cast<int>(input::Key::W)) == input::KeyState::Down)
+                    if (camera.forwardDown)
                     {
                         transform.pos += forward * 5.f * Application::Get()->GetDeltaTime();
                     }
-
-                    if (input->keyStates.at(static_cast<int>(input::Key::S)) == input::KeyState::Down)
+                    if (camera.backDown)
                     {
                         transform.pos -= forward * 5.f * Application::Get()->GetDeltaTime();
                     }
-
-                    if (input->keyStates.at(static_cast<int>(input::Key::A)) == input::KeyState::Down)
+                    if (camera.leftDown)
                     {
                         transform.pos -= right * 5.f * Application::Get()->GetDeltaTime();
                     }
-
-                    if (input->keyStates.at(static_cast<int>(input::Key::D)) == input::KeyState::Down)
+                    if (camera.rightDown)
                     {
                         transform.pos += right * 5.f * Application::Get()->GetDeltaTime();
                     }

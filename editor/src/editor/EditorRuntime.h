@@ -1,6 +1,6 @@
 #pragma once
 
-#include "EditorShortcutsManager.h"
+#include "singleton_components/EditorShortcutsComponent.h"
 #include "ui/asset_browser/AssetBrowserWindow.h"
 #include "ui/ViewportWindow.h"
 #include "ui/PropertiesWindow.h"
@@ -74,6 +74,8 @@ namespace se::editor
         void CreateEditorPlane();
 
         void CreateGizmo();
+        void DestroyGizmo();
+        void SetGizmoType(GizmoType type);
         void CreateTranslateGizmo();
         void CreateRotationGizmo();
         void CreateRotationGizmoAxis(components::RotationAxis axis,
@@ -82,7 +84,6 @@ namespace se::editor
         void SetHideOtherGizmoAxis(components::RotationAxis axis, bool visible);
 
         startup::StartupManager m_StartupManager;
-        EditorShortcutsManager m_Shortcuts;
 
         ui::OutlineWindow* m_OutlineWindow = nullptr;
         ui::PropertiesWindow* m_PropertiesWindow = nullptr;
@@ -93,7 +94,7 @@ namespace se::editor
         std::string m_ScenePath = {};
         ecs::Id m_EditorScene = ecs::InvalidEntity;
         ecs::Id m_Gizmo = ecs::InvalidEntity;
-        GizmoType m_GizmoType = GizmoType::Rotate;
+        GizmoType m_GizmoType = GizmoType::Translate;
         std::vector<ecs::Id> m_GizmoAxisEntities = {};
         ecs::Id m_Plane = ecs::InvalidEntity;
 

@@ -1,0 +1,17 @@
+#pragma once
+
+#include "engine/ecs/System.h"
+
+using namespace se;
+
+namespace se::editor::systems
+{
+    class EditorShortcutsSystem : public ecs::EngineSystem
+    {
+        SPARK_SYSTEM()
+
+        static ecs::SystemDeclaration GetSystemDeclaration();
+        void OnUpdate(const ecs::QueryResults& results) override;
+    };
+
+}
