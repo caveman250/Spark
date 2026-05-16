@@ -70,8 +70,8 @@ namespace se::ui::util
         rect->anchors = { .left = 0.f, .right = 0.f, .top = 0.f, .bottom = 1.f };
         rect->minX = 2;
         rect->maxX = 10;
-        rect->minY = 8;
-        rect->maxY = 4;
+        rect->minY = 4;
+        rect->maxY = 6;
         world->AddComponent<ImageComponent>(statusIcon);
         const auto button = world->AddComponent<ButtonComponent>(statusIcon);
         button->image = expanded_indicator_texture;
