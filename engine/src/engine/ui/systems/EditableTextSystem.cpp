@@ -216,10 +216,10 @@ namespace se::ui::systems
             case input::Key::RightSuper:
             case input::Key::Menu:
                 return 0;
+            default:
+                SPARK_ASSERT(false, "Unhandled key");
+                return 0;
         }
-        
-        SPARK_ASSERT(false, "Unhandled key");
-        return 0;
     }
 
     void AddChar([[maybe_unused]] components::EditableTextComponent* text,
@@ -399,6 +399,9 @@ namespace se::ui::systems
             case input::Key::RightSuper:
             case input::Key::Menu:
             case input::Key::Unknown:
+                break;
+            default:
+                SPARK_ASSERT(false, "Unhandled key");
                 break;
         }
     }

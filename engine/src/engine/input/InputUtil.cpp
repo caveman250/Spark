@@ -1,5 +1,4 @@
 #include "InputUtil.h"
-
 #include "InputComponent.h"
 
 #if SPARK_EDITOR
@@ -62,16 +61,42 @@ namespace se::input
         }
     }
 
+    bool InputUtil::IsKeyDown(const InputComponent* input,
+        Key key)
+    {
+        return input->keyStates[static_cast<int>(key)] == KeyState::Down;
+    }
+
     bool InputUtil::IsAnyModifierKeyDown(const InputComponent* input)
     {
-        return input->keyStates[static_cast<int>(Key::LeftControl)] == KeyState::Down ||
-               input->keyStates[static_cast<int>(Key::RightControl)] == KeyState::Down ||
-               input->keyStates[static_cast<int>(Key::LeftAlt)] == KeyState::Down ||
-               input->keyStates[static_cast<int>(Key::RightAlt)] == KeyState::Down ||
-               input->keyStates[static_cast<int>(Key::LeftSuper)] == KeyState::Down ||
-               input->keyStates[static_cast<int>(Key::RightSuper)] == KeyState::Down ||
-               input->keyStates[static_cast<int>(Key::LeftShift)] == KeyState::Down ||
-               input->keyStates[static_cast<int>(Key::RightShift)] == KeyState::Down;
+        return IsKeyDown(input, Key::LeftControl) ||
+               IsKeyDown(input, Key::RightControl) ||
+               IsKeyDown(input, Key::LeftAlt) ||
+               IsKeyDown(input, Key::RightAlt) ||
+               IsKeyDown(input, Key::LeftSuper) ||
+               IsKeyDown(input, Key::RightSuper) ||
+               IsKeyDown(input, Key::LeftShift) ||
+               IsKeyDown(input, Key::RightShift);
+    }
+
+    bool InputUtil::IsCtrlDown(const InputComponent* input)
+    {
+        return IsKeyDown(input, Key::LeftControl) || IsKeyDown(input, Key::RightControl);
+    }
+
+    bool InputUtil::IsAltDown(const InputComponent* input)
+    {
+        return IsKeyDown(input, Key::LeftAlt) || IsKeyDown(input, Key::RightAlt);
+    }
+
+    bool InputUtil::IsShiftDown(const InputComponent* input)
+    {
+        return IsKeyDown(input, Key::LeftShift) || IsKeyDown(input, Key::RightShift);
+    }
+
+    bool InputUtil::IsSuperDown(const InputComponent* input)
+    {
+        return IsKeyDown(input, Key::LeftSuper) || IsKeyDown(input, Key::RightSuper);
     }
 
     bool InputUtil::IsMouseButtonDown(const InputComponent* input, MouseButton button)

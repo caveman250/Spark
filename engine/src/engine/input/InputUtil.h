@@ -16,7 +16,12 @@ namespace se::input
         static void ProcessMouseEvents(const ecs::Id& entity, InputComponent* input, const std::function<bool(const MouseEvent&)>& func);
         static void ProcessKeyEvents(const ecs::Id& entity, InputComponent* input, const std::function<bool(const KeyEvent&)>& func);
 
+        static bool IsKeyDown(const InputComponent* input, Key key);
         static bool IsAnyModifierKeyDown(const InputComponent* input);
+        static bool IsCtrlDown(const InputComponent* input);
+        static bool IsAltDown(const InputComponent* input);
+        static bool IsShiftDown(const InputComponent* input);
+        static bool IsSuperDown(const InputComponent* input);
 
         static bool IsMouseButtonDown(const InputComponent* input, MouseButton button);
 

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "EditorShortcutsManager.h"
 #include "ui/asset_browser/AssetBrowserWindow.h"
 #include "ui/ViewportWindow.h"
 #include "ui/PropertiesWindow.h"
@@ -81,6 +82,7 @@ namespace se::editor
         void SetHideOtherGizmoAxis(components::RotationAxis axis, bool visible);
 
         startup::StartupManager m_StartupManager;
+        EditorShortcutsManager m_Shortcuts;
 
         ui::OutlineWindow* m_OutlineWindow = nullptr;
         ui::PropertiesWindow* m_PropertiesWindow = nullptr;

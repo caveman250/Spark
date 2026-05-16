@@ -126,5 +126,6 @@ namespace se::input
         RightAlt,
         RightSuper,
         Menu,
+        COUNT
     };
 }

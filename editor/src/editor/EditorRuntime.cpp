@@ -67,17 +67,17 @@ namespace se::editor
             se::ui::components::SplitViewDirection::Horizontal,
             0.3f);
 
-         ecs::Id splitView2 = se::ui::util::AddSplitView(m_EditorScene,
-             splitView1,
-             m_AssetBrowserWindow->GetWindow(),
-             se::ui::components::SplitViewDirection::Vertical,
-             0.6f);
+        ecs::Id splitView2 = se::ui::util::AddSplitView(m_EditorScene,
+            splitView1,
+            m_AssetBrowserWindow->GetWindow(),
+            se::ui::components::SplitViewDirection::Vertical,
+            0.6f);
 
-         se::ui::util::AddSplitView(m_EditorScene,
-             splitView2,
-             m_PropertiesWindow->GetWindow(),
-             se::ui::components::SplitViewDirection::Horizontal,
-             0.7f);
+        se::ui::util::AddSplitView(m_EditorScene,
+            splitView2,
+            m_PropertiesWindow->GetWindow(),
+            se::ui::components::SplitViewDirection::Horizontal,
+            0.7f);
 
         //Create camera
         auto camera = world->CreateEntity(GetEditorScene(), "Editor Camera");
@@ -87,6 +87,17 @@ namespace se::editor
         transform->rot = { -0.27f, 3.64f, 0.f };
 
         CreateEditorPlane();
+
+#if SPARK_PLATFORM_MAC
+        constexpr auto primaryModifier = ShortcutModifier::Super;
+#else
+        ShortcutModifier primaryModifier = ShortcutModifier::Ctrl;
+#endif
+
+        m_Shortcuts.RegisterShortcut(input::Key::S, primaryModifier, [this]()
+        {
+            SaveAll();
+        });
     }
 
     void EditorRuntime::Update()
@@ -132,42 +143,24 @@ namespace se::editor
         m_AssetBrowserWindow->Update();
         m_OutlineWindow->Update();
 
+        auto world = Application::Get()->GetWorld();
         if (!m_GameMode)
         {
-            auto world = Application::Get()->GetWorld();
             auto activeCamera = world->GetSingletonComponent<camera::ActiveCameraComponent>();
             auto planeModel = world->GetComponent<ecs::components::MeshComponent>(m_Plane);
             if (planeModel->materialInstance)
             {
                 planeModel->materialInstance->SetUniform("cameraPos", 1, &activeCamera->pos);
             }
-
-
-            auto inputComp = world->GetSingletonComponent<input::InputComponent>();
-            input::InputUtil::ProcessKeyEvents(ecs::InvalidEntity, inputComp, [this, inputComp](const input::KeyEvent& ev)
-            {
-                if (ev.state == input::KeyState::Down &&
-                    ev.key == input::Key::S)
-                {
-#if SPARK_PLATFORM_MAC
-                    if (inputComp->keyStates[static_cast<int>(input::Key::LeftSuper)] == input::KeyState::Down)
-#else
-                    if (inputComp->keyStates[static_cast<int>(input::Key::LeftControl)] == input::KeyState::Down)
-#endif
-                    {
-                        SaveAll();
-
-                        return true;
-                    }
-                }
-                return false;
-            });
         }
+
+        auto* inputComp = world->GetSingletonComponent<input::InputComponent>();
+        m_Shortcuts.ProcessInput(inputComp);
     }
 
     void EditorRuntime::Render()
     {
-        auto renderer = render::Renderer::Get<render::Renderer>();
+        auto* renderer = render::Renderer::Get<render::Renderer>();
         m_OffscreenRenderGroup = renderer->AllocRenderGroup(0);
         renderer->SetFrameBuffer(m_OffscreenRenderGroup, m_FrameBuffer);
 
@@ -271,6 +264,11 @@ namespace se::editor
 
     void EditorRuntime::SaveAll()
     {
+        if (m_GameMode)
+        {
+            return;
+        }
+
         if (m_LoadedScene != ecs::InvalidEntity)
         {
             SaveScene();
