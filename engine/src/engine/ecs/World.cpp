@@ -1,5 +1,6 @@
 #include "World.h"
 
+#include "Prefab.h"
 #include "SceneSaveData.h"
 #include "SystemUtil.h"
 #include "Widgets.generated.h"
@@ -674,6 +675,128 @@ namespace se::ecs
                 DestroyEntity(entity);
             }
         }
+    }
+
+    Prefab World::CreatePrefabFromEntity(Id entity)
+    {
+        Prefab prefab = {};
+
+        auto db = asset::binary::Database::Create(false);
+        auto type = reflect::TypeResolver<Prefab>::Get();
+        db->SetRootStruct(db->GetOrCreateStruct(type->GetTypeName(nullptr), type->GetStructLayout(nullptr)));
+
+        std::vector<Id> entities = { entity };
+        GetChildrenRecursive(entities, entity);
+
+        uint64_t entityCounter = 1;
+        std::map<Id, uint64_t> entityMap = {};
+        for (const Id& entity : entities)
+        {
+            entityMap.insert(std::make_pair(entity.id, entityCounter++));
+        }
+
+        PrefabEntity& entityData = prefab.m_Entities.emplace_back();
+        entityData.entity = entityMap.at(entity.id);
+        entityData.name = *entity.name;
+        entityData.flags = *entity.flags;
+        for (const auto& child : GetChildren(entity))
+        {
+            entityData.children.push_back(entityMap.at(child.id));
+        }
+
+        EntityRecord& record = m_EntityRecords.at(entity);
+        Archetype* archetype = record.archetype;
+        for (const Id& compType : archetype->typeVector)
+        {
+            auto* compData = GetComponent(entity, compType);
+            entityData.components.push_back(static_cast<Component*>(compData));
+        }
+
+        SerialiseEntityChildren(entity, entityMap, prefab);
+
+        auto root = db->GetRoot();
+        type->Serialize(&prefab, root, {});
+        type->Deserialize(&prefab, root, {});
+
+        return prefab;
+    }
+
+    void World::SerialiseEntityChildren(const Id& entity,
+                                        const std::map<Id, uint64_t>& entityMap,
+                                        Prefab& prefab)
+    {
+        for (const auto& child : GetChildren(entity))
+        {
+            PrefabEntity& childData = prefab.m_Entities.emplace_back();
+            childData.entity = entityMap.at(child.id);
+            childData.name = *child.name;
+            childData.flags = *child.flags;
+            for (const auto& innerChild : GetChildren(child))
+            {
+                childData.children.push_back(entityMap.at(innerChild.id));
+            }
+
+            EntityRecord& record = m_EntityRecords.at(child);
+            Archetype* archetype = record.archetype;
+            for (const Id& compType : archetype->typeVector)
+            {
+                auto* compData = GetComponent(child, compType);
+                childData.components.push_back(static_cast<Component*>(compData));
+            }
+
+            SerialiseEntityChildren(child, entityMap, prefab);
+        }
+    }
+
+    Id World::InstantiatePrefab(const Id& scene, const Prefab& prefab)
+    {
+        std::unordered_map<uint64_t, Id> idRemap = {};
+
+        Id ret = {};
+
+        for (const auto& prefabEntity : prefab.m_Entities)
+        {
+            auto newId = CreateEntity(scene, prefabEntity.name);
+            idRemap[prefabEntity.entity] = newId;
+            auto& meta = m_IdMetaMap[newId];
+            meta.flags = prefabEntity.flags;
+
+            for (auto* component : prefabEntity.components)
+            {
+                if (component->GetStaticComponentId() == components::RootComponent::GetComponentId())
+                {
+                    ret = newId;
+                    continue;
+                }
+
+                auto* reflect = component->GetReflectType();
+                void* tempData = m_TempStore.AllocUninitialized<Component>(reflect->size);
+                reflect->inplace_copy_constructor(tempData, component);
+                m_PendingComponentCreations.emplace_back(PendingComponent { .entity = newId, .comp = component->GetStaticComponentId(), .tempData = tempData });
+
+                delete component;
+            }
+        }
+
+        for (const auto& prefabEntity : prefab.m_Entities)
+        {
+            const auto& remappedEntity = idRemap[prefabEntity.entity];
+            for (auto child : prefabEntity.children)
+            {
+                AddChild(remappedEntity, idRemap[child]);
+            }
+        }
+
+#if SPARK_EDITOR
+        m_EntitiesChangedThisFrame = true;
+#endif
+
+        return ret;
+    }
+
+    Id World::InstantiatePrefab(const Id& scene, const std::shared_ptr<Prefab>& prefab)
+    {
+        return InstantiatePrefab(scene, *prefab.get());
     }
 
 #if SPARK_EDITOR
@@ -1454,6 +1577,17 @@ namespace se::ecs
             return empty;
         }
         return it->second.children;
+    }
+
+    void World::GetChildrenRecursive(std::vector<Id>& vec, const Id& entity) const
+    {
+        const auto& children = GetChildren(entity);
+        vec.append_range(children);
+
+        for (const auto& child : children)
+        {
+            GetChildrenRecursive(vec, child);
+        }
     }
 
     Id World::GetParent(const Id& entity) const

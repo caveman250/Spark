@@ -26,6 +26,7 @@ namespace se::ecs::components
 
 namespace se::ecs
 {
+    class Prefab;
     class EngineSystem;
     class AppSystem;
 }
@@ -92,6 +93,13 @@ namespace se::ecs
         void SaveScene(const Id& scene, const std::string& path, bool binary = false);
         const Id& GetDefaultScene() const { return m_DefaultScene; }
 
+        Prefab CreatePrefabFromEntity(Id entity);
+        void SerialiseEntityChildren(const Id& entity,
+                                        const std::map<Id, uint64_t>& entityMap,
+                                        Prefab& prefab);
+        Id InstantiatePrefab(const Id& scene, const Prefab& prefab);
+        Id InstantiatePrefab(const Id& scene, const std::shared_ptr<Prefab>& prefab);
+
 #if SPARK_EDITOR
         void SaveSceneToTemp(const Id& id);
         Id ReloadSceneFromTemp(const Id& id);
@@ -135,6 +143,7 @@ namespace se::ecs
         void RemoveChild(const Id& entity,
                          const Id& childEntity);
         const std::vector<Id>& GetChildren(const Id& entity) const;
+        void GetChildrenRecursive(std::vector<Id>& vec, const Id& entity) const;
         Id GetParent(const Id& entity) const;
 
         template<typename T>
