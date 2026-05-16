@@ -61,13 +61,14 @@ namespace se
         m_World.CreateScene("Default");
 
         CreateInitialSingletonComponents();
+        engine_InitSystems(&m_World);
 
 #if SPARK_EDITOR
         m_EditorRuntime.Init();
 #endif
 
         CreateInitialObservers();
-        engine_InitSystems(&m_World);
+
         m_World.Init();
     }
 
