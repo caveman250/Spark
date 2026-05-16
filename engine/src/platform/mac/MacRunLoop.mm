@@ -66,4 +66,13 @@ namespace se::mac
     {
         return m_ShouldExit;
     }
+
+    void MacRunLoop::RequestExit()
+    {
+        PlatformRunLoop::RequestExit();
+        m_ShouldExit = true;
+
+        NSApplication* app = [NSApplication sharedApplication];
+        [app stop:0];
+    }
 }

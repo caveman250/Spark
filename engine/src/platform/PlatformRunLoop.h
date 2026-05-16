@@ -16,6 +16,7 @@ namespace se
         virtual void Shutdown();
         virtual void Update();
         virtual bool ShouldExit() = 0;
+        virtual void RequestExit();
 
     protected:
         static PlatformRunLoop* s_Instance;

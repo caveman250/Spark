@@ -51,4 +51,9 @@ namespace se
         auto* window = app->GetWindow();
         window->SetLastContentScale(window->GetContentScale());
     }
+
+    void PlatformRunLoop::RequestExit()
+    {
+        m_Window->OnClose();
+    }
 }

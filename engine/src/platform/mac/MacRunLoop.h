@@ -12,6 +12,7 @@ namespace se::mac
         void Update() override;
         void Shutdown() override;
         bool ShouldExit() override;
+        void RequestExit() override;
     private:
         bool m_ShouldExit = false;
     };

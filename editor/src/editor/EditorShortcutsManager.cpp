@@ -1,23 +1,31 @@
 #include "EditorShortcutsManager.h"
 #include "engine/Application.h"
+#include "platform/PlatformRunLoop.h"
 #include "util/ShortcutsUtil.h"
+
+#if SPARK_PLATFORM_MAC
+#include "platform/mac/MacRunLoop.h"
+#endif
 
 namespace se
 {
     void editor::EditorShortcutsManager::RegisterShortcuts()
     {
-#if SPARK_PLATFORM_MAC
-        constexpr auto primaryModifier = singleton_components::ShortcutModifier::Super;
-#else
-        ShortcutModifier primaryModifier = singleton_components::ShortcutModifier::Ctrl;
-#endif
-
         auto* app = Application::Get();
         auto* world = app->GetWorld();
-        auto* editor = app->GetEditor();
 
         auto* shortcutsComp = world->GetSingletonComponent<singleton_components::EditorShortcutsComponent>();
-        util::RegisterShortcut(shortcutsComp, input::Key::S, primaryModifier,
+        RegisterGenericShortcuts(shortcutsComp);
+#if SPARK_PLATFORM_MAC
+        RegisterMacShortcuts(shortcutsComp);
+#endif
+    }
+
+    void editor::EditorShortcutsManager::RegisterGenericShortcuts(singleton_components::EditorShortcutsComponent* shortcuts)
+    {
+        auto* editor = Application::Get()->GetEditor();
+
+        util::RegisterShortcut(shortcuts, input::Key::S, PrimaryModifier,
                                []()
                                {
                                    return true;
@@ -27,7 +35,7 @@ namespace se
                                    editor->SaveAll();
                                });
 
-        util::RegisterShortcut(shortcutsComp, input::Key::W, singleton_components::ShortcutModifier::None,
+        util::RegisterShortcut(shortcuts, input::Key::W, singleton_components::ShortcutModifier::None,
                                [editor]()
                                {
                                    return editor->GetSelectedEntity() != ecs::InvalidEntity && editor->GetGizmoManager().GetGizmoType() != GizmoType::Translate;
@@ -37,7 +45,7 @@ namespace se
                                    editor->GetGizmoManager().SetGizmoType(GizmoType::Translate);
                                });
 
-        util::RegisterShortcut(shortcutsComp, input::Key::E, singleton_components::ShortcutModifier::None,
+        util::RegisterShortcut(shortcuts, input::Key::E, singleton_components::ShortcutModifier::None,
                                [editor]()
                                {
                                    return editor->GetSelectedEntity() != ecs::InvalidEntity && editor->GetGizmoManager().GetGizmoType() != GizmoType::Rotate;
@@ -47,7 +55,7 @@ namespace se
                                    editor->GetGizmoManager().SetGizmoType(GizmoType::Rotate);
                                });
 
-        util::RegisterShortcut(shortcutsComp, input::Key::Escape, singleton_components::ShortcutModifier::None,
+        util::RegisterShortcut(shortcuts, input::Key::Escape, singleton_components::ShortcutModifier::None,
                                []()
                                {
                                    return true;
@@ -57,4 +65,20 @@ namespace se
                                    editor->DeSelectAll();
                                });
     }
+
+#if SPARK_PLATFORM_MAC
+    void editor::EditorShortcutsManager::RegisterMacShortcuts(singleton_components::EditorShortcutsComponent* shortcuts)
+    {
+        util::RegisterShortcut(shortcuts, input::Key::Q, singleton_components::ShortcutModifier::Super,
+                               []()
+                               {
+                                   return true;
+                               },
+                               []()
+                               {
+                                   auto* runLoop = PlatformRunLoop::Get();
+                                   runLoop->RequestExit();
+                               });
+    }
+#endif
 }
