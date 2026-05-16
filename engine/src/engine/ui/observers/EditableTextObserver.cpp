@@ -25,7 +25,8 @@ namespace se::ui::observers
 
         if (!world->HasComponent<components::KeyInputComponent>(entity))
         {
-            world->AddComponent<components::KeyInputComponent>(entity);
+            auto* keyInput = world->AddComponent<components::KeyInputComponent>(entity);
+            keyInput->keyMask = input::Key::Unknown;
         }
     }
 
