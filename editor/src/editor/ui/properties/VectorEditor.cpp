@@ -11,6 +11,7 @@
 #include "engine/render/MaterialInstance.h"
 #include "engine/ui/components/TextComponent.h"
 #include "engine/ui/components/ButtonComponent.h"
+#include "editor/Transactions.h"
 
 namespace se::editor::ui::properties
 {
@@ -67,11 +68,30 @@ namespace se::editor::ui::properties
         newButton->hoveredImage = "/engine_assets/textures/editor_plus.sass";
         newButton->onReleased.Subscribe([this, world](input::MouseButton)
         {
-            m_VectorType->AddElement(m_Value);
-            InstantiateElementUI(m_VectorType->GetNumContainedElements(m_Value) - 1);
-            auto* transform = world->GetComponent<RectTransformComponent>(m_VerticalBox);
-            transform->needsLayout = true;
-            se::ui::util::InvalidateParent(m_VerticalBox, nullptr);
+            size_t newIndex = m_VectorType->GetNumContainedElements(m_Value);
+            Transactions::Get()->PushAction([this, world, newIndex]()
+            {
+                m_VectorType->AddElement(m_Value);
+                InstantiateElementUI(newIndex);
+                auto* transform = world->GetComponent<RectTransformComponent>(m_VerticalBox);
+                transform->needsLayout = true;
+                se::ui::util::InvalidateParent(m_VerticalBox, nullptr);
+
+                if (m_EmptyItem != ecs::InvalidEntity)
+                {
+                    world->DestroyEntity(m_EmptyItem);
+                    m_EmptyItem = ecs::InvalidEntity;
+                }
+            },
+            [this, world, newIndex]()
+            {
+                m_VectorType->RemoveElementByIndex(m_Value, newIndex);
+                DestroyElementUI(newIndex);
+                auto* transform = world->GetComponent<RectTransformComponent>(m_VerticalBox);
+               transform->needsLayout = true;
+               se::ui::util::InvalidateParent(m_VerticalBox, nullptr);
+            });
+
         });
         auto newButtonRect = world->AddComponent<RectTransformComponent>(newButtonEntity);
         newButtonRect->anchors = { .left = 1.f, .right = 1.f, .top = 0.f, .bottom = 0.f };
@@ -82,18 +102,18 @@ namespace se::editor::ui::properties
         size_t numElements = m_VectorType->GetNumContainedElements(m_Value);
         if (numElements == 0)
         {
-            auto textEntity = world->CreateEntity(editor->GetEditorScene(), "Title");
-            world->AddComponent<WidgetComponent>(textEntity);
-            auto text = world->AddComponent<TextComponent>(textEntity);
+            m_EmptyItem = world->CreateEntity(editor->GetEditorScene(), "Title");
+            world->AddComponent<WidgetComponent>(m_EmptyItem);
+            auto text = world->AddComponent<TextComponent>(m_EmptyItem);
             text->font = "/engine_assets/fonts/Arial.sass";
             text->fontSize = 16;
             text->text = "empty.";
-            auto textRect = world->AddComponent<RectTransformComponent>(textEntity);
+            auto textRect = world->AddComponent<RectTransformComponent>(m_EmptyItem);
             textRect->anchors = { .left = 0.f, .right = 1.f, .top = 0.f, .bottom = 0.f };
             textRect->minX = 2;
             textRect->minY = 1;
             textRect->maxY = 22;
-            world->AddChild(m_VerticalBox, textEntity);
+            world->AddChild(m_VerticalBox, m_EmptyItem);
         }
         else
         {
@@ -178,5 +198,13 @@ namespace se::editor::ui::properties
         }
 
         world->AddChild(m_VerticalBox, entity);
+    }
+
+    void VectorEditor::DestroyElementUI(const size_t i)
+    {
+        PropertyEditor* editor = m_Editors[i];
+        editor->DestroyUI();
+        delete editor;
+        m_Editors.erase(m_Editors.begin() + i);
     }
 }

@@ -23,9 +23,11 @@ namespace se::editor::ui::properties
     private:
         std::string CreateEditorName(size_t i, reflect::Type* type) const;
         void InstantiateElementUI(size_t i);
+        void DestroyElementUI(size_t i);
         void* m_Value = nullptr;
         const se::reflect::Type_Container* m_VectorType = nullptr;
         std::vector<PropertyEditor*> m_Editors;
         ecs::Id m_VerticalBox = ecs::InvalidEntity;
+        ecs::Id m_EmptyItem = ecs::InvalidEntity;
     };
 }
