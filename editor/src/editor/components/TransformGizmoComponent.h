@@ -7,6 +7,7 @@
 
 namespace se::editor::components 
 {
+    SPARK_ENUM()
     enum class GizmoAxis
     {
         Forward,
@@ -21,6 +22,8 @@ namespace se::editor::components
         math::Vec4 color = {};
         GizmoAxis axis = GizmoAxis::Forward;
         bool mouseDown = false;
+        bool wasMouseDown = false;
         ecs::Signal<math::Vec3> onMove = {};
+        ecs::Signal<> onFinishMove = {};
     };
 }

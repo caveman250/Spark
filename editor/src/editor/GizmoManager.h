@@ -12,6 +12,7 @@ namespace se::editor
 {
     namespace components
     {
+        enum class GizmoAxis;
         enum class RotationAxis;
     }
 
@@ -32,6 +33,7 @@ namespace se::editor
 
     private:
         void CreateTranslateGizmo();
+        void CreateTranslateGizmoAxis(components::GizmoAxis axis);
         void CreateRotationGizmo();
         void CreateRotationGizmoAxis(components::RotationAxis axis,
                                         const asset::StaticMesh& quarterMesh,
@@ -46,6 +48,7 @@ namespace se::editor
         ecs::Id m_Gizmo = ecs::InvalidEntity;
         GizmoType m_GizmoType = GizmoType::Translate;
         std::vector<ecs::Id> m_GizmoAxisEntities = {};
+        math::Vec3 m_SelectedEntityInitialPosition = {};
         math::Vec3 m_SelectedEntityInitialRotation = {};
     };
 }

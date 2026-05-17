@@ -55,6 +55,7 @@ namespace se::editor::systems
                     continue;
                 }
 
+                gizmo.wasMouseDown = gizmo.mouseDown;
                 gizmo.mouseDown &= inputComp->mouseButtonStates[static_cast<int>(input::MouseButton::Left)] == input::KeyState::Down;
 
                 if (geo::util::RayCastAABB(ray, transform))
@@ -111,6 +112,10 @@ namespace se::editor::systems
                             break;
                         }
                     }
+                }
+                else if (gizmo.wasMouseDown)
+                {
+                    gizmo.onFinishMove.Broadcast();
                 }
             }
         });

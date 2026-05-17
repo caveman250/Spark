@@ -2,6 +2,7 @@
 #include "engine/Application.h"
 #include "platform/PlatformRunLoop.h"
 #include "util/ShortcutsUtil.h"
+#include "Transactions.h"
 
 #if SPARK_PLATFORM_MAC
 #include "platform/mac/MacRunLoop.h"
@@ -85,6 +86,7 @@ namespace se
                           editor->Cut();
                       });
 
+        // Paste
         util::RegisterShortcut(shortcuts, input::Key::V, PrimaryModifier,
                [editor]()
                {
@@ -94,6 +96,28 @@ namespace se
                {
                    editor->Paste();
                });
+
+        // Undo
+        util::RegisterShortcut(shortcuts, input::Key::Z, PrimaryModifier,
+           []()
+           {
+               return true;
+           },
+           []()
+           {
+               Transactions::Get()->Undo();
+           });
+
+        // Redo
+        util::RegisterShortcut(shortcuts, input::Key::Y, PrimaryModifier,
+           []()
+           {
+               return true;
+           },
+           []()
+           {
+               Transactions::Get()->Redo();
+           });
     }
 
 #if SPARK_PLATFORM_MAC
