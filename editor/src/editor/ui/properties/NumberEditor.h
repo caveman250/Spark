@@ -7,6 +7,7 @@
 #include "engine/ui/components/ImageComponent.h"
 #include "engine/ui/components/EditableTextComponent.h"
 #include "inttypes.h"
+#include "editor/Transactions.h"
 #include "engine/asset/AssetManager.h"
 #include "engine/asset/shader/Shader.h"
 #include "engine/io/VFS.h"
@@ -131,88 +132,102 @@ namespace se::editor::ui::properties
         editText.text->text = std::format("{}", *m_Value);
         std::function cb = [this](std::string newVal)
         {
+            N oldVal = *m_Value;
             auto i = CreateScanfVal<N>();
+            bool valid = false;
 
             if constexpr (std::is_same_v<N, char>)
             {
                 if (SSCANF(newVal.data(), "%c", &i, 1) == 1)
                 {
-                    *m_Value = i;
+                    valid = true;
                 }
             }
             else if constexpr (std::is_same_v<N, int8_t>)
             {
                 if (SSCANF(newVal.data(), "%" PRIi8, &i) == 1)
                 {
-                    *m_Value = i;
+                    valid = true;
                 }
             }
             else if constexpr (std::is_same_v<N, uint8_t>)
             {
                 if (SSCANF(newVal.data(), "%" PRIu8, &i) == 1)
                 {
-                    *m_Value = i;
+                    valid = true;
                 }
             }
             else if constexpr (std::is_same_v<N, int16_t>)
             {
                 if (SSCANF(newVal.data(), "%" PRIi16, &i) == 1)
                 {
-                    *m_Value = i;
+                    valid = true;
                 }
             }
             else if constexpr (std::is_same_v<N, uint16_t>)
             {
                 if (SSCANF(newVal.data(), "%" PRIu16, &i) == 1)
                 {
-                    *m_Value = i;
+                    valid = true;
                 }
             }
             else if constexpr (std::is_same_v<N, int32_t>)
             {
                 if (SSCANF(newVal.data(), "%" PRIi32, &i) == 1)
                 {
-                    *m_Value = i;
+                    valid = true;
                 }
             }
             else if constexpr (std::is_same_v<N, uint32_t>)
             {
                 if (SSCANF(newVal.data(), "%" PRIu32, &i) == 1)
                 {
-                    *m_Value = i;
+                    valid = true;
                 }
             }
             else if constexpr (std::is_same_v<N, int64_t>)
             {
                 if (SSCANF(newVal.data(), "%" PRIi64, &i) == 1)
                 {
-                    *m_Value = i;
+                    valid = true;
                 }
             }
             else if constexpr (std::is_same_v<N, uint64_t>)
             {
                 if (SSCANF(newVal.data(), "%" PRIu64, &i) == 1)
                 {
-                    *m_Value = i;
+                    valid = true;
                 }
             }
             else if constexpr (std::is_same_v<N, float>)
             {
                 if (SSCANF(newVal.data(), "%f", &i) == 1)
                 {
-                    *m_Value = i;
+                    valid = true;
                 }
             }
             else if constexpr (std::is_same_v<N, double>)
             {
                 if (SSCANF(newVal.data(), "%lf", &i) == 1)
                 {
-                    *m_Value = i;
+                    valid = true;
                 }
             }
             else
             {
                 SPARK_ASSERT(false);
+            }
+
+            if (valid)
+            {
+                Transactions::Get()->PushAction([this, i]()
+                {
+                    *m_Value = i;
+                },
+                [oldVal, this]()
+                {
+                    *m_Value = oldVal;
+                });
             }
         };
         editText.text->onComitted.Subscribe(std::move(cb));
