@@ -55,6 +55,13 @@ namespace se::render::systems
                 }
     #endif
 
+                const auto& modelAsset = mesh.model.GetAsset();
+
+                if (buffersValid && modelAsset->GetVertexBuffer() != mesh.vertexBuffer)
+                {
+                    buffersValid = false;
+                }
+
                 if (!buffersValid)
                 {
                     EASY_BLOCK("Create Buffers")
@@ -62,7 +69,7 @@ namespace se::render::systems
                     {
                         continue;
                     }
-                    const auto& modelAsset = mesh.model.GetAsset();
+
                     const auto& vertBuffer = modelAsset->GetVertexBuffer();
                     const auto& indexBuffer = modelAsset->GetIndexBuffer();
 
