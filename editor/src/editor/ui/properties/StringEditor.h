@@ -79,7 +79,15 @@ namespace se::editor::ui::properties
         editText.text->text = std::format("{}", *m_Value);
         std::function cb = [this](std::string newVal)
         {
-            *m_Value = newVal.data();
+            S oldVal = *m_Value;
+            Transactions::Get()->PushAction([this, newVal]()
+            {
+                *m_Value = newVal.data();
+            },
+            [oldVal, this]()
+            {
+                *m_Value = oldVal;
+            });
         };
         editText.text->onComitted.Subscribe(std::move(cb));
         editText.text->wrap = se::ui::text::WrapMode::Crop;
