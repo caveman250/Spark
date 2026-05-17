@@ -1,13 +1,13 @@
 #include "BoolEditor.h"
 
-#include <engine/Application.h>
-#include <engine/asset/AssetManager.h>
-#include <engine/ui/components/ImageComponent.h>
-#include <engine/ui/components/RectTransformComponent.h>
-#include <engine/ui/components/TextComponent.h>
-#include <engine/ui/components/WidgetComponent.h>
-
+#include "editor/Transactions.h"
+#include "engine/Application.h"
+#include "engine/asset/AssetManager.h"
 #include "engine/ui/components/ButtonComponent.h"
+#include "engine/ui/components/ImageComponent.h"
+#include "engine/ui/components/RectTransformComponent.h"
+#include "engine/ui/components/TextComponent.h"
+#include "engine/ui/components/WidgetComponent.h"
 
 namespace se::editor::ui::properties
 {
@@ -56,7 +56,16 @@ namespace se::editor::ui::properties
         button->hoveredImage = *m_Value == true ? m_CheckedTexture : m_UncheckedTexture;
         button->onReleased.Subscribe([this](input::MouseButton)
         {
-            *m_Value = !(*m_Value);
+            bool oldVal = *m_Value;
+            bool newVal =  !(*m_Value);
+            Transactions::Get()->PushAction([this, newVal]()
+            {
+                *m_Value = newVal;
+            },
+            [oldVal, this]()
+            {
+                *m_Value = oldVal;
+            });
         });
         auto innerTransform = world->AddComponent<RectTransformComponent>(m_Tickbox);
         innerTransform->anchors = { .left = 0.f, .right = 1.f, .top = 0.f, .bottom = 1.f };
