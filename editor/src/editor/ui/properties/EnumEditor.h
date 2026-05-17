@@ -16,7 +16,9 @@ namespace se::editor::ui::properties
 
     private:
         void* m_Value = nullptr;
+        size_t m_LastValueIndex = 0;
         ecs::Id m_ComboBox = {};
+        ecs::Id m_ComboBoxText = {};
         const reflect::EnumBase* m_EnumType = nullptr;
     };
 }

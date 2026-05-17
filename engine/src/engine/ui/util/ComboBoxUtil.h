@@ -17,6 +17,7 @@ namespace se::ui::util
     struct NewComboBox
     {
         ecs::Id id;
+        ecs::Id collapsedText;
         components::ComboBoxComponent* comboBox;
         components::RectTransformComponent* rectTransform;
     };

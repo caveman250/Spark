@@ -156,9 +156,8 @@ namespace se::ui::util
         ret.comboBox = world->AddComponent<ComboBoxComponent>(ret.id);
         world->AddComponent<MouseInputComponent>(ret.id);
 
-        ecs::Id collapsedText = {};
-        CreateCollapsedEntity(params, ret, collapsedText);
-        CreateExpandedEntity(params, ret, collapsedText);
+        CreateCollapsedEntity(params, ret, ret.collapsedText);
+        CreateExpandedEntity(params, ret, ret.collapsedText);
 
         return ret;
     }
