@@ -2,18 +2,19 @@
 
 #include "PropertyEditor.h"
 #include "spark.h"
+#include "editor/Transactions.h"
+#include "editor/singleton_components/DragDropStateComponent.h"
 #include "engine/Application.h"
-#include "engine/asset/texture/Texture.h"
-#include "engine/asset/shader/Shader.h"
 #include "engine/asset/font/Font.h"
 #include "engine/asset/mesh/Model.h"
-#include "engine/ui/components/RectTransformComponent.h"
+#include "engine/asset/shader/Shader.h"
+#include "engine/asset/texture/Texture.h"
 #include "engine/ecs/SceneSaveData.h"
 #include "engine/input/InputComponent.h"
 #include "engine/ui/components/ImageComponent.h"
+#include "engine/ui/components/RectTransformComponent.h"
 #include "engine/ui/components/TextComponent.h"
 #include "engine/ui/components/WidgetComponent.h"
-#include "../../singleton_components/DragDropStateComponent.h"
 
 namespace se::editor::ui::properties
 {
@@ -29,6 +30,8 @@ namespace se::editor::ui::properties
         void Update() override;
 
     private:
+        void SetupIconAndText(TextComponent* text, ImageComponent* image);
+
         asset::AssetReference<T>* m_Value = nullptr;
         ecs::Id m_Root = {};
         ecs::Id m_Label = {};
@@ -101,16 +104,6 @@ namespace se::editor::ui::properties
         auto iconImage = world->AddComponent<ImageComponent>(m_Icon);
         auto iconMaterial = assetManager->GetAsset<render::Material>("/engine_assets/materials/ui_alpha_texture.sass");
         iconImage->materialInstance = std::make_shared<render::MaterialInstance>(iconMaterial);
-        if (m_Value->IsSet())
-        {
-            auto fileImage = asset::AssetReference<asset::Texture>("/engine_assets/textures/default_file.sass");
-            iconImage->materialInstance->SetUniform("Texture", 1, &fileImage);
-        }
-        else
-        {
-            auto fileImage = asset::AssetReference<asset::Texture>("/engine_assets/textures/no_file.sass");
-            iconImage->materialInstance->SetUniform("Texture", 1, &fileImage);
-        }
         auto iconTransform = world->AddComponent<RectTransformComponent>(m_Icon);
         iconTransform->anchors = { .left = 0.f, .right = 0.f, .top = 0.f, .bottom = 0.f };
         iconTransform->minX = iconTransform->minY = borderSize;
@@ -123,14 +116,7 @@ namespace se::editor::ui::properties
         text->font = "/engine_assets/fonts/Arial.sass";
         text->fontSize = 14;
         text->wrap = se::ui::text::WrapMode::Crop;
-        if (m_Value->IsSet())
-        {
-            text->text = GetAssetName(m_Value->GetAssetPath());
-        }
-        else
-        {
-            text->text = "None";
-        }
+        SetupIconAndText(text, iconImage);
         auto textRect = world->AddComponent<RectTransformComponent>(m_Label);
         textRect->anchors = { .left = 0.f, .right = 1.f, .top = 0.f, .bottom = 1.f };
         textRect->minX = iconSize + borderSize * 3;
@@ -181,14 +167,24 @@ namespace se::editor::ui::properties
             {
                 if (inputComp->mouseButtonStates[static_cast<int>(se::input::MouseButton::Left)] != se::input::KeyState::Down)
                 {
-                    m_Value->Set(dragDropState->dragDropAsset->m_Path);
+                    std::string currentAsset = m_Value->GetAssetPath();
+                    std::string newAsset = dragDropState->dragDropAsset->m_Path;
+                    Transactions::Get()->PushAction([this, newAsset, world]()
+                    {
+                        m_Value->Set(newAsset);
 
-                    auto* text = world->GetComponent<TextComponent>(m_Label);
-                    text->text = GetAssetName(m_Value->GetAssetPath());
+                        auto* iconImage = world->GetComponent<ImageComponent>(m_Icon);
+                        auto* text = world->GetComponent<TextComponent>(m_Label);
+                        SetupIconAndText(text, iconImage);
+                    },
+                    [currentAsset, this, world]()
+                    {
+                        m_Value->Set(currentAsset);
 
-                    auto fileImage = asset::AssetReference<asset::Texture>("/engine_assets/textures/default_file.sass");
-                    auto* iconImage = world->GetComponent<ImageComponent>(m_Icon);
-                    iconImage->materialInstance->SetUniform("Texture", 1, &fileImage);
+                        auto* iconImage = world->GetComponent<ImageComponent>(m_Icon);
+                        auto* text = world->GetComponent<TextComponent>(m_Label);
+                        SetupIconAndText(text, iconImage);
+                    });
                 }
             }
         }
@@ -196,6 +192,24 @@ namespace se::editor::ui::properties
         {
             image->materialInstance->SetUniform("uniform_color", 1, &s_DefaultColor);
             m_IsHighlighted = false;
+        }
+    }
+
+    template<typename T>
+    void AssetReferenceEditor<T>::SetupIconAndText(TextComponent* text,
+        ImageComponent* image)
+    {
+        if (m_Value->IsSet())
+        {
+            text->text = GetAssetName(m_Value->GetAssetPath());
+            const auto fileImage = asset::AssetReference<asset::Texture>("/engine_assets/textures/default_file.sass");
+            image->materialInstance->SetUniform("Texture", 1, &fileImage);
+        }
+        else
+        {
+            text->text = "None";
+            const auto fileImage = asset::AssetReference<asset::Texture>("/engine_assets/textures/no_file.sass");
+            image->materialInstance->SetUniform("Texture", 1, &fileImage);
         }
     }
 }
