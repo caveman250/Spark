@@ -1,20 +1,20 @@
-#include <editor/ui/properties/util/PropertyUtil.h>
 #include "MapEditor.h"
-
+#include "editor/Transactions.h"
+#include "editor/ui/properties/util/PropertyUtil.h"
 #include "engine/Application.h"
-#include "engine/ui/components/RectTransformComponent.h"
-#include "engine/ui/components/ImageComponent.h"
-#include "engine/ui/components/EditableTextComponent.h"
-#include "engine/ui/components/WidgetComponent.h"
-#include "engine/ui/components/VerticalBoxComponent.h"
 #include "engine/asset/AssetManager.h"
 #include "engine/io/VFS.h"
 #include "engine/render/Material.h"
 #include "engine/render/MaterialInstance.h"
 #include "engine/ui/components/ButtonComponent.h"
 #include "engine/ui/components/CollapsingHeaderComponent.h"
+#include "engine/ui/components/EditableTextComponent.h"
+#include "engine/ui/components/ImageComponent.h"
 #include "engine/ui/components/MouseInputComponent.h"
+#include "engine/ui/components/RectTransformComponent.h"
 #include "engine/ui/components/TextComponent.h"
+#include "engine/ui/components/VerticalBoxComponent.h"
+#include "engine/ui/components/WidgetComponent.h"
 #include "engine/ui/util/ContextMenuUtil.h"
 
 namespace se::editor::ui::properties
@@ -84,11 +84,35 @@ namespace se::editor::ui::properties
             {
                 params.AddOption(type->GetTypeName(nullptr), [this, world, type]()
                 {
-                    std::any key = m_MapType->AddElement(m_Value, type);
-                    InstantiateElementUI(key, m_MapType->GetContainedValueByKey(m_Value, key));
-                    auto* transform = world->GetComponent<RectTransformComponent>(m_VerticalBox);
-                    transform->needsLayout = true;
-                    se::ui::util::InvalidateParent(m_VerticalBox, nullptr);
+                    std::any key = m_MapType->GetNextKey(m_Value);
+                    Transactions::Get()->PushAction([this, world, type]()
+                    {
+                        std::any key = m_MapType->AddElement(m_Value, type);
+                        InstantiateElementUI(key, m_MapType->GetContainedValueByKey(m_Value, key));
+                        auto* transform = world->GetComponent<RectTransformComponent>(m_VerticalBox);
+                        transform->needsLayout = true;
+                        se::ui::util::InvalidateParent(m_VerticalBox, nullptr);
+                    },
+                    [this, key, world]()
+                    {
+                        m_MapType->RemoveElementByKey(m_Value, key);
+                        const auto keyStr = std::any_cast<std::string>(key);
+                        for (const auto& [entity, name] : m_ElementNames)
+                        {
+                            if (name == keyStr)
+                            {
+                                world->DestroyEntity(entity);
+                                auto it = m_Editors.find(entity);
+                                delete it->second;
+                                m_Editors.erase(it);
+                                m_ElementNames.erase(entity);
+                                break;
+                            }
+                        }
+                        auto* transform = world->GetComponent<RectTransformComponent>(m_VerticalBox);
+                        transform->needsLayout = true;
+                        se::ui::util::InvalidateParent(m_VerticalBox, nullptr);
+                    });
                 });
             }
 
@@ -178,20 +202,41 @@ namespace se::editor::ui::properties
                     auto it = m_Editors.find(entity);
                     if (it != m_Editors.end())
                     {
-                        auto onComitted = [this, world, entity](const std::string& newText, EditableTextComponent* textComp)
-                        {
-                            const auto nameIt = m_ElementNames.find(entity);
-                            m_MapType->ChangeKey(m_Value, nameIt->second, newText);
-                            const void* element = m_MapType->GetContainedValueByKey(m_Value, newText);
-                            nameIt->second = newText;
-                            textComp->text = nameIt->second + ": " + m_MapType->GetContainedValueType(element)->GetTypeName(element);
+                        const auto nameIt = m_ElementNames.find(entity);
+                        std::string oldVal = nameIt->second;
 
+                        auto onComitted = [this, world, entity, oldVal](const std::string& newText, EditableTextComponent*)
+                        {
                             auto it = m_Editors.find(entity);
                             const CollapsingHeaderComponent* collapsingHeader = world->GetComponent<CollapsingHeaderComponent>(it->second->GetWidgetId());
                             WidgetComponent* buttonWidget = world->GetComponent<WidgetComponent>(collapsingHeader->titleButton);
                             buttonWidget->updateEnabled = true;
                             buttonWidget->visibility = se::ui::Visibility::Hidden;
+
+                            Transactions::Get()->PushAction([this, entity, newText, world]()
+                            {
+                                const auto nameIt = m_ElementNames.find(entity);
+                                m_MapType->ChangeKey(m_Value, nameIt->second, newText);
+                                const void* element = m_MapType->GetContainedValueByKey(m_Value, newText);
+                                nameIt->second = newText;
+
+                                auto it = m_Editors.find(entity);
+                                EditableTextComponent* text = world->GetComponent<EditableTextComponent>(it->second->GetTitleId());
+                                text->text = nameIt->second + ": " + m_MapType->GetContainedValueType(element)->GetTypeName(element);
+                            },
+                            [this, entity, oldVal, world]()
+                            {
+                                const auto nameIt = m_ElementNames.find(entity);
+                                m_MapType->ChangeKey(m_Value, nameIt->second, oldVal);
+                                const void* element = m_MapType->GetContainedValueByKey(m_Value, oldVal);
+                                nameIt->second = oldVal;
+
+                                auto it = m_Editors.find(entity);
+                                EditableTextComponent* text = world->GetComponent<EditableTextComponent>(it->second->GetTitleId());
+                                text->text = nameIt->second + ": " + m_MapType->GetContainedValueType(element)->GetTypeName(element);
+                            });
                         };
+
                         auto onCancelled = [this, world, entity](EditableTextComponent* textComp)
                         {
                             const auto nameIt = m_ElementNames.find(entity);
@@ -205,22 +250,39 @@ namespace se::editor::ui::properties
                             buttonWidget->visibility = se::ui::Visibility::Hidden;
                         };
 
-                        const auto nameIt = m_ElementNames.find(entity);
                         it->second->BeginRename(nameIt->second, onComitted, onCancelled);
                     }
                 }),
                 std::make_pair("Delete", [this, entity, world]
                 {
                     const auto nameIt = m_ElementNames.find(entity);
-                    m_MapType->RemoveElementByKey(m_Value, nameIt->second);
-                    m_ElementNames.erase(nameIt);
-                    auto editor = m_Editors.find(entity);
-                    editor->second->DestroyUI();
-                    m_Editors.erase(editor);
+                    std::any oldKey = nameIt->second;
+                    std::any oldVal = m_MapType->GetContainedValueByKeyCopy(m_Value, oldKey);
 
-                    auto* transform = world->GetComponent<RectTransformComponent>(m_VerticalBox);
-                    transform->needsLayout = true;
-                    se::ui::util::InvalidateParent(m_VerticalBox, nullptr);
+                    Transactions::Get()->PushAction([this, entity, world]()
+                    {
+                        const auto nameIt = m_ElementNames.find(entity);
+                        m_MapType->RemoveElementByKey(m_Value, nameIt->second);
+                        m_ElementNames.erase(nameIt);
+                        auto editor = m_Editors.find(entity);
+                        editor->second->DestroyUI();
+                        m_Editors.erase(editor);
+
+                        auto* transform = world->GetComponent<RectTransformComponent>(m_VerticalBox);
+                        transform->needsLayout = true;
+                        se::ui::util::InvalidateParent(m_VerticalBox, nullptr);
+                    },
+                    [this, oldKey, oldVal, world, entity]()
+                    {
+                        std::any key = m_MapType->AddElement(m_Value, oldVal);
+                        m_MapType->ChangeKey(m_Value, key, oldKey);
+                        InstantiateElementUI(oldKey, m_MapType->GetContainedValueByKey(m_Value, oldKey));
+
+                        auto* transform = world->GetComponent<RectTransformComponent>(m_VerticalBox);
+                        transform->needsLayout = true;
+                        se::ui::util::InvalidateParent(m_VerticalBox, nullptr);
+                    });
+
                 })
             }
         };

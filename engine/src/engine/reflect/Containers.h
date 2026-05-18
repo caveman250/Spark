@@ -26,9 +26,12 @@ namespace se::reflect
         virtual const void* GetContainedKeyByIndex(void*, size_t) const { SPARK_ASSERT(false, "GetContainedKeyByIndex - Not implemented for type."); return nullptr; }
         virtual void* GetContainedValueByIndex(void*, size_t) const { SPARK_ASSERT(false, "GetContainedValueByIndex - Not implemented for type."); return nullptr; }
         virtual void* GetContainedValueByKey(void*, const std::any&) const { SPARK_ASSERT(false, "GetContainedValueByKey - Not implemented for type."); return nullptr; }
+        virtual std::any GetContainedValueByKeyCopy(void*, const std::any&) const { SPARK_ASSERT(false, "GetContainedValueByKey - Not implemented for type."); return nullptr; }
         virtual void ChangeKey(void*, const std::any&, const std::any&) const { SPARK_ASSERT(false, "ChangeKey - Not implemented for type."); }
         virtual size_t GetNumContainedElements(void*) const = 0;
+        virtual std::any GetNextKey(void*) const { SPARK_ASSERT(false, "GetNextKey - Not implemented for type."); return nullptr; }
         virtual std::any AddElement(void*, Type* type = nullptr) const = 0;
+        virtual std::any AddElement(void*, const std::any&) const { SPARK_ASSERT(false, "AddElement - Not implemented for type."); return nullptr; }
         virtual void RemoveElementByIndex(void*, size_t) const { SPARK_ASSERT(false, "RemoveElementByIndex - Not implemented for type."); }
         virtual void RemoveElementByKey(void*, const std::any&) const { SPARK_ASSERT(false, "RemoveElementByKey - Not implemented for type."); }
     };
@@ -693,9 +696,12 @@ namespace se::reflect
         Type* GetContainedValueType(const void*) const override { return TypeResolver<Y>::Get(); }
         void * GetContainedValueByIndex(void*, size_t i) const override;
         void* GetContainedValueByKey(void*, const std::any&) const override;
+        std::any GetContainedValueByKeyCopy(void*, const std::any&) const override;
         const void * GetContainedKeyByIndex(void*, size_t) const override;
         size_t GetNumContainedElements(void* obj) const override;
         std::any AddElement(void*, Type*) const override;
+        std::any AddElement(void*, const std::any&) const override;
+        std::any GetNextKey(void*) const override;
         void ChangeKey(void*, const std::any&, const std::any&) const override;
         void RemoveElementByKey(void*, const std::any&) const override;
     };
@@ -806,6 +812,23 @@ namespace se::reflect
     }
 
     template<typename T, typename Y>
+    std::any Type_StdMap<T, Y>::GetContainedValueByKeyCopy(void* obj,
+        const std::any& key) const
+    {
+        if (SPARK_VERIFY(obj))
+        {
+            auto* typed = static_cast<std::map<T, Y>*>(obj);
+            auto it = typed->find(std::any_cast<T>(key));
+            if (it != typed->end())
+            {
+                return it->second;
+            }
+        }
+
+        return Y();
+    }
+
+    template<typename T, typename Y>
     const void* Type_StdMap<T, Y>::GetContainedKeyByIndex(void* obj,
                                                       size_t i) const
     {
@@ -859,7 +882,15 @@ namespace se::reflect
         if (SPARK_VERIFY(obj))
         {
             auto* typed = static_cast<std::map<T, Y>*>(obj);
-            T key = T();
+            T key;
+            if constexpr (std::is_same_v<std::string, T>)
+            {
+                key = "new_item";
+            }
+            else
+            {
+                key = T();
+            }
             while (typed->find(key) != typed->end())
             {
                 IncKey(key);
@@ -875,6 +906,70 @@ namespace se::reflect
             }
 
             typed->insert(std::make_pair(key, Y()));
+            return key;
+        }
+
+        return nullptr;
+    }
+
+    template<typename T, typename Y>
+    std::any Type_StdMap<T, Y>::AddElement(void* obj,
+        const std::any& element) const
+    {
+        auto* containedType = GetContainedValueType(nullptr);
+        if (SPARK_VERIFY(obj))
+        {
+            auto* typed = static_cast<std::map<T, Y>*>(obj);
+            T key;
+            if constexpr (std::is_same_v<std::string, T>)
+            {
+                key = "new_item";
+            }
+            else
+            {
+                key = T();
+            }
+            while (typed->find(key) != typed->end())
+            {
+                IncKey(key);
+            }
+
+            if constexpr (std::is_pointer_v<Y>)
+            {
+                if (containedType->IsPolymorphic())
+                {
+                    typed->insert(std::make_pair(key, std::any_cast<Y>(element)));
+                    return key;
+                }
+            }
+
+            typed->insert(std::make_pair(key, Y()));
+            return key;
+        }
+
+        return nullptr;
+    }
+
+    template<typename T, typename Y>
+    std::any Type_StdMap<T, Y>::GetNextKey(void* obj) const
+    {
+        if (SPARK_VERIFY(obj))
+        {
+            auto* typed = static_cast<std::map<T, Y>*>(obj);
+            T key;
+            if constexpr (std::is_same_v<std::string, T>)
+            {
+                key = "new_item";
+            }
+            else
+            {
+                key = T();
+            }
+            while (typed->find(key) != typed->end())
+            {
+                IncKey(key);
+            }
+
             return key;
         }
 
@@ -950,8 +1045,11 @@ namespace se::reflect
         void* GetContainedValueByIndex(void *, size_t i) const override;
         const void * GetContainedKeyByIndex(void *, size_t) const override;
         void* GetContainedValueByKey(void*, const std::any&) const override;
+        std::any GetContainedValueByKeyCopy(void*, const std::any&) const override;
         size_t GetNumContainedElements(void* obj) const override;
         std::any AddElement(void*, Type*) const override;
+        std::any AddElement(void*, const std::any&) const override;
+        std::any GetNextKey(void*) const override;
         void ChangeKey(void*, const std::any&, const std::any&) const override;
         void RemoveElementByKey(void*, const std::any&) const override;
     };
@@ -1076,6 +1174,23 @@ namespace se::reflect
     }
 
     template<typename T, typename Y>
+    std::any Type_StdUnorderedMap<T, Y>::GetContainedValueByKeyCopy(void* obj,
+        const std::any& key) const
+    {
+        if (SPARK_VERIFY(obj))
+        {
+            auto* typed = static_cast<std::unordered_map<T, Y>*>(obj);
+            auto it = typed->find(std::any_cast<T>(key));
+            if (it != typed->end())
+            {
+                return it->second;
+            }
+        }
+
+        return Y();
+    }
+
+    template<typename T, typename Y>
     size_t Type_StdUnorderedMap<T, Y>::GetNumContainedElements(void* obj) const
     {
         if (SPARK_VERIFY(obj))
@@ -1128,6 +1243,70 @@ namespace se::reflect
             }
 
             typed->insert(std::make_pair(key, Y()));
+            return key;
+        }
+
+        return nullptr;
+    }
+
+    template<typename T, typename Y>
+    std::any Type_StdUnorderedMap<T, Y>::AddElement(void* obj,
+        const std::any& element) const
+    {
+        auto* containedType = GetContainedValueType(nullptr);
+        if (SPARK_VERIFY(obj))
+        {
+            auto* typed = static_cast<std::unordered_map<T, Y>*>(obj);
+            T key;
+            if constexpr (std::is_same_v<std::string, T>)
+            {
+                key = "new_item";
+            }
+            else
+            {
+                key = T();
+            }
+            while (typed->find(key) != typed->end())
+            {
+                IncKey(key);
+            }
+
+            if constexpr (std::is_pointer_v<Y>)
+            {
+                if (containedType->IsPolymorphic())
+                {
+                    typed->insert(std::make_pair(key, std::any_cast<Y>(element)));
+                    return key;
+                }
+            }
+
+            typed->insert(std::make_pair(key, Y()));
+            return key;
+        }
+
+        return nullptr;
+    }
+
+    template<typename T, typename Y>
+    std::any Type_StdUnorderedMap<T, Y>::GetNextKey(void* obj) const
+    {
+        if (SPARK_VERIFY(obj))
+        {
+            auto* typed = static_cast<std::unordered_map<T, Y>*>(obj);
+            T key;
+            if constexpr (std::is_same_v<std::string, T>)
+            {
+                key = "new_item";
+            }
+            else
+            {
+                key = T();
+            }
+            while (typed->find(key) != typed->end())
+            {
+                IncKey(key);
+            }
+
             return key;
         }
 
