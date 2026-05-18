@@ -1,5 +1,7 @@
 #pragma once
 
+#include "singleton_components/EditorShortcutsComponent.h"
+
 namespace se::editor
 {
     class EditorShortcutsManager

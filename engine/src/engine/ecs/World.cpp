@@ -690,9 +690,9 @@ namespace se::ecs
 
         uint64_t entityCounter = 1;
         std::map<Id, uint64_t> entityMap = {};
-        for (const Id& entity : entities)
+        for (const Id& prefabEntity : entities)
         {
-            entityMap.insert(std::make_pair(entity.id, entityCounter++));
+            entityMap.insert(std::make_pair(prefabEntity.id, entityCounter++));
         }
 
         PrefabEntity& entityData = prefab.m_Entities.emplace_back();
@@ -1582,7 +1582,7 @@ namespace se::ecs
     void World::GetChildrenRecursive(std::vector<Id>& vec, const Id& entity) const
     {
         const auto& children = GetChildren(entity);
-        vec.append_range(children);
+        vec.insert(vec.end(), children.begin(), children.end());
 
         for (const auto& child : children)
         {

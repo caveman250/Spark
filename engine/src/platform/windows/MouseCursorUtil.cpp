@@ -4,6 +4,11 @@
 
 namespace se
 {
+    void MouseCursorUtil::InitCursors()
+    {
+
+    }
+
     void MouseCursorUtil::SetMouseCursor(MouseCursor cursor)
     {
         HCURSOR hCursor = nullptr;
@@ -22,5 +27,10 @@ namespace se
 
         auto window = static_cast<windows::Window*>(Application::Get()->GetWindow());
         window->SetCursor(hCursor);
+    }
+
+    void MouseCursorUtil::FreeCursors()
+    {
+
     }
 }

@@ -38,7 +38,5 @@ namespace se::geo::util
 
         const float t = math::Dot(plane.normal, plane.center - ray.origin) / denom;
         return RayCastHit(ray.origin + ray.direction * t);
-
-       return std::nullopt;
     }
 }

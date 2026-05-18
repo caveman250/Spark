@@ -6,6 +6,10 @@
 #include "Vec3.h"
 #include "Vec4.h"
 
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
+
 namespace se::math
 {
     bool FloatEqual(float a, float b);

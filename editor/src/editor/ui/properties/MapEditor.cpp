@@ -130,7 +130,7 @@ namespace se::editor::ui::properties
             auto textEntity = world->CreateEntity(editor->GetEditorScene(), "Title");
             world->AddComponent<WidgetComponent>(textEntity);
             auto text = world->AddComponent<TextComponent>(textEntity);
-            text->font = "/engine_assets/fonts/Arial.sass";
+            text->font = "/engine_assets/fonts/CascadiaCode.sass";
             text->fontSize = 14;
             text->text = "empty.";
             auto textRect = world->AddComponent<RectTransformComponent>(textEntity);

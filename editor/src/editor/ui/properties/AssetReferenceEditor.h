@@ -77,7 +77,7 @@ namespace se::editor::ui::properties
         auto world = app->GetWorld();
         auto editor = app->GetEditor();
         auto assetManager = asset::AssetManager::Get();
-        auto ariel = assetManager->GetAsset<asset::Font>("/engine_assets/fonts/Arial.sass");
+        auto ariel = assetManager->GetAsset<asset::Font>("/engine_assets/fonts/CascadiaCode.sass");
 
         m_Root = world->CreateEntity(editor->GetEditorScene(), "Asset Reference Editor");
         auto bgTransform = world->AddComponent<RectTransformComponent>(m_Root);
@@ -113,7 +113,7 @@ namespace se::editor::ui::properties
         m_Label = world->CreateEntity(editor->GetEditorScene(), "Title");
         world->AddComponent<WidgetComponent>(m_Label);
         auto text = world->AddComponent<TextComponent>(m_Label);
-        text->font = "/engine_assets/fonts/Arial.sass";
+        text->font = "/engine_assets/fonts/CascadiaCode.sass";
         text->fontSize = 14;
         text->wrap = se::ui::text::WrapMode::Crop;
         SetupIconAndText(text, iconImage);

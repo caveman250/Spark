@@ -63,7 +63,7 @@ namespace se::ui::util
 
         const ecs::Id titleBarTextEntity = world->CreateEntity(scene, "TitleBarText");
         auto* titleBarText = world->AddComponent<TextComponent>(titleBarTextEntity);
-        titleBarText->font = "/engine_assets/fonts/Arial.sass";
+        titleBarText->font = "/engine_assets/fonts/CascadiaCode.sass";
         titleBarText->fontSize = 18;
         titleBarText->text = title;
         auto* titleBarTextTransform = world->AddComponent<RectTransformComponent>(titleBarTextEntity);

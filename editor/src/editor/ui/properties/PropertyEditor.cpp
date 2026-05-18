@@ -113,7 +113,7 @@ namespace se::editor::ui::properties
         {
             if (params.editableTitle)
             {
-                auto newText = se::ui::util::CreateEditableText(world, "/engine_assets/fonts/Arial.sass", titleFontSize, editor->GetEditorScene());
+                auto newText = se::ui::util::CreateEditableText(world, "/engine_assets/fonts/CascadiaCode.sass", titleFontSize, editor->GetEditorScene());
                 m_Title = newText.entity;
                 newText.text->text = m_Name;
                 newText.text->wrap = se::ui::text::WrapMode::Char;
@@ -123,7 +123,7 @@ namespace se::editor::ui::properties
             {
                 m_Title = world->CreateEntity(editor->GetEditorScene(), std::format("Property Title ({})", params.name));
                 auto titleText = world->AddComponent<TextComponent>(m_Title);
-                titleText->font = "/engine_assets/fonts/Arial.sass";
+                titleText->font = "/engine_assets/fonts/CascadiaCode.sass";
                 titleText->fontSize = titleFontSize;
                 titleText->text = m_Name;
                 titleText->wrap = se::ui::text::WrapMode::Char;

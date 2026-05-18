@@ -6,6 +6,7 @@ namespace se::input
     struct InputComponent;
     struct KeyEvent;
     struct MouseEvent;
+    enum class Key;
 }
 
 namespace se::input

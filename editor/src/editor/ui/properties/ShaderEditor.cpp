@@ -83,7 +83,7 @@ namespace se::editor::ui::properties
             }
         }
 
-        text->font = "/engine_assets/fonts/Arial.sass";
+        text->font = "/engine_assets/fonts/CascadiaCode.sass";
         text->fontSize = 14;
         world->AddChild(m_Content, textEntity);
     }

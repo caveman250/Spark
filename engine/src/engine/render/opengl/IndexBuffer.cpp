@@ -60,8 +60,10 @@ namespace se::render::opengl
         }
         else
         {
+            SPARK_ASSERT(m_Resource != 1);
             DeferredOpenGLOperations::Get()->AddDeferredOp([this]()
             {
+
                 Cleanup(m_Resource);
             });
         }
@@ -71,7 +73,7 @@ namespace se::render::opengl
     {
         if (resource != GL_INVALID_VALUE)
         {
-            SPARK_ASSERT(resource != 1);
+            //SPARK_ASSERT(resource != 1);
             glDeleteBuffers(1, &resource);
             GL_CHECK_ERROR()
         }

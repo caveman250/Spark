@@ -12,7 +12,6 @@
 
 namespace se::asset::builder
 {
-    constexpr int s_SDFPadding = 16;
     constexpr int s_SDFOneEdge = 128;
 
     constexpr const char* s_FontMapChars =

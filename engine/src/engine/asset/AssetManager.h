@@ -64,8 +64,10 @@ namespace se::asset
             {
                 return std::make_shared<render::MaterialInstance>(*static_cast<T*>(it->second.get()));
             }
-
-            return std::static_pointer_cast<T>(it->second);
+            else
+            {
+                return std::static_pointer_cast<T>(it->second);
+            }
         }
 
         const auto db = binary::Database::Load(path, true);
@@ -82,8 +84,10 @@ namespace se::asset
         {
             return std::make_shared<render::MaterialInstance>(*asset.get());
         }
-
-        return asset;
+        else
+        {
+            return asset;
+        }
     }
 
     template<DataAsset T>

@@ -51,7 +51,7 @@ namespace se::editor::ui::properties
         auto world = app->GetWorld();
         auto editor = app->GetEditor();
         auto assetManager = asset::AssetManager::Get();
-        auto ariel = assetManager->GetAsset<asset::Font>("/engine_assets/fonts/Arial.sass");
+        auto ariel = assetManager->GetAsset<asset::Font>("/engine_assets/fonts/CascadiaCode.sass");
 
         auto bg = world->CreateEntity(editor->GetEditorScene(), "String Editor");
         auto bgTransform = world->AddComponent<RectTransformComponent>(bg);
@@ -74,7 +74,7 @@ namespace se::editor::ui::properties
         innerTransform->minX = innerTransform->maxX = innerTransform->minY = innerTransform->maxY = borderSize;
         world->AddChild(bg, innerImageEntity);
 
-        auto editText = se::ui::util::CreateEditableText(world, "/engine_assets/fonts/Arial.sass", fontSize, editor->GetEditorScene());
+        auto editText = se::ui::util::CreateEditableText(world, "/engine_assets/fonts/CascadiaCode.sass", fontSize, editor->GetEditorScene());
         m_Label = editText.entity;
         editText.text->text = std::format("{}", *m_Value);
         std::function cb = [this](std::string newVal)

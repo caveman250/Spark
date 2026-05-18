@@ -107,7 +107,7 @@ namespace se::editor::ui::asset_browser
         pathBarBGImage->materialInstance = std::make_shared<render::MaterialInstance>(bgMaterial);
         world->AddChild(verticalBoxEntity, pathBarBG);
 
-        auto arial = assetManager->GetAsset<asset::Font>("/engine_assets/fonts/Arial.sass");
+        auto font = assetManager->GetAsset<asset::Font>("/engine_assets/fonts/CascadiaCode.sass");
         m_PathBarBox = world->CreateEntity(editor->GetEditorScene(), "Path Bar");
         auto pathBarRect = world->AddComponent<se::ui::components::RectTransformComponent>(m_PathBarBox);
         pathBarRect->anchors = { 0.f, 1.f, 0.f, 1.f };
@@ -243,7 +243,7 @@ namespace se::editor::ui::asset_browser
         const auto gridBox = world->GetComponent<se::ui::components::RectTransformComponent>(m_GridBoxEntity);
         gridBox->needsLayout = true;
 
-        CreatePathBar("/engine_assets/fonts/Arial.sass");
+        CreatePathBar("/engine_assets/fonts/CascadiaCode.sass");
 
         if (setSelection && !firstFile.empty())
         {

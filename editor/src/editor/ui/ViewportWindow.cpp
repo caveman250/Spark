@@ -162,7 +162,7 @@ namespace se::editor::ui
 
         ecs::Id titleBarTextEntity = world->CreateEntity(editor->GetEditorScene(), "TitleBarText");
         auto titleBarText = world->AddComponent<se::ui::components::TextComponent>(titleBarTextEntity);
-        titleBarText->font = "/engine_assets/fonts/Arial.sass";
+        titleBarText->font = "/engine_assets/fonts/CascadiaCode.sass";
         titleBarText->fontSize = 14;
         titleBarText->text = "Show UI";
         auto titleBarTextTransform = world->AddComponent<se::ui::components::RectTransformComponent>(titleBarTextEntity);

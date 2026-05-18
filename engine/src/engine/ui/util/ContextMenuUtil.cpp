@@ -29,7 +29,7 @@ namespace se::ui::util
         auto world = app->GetWorld();
         auto window = app->GetWindow();
         auto assetManager = asset::AssetManager::Get();
-        auto arial = assetManager->GetAsset<asset::Font>("/engine_assets/fonts/Arial.sass");
+        auto font = assetManager->GetAsset<asset::Font>("/engine_assets/fonts/CascadiaCode.sass");
 
         contextMenu = world->CreateEntity(params.scene, "Context Menu");
         auto contextMenuTransform = world->AddComponent<RectTransformComponent>(contextMenu);
@@ -62,7 +62,7 @@ namespace se::ui::util
 
             auto textEntity = world->CreateEntity(params.scene, "Label");
             auto text = world->AddComponent<TextComponent>(textEntity);
-            text->font = "/engine_assets/fonts/Arial.sass";
+            text->font = "/engine_assets/fonts/CascadiaCode.sass";
             text->fontSize = params.fontSize;
             text->text = option.first;
             world->AddComponent<RectTransformComponent>(textEntity);

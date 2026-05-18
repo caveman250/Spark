@@ -44,7 +44,7 @@ namespace se::geo::util
         math::Vec3 min = std::numeric_limits<float>::min(), max = std::numeric_limits<float>::max();
         for (size_t i = startIndex; i <= endIndex; ++i)
         {
-            float angle = 2.0f * M_PI * i / steps;
+            float angle = static_cast<float>(2.0f * M_PI * i / steps);
             float x = radius * cos(angle);
             float y = radius * sin(angle);
             mesh.vertices.push_back(math::Vec3(x, y, 0.0f));
@@ -84,7 +84,7 @@ namespace se::geo::util
 
         for (size_t i = startIndex; i <= endIndex; ++i)
         {
-            float angle = 2.0f * M_PI * i / steps;
+            float angle = static_cast<float>(2.0f * M_PI * i / steps);
 
             float cosA = cos(angle);
             float sinA = sin(angle);
@@ -109,10 +109,10 @@ namespace se::geo::util
 
         for (size_t i = 0; i < (endIndex - startIndex); ++i)
         {
-            const int outer0 = i * 2;
-            const int inner0 = i * 2 + 1;
-            const int outer1 = (i + 1) * 2;
-            const int inner1 = (i + 1) * 2 + 1;
+            const int outer0 = static_cast<int>(i * 2);
+            const int inner0 = static_cast<int>(i * 2 + 1);
+            const int outer1 = static_cast<int>((i + 1) * 2);
+            const int inner1 = static_cast<int>((i + 1) * 2 + 1);
 
             mesh.indices.push_back(outer0);
             mesh.indices.push_back(inner0);

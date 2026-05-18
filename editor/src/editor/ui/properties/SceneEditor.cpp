@@ -29,7 +29,7 @@ namespace se::editor::ui::properties
         textRect->anchors = { 0.f, 1.f, 0.f, 0.f };
         auto text = world->AddComponent<TextComponent>(textEntity);
         text->text = std::format("Num Entities: {}", m_Value->m_Entities.size());
-        text->font = "/engine_assets/fonts/Arial.sass";
+        text->font = "/engine_assets/fonts/CascadiaCode.sass";
         text->fontSize = 14;
         world->AddChild(m_Content, textEntity);
     }

@@ -26,7 +26,7 @@ namespace se
     {
         for (const auto& [name, value] : m_Storage)
         {
-            material->GetPlatformResources()->SetUniformInternal(name, value->GetShaderType(), value->GetValueCount(), value->GetValue(), material->GetMaterial());
+            material->GetPlatformResources()->SetUniformInternal(name, value->GetShaderType(), static_cast<int>(value->GetValueCount()), value->GetValue(), material->GetMaterial());
         }
 
         m_Stale = false;
@@ -38,7 +38,7 @@ namespace se
         {
             if (other.m_Storage.contains(name))
             {
-                other.m_Storage.at(name)->SetValue(value->GetValue(), value->GetValueCount(), value->internal);
+                other.m_Storage.at(name)->SetValue(value->GetValue(), static_cast<int>(value->GetValueCount()), value->internal);
             }
             else
             {

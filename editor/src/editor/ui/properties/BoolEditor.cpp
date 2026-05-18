@@ -26,7 +26,7 @@ namespace se::editor::ui::properties
         auto world = app->GetWorld();
         auto editor = app->GetEditor();
         auto assetManager = asset::AssetManager::Get();
-        auto ariel = assetManager->GetAsset<asset::Font>("/engine_assets/fonts/Arial.sass");
+        auto ariel = assetManager->GetAsset<asset::Font>("/engine_assets/fonts/CascadiaCode.sass");
 
         auto bg = world->CreateEntity(editor->GetEditorScene(), "Bool Editor");
         auto bgTransform = world->AddComponent<RectTransformComponent>(bg);

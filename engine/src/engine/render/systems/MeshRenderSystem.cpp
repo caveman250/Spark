@@ -55,9 +55,7 @@ namespace se::render::systems
                 }
     #endif
 
-                const auto& modelAsset = mesh.model.GetAsset();
-
-                if (buffersValid && modelAsset->GetVertexBuffer() != mesh.vertexBuffer)
+                if (buffersValid && mesh.model.IsSet() && mesh.model.GetAsset()->GetVertexBuffer() != mesh.vertexBuffer)
                 {
                     buffersValid = false;
                 }
@@ -70,6 +68,7 @@ namespace se::render::systems
                         continue;
                     }
 
+                    const auto& modelAsset = mesh.model.GetAsset();
                     const auto& vertBuffer = modelAsset->GetVertexBuffer();
                     const auto& indexBuffer = modelAsset->GetIndexBuffer();
 

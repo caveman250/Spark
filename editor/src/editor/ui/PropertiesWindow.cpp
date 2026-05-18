@@ -100,7 +100,7 @@ namespace se::editor::ui
 
             if (selectedEntity)
             {
-                AddEntityProperties(selectedEntity, world, "/engine_assets/fonts/Arial.sass");
+                AddEntityProperties(selectedEntity, world, "/engine_assets/fonts/CascadiaCode.sass");
             }
             else if (selectedSingletonComp)
             {
@@ -108,7 +108,7 @@ namespace se::editor::ui
             }
             else if (selectedAsset)
             {
-                AddAssetProperties(selectedAsset, world, "/engine_assets/fonts/Arial.sass");
+                AddAssetProperties(selectedAsset, world, "/engine_assets/fonts/CascadiaCode.sass");
             }
 
             scrollBoxTransform->needsLayout = true;
@@ -234,7 +234,7 @@ namespace se::editor::ui
 
         auto filePathEntity = world->CreateEntity(editor->GetEditorScene(), "File Path");
         auto filePathText = world->AddComponent<se::ui::components::TextComponent>(filePathEntity);
-        filePathText->font = "/engine_assets/fonts/Arial.sass";
+        filePathText->font = "/engine_assets/fonts/CascadiaCode.sass";
         filePathText->fontSize = 12;
         filePathText->text = path;
         world->AddComponent<se::ui::components::RectTransformComponent>(filePathEntity);

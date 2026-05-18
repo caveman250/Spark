@@ -50,7 +50,7 @@ namespace se::ui::util
         world->AddComponent<WidgetComponent>(ret.entity);
         world->AddComponent<MouseInputComponent>(ret.entity);
 
-        const auto editText = CreateEditableText(world, "/engine_assets/fonts/Arial.sass", 14, params.scene);
+        const auto editText = CreateEditableText(world, "/engine_assets/fonts/CascadiaCode.sass", 14, params.scene);
         ret.textEntity = editText.entity;
         ret.text = editText.text;
         SetEditTextMouseInputEnabled(editText.mouseInput, false);

@@ -105,7 +105,7 @@ namespace se::editor::ui::properties
             m_EmptyItem = world->CreateEntity(editor->GetEditorScene(), "Title");
             world->AddComponent<WidgetComponent>(m_EmptyItem);
             auto text = world->AddComponent<TextComponent>(m_EmptyItem);
-            text->font = "/engine_assets/fonts/Arial.sass";
+            text->font = "/engine_assets/fonts/CascadiaCode.sass";
             text->fontSize = 16;
             text->text = "empty.";
             auto textRect = world->AddComponent<RectTransformComponent>(m_EmptyItem);

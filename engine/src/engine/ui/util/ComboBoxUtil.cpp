@@ -13,7 +13,7 @@ namespace se::ui::util
     {
         auto world = Application::Get()->GetWorld();
         auto assetManager = asset::AssetManager::Get();
-        auto arial = assetManager->GetAsset<asset::Font>("/engine_assets/fonts/Arial.sass");
+        auto font = assetManager->GetAsset<asset::Font>("/engine_assets/fonts/CascadiaCode.sass");
 
         ret.comboBox->collapsedEntity = world->CreateEntity(params.scene, "ComboBox Collapsed");
         auto bgTransform = world->AddComponent<RectTransformComponent>(ret.comboBox->collapsedEntity);
@@ -32,7 +32,7 @@ namespace se::ui::util
 
         collapsedText = world->CreateEntity(params.scene, "Label");
         auto text = world->AddComponent<TextComponent>(collapsedText);
-        text->font = "/engine_assets/fonts/Arial.sass";
+        text->font = "/engine_assets/fonts/CascadiaCode.sass";
         text->fontSize = params.fontSize;
         text->text = params.options[params.selectedIndex];
         auto labelRect = world->AddComponent<RectTransformComponent>(collapsedText);
@@ -76,7 +76,7 @@ namespace se::ui::util
     {
         auto world = Application::Get()->GetWorld();
         auto assetManager = asset::AssetManager::Get();
-        auto arial = assetManager->GetAsset<asset::Font>("/engine_assets/fonts/Arial.sass");
+        auto font = assetManager->GetAsset<asset::Font>("/engine_assets/fonts/CascadiaCode.sass");
 
         ret.comboBox->expandedEntity = world->CreateEntity(params.scene, "ComboBox Expanded");
         auto bgTransform = world->AddComponent<RectTransformComponent>(ret.comboBox->expandedEntity);
@@ -111,7 +111,7 @@ namespace se::ui::util
 
             auto textEntity = world->CreateEntity(params.scene, "Label");
             auto text = world->AddComponent<TextComponent>(textEntity);
-            text->font = "/engine_assets/fonts/Arial.sass";
+            text->font = "/engine_assets/fonts/CascadiaCode.sass";
             text->fontSize = params.fontSize;
             text->text = option;
             world->AddComponent<RectTransformComponent>(textEntity);
@@ -145,13 +145,13 @@ namespace se::ui::util
 
         auto world = Application::Get()->GetWorld();
         auto assetManager = asset::AssetManager::Get();
-        auto arial = assetManager->GetAsset<asset::Font>("/engine_assets/fonts/Arial.sass");
+        auto font = assetManager->GetAsset<asset::Font>("/engine_assets/fonts/CascadiaCode.sass");
 
         ret.id = world->CreateEntity(params.scene, "ComboBox");
         ret.rectTransform = world->AddComponent<RectTransformComponent>(ret.id);
         ret.rectTransform->anchors = { .left = 0.f, .right = 1.f, .top = 0.f, .bottom = 0.f };
         ret.rectTransform->minY = 0;
-        ret.rectTransform->maxY = arial->GetLineHeight(params.fontSize) + padding + borderSize * 2 + 0.5f;
+        ret.rectTransform->maxY = font->GetLineHeight(params.fontSize) + padding + borderSize * 2 + 0.5f;
         world->AddComponent<WidgetComponent>(ret.id);
         ret.comboBox = world->AddComponent<ComboBoxComponent>(ret.id);
         world->AddComponent<MouseInputComponent>(ret.id);

@@ -174,9 +174,9 @@ namespace se::editor::systems
                 if (gizmo.mouseDown)
                 {
                     gizmo.wasMouseDown = true;
-                    auto hit = geo::util::RayCastPlane(ray, plane);
-                    SPARK_ASSERT(hit.has_value());
-                    math::Vec3 hitPoint = hit.value().intersectionPoint;
+                    auto planeHit = geo::util::RayCastPlane(ray, plane);
+                    SPARK_ASSERT(planeHit.has_value());
+                    math::Vec3 hitPoint = planeHit.value().intersectionPoint;
                     //project to circle
                     math::Vec2 initialHitPoint2;
                     math::Vec2 hitPoint2;
@@ -216,14 +216,14 @@ namespace se::editor::systems
                         math::Vec3 gizmoData = { angle, angle2, gizmo.visualisationDir };
                         if (gizmoData.x < 0)
                         {
-                            gizmoData.x += M_PI;
+                            gizmoData.x += static_cast<float>(M_PI);
                         }
                         if (gizmoData.y < 0)
                         {
-                            gizmoData.y += M_PI;
+                            gizmoData.y += static_cast<float>(M_PI);
                         }
-                        gizmoData.x /= M_PI;
-                        gizmoData.y /= M_PI;
+                        gizmoData.x /= static_cast<float>(M_PI);
+                        gizmoData.y /= static_cast<float>(M_PI);
                         mesh.materialInstance->SetUniform("gizmo_data", 1, &gizmoData);
                     }
 
