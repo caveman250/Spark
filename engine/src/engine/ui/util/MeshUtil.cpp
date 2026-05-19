@@ -87,8 +87,7 @@ namespace se::ui::util
 
     int CalculateJustificationXOffset(const text::Alignment justification,
                             const int endOfLineX,
-                            const Rect* rect,
-                            float sdfSpacing)
+                            const Rect* rect)
     {
         switch (justification)
         {
@@ -164,10 +163,10 @@ namespace se::ui::util
         TL -= offset.value();
         BR -= offset.value();
 
-        mesh.vertices.push_back({ static_cast<float>(TL.x), static_cast<float>(BR.y + scaledPadding.y * 2), 0 });
-        mesh.vertices.push_back({ static_cast<float>(BR.x + scaledPadding.x * 2), static_cast<float>(BR.y + scaledPadding.y * 2), 0 });
-        mesh.vertices.push_back({ static_cast<float>(BR.x + scaledPadding.x * 2), static_cast<float>(TL.y), 0 });
-        mesh.vertices.push_back({ static_cast<float>(TL.x), static_cast<float>(TL.y), 0 });
+        mesh.vertices.push_back({ TL.x, BR.y + scaledPadding.y * 2, 0 });
+        mesh.vertices.push_back({ BR.x + scaledPadding.x * 2, BR.y + scaledPadding.y * 2, 0 });
+        mesh.vertices.push_back({ BR.x + scaledPadding.x * 2, TL.y, 0 });
+        mesh.vertices.push_back({ TL.x, (TL.y), 0 });
 
         mesh.indices.insert(mesh.indices.end(), { indexOffset + 1, indexOffset + 3, indexOffset, indexOffset + 3, indexOffset + 1, indexOffset + 2 });
         indexOffset += 4;
@@ -353,6 +352,7 @@ namespace se::ui::util
 
         math::Vec2 cursorPos = { };
         cursorPos.y += font->GetLineHeight(fontSize);
+        std::optional<math::Vec2> lineCharOffset = {};
         for (size_t i = 0; i < endIndex; ++i)
         {
             const char c = text->at(i);
@@ -366,8 +366,17 @@ namespace se::ui::util
                 }
                 cursorPos = ApplyLeftSideBearing(cursorPos, charData, scale);
 
-                math::Vec2 TL = charData.rect.topLeft * scale + cursorPos;
-                math::Vec2 BR = TL + charData.rect.size * scale;
+                math::Vec2 TL = charData.rect.topLeft * scale + math::Vec2(cursorPos);
+                math::Vec2 BR = TL + (charData.rect.size - asset::builder::FontBlueprint::s_SDFPadding * 2) * scale;
+                if (!lineCharOffset.has_value())
+                {
+                    math::IntVec2 TLSnapped = TL + math::Vec2(0.5f, -0.5f);
+                    lineCharOffset = TL - math::Vec2(TLSnapped);
+                }
+
+                TL -= lineCharOffset.value();
+                BR -= lineCharOffset.value();
+
                 max = math::Vec2(std::max(BR.x, max.x), std::max(BR.y, max.y));
 
                 cursorPos = ApplyAdvanceWidth(cursorPos, charData, scale);
@@ -387,6 +396,7 @@ namespace se::ui::util
                                           scale,
                                           didWrap);
 
+
                 if (!didWrap && wrap == text::WrapMode::WordChar && cursorPos.x > bounds->size.x)
                 {
                     cursorPos = ApplyWrapping(cursorPos,
@@ -401,6 +411,11 @@ namespace se::ui::util
                                           didWrap);
                 }
                 //Alignment does not affect desired size.
+
+                if (didWrap)
+                {
+                    lineCharOffset = std::nullopt;
+                }
             }
         }
         return max;
