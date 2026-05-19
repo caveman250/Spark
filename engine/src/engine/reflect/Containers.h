@@ -25,13 +25,15 @@ namespace se::reflect
         virtual void* GetContainedValue(void*) const { SPARK_ASSERT(false, "GetContainedValue - Not implemented for type."); return nullptr; }
         virtual const void* GetContainedKeyByIndex(void*, size_t) const { SPARK_ASSERT(false, "GetContainedKeyByIndex - Not implemented for type."); return nullptr; }
         virtual void* GetContainedValueByIndex(void*, size_t) const { SPARK_ASSERT(false, "GetContainedValueByIndex - Not implemented for type."); return nullptr; }
+        virtual std::any GetContainedValueByIndexCopy(void*, size_t) const { SPARK_ASSERT(false, "GetContainedValueByIndexCopy - Not implemented for type."); return nullptr; }
         virtual void* GetContainedValueByKey(void*, const std::any&) const { SPARK_ASSERT(false, "GetContainedValueByKey - Not implemented for type."); return nullptr; }
-        virtual std::any GetContainedValueByKeyCopy(void*, const std::any&) const { SPARK_ASSERT(false, "GetContainedValueByKey - Not implemented for type."); return nullptr; }
+        virtual std::any GetContainedValueByKeyCopy(void*, const std::any&) const { SPARK_ASSERT(false, "GetContainedValueByKeyCopy - Not implemented for type."); return nullptr; }
         virtual void ChangeKey(void*, const std::any&, const std::any&) const { SPARK_ASSERT(false, "ChangeKey - Not implemented for type."); }
         virtual size_t GetNumContainedElements(void*) const = 0;
         virtual std::any GetNextKey(void*) const { SPARK_ASSERT(false, "GetNextKey - Not implemented for type."); return nullptr; }
         virtual std::any AddElement(void*, Type* type = nullptr) const = 0;
         virtual std::any AddElement(void*, const std::any&) const { SPARK_ASSERT(false, "AddElement - Not implemented for type."); return nullptr; }
+        virtual void AddElementAtIndex(void*, const std::any&, size_t) const { SPARK_ASSERT(false, "AddElement - Not implemented for type."); }
         virtual void RemoveElementByIndex(void*, size_t) const { SPARK_ASSERT(false, "RemoveElementByIndex - Not implemented for type."); }
         virtual void RemoveElementByKey(void*, const std::any&) const { SPARK_ASSERT(false, "RemoveElementByKey - Not implemented for type."); }
     };
@@ -449,8 +451,11 @@ namespace se::reflect
         std::string GetContainerTypeName() const override { return "std::vector<>"; }
         Type * GetContainedValueType(const void*) const override { return TypeResolver<T>::Get(); }
         void* GetContainedValueByIndex(void* obj, size_t i) const override;
+        std::any GetContainedValueByIndexCopy(void*, size_t) const override;
         size_t GetNumContainedElements(void* obj) const override;
         std::any AddElement(void*, Type*) const override;
+        std::any AddElement(void*, const std::any&) const override;
+        void AddElementAtIndex(void*, const std::any&, size_t) const override;
         void RemoveElementByIndex(void*, size_t) const override;
     };
 
@@ -496,6 +501,19 @@ namespace se::reflect
     }
 
     template<typename T>
+    std::any Type_StdVector<T>::GetContainedValueByIndexCopy(void* obj,
+        size_t i) const
+    {
+        if (SPARK_VERIFY(obj))
+        {
+            auto* typed = static_cast<std::vector<T>*>(obj);
+            return typed->at(i);
+        }
+
+        return T();
+    }
+
+    template<typename T>
     size_t Type_StdVector<T>::GetNumContainedElements(void* obj) const
     {
         if (SPARK_VERIFY(obj))
@@ -530,6 +548,42 @@ namespace se::reflect
         }
 
         return nullptr;
+    }
+
+    template<typename T>
+    std::any Type_StdVector<T>::AddElement(void* obj,
+        const std::any& element) const
+    {
+        if (SPARK_VERIFY(obj))
+        {
+            auto* typed = static_cast<std::vector<T>*>(obj);
+
+            if constexpr (std::is_pointer_v<T>)
+            {
+                if (GetContainedValueType(nullptr)->IsPolymorphic())
+                {
+                    typed->emplace_back(std::any_cast<T>(element));
+                    return typed->size() - 1;
+                }
+            }
+
+            typed->emplace_back(T());
+            return typed->size() - 1;
+        }
+
+        return nullptr;
+    }
+
+    template<typename T>
+    void Type_StdVector<T>::AddElementAtIndex(void* obj,
+        const std::any& element,
+        size_t index) const
+    {
+        if (SPARK_VERIFY(obj))
+        {
+            auto* typed = static_cast<std::vector<T>*>(obj);
+            typed->insert(typed->begin() + index, std::any_cast<T>(element));
+        }
     }
 
     template<typename T>

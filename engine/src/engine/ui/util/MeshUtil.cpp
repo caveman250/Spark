@@ -157,7 +157,7 @@ namespace se::ui::util
             offset = TL - math::Vec2(TLSnapped);
         }
 
-        float cutoff = asset::builder::FontBlueprint::BitmapCutoffSize * Application::Get()->GetWindow()->GetContentScale();
+        float cutoff = asset::builder::FontBlueprint::BitmapCutoffSize;
         int padding = fontSize > cutoff ? asset::builder::FontBlueprint::SDFPadding : 0;
         math::Vec2 scaledPadding = math::Vec2(scale * padding);
         math::Vec2 TL = charData.rect.topLeft * scale + math::Vec2(cursorPos);
@@ -185,7 +185,7 @@ namespace se::ui::util
         asset::StaticMesh mesh = {};
         uint32_t indexOffset = 0;
         auto* window = Application::Get()->GetWindow();
-        float cutoff = asset::builder::FontBlueprint::BitmapCutoffSize * window->GetContentScale();
+        float cutoff = asset::builder::FontBlueprint::BitmapCutoffSize;
         const float scale = params.fontSize <= cutoff ? window->GetContentScale() : static_cast<float>(params.fontSize) / asset::builder::FontBlueprint::Scale;
         math::IntVec2 cursorPos = { };
         cursorPos.y += params.font->GetAscent(params.fontSize);
@@ -350,7 +350,7 @@ namespace se::ui::util
         const size_t endIndex)
     {
         auto* window = Application::Get()->GetWindow();
-        float cutoff = asset::builder::FontBlueprint::BitmapCutoffSize * window->GetContentScale();
+        float cutoff = asset::builder::FontBlueprint::BitmapCutoffSize;
         const float scale = fontSize <= cutoff ? window->GetContentScale() : static_cast<float>(fontSize) / asset::builder::FontBlueprint::Scale;
         math::Vec2 max = { };
 
@@ -371,7 +371,7 @@ namespace se::ui::util
                 cursorPos = ApplyLeftSideBearing(cursorPos, charData, scale);
 
                 math::Vec2 TL = charData.rect.topLeft * scale + math::Vec2(cursorPos);
-                float cutoff = asset::builder::FontBlueprint::BitmapCutoffSize * Application::Get()->GetWindow()->GetContentScale();
+                float cutoff = asset::builder::FontBlueprint::BitmapCutoffSize;
                 int padding = fontSize > cutoff ? asset::builder::FontBlueprint::SDFPadding : 0;
                 math::Vec2 BR = TL + (charData.rect.size - padding * 2) * scale;
                 if (!lineCharOffset.has_value())

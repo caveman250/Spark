@@ -22,7 +22,8 @@ namespace se::ui::util
         if (!textComp.materialInstance && textComp.font.IsSet())
         {
             std::shared_ptr<render::Material> textMaterial = {};
-            if (textComp.fontSize <= asset::builder::FontBlueprint::BitmapCutoffSize)
+            auto* window = Application::Get()->GetWindow();
+            if (textComp.fontSize * window->GetContentScale() <= asset::builder::FontBlueprint::BitmapCutoffSize)
             {
                 textMaterial = asset::AssetManager::Get()->GetAsset<render::Material>("/engine_assets/materials/text_bitmap.sass");
             }

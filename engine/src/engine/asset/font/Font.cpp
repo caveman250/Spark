@@ -14,7 +14,8 @@ namespace se::asset
 
     const std::shared_ptr<Texture>& Font::GetTextureAsset(int fontSize)
     {
-        if (fontSize > builder::FontBlueprint::BitmapCutoffSize)
+        auto* window = Application::Get()->GetWindow();
+        if (fontSize * window->GetContentScale() > builder::FontBlueprint::BitmapCutoffSize)
         {
             return m_SDFTexture.GetAsset();
         }
@@ -35,7 +36,6 @@ namespace se::asset
 #endif
 
         // TODO this probably wont work for fractional scaling.
-        fontSize = fontSize / Application::Get()->GetWindow()->GetContentScale();
         if (fontSize > builder::FontBlueprint::BitmapCutoffSize)
         {
             auto it = m_SDFCharData.find(c);
