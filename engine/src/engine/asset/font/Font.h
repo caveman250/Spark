@@ -2,6 +2,7 @@
 
 #include "spark.h"
 #include "engine/asset/Asset.h"
+#include "engine/asset/AssetReference.h"
 #include "engine/math/Vec2.h"
 #include "engine/ui/FloatRect.h"
 #include "engine/asset/texture/Texture.h"
@@ -47,9 +48,9 @@ namespace se::asset
 
         Font() = default;
         const std::string& GetName() const;
-        const std::shared_ptr<Texture>& GetTextureAsset();
-        const CharData& GetCharData(char c) const;
-        size_t GetNumChars() const { return m_CharData.size(); }
+        const std::shared_ptr<Texture>& GetTextureAsset(int fontSize);
+        const CharData& GetCharData(char c, int fontSize) const;
+        size_t GetNumChars() const { return m_SDFCharData.size(); }
         float GetLineHeight(int fontSize) const;
         float GetAscent(int fontSize) const;
         float GetDescent(int fontSize) const;
@@ -59,10 +60,16 @@ namespace se::asset
         std::string m_Name;
 
         SPARK_MEMBER(Serialized)
-        std::shared_ptr<Texture> m_Texture = nullptr;
+        AssetReference<Texture> m_SDFTexture = {};
 
         SPARK_MEMBER(Serialized)
-        std::unordered_map<char, CharData> m_CharData = {};
+        std::vector<AssetReference<Texture>> m_BitmapTextures = {};
+
+        SPARK_MEMBER(Serialized)
+        std::unordered_map<int, std::unordered_map<char, CharData>> m_BitmapCharData = {};
+
+        SPARK_MEMBER(Serialized)
+        std::unordered_map<char, CharData> m_SDFCharData = {};
 
         SPARK_MEMBER(Serialized)
         float m_Ascent = 0.f;

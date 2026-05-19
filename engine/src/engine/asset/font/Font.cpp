@@ -9,12 +9,19 @@ namespace se::asset
         return m_Name;
     }
 
-    const std::shared_ptr<Texture>& Font::GetTextureAsset()
+    const std::shared_ptr<Texture>& Font::GetTextureAsset(int fontSize)
     {
-        return m_Texture;
+        if (fontSize > builder::FontBlueprint::BitmapCutoffSize)
+        {
+            return m_SDFTexture.GetAsset();
+        }
+        else
+        {
+            return m_BitmapTextures[fontSize - 1].GetAsset();
+        }
     }
 
-    const CharData& Font::GetCharData(char c) const
+    const CharData& Font::GetCharData(char c, int fontSize) const
     {
 #if SPARK_PLATFORM_LINUX
         if (c == 0)
@@ -24,31 +31,49 @@ namespace se::asset
         }
 #endif
 
-        if (!SPARK_VERIFY(m_CharData.contains(c)))
+        if (fontSize > builder::FontBlueprint::BitmapCutoffSize)
         {
-            static CharData nullCharData = {};
-            return nullCharData;
+            auto it = m_SDFCharData.find(c);
+            if (!SPARK_VERIFY(it != m_SDFCharData.end()))
+            {
+                static CharData nullCharData = {};
+                return nullCharData;
+            }
+
+            return it->second;
+        }
+        else
+        {
+            const auto& map = m_BitmapCharData.at(fontSize);
+            auto it = map.find(c);
+            if (!SPARK_VERIFY(it != map.end()))
+            {
+                static CharData nullCharData = {};
+                return nullCharData;
+            }
+
+            return it->second;
         }
 
-        return m_CharData.at(c);
+
     }
 
     float Font::GetLineHeight(const int fontSize) const
     {
-        const float scale = static_cast<float>(fontSize) / builder::FontBlueprint::s_Scale;
+        const float scale = static_cast<float>(fontSize) / builder::FontBlueprint::Scale;
         const float height = m_Ascent - m_Descent + m_LineGap;
         return height * scale;
     }
 
     float Font::GetAscent(const int fontSize) const
     {
-        const float scale = static_cast<float>(fontSize) / builder::FontBlueprint::s_Scale;
+        const float scale = static_cast<float>(fontSize) / builder::FontBlueprint::Scale;
         return m_Ascent * scale;
     }
 
     float Font::GetDescent(const int fontSize) const
     {
-        const float scale = static_cast<float>(fontSize) / builder::FontBlueprint::s_Scale;
+        const float scale = static_cast<float>(fontSize) / builder::FontBlueprint::Scale;
         return m_Descent * scale;
     }
 }

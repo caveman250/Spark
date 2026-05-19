@@ -61,7 +61,7 @@ namespace se::ui::util
                         break;
                     }
 
-                    const auto& nextCharData = font->GetCharData(nextChar);
+                    const auto& nextCharData = font->GetCharData(nextChar, fontSize);
 
                     if (xCopy + nextCharData.advanceWidth * scale >= rect->size.x - 1)
                     {
@@ -146,7 +146,8 @@ namespace se::ui::util
                         const math::IntVec2& cursorPos,
                         asset::StaticMesh& mesh,
                         uint32_t& indexOffset,
-                        const float scale,
+                        const int fontSize,
+                        float scale,
                         std::optional<math::Vec2>& offset)
     {
         if (!offset.has_value())
@@ -156,9 +157,10 @@ namespace se::ui::util
             offset = TL - math::Vec2(TLSnapped);
         }
 
-        math::Vec2 scaledPadding = math::Vec2(scale * asset::builder::FontBlueprint::s_SDFPadding);
+        int padding = fontSize > asset::builder::FontBlueprint::BitmapCutoffSize ? asset::builder::FontBlueprint::SDFPadding : 0;
+        math::Vec2 scaledPadding = math::Vec2(scale * padding);
         math::Vec2 TL = charData.rect.topLeft * scale + math::Vec2(cursorPos);
-        math::Vec2 BR = TL + (charData.rect.size - asset::builder::FontBlueprint::s_SDFPadding * 2) * scale;
+        math::Vec2 BR = TL + (charData.rect.size - padding * 2) * scale;
 
         TL -= offset.value();
         BR -= offset.value();
@@ -181,13 +183,13 @@ namespace se::ui::util
     {
         asset::StaticMesh mesh = {};
         uint32_t indexOffset = 0;
-        const float scale = static_cast<float>(params.fontSize) / asset::builder::FontBlueprint::s_Scale;
+        const float scale = params.fontSize <= asset::builder::FontBlueprint::BitmapCutoffSize ? 1.f : static_cast<float>(params.fontSize) / asset::builder::FontBlueprint::Scale;
         math::IntVec2 cursorPos = { };
         cursorPos.y += params.font->GetAscent(params.fontSize);
         std::optional<math::Vec2> lineCharOffset = {};
         if (params.text->empty())
         {
-            CreateCharMesh(params.font->GetCharData(' '), cursorPos, mesh, indexOffset, scale, lineCharOffset);
+            CreateCharMesh(params.font->GetCharData(' ', params.fontSize), cursorPos, mesh, indexOffset, scale, params.fontSize, lineCharOffset);
             return mesh;
         }
 
@@ -197,14 +199,14 @@ namespace se::ui::util
             const char c = params.text->at(i);
             if (c != '\n')
             {
-                const auto& charData = params.font->GetCharData(c);
+                const auto& charData = params.font->GetCharData(c, params.fontSize);
 
                 if (params.applyKerning)
                 {
                     cursorPos = ApplyKerning(cursorPos, i, params.text, charData, scale);
                 }
                 cursorPos = ApplyLeftSideBearing(cursorPos, charData, scale);
-                CreateCharMesh(charData, cursorPos, mesh, indexOffset, scale, lineCharOffset);
+                CreateCharMesh(charData, cursorPos, mesh, indexOffset, params.fontSize, scale, lineCharOffset);
                 cursorPos = ApplyAdvanceWidth(cursorPos, charData, scale);
             }
 
@@ -344,7 +346,7 @@ namespace se::ui::util
         const text::WrapMode wrap,
         const size_t endIndex)
     {
-        const float scale = static_cast<float>(fontSize) / asset::builder::FontBlueprint::s_Scale;
+        const float scale = fontSize <= asset::builder::FontBlueprint::BitmapCutoffSize ? 1.f : static_cast<float>(fontSize) / asset::builder::FontBlueprint::Scale;
         math::Vec2 max = { };
 
         math::Vec2 cursorPos = { };
@@ -355,7 +357,7 @@ namespace se::ui::util
             const char c = text->at(i);
             if (c != '\n')
             {
-                const auto& charData = font->GetCharData(c);
+                const auto& charData = font->GetCharData(c, fontSize);
 
                 if (applyKerning)
                 {
@@ -364,7 +366,8 @@ namespace se::ui::util
                 cursorPos = ApplyLeftSideBearing(cursorPos, charData, scale);
 
                 math::Vec2 TL = charData.rect.topLeft * scale + math::Vec2(cursorPos);
-                math::Vec2 BR = TL + (charData.rect.size - asset::builder::FontBlueprint::s_SDFPadding * 2) * scale;
+                int padding = fontSize > asset::builder::FontBlueprint::BitmapCutoffSize ? asset::builder::FontBlueprint::SDFPadding : 0;
+                math::Vec2 BR = TL + (charData.rect.size - padding * 2) * scale;
                 if (!lineCharOffset.has_value())
                 {
                     math::IntVec2 TLSnapped = TL + math::Vec2(0.5f, -0.5f);
@@ -427,7 +430,7 @@ namespace se::ui::util
         const text::WrapMode wrap,
         const text::Alignment justification)
     {
-        const float scale = static_cast<float>(fontSize) / asset::builder::FontBlueprint::s_Scale;
+        const float scale = static_cast<float>(fontSize) / asset::builder::FontBlueprint::Scale;
         math::IntVec2 cursorPos = { };
         cursorPos.y += font->GetLineHeight(fontSize);
         size_t lineStart = 0;
@@ -435,7 +438,7 @@ namespace se::ui::util
         for (size_t i = 0; i < text->size(); ++i)
         {
             const char c = text->at(i);
-            const auto& charData = font->GetCharData(c);
+            const auto& charData = font->GetCharData(c, fontSize);
 
             if (applyKerning)
             {

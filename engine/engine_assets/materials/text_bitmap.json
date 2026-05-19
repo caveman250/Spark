@@ -59,7 +59,7 @@
                 "contents": [
                     {
                         "AssetReference<Shader>": {
-                            "m_AssetPath": "/engine_assets/shaders/text.sass"
+                            "m_AssetPath": "/engine_assets/shaders/text_bitmap.sass"
                         }
                     }
                 ]

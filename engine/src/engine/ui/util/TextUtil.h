@@ -7,6 +7,7 @@
 #include "engine/ui/components/RectTransformComponent.h"
 #include "engine/ui/singleton_components/UIRenderComponent.h"
 #include "engine/asset/AssetManager.h"
+#include "engine/asset/builder/FontBlueprint.h"
 #include "engine/render/Material.h"
 #include "platform/IWindow.h"
 
@@ -20,9 +21,17 @@ namespace se::ui::util
     {
         if (!textComp.materialInstance && textComp.font.IsSet())
         {
-            auto textMaterial = asset::AssetManager::Get()->GetAsset<render::Material>("/engine_assets/materials/text.sass");
+            std::shared_ptr<render::Material> textMaterial = {};
+            if (textComp.fontSize <= asset::builder::FontBlueprint::BitmapCutoffSize)
+            {
+                textMaterial = asset::AssetManager::Get()->GetAsset<render::Material>("/engine_assets/materials/text_bitmap.sass");
+            }
+            else
+            {
+                textMaterial = asset::AssetManager::Get()->GetAsset<render::Material>("/engine_assets/materials/text_sdf.sass");
+            }
             textComp.materialInstance = std::make_shared<render::MaterialInstance>(textMaterial);
-            auto texture = textComp.font.GetAsset()->GetTextureAsset();
+            auto texture = textComp.font.GetAsset()->GetTextureAsset(textComp.fontSize);
             textComp.materialInstance->SetUniform("Texture", 1, &texture);
             float smoothing = 0.1f;
             textComp.materialInstance->SetUniform("smoothing", 1, &smoothing);
