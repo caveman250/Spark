@@ -60,10 +60,8 @@ namespace se::render::opengl
         }
         else
         {
-            SPARK_ASSERT(m_Resource != 1);
             DeferredOpenGLOperations::Get()->AddDeferredOp([this]()
             {
-
                 Cleanup(m_Resource);
             });
         }
