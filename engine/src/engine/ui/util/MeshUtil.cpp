@@ -249,8 +249,7 @@ namespace se::ui::util
                 {
                     const int offset = CalculateJustificationXOffset(params.justification,
                                        oldX,
-                                       params.rect,
-                                       scale * asset::builder::FontBlueprint::s_SDFPadding);
+                                       params.rect);
                     if (offset != 0)
                     {
                         const size_t lineEnd = i;
@@ -268,8 +267,7 @@ namespace se::ui::util
                 {
                     const int offset = CalculateJustificationXOffset(params.justification,
                                                                cursorPos.x,
-                                                               params.rect,
-                                                               scale * asset::builder::FontBlueprint::s_SDFPadding);
+                                                               params.rect);
                     if (offset != 0)
                     {
                         const size_t lineEnd = i + 1;
@@ -284,8 +282,7 @@ namespace se::ui::util
             {
                 const int offset = CalculateJustificationXOffset(params.justification,
                                                            cursorPos.x,
-                                                           params.rect,
-                                                           scale * asset::builder::FontBlueprint::s_SDFPadding);
+                                                           params.rect);
                 if (offset != 0)
                 {
                     const size_t lineEnd = i + 1;
@@ -485,8 +482,7 @@ namespace se::ui::util
                 {
                     const int offset = CalculateJustificationXOffset(justification,
                                                                oldX,
-                                                               bounds,
-                                                               0.f);
+                                                               bounds);
                     const size_t lineEnd = i;
                     const float halfFontSize = fontSize * .5f;
                     for (size_t j = lineStart; j < lineEnd; ++j)
@@ -507,8 +503,7 @@ namespace se::ui::util
 
         const int offset = CalculateJustificationXOffset(justification,
                                                    cursorPos.x,
-                                                   bounds,
-                                                   0.f);
+                                                   bounds);
         const float halfFontSize = fontSize * .5f;
         int minX = std::numeric_limits<int>::max();
         for (size_t j = lineStart; j < text->size(); ++j)
