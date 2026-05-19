@@ -71,7 +71,6 @@ namespace se::render::opengl
     {
         if (resource != GL_INVALID_VALUE)
         {
-            //SPARK_ASSERT(resource != 1);
             glDeleteBuffers(1, &resource);
             GL_CHECK_ERROR()
         }
