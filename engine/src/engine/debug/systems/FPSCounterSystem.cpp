@@ -19,17 +19,17 @@ namespace se::debug::systems
 
     void FPSCounterSystem::OnInit(const ecs::QueryResults&)
     {
-        // const auto world = Application::Get()->GetWorld();
-        // const ecs::Id fpsCounterEntity = world->CreateEntity("FPS Counter");
-        // const auto text = world->AddComponent<ui::components::TextComponent>(fpsCounterEntity);
-        // text->font = "/engine_assets/fonts/CascadiaCode.sass";
-        // text->fontSize = 24;
-        // text->alignment = ui::text::Alignment::Right;
-        // const auto rect = world->AddComponent<ui::components::RectTransformComponent>(fpsCounterEntity);
-        // rect->anchors = { 1.f, 1.f, 0.f, 0.f };
-        // rect->minX = 60;
-        // rect->maxY = 50;
-        // world->AddComponent<components::FPSCounterComponent>(fpsCounterEntity);
+        const auto world = Application::Get()->GetWorld();
+        const ecs::Id fpsCounterEntity = world->CreateEntity("FPS Counter");
+        const auto text = world->AddComponent<ui::components::TextComponent>(fpsCounterEntity);
+        text->font = "/engine_assets/fonts/CascadiaCode.sass";
+        text->fontSize = 24;
+        text->alignment = ui::text::Alignment::Right;
+        const auto rect = world->AddComponent<ui::components::RectTransformComponent>(fpsCounterEntity);
+        rect->anchors = { 1.f, 1.f, 0.f, 0.f };
+        rect->minX = 60;
+        rect->maxY = 50;
+        world->AddComponent<components::FPSCounterComponent>(fpsCounterEntity);
     }
 
     void FPSCounterSystem::OnUpdate(const ecs::QueryResults& results)
