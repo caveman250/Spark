@@ -36,6 +36,14 @@ namespace se::render::opengl
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
     }
 
+    FrameBuffer::~FrameBuffer()
+    {
+        if (m_PlatformResource != GL_INVALID_VALUE)
+        {
+            glDeleteFramebuffers(1, &m_PlatformResource);
+        }
+    }
+
     void FrameBuffer::Bind()
     {
         glBindFramebuffer(GL_FRAMEBUFFER, m_PlatformResource);

@@ -17,6 +17,7 @@ namespace se::render::opengl
     {
     public:
         FrameBuffer(const math::IntVec2&);
+        ~FrameBuffer() override;
     private:
         void PreRender() override {}
         void Bind() override;
