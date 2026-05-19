@@ -1,6 +1,9 @@
 #include "Font.h"
+
+#include "engine/Application.h"
 #include "engine/asset/builder/FontBlueprint.h"
 #include "engine/asset/texture/Texture.h"
+#include "platform/IWindow.h"
 
 namespace se::asset
 {
@@ -31,6 +34,8 @@ namespace se::asset
         }
 #endif
 
+        // TODO this probably wont work for fractional scaling.
+        fontSize = fontSize / Application::Get()->GetWindow()->GetContentScale();
         if (fontSize > builder::FontBlueprint::BitmapCutoffSize)
         {
             auto it = m_SDFCharData.find(c);
@@ -54,8 +59,6 @@ namespace se::asset
 
             return it->second;
         }
-
-
     }
 
     float Font::GetLineHeight(const int fontSize) const

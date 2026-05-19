@@ -157,7 +157,8 @@ namespace se::ui::util
             offset = TL - math::Vec2(TLSnapped);
         }
 
-        int padding = fontSize > asset::builder::FontBlueprint::BitmapCutoffSize ? asset::builder::FontBlueprint::SDFPadding : 0;
+        float cutoff = asset::builder::FontBlueprint::BitmapCutoffSize * Application::Get()->GetWindow()->GetContentScale();
+        int padding = fontSize > cutoff ? asset::builder::FontBlueprint::SDFPadding : 0;
         math::Vec2 scaledPadding = math::Vec2(scale * padding);
         math::Vec2 TL = charData.rect.topLeft * scale + math::Vec2(cursorPos);
         math::Vec2 BR = TL + (charData.rect.size - padding * 2) * scale;
@@ -183,7 +184,9 @@ namespace se::ui::util
     {
         asset::StaticMesh mesh = {};
         uint32_t indexOffset = 0;
-        const float scale = params.fontSize <= asset::builder::FontBlueprint::BitmapCutoffSize ? 1.f : static_cast<float>(params.fontSize) / asset::builder::FontBlueprint::Scale;
+        auto* window = Application::Get()->GetWindow();
+        float cutoff = asset::builder::FontBlueprint::BitmapCutoffSize * window->GetContentScale();
+        const float scale = params.fontSize <= cutoff ? window->GetContentScale() : static_cast<float>(params.fontSize) / asset::builder::FontBlueprint::Scale;
         math::IntVec2 cursorPos = { };
         cursorPos.y += params.font->GetAscent(params.fontSize);
         std::optional<math::Vec2> lineCharOffset = {};
@@ -346,7 +349,9 @@ namespace se::ui::util
         const text::WrapMode wrap,
         const size_t endIndex)
     {
-        const float scale = fontSize <= asset::builder::FontBlueprint::BitmapCutoffSize ? 1.f : static_cast<float>(fontSize) / asset::builder::FontBlueprint::Scale;
+        auto* window = Application::Get()->GetWindow();
+        float cutoff = asset::builder::FontBlueprint::BitmapCutoffSize * window->GetContentScale();
+        const float scale = fontSize <= cutoff ? window->GetContentScale() : static_cast<float>(fontSize) / asset::builder::FontBlueprint::Scale;
         math::Vec2 max = { };
 
         math::Vec2 cursorPos = { };
@@ -366,7 +371,8 @@ namespace se::ui::util
                 cursorPos = ApplyLeftSideBearing(cursorPos, charData, scale);
 
                 math::Vec2 TL = charData.rect.topLeft * scale + math::Vec2(cursorPos);
-                int padding = fontSize > asset::builder::FontBlueprint::BitmapCutoffSize ? asset::builder::FontBlueprint::SDFPadding : 0;
+                float cutoff = asset::builder::FontBlueprint::BitmapCutoffSize * Application::Get()->GetWindow()->GetContentScale();
+                int padding = fontSize > cutoff ? asset::builder::FontBlueprint::SDFPadding : 0;
                 math::Vec2 BR = TL + (charData.rect.size - padding * 2) * scale;
                 if (!lineCharOffset.has_value())
                 {
