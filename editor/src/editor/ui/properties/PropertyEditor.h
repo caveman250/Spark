@@ -69,7 +69,7 @@ namespace se::editor::ui::properties
     };
 
     using namespace se::ui::components;
-    class PropertyEditor : public reflect::ObjectBase
+    class PropertyEditor : public reflect::ObjectBase, public std::enable_shared_from_this<PropertyEditor>
     {
     public:
         virtual void ConstructUI(const PropertyEditorParams& params);
@@ -101,5 +101,5 @@ namespace se::editor::ui::properties
         PropertyTitleMode m_TitleMode = PropertyTitleMode::Inline;
     };
 
-    PropertyEditor* CreatePropertyEditor(const PropertyEditorParams& params);
+    std::shared_ptr<PropertyEditor> CreatePropertyEditor(const PropertyEditorParams& params);
 }

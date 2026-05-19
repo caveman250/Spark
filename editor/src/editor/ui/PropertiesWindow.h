@@ -51,6 +51,6 @@ namespace se::editor::ui
         ecs::Id m_Window;
         ecs::Id m_ScrollBoxContent;
         bool m_Valid = false;
-        std::vector<properties::PropertyEditor*> m_PropertyEditors = {};
+        std::vector<std::shared_ptr<properties::PropertyEditor>> m_PropertyEditors = {};
     };
 }

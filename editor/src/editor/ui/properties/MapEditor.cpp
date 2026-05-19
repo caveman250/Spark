@@ -103,7 +103,6 @@ namespace se::editor::ui::properties
                             {
                                 world->DestroyEntity(entity);
                                 auto it = m_Editors.find(entity);
-                                delete it->second;
                                 m_Editors.erase(it);
                                 m_ElementNames.erase(entity);
                                 break;
@@ -149,7 +148,7 @@ namespace se::editor::ui::properties
 
     void MapEditor::Update()
     {
-        for (auto* editor : m_Editors | std::ranges::views::values)
+        for (const auto& editor : m_Editors | std::ranges::views::values)
         {
             editor->Update();
         }

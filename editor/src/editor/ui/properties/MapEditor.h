@@ -21,7 +21,7 @@ namespace se::editor::ui::properties
 
         void* m_Value = nullptr;
         const se::reflect::Type_Container* m_MapType = nullptr;
-        std::unordered_map<ecs::Id, PropertyEditor*> m_Editors;
+        std::unordered_map<ecs::Id, std::shared_ptr<PropertyEditor>> m_Editors;
         std::unordered_map<ecs::Id, std::string> m_ElementNames;
         ecs::Id m_VerticalBox = ecs::InvalidEntity;
     };

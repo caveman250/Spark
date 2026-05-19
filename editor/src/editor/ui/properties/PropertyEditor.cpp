@@ -244,7 +244,7 @@ namespace se::editor::ui::properties
         }
     }
 
-    PropertyEditor* CreatePropertyEditor(const PropertyEditorParams& params)
+    std::shared_ptr<PropertyEditor> CreatePropertyEditor(const PropertyEditorParams& params)
     {
         reflect::Type* editor_type = nullptr;
 
@@ -274,7 +274,7 @@ namespace se::editor::ui::properties
             }
         }
 
-        auto editor = static_cast<PropertyEditor*>(editor_type->heap_constructor());
+        auto editor = std::shared_ptr<PropertyEditor>(static_cast<PropertyEditor*>(editor_type->heap_constructor()));
         editor->SetValue(params.value, params.type);
         editor->SetName(params.name);
         editor->ConstructUI(params);

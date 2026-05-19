@@ -18,6 +18,6 @@ namespace se::editor::ui::properties
     private:
         void* m_Value = nullptr;
         const se::reflect::Class* m_Type = nullptr;
-        std::vector<PropertyEditor*> m_Editors;
+        std::vector<std::shared_ptr<PropertyEditor>> m_Editors;
     };
 }

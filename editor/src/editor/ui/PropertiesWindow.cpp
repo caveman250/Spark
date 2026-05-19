@@ -25,7 +25,7 @@ namespace se::editor::ui
 
         ToolWindow::Update();
 
-        for (auto *editor: m_PropertyEditors)
+        for (const auto& editor: m_PropertyEditors)
         {
             editor->Update();
         }
@@ -84,10 +84,6 @@ namespace se::editor::ui
             for (const auto &child: world->GetChildren(m_ScrollBoxContent))
             {
                 world->DestroyEntity(child);
-            }
-            for (const auto &propertyEditor: m_PropertyEditors)
-            {
-                delete propertyEditor;
             }
             m_PropertyEditors.clear();
 
@@ -154,7 +150,7 @@ namespace se::editor::ui
                     }
                 }
             };
-            if (auto *propEditor = properties::CreatePropertyEditor(params))
+            if (auto propEditor = properties::CreatePropertyEditor(params))
             {
                 world->AddChild(m_ScrollBoxContent, propEditor->GetWidgetId());
                 m_PropertyEditors.push_back(propEditor);
@@ -256,7 +252,7 @@ namespace se::editor::ui
             .withBackground = true,
             .constructTitle = true,
         };
-        if (auto *propEditor = properties::CreatePropertyEditor(params))
+        if (auto propEditor = properties::CreatePropertyEditor(params))
         {
             world->AddChild(m_ScrollBoxContent, propEditor->GetWidgetId());
             m_PropertyEditors.push_back(propEditor);
@@ -294,7 +290,7 @@ namespace se::editor::ui
             .withBackground = true,
             .constructTitle = true,
         };
-        if (auto *propEditor = properties::CreatePropertyEditor(params))
+        if (auto propEditor = properties::CreatePropertyEditor(params))
         {
             world->AddChild(m_ScrollBoxContent, propEditor->GetWidgetId());
             m_PropertyEditors.push_back(propEditor);

@@ -18,6 +18,6 @@ namespace se::editor::ui::properties
     private:
         ecs::Id m_SplitView = {};
         asset::Texture* m_Value = nullptr;
-        PropertyEditor* m_WrappedEditor = nullptr;
+        std::shared_ptr<PropertyEditor> m_WrappedEditor = nullptr;
     };
 }

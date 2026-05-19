@@ -45,7 +45,7 @@ namespace se::editor::ui::properties
                 .withBackground = false,
                 .constructTitle = true
             };
-            if (auto *propEditor = CreatePropertyEditor(memberParams))
+            if (auto propEditor = CreatePropertyEditor(memberParams))
             {
                 world->AddChild(m_Content, propEditor->GetWidgetId());
                 m_Editors.push_back(propEditor);
@@ -73,7 +73,7 @@ namespace se::editor::ui::properties
 
     void ClassEditor::Update()
     {
-        for (auto* editor : m_Editors)
+        for (const auto& editor : m_Editors)
         {
             editor->Update();
         }

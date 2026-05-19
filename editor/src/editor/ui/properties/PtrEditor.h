@@ -24,6 +24,6 @@ namespace se::editor::ui::properties
 private:
         void* m_Value = nullptr;
         const se::reflect::Type_Container* m_Type = nullptr;
-        PropertyEditor* m_WrappedEditor = nullptr;
+        std::shared_ptr<PropertyEditor> m_WrappedEditor = nullptr;
     };
 }

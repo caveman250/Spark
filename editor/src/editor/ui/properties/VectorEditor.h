@@ -27,8 +27,9 @@ namespace se::editor::ui::properties
         void DestroyElementUI(size_t i);
         void* m_Value = nullptr;
         const se::reflect::Type_Container* m_VectorType = nullptr;
-        std::vector<PropertyEditor*> m_Editors;
+        std::vector<std::shared_ptr<PropertyEditor>> m_Editors;
         ecs::Id m_VerticalBox = ecs::InvalidEntity;
         ecs::Id m_EmptyItem = ecs::InvalidEntity;
+        static std::shared_ptr<VectorEditor> s_StaticInstance;
     };
 }
