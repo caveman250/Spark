@@ -113,7 +113,7 @@ namespace se::linux
                 }
                 case SDL_MOUSEWHEEL:
                 {
-                    inputComp->mouseScrollDelta = ev.wheel.y * 50;
+                    inputComp->mouseScrollDelta = -ev.wheel.y * 50;
 
                     input::MouseEvent mouseEvent;
                     mouseEvent.button = input::MouseButton::None;
