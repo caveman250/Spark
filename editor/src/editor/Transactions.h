@@ -6,15 +6,11 @@ namespace se::editor
     template <typename T>
     concept Invokable = std::is_same_v<std::invoke_result_t<T>, void>;
 
-    template <typename F, typename T>
-    concept CallableWithReturnType = std::invocable<F> &&
-                                  std::same_as<std::invoke_result_t<F>, int>;
-
-
     struct Transaction
     {
-        std::function<void()> apply;
-        std::function<void()> undo;
+        std::function<void()> apply = nullptr;
+        std::function<void()> undo = nullptr;
+        void* state = nullptr;
     };
 
     class Transactions
@@ -24,6 +20,15 @@ namespace se::editor
 
         template <Invokable Apply, Invokable Undo>
         void PushAction(Apply&& apply, Undo&& undo);
+
+        template <Invokable Apply, Invokable Undo, typename T>
+        void PushAction(Apply&& apply, Undo&& undo);
+
+        template <typename T>
+        T* GetUndoState();
+
+        template <typename T>
+        T* GetRedoState();
 
         void Undo();
         void Redo();
@@ -49,5 +54,25 @@ namespace se::editor
                 .undo = undo
             });
         m_TransactionIndex++;
+    }
+
+    template<Invokable Apply, Invokable Undo, typename T>
+    void Transactions::PushAction(Apply&& apply,
+        Undo&& undo)
+    {
+        PushAction(apply, undo);
+        m_Transactions.back().state = new T();
+    }
+
+    template<typename T>
+    T* Transactions::GetUndoState()
+    {
+        return static_cast<T*>(m_Transactions[m_TransactionIndex - 1].state);
+    }
+
+    template<typename T>
+    T* Transactions::GetRedoState()
+    {
+        return static_cast<T*>(m_Transactions[m_TransactionIndex].state);
     }
 }

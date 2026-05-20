@@ -17,6 +17,7 @@
 #include "engine/ui/util/ScrollBoxUtil.h"
 #include "engine/ui/util/TreeViewUtil.h"
 #include "engine/ui/util/WindowUtil.h"
+#include "editor/Transactions.h"
 
 namespace se::editor::ui
 {
@@ -189,28 +190,61 @@ namespace se::editor::ui
                         }
                     }),
                 std::make_pair("Delete Entity",
-                    [entity]()
+                    [entity, world]()
                     {
-                        Application::Get()->GetWorld()->DestroyEntity(entity);
+                        ecs::Id scene = *entity.scene;
+                        ecs::Prefab prefab = world->CreatePrefabFromEntity(entity);
+                        Transactions::Get()->PushAction([entity]()
+                        {
+                            Application::Get()->GetWorld()->DestroyEntity(entity);
+                        },
+                        [prefab, world, scene]()
+                        {
+                            world->InstantiatePrefab(scene, prefab);
+                        });
                     })
             },
         };
         auto treeNode = se::ui::util::InsertTreeNode(params);
         treeNode.text->onComitted.Subscribe([this, entity, world, editor](const std::string& newName)
         {
-            world->RenameEntity(entity, newName);
-            if (editor->GetSelectedEntity() == entity)
+            std::string oldName = *world->GetName(entity);
+            Transactions::Get()->PushAction([this, world, entity, newName, editor]()
             {
-                editor->SelectEntity(entity, true);
-            }
+                world->RenameEntity(entity, newName);
+                if (editor->GetSelectedEntity() == entity)
+                {
+                    editor->SelectEntity(entity, true);
+                }
 
-            const auto& textEntity = m_EntityTexts.at(entity);
-            auto* mouseComp = world->GetComponent<se::ui::components::MouseInputComponent>(textEntity);
-            se::ui::util::SetEditTextMouseInputEnabled(mouseComp, false);
+                const auto& textEntity = m_EntityTexts.at(entity);
+                auto* mouseComp = world->GetComponent<se::ui::components::MouseInputComponent>(textEntity);
+                auto* textComp = world->GetComponent<se::ui::components::EditableTextComponent>(textEntity);
+                se::ui::util::SetEditTextMouseInputEnabled(mouseComp, false);
+                textComp->text = newName;
 
-            const auto& treeNodeEntity = m_TreeNodes.at(entity);
-            mouseComp = world->GetComponent<se::ui::components::MouseInputComponent>(treeNodeEntity);
-            mouseComp->enabled = true;
+                const auto& treeNodeEntity = m_TreeNodes.at(entity);
+                mouseComp = world->GetComponent<se::ui::components::MouseInputComponent>(treeNodeEntity);
+                mouseComp->enabled = true;
+            },
+            [this, world, entity, oldName, editor]()
+            {
+                world->RenameEntity(entity, oldName);
+                if (editor->GetSelectedEntity() == entity)
+                {
+                    editor->SelectEntity(entity, true);
+                }
+
+                const auto& textEntity = m_EntityTexts.at(entity);
+                auto* mouseComp = world->GetComponent<se::ui::components::MouseInputComponent>(textEntity);
+                auto* textComp = world->GetComponent<se::ui::components::EditableTextComponent>(textEntity);
+                se::ui::util::SetEditTextMouseInputEnabled(mouseComp, false);
+                textComp->text = oldName;
+
+                const auto& treeNodeEntity = m_TreeNodes.at(entity);
+                mouseComp = world->GetComponent<se::ui::components::MouseInputComponent>(treeNodeEntity);
+                mouseComp->enabled = true;
+            });
         });
         treeNode.text->onCancelled.Subscribe([this, entity, world]()
         {
