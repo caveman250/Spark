@@ -47,7 +47,7 @@ namespace se::ui::util
             didWrap = true;
         }
 
-        if (c == ' ' || mode == text::WrapMode::Char || mode == text::WrapMode::Crop)
+        if (c == ' ' || mode == text::WrapMode::Char)
         {
             size_t lookAhead = charIndex + 1;
             if (!didWrap && lookAhead < text->size() - 1)
@@ -71,7 +71,7 @@ namespace se::ui::util
                         break;
                     }
 
-                    if (mode == text::WrapMode::Char || mode == text::WrapMode::Crop)
+                    if (mode == text::WrapMode::Char)
                     {
                         break;
                     }
@@ -215,8 +215,7 @@ namespace se::ui::util
 
             if (params.wrap == text::WrapMode::Word ||
                 params.wrap == text::WrapMode::Char ||
-                params.wrap == text::WrapMode::WordChar ||
-                params.wrap == text::WrapMode::Crop)
+                params.wrap == text::WrapMode::WordChar)
             {
                 bool didWrap = false;
                 const int oldX = cursorPos.x;
@@ -230,11 +229,6 @@ namespace se::ui::util
                                           params.text,
                                           scale,
                                           didWrap);
-
-                if (didWrap && params.wrap == text::WrapMode::Crop)
-                {
-                    return mesh;
-                }
 
                 if (!didWrap && params.wrap == text::WrapMode::WordChar && cursorPos.x > params.rect->size.x)
                 {

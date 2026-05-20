@@ -133,12 +133,12 @@ namespace se::ui::util
         renderComp->mutex.lock();
         if constexpr (std::is_same_v<T, EditableTextComponent>)
         {
-            if (textComp.inEditMode)
+            if (textComp.inEditMode || textComp.wrap == text::WrapMode::Crop)
             {
                 const auto pushScissor = renderer->AllocRenderCommand<render::commands::PushScissor>(transform.rect);
                 renderComp->entityPreRenderCommands[entity].push_back(UIRenderCommand(pushScissor, UILayerKey(transform.layer, isEditorEntity)));
 
-                if (textComp.selectionMaterialInstance && textComp.selectionStart != -1 && textComp.selectionEnd != -1)
+                if (textComp.inEditMode && textComp.selectionMaterialInstance && textComp.selectionStart != -1 && textComp.selectionEnd != -1)
                 {
                     const math::Vec2* selectionMaterialPos = textComp.selectionMaterialInstance->template GetUniform<math::Vec2>("pos");
                     auto selectionFloatVec = math::Vec2(transform.rect.topLeft) + renderOffset;
@@ -155,17 +155,29 @@ namespace se::ui::util
                 }
             }
         }
+        else if (textComp.wrap == text::WrapMode::Crop)
+        {
+            const auto pushScissor = renderer->AllocRenderCommand<render::commands::PushScissor>(transform.rect);
+            renderComp->entityPreRenderCommands[entity].push_back(UIRenderCommand(pushScissor, UILayerKey(transform.layer, isEditorEntity)));
+        }
+
         auto command = renderer->AllocRenderCommand<render::commands::SubmitUI>(textComp.materialInstance, textComp.vertBuffer, textComp.indexBuffer);
         SPARK_ASSERT(command->GetRenderStage() == render::commands::RenderStage::UI);
         renderComp->entityRenderCommands[entity].push_back(UIRenderCommand(command, UILayerKey(transform.layer, isEditorEntity)));
         if constexpr (std::is_same_v<T, EditableTextComponent>)
         {
-            if (textComp.inEditMode)
+            if (textComp.inEditMode || textComp.wrap == text::WrapMode::Crop)
             {
                 const auto popScissor = renderer->AllocRenderCommand<render::commands::PopScissor>();
                 renderComp->entityPostRenderCommands[entity].push_back(UIRenderCommand(popScissor, UILayerKey(transform.layer, isEditorEntity)));
             }
         }
+        else if (textComp.wrap == text::WrapMode::Crop)
+        {
+            const auto popScissor = renderer->AllocRenderCommand<render::commands::PopScissor>();
+            renderComp->entityPostRenderCommands[entity].push_back(UIRenderCommand(popScissor, UILayerKey(transform.layer, isEditorEntity)));
+        }
+
         renderComp->mutex.unlock();
     }
 }
