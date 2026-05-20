@@ -677,7 +677,7 @@ namespace se::ecs
         }
     }
 
-    Prefab World::CreatePrefabFromEntity(Id entity)
+    std::shared_ptr<asset::binary::Database> World::CreatePrefabDatabaseFromEntity(Id entity)
     {
         Prefab prefab = {};
 
@@ -716,6 +716,21 @@ namespace se::ecs
 
         auto root = db->GetRoot();
         type->Serialize(&prefab, root, {});
+
+        return db;
+    }
+
+    Prefab World::CreatePrefabFromEntity(Id entity)
+    {
+        auto db = CreatePrefabDatabaseFromEntity(entity);
+        return CreatePrefabFromDatabase(db);
+    }
+
+    Prefab World::CreatePrefabFromDatabase(const std::shared_ptr<asset::binary::Database>& db)
+    {
+        Prefab prefab = {};
+        auto type = reflect::TypeResolver<Prefab>::Get();
+        auto root = db->GetRoot();
         type->Deserialize(&prefab, root, {});
 
         return prefab;

@@ -193,15 +193,24 @@ namespace se::editor::ui
                     [entity, world]()
                     {
                         ecs::Id scene = *entity.scene;
-                        ecs::Prefab prefab = world->CreatePrefabFromEntity(entity);
-                        Transactions::Get()->PushAction([entity]()
+                        std::shared_ptr<asset::binary::Database> prefabDb = world->CreatePrefabDatabaseFromEntity(entity);
+                        struct DeleteEntityTransactionState
                         {
-                            Application::Get()->GetWorld()->DestroyEntity(entity);
+                            ecs::Id entity = {};
+                        };
+
+                        Transactions::Get()->PushAction<DeleteEntityTransactionState>([]()
+                        {
+                            auto* state = Transactions::Get()->GetRedoState<DeleteEntityTransactionState>();
+                            Application::Get()->GetWorld()->DestroyEntity(state->entity);
                         },
-                        [prefab, world, scene]()
+                        [prefabDb, world, scene]()
                         {
-                            world->InstantiatePrefab(scene, prefab);
-                        });
+                            auto* state = Transactions::Get()->GetUndoState<DeleteEntityTransactionState>();
+                            ecs::Prefab prefab = world->CreatePrefabFromDatabase(prefabDb);
+                            ecs::Id entity = world->InstantiatePrefab(scene, prefab);
+                            state->entity = entity;
+                        }, entity);
                     })
             },
         };

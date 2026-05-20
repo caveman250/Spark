@@ -21,8 +21,8 @@ namespace se::editor
         template <Invokable Apply, Invokable Undo>
         void PushAction(Apply&& apply, Undo&& undo);
 
-        template <Invokable Apply, Invokable Undo, typename T>
-        void PushAction(Apply&& apply, Undo&& undo);
+        template<typename T, Invokable Apply, Invokable Undo, typename... StateArgs>
+        void PushAction(Apply&& apply, Undo&& undo, StateArgs&&... args);
 
         template <typename T>
         T* GetUndoState();
@@ -47,21 +47,31 @@ namespace se::editor
     {
         auto lock = std::lock_guard(m_Mutex);
         InvalidateFrom(m_TransactionIndex);
-        apply();
         m_Transactions.emplace_back(Transaction
             {
                 .apply = apply,
                 .undo = undo
             });
+        apply();
         m_TransactionIndex++;
     }
 
-    template<Invokable Apply, Invokable Undo, typename T>
+    template<typename T, Invokable Apply, Invokable Revert, typename... StateArgs>
     void Transactions::PushAction(Apply&& apply,
-        Undo&& undo)
+        Revert&& undo,
+        StateArgs&&... args)
     {
-        PushAction(apply, undo);
-        m_Transactions.back().state = new T();
+        auto lock = std::lock_guard(m_Mutex);
+        InvalidateFrom(m_TransactionIndex);
+        m_Transactions.emplace_back(Transaction
+            {
+                .apply = apply,
+                .undo = undo,
+                .state = new T(std::forward<StateArgs>(args)...)
+            });
+        apply();
+        m_TransactionIndex++;
+
     }
 
     template<typename T>

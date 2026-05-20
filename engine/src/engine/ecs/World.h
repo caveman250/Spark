@@ -93,7 +93,9 @@ namespace se::ecs
         void SaveScene(const Id& scene, const std::string& path, bool binary = false);
         const Id& GetDefaultScene() const { return m_DefaultScene; }
 
+        std::shared_ptr<asset::binary::Database>  CreatePrefabDatabaseFromEntity(Id entity);
         Prefab CreatePrefabFromEntity(Id entity);
+        Prefab CreatePrefabFromDatabase(const std::shared_ptr<asset::binary::Database>& db);
         void SerialiseEntityChildren(const Id& entity,
                                         const std::map<Id, uint64_t>& entityMap,
                                         Prefab& prefab);
