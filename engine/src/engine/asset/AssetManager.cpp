@@ -48,6 +48,15 @@ namespace se::asset
         return asset;
     }
 
+    void AssetManager::ReleaseAsset(const std::string& path)
+    {
+        auto it = m_AssetCache.find(path);
+        if (it != m_AssetCache.end())
+        {
+            m_AssetCache.erase(it);
+        }
+    }
+
 #if SPARK_EDITOR
     void AssetManager::ForceReloadAsset(const std::string& path, reflect::Type* type)
     {

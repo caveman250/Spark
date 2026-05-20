@@ -52,6 +52,6 @@ namespace se::editor::ui::asset_browser
         ecs::Id m_PathBarBox = ecs::InvalidEntity;
         std::vector<ecs::Id> m_PathBarItems = {};
         std::string m_ActiveFolder = "/assets";
-        std::vector<FileWidget*> m_FileWidgets = {};
+        std::vector<std::shared_ptr<FileWidget>> m_FileWidgets = {};
     };
 }

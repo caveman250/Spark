@@ -39,6 +39,8 @@ namespace se::asset
 
         std::shared_ptr<Asset> GetAsset(const std::string& path, reflect::Type* type);
 
+        void ReleaseAsset(const std::string& path);
+
         template <DataAsset T>
         std::shared_ptr<T> CreateDataAsset(const std::string& path);
 

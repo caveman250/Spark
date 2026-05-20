@@ -1,19 +1,17 @@
 #include "FileWidget.h"
 
 #include "AssetBrowserUtil.h"
+#include "editor/Transactions.h"
 #include "editor/components/DragDropComponent.h"
 #include "editor/singleton_components/DragDropStateComponent.h"
 #include "engine/Application.h"
 #include "engine/asset/AssetManager.h"
 #include "engine/ui/components/ButtonComponent.h"
 #include "engine/ui/components/EditableTextComponent.h"
-#include "engine/ui/components/GridBoxComponent.h"
 #include "engine/ui/components/ImageComponent.h"
 #include "engine/ui/components/KeyInputComponent.h"
 #include "engine/ui/components/MouseInputComponent.h"
 #include "engine/ui/components/RectTransformComponent.h"
-#include "engine/ui/components/TextComponent.h"
-#include "engine/ui/components/TitleBarComponent.h"
 #include "engine/ui/components/WidgetComponent.h"
 #include "engine/ui/util/ContextMenuUtil.h"
 #include "engine/ui/util/EditableTextUtil.h"
@@ -23,15 +21,15 @@ namespace se::editor::ui::asset_browser
     asset::AssetReference<asset::Texture> FileWidget::FileTexture = asset::AssetReference<asset::Texture>("/engine_assets/textures/default_file.sass");
     asset::AssetReference<asset::Texture> FileWidget::FolderTexture = asset::AssetReference<asset::Texture>("/engine_assets/textures/default_folder.sass");
 
-    FileWidget* FileWidget::CreateFileWidget(const io::VFSFile& file, AssetBrowserWindow* assetBrowser)
+    std::shared_ptr<FileWidget> FileWidget::CreateFileWidget(const io::VFSFile& file, AssetBrowserWindow* assetBrowser)
     {
-        auto fileWidget = new FileWidget();
+        auto fileWidget = std::make_shared<FileWidget>();
         fileWidget->m_File = file;
 
         const auto app = Application::Get();
-        auto editor = app->GetEditor();
+        const auto editor = app->GetEditor();
         auto world = app->GetWorld();
-        auto assetManager = asset::AssetManager::Get();
+        const auto assetManager = asset::AssetManager::Get();
 
         if (file.fileName.size() == 0)
         {
@@ -45,6 +43,7 @@ namespace se::editor::ui::asset_browser
         world->AddComponent<se::ui::components::WidgetComponent>(fileWidget->m_Id);
 
         auto label= se::ui::util::CreateEditableText(world, "/engine_assets/fonts/CascadiaCode.sass", 14, editor->GetEditorScene());
+        fileWidget->m_Label = label.entity;
         label.text->text = file.fileName;
         if (label.text->text.size() > 18)
         {
@@ -56,29 +55,33 @@ namespace se::editor::ui::asset_browser
         textRect->anchors = { .left = 0.f, .right = 1.f, .top = 1.f, .bottom = 1.f };
         textRect->minY = 20;
         textRect->maxWidth = 140;
-        label.text->onComitted.Subscribe([fileWidget, world, editor, assetManager, labelEntity = label.entity](std::string newName)
+        label.text->onComitted.Subscribe([fileWidget, world](std::string newName)
         {
-            auto file = fileWidget->m_File;
-            std::string newPath = std::format("{}/{}.sass", file.dir, newName);
-            auto db = asset::binary::Database::Load(file.fullPath.data(), true);
-            auto asset = assetManager->GetAsset(file.fullPath.data(), reflect::TypeFromString(db->GetRoot().GetStruct().GetName()));
-            editor->RenameAsset(asset, newPath);
-            if (editor->GetSelectedAsset() == asset)
+            std::string oldName = fileWidget->m_File.fileName;
+            std::weak_ptr weakFileWidget = fileWidget;
+            Transactions::Get()->PushAction([weakFileWidget, file = fileWidget->m_File, newName]()
             {
-                SelectFile(newPath);
-            }
-
-            file.fileName = newName;
-            file.fullPath = newPath;
-            fileWidget->SetFile(file);
-
-            auto* text = world->GetComponent<se::ui::components::EditableTextComponent>(labelEntity);
-            if (text->text.size() > 18)
+                RenameFile(newName, file);
+                if (!weakFileWidget.expired())
+                {
+                    weakFileWidget.lock()->OnRename(newName);
+                }
+            },
+            [weakFileWidget, file = fileWidget->m_File, oldName, newName]()
             {
-                text->text = text->text.substr(0, 18) + "...";
-            }
+                const std::string newPath = std::format("{}/{}.sass", file.dir, newName);
+                io::VFSFile newFile = file;
+                newFile.fileName = newName;
+                newFile.fullPath = newPath;
+                RenameFile(oldName, newFile);
+                if (!weakFileWidget.expired())
+                {
+                    weakFileWidget.lock()->OnRename(oldName);
+                }
+            });
 
-            auto* mouseInput = world->GetComponent<se::ui::components::MouseInputComponent>(labelEntity);
+
+            auto* mouseInput = world->GetComponent<se::ui::components::MouseInputComponent>(fileWidget->m_Label);
             se::ui::util::SetEditTextMouseInputEnabled(mouseInput, false);
         });
         label.text->onCancelled.Subscribe([world, labelEntity = label.entity]()
@@ -226,5 +229,36 @@ namespace se::editor::ui::asset_browser
         });
 
         return fileWidget;
+    }
+
+    void FileWidget::RenameFile(const std::string& newName, const io::VFSFile& file)
+    {
+        auto* app = Application::Get();
+        auto* editor = app->GetEditor();
+        auto* assetManager = asset::AssetManager::Get();
+
+        const std::string newPath = std::format("{}/{}.sass", file.dir, newName);
+        const auto db = asset::binary::Database::Load(file.fullPath.data(), true);
+        const auto asset = assetManager->GetAsset(file.fullPath.data(), reflect::TypeFromString(db->GetRoot().GetStruct().GetName()));
+        editor->RenameAsset(asset, newPath);
+        if (editor->GetSelectedAsset() == asset)
+        {
+            SelectFile(newPath);
+        }
+    }
+
+    void FileWidget::OnRename(const std::string& newName)
+    {
+        auto* world = Application::Get()->GetWorld();
+        auto* text = world->GetComponent<se::ui::components::EditableTextComponent>(m_Label);
+        text->text = newName;
+        if (text->text.size() > 18)
+        {
+            text->text = text->text.substr(0, 18) + "...";
+        }
+
+        const std::string newPath = std::format("{}/{}.sass", m_File.dir, newName);
+        m_File.fileName = newName;
+        m_File.fullPath = newPath;
     }
 }

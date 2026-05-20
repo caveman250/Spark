@@ -194,10 +194,9 @@ namespace se::editor::ui::asset_browser
     void AssetBrowserWindow::SetActiveFolder(const std::string& activeFolder, const bool setSelection)
     {
         auto world = Application::Get()->GetWorld();
-        for (const auto* fileWidget : m_FileWidgets)
+        for (const auto& fileWidget : m_FileWidgets)
         {
             world->DestroyEntity(fileWidget->GetId());
-            delete fileWidget;
         }
         m_FileWidgets.clear();
 
@@ -228,15 +227,11 @@ namespace se::editor::ui::asset_browser
                 firstFile = file.fullPath;
             }
 
-            auto* fileWidget = FileWidget::CreateFileWidget(file, this);
+            const auto fileWidget = FileWidget::CreateFileWidget(file, this);
             if (fileWidget->GetId() != ecs::InvalidEntity)
             {
                 world->AddChild(m_GridBoxEntity, fileWidget->GetId());
                 m_FileWidgets.push_back(fileWidget);
-            }
-            else
-            {
-                delete fileWidget;
             }
         }, false, true);
 

@@ -430,6 +430,7 @@ namespace se::editor
         type->Serialize(asset.get(), root, {});
         db->Save(asset->m_Path);
         vfs.Delete(oldPath);
+        asset::AssetManager::Get()->ReleaseAsset(oldPath);
 
         vfs.Rename(oldSourcePath, newSourcePath);
 
