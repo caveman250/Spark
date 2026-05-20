@@ -430,11 +430,15 @@ namespace se::ui::util
         const text::WrapMode wrap,
         const text::Alignment justification)
     {
-        const float scale = static_cast<float>(fontSize) / asset::builder::FontBlueprint::Scale;
+        auto* window = Application::Get()->GetWindow();
+        float cutoff = asset::builder::FontBlueprint::BitmapCutoffSize;
+        const float scale = fontSize <= cutoff ? window->GetContentScale() : static_cast<float>(fontSize) / asset::builder::FontBlueprint::Scale;
+
         math::IntVec2 cursorPos = { };
         cursorPos.y += font->GetLineHeight(fontSize);
         size_t lineStart = 0;
         std::vector<Rect> boundingBoxes = {};
+        std::optional<math::Vec2> lineCharOffset = {};
         for (size_t i = 0; i < text->size(); ++i)
         {
             const char c = text->at(i);
@@ -446,8 +450,18 @@ namespace se::ui::util
             }
             cursorPos = ApplyLeftSideBearing(cursorPos, charData, scale);
 
-            math::IntVec2 TL = math::IntVec2(charData.rect.topLeft * scale) + cursorPos;
-            math::IntVec2 BR = math::IntVec2(TL + charData.rect.size * scale);
+            math::Vec2 TL = charData.rect.topLeft * scale + math::Vec2(cursorPos);
+            float cutoff = asset::builder::FontBlueprint::BitmapCutoffSize;
+            int padding = fontSize > cutoff ? asset::builder::FontBlueprint::SDFPadding : 0;
+            math::Vec2 BR = TL + (charData.rect.size - padding * 2) * scale;
+            if (!lineCharOffset.has_value())
+            {
+                math::IntVec2 TLSnapped = TL + math::Vec2(0.5f, -0.5f);
+                lineCharOffset = TL - math::Vec2(TLSnapped);
+            }
+
+            TL -= lineCharOffset.value();
+            BR -= lineCharOffset.value();
             boundingBoxes.push_back(Rect(TL, BR));
 
             cursorPos = ApplyAdvanceWidth(cursorPos, charData, scale);
@@ -483,6 +497,7 @@ namespace se::ui::util
 
                 if (didWrap)
                 {
+                    lineCharOffset = std::nullopt;
                     const int offset = CalculateJustificationXOffset(justification,
                                                                oldX,
                                                                bounds);
