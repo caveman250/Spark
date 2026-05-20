@@ -48,7 +48,7 @@ namespace se::editor::ui::asset_browser
         label.text->text = file.fileName;
         if (label.text->text.size() > 18)
         {
-            label.text->text = label.text->text.substr(0, 18) + "...";
+            label.text->text = label.text->text.substr(0, 16) + "...";
         }
         label.text->alignment = se::ui::text::Alignment::Center;
         se::ui::util::SetEditTextMouseInputEnabled(label.mouseInput, false);
