@@ -22,6 +22,8 @@ namespace se::editor::ui::asset_browser
         static void DoRename(const std::string& newName, const io::VFSFile& file);
         void EndRename(const std::string& newName);
         static void DuplicateFile(const io::VFSFile& file, const std::weak_ptr<AssetBrowserWindow>& weakAssetBrowser);
+        static void DeleteFile(const io::VFSFile& file, const std::weak_ptr<AssetBrowserWindow>& weakAssetBrowser);
+
         ecs::Id m_Id = {};
         ecs::Id m_Label = {};
         io::VFSFile m_File = {};

@@ -67,6 +67,7 @@ namespace se::editor
         static std::string DuplicateAsset(const std::shared_ptr<asset::Asset>& asset);
         static void SaveAsset(const std::shared_ptr<asset::Asset>& asset);
         void DeleteAsset(const std::shared_ptr<asset::Asset>& asset);
+        void RestoreAsset(const std::shared_ptr<asset::Asset>& asset, const std::shared_ptr<asset::meta::MetaData>& meta);
         void RenameAsset(const std::shared_ptr<asset::Asset>& asset, const std::string& newPath);
         void SaveAll();
 

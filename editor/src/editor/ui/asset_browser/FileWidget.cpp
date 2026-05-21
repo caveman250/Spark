@@ -6,6 +6,7 @@
 #include "editor/singleton_components/DragDropStateComponent.h"
 #include "engine/Application.h"
 #include "engine/asset/AssetManager.h"
+#include "engine/asset/meta/MetaDataManager.h"
 #include "engine/ui/components/ButtonComponent.h"
 #include "engine/ui/components/EditableTextComponent.h"
 #include "engine/ui/components/ImageComponent.h"
@@ -175,16 +176,9 @@ namespace se::editor::ui::asset_browser
                     {
                         DuplicateFile(file, weakAssetBrowser);
                     });
-                    params.AddOption("Delete", [file, assetBrowser]()
+                    params.AddOption("Delete", [file, weakAssetBrowser]()
                     {
-                        const auto db = asset::binary::Database::Load(file.fullPath, true);
-
-                        const std::shared_ptr<asset::Asset> asset = asset::AssetManager::Get()->GetAsset(file.fullPath,
-                                                                                                    reflect::TypeFromString(db->GetRoot().GetStruct().GetName()));
-                        auto* editor = Application::Get()->GetEditor();
-                        editor->DeleteAsset(asset);
-
-                        assetBrowser->SetActiveFolder(assetBrowser->GetActiveFolder(), true);
+                        DeleteFile(file, weakAssetBrowser);
                     });
                     se::ui::util::CreateContextMenu(params);
                     break;
@@ -304,6 +298,47 @@ namespace se::editor::ui::asset_browser
                 assetBrowser->SetActiveFolder(assetBrowser->GetActiveFolder(), false);
             }
         });
+    }
 
+    void FileWidget::DeleteFile(const io::VFSFile& file,
+        const std::weak_ptr<AssetBrowserWindow>& weakAssetBrowser)
+    {
+        const auto db = asset::binary::Database::Load(file.fullPath, true);
+
+        const std::shared_ptr<asset::Asset> asset = asset::AssetManager::Get()->GetAsset(file.fullPath,
+                                                                                    reflect::TypeFromString(db->GetRoot().GetStruct().GetName()));
+
+        std::shared_ptr<asset::meta::MetaData> meta = nullptr;
+        if (asset->UsesMetaData())
+        {
+            meta = asset::meta::MetaManager::Get()->GetOrCreateMetaDataForAsset(asset.get());
+        }
+
+        Transactions::Get()->PushAction([file, weakAssetBrowser]()
+        {
+            const auto db = asset::binary::Database::Load(file.fullPath, true);
+
+            const std::shared_ptr<asset::Asset> asset = asset::AssetManager::Get()->GetAsset(file.fullPath,
+                                                                                        reflect::TypeFromString(db->GetRoot().GetStruct().GetName()));
+            auto* editor = Application::Get()->GetEditor();
+            editor->DeleteAsset(asset);
+
+            if (!weakAssetBrowser.expired())
+            {
+                auto assetBrowser = weakAssetBrowser.lock();
+                assetBrowser->SetActiveFolder(assetBrowser->GetActiveFolder(), false);
+            }
+        },
+        [asset, meta, weakAssetBrowser]()
+        {
+            auto* editor = Application::Get()->GetEditor();
+            editor->RestoreAsset(asset, meta);
+
+            if (!weakAssetBrowser.expired())
+            {
+                auto assetBrowser = weakAssetBrowser.lock();
+                assetBrowser->SetActiveFolder(assetBrowser->GetActiveFolder(), false);
+            }
+        });
     }
 }

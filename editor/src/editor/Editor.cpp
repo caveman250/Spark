@@ -417,8 +417,20 @@ namespace se::editor
         asset::AssetManager::Get()->ReleaseAsset(asset->m_Path);
     }
 
+    void Editor::RestoreAsset(const std::shared_ptr<asset::Asset>& asset, const std::shared_ptr<asset::meta::MetaData>& meta)
+    {
+        auto& vfs = io::VFS::Get();
+        if (asset->UsesMetaData())
+        {
+            const auto metaManager = asset::meta::MetaManager::Get();
+            const auto metaPath = metaManager->GetMetaPath(asset->m_Path);
+            metaManager->SaveMetaData(meta);
+        }
+        SaveAsset(asset);
+    }
+
     void Editor::RenameAsset(const std::shared_ptr<asset::Asset>& asset,
-        const std::string& newPath)
+                             const std::string& newPath)
     {
         auto metaManager = asset::meta::MetaManager::Get();
         auto& vfs = io::VFS::Get();
