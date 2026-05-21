@@ -21,7 +21,7 @@ namespace se::editor::ui::asset_browser
     asset::AssetReference<asset::Texture> FileWidget::FileTexture = asset::AssetReference<asset::Texture>("/engine_assets/textures/default_file.sass");
     asset::AssetReference<asset::Texture> FileWidget::FolderTexture = asset::AssetReference<asset::Texture>("/engine_assets/textures/default_folder.sass");
 
-    std::shared_ptr<FileWidget> FileWidget::CreateFileWidget(const io::VFSFile& file, AssetBrowserWindow* assetBrowser)
+    std::shared_ptr<FileWidget> FileWidget::CreateFileWidget(const io::VFSFile& file, const std::shared_ptr<AssetBrowserWindow>& assetBrowser)
     {
         auto fileWidget = std::make_shared<FileWidget>();
         fileWidget->m_File = file;
@@ -61,10 +61,10 @@ namespace se::editor::ui::asset_browser
             std::weak_ptr weakFileWidget = fileWidget;
             Transactions::Get()->PushAction([weakFileWidget, file = fileWidget->m_File, newName]()
             {
-                RenameFile(newName, file);
+                DoRename(newName, file);
                 if (!weakFileWidget.expired())
                 {
-                    weakFileWidget.lock()->OnRename(newName);
+                    weakFileWidget.lock()->EndRename(newName);
                 }
             },
             [weakFileWidget, file = fileWidget->m_File, oldName, newName]()
@@ -73,10 +73,10 @@ namespace se::editor::ui::asset_browser
                 io::VFSFile newFile = file;
                 newFile.fileName = newName;
                 newFile.fullPath = newPath;
-                RenameFile(oldName, newFile);
+                DoRename(oldName, newFile);
                 if (!weakFileWidget.expired())
                 {
-                    weakFileWidget.lock()->OnRename(oldName);
+                    weakFileWidget.lock()->EndRename(oldName);
                 }
             });
 
@@ -166,28 +166,14 @@ namespace se::editor::ui::asset_browser
                         .mousePos = { inputComp->mouseX, inputComp->mouseY },
                         .scene = Application::Get()->GetEditor()->GetEditorScene()
                     };
-                    params.AddOption("Rename", [world, labelEntity, fileName = file.fileName]()
+                    params.AddOption("Rename", [labelEntity, fileName = file.fileName]()
                     {
-                        const auto editText = world->GetComponent<se::ui::components::EditableTextComponent>(labelEntity);
-                        const auto textRect = world->GetComponent<se::ui::components::RectTransformComponent>(labelEntity);
-                        const auto keyInputComp = world->GetComponent<se::ui::components::KeyInputComponent>(labelEntity);
-                        se::ui::util::BeginEditingText(nullptr, labelEntity, *editText, *keyInputComp);
-                        auto* mouseInput = world->GetComponent<se::ui::components::MouseInputComponent>(labelEntity);
-                        se::ui::util::SetEditTextMouseInputEnabled(mouseInput, true);
-                        // undo any truncation
-                        editText->editText = fileName;
-                        textRect->needsLayout = true;
-                        se::ui::util::SetCaretPos(*editText, static_cast<int>(editText->editText.size()));
+                        BeginRename(labelEntity, fileName);
                     });
-                    params.AddOption("Duplicate", [file, assetBrowser]()
+                    std::weak_ptr weakAssetBrowser = assetBrowser;
+                    params.AddOption("Duplicate", [file, weakAssetBrowser]()
                     {
-                        const auto db = asset::binary::Database::Load(file.fullPath, true);
-
-                        const std::shared_ptr<asset::Asset> asset = asset::AssetManager::Get()->GetAsset(file.fullPath,
-                                                                                                    reflect::TypeFromString(db->GetRoot().GetStruct().GetName()));
-                        const std::string newPath = Editor::DuplicateAsset(asset);
-                        assetBrowser->SetActiveFolder(assetBrowser->GetActiveFolder(), false);
-                        SelectFile(newPath);
+                        DuplicateFile(file, weakAssetBrowser);
                     });
                     params.AddOption("Delete", [file, assetBrowser]()
                     {
@@ -195,7 +181,9 @@ namespace se::editor::ui::asset_browser
 
                         const std::shared_ptr<asset::Asset> asset = asset::AssetManager::Get()->GetAsset(file.fullPath,
                                                                                                     reflect::TypeFromString(db->GetRoot().GetStruct().GetName()));
-                        Editor::DeleteAsset(asset);
+                        auto* editor = Application::Get()->GetEditor();
+                        editor->DeleteAsset(asset);
+
                         assetBrowser->SetActiveFolder(assetBrowser->GetActiveFolder(), true);
                     });
                     se::ui::util::CreateContextMenu(params);
@@ -231,7 +219,7 @@ namespace se::editor::ui::asset_browser
         return fileWidget;
     }
 
-    void FileWidget::RenameFile(const std::string& newName, const io::VFSFile& file)
+    void FileWidget::DoRename(const std::string& newName, const io::VFSFile& file)
     {
         auto* app = Application::Get();
         auto* editor = app->GetEditor();
@@ -247,7 +235,22 @@ namespace se::editor::ui::asset_browser
         }
     }
 
-    void FileWidget::OnRename(const std::string& newName)
+    void FileWidget::BeginRename(const ecs::Id& labelEntity, const std::string& fileName)
+    {
+        auto* world = Application::Get()->GetWorld();
+        const auto editText = world->GetComponent<se::ui::components::EditableTextComponent>(labelEntity);
+        const auto textRect = world->GetComponent<se::ui::components::RectTransformComponent>(labelEntity);
+        const auto keyInputComp = world->GetComponent<se::ui::components::KeyInputComponent>(labelEntity);
+        se::ui::util::BeginEditingText(nullptr, labelEntity, *editText, *keyInputComp);
+        auto* mouseInput = world->GetComponent<se::ui::components::MouseInputComponent>(labelEntity);
+        se::ui::util::SetEditTextMouseInputEnabled(mouseInput, true);
+        // undo any truncation
+        editText->editText = fileName;
+        textRect->needsLayout = true;
+        se::ui::util::SetCaretPos(*editText, static_cast<int>(editText->editText.size()));
+    }
+
+    void FileWidget::EndRename(const std::string& newName)
     {
         auto* world = Application::Get()->GetWorld();
         auto* text = world->GetComponent<se::ui::components::EditableTextComponent>(m_Label);
@@ -260,5 +263,47 @@ namespace se::editor::ui::asset_browser
         const std::string newPath = std::format("{}/{}.sass", m_File.dir, newName);
         m_File.fileName = newName;
         m_File.fullPath = newPath;
+    }
+
+    void FileWidget::DuplicateFile(const io::VFSFile& file, const std::weak_ptr<AssetBrowserWindow>& weakAssetBrowser)
+    {
+        struct DuplicateAssetState
+        {
+            std::string filePath = {};
+        };
+
+        Transactions::Get()->PushAction<DuplicateAssetState>([file, weakAssetBrowser]()
+        {
+            const auto db = asset::binary::Database::Load(file.fullPath, true);
+
+            const std::shared_ptr<asset::Asset> asset = asset::AssetManager::Get()->GetAsset(file.fullPath,
+                                                                                        reflect::TypeFromString(db->GetRoot().GetStruct().GetName()));
+            auto* state = Transactions::Get()->GetRedoState<DuplicateAssetState>();
+            state->filePath = Editor::DuplicateAsset(asset);
+            if (!weakAssetBrowser.expired())
+            {
+                auto assetBrowser = weakAssetBrowser.lock();
+                assetBrowser->SetActiveFolder(assetBrowser->GetActiveFolder(), false);
+            }
+            SelectFile(state->filePath);
+        },
+        [weakAssetBrowser]()
+        {
+            auto* state = Transactions::Get()->GetUndoState<DuplicateAssetState>();
+            const auto db = asset::binary::Database::Load(state->filePath, true);
+
+            const std::shared_ptr<asset::Asset> asset = asset::AssetManager::Get()->GetAsset(state->filePath,
+                                                                                        reflect::TypeFromString(db->GetRoot().GetStruct().GetName()));
+
+            auto* editor = Application::Get()->GetEditor();
+            editor->DeleteAsset(asset);
+
+            if (!weakAssetBrowser.expired())
+            {
+                auto assetBrowser = weakAssetBrowser.lock();
+                assetBrowser->SetActiveFolder(assetBrowser->GetActiveFolder(), false);
+            }
+        });
+
     }
 }

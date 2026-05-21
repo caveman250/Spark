@@ -66,7 +66,7 @@ namespace se::editor
 
         static std::string DuplicateAsset(const std::shared_ptr<asset::Asset>& asset);
         static void SaveAsset(const std::shared_ptr<asset::Asset>& asset);
-        static void DeleteAsset(const std::shared_ptr<asset::Asset>& asset);
+        void DeleteAsset(const std::shared_ptr<asset::Asset>& asset);
         void RenameAsset(const std::shared_ptr<asset::Asset>& asset, const std::string& newPath);
         void SaveAll();
 
@@ -80,7 +80,7 @@ namespace se::editor
         ui::OutlineWindow* m_OutlineWindow = nullptr;
         ui::PropertiesWindow* m_PropertiesWindow = nullptr;
         ui::ViewportWindow* m_ViewportWindow = nullptr;
-        ui::asset_browser::AssetBrowserWindow* m_AssetBrowserWindow = nullptr;
+        std::shared_ptr<ui::asset_browser::AssetBrowserWindow> m_AssetBrowserWindow = nullptr;
 
         ecs::Id m_LoadedScene = ecs::InvalidEntity;
         std::string m_ScenePath = {};

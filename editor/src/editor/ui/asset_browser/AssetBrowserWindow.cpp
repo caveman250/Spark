@@ -227,7 +227,7 @@ namespace se::editor::ui::asset_browser
                 firstFile = file.fullPath;
             }
 
-            const auto fileWidget = FileWidget::CreateFileWidget(file, this);
+            const auto fileWidget = FileWidget::CreateFileWidget(file, std::static_pointer_cast<AssetBrowserWindow>(shared_from_this()));
             if (fileWidget->GetId() != ecs::InvalidEntity)
             {
                 world->AddChild(m_GridBoxEntity, fileWidget->GetId());

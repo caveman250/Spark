@@ -54,7 +54,7 @@ namespace se::editor
         });
         m_ViewportWindow->ConstructUI();
 
-        m_AssetBrowserWindow = new ui::asset_browser::AssetBrowserWindow(this);
+        m_AssetBrowserWindow = std::make_shared<ui::asset_browser::AssetBrowserWindow>(this);
         m_AssetBrowserWindow->ConstructUI();
 
         ecs::Id splitView1 = se::ui::util::AddSplitView(m_EditorScene,
@@ -408,6 +408,13 @@ namespace se::editor
         }
         vfs.Delete(asset->m_Path);
         vfs.Delete(asset->m_SourcePath);
+
+        if (GetSelectedAsset() == asset)
+        {
+            DeSelectAll();
+        }
+
+        asset::AssetManager::Get()->ReleaseAsset(asset->m_Path);
     }
 
     void Editor::RenameAsset(const std::shared_ptr<asset::Asset>& asset,

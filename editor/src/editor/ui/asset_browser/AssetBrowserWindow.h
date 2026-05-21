@@ -29,7 +29,7 @@ namespace se::editor::ui::asset_browser
     class AssetBrowserWindow : public ToolWindow
     {
     public:
-        AssetBrowserWindow(Editor* editor) : ToolWindow(editor) {}
+        explicit AssetBrowserWindow(Editor* editor) : ToolWindow(editor) {}
         void ConstructUI() override;
         void DestroyUI() override;
         void Update() override;
