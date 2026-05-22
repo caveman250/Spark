@@ -34,12 +34,24 @@ namespace se::editor::ui
             return;
         }
 
-        if (viewportRect->rect != m_ViewportRect)
+        if (viewportRect->rect != m_ViewportRect || editor->GetMode() != m_LastMode)
         {
+            m_LastMode = editor->GetMode();
             m_OnViewportSizeChanged(viewportRect->rect.size.x, viewportRect->rect.size.y);
-            const auto& viewportTexture = editor->GetFrameBuffer()->GetColorTexture();
             auto imageComp = world->GetComponent<se::ui::components::ImageComponent>(m_Viewport);
-            imageComp->materialInstance->SetUniform("Texture", 1, &viewportTexture);
+            switch (editor->GetMode())
+            {
+                case EditorMode::Default:
+                {
+                    const std::shared_ptr<asset::Texture>& viewportTexture = editor->GetFrameBuffer()->GetColorTexture();
+                    imageComp->materialInstance->SetUniform("Texture", 1, &viewportTexture);
+                    break;
+                }
+                case EditorMode::Prefab:
+                    const std::shared_ptr<asset::Texture>& viewportTexture = editor->GetPrefabFrameBuffer()->GetColorTexture();
+                    imageComp->materialInstance->SetUniform("Texture", 1, &viewportTexture);
+                    break;
+            }
         }
         m_ViewportRect = viewportRect->rect;
 
@@ -124,7 +136,7 @@ namespace se::editor::ui
         playButton->image = "/engine_assets/textures/editor_play.sass";
         playButton->pressedImage = "/engine_assets/textures/editor_play_pressed.sass";
         playButton->hoveredImage = "/engine_assets/textures/editor_play_hovered.sass";
-        playButton->onReleased.Subscribe([this, world](input::MouseButton)
+        playButton->onReleased.Subscribe([this, world](input::MouseButton, bool)
         {
             if (world->Paused())
             {
@@ -147,7 +159,7 @@ namespace se::editor::ui
         pauseButton->image = "/engine_assets/textures/editor_pause.sass";
         pauseButton->pressedImage = "/engine_assets/textures/editor_pause_pressed.sass";
         pauseButton->hoveredImage = "/engine_assets/textures/editor_pause_hovered.sass";
-        pauseButton->onReleased.Subscribe([this, world](input::MouseButton)
+        pauseButton->onReleased.Subscribe([this, world](input::MouseButton, bool)
         {
             auto editor = Application::Get()->GetEditor();
             if (!world->Paused() && !editor->InGameMode())
@@ -180,7 +192,7 @@ namespace se::editor::ui
         button->image = m_UIVisible ? checkedTexture : unCheckedTexture;
         button->pressedImage = m_UIVisible ? checkedTexture : unCheckedTexture;
         button->hoveredImage = m_UIVisible ? checkedTexture : unCheckedTexture;
-        button->onReleased.Subscribe([this, world](input::MouseButton)
+        button->onReleased.Subscribe([this, world](input::MouseButton, bool)
         {
             m_UIVisible = !m_UIVisible;
             world->SetUIVisibility(m_UIVisible);

@@ -788,8 +788,6 @@ namespace se::ecs
                 void* tempData = m_TempStore.AllocUninitialized<Component>(reflect->size);
                 reflect->inplace_copy_constructor(tempData, component);
                 m_PendingComponentCreations.emplace_back(PendingComponent { .entity = newId, .comp = component->GetStaticComponentId(), .tempData = tempData });
-
-                delete component;
             }
         }
 

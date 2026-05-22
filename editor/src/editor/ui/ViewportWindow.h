@@ -3,6 +3,7 @@
 #include "ToolWindow.h"
 #include "engine/ecs/ecs_fwd.h"
 #include "engine/ui/Rect.h"
+#include "editor/EditorMode.h"
 
 namespace se::editor::ui
 {
@@ -35,5 +36,6 @@ namespace se::editor::ui
         ecs::Id m_UIVisibleCheckBox = {};
         se::ui::Rect m_ViewportRect = {};
         std::function<void(int, int)> m_OnViewportSizeChanged = nullptr;
+        EditorMode m_LastMode = EditorMode::Default;
     };
 }

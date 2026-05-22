@@ -149,12 +149,14 @@ namespace se::render::systems
             auto* meshRenderComp = updateData.GetSingletonComponent<singleton_components::MeshRenderComponent>();
 
     #if SPARK_EDITOR
-            const size_t defaultRenderGroup = Application::Get()->GetEditor()->GetOffscreenRenderGroup();
+            auto* editor = Application::Get()->GetEditor();
+            const size_t defaultRenderGroup = editor->GetOffscreenRenderGroup();
     #else
             const size_t defaultRenderGroup = renderer->GetDefaultRenderGroup();
     #endif
 
-            for (size_t i = 0; i < updateData.GetEntities().size(); ++i)
+            const auto& entities = updateData.GetEntities();
+            for (size_t i = 0; i < entities.size(); ++i)
             {
                 const auto& meshComp = meshes[i];
 
@@ -164,6 +166,13 @@ namespace se::render::systems
                 }
 
                 size_t renderGroup = defaultRenderGroup;
+#if SPARK_EDITOR
+                if (*entities[i].scene == editor->GetPrefabEditorScene())
+                {
+                    renderGroup = editor->GetPrefabRenderGroup();
+                    // TODO renderlayers in prefabs
+                }
+#endif
                 if (meshComp.renderLayer != 0)
                 {
                     meshRenderComp->mutex.lock();

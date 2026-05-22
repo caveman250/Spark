@@ -93,41 +93,50 @@ namespace se::editor::ui
                 continue;
             }
 
+            bool isPrefabMode = editor->GetMode() == EditorMode::Prefab;
+            if (isPrefabMode != (*entity.scene == editor->GetPrefabEditorScene()))
+            {
+                continue;
+            }
+
             AddEntityUI(world, entity, m_TreeViewEntity, treeViewRect);
         }
 
-        ecs::Id singletonComponentsNode = {};
+        if (editor->GetMode() != EditorMode::Prefab)
         {
-            std::string name = "Singleton Components";
-            se::ui::util::TreeNodeParams params = {
-                .treeViewEntity = m_TreeViewEntity,
-                .parentNode = m_TreeViewEntity,
-                .name = name,
-                .scene = editor->GetEditorScene(),
-                .treeViewRect = treeViewRect
-            };
-            se::ui::util::NewTreeNode treeNode = se::ui::util::InsertTreeNode(params);
-            singletonComponentsNode = treeNode.entity;
-            treeNode.text->text = name;
-        }
-
-        for (const auto& singletonComponent : world->GetSingletonComponents())
-        {
-            se::ui::util::TreeNodeParams params = {
-                .treeViewEntity = m_TreeViewEntity,
-                .parentNode = singletonComponentsNode,
-                .name = singletonComponent->GetTypeName(),
-                .scene = editor->GetEditorScene(),
-                .treeViewRect = treeViewRect
-            };
-            auto treeNode = se::ui::util::InsertTreeNode(params);
-            treeNode.text->text = singletonComponent->GetTypeName();
-
-            std::function<void()> selectedCb = [singletonComponent, this]
+            ecs::Id singletonComponentsNode = {};
             {
-                m_Editor->SelectSingletonComponent(singletonComponent);
-            };
-            treeNode.treeNode->onSelected.Subscribe(std::move(selectedCb));
+                std::string name = "Singleton Components";
+                se::ui::util::TreeNodeParams params = {
+                    .treeViewEntity = m_TreeViewEntity,
+                    .parentNode = m_TreeViewEntity,
+                    .name = name,
+                    .scene = editor->GetEditorScene(),
+                    .treeViewRect = treeViewRect
+                };
+                se::ui::util::NewTreeNode treeNode = se::ui::util::InsertTreeNode(params);
+                singletonComponentsNode = treeNode.entity;
+                treeNode.text->text = name;
+            }
+
+            for (const auto& singletonComponent : world->GetSingletonComponents())
+            {
+                se::ui::util::TreeNodeParams params = {
+                    .treeViewEntity = m_TreeViewEntity,
+                    .parentNode = singletonComponentsNode,
+                    .name = singletonComponent->GetTypeName(),
+                    .scene = editor->GetEditorScene(),
+                    .treeViewRect = treeViewRect
+                };
+                auto treeNode = se::ui::util::InsertTreeNode(params);
+                treeNode.text->text = singletonComponent->GetTypeName();
+
+                std::function<void()> selectedCb = [singletonComponent, this]
+                {
+                    m_Editor->SelectSingletonComponent(singletonComponent);
+                };
+                treeNode.treeNode->onSelected.Subscribe(std::move(selectedCb));
+            }
         }
     }
 

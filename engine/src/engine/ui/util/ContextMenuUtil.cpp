@@ -73,7 +73,7 @@ namespace se::ui::util
             auto buttonRect = world->AddComponent<RectTransformComponent>(textButtonEntity);
             buttonRect->anchors = { .left = 0.f, .right = 1.f, .top = 0.f, .bottom = 1.f };
             auto textButton = world->AddComponent<ButtonComponent>(textButtonEntity);
-            textButton->onReleased.Subscribe([world, option, contextMenu](input::MouseButton)
+            textButton->onReleased.Subscribe([world, option, contextMenu](input::MouseButton, bool)
             {
                 option.second();
                 world->DestroyEntity(contextMenu);

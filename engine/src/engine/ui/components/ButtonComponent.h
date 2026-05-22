@@ -43,10 +43,12 @@ namespace se::ui::components
 
         ecs::Signal<input::MouseButton> onDragged = {};
 
-        ecs::Signal<input::MouseButton> onReleased = {};
+        // button, wasDoubleClick
+        ecs::Signal<input::MouseButton, bool> onReleased = {};
 
     private:
         bool lastPressed = false;
+        bool lastPressWasDoubleClick = false;
         bool lastHovered = false;
 
         friend class systems::ButtonSystem;

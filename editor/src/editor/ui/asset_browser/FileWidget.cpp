@@ -43,7 +43,7 @@ namespace se::editor::ui::asset_browser
         rect->minHeight = 100;
         world->AddComponent<se::ui::components::WidgetComponent>(fileWidget->m_Id);
 
-        auto label= se::ui::util::CreateEditableText(world, "/engine_assets/fonts/CascadiaCode.sass", 14, editor->GetEditorScene());
+        auto label= se::ui::util::CreateEditableText(world, "/engine_assets/fonts/CascadiaCode.sass", 12, editor->GetEditorScene());
         fileWidget->m_Label = label.entity;
         label.text->text = file.fileName;
         if (label.text->text.size() > 18)
@@ -141,8 +141,13 @@ namespace se::editor::ui::asset_browser
             });
         }
 
-        button->onReleased.Subscribe([fileWidget, labelEntity = label.entity, assetBrowser](const input::MouseButton button)
+        button->onReleased.Subscribe([fileWidget, labelEntity = label.entity, assetBrowser](const input::MouseButton button, bool wasDoubleClick)
         {
+            if (wasDoubleClick)
+            {
+                return;
+            }
+
             const auto& file = fileWidget->GetFile();
             switch (button)
             {

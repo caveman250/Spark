@@ -8,6 +8,7 @@
 
 namespace se::ecs
 {
+    class Prefab;
     class SceneSaveData;
 }
 
@@ -25,7 +26,8 @@ namespace se::asset
 template <typename T>
 concept DataAsset = std::is_same_v<T, se::render::Material> ||
     std::is_same_v<T, se::render::MaterialInstance> ||
-    std::is_same_v<T, se::ecs::SceneSaveData>;
+    std::is_same_v<T, se::ecs::SceneSaveData> ||
+    std::is_same_v<T, se::ecs::Prefab>;
 
 namespace se::asset
 {

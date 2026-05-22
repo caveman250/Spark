@@ -30,6 +30,10 @@ namespace se::editor::ui::asset_browser
         {
             runtime->LoadScene(file);
         }
+        else if (asset->GetReflectType() == ecs::Prefab::GetReflection())
+        {
+            runtime->EditPrefab(asset);
+        }
     }
 
     void SelectFolder(const std::string&)

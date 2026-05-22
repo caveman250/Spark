@@ -129,6 +129,11 @@ namespace se::ui::systems
                     if (now - button.timePressed < 400)
                     {
                         button.onDoubleClick.Broadcast(button.pressedButton);
+                        button.lastPressWasDoubleClick = true;
+                    }
+                    else
+                    {
+                        button.lastPressWasDoubleClick = false;
                     }
 
                     button.timePressed = now;
@@ -147,7 +152,7 @@ namespace se::ui::systems
 
                 if (!button.pressed && button.lastPressed && !button.isDragging)
                 {
-                    button.onReleased.Broadcast(button.pressedButton);
+                    button.onReleased.Broadcast(button.pressedButton, button.lastPressWasDoubleClick);
                 }
 
                 button.lastHovered = button.hovered;

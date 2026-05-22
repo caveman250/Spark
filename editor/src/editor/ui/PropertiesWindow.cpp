@@ -171,7 +171,7 @@ namespace se::editor::ui
             button->image = "/engine_assets/textures/editor_button.sass";
             button->hoveredImage = "/engine_assets/textures/editor_button_pressed.sass";
             button->pressedImage = "/engine_assets/textures/editor_button_hovered.sass";
-            button->onReleased.Subscribe([world, entity, addComp, editor](input::MouseButton btn)
+            button->onReleased.Subscribe([world, entity, addComp, editor](input::MouseButton btn, bool)
             {
                 switch (btn)
                 {

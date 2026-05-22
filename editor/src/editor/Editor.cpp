@@ -39,6 +39,7 @@ namespace se::editor
         OnViewportSizeChanged(1280, 720);
 
         m_EditorScene = world->CreateScene("Editor");
+        m_PrefabEditorScene = world->CreateScene("Prefab Editor");
 
         m_OutlineWindow = new ui::OutlineWindow(this);
         m_OutlineWindow->ConstructUI();
@@ -138,8 +139,14 @@ namespace se::editor
         auto* renderer = render::Renderer::Get<render::Renderer>();
         m_OffscreenRenderGroup = renderer->AllocRenderGroup(0);
         renderer->SetFrameBuffer(m_OffscreenRenderGroup, m_FrameBuffer);
-
         renderer->Submit<render::commands::Clear>(m_OffscreenRenderGroup, true, true);
+
+        if (m_Mode == EditorMode::Prefab)
+        {
+            m_PrefabRenderGroup = renderer->AllocRenderGroup(0);
+            renderer->SetFrameBuffer(m_PrefabRenderGroup, m_PrefabFrameBuffer);
+            renderer->Submit<render::commands::Clear>(m_PrefabRenderGroup, true, true);
+        }
     }
 
     void Editor::Shutdown()
@@ -149,6 +156,11 @@ namespace se::editor
     const ecs::Id& Editor::GetEditorScene() const
     {
         return m_EditorScene;
+    }
+
+    const ecs::Id& Editor::GetPrefabEditorScene() const
+    {
+        return m_PrefabEditorScene;
     }
 
     const ecs::Id& Editor::GetLoadedScene() const
@@ -268,6 +280,12 @@ namespace se::editor
             m_FrameBuffer.reset();
         }
         m_FrameBuffer = render::FrameBuffer::CreateFrameBuffer({ x, y });
+
+        if (m_PrefabFrameBuffer)
+        {
+            m_PrefabFrameBuffer.reset();
+        }
+        m_PrefabFrameBuffer = render::FrameBuffer::CreateFrameBuffer({ x, y });
     }
 
     void Editor::ToggleGameMode()
@@ -302,15 +320,36 @@ namespace se::editor
             return;
         }
 
-        if (m_LoadedScene != ecs::InvalidEntity)
+        if (GetMode() == EditorMode::Prefab)
         {
-            SaveScene();
+            auto* world = Application::Get()->GetWorld();
+            ecs::Prefab& existingPrefab = *std::static_pointer_cast<ecs::Prefab>(m_EditingPrefabAsset).get();
+            ecs::Prefab newPrefab = world->CreatePrefabFromEntity(m_EditingPrefabRoot);
+            existingPrefab.m_Entities = newPrefab.m_Entities;
+            SaveAsset(m_EditingPrefabAsset);
         }
+        else
+        {
+            if (m_LoadedScene != ecs::InvalidEntity)
+            {
+                SaveScene();
+            }
 
-        if (m_SelectedAsset)
-        {
-            SaveAsset(m_SelectedAsset);
+            if (m_SelectedAsset)
+            {
+                SaveAsset(m_SelectedAsset);
+            }
         }
+    }
+
+    void Editor::EditPrefab(const std::shared_ptr<asset::Asset>& asset)
+    {
+        m_Mode = EditorMode::Prefab;
+        auto* world = Application::Get()->GetWorld();
+        m_EditingPrefabRoot = world->InstantiatePrefab(GetPrefabEditorScene(), std::static_pointer_cast<ecs::Prefab>(asset));
+        m_EditingPrefabAsset = asset;
+        m_OutlineWindow->RebuildOutline();
+        SelectEntity(m_EditingPrefabRoot);
     }
 
     std::string Editor::DuplicateAsset(const std::shared_ptr<asset::Asset>& asset)
@@ -419,7 +458,6 @@ namespace se::editor
 
     void Editor::RestoreAsset(const std::shared_ptr<asset::Asset>& asset, const std::shared_ptr<asset::meta::MetaData>& meta)
     {
-        auto& vfs = io::VFS::Get();
         if (asset->UsesMetaData())
         {
             const auto metaManager = asset::meta::MetaManager::Get();
@@ -467,6 +505,12 @@ namespace se::editor
 
     void Editor::DeSelectAll()
     {
+        if (m_Mode == EditorMode::Prefab && m_SelectedEntity == ecs::InvalidEntity && !m_SelectedAsset)
+        {
+            ExitPrefabMode();
+            return;
+        }
+
         m_SelectedEntity = ecs::InvalidEntity;
         m_SelectedSingletonComp = nullptr;
         m_SelectedAsset = nullptr;
@@ -493,6 +537,14 @@ namespace se::editor
         auto planeModel = world->AddComponent<ecs::components::MeshComponent>(m_Plane);
         planeModel->model = "/engine_assets/models/plane.sass";
         planeModel->materialAsset = "/engine_assets/materials/editor_plane.sass";
+    }
+
+    void Editor::ExitPrefabMode()
+    {
+        auto* world = Application::Get()->GetWorld();
+        world->DestroyEntity(m_EditingPrefabRoot);
+        m_Mode = EditorMode::Default;
+        DeSelectAll();
     }
 
     const std::shared_ptr<asset::Asset>& Editor::GetSelectedAsset() const

@@ -71,7 +71,7 @@ namespace se::editor::ui::properties
         newButton->image = "/engine_assets/textures/editor_plus.sass";
         newButton->pressedImage = "/engine_assets/textures/editor_plus.sass";
         newButton->hoveredImage = "/engine_assets/textures/editor_plus.sass";
-        newButton->onReleased.Subscribe([this, world](input::MouseButton)
+        newButton->onReleased.Subscribe([this, world](input::MouseButton, bool)
         {
             auto inputComp = world->GetSingletonComponent<input::InputComponent>();
             const auto& derivedTypes = m_MapType->GetContainedValueType(nullptr)->GetDerivedTypes();

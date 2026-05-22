@@ -1,5 +1,6 @@
 #pragma once
 
+#include "EditorMode.h"
 #include "GizmoManager.h"
 #include "engine/ecs/Prefab.h"
 #include "singleton_components/EditorShortcutsComponent.h"
@@ -36,9 +37,12 @@ namespace se::editor
         void Render();
         void Shutdown();
 
+        EditorMode GetMode() const { return m_Mode; }
         const ecs::Id& GetEditorScene() const;
+        const ecs::Id& GetPrefabEditorScene() const;
         const ecs::Id& GetLoadedScene() const;
         void LoadScene(const std::string& path);
+        void EditPrefab(const std::shared_ptr<asset::Asset>& asset);
         const ecs::Id& GetSelectedEntity() const;
         void SelectEntity(const ecs::Id& id, bool force = false);
         reflect::ObjectBase* GetSelectedSingletonComponent() const;
@@ -56,6 +60,8 @@ namespace se::editor
 
         size_t GetOffscreenRenderGroup() const { return m_OffscreenRenderGroup; }
         const std::shared_ptr<render::FrameBuffer>& GetFrameBuffer() const { return m_FrameBuffer; }
+        size_t GetPrefabRenderGroup() const { return m_PrefabRenderGroup; }
+        const std::shared_ptr<render::FrameBuffer>& GetPrefabFrameBuffer() const { return m_PrefabFrameBuffer; }
         se::ui::Rect GetViewportRect() const { return m_ViewportWindow->GetViewportScreenspaceRect(); }
         void OnViewportSizeChanged(int x, int y);
 
@@ -74,9 +80,11 @@ namespace se::editor
     private:
         void SaveScene();
         void CreateEditorPlane();
+        void ExitPrefabMode();
 
-        startup::StartupManager m_StartupManager;
-        GizmoManager m_GizmoManager;
+        EditorMode m_Mode = {};
+        startup::StartupManager m_StartupManager = {};
+        GizmoManager m_GizmoManager = {};
 
         ui::OutlineWindow* m_OutlineWindow = nullptr;
         ui::PropertiesWindow* m_PropertiesWindow = nullptr;
@@ -86,6 +94,7 @@ namespace se::editor
         ecs::Id m_LoadedScene = ecs::InvalidEntity;
         std::string m_ScenePath = {};
         ecs::Id m_EditorScene = ecs::InvalidEntity;
+        ecs::Id m_PrefabEditorScene = ecs::InvalidEntity;
         ecs::Id m_Plane = ecs::InvalidEntity;
 
         ecs::Id m_LastSelectedEntity = ecs::InvalidEntity;
@@ -98,11 +107,15 @@ namespace se::editor
 
         size_t m_OffscreenRenderGroup = 0;
         std::shared_ptr<render::FrameBuffer> m_FrameBuffer = nullptr;
+        size_t m_PrefabRenderGroup = 0;
+        std::shared_ptr<render::FrameBuffer> m_PrefabFrameBuffer = nullptr;
 
         bool m_GameMode = false;
 
         // cut/copy/paste
         ecs::Id m_EntityToCopy = ecs::InvalidEntity;
         ecs::Prefab m_CutEntity = {};
+        ecs::Id m_EditingPrefabRoot = {};
+        std::shared_ptr<asset::Asset> m_EditingPrefabAsset = {};
     };
 }

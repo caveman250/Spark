@@ -54,7 +54,7 @@ namespace se::editor::ui::properties
         button->image = *m_Value == true ? m_CheckedTexture : m_UncheckedTexture;
         button->pressedImage = *m_Value == true ? m_CheckedTexture : m_UncheckedTexture;
         button->hoveredImage = *m_Value == true ? m_CheckedTexture : m_UncheckedTexture;
-        button->onReleased.Subscribe([this](input::MouseButton)
+        button->onReleased.Subscribe([this](input::MouseButton, bool)
         {
             bool oldVal = *m_Value;
             bool newVal =  !(*m_Value);

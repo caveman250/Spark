@@ -67,7 +67,7 @@ namespace se::editor::ui::properties
                 button->image = "/engine_assets/textures/editor_context.sass";
                 button->pressedImage = "/engine_assets/textures/editor_context.sass";
                 button->hoveredImage = "/engine_assets/textures/editor_context.sass";
-                button->onReleased.Subscribe([world, editor, options = params.contextOptions](input::MouseButton)
+                button->onReleased.Subscribe([world, editor, options = params.contextOptions](input::MouseButton, bool)
                 {
                     auto inputComp = world->GetSingletonComponent<input::InputComponent>();
                     se::ui::util::ContextMenuParams contextParams = {
@@ -151,7 +151,7 @@ namespace se::editor::ui::properties
                     .bottom = 1.f
                 };
                 auto button = world->AddComponent<ButtonComponent>(buttonEntity);
-                button->onReleased.Subscribe([world, editor, options = params.contextOptions](input::MouseButton mouseButton)
+                button->onReleased.Subscribe([world, editor, options = params.contextOptions](input::MouseButton mouseButton, bool)
                 {
                     if (mouseButton == input::MouseButton::Right)
                     {

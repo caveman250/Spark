@@ -5,6 +5,7 @@
 #include "engine/Application.h"
 #include "engine/asset/AssetManager.h"
 #include "engine/ecs/SceneSaveData.h"
+#include "engine/ecs/components/RootComponent.h"
 #include "engine/input/InputComponent.h"
 #include "engine/io/VFS.h"
 #include "engine/render/MaterialInstance.h"
@@ -185,6 +186,21 @@ namespace se::editor::ui::asset_browser
                     SetActiveFolder(m_ActiveFolder, false);
                     SelectFile(fileName);
                 });
+                params.AddOption("Create Prefab", [this]()
+                {
+                    const std::string fileName = m_ActiveFolder + "/new_prefab.sass";
+                    std::shared_ptr<ecs::Prefab> prefab = asset::AssetManager::Get()->CreateDataAsset<ecs::Prefab>(fileName);
+                    ecs::PrefabEntity& entity = prefab->m_Entities.emplace_back();
+                    entity.entity = 1;
+                    entity.name = "Root";
+                    entity.flags = 0;
+                    entity.children = {};
+                    static ecs::components::RootComponent rootTemplate = {};
+                    entity.components = { &rootTemplate };
+                    Application::Get()->GetEditor()->SaveAsset(prefab);
+                    SetActiveFolder(m_ActiveFolder, false);
+                    SelectFile(fileName);
+                });
 
                 se::ui::util::CreateContextMenu(params);
             }
@@ -308,7 +324,7 @@ namespace se::editor::ui::asset_browser
         const auto buttonWidget = world->AddComponent<se::ui::components::WidgetComponent>(buttonEntity);
         buttonWidget->visibility = se::ui::Visibility::Hidden;
         const auto button = world->AddComponent<se::ui::components::ButtonComponent>(buttonEntity);
-        button->onReleased.Subscribe([this, path](input::MouseButton)
+        button->onReleased.Subscribe([this, path](input::MouseButton, bool)
         {
             SetActiveFolder(path, false);
         });
