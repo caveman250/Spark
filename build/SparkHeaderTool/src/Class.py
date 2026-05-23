@@ -1027,9 +1027,13 @@ def DefineClass(classobj, full_name, classes, base_class_map, template_instantia
     derived_types = ""
     for key, value in base_class_map.items():
         if value == full_name:
-            if derived_types:
-                derived_types += ",\n                    "
             other_class = classes[key]
+            if other_class.dev_only:
+                derived_types += "\n#if WITH_DEV_ONLY_CLASSES"
+            if other_class.editor_only:
+                derived_types += "\n#if WITH_EDITOR_ONLY_CLASSES"
+            if derived_types:
+                derived_types += "\n                    , "
             if other_class.is_template:
                 for template_instantiation in template_instantiations:
                     if template_instantiation.class_name == other_class.name:
@@ -1054,6 +1058,10 @@ def DefineClass(classobj, full_name, classes, base_class_map, template_instantia
 
             else:
                 derived_types += f"se::reflect::TypeResolver<{key}>::Get()"
+            if other_class.editor_only:
+                derived_types += "\n#endif"
+            if other_class.dev_only:
+                derived_types += "\n#endif"
             contents += f"#include \"{classes[key].path}\"\n"
 
     contents += f"\nnamespace {classobj.namespace}\n{{\n"
