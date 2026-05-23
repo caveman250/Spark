@@ -411,6 +411,8 @@ namespace se::ecs
 
     void World::ProcessAllPending()
     {
+        SPARK_ASSERT(!m_Running);
+
          if (!m_PendingComponentCreations.empty() || !m_PendingComponentDeletions.empty() ||
              !m_PendingAppSystemCreations.empty() || !m_PendingAppSystemDeletions.empty() ||
              !m_PendingEngineSystemCreations.empty() || !m_PendingEngineSystemDeletions.empty() ||
@@ -463,7 +465,6 @@ namespace se::ecs
     {
         EASY_FUNCTION();
         ProcessAllPending();
-        m_Running = true;
 
 #if OPENGL_RENDERER
         auto deferredOps = render::opengl::DeferredOpenGLOperations::Get();
@@ -1168,8 +1169,10 @@ namespace se::ecs
                                 const bool processPending)
     {
         EASY_BLOCK("World::RunOnAllSystems");
+
         for (const auto& updateGroup: systems)
         {
+            m_Running = true;
             if (parallel && updateGroup.size() > 1)
             {
                 threads::ParallelForEach(updateGroup, func);
@@ -1179,6 +1182,7 @@ namespace se::ecs
                 std::ranges::for_each(updateGroup,
                                       func);
             }
+            m_Running = false;
 
             if (processPending)
             {

@@ -213,6 +213,8 @@ namespace se::ecs
                  const System* system,
                  const HeirachyQueryDeclaration& declaration,
                  Func&& func);
+
+        void ProcessAllPending();
     private:
         bool IsRunning() const { return m_Running; }
 
@@ -299,7 +301,6 @@ namespace se::ecs
                                     bool add,
                                     bool createIfMissing);
 
-        void ProcessAllPending();
         void ProcessPendingComponents();
         void ProcessPendingSystems();
         static void ProcessPendingSystems(std::vector<std::pair<Id, SystemDeclaration>>& pendingCreations,

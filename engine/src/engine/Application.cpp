@@ -123,6 +123,7 @@ namespace se
 
 #if SPARK_EDITOR
         m_Editor.Update();
+        m_World.ProcessAllPending();
 #endif
     }
 
