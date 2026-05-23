@@ -37,7 +37,7 @@ namespace se::editor::systems
             return;
         }
 
-        ecs::ForEachArcheType(results, ecs::UpdateMode::MultiThreaded, false, [](const ecs::SystemUpdateData& updateData)
+        ecs::ForEachArcheType(results, ecs::UpdateMode::MultiThreaded, false, [editor](const ecs::SystemUpdateData& updateData)
         {
             const auto& entities = updateData.GetEntities();
             auto cameraComp = updateData.GetSingletonComponent<const camera::ActiveCameraComponent>();
@@ -50,6 +50,11 @@ namespace se::editor::systems
             for (size_t i = 0; i < entities.size(); ++i)
             {
                 const auto& entity = entities[i];
+                if (editor->GetMode() == EditorMode::Prefab && *entity.scene != editor->GetPrefabEditorScene())
+                {
+                    continue;
+                }
+
                 auto& transform = transforms[i];
                 auto& mesh = meshes[i];
 
