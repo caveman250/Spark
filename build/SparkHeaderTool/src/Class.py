@@ -953,6 +953,7 @@ def CreateSystemInstantiationFiles(source_dirs, classes):
             output_handle.close()
 
         init_systems_cpp_content = "#include \"spark.h\"\n"
+        init_systems_cpp_content += "#include \"engine/ecs/World.h\"\n"
         for full_name, class_obj in classes.items():
             if class_obj.is_reflected and class_obj.project_src_dir == src_dir and class_obj.type == ClassType.SYSTEM:
                 init_systems_cpp_content += f"#include \"{class_obj.path}\"\n"

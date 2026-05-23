@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.28)
 set(CMAKE_CXX_STANDARD 23)
 
-set(ROOT_DIR path/to/root/of/Spark/checkout)
+set(ROOT_DIR path/to/root/of/spark/checkout)
 include(Spark)
 
 setup_spark_target(ProjectName false path/to/optional/unity.conf)
