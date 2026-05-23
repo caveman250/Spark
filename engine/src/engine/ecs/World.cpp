@@ -677,6 +677,18 @@ namespace se::ecs
         }
     }
 
+    void World::SetEntityScene(const Id& entity,
+        const Id& scene)
+    {
+        auto it = m_IdMetaMap.find(entity);
+        if (entity == InvalidEntity || it == m_IdMetaMap.end())
+        {
+            return;
+        }
+
+        it->second.scene = scene;
+    }
+
     std::shared_ptr<asset::binary::Database> World::CreatePrefabDatabaseFromEntity(Id entity)
     {
         Prefab prefab = {};

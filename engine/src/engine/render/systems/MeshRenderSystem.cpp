@@ -165,33 +165,37 @@ namespace se::render::systems
                     continue;
                 }
 
-                size_t renderGroup = defaultRenderGroup;
+                size_t baseRenderGroup = defaultRenderGroup;
 #if SPARK_EDITOR
-                if (*entities[i].scene == editor->GetPrefabEditorScene())
+                if (*entities[i].scene == editor->GetPrefabEditorScene() ||
+                    (*entities[i].scene == editor->GetEditorScene() && editor->GetMode() == editor::EditorMode::Prefab))
                 {
-                    renderGroup = editor->GetPrefabRenderGroup();
-                    // TODO renderlayers in prefabs
+                    baseRenderGroup = editor->GetPrefabRenderGroup();
                 }
 #endif
                 if (meshComp.renderLayer != 0)
                 {
                     meshRenderComp->mutex.lock();
-                    auto it = meshRenderComp->layerRenderGroups.find(meshComp.renderLayer);
+                    singleton_components::MeshRenderComponent::LayerKey key = std::make_pair(meshComp.renderLayer, baseRenderGroup);
+                    auto it = meshRenderComp->layerRenderGroups.find(key);
                     if (it == meshRenderComp->layerRenderGroups.end())
                     {
-                        it = meshRenderComp->layerRenderGroups.insert(std::make_pair(meshComp.renderLayer, renderer->AllocRenderGroup(meshComp.renderLayer))).first;
-    #if SPARK_EDITOR
-                        renderer->SetFrameBuffer(it->second, Application::Get()->GetEditor()->GetFrameBuffer());
-    #endif
+                        it = meshRenderComp->layerRenderGroups.insert(std::make_pair(key, renderer->AllocRenderGroup(meshComp.renderLayer))).first;
+
+                        const auto& fb = renderer->GetFrameBuffer(baseRenderGroup);
+                        if (fb)
+                        {
+                            renderer->SetFrameBuffer(it->second, fb);
+                        }
                     }
                     meshRenderComp->mutex.unlock();
 
-                    renderGroup = it->second;
+                    baseRenderGroup = it->second;
                 }
 
                 if (meshComp.materialInstance && meshComp.vertexBuffer && meshComp.indexBuffer)
                 {
-                    renderer->Submit<commands::SubmitGeo>(renderGroup, meshComp.materialInstance, meshComp.vertexBuffer, meshComp.indexBuffer);
+                    renderer->Submit<commands::SubmitGeo>(baseRenderGroup, meshComp.materialInstance, meshComp.vertexBuffer, meshComp.indexBuffer);
                 }
             }
         });

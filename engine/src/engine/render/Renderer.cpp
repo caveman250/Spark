@@ -180,4 +180,10 @@ namespace se::render
         m_RenderGroups[group].frameBuffer = fb;
         m_RenderGroupMutex.unlock();
     }
+
+    const std::shared_ptr<FrameBuffer>& Renderer::GetFrameBuffer(size_t group)
+    {
+        auto guard = std::lock_guard(m_RenderGroupMutex);
+        return m_RenderGroups[group].frameBuffer;
+    }
 }

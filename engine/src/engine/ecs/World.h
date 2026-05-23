@@ -92,6 +92,7 @@ namespace se::ecs
         void UnloadScene(const Id& scene);
         void SaveScene(const Id& scene, const std::string& path, bool binary = false);
         const Id& GetDefaultScene() const { return m_DefaultScene; }
+        void SetEntityScene(const Id& entity, const Id& scene);
 
         std::shared_ptr<asset::binary::Database>  CreatePrefabDatabaseFromEntity(Id entity);
         Prefab CreatePrefabFromEntity(Id entity);

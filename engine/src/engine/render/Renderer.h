@@ -56,6 +56,7 @@ namespace se::render
         size_t GetDefaultRenderGroup() { return m_DefaultRenderGroup; }
 
         virtual void SetFrameBuffer(size_t group, const std::shared_ptr<FrameBuffer>& fb);
+        const std::shared_ptr<FrameBuffer>& GetFrameBuffer(size_t group);
 
         virtual bool SupportsMultiThreadedRendering() const = 0;
 
