@@ -27,21 +27,21 @@ namespace se::render::metal
     {
       	EASY_BLOCK("FrameBuffer::PreRender");
         auto renderer = Renderer::Get<MetalRenderer>();
-        MTLRenderPassDescriptor* desc = [[MTLRenderPassDescriptor alloc] init];
+        m_CurrentRenderPassDescriptor = [[MTLRenderPassDescriptor alloc] init];
 
-        m_ColourAttachmentDescriptor = [[desc colorAttachments] objectAtIndexedSubscript:0];
+        m_ColourAttachmentDescriptor = [[m_CurrentRenderPassDescriptor colorAttachments] objectAtIndexedSubscript:0];
         const auto& colorTextureResource = static_pointer_cast<TextureResource>(m_ColorTexture->GetPlatformResource());
         [m_ColourAttachmentDescriptor setTexture:colorTextureResource->GetMetalResource()];
         [m_ColourAttachmentDescriptor setClearColor:MTLClearColorMake(m_ClearColour.x, m_ClearColour.y, m_ClearColour.z, m_ClearColour.w)];
         [m_ColourAttachmentDescriptor setLoadAction:MTLLoadActionClear];
 
-        MTLRenderPassDepthAttachmentDescriptor* depthAttachment = [desc depthAttachment];
+        MTLRenderPassDepthAttachmentDescriptor* depthAttachment = [m_CurrentRenderPassDescriptor depthAttachment];
         const auto& depthTextureResource = static_pointer_cast<TextureResource>(m_DepthTexture->GetPlatformResource());
         [depthAttachment setTexture:depthTextureResource->GetMetalResource()];
 
         auto commandQueue = renderer->GetCommandQueue();
         m_CommandBuffer = [commandQueue commandBuffer];
-        m_RenderCommandEncoder = [m_CommandBuffer renderCommandEncoderWithDescriptor:desc];
+        m_RenderCommandEncoder = [m_CommandBuffer renderCommandEncoderWithDescriptor:m_CurrentRenderPassDescriptor];
         [m_RenderCommandEncoder setCullMode:MTLCullModeBack];
         [m_RenderCommandEncoder setFrontFacingWinding:MTLWindingCounterClockwise];
     }
@@ -62,7 +62,14 @@ namespace se::render::metal
 
     void FrameBuffer::SetClearColour(const math::Vec4& colour)
     {
-        // TODO currently doesnt apply until next frame.
-        m_ClearColour = colour;
+        if (colour != m_ClearColour)
+        {
+            m_ClearColour = colour;
+            [m_RenderCommandEncoder endEncoding];
+
+            [m_ColourAttachmentDescriptor setClearColor:MTLClearColorMake(m_ClearColour.x, m_ClearColour.y, m_ClearColour.z, m_ClearColour.w)];
+
+            m_RenderCommandEncoder = [m_CommandBuffer renderCommandEncoderWithDescriptor:m_CurrentRenderPassDescriptor];
+        }
     }
 }

@@ -36,6 +36,7 @@ namespace se::render::metal
 
         MTLCommandBufferPtr m_CommandBuffer = nullptr;
         MTLRenderCommandEncoderPtr m_RenderCommandEncoder = nullptr;
+        MTLRenderPassDescriptorPtr m_CurrentRenderPassDescriptor = nullptr;
         MTLRenderPassColorAttachmentDescriptorPtr m_ColourAttachmentDescriptor = nullptr;
         math::Vec4 m_ClearColour = {};
     };
