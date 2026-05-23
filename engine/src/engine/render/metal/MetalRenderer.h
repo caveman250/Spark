@@ -17,6 +17,8 @@ namespace se::render::metal
         void Render() override;
         bool SupportsMultiThreadedRendering() const override;
 
+        void SetClearColour(const math::Vec4& colour);
+
         MTLDevicePtr GetDevice() const { return m_Device; }
         MTLRenderCommandEncoderPtr GetCurrentCommandEncoder() const;
         MTLCommandQueuePtr GetCommandQueue() const { return m_CommandQueue; }

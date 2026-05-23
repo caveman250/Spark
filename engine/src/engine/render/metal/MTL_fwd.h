@@ -19,6 +19,7 @@
 @class MTLRenderPassDescriptor;
 @class NSWindow;
 @class SparkView;
+@class MTLRenderPassColorAttachmentDescriptor;
 
 // Protocols
 typedef id<MTLBuffer> MTLBufferPtr;
@@ -34,6 +35,7 @@ typedef id<MTLCommandBuffer> MTLCommandBufferPtr;
 typedef MTLRenderPassDescriptor* MTLRenderPassDescriptorPtr;
 typedef NSWindow* NSWindowPtr;
 typedef SparkView* SparkViewPtr;
+typedef MTLRenderPassColorAttachmentDescriptor* MTLRenderPassColorAttachmentDescriptorPtr;
 
 #else
 // Protocols
@@ -45,6 +47,7 @@ typedef void* MTLRenderCommandEncoderPtr;
 typedef void* RenderPipelineStatePtr;
 typedef void* MTLTexturePtr;
 typedef void* MTLCommandBufferPtr;
+typedef void* MTLRenderPassColorAttachmentDescriptorPtr;
 
 // Classes
 typedef void* MTLRenderPassDescriptorPtr;

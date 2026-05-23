@@ -139,13 +139,13 @@ namespace se::editor
         auto* renderer = render::Renderer::Get<render::Renderer>();
         m_OffscreenRenderGroup = renderer->AllocRenderGroup(0);
         renderer->SetFrameBuffer(m_OffscreenRenderGroup, m_FrameBuffer);
-        renderer->Submit<render::commands::Clear>(m_OffscreenRenderGroup, true, true);
+        renderer->Submit<render::commands::Clear>(m_OffscreenRenderGroup, true, true, math::Vec4(0.1f, 0.1f, 0.1f, 1.0f));
 
         if (m_Mode == EditorMode::Prefab)
         {
             m_PrefabRenderGroup = renderer->AllocRenderGroup(0);
             renderer->SetFrameBuffer(m_PrefabRenderGroup, m_PrefabFrameBuffer);
-            renderer->Submit<render::commands::Clear>(m_PrefabRenderGroup, true, true);
+            renderer->Submit<render::commands::Clear>(m_PrefabRenderGroup, true, true, math::Vec4(0.2f, 0.2f, 0.6f, 1.0f));
         }
     }
 

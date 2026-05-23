@@ -17,7 +17,7 @@ namespace se::render::commands
 {
     void Clear::Execute()
     {
-        // nothing to do here
+        Renderer::Get<metal::MetalRenderer>()->SetClearColour(m_Colour);
     }
 
     void SubmitGeo::Execute()

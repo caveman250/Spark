@@ -67,5 +67,14 @@ namespace se::render::metal
     {
         return true;
     }
+
+    void MetalRenderer::SetClearColour(const math::Vec4& colour)
+    {
+        auto* frameBuffer = m_RenderGroups[m_ActiveRenderGroup].frameBuffer.get();
+        if (frameBuffer)
+        {
+            return static_cast<metal::FrameBuffer*>(frameBuffer)->SetClearColour(colour);
+        }
+    }
 }
 #endif

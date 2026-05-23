@@ -41,7 +41,7 @@ namespace se::render::commands
     class Clear : public RenderCommand
     {
     public:
-        Clear(bool clearColour, bool clearDepth);
+        Clear(bool clearColour, bool clearDepth, const math::Vec4& colour);
         void Execute() override;
 
         RenderStage GetRenderStage() const override { return RenderStage::Clear; }
@@ -50,6 +50,7 @@ namespace se::render::commands
     private:
         bool m_ClearColour = {};
         bool m_ClearDepth = {};
+        math::Vec4 m_Colour = {};
     };
 
     class SubmitGeo : public RenderCommand

@@ -23,7 +23,7 @@ namespace se::render::commands
             mask |= GL_DEPTH_BUFFER_BIT;
         }
 
-        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+        glClearColor(m_Colour.x, m_Colour.y, m_Colour.z, m_Colour.w);
         GL_CHECK_ERROR()
         glClear(mask);
         GL_CHECK_ERROR()

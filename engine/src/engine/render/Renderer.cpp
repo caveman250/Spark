@@ -44,7 +44,7 @@ namespace se::render
         EASY_BLOCK("Renderer::Update");
         m_LightSetup.Reset();
         m_DefaultRenderGroup = AllocRenderGroup(0);
-        Submit<commands::Clear>(true, true);
+        Submit<commands::Clear>(true, true, math::Vec4(0.1f, 0.1f, 0.1f, 1.f));
     }
 
     void Renderer::Render()

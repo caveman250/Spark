@@ -29,11 +29,11 @@ namespace se::render::metal
         auto renderer = Renderer::Get<MetalRenderer>();
         MTLRenderPassDescriptor* desc = [[MTLRenderPassDescriptor alloc] init];
 
-        MTLRenderPassColorAttachmentDescriptor* colorAttachment = [[desc colorAttachments] objectAtIndexedSubscript:0];
+        m_ColourAttachmentDescriptor = [[desc colorAttachments] objectAtIndexedSubscript:0];
         const auto& colorTextureResource = static_pointer_cast<TextureResource>(m_ColorTexture->GetPlatformResource());
-        [colorAttachment setTexture:colorTextureResource->GetMetalResource()];
-        [colorAttachment setClearColor:MTLClearColorMake(0, 0, 0, 1)];
-        [colorAttachment setLoadAction:MTLLoadActionClear];
+        [m_ColourAttachmentDescriptor setTexture:colorTextureResource->GetMetalResource()];
+        [m_ColourAttachmentDescriptor setClearColor:MTLClearColorMake(m_ClearColour.x, m_ClearColour.y, m_ClearColour.z, m_ClearColour.w)];
+        [m_ColourAttachmentDescriptor setLoadAction:MTLLoadActionClear];
 
         MTLRenderPassDepthAttachmentDescriptor* depthAttachment = [desc depthAttachment];
         const auto& depthTextureResource = static_pointer_cast<TextureResource>(m_DepthTexture->GetPlatformResource());
@@ -58,5 +58,11 @@ namespace se::render::metal
     {
         [m_RenderCommandEncoder endEncoding];
         [m_CommandBuffer commit];
+    }
+
+    void FrameBuffer::SetClearColour(const math::Vec4& colour)
+    {
+        // TODO currently doesnt apply until next frame.
+        m_ClearColour = colour;
     }
 }

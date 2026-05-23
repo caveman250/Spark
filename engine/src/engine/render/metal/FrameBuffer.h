@@ -26,6 +26,8 @@ namespace se::render::metal
             return m_RenderCommandEncoder;
         }
 
+        void SetClearColour(const math::Vec4& colour);
+
     private:
         void PreRender() override;
         void Bind() override;
@@ -34,6 +36,8 @@ namespace se::render::metal
 
         MTLCommandBufferPtr m_CommandBuffer = nullptr;
         MTLRenderCommandEncoderPtr m_RenderCommandEncoder = nullptr;
+        MTLRenderPassColorAttachmentDescriptorPtr m_ColourAttachmentDescriptor = nullptr;
+        math::Vec4 m_ClearColour = {};
     };
 }
 

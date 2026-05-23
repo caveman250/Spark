@@ -6,9 +6,11 @@
 namespace se::render::commands
 {
     Clear::Clear(const bool clearColour,
-                 const bool clearDepth)
+                 const bool clearDepth,
+                 const math::Vec4& colour)
         : m_ClearColour(clearColour)
         , m_ClearDepth(clearDepth)
+        , m_Colour(colour)
     {
     }
 
