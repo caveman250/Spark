@@ -167,8 +167,9 @@ namespace se::render::systems
 
                 size_t baseRenderGroup = defaultRenderGroup;
 #if SPARK_EDITOR
-                if (*entities[i].scene == editor->GetPrefabEditorScene() ||
-                    (*entities[i].scene == editor->GetEditorScene() && editor->GetMode() == editor::EditorMode::Prefab))
+                const ecs::Id& scene = *entities[i].scene;
+                if (scene == editor->GetPrefabEditorScene() ||
+                    (scene == editor->GetEditorScene() && editor->GetMode() == editor::EditorMode::Prefab))
                 {
                     baseRenderGroup = editor->GetPrefabRenderGroup();
                 }
