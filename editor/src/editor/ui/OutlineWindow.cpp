@@ -158,8 +158,26 @@ namespace se::editor::ui
                 };
                 params.AddOption("Create Entity", []()
                 {
-                    auto editor = Application::Get()->GetEditor();
-                    Application::Get()->GetWorld()->CreateEntity(editor->GetLoadedScene(), "New Entity");
+                    struct CreateEntityState
+                    {
+                        ecs::Id entity;
+                    };
+                    Transactions::Get()->PushAction<CreateEntityState>([]()
+                    {
+                        auto* app = Application::Get();
+                        auto* world = app->GetWorld();
+                        auto editor = app->GetEditor();
+                        const auto& entity = world->CreateEntity(editor->GetLoadedScene(), "New Entity");
+                        auto* state = Transactions::Get()->GetRedoState<CreateEntityState>();
+                        state->entity = entity;
+                    },
+                    []()
+                    {
+                        auto* app = Application::Get();
+                        auto* world = app->GetWorld();
+                        auto* state = Transactions::Get()->GetUndoState<CreateEntityState>();
+                        world->DestroyEntity(state->entity);
+                    });
                 });
 
                 se::ui::util::CreateContextMenu(params);
