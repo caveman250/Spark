@@ -158,10 +158,6 @@ namespace se::editor::ui
                 };
                 params.AddOption("Create Entity", []()
                 {
-                    struct CreateEntityState
-                    {
-                        ecs::Id entity;
-                    };
                     Transactions::Get()->PushAction<CreateEntityState>([]()
                     {
                         auto* app = Application::Get();
@@ -238,7 +234,28 @@ namespace se::editor::ui
                             ecs::Id entity = world->InstantiatePrefab(scene, prefab);
                             state->entity = entity;
                         }, entity);
-                    })
+                    }),
+                std::make_pair("Add Child",
+                    [entity]()
+                    {
+                        Transactions::Get()->PushAction<CreateEntityState>([entity]()
+                        {
+                            auto* app = Application::Get();
+                            auto* world = app->GetWorld();
+                            auto editor = app->GetEditor();
+                            const auto& child = world->CreateEntity(editor->GetLoadedScene(), "New Child");
+                            world->AddChild(entity, child);
+                            auto* state = Transactions::Get()->GetRedoState<CreateEntityState>();
+                            state->entity = child;
+                        },
+                        []()
+                        {
+                            auto* app = Application::Get();
+                            auto* world = app->GetWorld();
+                            auto* state = Transactions::Get()->GetUndoState<CreateEntityState>();
+                            world->DestroyEntity(state->entity);
+                        });
+                    }),
             },
         };
         auto treeNode = se::ui::util::InsertTreeNode(params);

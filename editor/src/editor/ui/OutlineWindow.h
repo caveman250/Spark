@@ -15,6 +15,11 @@ namespace se::ui::components
 
 namespace se::editor::ui
 {
+    struct CreateEntityState
+    {
+        ecs::Id entity;
+    };
+
     class OutlineWindow : public ToolWindow
     {
     public:
