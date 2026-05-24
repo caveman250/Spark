@@ -7,6 +7,7 @@ from src import Namespace
 from src import Class
 from src import Enum
 from src import Log
+from src import Signal
 
 def ProcessHeaders():
     components = []
@@ -59,6 +60,7 @@ def ProcessHeaders():
     finalised_reflected_classes = {}
     class_heirachy_map = {}
     template_instantiations = []
+    signals_list = set()
 
     for dir in source_dirs:
         source_dir = dir.strip()
@@ -81,7 +83,10 @@ def ProcessHeaders():
                     with open(path, 'r') as file:
                         lines = file.readlines()
                         lineCount = len(lines)
+                        prev_line = ""
                         for i in range(0, lineCount):
+                            if i > 0:
+                                prev_line = lines[i - 1].strip()
                             line = lines[i].strip()
                             if line.startswith("SPARK_WIDGET_COMPONENT"):
                                 Class.ProcessClass("SPARK_WIDGET_COMPONENT", line, class_stack)
@@ -145,7 +150,14 @@ def ProcessHeaders():
                                                                  class_list,
                                                                  using_namespace_stack,
                                                                  source_dir)
-
+                            elif prev_line.startswith("SPARK_MEMBER") and (line.startswith("se::ecs::Signal<") or line.startswith("::se::ecs::Signal<") or line.startswith("ecs::Signal<") or line.startswith("Signal<")):
+                                Signal.ProcessSignal(line,
+                                                     template_instantiations,
+                                                     namespace_stack,
+                                                     root + "/" + file_path,
+                                                     class_list,
+                                                     using_namespace_stack,
+                                                     source_dir)
                             for char in line:
                                 if char == "{":
                                     current_scope_depth += 1

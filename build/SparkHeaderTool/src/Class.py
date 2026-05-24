@@ -139,9 +139,15 @@ def FindRealClassType(type, class_list, end_of_file_namespace_index, using_names
     if type.startswith("std::"):
         return type
 
+    is_pointer = False
+    if type.endswith("*"):
+        is_pointer = True
+        type = type[0:-1]
+
     while class_list.count(type) == 0:
         type = RemoveNamespaceAtIndex(type, end_of_file_namespace_index)
         type = RemoveTemplateParams(type)
+        print(type)
         end_of_file_namespace_index -= 1
         if end_of_file_namespace_index <= 0:
             break #no more to remove
@@ -154,6 +160,9 @@ def FindRealClassType(type, class_list, end_of_file_namespace_index, using_names
                 if class_list.count(namespace + "::" + type) != 0:
                     type = namespace + "::" + type
                     break
+
+    if is_pointer:
+        type += "*"
     return type
 
 def CountNamespaces(namespace_str):
@@ -1190,7 +1199,7 @@ def DefineTemplateClass(classobj, full_name, classes, base_class_map):
         output_handle.write(contents)
         output_handle.close()
 
-def WriteTemplateInstantiations(template_instantiations, classes):
+def WriteTemplateInstantiations(template_instantiations, classes, enums):
     instantiation_files = dict()
     for template_instantiation in template_instantiations:
         namespace_text = template_instantiation.namespace.replace("::", "_")
@@ -1200,22 +1209,12 @@ def WriteTemplateInstantiations(template_instantiations, classes):
         if full_output_path in instantiation_files:
             contents += instantiation_files[full_output_path]
         else:
-            contents += f"#include \"spark.h\"\n#include \"engine/reflect/Reflect.h\"\n#include \"{template_instantiation.filepath}\"\n"
+            contents += f"#include \"spark.h\"\n#include \"engine/reflect/Reflect.h\"\n#include \"engine/ecs/Signal.h\"\n#include \"{template_instantiation.filepath}\"\n"
 
-        includes = list()
         for template_type in template_instantiation.template_types:
-            template_pure_type = RemoveTemplateParams(template_type)
-            if template_pure_type in classes:
-                if includes.count(classes[template_pure_type].path) == 0:
-                    includes.append(classes[template_pure_type].path)
-            template_params = GetTemplateTypes(template_type)
-            for template_param in template_params:
-                if template_param in classes:
-                    if includes.count(classes[template_param].path) == 0:
-                        includes.append(classes[template_param].path)
-
-        for include in includes:
-            contents += f"#include \"{include}\"\n"
+            template_type_class_obj = GetClass(template_type, classes, enums)
+            if template_type_class_obj is not None:
+                contents += f"#include \"{template_type_class_obj.path}\"\n"
 
         template_types_str = ",".join(template_instantiation.template_types)
         contents += f"static auto SPARK_CAT({template_instantiation.class_name}Reflection, __COUNTER__) = {template_instantiation.namespace}::{template_instantiation.class_name}<{template_types_str}>::GetReflection();\n"
@@ -1250,4 +1249,4 @@ def WriteClassFiles(classes, enum_list, base_class_map, template_instantiations)
             else:
                 DefineClass(classobj, full_name, classes, base_class_map, template_instantiations)
 
-    WriteTemplateInstantiations(template_instantiations, classes)
+    WriteTemplateInstantiations(template_instantiations, classes, enum_list)
