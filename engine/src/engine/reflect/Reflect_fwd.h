@@ -14,10 +14,10 @@
     public:               \
     static size_t s_StaticId;                          \
     static constexpr bool s_IsPOD = false;\
-    virtual reflect::Type* GetReflectType() const override;\
-    virtual void Serialize(const void* obj, asset::binary::Object& parentObj, const std::string& fieldName) override;\
-    virtual void Deserialize(void* obj, asset::binary::Object& parentObj, const std::string& fieldName) override;\
-    virtual asset::binary::StructLayout GetStructLayout(const void*) const override;\
+    virtual se::reflect::Type* GetReflectType() const override;\
+    virtual void Serialize(const void* obj, se::asset::binary::Object& parentObj, const std::string& fieldName) override;\
+    virtual void Deserialize(void* obj, se::asset::binary::Object& parentObj, const std::string& fieldName) override;\
+    virtual se::asset::binary::StructLayout GetStructLayout(const void*) const override;\
     virtual std::string GetTypeName() const override;\
     virtual void Invoke(const std::string&, const std::vector<std::any>&) override;\
     static se::reflect::Class* GetReflection(); \

@@ -532,34 +532,34 @@ def GetFullnameFromClassObject(class_obj: Class):
     return class_obj.name
 
 def DefineNonPODType(class_name):
-    return f"""static_assert(std::is_convertible<{class_name}*, se::reflect::ObjectBase*>::value, "Reflectable types must inherit from reflect::ObjectBase");
+    return f"""static_assert(std::is_convertible<{class_name}*, se::reflect::ObjectBase*>::value, "Reflectable types must inherit from se::reflect::ObjectBase");
     size_t {class_name}::s_StaticId = typeid({class_name}).hash_code();\n"""
 
 def DefineAbstractClassBegin(classobj, derived_types):
 
-    return DefineNonPODType(classobj.name) + f"""\n    reflect::Type* {classobj.name}::GetReflectType() const
+    return DefineNonPODType(classobj.name) + f"""\n    se::reflect::Type* {classobj.name}::GetReflectType() const
     {{
-        return reflect::TypeResolver<{classobj.name}>::Get();
+        return se::reflect::TypeResolver<{classobj.name}>::Get();
     }}
     
-    void {classobj.name}::Serialize(const void* obj, asset::binary::Object& parentObj, const std::string& fieldName)
+    void {classobj.name}::Serialize(const void* obj, se::asset::binary::Object& parentObj, const std::string& fieldName)
     {{
-        reflect::TypeResolver<{classobj.name}>::Get()->Serialize(obj, parentObj, fieldName);
+        se::reflect::TypeResolver<{classobj.name}>::Get()->Serialize(obj, parentObj, fieldName);
     }}
     
-    void {classobj.name}::Deserialize(void* obj, asset::binary::Object& parentObj, const std::string& fieldName)
+    void {classobj.name}::Deserialize(void* obj, se::asset::binary::Object& parentObj, const std::string& fieldName)
     {{
-        reflect::TypeResolver<{classobj.name}>::Get()->Deserialize(obj, parentObj, fieldName);
+        se::reflect::TypeResolver<{classobj.name}>::Get()->Deserialize(obj, parentObj, fieldName);
     }}
     
-    asset::binary::StructLayout {classobj.name}::GetStructLayout(const void*) const
+    se::asset::binary::StructLayout {classobj.name}::GetStructLayout(const void*) const
     {{
-        return reflect::TypeResolver<{classobj.name}>::Get()->GetStructLayout(nullptr);
+        return se::reflect::TypeResolver<{classobj.name}>::Get()->GetStructLayout(nullptr);
     }}
     
     std::string {classobj.name}::GetTypeName() const
     {{
-        return reflect::TypeResolver<{classobj.name}>::Get()->GetTypeName(nullptr);
+        return se::reflect::TypeResolver<{classobj.name}>::Get()->GetTypeName(nullptr);
     }}
     
     se::reflect::Class* {classobj.name}::GetReflection()
@@ -577,8 +577,8 @@ def DefineAbstractClassBegin(classobj, derived_types):
             s_Reflection->inplace_copy_constructor = nullptr;
             s_Reflection->inplace_move_constructor = nullptr;
             s_Reflection->destructor = nullptr;
-            s_Reflection->get_derived_types = []() -> const std::vector<reflect::Type*>& {{
-                static std::vector<reflect::Type*> types = {{ 
+            s_Reflection->get_derived_types = []() -> const std::vector<se::reflect::Type*>& {{
+                static std::vector<se::reflect::Type*> types = {{ 
                     {derived_types} 
                 }};
                 return types;
@@ -601,29 +601,29 @@ def DefineClassBeginCommon(class_name, is_pod, is_copyable, derived_types):
 
     ret = ""
     if not is_pod:
-        ret += f"""\n    reflect::Type* {class_name}::GetReflectType() const
+        ret += f"""\n    se::reflect::Type* {class_name}::GetReflectType() const
     {{
-        return reflect::TypeResolver<{class_name}>::Get();
+        return se::reflect::TypeResolver<{class_name}>::Get();
     }}
     
-    void {class_name}::Serialize(const void* obj, asset::binary::Object& parentObj, const std::string& fieldName)
+    void {class_name}::Serialize(const void* obj, se::asset::binary::Object& parentObj, const std::string& fieldName)
     {{
-        reflect::TypeResolver<{class_name}>::Get()->Serialize(obj, parentObj, fieldName);
+        se::reflect::TypeResolver<{class_name}>::Get()->Serialize(obj, parentObj, fieldName);
     }}
     
-    void {class_name}::Deserialize(void* obj, asset::binary::Object& parentObj, const std::string& fieldName)
+    void {class_name}::Deserialize(void* obj, se::asset::binary::Object& parentObj, const std::string& fieldName)
     {{
-        reflect::TypeResolver<{class_name}>::Get()->Deserialize(obj, parentObj, fieldName);
+        se::reflect::TypeResolver<{class_name}>::Get()->Deserialize(obj, parentObj, fieldName);
     }}
     
-    asset::binary::StructLayout {class_name}::GetStructLayout(const void*) const
+    se::asset::binary::StructLayout {class_name}::GetStructLayout(const void*) const
     {{
-        return reflect::TypeResolver<{class_name}>::Get()->GetStructLayout(nullptr);
+        return se::reflect::TypeResolver<{class_name}>::Get()->GetStructLayout(nullptr);
     }}
     
     std::string {class_name}::GetTypeName() const
     {{
-        return reflect::TypeResolver<{class_name}>::Get()->GetTypeName(nullptr);
+        return se::reflect::TypeResolver<{class_name}>::Get()->GetTypeName(nullptr);
     }}\n\n"""
     ret += f"""    se::reflect::Class* {class_name}::GetReflection() 
     {{
@@ -637,8 +637,8 @@ def DefineClassBeginCommon(class_name, is_pod, is_copyable, derived_types):
             s_Reflection->has_default_constructor = std::is_default_constructible<{class_name}>::value; 
             CreateDefaultConstructorMethods<{class_name}>(s_Reflection);
             {copy_constructors}
-            s_Reflection->get_derived_types = []() -> const std::vector<reflect::Type*>&  {{
-                static std::vector<reflect::Type*> types = {{ {derived_types} }};
+            s_Reflection->get_derived_types = []() -> const std::vector<se::reflect::Type*>&  {{
+                static std::vector<se::reflect::Type*> types = {{ {derived_types} }};
                 return types;
             }};
             s_Reflection->destructor = [](void* data){{ reinterpret_cast<{class_name}*>(data)->~{class_name}(); }};
@@ -703,33 +703,33 @@ def DefineTemplateClassBegin(class_name, template_types, template_params):
     size_t {class_name}<{template_types}>::s_StaticId = typeid({class_name}<{template_types}>).hash_code();
     
     template <{template_params}>
-    reflect::Type* {class_name}<{template_types}>::GetReflectType() const
+    se::reflect::Type* {class_name}<{template_types}>::GetReflectType() const
     {{
-        return reflect::TypeResolver<{class_name}<{template_types}>>::Get();
+        return se::reflect::TypeResolver<{class_name}<{template_types}>>::Get();
     }}
     
     template <{template_params}>
-    void {class_name}<{template_types}>::Serialize(const void* obj, asset::binary::Object& parentObj, const std::string& fieldName) 
+    void {class_name}<{template_types}>::Serialize(const void* obj, se::asset::binary::Object& parentObj, const std::string& fieldName) 
     {{
-        reflect::TypeResolver<{class_name}<{template_types}>>::Get()->Serialize(obj, parentObj, fieldName); 
+        se::reflect::TypeResolver<{class_name}<{template_types}>>::Get()->Serialize(obj, parentObj, fieldName); 
     }}
     
     template <{template_params}>
-    void {class_name}<{template_types}>::Deserialize(void* obj, asset::binary::Object& parentObj, const std::string& fieldName) 
+    void {class_name}<{template_types}>::Deserialize(void* obj, se::asset::binary::Object& parentObj, const std::string& fieldName) 
     {{
-        reflect::TypeResolver<{class_name}<{template_types}>>::Get()->Deserialize(obj, parentObj, fieldName); 
+        se::reflect::TypeResolver<{class_name}<{template_types}>>::Get()->Deserialize(obj, parentObj, fieldName); 
     }}
     
     template <{template_params}>
-    asset::binary::StructLayout {class_name}<{template_types}>::GetStructLayout(const void*) const 
+    se::asset::binary::StructLayout {class_name}<{template_types}>::GetStructLayout(const void*) const 
     {{
-        return reflect::TypeResolver<{class_name}<{template_types}>>::Get()->GetStructLayout(nullptr); 
+        return se::reflect::TypeResolver<{class_name}<{template_types}>>::Get()->GetStructLayout(nullptr); 
     }}
     
     template <{template_params}>
     std::string {class_name}<{template_types}>::GetTypeName() const 
     {{
-        return reflect::TypeResolver<{class_name}<{template_types}>>::Get()->GetTypeName(nullptr); 
+        return se::reflect::TypeResolver<{class_name}<{template_types}>>::Get()->GetTypeName(nullptr); 
     }}
     
     template <{template_params}>
@@ -773,29 +773,29 @@ def DefineComponentBegin(class_name, is_copyable, derived_types):
 
 def DefineSystemBegin(class_name):
     ret = f"    " + DefineNonPODType(class_name) + f"    se::ecs::Id {class_name}::s_SystemId = {{}};\n"
-    ret += f"""\n    reflect::Type* {class_name}::GetReflectType() const
+    ret += f"""\n    se::reflect::Type* {class_name}::GetReflectType() const
     {{
-        return reflect::TypeResolver<{class_name}>::Get();
+        return se::reflect::TypeResolver<{class_name}>::Get();
     }}
     
-    void {class_name}::Serialize(const void* obj, asset::binary::Object& parentObj, const std::string& fieldName)
+    void {class_name}::Serialize(const void* obj, se::asset::binary::Object& parentObj, const std::string& fieldName)
     {{
-        reflect::TypeResolver<{class_name}>::Get()->Serialize(obj, parentObj, fieldName);
+        se::reflect::TypeResolver<{class_name}>::Get()->Serialize(obj, parentObj, fieldName);
     }}
     
-    void {class_name}::Deserialize(void* obj, asset::binary::Object& parentObj, const std::string& fieldName)
+    void {class_name}::Deserialize(void* obj, se::asset::binary::Object& parentObj, const std::string& fieldName)
     {{
-        reflect::TypeResolver<{class_name}>::Get()->Deserialize(obj, parentObj, fieldName);
+        se::reflect::TypeResolver<{class_name}>::Get()->Deserialize(obj, parentObj, fieldName);
     }}
     
-    asset::binary::StructLayout {class_name}::GetStructLayout(const void*) const
+    se::asset::binary::StructLayout {class_name}::GetStructLayout(const void*) const
     {{
-        return reflect::TypeResolver<{class_name}>::Get()->GetStructLayout(nullptr);
+        return se::reflect::TypeResolver<{class_name}>::Get()->GetStructLayout(nullptr);
     }}
     
     std::string {class_name}::GetTypeName() const
     {{
-        return reflect::TypeResolver<{class_name}>::Get()->GetTypeName(nullptr);
+        return se::reflect::TypeResolver<{class_name}>::Get()->GetTypeName(nullptr);
     }}
     
     bool {class_name}::ImplementsUpdateMethod() const
