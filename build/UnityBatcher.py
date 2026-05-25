@@ -17,7 +17,7 @@ def parse_conf_file(path):
 
     return root, excluded_files, output_dir
 
-def write_output_files(files, file_extension, root, root_dir, output_dir):
+def write_output_files(files, file_extension, root, root_dir, output_dir, files_accounted_for):
     file_counter = 0
     for new_file in files:
         new_name = root.replace(root_dir, "src/")
@@ -32,19 +32,21 @@ def write_output_files(files, file_extension, root, root_dir, output_dir):
             new_name += f".unity.{file_extension}"
 
         old_contents = ""
-        if os.path.exists(output_dir + new_name):
-            old_file_handle = open(output_dir + new_name)
+        full_path = os.path.abspath(output_dir + new_name)
+        files_accounted_for.add(full_path)
+        if os.path.exists(full_path):
+            old_file_handle = open(full_path)
             old_contents = old_file_handle.read()
             old_file_handle.close()
 
         if old_contents != new_file:
             print(f"-- -- -- stale file {new_name}")
-            output_handle = open(output_dir + new_name, "w+")
+            output_handle = open(full_path, "w+")
             output_handle.write(new_file)
             output_handle.close()
         file_counter += 1
 
-def process_excluded_file(excluded_name, output_dir):
+def process_excluded_file(excluded_name, output_dir, files_accounted_for):
     new_name = excluded_name.replace("/", "_")
     new_name = new_name.replace("//", "_")
     new_name = new_name.replace("\\", "_")
@@ -53,14 +55,16 @@ def process_excluded_file(excluded_name, output_dir):
     new_name = new_name_split[0] + ".unity." + new_name_split[1]
 
     old_contents = ""
-    if os.path.exists(output_dir + new_name):
-        old_file_handle = open(output_dir + new_name)
+    full_path = os.path.abspath(output_dir + new_name)
+    files_accounted_for.add(full_path)
+    if os.path.exists(full_path):
+        old_file_handle = open(full_path)
         old_contents = old_file_handle.read()
         old_file_handle.close()
 
     if old_contents != f"#include \"{excluded_name}\"":
         print(f"-- -- -- stale file {new_name}")
-        output_handle = open(output_dir + new_name, "w+")
+        output_handle = open(full_path, "w+")
         output_handle.write(f"#include \"{excluded_name}\"")
         output_handle.close()
 
@@ -83,6 +87,7 @@ def create_unity_files(conf_path, platform):
     if not os.path.exists(output_dir):
         os.mkdir(output_dir)
 
+    files_accounted_for = set()
     for root, dirs, files in os.walk(root_dir):
         cpp_file_index = 0
         cpp_file_counter = 0
@@ -104,7 +109,7 @@ def create_unity_files(conf_path, platform):
                     break
 
             if excluded:
-                process_excluded_file(excluded_name, output_dir)
+                process_excluded_file(excluded_name, output_dir, files_accounted_for)
                 continue
 
             if file.endswith(".cpp"):
@@ -127,8 +132,15 @@ def create_unity_files(conf_path, platform):
                     objc_file_index += 1
                     objc_file_counter = 0
 
-        write_output_files(new_cpp_files, "cpp", root, root_dir, output_dir)
-        write_output_files(new_objc_files, "mm", root, root_dir, output_dir)
+        write_output_files(new_cpp_files, "cpp", root, root_dir, output_dir, files_accounted_for)
+        write_output_files(new_objc_files, "mm", root, root_dir, output_dir, files_accounted_for)
+
+    for file in os.scandir(output_dir):
+        if file.is_file():
+            abspath = os.path.abspath(file.path)
+            if not abspath in files_accounted_for:
+                print(f"-- -- -- removing extraneous unity file: {abspath}")
+                os.remove(file.path)
 
 def main():
     conf_file = sys.argv[1]
