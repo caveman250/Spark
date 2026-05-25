@@ -872,7 +872,7 @@ def GetClass(class_name, classes, enum_list):
 
     return None
 
-def CreateClassInstantiationFiles(source_dirs, enum_list, classes, template_instantiations):
+def CreateClassInstantiationFiles(source_dirs, enum_list, classes, template_instantiations, files_accounted_for):
     for src_dir in source_dirs:
         if not os.path.exists(src_dir):
             os.mkdir(src_dir)
@@ -880,6 +880,7 @@ def CreateClassInstantiationFiles(source_dirs, enum_list, classes, template_inst
         project_name = src_dir.split('/')[-4]
         init_members_h_content = f"#pragma once\nnamespace se\n{{\nvoid {project_name}_InitClassReflection();\n}}"
         output_path = src_dir + "Classes.generated.h"
+        files_accounted_for.add(os.path.abspath(output_path))
         existing_contents = ""
 
         if os.path.isfile(output_path):
@@ -930,6 +931,7 @@ def CreateClassInstantiationFiles(source_dirs, enum_list, classes, template_inst
         init_members_cpp_content += "}\n}"
 
         output_path = src_dir + "Classes.generated.cpp"
+        files_accounted_for.add(os.path.abspath(output_path))
         existing_contents = ""
         if os.path.isfile(output_path):
             input_handle = open(output_path, "r")
@@ -942,13 +944,14 @@ def CreateClassInstantiationFiles(source_dirs, enum_list, classes, template_inst
             output_handle.write(init_members_cpp_content)
             output_handle.close()
 
-def CreateSystemInstantiationFiles(source_dirs, classes):
+def CreateSystemInstantiationFiles(source_dirs, classes, files_accounted_for):
     for src_dir in source_dirs:
         if not os.path.exists(src_dir):
             os.mkdir(src_dir)
         project_name = src_dir.split('/')[-4]
         init_members_h_content = f"#pragma once\nnamespace se\n{{\nvoid {project_name}_InitSystems(ecs::World* world);\n}}"
         output_path = src_dir + "Systems.generated.h"
+        files_accounted_for.add(os.path.abspath(output_path))
         existing_contents = ""
         if os.path.isfile(output_path):
             input_handle = open(output_path, "r")
@@ -995,6 +998,7 @@ def CreateSystemInstantiationFiles(source_dirs, classes):
         init_systems_cpp_content += "}\n}"
 
         output_path = src_dir + "Systems.generated.cpp"
+        files_accounted_for.add(os.path.abspath(output_path))
         existing_contents = ""
         if os.path.isfile(output_path):
             input_handle = open(output_path, "r")
@@ -1006,7 +1010,7 @@ def CreateSystemInstantiationFiles(source_dirs, classes):
             output_handle.write(init_systems_cpp_content)
             output_handle.close()
 
-def DefineClass(classobj, full_name, classes, base_class_map, template_instantiations):
+def DefineClass(classobj, full_name, classes, base_class_map, template_instantiations, files_accounted_for):
     contents = f"#include \"spark.h\"\n#include \"engine/reflect/Reflect.h\"\n#include \"{classobj.path}\"\n"
 
     includes = []
@@ -1127,6 +1131,7 @@ def DefineClass(classobj, full_name, classes, base_class_map, template_instantia
 
     namespace_text = classobj.namespace.replace("::", "_")
     output_path = classobj.project_src_dir + f"{namespace_text}_{classobj.name}.generated.cpp"
+    files_accounted_for.add(os.path.abspath(output_path))
     existing_contents = ""
     if os.path.isfile(output_path):
         input_handle = open(output_path, "r")
@@ -1138,7 +1143,7 @@ def DefineClass(classobj, full_name, classes, base_class_map, template_instantia
         output_handle.write(contents)
         output_handle.close()
 
-def DefineTemplateClass(classobj, full_name, classes, base_class_map):
+def DefineTemplateClass(classobj, full_name, classes, base_class_map, files_accounted_for):
     contents = f"#pragma once\n\nnamespace {classobj.namespace}\n{{\n"
 
     template_params = ",".join(classobj.template_params)
@@ -1185,6 +1190,7 @@ def DefineTemplateClass(classobj, full_name, classes, base_class_map):
 
     namespace_text = classobj.namespace.replace("::", "_")
     output_path = classobj.project_src_dir + f"{namespace_text}_{classobj.name}.generated.h"
+    files_accounted_for.add(os.path.abspath(output_path))
     if not os.path.exists(classobj.project_src_dir):
         os.mkdir(classobj.project_src_dir)
     existing_contents = ""
@@ -1198,7 +1204,7 @@ def DefineTemplateClass(classobj, full_name, classes, base_class_map):
         output_handle.write(contents)
         output_handle.close()
 
-def WriteTemplateInstantiations(template_instantiations, classes, enums):
+def WriteTemplateInstantiations(template_instantiations, classes, enums, files_accounted_for):
     instantiation_files = dict()
     for template_instantiation in template_instantiations:
         namespace_text = template_instantiation.namespace.replace("::", "_")
@@ -1221,6 +1227,7 @@ def WriteTemplateInstantiations(template_instantiations, classes, enums):
 
     for path, contents in instantiation_files.items():
         output_path = path
+        files_accounted_for.add(os.path.abspath(output_path))
         existing_contents = ""
         if os.path.isfile(output_path):
             input_handle = open(output_path, "r")
@@ -1233,19 +1240,19 @@ def WriteTemplateInstantiations(template_instantiations, classes, enums):
             output_handle.write(contents)
             output_handle.close()
 
-def WriteClassFiles(classes, enum_list, base_class_map, template_instantiations):
+def WriteClassFiles(classes, enum_list, base_class_map, template_instantiations, files_accounted_for):
     source_dirs = set()
     for full_name, class_obj in classes.items():
         source_dirs.add(class_obj.project_src_dir)
 
-    CreateClassInstantiationFiles(source_dirs, enum_list, classes, template_instantiations)
-    CreateSystemInstantiationFiles(source_dirs, classes)
+    CreateClassInstantiationFiles(source_dirs, enum_list, classes, template_instantiations, files_accounted_for)
+    CreateSystemInstantiationFiles(source_dirs, classes, files_accounted_for)
 
     for full_name, classobj in classes.items():
         if classobj.is_reflected:
             if classobj.is_template:
-                DefineTemplateClass(classobj, full_name, classes, base_class_map)
+                DefineTemplateClass(classobj, full_name, classes, base_class_map, files_accounted_for)
             else:
-                DefineClass(classobj, full_name, classes, base_class_map, template_instantiations)
+                DefineClass(classobj, full_name, classes, base_class_map, template_instantiations, files_accounted_for)
 
-    WriteTemplateInstantiations(template_instantiations, classes, enum_list)
+    WriteTemplateInstantiations(template_instantiations, classes, enum_list, files_accounted_for)

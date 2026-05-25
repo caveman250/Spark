@@ -102,7 +102,7 @@ def WriteWidgetVariant():
     ret += "\ntypedef std::variant<SPARK_WIDGET_CONST_POINTER_TYPES> ConstWidgetVariant;"
     return ret
 
-def WriteWidgetHeader(widget_list):
+def WriteWidgetHeader(widget_list, files_accounted_for):
     contents = "#pragma once\n\n#include \"spark.h\"\n"
 
     contents += IncludeWidgetFiles(widget_list)
@@ -111,6 +111,7 @@ def WriteWidgetHeader(widget_list):
 
     output_dir = "../../engine/src/generated/"
     output_path = "../../engine/src/generated/Widgets.generated.h"
+    files_accounted_for.add(os.path.abspath(output_path))
     if not os.path.exists(output_dir):
         os.mkdir(output_dir)
 

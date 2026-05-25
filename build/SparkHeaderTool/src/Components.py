@@ -25,11 +25,12 @@ def ProcessSingletonComponent(components, path, class_stack):
     editor_only = class_stack[-1].editor_only
     components.append(ComponentFile(os.path.abspath(path), type, namespace, dev_only, editor_only))
 
-def WriteComponentsFile(components):
+def WriteComponentsFile(components, files_accounted_for):
     output_dir = "../../engine/src/generated/"
 
     header = f"#pragma once\n\nnamespace se::ecs\n{{\n\tstatic constexpr size_t NumComponents = {len(components)};\n\tclass World;\n\tvoid RegisterComponents(World* world);\n}}"
     output_path = output_dir + "Components.generated.h"
+    files_accounted_for.add(os.path.abspath(output_path))
     if not os.path.exists(output_dir):
         os.mkdir(output_dir)
 
@@ -66,6 +67,7 @@ def WriteComponentsFile(components):
     cpp += "\t}\n"
     cpp += "}\n"
     output_path = output_dir + "Components.generated.cpp"
+    files_accounted_for.add(os.path.abspath(output_path))
     if not os.path.exists(output_dir):
         os.mkdir(output_dir)
 

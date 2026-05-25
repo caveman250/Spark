@@ -171,10 +171,27 @@ def ProcessHeaders():
                                         namespace_stack.pop()
                                     current_scope_depth -= 1
 
-    Widgets.WriteWidgetHeader(widgets)
-    Components.WriteComponentsFile(components)
-    Class.WriteClassFiles(finalised_reflected_classes, enum_list, class_heirachy_map, template_instantiations)
-    Enum.WriteEnumFiles(enum_list)
+    files_accounted_for = set()
+    print("-- -- Pass 2: Write widgets header...")
+    Widgets.WriteWidgetHeader(widgets, files_accounted_for)
+    print("-- -- Pass 2: Write components file...")
+    Components.WriteComponentsFile(components, files_accounted_for)
+    print("-- -- Pass 2: Write class files...")
+    Class.WriteClassFiles(finalised_reflected_classes, enum_list, class_heirachy_map, template_instantiations, files_accounted_for)
+    print("-- -- Pass 2: Write enum files...")
+    Enum.WriteEnumFiles(enum_list, files_accounted_for)
+
+    for dir in source_dirs:
+        source_dir = dir.strip()
+        if not source_dir.endswith("/") and not source_dir.endswith("\\"):
+            source_dir += "/"
+        source_dir += "generated/"
+        for file in os.scandir(source_dir):
+            if file.is_file():
+                if not file.path in files_accounted_for:
+                    print(f"-- -- Pass 2: Removing extraneous generated file: {file.path}")
+                    os.remove(file.path)
+
     Log.Msg("Pass 2: Done.")
     return 0
 
