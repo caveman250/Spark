@@ -147,7 +147,6 @@ def FindRealClassType(type, class_list, end_of_file_namespace_index, using_names
     while class_list.count(type) == 0:
         type = RemoveNamespaceAtIndex(type, end_of_file_namespace_index)
         type = RemoveTemplateParams(type)
-        print(type)
         end_of_file_namespace_index -= 1
         if end_of_file_namespace_index <= 0:
             break #no more to remove

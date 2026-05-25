@@ -21,8 +21,9 @@ def ProcessSignal(line, template_instantiations, namespace_stack, filepath, clas
         if line[i] == '<':
             num_open_template_params += 1
         elif line[i] == '>':
-            current_template_type += line[i]
-            num_open_template_params -= 1
+            if num_open_template_params > 0:
+                current_template_type += line[i]
+                num_open_template_params -= 1
             if num_open_template_params == 0:
                 template_types.append(current_template_type)
                 current_template_type = ""
@@ -31,10 +32,6 @@ def ProcessSignal(line, template_instantiations, namespace_stack, filepath, clas
         if line[i] == ',' and num_open_template_params == 0:
             template_types.append(current_template_type)
             current_template_type = ""
-        elif line[i] == '>' and num_open_template_params == 0:
-            if len(current_template_type) > 0:
-                template_types.append(current_template_type)
-            break
         else:
             current_template_type += line[i]
 
