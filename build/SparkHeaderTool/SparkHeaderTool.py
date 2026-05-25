@@ -172,13 +172,9 @@ def ProcessHeaders():
                                     current_scope_depth -= 1
 
     files_accounted_for = set()
-    print("-- -- Pass 2: Write widgets header...")
     Widgets.WriteWidgetHeader(widgets, files_accounted_for)
-    print("-- -- Pass 2: Write components file...")
     Components.WriteComponentsFile(components, files_accounted_for)
-    print("-- -- Pass 2: Write class files...")
     Class.WriteClassFiles(finalised_reflected_classes, enum_list, class_heirachy_map, template_instantiations, files_accounted_for)
-    print("-- -- Pass 2: Write enum files...")
     Enum.WriteEnumFiles(enum_list, files_accounted_for)
 
     for dir in source_dirs:
