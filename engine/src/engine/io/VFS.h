@@ -37,6 +37,8 @@ namespace se::io
         void Copy(const std::string& src, const std::string& dest);
         void Rename(const std::string& src, const std::string& dest);
         bool Delete(const std::string& path);
+        void CreateFolder(const std::string& path);
+        bool IsFolder(const std::string& path);
 
         void ForEachFile(const std::string& dirPath, bool recursive, const std::function<void(const VFSFile&)>& func, bool parallel = false, bool sorted = false);
 

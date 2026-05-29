@@ -201,6 +201,12 @@ namespace se::editor::ui::asset_browser
                     SetActiveFolder(m_ActiveFolder, false);
                     SelectFile(fileName);
                 });
+                params.AddOption("Create Folder", [this]()
+                {
+                    const std::string folderName = m_ActiveFolder + "/new_folder";
+                    io::VFS::Get().CreateFolder(folderName);
+                    SetActiveFolder(m_ActiveFolder, false);
+                });
 
                 se::ui::util::CreateContextMenu(params);
             }

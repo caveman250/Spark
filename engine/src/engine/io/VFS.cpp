@@ -142,6 +142,26 @@ namespace se::io
         return false;
     }
 
+    void VFS::CreateFolder(const std::string& path)
+    {
+        auto fsPath = ResolveFSPath(path, true);
+        if (fsPath.has_value() && !std::filesystem::exists(fsPath.value()))
+        {
+            std::filesystem::create_directory(fsPath.value());
+        }
+    }
+
+    bool VFS::IsFolder(const std::string& path)
+    {
+        auto fsPath = ResolveFSPath(path, false);
+        if (fsPath.has_value())
+        {
+            return std::filesystem::is_directory(fsPath.value());
+        }
+
+        return false;
+    }
+
     std::optional<std::string> VFS::ResolveFSPath(const std::string& vfsPath, bool allowMissing)
     {
         for (const auto& mount : m_Mounts)

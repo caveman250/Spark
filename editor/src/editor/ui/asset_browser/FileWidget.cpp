@@ -223,14 +223,22 @@ namespace se::editor::ui::asset_browser
         auto* app = Application::Get();
         auto* editor = app->GetEditor();
         auto* assetManager = asset::AssetManager::Get();
+        auto& vfs = io::VFS::Get();
 
-        const std::string newPath = std::format("{}/{}.sass", file.dir, newName);
-        const auto db = asset::binary::Database::Load(file.fullPath.data(), true);
-        const auto asset = assetManager->GetAsset(file.fullPath.data(), reflect::TypeFromString(db->GetRoot().GetStruct().GetName()));
-        editor->RenameAsset(asset, newPath);
-        if (editor->GetSelectedAsset() == asset)
+        if (file.isDirectory)
         {
-            SelectFile(newPath);
+            vfs.Rename(file.fullPath, std::format("{}/{}", file.dir, newName));
+        }
+        else
+        {
+            const std::string newPath = std::format("{}/{}.sass", file.dir, newName);
+            const auto db = asset::binary::Database::Load(file.fullPath.data(), true);
+            const auto asset = assetManager->GetAsset(file.fullPath.data(), reflect::TypeFromString(db->GetRoot().GetStruct().GetName()));
+            editor->RenameAsset(asset, newPath);
+            if (editor->GetSelectedAsset() == asset)
+            {
+                SelectFile(newPath);
+            }
         }
     }
 

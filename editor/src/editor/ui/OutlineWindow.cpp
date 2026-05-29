@@ -243,7 +243,7 @@ namespace se::editor::ui
                             auto* app = Application::Get();
                             auto* world = app->GetWorld();
                             auto editor = app->GetEditor();
-                            const auto& child = world->CreateEntity(editor->GetLoadedScene(), "New Child");
+                            const auto& child = world->CreateEntity(editor->GetMode() == EditorMode::Prefab ? editor->GetPrefabEditorScene() : editor->GetLoadedScene(), "New Child");
                             world->AddChild(entity, child);
                             auto* state = Transactions::Get()->GetRedoState<CreateEntityState>();
                             state->entity = child;
