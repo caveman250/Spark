@@ -433,6 +433,7 @@ namespace se::editor
 
             db->Save(asset->m_Path);
             io::VFS::Get().WriteText(asset->m_SourcePath, db->ToJson().dump(4));
+            asset::AssetManager::Get()->ForceReloadAsset(asset->m_Path, asset->GetReflectType());
         }
     }
 
