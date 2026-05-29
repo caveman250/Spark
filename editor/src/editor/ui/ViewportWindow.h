@@ -23,6 +23,7 @@ namespace se::editor::ui
 
 
     private:
+        void HandleDragDrop();
         void UpdatePlayButtonTexture() const;
         void UpdatePauseButtonTexture() const;
 

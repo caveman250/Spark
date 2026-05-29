@@ -1,9 +1,16 @@
 #include "ViewportWindow.h"
+
+#include "editor/singleton_components/DragDropStateComponent.h"
+#include "editor/util/ViewportUtil.h"
 #include "engine/Application.h"
 #include "engine/asset/AssetManager.h"
+#include "engine/ecs/components/TransformComponent.h"
+#include "engine/geo/util/CollisionUtil.h"
+#include "engine/input/InputUtil.h"
 #include "engine/render/FrameBuffer.h"
 #include "engine/render/MaterialInstance.h"
 #include "engine/render/render_fwd.h"
+#include "engine/string/util/StringUtil.h"
 #include "engine/ui/components/ButtonComponent.h"
 #include "engine/ui/components/ImageComponent.h"
 #include "engine/ui/components/RectTransformComponent.h"
@@ -12,6 +19,7 @@
 #include "engine/ui/components/WidgetComponent.h"
 #include "engine/ui/components/WindowComponent.h"
 #include "engine/ui/util/WindowUtil.h"
+#include "engine/camera/ActiveCameraComponent.h"
 
 namespace se::editor::ui
 {
@@ -61,6 +69,8 @@ namespace se::editor::ui
             UpdatePlayButtonTexture();
             m_ShouldToggleGameMode = false;
         }
+
+        HandleDragDrop();
     }
 
     void ViewportWindow::ConstructUI()
@@ -214,6 +224,56 @@ namespace se::editor::ui
     void ViewportWindow::DestroyUI()
     {
         m_Valid = false;
+    }
+
+    void ViewportWindow::HandleDragDrop()
+    {
+        auto* app = Application::Get();
+        auto* world = app->GetWorld();
+        auto* editor = app->GetEditor();
+
+        auto* viewportRect = world->GetComponent<se::ui::components::RectTransformComponent>(m_Viewport);
+
+        auto* dragDropState = world->GetSingletonComponent<singleton_components::DragDropStateComponent>();
+        if (!dragDropState->dragDropAsset)
+        {
+            return;
+        }
+
+        auto* inputComp = world->GetSingletonComponent<input::InputComponent>();
+        if (viewportRect->rect.Contains(math::IntVec2(inputComp->mouseX, inputComp->mouseY)))
+        {
+            if (!input::InputUtil::IsMouseButtonDown(inputComp, input::MouseButton::Left))
+            {
+                if (dragDropState->dragDropAsset->GetReflectType() == reflect::TypeResolver<ecs::Prefab>::Get())
+                {
+                    ecs::Id prefab = world->InstantiatePrefab(editor->GetLoadedScene(), std::static_pointer_cast<ecs::Prefab>(dragDropState->dragDropAsset));
+                    auto* transform = world->GetComponent<ecs::components::TransformComponent>(prefab);
+                    if (transform)
+                    {
+                        auto* cameraComp = world->GetSingletonComponent<camera::ActiveCameraComponent>();
+                        auto ray = util::GetEditorMouseRay(inputComp, cameraComp);
+                        math::Vec3 forward(cos(cameraComp->rot.x) * sin(cameraComp->rot.y),
+                                           sin(cameraComp->rot.x),
+                                           cos(cameraComp->rot.x) * cos(cameraComp->rot.y));
+                        geo::Plane plane =
+                        {
+                            .normal = { 0.f, 1.f, 0.f },
+                            .center = cameraComp->pos + forward * 20
+                        };
+                        auto hit = geo::util::RayCastPlane(ray, plane);
+                        if (hit.has_value())
+                        {
+                            transform->pos = hit.value().intersectionPoint;
+                        }
+                        else
+                        {
+                            transform->pos = {};
+                        }
+                    }
+                }
+            }
+        }
     }
 
     void ViewportWindow::UpdatePlayButtonTexture() const
