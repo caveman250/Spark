@@ -18,6 +18,7 @@ namespace se::asset
         AssetReference(const std::string& path);
         AssetReference(const char* path);
         void Set(const std::string& path);
+        void Reset();
         bool IsSet() const { return !m_AssetPath.empty(); }
         bool Loaded() const { return m_Instance.get() != nullptr; }
         const std::shared_ptr<T>& GetAsset() const;
@@ -64,6 +65,13 @@ namespace se::asset
         {
             m_Instance = nullptr;
         }
+    }
+
+    template<typename T>
+    void AssetReference<T>::Reset()
+    {
+        m_AssetPath = {};
+        m_Instance = nullptr;
     }
 
     template<typename T>

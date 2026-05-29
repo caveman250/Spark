@@ -11,10 +11,13 @@
 #include "engine/asset/texture/Texture.h"
 #include "engine/ecs/SceneSaveData.h"
 #include "engine/input/InputComponent.h"
+#include "engine/ui/components/ButtonComponent.h"
 #include "engine/ui/components/ImageComponent.h"
 #include "engine/ui/components/RectTransformComponent.h"
 #include "engine/ui/components/TextComponent.h"
 #include "engine/ui/components/WidgetComponent.h"
+#include "engine/ui/util/ContextMenuUtil.h"
+#include "editor/Transactions.h"
 
 namespace se::editor::ui::properties
 {
@@ -33,6 +36,7 @@ namespace se::editor::ui::properties
         void SetupIconAndText(TextComponent* text, ImageComponent* image);
 
         asset::AssetReference<T>* m_Value = nullptr;
+        asset::AssetReference<T> m_OldVal = {};
         ecs::Id m_Root = {};
         ecs::Id m_Label = {};
         ecs::Id m_Icon = {};
@@ -55,6 +59,7 @@ namespace se::editor::ui::properties
         const reflect::Type*)
     {
         m_Value = static_cast<asset::AssetReference<T>*>(value);
+        m_OldVal = *m_Value;
     }
 
     inline std::string GetAssetName(const std::string& path)
@@ -123,6 +128,39 @@ namespace se::editor::ui::properties
         textRect->minY = borderSize + 8;
         textRect->maxY = borderSize;
         world->AddChild(innerImageEntity, m_Label);
+
+        auto* input = world->GetSingletonComponent<input::InputComponent>();
+        auto button = world->CreateEntity(editor->GetEditorScene(), "Button");
+        auto* buttonTransform = world->AddComponent<RectTransformComponent>(button);
+        buttonTransform->anchors = { 0.f, 1.f, 0.f, 1.f };
+        auto* buttonComp = world->AddComponent<ButtonComponent>(button);
+        buttonComp->onReleased.Subscribe([input, value = m_Value](input::MouseButton button, bool)
+        {
+            if (button == input::MouseButton::Right)
+            {
+                se::ui::util::ContextMenuParams params = {
+                    .fontSize = 14,
+                    .mousePos = { input->mouseX, input->mouseY },
+                    .scene = Application::Get()->GetEditor()->GetEditorScene()
+                };
+                params.AddOption("Reset", [value]()
+                {
+                    auto oldVal = *value;
+                    Transactions::Get()->PushAction([value]()
+                    {
+                        value->Reset();
+                    },
+                    [value, oldVal]()
+                    {
+                        *value = oldVal;
+                    });
+                });
+                se::ui::util::CreateContextMenu(params);
+            }
+        });
+        auto* buttonWidget = world->AddComponent<WidgetComponent>(button);
+        buttonWidget->visibility = se::ui::Visibility::Hidden;
+        world->AddChild(m_Root, button);
     }
 
     template<typename T>
@@ -142,56 +180,56 @@ namespace se::editor::ui::properties
             {
                 image->materialInstance->SetUniform("uniform_color", 1, &s_DefaultColor);
             }
-
-            return;
         }
-
-        auto* rootRect = world->GetComponent<RectTransformComponent>(m_Root);
-        if (rootRect->rect.Contains(math::IntVec2(inputComp->mouseX, inputComp->mouseY)))
+        else
         {
-            bool isValid = dragDropState->dragDropAsset->GetReflectType() == T::GetReflection();
-            if (!m_IsHighlighted)
+            auto* rootRect = world->GetComponent<RectTransformComponent>(m_Root);
+            if (rootRect->rect.Contains(math::IntVec2(inputComp->mouseX, inputComp->mouseY)))
             {
-                m_IsHighlighted = true;
+                bool isValid = dragDropState->dragDropAsset->GetReflectType() == T::GetReflection();
+                if (!m_IsHighlighted)
+                {
+                    m_IsHighlighted = true;
+                    if (isValid)
+                    {
+                        image->materialInstance->SetUniform("uniform_color", 1, &s_GreenColor);
+                    }
+                    else
+                    {
+                        image->materialInstance->SetUniform("uniform_color", 1, &s_RedColor);
+                    }
+                }
+
                 if (isValid)
                 {
-                    image->materialInstance->SetUniform("uniform_color", 1, &s_GreenColor);
-                }
-                else
-                {
-                    image->materialInstance->SetUniform("uniform_color", 1, &s_RedColor);
+                    if (inputComp->mouseButtonStates[static_cast<int>(se::input::MouseButton::Left)] != se::input::KeyState::Down)
+                    {
+                        std::string currentAsset = m_Value->GetAssetPath();
+                        std::string newAsset = dragDropState->dragDropAsset->m_Path;
+                        Transactions::Get()->PushAction([this, newAsset]()
+                        {
+                            m_Value->Set(newAsset);
+                        },
+                        [currentAsset, this]()
+                        {
+                            m_Value->Set(currentAsset);
+                        });
+                    }
                 }
             }
-
-            if (isValid)
+            else if (m_IsHighlighted)
             {
-                if (inputComp->mouseButtonStates[static_cast<int>(se::input::MouseButton::Left)] != se::input::KeyState::Down)
-                {
-                    std::string currentAsset = m_Value->GetAssetPath();
-                    std::string newAsset = dragDropState->dragDropAsset->m_Path;
-                    Transactions::Get()->PushAction([this, newAsset, world]()
-                    {
-                        m_Value->Set(newAsset);
-
-                        auto* iconImage = world->GetComponent<ImageComponent>(m_Icon);
-                        auto* text = world->GetComponent<TextComponent>(m_Label);
-                        SetupIconAndText(text, iconImage);
-                    },
-                    [currentAsset, this, world]()
-                    {
-                        m_Value->Set(currentAsset);
-
-                        auto* iconImage = world->GetComponent<ImageComponent>(m_Icon);
-                        auto* text = world->GetComponent<TextComponent>(m_Label);
-                        SetupIconAndText(text, iconImage);
-                    });
-                }
+                image->materialInstance->SetUniform("uniform_color", 1, &s_DefaultColor);
+                m_IsHighlighted = false;
             }
         }
-        else if (m_IsHighlighted)
+
+        if (m_Value && *m_Value != m_OldVal)
         {
-            image->materialInstance->SetUniform("uniform_color", 1, &s_DefaultColor);
-            m_IsHighlighted = false;
+            auto* iconImage = world->GetComponent<ImageComponent>(m_Icon);
+            auto* text = world->GetComponent<TextComponent>(m_Label);
+            SetupIconAndText(text, iconImage);
+            m_OldVal = *m_Value;
         }
     }
 
