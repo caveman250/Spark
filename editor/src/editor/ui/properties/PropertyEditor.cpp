@@ -206,6 +206,8 @@ namespace se::editor::ui::properties
 
             se::ui::util::BeginEditingText(nullptr, GetTitleId(), *text, *keyInput);
             text->editText = editText;
+            text->selectionEnd = static_cast<int>(text->editText.size());
+            text->selectionStart = 0;
             auto* mouseInput = world->GetComponent<se::ui::components::MouseInputComponent>(GetTitleId());
             se::ui::util::SetEditTextMouseInputEnabled(mouseInput, true);
             se::ui::util::SetCaretPos(*text, static_cast<int>(text->editText.size()));
