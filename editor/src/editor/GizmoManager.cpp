@@ -239,7 +239,14 @@ namespace se::editor
         gizmo->axis = axis;
         gizmo->onRotate.Subscribe([this, axis](const float angle)
         {
-            UpdateSelectedEntityRotation(axis, angle);
+            Transactions::Get()->PushAction([this, axis, angle]()
+            {
+                UpdateSelectedEntityRotation(axis, angle);
+            },
+            [this, axis, angle]()
+            {
+                UpdateSelectedEntityRotation(axis, -angle);
+            });
         });
         gizmo->onBeginRotate.Subscribe([this, axis]
         {
