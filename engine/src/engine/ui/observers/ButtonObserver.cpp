@@ -8,6 +8,7 @@
 #include "engine/ui/components/ImageComponent.h"
 #include "engine/ui/components/MouseInputComponent.h"
 #include "engine/ui/components/WidgetComponent.h"
+#include "engine/ui/components/RectTransformComponent.h"
 
 namespace se::ui::observers
 {
@@ -31,6 +32,11 @@ namespace se::ui::observers
         if (!world->HasComponent<components::WidgetComponent>(entity))
         {
             world->AddComponent<components::WidgetComponent>(entity);
+        }
+
+        if (!world->HasComponent<components::RectTransformComponent>(entity))
+        {
+            world->AddComponent<components::RectTransformComponent>(entity);
         }
     }
 
