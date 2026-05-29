@@ -54,11 +54,12 @@ namespace se::render
 
     const std::shared_ptr<Material>& MaterialInstance::GetMaterial()
     {
-        if (!m_MaterialHandle && m_Material.IsSet())
+        if (m_MaterialHandle)
         {
-            m_MaterialHandle = m_Material.GetAsset();
+            return m_MaterialHandle;
         }
-        return m_MaterialHandle;
+
+        return m_Material.IsSet() ? m_Material.GetAsset() : m_MaterialHandle;
     }
 
     MaterialInstance::MaterialInstance(const asset::AssetReference<Material>& material)

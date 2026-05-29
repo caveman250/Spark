@@ -33,6 +33,8 @@ namespace se::render
         template <typename T>
         const T* GetUniform(const std::string& name);
 
+        UniformStorage& GetUniforms() { return m_UniformStorage; }
+
         const std::shared_ptr<Material>& GetMaterial();
         const std::shared_ptr<MaterialInstancePlatformResources>& GetPlatformResources() const { return m_PlatformResources; }
 
