@@ -23,6 +23,9 @@ namespace se::editor::ui::properties
 
     private:
         std::string CreateEditorName(size_t i, reflect::Type* type) const;
+        void RecreateElements();
+        void CreateElements();
+        void DestroyElements();
         void InstantiateElementUI(size_t i);
         void DestroyElementUI(size_t i);
         void* m_Value = nullptr;
@@ -31,5 +34,6 @@ namespace se::editor::ui::properties
         ecs::Id m_VerticalBox = ecs::InvalidEntity;
         ecs::Id m_EmptyItem = ecs::InvalidEntity;
         static std::shared_ptr<VectorEditor> s_StaticInstance;
+        size_t m_CachedVectorSize = 0;
     };
 }

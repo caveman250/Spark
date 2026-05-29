@@ -72,30 +72,16 @@ namespace se::editor::ui::properties
         newButton->image = "/engine_assets/textures/editor_plus.sass";
         newButton->pressedImage = "/engine_assets/textures/editor_plus.sass";
         newButton->hoveredImage = "/engine_assets/textures/editor_plus.sass";
-        newButton->onReleased.Subscribe([this, world](input::MouseButton, bool)
+        newButton->onReleased.Subscribe([this](input::MouseButton, bool)
         {
             size_t newIndex = m_VectorType->GetNumContainedElements(m_Value);
-            Transactions::Get()->PushAction([this, world, newIndex]()
+            Transactions::Get()->PushAction([this]()
             {
                 m_VectorType->AddElement(m_Value);
-                InstantiateElementUI(newIndex);
-                auto* transform = world->GetComponent<RectTransformComponent>(m_VerticalBox);
-                transform->needsLayout = true;
-                se::ui::util::InvalidateParent(m_VerticalBox, nullptr);
-
-                if (m_EmptyItem != ecs::InvalidEntity)
-                {
-                    world->DestroyEntity(m_EmptyItem);
-                    m_EmptyItem = ecs::InvalidEntity;
-                }
             },
-            [this, world, newIndex]()
+            [this, newIndex]()
             {
                 m_VectorType->RemoveElementByIndex(m_Value, newIndex);
-                DestroyElementUI(newIndex);
-                auto* transform = world->GetComponent<RectTransformComponent>(m_VerticalBox);
-               transform->needsLayout = true;
-               se::ui::util::InvalidateParent(m_VerticalBox, nullptr);
             });
 
         });
@@ -105,6 +91,45 @@ namespace se::editor::ui::properties
         newButtonRect->maxY = 15;
         world->AddChild(buttonContainer, newButtonEntity);
 
+        CreateElements();
+        m_CachedVectorSize = m_VectorType->GetNumContainedElements(m_Value);
+    }
+
+    void VectorEditor::Update()
+    {
+        for (const auto& editor : m_Editors)
+        {
+            editor->Update();
+        }
+
+        size_t vectorSize = m_VectorType->GetNumContainedElements(m_Value);
+        if (m_CachedVectorSize != vectorSize)
+        {
+            RecreateElements();
+            m_CachedVectorSize = vectorSize;
+        }
+    }
+
+    std::string VectorEditor::CreateEditorName(size_t i, reflect::Type* type) const
+    {
+        return std::format("{}: {}", i, type->GetTypeName(m_VectorType->GetContainedValueByIndex(m_Value, i)));
+    }
+
+    void VectorEditor::RecreateElements()
+    {
+        DestroyElements();
+        CreateElements();
+
+        auto* transform = Application::Get()->GetWorld()->GetComponent<RectTransformComponent>(m_VerticalBox);
+        transform->needsLayout = true;
+        se::ui::util::InvalidateParent(m_VerticalBox, nullptr);
+    }
+
+    void VectorEditor::CreateElements()
+    {
+        auto* app = Application::Get();
+        auto* editor = app->GetEditor();
+        auto* world = app->GetWorld();
         size_t numElements = m_VectorType->GetNumContainedElements(m_Value);
         if (numElements == 0)
         {
@@ -130,17 +155,20 @@ namespace se::editor::ui::properties
         }
     }
 
-    void VectorEditor::Update()
+    void VectorEditor::DestroyElements()
     {
+        auto* world = Application::Get()->GetWorld();
+        if (m_EmptyItem != ecs::InvalidEntity)
+        {
+            world->DestroyEntity(m_EmptyItem);
+            m_EmptyItem = ecs::InvalidEntity;
+        }
+
         for (const auto& editor : m_Editors)
         {
-            editor->Update();
+            editor->DestroyUI();
         }
-    }
-
-    std::string VectorEditor::CreateEditorName(size_t i, reflect::Type* type) const
-    {
-        return std::format("{}: {}", i, type->GetTypeName(m_VectorType->GetContainedValueByIndex(m_Value, i)));
+        m_Editors.clear();
     }
 
     void VectorEditor::InstantiateElementUI(size_t i)
@@ -169,7 +197,7 @@ namespace se::editor::ui::properties
             .withBackground = false,
             .constructTitle = true,
             .contextOptions = {
-                std::make_pair("Delete", [this, world, obj, containedType]()
+                std::make_pair("Delete", [this, obj]()
                 {
                     auto it = std::ranges::find_if(m_Editors,
                         [obj](const auto& propEd){ return propEd->GetValue() == obj; });
@@ -178,45 +206,13 @@ namespace se::editor::ui::properties
                         size_t index = it - m_Editors.begin();
                         std::any oldVal = m_VectorType->GetContainedValueByIndexCopy(m_Value, index);
 
-                        Transactions::Get()->PushAction([weakthis = weak_from_this(), index, containedType, world, vectorType = m_VectorType, value = m_Value]()
+                        Transactions::Get()->PushAction([weakthis = weak_from_this(), index, vectorType = m_VectorType, value = m_Value]()
                         {
                             vectorType->RemoveElementByIndex(value, index);
-
-                            if (!weakthis.expired())
-                            {
-                                auto strongThis = std::static_pointer_cast<VectorEditor>(weakthis.lock());
-                                auto it = strongThis->m_Editors[index];
-
-                                it->DestroyUI();
-                                strongThis->m_Editors.erase(strongThis->m_Editors.begin() + index);
-                                for (size_t j = index; j < strongThis->m_Editors.size(); ++j)
-                                {
-                                    strongThis->m_Editors[j]->UpdateName(strongThis->CreateEditorName(j, containedType));
-                                }
-
-                                auto* transform = world->GetComponent<RectTransformComponent>(strongThis->m_VerticalBox);
-                                transform->needsLayout = true;
-                                se::ui::util::InvalidateParent(strongThis->m_VerticalBox, nullptr);
-                            }
                         },
-                        [weakthis = weak_from_this(), vectorType = m_VectorType, value = m_Value, index, oldVal, world]()
+                        [weakthis = weak_from_this(), vectorType = m_VectorType, value = m_Value, index, oldVal]()
                         {
                             vectorType->AddElementAtIndex(value, oldVal, index);
-
-                            if (!weakthis.expired())
-                            {
-                                auto strongThis = std::static_pointer_cast<VectorEditor>(weakthis.lock());
-                                strongThis->InstantiateElementUI(index);
-                                auto* transform = world->GetComponent<RectTransformComponent>(strongThis->m_VerticalBox);
-                                transform->needsLayout = true;
-                                se::ui::util::InvalidateParent(strongThis->m_VerticalBox, nullptr);
-
-                                if (strongThis->m_EmptyItem != ecs::InvalidEntity)
-                                {
-                                    world->DestroyEntity(strongThis->m_EmptyItem);
-                                    strongThis->m_EmptyItem = ecs::InvalidEntity;
-                                }
-                            }
                         });
                     }
                 })
@@ -234,7 +230,7 @@ namespace se::editor::ui::properties
             m_Editors.insert(m_Editors.begin() + i, propertyEditor);
         }
 
-        world->InsertChild(m_VerticalBox, entity, i);
+        world->InsertChild(m_VerticalBox, entity, i + 1);
     }
 
     void VectorEditor::DestroyElementUI(const size_t i)
