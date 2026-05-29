@@ -15,7 +15,7 @@ namespace se::editor::ui::properties
         PropertyTitleMode GetDefaultTitleMode() const override { return PropertyTitleMode::NextLine; }
         void Update() override;
 
-    private:
+    protected:
         void* m_Value = nullptr;
         const se::reflect::Class* m_Type = nullptr;
         std::vector<std::shared_ptr<PropertyEditor>> m_Editors;

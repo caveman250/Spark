@@ -40,6 +40,8 @@ namespace se::render
 
         const UniformStorage& GetUniformDefaults();
 
+        const std::vector<asset::AssetReference<asset::Shader>>& GetVertShaders() const { return m_VertShaders; }
+        const std::vector<asset::AssetReference<asset::Shader>>& GetFragShaders() const { return m_FragShaders; }
         const std::map<std::string, asset::shader::ast::Variable>& GetVertUniforms() const { return m_VertUniforms; }
         const std::map<std::string, asset::shader::ast::Variable>& GetFragUniforms() const { return m_FragUniforms; }
 
