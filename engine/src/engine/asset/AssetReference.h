@@ -27,6 +27,7 @@ namespace se::asset
         void operator=(const std::string& path);
         void operator=(const char* path);
         void operator=(const AssetReference<T>& rhs);
+        void operator=(const std::shared_ptr<T>& rhs);
         bool operator==(const std::shared_ptr<Asset>& asset) const;
         bool operator==(const AssetReference<T>& asset) const;
 
@@ -109,6 +110,13 @@ namespace se::asset
     {
         this->m_AssetPath = rhs.m_AssetPath;
         this->m_Instance = rhs.m_Instance;
+    }
+
+    template<typename T>
+    void AssetReference<T>::operator=(const std::shared_ptr<T>& rhs)
+    {
+        m_AssetPath = rhs->m_Path;
+        m_Instance = rhs;
     }
 
     template<typename T>

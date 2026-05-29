@@ -4,6 +4,10 @@
 #include "editor/util/ViewportUtil.h"
 #include "engine/Application.h"
 #include "engine/asset/AssetManager.h"
+#include "engine/asset/mesh/Model.h"
+#include "engine/asset/mesh/StaticMesh.h"
+#include "engine/camera/ActiveCameraComponent.h"
+#include "engine/ecs/components/MeshComponent.h"
 #include "engine/ecs/components/TransformComponent.h"
 #include "engine/geo/util/CollisionUtil.h"
 #include "engine/input/InputUtil.h"
@@ -19,7 +23,6 @@
 #include "engine/ui/components/WidgetComponent.h"
 #include "engine/ui/components/WindowComponent.h"
 #include "engine/ui/util/WindowUtil.h"
-#include "engine/camera/ActiveCameraComponent.h"
 
 namespace se::editor::ui
 {
@@ -245,31 +248,45 @@ namespace se::editor::ui
         {
             if (!input::InputUtil::IsMouseButtonDown(inputComp, input::MouseButton::Left))
             {
+                ecs::Id entity = ecs::InvalidEntity;
                 if (dragDropState->dragDropAsset->GetReflectType() == reflect::TypeResolver<ecs::Prefab>::Get())
                 {
-                    ecs::Id prefab = world->InstantiatePrefab(editor->GetLoadedScene(), std::static_pointer_cast<ecs::Prefab>(dragDropState->dragDropAsset));
-                    auto* transform = world->GetComponent<ecs::components::TransformComponent>(prefab);
-                    if (transform)
+                    entity = world->InstantiatePrefab(editor->GetLoadedScene(), std::static_pointer_cast<ecs::Prefab>(dragDropState->dragDropAsset));
+                }
+                else if (dragDropState->dragDropAsset->GetReflectType() == reflect::TypeResolver<asset::Model>::Get())
+                {
+                    auto modelAsset = std::static_pointer_cast<asset::Model>(dragDropState->dragDropAsset);
+                    entity = world->CreateEntity(editor->GetLoadedScene(), dragDropState->dragDropAsset->GetName());
+                    auto* mesh = world->AddComponent<ecs::components::MeshComponent>(entity);
+                    mesh->model = modelAsset;
+                    if (!modelAsset->HasMaterial())
                     {
-                        auto* cameraComp = world->GetSingletonComponent<camera::ActiveCameraComponent>();
-                        auto ray = util::GetEditorMouseRay(inputComp, cameraComp);
-                        math::Vec3 forward(cos(cameraComp->rot.x) * sin(cameraComp->rot.y),
-                                           sin(cameraComp->rot.x),
-                                           cos(cameraComp->rot.x) * cos(cameraComp->rot.y));
-                        geo::Plane plane =
-                        {
-                            .normal = { 0.f, 1.f, 0.f },
-                            .center = cameraComp->pos + forward * 20
-                        };
-                        auto hit = geo::util::RayCastPlane(ray, plane);
-                        if (hit.has_value())
-                        {
-                            transform->pos = hit.value().intersectionPoint;
-                        }
-                        else
-                        {
-                            transform->pos = {};
-                        }
+                        mesh->materialAsset = "/engine_assets/materials/M_DefaultLitNoTexture.sass";
+                    }
+                    world->AddComponent<ecs::components::TransformComponent>(entity);
+                }
+
+                auto* transform = world->GetComponent<ecs::components::TransformComponent>(entity);
+                if (transform)
+                {
+                    auto* cameraComp = world->GetSingletonComponent<camera::ActiveCameraComponent>();
+                    auto ray = util::GetEditorMouseRay(inputComp, cameraComp);
+                    math::Vec3 forward(cos(cameraComp->rot.x) * sin(cameraComp->rot.y),
+                                       sin(cameraComp->rot.x),
+                                       cos(cameraComp->rot.x) * cos(cameraComp->rot.y));
+                    geo::Plane plane =
+                    {
+                        .normal = { 0.f, 1.f, 0.f },
+                        .center = cameraComp->pos + forward * 15.8
+                    };
+                    auto hit = geo::util::RayCastPlane(ray, plane);
+                    if (hit.has_value())
+                    {
+                        transform->pos = hit.value().intersectionPoint;
+                    }
+                    else
+                    {
+                        transform->pos = {};
                     }
                 }
             }

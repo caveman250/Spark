@@ -19,6 +19,7 @@ namespace se::asset
         virtual bool UsesMetaData() const { return false; }
         virtual std::shared_ptr<meta::MetaData> CreateMetaData() const { return nullptr; }
         virtual std::string GetSourceFileExtension() const { return ".json"; }
+        std::string GetName() const;
 
         SPARK_MEMBER(Serialized)
         std::string m_SourcePath = {};

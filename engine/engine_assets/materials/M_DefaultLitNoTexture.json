@@ -1,0 +1,181 @@
+{
+    "structs": [
+        {
+            "Material": {
+                "m_FragShaders": "Array",
+                "m_RenderState": "Object",
+                "m_ShaderSettings": "Object",
+                "m_SourcePath": "String",
+                "m_UniformDefaults": "Object",
+                "m_VertShaders": "Array"
+            }
+        },
+        {
+            "AssetReference<Shader>": {
+                "m_AssetPath": "String"
+            }
+        },
+        {
+            "RenderState": {
+                "cullMode": "String",
+                "depthComp": "String",
+                "depthWrite": "bool",
+                "dstBlend": "String",
+                "lit": "bool",
+                "srcBlend": "String",
+                "stencilFunc": "String",
+                "stencilReadMask": "Uint32",
+                "stencilWriteMask": "Uint32"
+            }
+        },
+        {
+            "ShaderSettings": {
+                "m_Settings": "Array"
+            }
+        },
+        {
+            "Internal_MapItemString_Object": {
+                "key": "String",
+                "value": "Object"
+            }
+        },
+        {
+            "ShaderSettingDefinition<Vec4>": {
+                "m_Value": "Object"
+            }
+        },
+        {
+            "Vec4": {
+                "w": "Float",
+                "x": "Float",
+                "y": "Float",
+                "z": "Float"
+            }
+        },
+        {
+            "ShaderSettingDefinition<Vec3>": {
+                "m_Value": "Object"
+            }
+        },
+        {
+            "Vec3": {
+                "x": "Float",
+                "y": "Float",
+                "z": "Float"
+            }
+        },
+        {
+            "ShaderSettingDefinition<int32_t>": {
+                "m_Value": "Int32"
+            }
+        },
+        {
+            "UniformStorage": {
+                "m_Storage": "Array"
+            }
+        }
+    ],
+    "root": {
+        "Material": {
+            "m_VertShaders": {
+                "struct": "AssetReference<Shader>",
+                "contents": [
+                    {
+                        "AssetReference<Shader>": {
+                            "m_AssetPath": "/engine_assets/shaders/uber_vertex.sass"
+                        }
+                    }
+                ]
+            },
+            "m_FragShaders": {
+                "struct": "AssetReference<Shader>",
+                "contents": [
+                    {
+                        "AssetReference<Shader>": {
+                            "m_AssetPath": "/engine_assets/shaders/flat_color.sass"
+                        }
+                    },
+                    {
+                        "AssetReference<Shader>": {
+                            "m_AssetPath": "/engine_assets/shaders/point_light.sass"
+                        }
+                    }
+                ]
+            },
+            "m_RenderState": {
+                "RenderState": {
+                    "depthComp": "Less",
+                    "depthWrite": true,
+                    "srcBlend": "One",
+                    "dstBlend": "Zero",
+                    "stencilWriteMask": 0,
+                    "stencilFunc": "None",
+                    "stencilReadMask": 0,
+                    "lit": true,
+                    "cullMode": "Back"
+                }
+            },
+            "m_ShaderSettings": {
+                "ShaderSettings": {
+                    "m_Settings": {
+                        "struct": "Internal_MapItemString_Object",
+                        "contents": [
+                            {
+                                "Internal_MapItemString_Object": {
+                                    "key": "ambientStr",
+                                    "value": {
+                                        "ShaderSettingDefinition<Vec4>": {
+                                            "m_Value": {
+                                                "Vec4": {
+                                                    "x": 0.20000000298023224,
+                                                    "y": 0.20000000298023224,
+                                                    "z": 0.20000000298023224,
+                                                    "w": 1.0
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            {
+                                "Internal_MapItemString_Object": {
+                                    "key": "color_setting",
+                                    "value": {
+                                        "ShaderSettingDefinition<Vec3>": {
+                                            "m_Value": {
+                                                "Vec3": {
+                                                    "x": 0.5,
+                                                    "y": 0.5,
+                                                    "z": 0.5
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            {
+                                "Internal_MapItemString_Object": {
+                                    "key": "numLights",
+                                    "value": {
+                                        "ShaderSettingDefinition<int32_t>": {
+                                            "m_Value": 1
+                                        }
+                                    }
+                                }
+                            }
+                        ]
+                    }
+                }
+            },
+            "m_UniformDefaults": {
+                "UniformStorage": {
+                    "m_Storage": {
+                        "struct": "Internal_MapItemString_Object",
+                        "contents": null
+                    }
+                }
+            },
+            "m_SourcePath": "/engine_source_assets/materials/M_DefaultLitNoTexture.json"
+        }
+    }
+}
