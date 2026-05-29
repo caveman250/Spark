@@ -2,10 +2,11 @@
 
 #include "spark.h"
 #include "engine/math/math.h"
+#include "ast/Types.h"
 
 namespace se
 {
-    typedef std::variant<int, float, math::Vec2, math::Vec3, math::Vec4> ShaderSettingValue;
+    typedef std::variant<int, float, math::Vec2, math::Vec3, math::Vec4, math::Mat3, math::Mat4> ShaderSettingValue;
 
     class ShaderSettingDefinitionBase : public reflect::ObjectBase
     {
@@ -46,6 +47,8 @@ namespace se
 
         template <typename T>
         void SetSetting(const std::string& setting, const T& value);
+
+        void SetSettingDefault(const std::string& setting, asset::shader::ast::AstType type);
     private:
         SPARK_MEMBER(Serialized)
         std::unordered_map<std::string, std::shared_ptr<ShaderSettingDefinitionBase>> m_Settings;
@@ -57,7 +60,8 @@ namespace se
         // if you add extra types make sure to add them to the template instantiations for ShaderSettingDefinition above
         static_assert(std::is_same_v<T, float> ||
             std::is_same_v<T, int> ||
-            std::is_same_v<T, math::Vec3>);
+            std::is_same_v<T, math::Vec3> ||
+            std::is_same_v<T, math::Vec4>);
         m_Settings[setting] = std::make_shared<ShaderSettingDefinition<T>>(value);
     }
 }

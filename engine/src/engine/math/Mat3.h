@@ -46,3 +46,17 @@ namespace se::math
 
     Mat3 Inverse(const Mat3& m);
 }
+
+template <> struct std::formatter<se::math::Mat3>
+{
+    static constexpr auto parse(const std::format_parse_context& ctx)
+    {
+        return ctx.begin();
+    }
+
+    template <typename FormatContext>
+    auto format(const se::math::Mat3& obj, FormatContext& ctx) const
+    {
+        return std::format_to(ctx.out(), "mat3({}, {}, {}\n     {}, {}, {}\n     {}, {}, {})", obj[0].x, obj[0].y, obj[0].z, obj[1].x, obj[1].y, obj[1].z, obj[2].x, obj[2].y, obj[2].z, obj[3].x, obj[3].y, obj[3].z);
+    }
+};

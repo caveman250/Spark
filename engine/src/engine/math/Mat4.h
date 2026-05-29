@@ -61,3 +61,17 @@ namespace se::math
     Mat4 Scale(const Vec3& scale);
     Vec3 UnProject(const Vec3& windowPos, const Mat4& view, const Mat4& proj, const Vec4& viewport);
 }
+
+template <> struct std::formatter<se::math::Mat4>
+{
+    static constexpr auto parse(const std::format_parse_context& ctx)
+    {
+        return ctx.begin();
+    }
+
+    template <typename FormatContext>
+    auto format(const se::math::Mat4& obj, FormatContext& ctx) const
+    {
+        return std::format_to(ctx.out(), "mat4({}, {}, {}, {}\n    {}, {}, {}, {}\n    {}, {}, {}, {}\n    {}, {}, {}, {})", obj[0].x, obj[0].y, obj[0].z, obj[0].w, obj[1].x, obj[1].y, obj[1].z, obj[1].w, obj[2].x, obj[2].y, obj[2].z, obj[2].w, obj[3].x, obj[3].y, obj[3].z, obj[3].w);
+    }
+};
