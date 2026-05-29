@@ -82,35 +82,16 @@ namespace se::editor::ui::properties
             };
             for (auto* type : derivedTypes)
             {
-                params.AddOption(type->GetTypeName(nullptr), [this, world, type]()
+                params.AddOption(type->GetTypeName(nullptr), [this, type]()
                 {
                     std::any key = m_MapType->GetNextKey(m_Value);
-                    Transactions::Get()->PushAction([this, world, type]()
+                    Transactions::Get()->PushAction([this, type]()
                     {
                         std::any key = m_MapType->AddElement(m_Value, type);
-                        InstantiateElementUI(key, m_MapType->GetContainedValueByKey(m_Value, key));
-                        auto* transform = world->GetComponent<RectTransformComponent>(m_VerticalBox);
-                        transform->needsLayout = true;
-                        se::ui::util::InvalidateParent(m_VerticalBox, nullptr);
                     },
-                    [this, key, world]()
+                    [this, key]()
                     {
                         m_MapType->RemoveElementByKey(m_Value, key);
-                        const auto keyStr = std::any_cast<std::string>(key);
-                        for (const auto& [entity, name] : m_ElementNames)
-                        {
-                            if (name == keyStr)
-                            {
-                                world->DestroyEntity(entity);
-                                auto it = m_Editors.find(entity);
-                                m_Editors.erase(it);
-                                m_ElementNames.erase(entity);
-                                break;
-                            }
-                        }
-                        auto* transform = world->GetComponent<RectTransformComponent>(m_VerticalBox);
-                        transform->needsLayout = true;
-                        se::ui::util::InvalidateParent(m_VerticalBox, nullptr);
                     });
                 });
             }
@@ -123,19 +104,53 @@ namespace se::editor::ui::properties
         newButtonRect->maxY = 15;
         world->AddChild(buttonContainer, newButtonEntity);
 
+        CreateElements();
+        m_CachedMapSize = m_MapType->GetNumContainedElements(m_Value);
+    }
+
+    void MapEditor::Update()
+    {
+        for (const auto& editor : m_Editors | std::ranges::views::values)
+        {
+            editor->Update();
+        }
+
+        size_t vectorSize = m_MapType->GetNumContainedElements(m_Value);
+        if (m_CachedMapSize != vectorSize)
+        {
+            RecreateElements();
+            m_CachedMapSize = vectorSize;
+        }
+    }
+
+    void MapEditor::RecreateElements()
+    {
+        DestroyElements();
+        CreateElements();
+
+        auto* transform = Application::Get()->GetWorld()->GetComponent<RectTransformComponent>(m_VerticalBox);
+        transform->needsLayout = true;
+        se::ui::util::InvalidateParent(m_VerticalBox, nullptr);
+    }
+
+    void MapEditor::CreateElements()
+    {
+        auto* app = Application::Get();
+        auto* editor = app->GetEditor();
+        auto* world = app->GetWorld();
         size_t numElements = m_MapType->GetNumContainedElements(m_Value);
         if (numElements == 0)
         {
-            auto textEntity = world->CreateEntity(editor->GetEditorScene(), "Title");
-            world->AddComponent<WidgetComponent>(textEntity);
-            auto text = world->AddComponent<TextComponent>(textEntity);
+            m_EmptyItem = world->CreateEntity(editor->GetEditorScene(), "Title");
+            world->AddComponent<WidgetComponent>(m_EmptyItem);
+            auto text = world->AddComponent<TextComponent>(m_EmptyItem);
             text->font = "/engine_assets/fonts/CascadiaCode.sass";
             text->fontSize = 14;
             text->text = "empty.";
-            auto textRect = world->AddComponent<RectTransformComponent>(textEntity);
+            auto textRect = world->AddComponent<RectTransformComponent>(m_EmptyItem);
             textRect->anchors = { .left = 0.f, .right = 1.f, .top = 0.f, .bottom = 0.f };
             textRect->minX = 5;
-            world->AddChild(m_VerticalBox, textEntity);
+            world->AddChild(m_VerticalBox, m_EmptyItem);
         }
         else
         {
@@ -146,12 +161,21 @@ namespace se::editor::ui::properties
         }
     }
 
-    void MapEditor::Update()
+    void MapEditor::DestroyElements()
     {
-        for (const auto& editor : m_Editors | std::ranges::views::values)
+        auto* world = Application::Get()->GetWorld();
+        if (m_EmptyItem != ecs::InvalidEntity)
         {
-            editor->Update();
+            world->DestroyEntity(m_EmptyItem);
+            m_EmptyItem = ecs::InvalidEntity;
         }
+
+        for (const auto& editor : m_Editors)
+        {
+            editor.second->DestroyUI();
+        }
+        m_Editors.clear();
+        m_ElementNames.clear();
     }
 
     void MapEditor::InstantiateElementUI(size_t i)
@@ -252,34 +276,21 @@ namespace se::editor::ui::properties
                         it->second->BeginRename(nameIt->second, onComitted, onCancelled);
                     }
                 }),
-                std::make_pair("Delete", [this, entity, world]
+                std::make_pair("Delete", [this, entity]
                 {
                     const auto nameIt = m_ElementNames.find(entity);
                     std::any oldKey = nameIt->second;
                     std::any oldVal = m_MapType->GetContainedValueByKeyCopy(m_Value, oldKey);
 
-                    Transactions::Get()->PushAction([this, entity, world]()
+                    Transactions::Get()->PushAction([this, entity]()
                     {
                         const auto nameIt = m_ElementNames.find(entity);
                         m_MapType->RemoveElementByKey(m_Value, nameIt->second);
-                        m_ElementNames.erase(nameIt);
-                        auto editor = m_Editors.find(entity);
-                        editor->second->DestroyUI();
-                        m_Editors.erase(editor);
-
-                        auto* transform = world->GetComponent<RectTransformComponent>(m_VerticalBox);
-                        transform->needsLayout = true;
-                        se::ui::util::InvalidateParent(m_VerticalBox, nullptr);
                     },
-                    [this, oldKey, oldVal, world, entity]()
+                    [this, oldKey, oldVal, entity]()
                     {
                         std::any key = m_MapType->AddElement(m_Value, oldVal);
                         m_MapType->ChangeKey(m_Value, key, oldKey);
-                        InstantiateElementUI(oldKey, m_MapType->GetContainedValueByKey(m_Value, oldKey));
-
-                        auto* transform = world->GetComponent<RectTransformComponent>(m_VerticalBox);
-                        transform->needsLayout = true;
-                        se::ui::util::InvalidateParent(m_VerticalBox, nullptr);
                     });
 
                 })
