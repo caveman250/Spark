@@ -467,7 +467,7 @@ namespace se::ui::systems
                                     if (unixTimestamp - text.lastClickTime < 200)
                                     {
                                         text.selectionStart = 0;
-                                        text.selectionEnd = static_cast<int>(text.text.size());
+                                        text.selectionEnd = static_cast<int>(text.editText.size());
                                         text.didDoubleClick = true;
                                     }
                                     else
