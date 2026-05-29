@@ -232,11 +232,4 @@ namespace se::editor::ui::properties
 
         world->InsertChild(m_VerticalBox, entity, i + 1);
     }
-
-    void VectorEditor::DestroyElementUI(const size_t i)
-    {
-        const auto& editor = m_Editors[i];
-        editor->DestroyUI();
-        m_Editors.erase(m_Editors.begin() + i);
-    }
 }

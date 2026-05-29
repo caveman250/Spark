@@ -27,7 +27,6 @@ namespace se::editor::ui::properties
         void CreateElements();
         void DestroyElements();
         void InstantiateElementUI(size_t i);
-        void DestroyElementUI(size_t i);
         void* m_Value = nullptr;
         const se::reflect::Type_Container* m_VectorType = nullptr;
         std::vector<std::shared_ptr<PropertyEditor>> m_Editors;
