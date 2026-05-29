@@ -17,6 +17,8 @@ namespace se::editor::ui::asset_browser
         const ecs::Id& GetId() const { return m_Id; }
         const io::VFSFile& GetFile() const { return m_File; }
         void SetFile(const io::VFSFile& file) { m_File = file; }
+
+        void Update();
     private:
         static void BeginRename(const ecs::Id& labelEntity, const std::string& fileName);
         static void DoRename(const std::string& newName, const io::VFSFile& file);

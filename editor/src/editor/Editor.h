@@ -70,6 +70,7 @@ namespace se::editor
 
         GizmoManager& GetGizmoManager() { return m_GizmoManager; }
 
+        std::shared_ptr<ui::asset_browser::AssetBrowserWindow> GetAssetBrowserWindow() const { return m_AssetBrowserWindow; }
         static std::string DuplicateAsset(const std::shared_ptr<asset::Asset>& asset);
         static void SaveAsset(const std::shared_ptr<asset::Asset>& asset);
         void DeleteAsset(const std::shared_ptr<asset::Asset>& asset);

@@ -7,6 +7,7 @@
 #include "engine/Application.h"
 #include "engine/asset/AssetManager.h"
 #include "engine/asset/meta/MetaDataManager.h"
+#include "engine/input/InputUtil.h"
 #include "engine/ui/components/ButtonComponent.h"
 #include "engine/ui/components/EditableTextComponent.h"
 #include "engine/ui/components/ImageComponent.h"
@@ -16,6 +17,7 @@
 #include "engine/ui/components/WidgetComponent.h"
 #include "engine/ui/util/ContextMenuUtil.h"
 #include "engine/ui/util/EditableTextUtil.h"
+#include "engine/string/util/StringUtil.h"
 
 namespace se::editor::ui::asset_browser
 {
@@ -242,6 +244,37 @@ namespace se::editor::ui::asset_browser
         }
     }
 
+    void FileWidget::Update()
+    {
+        if (!m_File.isDirectory)
+        {
+            return;
+        }
+
+        auto* app = Application::Get();
+        auto* world = app->GetWorld();
+        auto* dragDropState = world->GetSingletonComponent<singleton_components::DragDropStateComponent>();
+        if (!dragDropState->dragDropAsset)
+        {
+            return;
+        }
+
+        auto* inputComp = world->GetSingletonComponent<input::InputComponent>();
+        auto* rootRect = world->GetComponent<se::ui::components::RectTransformComponent>(m_Id);
+        if (rootRect->rect.Contains(math::IntVec2(inputComp->mouseX, inputComp->mouseY)))
+        {
+            if (!input::InputUtil::IsMouseButtonDown(inputComp, input::MouseButton::Left))
+            {
+                std::string dir, filename;
+                string::util::Split(dragDropState->dragDropAsset->m_Path, dir, filename, '/', true);
+
+                auto* editor = app->GetEditor();
+                editor->RenameAsset(dragDropState->dragDropAsset, std::format("{}/{}", m_File.fullPath, filename));
+                editor->GetAssetBrowserWindow()->SetActiveFolder(editor->GetAssetBrowserWindow()->GetActiveFolder(), false);
+            }
+        }
+    }
+
     void FileWidget::BeginRename(const ecs::Id& labelEntity, const std::string& fileName)
     {
         auto* world = Application::Get()->GetWorld();
@@ -253,6 +286,8 @@ namespace se::editor::ui::asset_browser
         se::ui::util::SetEditTextMouseInputEnabled(mouseInput, true);
         // undo any truncation
         editText->editText = fileName;
+        editText->selectionStart = 0;
+        editText->selectionEnd = static_cast<int>(editText->editText.size());
         textRect->needsLayout = true;
         se::ui::util::SetCaretPos(*editText, static_cast<int>(editText->editText.size()));
     }

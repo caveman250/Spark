@@ -211,6 +211,11 @@ namespace se::editor::ui::asset_browser
                 se::ui::util::CreateContextMenu(params);
             }
         }
+
+        for (const auto& file : m_FileWidgets)
+        {
+            file->Update();
+        }
     }
 
     void AssetBrowserWindow::SetActiveFolder(const std::string& activeFolder, const bool setSelection)

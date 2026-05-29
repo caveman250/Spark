@@ -11,7 +11,6 @@ namespace se::string::util
         size_t i = fromEnd ? string.rfind(deliminator) : string.find(deliminator);
         if (i != std::string::npos)
         {
-            lhs = string.substr(0, i);
             if (i < string.size() - 1)
             {
                 rhs = string.substr(i + 1, string.size());
@@ -20,6 +19,8 @@ namespace se::string::util
             {
                 rhs = {};
             }
+
+            lhs = string.substr(0, i);
             return true;
         }
 
