@@ -61,6 +61,7 @@ namespace se
             case asset::shader::ast::AstType::Sampler2D:
             case asset::shader::ast::AstType::Sampler2DReference:
             case asset::shader::ast::AstType::Invalid:
+                SPARK_ASSERT(false);
                 break;
         }
     }
