@@ -101,43 +101,6 @@ namespace se::editor::ui
 
             AddEntityUI(world, entity, m_TreeViewEntity, treeViewRect);
         }
-
-        if (editor->GetMode() != EditorMode::Prefab)
-        {
-            ecs::Id singletonComponentsNode = {};
-            {
-                std::string name = "Singleton Components";
-                se::ui::util::TreeNodeParams params = {
-                    .treeViewEntity = m_TreeViewEntity,
-                    .parentNode = m_TreeViewEntity,
-                    .name = name,
-                    .scene = editor->GetEditorScene(),
-                    .treeViewRect = treeViewRect
-                };
-                se::ui::util::NewTreeNode treeNode = se::ui::util::InsertTreeNode(params);
-                singletonComponentsNode = treeNode.entity;
-                treeNode.text->text = name;
-            }
-
-            for (const auto& singletonComponent : world->GetSingletonComponents())
-            {
-                se::ui::util::TreeNodeParams params = {
-                    .treeViewEntity = m_TreeViewEntity,
-                    .parentNode = singletonComponentsNode,
-                    .name = singletonComponent->GetTypeName(),
-                    .scene = editor->GetEditorScene(),
-                    .treeViewRect = treeViewRect
-                };
-                auto treeNode = se::ui::util::InsertTreeNode(params);
-                treeNode.text->text = singletonComponent->GetTypeName();
-
-                std::function<void()> selectedCb = [singletonComponent, this]
-                {
-                    m_Editor->SelectSingletonComponent(singletonComponent);
-                };
-                treeNode.treeNode->onSelected.Subscribe(std::move(selectedCb));
-            }
-        }
     }
 
     void OutlineWindow::Update()
