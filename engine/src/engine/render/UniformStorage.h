@@ -89,11 +89,14 @@ namespace se::render
         UniformStorage(const UniformStorage& other);
         template <typename T>
         void SetValue(const std::string& name, int count, const T* value, bool internal);
+        void SetValueDefault(const std::string& name, asset::shader::ast::AstType type);
         template<typename T>
         const T* GetValue(const std::string& name);
+        bool HasValue(const std::string& name);
         void Apply(MaterialInstance* material);
         bool IsStale() const { return m_Stale; }
         void ApplyTo(UniformStorage& other) const;
+        void Reset();
     private:
         SPARK_MEMBER(Serialized)
         std::map<std::string, UniformValueBase*> m_Storage;
