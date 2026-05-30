@@ -272,9 +272,42 @@ namespace se::editor
 
         if (m_SelectedEntity != ecs::InvalidEntity)
         {
-            Application::Get()->GetWorld()->DestroyEntity(m_SelectedEntity);
+            DeleteEntity(m_SelectedEntity);
             m_SelectedEntity = ecs::InvalidEntity;
         }
+    }
+
+    void Editor::DeleteEntity(const ecs::Id& entity)
+    {
+        auto* world = Application::Get()->GetWorld();
+        ecs::Id scene = *entity.scene;
+        std::shared_ptr<asset::binary::Database> prefabDb = world->CreatePrefabDatabaseFromEntity(entity);
+        ecs::Prefab prefab = world->CreatePrefabFromDatabase(prefabDb);
+        if (bits::GetFlag(*entity.flags, ecs::IdFlags::PrefabEntity))
+        {
+            const auto& asset = world->GetPrefabForEntity(entity).GetAsset();
+            prefab.m_Path = asset->m_Path;
+            prefab.m_SourcePath = asset->m_SourcePath;
+        }
+
+        struct DeleteEntityTransactionState
+        {
+            ecs::Id entity = {};
+            bool isPrefab = false;
+        };
+
+        Transactions::Get()->PushAction<DeleteEntityTransactionState>([]()
+        {
+            auto* state = Transactions::Get()->GetRedoState<DeleteEntityTransactionState>();
+            Application::Get()->GetWorld()->DestroyEntity(state->entity);
+        },
+        [prefab, world, scene]()
+        {
+            auto* state = Transactions::Get()->GetUndoState<DeleteEntityTransactionState>();
+
+            ecs::Id entity = world->InstantiatePrefab(scene, prefab, !state->isPrefab);
+            state->entity = entity;
+        }, entity, bits::GetFlag(*entity.flags, ecs::IdFlags::PrefabEntity));
     }
 
     bool Editor::HasValidCopySelection() const

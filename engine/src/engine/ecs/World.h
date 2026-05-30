@@ -100,8 +100,10 @@ namespace se::ecs
         void SerialiseEntityChildren(const Id& entity,
                                         const std::map<Id, uint64_t>& entityMap,
                                         Prefab& prefab);
-        Id InstantiatePrefab(const Id& scene, const Prefab& prefab);
-        Id InstantiatePrefab(const Id& scene, const std::shared_ptr<Prefab>& prefab);
+        Id InstantiatePrefab(const Id& scene, const Prefab& prefab, bool unlink = false);
+        Id InstantiatePrefab(const Id& scene, const std::shared_ptr<Prefab>& prefab, bool unlink = false);
+        void UnlinkPrefab(const Id& entity);
+        const asset::AssetReference<Prefab>& GetPrefabForEntity(const Id& prefab);
 
 #if SPARK_EDITOR
         void SaveSceneToTemp(const Id& id);

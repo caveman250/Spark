@@ -177,27 +177,9 @@ namespace se::editor::ui
                         }
                     }),
                 std::make_pair("Delete Entity",
-                    [entity, world]()
+                    [entity, editor]()
                     {
-                        ecs::Id scene = *entity.scene;
-                        std::shared_ptr<asset::binary::Database> prefabDb = world->CreatePrefabDatabaseFromEntity(entity);
-                        struct DeleteEntityTransactionState
-                        {
-                            ecs::Id entity = {};
-                        };
-
-                        Transactions::Get()->PushAction<DeleteEntityTransactionState>([]()
-                        {
-                            auto* state = Transactions::Get()->GetRedoState<DeleteEntityTransactionState>();
-                            Application::Get()->GetWorld()->DestroyEntity(state->entity);
-                        },
-                        [prefabDb, world, scene]()
-                        {
-                            auto* state = Transactions::Get()->GetUndoState<DeleteEntityTransactionState>();
-                            ecs::Prefab prefab = world->CreatePrefabFromDatabase(prefabDb);
-                            ecs::Id entity = world->InstantiatePrefab(scene, prefab);
-                            state->entity = entity;
-                        }, entity);
+                        editor->DeleteEntity(entity);
                     }),
                 std::make_pair("Add Child",
                     [entity]()

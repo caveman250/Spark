@@ -795,7 +795,7 @@ namespace se::ecs
         }
     }
 
-    Id World::InstantiatePrefab(const Id& scene, const Prefab& prefab)
+    Id World::InstantiatePrefab(const Id& scene, const Prefab& prefab, bool unlink)
     {
         std::unordered_map<uint64_t, Id> idRemap = {};
 
@@ -835,18 +835,45 @@ namespace se::ecs
 
 #if SPARK_EDITOR
         m_EntitiesChangedThisFrame = true;
-        if (scene != Application::Get()->GetEditor()->GetPrefabEditorScene())
+        if (!unlink && scene != Application::Get()->GetEditor()->GetPrefabEditorScene())
 #endif
         {
             RenameEntity(ret, prefab.GetName());
         }
         m_SceneRecords.at(scene).prefabs.push_back({ prefab.m_Path, ret });
+
+        if (unlink)
+        {
+            UnlinkPrefab(ret);
+        }
         return ret;
     }
 
-    Id World::InstantiatePrefab(const Id& scene, const std::shared_ptr<Prefab>& prefab)
+    Id World::InstantiatePrefab(const Id& scene, const std::shared_ptr<Prefab>& prefab, bool unlink)
     {
-        return InstantiatePrefab(scene, *prefab.get());
+        return InstantiatePrefab(scene, *prefab.get(), unlink);
+    }
+
+    void World::UnlinkPrefab(const Id& entity)
+    {
+        bits::UnsetFlag(*entity.flags, IdFlags::PrefabEntity);
+        for (const auto& child : GetChildren(entity))
+        {
+            UnlinkPrefab(child);
+        }
+
+        if (HasComponent<components::RootComponent>(entity))
+        {
+            auto& prefabs = m_SceneRecords.at(*entity.scene).prefabs;
+            auto [first, last] = std::ranges::remove_if(prefabs, [entity](const PrefabRecord& record){ return record.entity == entity; });
+            prefabs.erase(first, last);
+        }
+    }
+
+    const asset::AssetReference<Prefab>& World::GetPrefabForEntity(const Id& prefab)
+    {
+        auto it = std::ranges::find_if(m_SceneRecords.at(*prefab.scene).prefabs, [prefab](const PrefabRecord& record){ return record.entity == prefab; });
+        return it->prefab;
     }
 
 #if SPARK_EDITOR

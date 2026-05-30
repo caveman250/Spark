@@ -56,6 +56,7 @@ namespace se::editor
         void Cut();
         void Paste();
         void Delete();
+        void DeleteEntity(const ecs::Id& entity);
         bool HasValidCopySelection() const;
         bool HasValidPasteTarget() const;
 
