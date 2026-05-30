@@ -113,6 +113,10 @@ namespace se::editor
         size_t m_PrefabRenderGroup = 0;
         std::shared_ptr<render::FrameBuffer> m_PrefabFrameBuffer = nullptr;
 
+        ecs::Id m_Camera = {};
+        math::Vec3 m_EditorCameraPos = {};
+        math::Vec3 m_EditorCameraRot = {};
+
         bool m_GameMode = false;
 
         // cut/copy/paste

@@ -27,6 +27,9 @@
 
 namespace se::editor
 {
+    static const math::Vec3 DefaultCameraPos = math::Vec3(7.2f, 5.7f, 12.9f);
+    static const math::Vec3 DefaultCameraRot = { -0.27f, 3.64f, 0.f };
+
     void Editor::Init()
     {
         auto world = Application::Get()->GetWorld();
@@ -77,11 +80,11 @@ namespace se::editor
             0.7f);
 
         //Create camera
-        auto camera = world->CreateEntity(GetEditorScene(), "Editor Camera");
-        world->AddComponent<components::EditorCameraComponent>(camera);
-        auto transform = world->AddComponent<ecs::components::TransformComponent>(camera);
-        transform->pos = math::Vec3(7.2f, 5.7f, 12.9f);
-        transform->rot = { -0.27f, 3.64f, 0.f };
+        m_Camera = world->CreateEntity(GetEditorScene(), "Editor Camera");
+        world->AddComponent<components::EditorCameraComponent>(m_Camera);
+        auto transform = world->AddComponent<ecs::components::TransformComponent>(m_Camera);
+        transform->pos = DefaultCameraPos;
+        transform->rot = DefaultCameraRot;
 
         CreateEditorPlane();
 
@@ -398,6 +401,13 @@ namespace se::editor
         m_EditingPrefabAsset = asset;
         m_OutlineWindow->RebuildOutline();
         SelectEntity(m_EditingPrefabRoot);
+
+        auto* cameraTransform = world->GetComponent<ecs::components::TransformComponent>(m_Camera);
+        m_EditorCameraPos = cameraTransform->pos;
+        m_EditorCameraRot = cameraTransform->rot;
+
+        cameraTransform->pos = DefaultCameraPos;
+        cameraTransform->rot = DefaultCameraRot;
     }
 
     std::string Editor::DuplicateAsset(const std::shared_ptr<asset::Asset>& asset)
@@ -594,6 +604,10 @@ namespace se::editor
         world->DestroyEntity(m_EditingPrefabRoot);
         m_Mode = EditorMode::Default;
         DeSelectAll();
+
+        auto* cameraTransform = world->GetComponent<ecs::components::TransformComponent>(m_Camera);
+        cameraTransform->pos = m_EditorCameraPos;
+        cameraTransform->rot = m_EditorCameraRot;
     }
 
     const std::shared_ptr<asset::Asset>& Editor::GetSelectedAsset() const
