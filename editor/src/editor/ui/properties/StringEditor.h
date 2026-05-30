@@ -10,6 +10,7 @@
 #include "engine/asset/shader/Shader.h"
 #include "engine/render/Material.h"
 #include "engine/ui/util/EditableTextUtil.h"
+#include "editor/Transactions.h"
 
 namespace se::editor::ui::properties
 {

@@ -2,16 +2,16 @@
 
 namespace se::geo::util
 {
-    asset::StaticMesh CreateRectMesh(const math::Vec2& size)
+    asset::StaticMesh CreateRectMesh(const math::Vec2& topLeft, const math::Vec2& size)
     {
         asset::StaticMesh mesh;
         mesh.vertices =
         {
-                { 0.f, static_cast<float>(size.y), 0 },
-                { static_cast<float>(size.x), static_cast<float>(size.y), 0 },
-                { static_cast<float>(size.x), 0.f, 0 },
-                { 0.f, 0.f, 0 },
-            };
+            { topLeft.x, size.y, 0 },
+            { size.x, size.y, 0 },
+            { size.x, topLeft.y, 0 },
+            { topLeft.x, topLeft.y, 0 },
+        };
         mesh.indices = { 1, 3, 0, 3, 1, 2 };
         mesh.uvs =
         {

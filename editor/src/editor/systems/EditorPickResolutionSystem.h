@@ -5,7 +5,7 @@
 
 namespace se::editor::systems 
 {
-    class EditorPickSystem : public ecs::EngineSystem
+    class EditorPickResolutionSystem : public ecs::EngineSystem
     {
         SPARK_SYSTEM()
         

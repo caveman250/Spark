@@ -20,16 +20,22 @@ namespace se::render::commands
         return renderState;
     }
 
-    SubmitGeo::SubmitGeo(const std::shared_ptr<MaterialInstance>& materialInstance, const std::shared_ptr<VertexBuffer>& vertBuffer, const std::shared_ptr<IndexBuffer>& indexBuffer)
+    SubmitGeo::SubmitGeo(const std::shared_ptr<MaterialInstance>& materialInstance, const std::shared_ptr<VertexBuffer>& vertBuffer, const std::shared_ptr<IndexBuffer>& indexBuffer, const math::Vec3& pos)
         : m_MaterialInstance(materialInstance)
         , m_VertBuffer(vertBuffer)
         , m_IndexBuffer(indexBuffer)
+        , m_Pos(pos)
     {
     }
 
     const RenderState& SubmitGeo::GetRenderState() const
     {
         return m_MaterialInstance->GetMaterial()->GetRenderState();
+    }
+
+    math::Vec3 SubmitGeo::GetPos() const
+    {
+        return m_Pos;
     }
 
     SubmitUI::SubmitUI(const std::shared_ptr<MaterialInstance>& materialInstance, const std::shared_ptr<VertexBuffer> &vertBuffer,

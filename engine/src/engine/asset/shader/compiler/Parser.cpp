@@ -1049,6 +1049,7 @@ namespace se::asset::shader::compiler
     bool Parser::ProcessExpression(ast::AstType& outType, ParseError& outError)
     {
         ast::AstType expressionType = ast::AstType::Invalid;
+        ast::AstType currentVariableType = ast::AstType::Invalid;
         int numBinaryExpressions = 0;
         while (true)
         {
@@ -1161,10 +1162,17 @@ namespace se::asset::shader::compiler
                     {
                         expressionType = propertyType;
                     }
+
+                    currentVariableType = propertyType;
                 }
                 else if (expressionType == ast::AstType::Invalid)
                 {
                     expressionType = varInfo.value().type;
+                    currentVariableType = expressionType;
+                }
+                else
+                {
+                    currentVariableType = varInfo.value().type;
                 }
 
                 int arrayIndex = -1;
@@ -1200,23 +1208,23 @@ namespace se::asset::shader::compiler
 
                     if (varInfo.value().arraySizeConstant == 0 && varInfo->arraySizeVariable.empty())
                     {
-                        if (expressionType == ast::AstType::Vec2)
+                        if (currentVariableType == ast::AstType::Vec2)
                         {
                             expressionType =  ast::AstType::Float;
                         }
-                        else if (expressionType == ast::AstType::Vec3)
+                        else if (currentVariableType == ast::AstType::Vec3)
                         {
                             expressionType = ast::AstType::Float;
                         }
-                        else if (expressionType == ast::AstType::Vec4)
+                        else if (currentVariableType == ast::AstType::Vec4)
                         {
                             expressionType = ast::AstType::Float;
                         }
-                        else if (expressionType == ast::AstType::Mat3)
+                        else if (currentVariableType == ast::AstType::Mat3)
                         {
                             expressionType = ast::AstType::Vec3;
                         }
-                        else if (expressionType == ast::AstType::Mat4)
+                        else if (currentVariableType == ast::AstType::Mat4)
                         {
                             expressionType = ast::AstType::Vec4;
                         }

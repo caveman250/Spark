@@ -24,6 +24,7 @@
 #include "render/components/PointLightComponent.h"
 #include "render/singleton_components/MeshRenderComponent.h"
 #include "../../../editor/src/editor/singleton_components/DragDropStateComponent.h"
+#include "editor/singleton_components/EditorPickComponent.h"
 #include "platform/MouseCursorUtil.h"
 #include "threads/util/ThreadUtil.h"
 
@@ -82,6 +83,7 @@ namespace se
 #if SPARK_EDITOR
         m_World.AddSingletonComponent<editor::singleton_components::DragDropStateComponent>();
         m_World.AddSingletonComponent<editor::singleton_components::EditorShortcutsComponent>();
+        m_World.AddSingletonComponent<editor::singleton_components::EditorPickComponent>();
 #endif
     }
 

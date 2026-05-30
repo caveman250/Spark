@@ -4,7 +4,7 @@
 
 #include "TranslationGizmoSystem.h"
 #include "RotationGizmoSystem.h"
-#include "EditorPickSystem.h"
+#include "EditorMeshPickSystem.h"
 #include "EditorShortcutsSystem.h"
 #include "editor/components/EditorCameraComponent.h"
 #include "editor/util/ViewportUtil.h"
@@ -28,7 +28,7 @@ namespace se::editor::systems
             .WithSingletonComponent<input::InputComponent>()
             .WithDependency<TranslationGizmoSystem>()
             .WithDependency<RotationGizmoSystem>()
-            .WithDependency<EditorPickSystem>()
+            .WithDependency<EditorMeshPickSystem>()
             .WithDependency<EditorShortcutsSystem>();
     }
 

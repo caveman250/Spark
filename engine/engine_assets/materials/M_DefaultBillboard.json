@@ -1,0 +1,102 @@
+{
+    "structs": [
+        {
+            "Material": {
+                "m_FragShaders": "Array",
+                "m_RenderState": "Object",
+                "m_ShaderSettings": "Object",
+                "m_SourcePath": "String",
+                "m_UniformDefaults": "Object",
+                "m_VertShaders": "Array"
+            }
+        },
+        {
+            "AssetReference<Shader>": {
+                "m_AssetPath": "String"
+            }
+        },
+        {
+            "RenderState": {
+                "cullMode": "String",
+                "depthComp": "String",
+                "depthWrite": "bool",
+                "dstBlend": "String",
+                "lit": "bool",
+                "srcBlend": "String",
+                "stencilFunc": "String",
+                "stencilReadMask": "Uint32",
+                "stencilWriteMask": "Uint32"
+            }
+        },
+        {
+            "ShaderSettings": {
+                "m_Settings": "Array"
+            }
+        },
+        {
+            "Internal_MapItemString_Object": {
+                "key": "String",
+                "value": "Object"
+            }
+        },
+        {
+            "UniformStorage": {
+                "m_Storage": "Array"
+            }
+        }
+    ],
+    "root": {
+        "Material": {
+            "m_VertShaders": {
+                "struct": "AssetReference<Shader>",
+                "contents": [
+                    {
+                        "AssetReference<Shader>": {
+                            "m_AssetPath": "/engine_assets/shaders/billboard.sass"
+                        }
+                    }
+                ]
+            },
+            "m_FragShaders": {
+                "struct": "AssetReference<Shader>",
+                "contents": [
+                    {
+                        "AssetReference<Shader>": {
+                            "m_AssetPath": "/engine_assets/shaders/alpha_texture.sass"
+                        }
+                    }
+                ]
+            },
+            "m_RenderState": {
+                "RenderState": {
+                    "depthComp": "Less",
+                    "depthWrite": true,
+                    "srcBlend": "SrcAlpha",
+                    "dstBlend": "OneMinusSrcAlpha",
+                    "stencilWriteMask": 0,
+                    "stencilFunc": "None",
+                    "stencilReadMask": 0,
+                    "lit": false,
+                    "cullMode": "None"
+                }
+            },
+            "m_ShaderSettings": {
+                "ShaderSettings": {
+                    "m_Settings": {
+                        "struct": "Internal_MapItemString_Object",
+                        "contents": null
+                    }
+                }
+            },
+            "m_UniformDefaults": {
+                "UniformStorage": {
+                    "m_Storage": {
+                        "struct": "Internal_MapItemString_Object",
+                        "contents": null
+                    }
+                }
+            },
+            "m_SourcePath": "/engine_source_assets/materials/M_DefaultBillboard.json"
+        }
+    }
+}

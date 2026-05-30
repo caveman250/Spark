@@ -36,6 +36,7 @@ namespace se::render::commands
         virtual void Execute() = 0;
         virtual RenderStage GetRenderStage() const = 0;
         virtual const RenderState& GetRenderState() const = 0;
+        virtual math::Vec3 GetPos() const { return {}; }
     };
 
     class Clear : public RenderCommand
@@ -56,15 +57,17 @@ namespace se::render::commands
     class SubmitGeo : public RenderCommand
     {
     public:
-        SubmitGeo(const std::shared_ptr<MaterialInstance>& materialInstance, const std::shared_ptr<VertexBuffer>& vertBuffer, const std::shared_ptr<IndexBuffer>& indexBuffer);
+        SubmitGeo(const std::shared_ptr<MaterialInstance>& materialInstance, const std::shared_ptr<VertexBuffer>& vertBuffer, const std::shared_ptr<IndexBuffer>& indexBuffer, const math::Vec3& pos);
         void Execute() override;
         RenderStage GetRenderStage() const override { return RenderStage::Scene; }
         const RenderState& GetRenderState() const override;
+        math::Vec3 GetPos() const override;
 
     private:
         std::shared_ptr<MaterialInstance> m_MaterialInstance = {};
         std::shared_ptr<VertexBuffer> m_VertBuffer = {};
         std::shared_ptr<IndexBuffer> m_IndexBuffer = {};
+        math::Vec3 m_Pos = {};
     };
 
     class SubmitUI : public RenderCommand

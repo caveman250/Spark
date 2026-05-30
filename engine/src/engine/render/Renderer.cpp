@@ -3,6 +3,8 @@
 #include "FrameBuffer.h"
 #include "engine/Application.h"
 #include <easy/profiler.h>
+
+#include "engine/camera/ActiveCameraComponent.h"
 #include "opengl/OpenGLRenderer.h"
 #include "metal/MetalRenderer.h"
 
@@ -85,13 +87,22 @@ namespace se::render
     void Renderer::SortDrawCommands()
     {
         EASY_FUNCTION();
+        auto* activeCameraComp = Application::Get()->GetWorld()->GetSingletonComponent<camera::ActiveCameraComponent>();
         for (auto &group: m_RenderGroups)
         {
-            std::ranges::stable_sort(group.renderCommands,[](const auto &lhs, const auto &rhs)
+            std::ranges::stable_sort(group.renderCommands,[activeCameraComp](const auto &lhs, const auto &rhs)
             {
                 if (lhs->GetRenderStage() != rhs->GetRenderStage())
                 {
                     return lhs->GetRenderStage() < rhs->GetRenderStage();
+                }
+
+                const auto& lrs = lhs->GetRenderState();
+                const auto& rrs = rhs->GetRenderState();
+                if (lrs.srcBlend != BlendMode::One && lrs.dstBlend != BlendMode::Zero &&
+                    rrs.srcBlend != BlendMode::One && rrs.dstBlend != BlendMode::Zero)
+                {
+                    return math::MagnitudeSquared(lhs->GetPos() - activeCameraComp->pos) > math::MagnitudeSquared(rhs->GetPos() - activeCameraComp->pos);
                 }
 
                 return lhs->GetRenderState() < rhs->GetRenderState();

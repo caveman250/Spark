@@ -146,6 +146,7 @@ namespace se::render::systems
         ecs::ForEachArcheType(results, updateMode, false, [renderer](const ecs::SystemUpdateData& updateData)
         {
             const auto* meshes = updateData.GetComponentArray<MeshComponent>();
+            auto* transforms = updateData.GetComponentArray<TransformComponent>();
             auto* meshRenderComp = updateData.GetSingletonComponent<singleton_components::MeshRenderComponent>();
 
     #if SPARK_EDITOR
@@ -158,6 +159,7 @@ namespace se::render::systems
             const auto& entities = updateData.GetEntities();
             for (size_t i = 0; i < entities.size(); ++i)
             {
+                const auto& transform = transforms[i];
                 const auto& meshComp = meshes[i];
 
                 if (!meshComp.visible)
@@ -196,7 +198,7 @@ namespace se::render::systems
 
                 if (meshComp.materialInstance && meshComp.vertexBuffer && meshComp.indexBuffer)
                 {
-                    renderer->Submit<commands::SubmitGeo>(baseRenderGroup, meshComp.materialInstance, meshComp.vertexBuffer, meshComp.indexBuffer);
+                    renderer->Submit<commands::SubmitGeo>(baseRenderGroup, meshComp.materialInstance, meshComp.vertexBuffer, meshComp.indexBuffer, transform.pos);
                 }
             }
         });

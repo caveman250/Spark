@@ -1,5 +1,6 @@
-#include "EditorPickSystem.h"
+#include "EditorPointLightPickSystem.h"
 
+#include "EditorMeshPickSystem.h"
 #include "RotationGizmoSystem.h"
 #include "TranslationGizmoSystem.h"
 #include "editor/components/TransformGizmoComponent.h"
@@ -15,21 +16,25 @@
 #include "engine/ui/components/RectTransformComponent.h"
 #include "engine/geo/Ray.h"
 #include "engine/geo/util/CollisionUtil.h"
+#include "engine/render/components/PointLightComponent.h"
+#include "editor/singleton_components/EditorPickComponent.h"
 
 namespace se::editor::systems
 {
-    ecs::SystemDeclaration EditorPickSystem::GetSystemDeclaration()
+    ecs::SystemDeclaration EditorPointLightPickSystem::GetSystemDeclaration()
     {
         return ecs::SystemDeclaration()
             .WithComponent<ecs::components::TransformComponent>()
-            .WithComponent<ecs::components::MeshComponent>()
+            .WithComponent<render::components::PointLightComponent>()
             .WithSingletonComponent<const camera::ActiveCameraComponent>()
             .WithSingletonComponent<input::InputComponent>()
+            .WithSingletonComponent<singleton_components::EditorPickComponent>()
             .WithDependency<TranslationGizmoSystem>()
-            .WithDependency<RotationGizmoSystem>();
+            .WithDependency<RotationGizmoSystem>()
+            .WithDependency<EditorMeshPickSystem>();
     }
 
-    void EditorPickSystem::OnUpdate(const ecs::QueryResults& results)
+    void EditorPointLightPickSystem::OnUpdate(const ecs::QueryResults& results)
     {
         auto editor = Application::Get()->GetEditor();
         if (editor->InGameMode())
@@ -42,8 +47,9 @@ namespace se::editor::systems
             const auto& entities = updateData.GetEntities();
             auto cameraComp = updateData.GetSingletonComponent<const camera::ActiveCameraComponent>();
             auto inputComp = updateData.GetSingletonComponent<input::InputComponent>();
+            auto pickComp = updateData.GetSingletonComponent<singleton_components::EditorPickComponent>();
             auto* transforms = updateData.GetComponentArray<ecs::components::TransformComponent>();
-            auto* meshes = updateData.GetComponentArray<ecs::components::MeshComponent>();
+            auto* lights = updateData.GetComponentArray<render::components::PointLightComponent>();
 
             auto ray = util::GetEditorMouseRay(inputComp, cameraComp);
 
@@ -56,10 +62,10 @@ namespace se::editor::systems
                 }
 
                 auto& transform = transforms[i];
-                auto& mesh = meshes[i];
+                auto& light = lights[i];
 
                 // uninitialized
-                if (!mesh.materialInstance)
+                if (!light.iconMaterial)
                 {
                     continue;
                 }
@@ -69,16 +75,22 @@ namespace se::editor::systems
                     continue;
                 }
 
-                if (geo::util::RayCastAABB(ray, transform))
+                geo::Plane plane = {
+                    .normal = math::Normalized(transform.pos - cameraComp->pos),
+                    .center = transform.pos
+                };
+
+                auto hit = geo::util::RayCastPlane(ray, plane);
+                if (hit.has_value() && math::Magnitude(hit.value().intersectionPoint - transform.pos) < 0.5f)
                 {
-                    input::InputUtil::ProcessMouseEvents(entity, inputComp, [entity](const input::MouseEvent& mouseEvent)
+                    input::InputUtil::ProcessMouseEvents(entity, inputComp, [entity, pickComp, hit](const input::MouseEvent& mouseEvent)
                     {
                         if (mouseEvent.button == input::MouseButton::Left)
                         {
                             if (mouseEvent.state == input::KeyState::Down)
                             {
-                                Application::Get()->GetEditor()->SelectEntity(entity);
-                                return true;
+                                pickComp->results.push_back({entity, hit.value().intersectionPoint });
+                                return false;
                             }
                         }
 

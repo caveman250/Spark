@@ -12,5 +12,11 @@ namespace se::render::components
 
         SPARK_MEMBER(Serialized)
         math::Vec3 color;
+
+#if SPARK_EDITOR
+        std::shared_ptr<MaterialInstance> iconMaterial = {};
+        std::shared_ptr<VertexBuffer> vertBuffer = {};
+        std::shared_ptr<IndexBuffer> indexBuffer = {};
+#endif
     };
 }

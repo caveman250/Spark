@@ -12,5 +12,8 @@ namespace se::render::systems
 
         static ecs::SystemDeclaration GetSystemDeclaration();
         void OnUpdate(const ecs::QueryResults&) override;
+#if SPARK_EDITOR
+        void OnRender(const ecs::QueryResults&) override;
+#endif
     };
 }

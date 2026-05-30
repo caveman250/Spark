@@ -97,7 +97,9 @@ namespace se::asset::shader::ast
 
     void VariableReferenceNode::ToMtl(ShaderCompileContext& context, string::ArenaString& outShader) const
     {
-        if (context.currentShader->GetUniformVariables().contains(m_Name))
+        auto& uniformVariables = context.currentShader->GetUniformVariables();
+        auto it = uniformVariables.find(m_Name);
+        if (it != uniformVariables.end())
         {
             outShader.append("inUniforms.");
         }
@@ -113,8 +115,15 @@ namespace se::asset::shader::ast
         if (m_Index >= 0)
         {
             auto alloc = outShader.get_allocator();
-            outShader += m_Name;
-            outShader += string::ArenaFormat("{}", alloc, m_Index);
+            if (it->second.arraySizeConstant > 0 || !it->second.arraySizeVariable.empty())
+            {
+                outShader += m_Name;
+                outShader += string::ArenaFormat("{}", alloc, m_Index);
+            }
+            else
+            {
+                outShader += string::ArenaFormat("{}[{}]", alloc, m_Name, m_Index);
+            }
         }
         else if (!m_IndexVar.empty())
         {
@@ -126,7 +135,8 @@ namespace se::asset::shader::ast
 
             auto alloc = outShader.get_allocator();
             outShader += m_Name;
-            if (context.currentShader->FindInput(m_Name) || context.currentShader->FindOutput(m_Name))
+            if ((context.currentShader->FindInput(m_Name) || context.currentShader->FindOutput(m_Name)) &&
+                (it->second.arraySizeConstant > 0 || !it->second.arraySizeVariable.empty()))
             {
                 outShader += string::ArenaFormat("{}", alloc, varName);
             }
