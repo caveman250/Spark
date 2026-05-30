@@ -8,6 +8,11 @@ namespace se::ui
                 point.x <= topLeft.x + size.x && point.y <= topLeft.y + size.y;
     }
 
+    bool Rect::Contains(const Rect& bb) const
+    {
+       return Contains(bb.topLeft) && Contains(bb.topLeft + bb.size);
+    }
+
     bool Rect::Overlaps(const Rect &bb) const
     {
         math::IntVec2 bottomRight = topLeft + size;

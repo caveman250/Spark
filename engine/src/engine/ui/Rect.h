@@ -20,6 +20,7 @@ namespace se::ui
         }
 
         bool Contains(const math::IntVec2& point) const;
+        bool Contains(const Rect& bb) const;
         bool Overlaps(const Rect& bb) const;
     };
 }

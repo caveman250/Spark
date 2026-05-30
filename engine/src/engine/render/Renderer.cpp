@@ -65,9 +65,8 @@ namespace se::render
         m_ScissorStack.push_back(rect);
     }
 
-    std::optional<ui::Rect> Renderer::PopScissor()
+    std::optional<ui::Rect> Renderer::PeekScissor() const
     {
-        m_ScissorStack.pop_back();
         if (!m_ScissorStack.empty())
         {
             ui::Rect val = m_ScissorStack.back();
@@ -75,6 +74,12 @@ namespace se::render
         }
 
         return std::nullopt;
+    }
+
+    std::optional<ui::Rect> Renderer::PopScissor()
+    {
+        m_ScissorStack.pop_back();
+        return PeekScissor();
     }
 
     void Renderer::SortDrawCommands()

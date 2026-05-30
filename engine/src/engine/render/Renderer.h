@@ -66,6 +66,7 @@ namespace se::render
         virtual void EndFrame();
 
         void PushScissor(const ui::Rect& rect);
+        std::optional<ui::Rect> PeekScissor() const;
         std::optional<ui::Rect> PopScissor();
     protected:
 
