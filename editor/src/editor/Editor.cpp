@@ -262,6 +262,21 @@ namespace se::editor
         }
     }
 
+    void Editor::Delete()
+    {
+        if (m_SelectedAsset)
+        {
+            DeleteAsset(m_SelectedAsset);
+            m_SelectedAsset = nullptr;
+        }
+
+        if (m_SelectedEntity != ecs::InvalidEntity)
+        {
+            Application::Get()->GetWorld()->DestroyEntity(m_SelectedEntity);
+            m_SelectedEntity = ecs::InvalidEntity;
+        }
+    }
+
     bool Editor::HasValidCopySelection() const
     {
         return m_SelectedEntity != ecs::InvalidEntity ||

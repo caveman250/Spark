@@ -55,6 +55,7 @@ namespace se::editor
         void Copy();
         void Cut();
         void Paste();
+        void Delete();
         bool HasValidCopySelection() const;
         bool HasValidPasteTarget() const;
 

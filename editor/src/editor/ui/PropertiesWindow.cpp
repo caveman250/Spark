@@ -129,8 +129,15 @@ namespace se::editor::ui
             world->AddChild(m_ScrollBoxContent, textEntity);
         }
 
+        bool isPrefabReference = bits::GetFlag(*entity.flags, ecs::IdFlags::PrefabEntity) && m_Editor->GetMode() != EditorMode::Prefab;
+
         for (auto component : selectedEntityRecord.archetype->typeVector)
         {
+            if (isPrefabReference && component != ecs::components::TransformComponent::GetComponentId())
+            {
+                continue;
+            }
+
             const auto &compRecord = world->m_ComponentRecords[component];
             auto compInstance = world->GetComponent(entity, component);
             properties::PropertyEditorParams params = {

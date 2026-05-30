@@ -118,6 +118,21 @@ namespace se
            {
                Transactions::Get()->Redo();
            });
+
+#if SPARK_PLATFORM_MAC
+        input::Key deleteKey = input::Key::Backspace;
+#else
+        input::Key deleteKey = input::Key::Delete;
+#endif
+        util::RegisterShortcut(shortcuts, deleteKey, singleton_components::ShortcutModifier::None,
+           []()
+           {
+               return true;
+           },
+           [editor]()
+           {
+               editor->Delete();
+           });
     }
 
 #if SPARK_PLATFORM_MAC

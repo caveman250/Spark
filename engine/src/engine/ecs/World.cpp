@@ -207,8 +207,15 @@ namespace se::ecs
         }
 
         auto& sceneRecord = m_SceneRecords.at(*entity.scene);
-        auto [first, last] = std::ranges::remove(sceneRecord.entities, entity);
-        sceneRecord.entities.erase(first, last);
+        {
+            auto [first, last] = std::ranges::remove(sceneRecord.entities, entity);
+            sceneRecord.entities.erase(first, last);
+        }
+        if (bits::GetFlag(*entity.flags, IdFlags::PrefabEntity))
+        {
+            auto [first, last] = std::ranges::remove_if(sceneRecord.prefabs, [entity](const PrefabRecord& record) { return entity == record.entity; });
+            sceneRecord.prefabs.erase(first, last);
+        }
         std::erase(record.archetype->entities, entity);
         m_EntityRecords.erase(entity);
         m_FreeEntities.push_back(entity);
@@ -828,8 +835,11 @@ namespace se::ecs
 
 #if SPARK_EDITOR
         m_EntitiesChangedThisFrame = true;
+        if (scene != Application::Get()->GetEditor()->GetPrefabEditorScene())
 #endif
-
+        {
+            RenameEntity(ret, prefab.GetName());
+        }
         m_SceneRecords.at(scene).prefabs.push_back({ prefab.m_Path, ret });
         return ret;
     }

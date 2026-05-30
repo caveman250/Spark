@@ -289,6 +289,12 @@ namespace se::editor::ui
         {
             m_Editor->SelectEntity(entity);
         };
+        treeNode.treeNode->onSelected.Subscribe(std::move(selectedCb));
+
+        if (isPrefabReference)
+        {
+            return;
+        }
 
         for (const auto& child : world->GetChildren(entity))
         {

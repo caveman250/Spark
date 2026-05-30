@@ -1,4 +1,6 @@
 #include "ecs_fwd.h"
+
+#include "components/RootComponent.h"
 #include "engine/Application.h"
 
 namespace se::ecs
@@ -40,8 +42,15 @@ namespace se::ecs
     bool IsEditorEntity([[maybe_unused]] const Id& entity)
     {
 #if SPARK_EDITOR
-        auto editor = Application::Get()->GetEditor();
-        return *entity.scene == editor->GetEditorScene();
+        auto* app = Application::Get();
+        auto* world = app->GetWorld();
+        auto editor = app->GetEditor();
+        if (*entity.scene == editor->GetEditorScene())
+        {
+            return true;
+        }
+        bool isPrefabReference = bits::GetFlag(*entity.flags, ecs::IdFlags::PrefabEntity) && editor->GetMode() != editor::EditorMode::Prefab;
+        return isPrefabReference && !world->HasComponent<components::RootComponent>(entity);
 #else
         return false;
 #endif
