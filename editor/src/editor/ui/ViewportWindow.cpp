@@ -266,6 +266,11 @@ namespace se::editor::ui
                     world->AddComponent<ecs::components::TransformComponent>(entity);
                 }
 
+                if (entity == ecs::InvalidEntity)
+                {
+                    return;
+                }
+
                 auto* transform = world->GetComponent<ecs::components::TransformComponent>(entity);
                 if (transform)
                 {
