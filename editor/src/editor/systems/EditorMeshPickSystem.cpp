@@ -39,7 +39,7 @@ namespace se::editor::systems
             return;
         }
 
-        ecs::ForEachArcheType(results, ecs::UpdateMode::MultiThreaded, false, [editor](const ecs::SystemUpdateData& updateData)
+        ecs::ForEachArcheType(results, ecs::UpdateMode::SingleThreaded, false, [editor](const ecs::SystemUpdateData& updateData)
         {
             const auto& entities = updateData.GetEntities();
             auto cameraComp = updateData.GetSingletonComponent<const camera::ActiveCameraComponent>();
