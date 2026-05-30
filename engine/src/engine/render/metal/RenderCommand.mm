@@ -53,7 +53,13 @@ namespace se::render::commands
     void PushScissor::Execute()
     {
         auto renderer = Renderer::Get<Renderer>();
+
+        auto currScissor = renderer->PeekScissor();
         renderer->PushScissor(m_Rect);
+        if (currScissor.has_value() && !currScissor.value().Contains(m_Rect))
+        {
+            return;
+        }
 
         if (m_Rect.size.x < 0 || m_Rect.size.y < 0)
         {
