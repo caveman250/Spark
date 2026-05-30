@@ -23,6 +23,7 @@ namespace se::ui::components
         asset::AssetReference<asset::Font> font = { };
         int fontSize = 0;
         std::string text = { };
+        math::Vec3 textColour = { 1.f };
         text::Alignment alignment = text::Alignment::Left;
         text::WrapMode wrap = text::WrapMode::Crop;
 

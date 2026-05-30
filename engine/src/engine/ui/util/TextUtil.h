@@ -34,8 +34,6 @@ namespace se::ui::util
             textComp.materialInstance = std::make_shared<render::MaterialInstance>(textMaterial);
             auto texture = textComp.font.GetAsset()->GetTextureAsset(textComp.fontSize);
             textComp.materialInstance->SetUniform("Texture", 1, &texture);
-            float smoothing = 0.1f;
-            textComp.materialInstance->SetUniform("smoothing", 1, &smoothing);
         }
 
         bool invalidate = transform.lastRect.size != transform.rect.size ||
@@ -123,6 +121,7 @@ namespace se::ui::util
         }
 
         textComp.materialInstance->SetUniform("screenSize", 1, &windowSize);
+        textComp.materialInstance->SetUniform("textColour", 1, &textComp.textColour);
 
 #if SPARK_EDITOR
         const auto editor = Application::Get()->GetEditor();

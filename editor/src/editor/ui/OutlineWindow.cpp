@@ -147,6 +147,7 @@ namespace se::editor::ui
     void OutlineWindow::AddEntityUI(ecs::World* world, const ecs::Id& entity, const ecs::Id& parent, se::ui::components::RectTransformComponent* treeViewRect)
     {
         auto editor = Application::Get()->GetEditor();
+        bool isPrefabReference = bits::GetFlag(*entity.flags, ecs::IdFlags::PrefabEntity) && m_Editor->GetMode() != EditorMode::Prefab;
 
         se::ui::util::TreeNodeParams params = {
             .treeViewEntity = m_TreeViewEntity,
@@ -272,7 +273,15 @@ namespace se::editor::ui
             mouseComp = world->GetComponent<se::ui::components::MouseInputComponent>(treeNodeEntity);
             mouseComp->enabled = true;
         });
-        treeNode.text->text = *entity.name;
+        if (isPrefabReference)
+        {
+            treeNode.text->text = *entity.name;
+            treeNode.text->textColour = math::Vec3(0.2f, 0.8f, 1.0f);
+        }
+        else
+        {
+            treeNode.text->text = *entity.name;
+        }
         m_EntityTexts[entity] = treeNode.textEntity;
         m_TreeNodes[entity] = treeNode.entity;
 
@@ -280,7 +289,6 @@ namespace se::editor::ui
         {
             m_Editor->SelectEntity(entity);
         };
-        treeNode.treeNode->onSelected.Subscribe(std::move(selectedCb));
 
         for (const auto& child : world->GetChildren(entity))
         {

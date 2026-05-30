@@ -4,7 +4,7 @@ port(FragmentUV) in vec2 inUV;
 port(FragColor) out vec4 color;
 
 uniform sampler2D Texture;
-uniform float smoothing;
+uniform vec3 textColour;
 
 void main()
 {
@@ -13,5 +13,5 @@ void main()
     vec2 ddist = vec2(dfdx(dist), dfdy(dist));
     float pixelDist = dist / length(ddist);
     float opacity = clamp(0.5 - pixelDist, 0.0, 1.0);
-    color = vec4(1, 1, 1, opacity);
+    color = vec4(textColour, opacity);
 }

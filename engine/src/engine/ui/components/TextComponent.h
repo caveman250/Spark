@@ -33,6 +33,9 @@ namespace se::ui::components
         std::string text = {};
 
         SPARK_MEMBER(Serialized)
+        math::Vec3 textColour = { 1.f };
+
+        SPARK_MEMBER(Serialized)
         text::Alignment alignment = text::Alignment::Left;
 
         SPARK_MEMBER(Serialized)
