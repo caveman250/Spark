@@ -73,11 +73,12 @@ namespace se::render::systems
                     pointLight.vertBuffer->CreatePlatformResource();
                     pointLight.indexBuffer = IndexBuffer::CreateIndexBuffer(mesh);
                     pointLight.indexBuffer->CreatePlatformResource();
-                    pointLight.iconMaterial = std::make_shared<MaterialInstance>("/engine_assets/materials/M_DefaultBillboard.sass");
+                    pointLight.iconMaterial = std::make_shared<MaterialInstance>("/engine_assets/materials/M_BillboardPointlight.sass");
                     asset::AssetReference<asset::Texture> pointLightIcon = "/engine_assets/textures/point_light.sass";
                     pointLight.iconMaterial->SetUniform("Texture", 1, &pointLightIcon);
                 }
 
+                pointLight.iconMaterial->SetUniform("uniform_color", 1, &pointLight.color);
                 pointLight.iconMaterial->SetUniform("pos", 1, &transform.pos);
                 pointLight.iconMaterial->SetUniform("view", 1, &activeCamera->view);
                 pointLight.iconMaterial->SetUniform("proj", 1, &activeCamera->proj);
