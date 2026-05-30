@@ -19,6 +19,8 @@
 #include "engine/render/singleton_components/MeshRenderComponent.h"
 #include "engine/string/util/StringUtil.h"
 #include "engine/ui/components/RectTransformComponent.h"
+#include "ecs_fwd.h"
+#include "components/TransformComponent.h"
 
 namespace se::ecs
 {
@@ -636,6 +638,16 @@ namespace se::ecs
                 delete component;
             }
         }
+        for (const auto& prefab : obj.m_Prefabs)
+        {
+            Id entity = InstantiatePrefab(scene, prefab.prefab.GetAsset());
+            if (auto* transform = GetComponent<components::TransformComponent>(entity))
+            {
+                transform->pos = prefab.pos;
+                transform->rot = prefab.rot;
+                transform->scale = prefab.scale;
+            }
+        }
 
         for (const auto& entity : obj.m_Entities)
         {
@@ -788,6 +800,7 @@ namespace se::ecs
             idRemap[prefabEntity.entity] = newId;
             auto& meta = m_IdMetaMap[newId];
             meta.flags = prefabEntity.flags;
+            bits::SetFlag(meta.flags, IdFlags::PrefabEntity);
 
             for (auto* component : prefabEntity.components)
             {
@@ -817,6 +830,7 @@ namespace se::ecs
         m_EntitiesChangedThisFrame = true;
 #endif
 
+        m_SceneRecords.at(scene).prefabs.push_back({ prefab.m_Path, ret });
         return ret;
     }
 
@@ -896,24 +910,47 @@ namespace se::ecs
         }
         for (const Id& entity : it->second.entities)
         {
-            SceneEntityData entityData = {};
-            entityData.entity = entityMap.at(entity.id);
-            entityData.name = *entity.name;
-            entityData.flags = *entity.flags;
-            for (const auto& child : GetChildren(entity))
+            if (bits::GetFlag(*entity.flags, IdFlags::PrefabEntity))
             {
-                entityData.children.push_back(entityMap.at(child.id));
-            }
+                if (!HasComponent<components::RootComponent>(entity))
+                {
+                    continue;
+                }
 
-            EntityRecord& record = m_EntityRecords.at(entity);
-            Archetype* archetype = record.archetype;
-            for (const Id& compType : archetype->typeVector)
+                auto recordIt = std::ranges::find_if(it->second.prefabs, [entity](const PrefabRecord& record){ return record.entity == entity; });
+                if (SPARK_VERIFY(recordIt != it->second.prefabs.end()))
+                {
+                    auto* transform = GetComponent<components::TransformComponent>(entity);
+                    SPARK_ASSERT(transform, "UI prefabs not supported yet");
+                    ScenePrefabData prefabData = {};
+                    prefabData.prefab = recordIt->prefab;
+                    prefabData.pos = transform->pos;
+                    prefabData.rot = transform->rot;
+                    prefabData.scale = transform->scale;
+                    saveData.m_Prefabs.emplace_back(prefabData);
+                }
+            }
+            else
             {
-                auto* compData = GetComponent(entity, compType);
-                entityData.components.push_back(static_cast<Component*>(compData));
-            }
+                SceneEntityData entityData = {};
+                entityData.entity = entityMap.at(entity.id);
+                entityData.name = *entity.name;
+                entityData.flags = *entity.flags;
+                for (const auto& child : GetChildren(entity))
+                {
+                    entityData.children.push_back(entityMap.at(child.id));
+                }
 
-            saveData.m_Entities.push_back(entityData);
+                EntityRecord& record = m_EntityRecords.at(entity);
+                Archetype* archetype = record.archetype;
+                for (const Id& compType : archetype->typeVector)
+                {
+                    auto* compData = GetComponent(entity, compType);
+                    entityData.components.push_back(static_cast<Component*>(compData));
+                }
+
+                saveData.m_Entities.push_back(entityData);
+            }
         }
 
         auto root = db->GetRoot();

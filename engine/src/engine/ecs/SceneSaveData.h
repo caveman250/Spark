@@ -2,6 +2,8 @@
 
 #include "spark.h"
 #include "engine/asset/Asset.h"
+#include "engine/asset/AssetReference.h"
+#include "engine/math/Vec3.h"
 
 namespace se::ecs 
 {
@@ -27,11 +29,31 @@ namespace se::ecs
         std::vector<Component*> components = {};
     };
 
+    struct ScenePrefabData : reflect::ObjectBase
+    {
+        SPARK_CLASS()
+
+        SPARK_MEMBER(Serialized)
+        asset::AssetReference<Prefab> prefab = {};
+
+        SPARK_MEMBER(Serialized)
+        math::Vec3 pos = {};
+
+        SPARK_MEMBER(Serialized)
+        math::Vec3 rot = {};
+
+        SPARK_MEMBER(Serialized)
+        math::Vec3 scale = {};
+    };
+
     class SceneSaveData : public asset::Asset
     {
         SPARK_CLASS()
 
         SPARK_MEMBER(Serialized)
         std::vector<SceneEntityData> m_Entities = {};
+
+        SPARK_MEMBER(Serialized)
+        std::vector<ScenePrefabData> m_Prefabs = {};
     };
 }

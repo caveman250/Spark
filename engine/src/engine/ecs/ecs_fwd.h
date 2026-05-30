@@ -7,7 +7,8 @@ namespace se::ecs
 
     enum class IdFlags : uint32_t
     {
-        None = 0
+        None = 0,
+        PrefabEntity = 1,
     };
 
     struct Id

@@ -44,6 +44,7 @@ namespace se::asset
     SPARK_INSTANTIATE_TEMPLATE(AssetReference, Texture);
     SPARK_INSTANTIATE_TEMPLATE(AssetReference, render::Material);
     SPARK_INSTANTIATE_TEMPLATE(AssetReference, render::MaterialInstance);
+    SPARK_INSTANTIATE_TEMPLATE(AssetReference, ecs::Prefab);
 
     template<typename T>
     AssetReference<T>::AssetReference(const std::string& path)
