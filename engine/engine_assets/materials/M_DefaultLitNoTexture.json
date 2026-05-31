@@ -45,18 +45,6 @@
             }
         },
         {
-            "ShaderSettingDefinition<Vec3>": {
-                "m_Value": "Object"
-            }
-        },
-        {
-            "Vec3": {
-                "x": "Float",
-                "y": "Float",
-                "z": "Float"
-            }
-        },
-        {
             "ShaderSettingDefinition<Vec4>": {
                 "m_Value": "Object"
             }
@@ -83,6 +71,11 @@
             "float": {
                 "val": "Float"
             }
+        },
+        {
+            "UniformValue<Vec4>": {
+                "value": "Array"
+            }
         }
     ],
     "root": {
@@ -102,7 +95,7 @@
                 "contents": [
                     {
                         "AssetReference<Shader>": {
-                            "m_AssetPath": "/engine_assets/shaders/flat_color.sass"
+                            "m_AssetPath": "/engine_assets/shaders/runtime_flat_color.sass"
                         }
                     },
                     {
@@ -132,16 +125,6 @@
                         "contents": [
                             {
                                 "Internal_MapItemString_Object": {
-                                    "key": "numDirLights",
-                                    "value": {
-                                        "ShaderSettingDefinition<int32_t>": {
-                                            "m_Value": 1
-                                        }
-                                    }
-                                }
-                            },
-                            {
-                                "Internal_MapItemString_Object": {
                                     "key": "numPointLights",
                                     "value": {
                                         "ShaderSettingDefinition<int32_t>": {
@@ -152,16 +135,10 @@
                             },
                             {
                                 "Internal_MapItemString_Object": {
-                                    "key": "color_setting",
+                                    "key": "numDirLights",
                                     "value": {
-                                        "ShaderSettingDefinition<Vec3>": {
-                                            "m_Value": {
-                                                "Vec3": {
-                                                    "x": 0.5,
-                                                    "y": 0.5,
-                                                    "z": 0.5
-                                                }
-                                            }
+                                        "ShaderSettingDefinition<int32_t>": {
+                                            "m_Value": 1
                                         }
                                     }
                                 }
@@ -202,7 +179,29 @@
                                                 "contents": [
                                                     {
                                                         "float": {
-                                                            "val": 32.0
+                                                            "val": 1.0
+                                                        }
+                                                    }
+                                                ]
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            {
+                                "Internal_MapItemString_Object": {
+                                    "key": "uniform_color",
+                                    "value": {
+                                        "UniformValue<Vec4>": {
+                                            "value": {
+                                                "struct": "Vec4",
+                                                "contents": [
+                                                    {
+                                                        "Vec4": {
+                                                            "x": 0.5,
+                                                            "y": 0.5,
+                                                            "z": 0.5,
+                                                            "w": 1.0
                                                         }
                                                     }
                                                 ]

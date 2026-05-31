@@ -118,7 +118,7 @@ def create_unity_files(conf_path, platform):
                 full_path = os.path.abspath(os.path.join(root, file))
                 new_cpp_files[cpp_file_index] += "#include \"" + full_path + "\"\n"
                 cpp_file_counter += 1
-                if cpp_file_counter > 10:
+                if cpp_file_counter > 30:
                     cpp_file_index += 1
                     cpp_file_counter = 0
 
@@ -128,7 +128,7 @@ def create_unity_files(conf_path, platform):
                 full_path = os.path.abspath(os.path.join(root, file))
                 new_objc_files[objc_file_index] += "#include \"" + full_path + "\"\n"
                 objc_file_counter += 1
-                if objc_file_counter > 10:
+                if objc_file_counter > 30:
                     objc_file_index += 1
                     objc_file_counter = 0
 

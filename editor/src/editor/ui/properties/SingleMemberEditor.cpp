@@ -10,10 +10,6 @@ namespace se::editor::ui::properties
 {
     DEFINE_PROPERTY_EDITOR(se::render::UniformStorage, SingleMemberEditor, UniformStorage)
     DEFINE_PROPERTY_EDITOR(se::ShaderSettings, SingleMemberEditor, ShaderSettings)
-    DEFINE_PROPERTY_EDITOR(se::ShaderSettingDefinition<int>, SingleMemberEditor, ShaderSettingDefinition_int)
-    DEFINE_PROPERTY_EDITOR(se::ShaderSettingDefinition<float>, SingleMemberEditor, ShaderSettingDefinition_float)
-    DEFINE_PROPERTY_EDITOR(se::ShaderSettingDefinition<math::Vec3>, SingleMemberEditor, ShaderSettingDefinition_Vec3)
-    DEFINE_PROPERTY_EDITOR(se::ShaderSettingDefinition<math::Vec4>, SingleMemberEditor, ShaderSettingDefinition_Vec4)
 
     void SingleMemberEditor::SetValue(void* value, const reflect::Type* type)
     {
@@ -58,26 +54,42 @@ namespace se::editor::ui::properties
 
     void SingleMemberEditor::Update()
     {
-        m_WrappedEditor->Update();
+        if (m_WrappedEditor)
+        {
+            m_WrappedEditor->Update();
+        }
     }
 
     PropertyTitleMode SingleMemberEditor::GetDefaultTitleMode() const
     {
-        return m_WrappedEditor->GetDefaultTitleMode();
+        return m_WrappedEditor ? m_WrappedEditor->GetDefaultTitleMode() : PropertyTitleMode::None;
     }
 
     ecs::Id SingleMemberEditor::GetWidgetId() const
     {
-        return m_WrappedEditor->GetWidgetId();
+        if (m_WrappedEditor)
+        {
+            return m_WrappedEditor->GetWidgetId();
+        }
+
+        return ecs::InvalidEntity;
     }
 
     ecs::Id SingleMemberEditor::GetTitleId() const
     {
-        return m_WrappedEditor->GetTitleId();
+        if (m_WrappedEditor)
+        {
+            return m_WrappedEditor->GetTitleId();
+        }
+
+        return ecs::InvalidEntity;
     }
 
     void SingleMemberEditor::DestroyUI()
     {
-        m_WrappedEditor->DestroyUI();
+        if (m_WrappedEditor)
+        {
+            m_WrappedEditor->DestroyUI();
+        }
     }
 }

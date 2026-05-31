@@ -1,6 +1,6 @@
 SSL_FRAGMENT
 
-setting float ymod;
+setting internal float ymod;
 
 port(FragmentUV) in vec2 inUV;
 port(FragColor) out vec4 color;

@@ -27,9 +27,9 @@ namespace se::editor::ui::properties
                     const auto& shaderAsset = shader.GetAsset();
                     for (const auto& setting : shaderAsset->GetSettingVariables())
                     {
-                        if (!settings.HasDefinition(setting.first))
+                        if (!setting.second.internal && !settings.HasDefinition(setting.first))
                         {
-                            settings.SetSettingDefault(setting.first, setting.second.type);
+                            settings.SetSettingDefault(setting.first, setting.second.var.type);
                         }
                     }
                 }
@@ -52,9 +52,9 @@ namespace se::editor::ui::properties
                     const auto& shaderAsset = shader.GetAsset();
                     for (const auto& setting : shaderAsset->GetSettingVariables())
                     {
-                        if (!settings.HasDefinition(setting.first))
+                        if (!setting.second.internal && !settings.HasDefinition(setting.first))
                         {
-                            settings.SetSettingDefault(setting.first, setting.second.type);
+                            settings.SetSettingDefault(setting.first, setting.second.var.type);
                         }
                     }
                 }

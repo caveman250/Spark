@@ -1,7 +1,7 @@
 SSL_FRAGMENT
 
-setting int numPointLights;
-setting int numDirLights;
+setting internal int numPointLights;
+setting internal int numDirLights;
 setting vec4 ambientStr;
 
 port(FragColor) in vec4 inColor;

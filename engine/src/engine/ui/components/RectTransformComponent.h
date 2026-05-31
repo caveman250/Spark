@@ -46,7 +46,7 @@ namespace se::ui::components
         float maxHeight = 0;
 
         SPARK_MEMBER()
-        Rect rect = {};
+        Rect rect = { { std::numeric_limits<int>::max(), std::numeric_limits<int>::max() }, {} };
 
         SPARK_MEMBER()
         Rect lastRect = {};

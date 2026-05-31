@@ -112,9 +112,9 @@ namespace se::editor::ui
                 std::vector{ asset::AssetReference<asset::Shader>("/engine_assets/shaders/ui.sass") },
                 std::vector{ asset::AssetReference<asset::Shader>("/engine_assets/shaders/framebuffer_texture.sass") });
 #if OPENGL_RENDERER
-            material->GetShaderSettings().SetSetting("ymod", -1.f);
+            material->GetShaderSettings().SetSetting("ymod", -1.f, true);
 #else
-            material->GetShaderSettings().SetSetting("ymod", 1.f);
+            material->GetShaderSettings().SetSetting("ymod", 1.f, true);
 #endif
         }
 

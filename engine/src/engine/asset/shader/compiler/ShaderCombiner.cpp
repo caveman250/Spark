@@ -382,10 +382,10 @@ namespace se::asset::shader::compiler
     {
         for (const auto& [name, type] : rightCopy.GetSettingVariables())
         {
-            if (!leftCopy.HasSetting(name, type))
+            if (!leftCopy.HasSetting(name, type.var))
             {
                 std::string outError;
-                leftCopy.AddSetting(name, type, outError);
+                leftCopy.AddSetting(name, type.var, type.internal, outError);
             }
         }
     }

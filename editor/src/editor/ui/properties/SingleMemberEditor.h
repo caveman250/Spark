@@ -18,7 +18,7 @@ namespace se::editor::ui::properties
         ecs::Id GetTitleId() const override;
         void DestroyUI() override;
 
-    private:
+    protected:
         void* m_Value = nullptr;
         const se::reflect::Class* m_Type = nullptr;
         std::shared_ptr<PropertyEditor> m_WrappedEditor = nullptr;

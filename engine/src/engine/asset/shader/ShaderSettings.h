@@ -13,8 +13,12 @@ namespace se
         SPARK_CLASS(Abstract)
     public:
         virtual ~ShaderSettingDefinitionBase() = default;
+        ShaderSettingDefinitionBase() = default;
+        ShaderSettingDefinitionBase(bool _internal) : internal(_internal) {}
         virtual std::string ToGLSL() const = 0;
         virtual ShaderSettingValue GetValue() const = 0;
+
+        bool internal = false;
     };
 
     template <typename T>
@@ -23,7 +27,7 @@ namespace se
         SPARK_CLASS_TEMPLATED()
     public:
         ShaderSettingDefinition() = default;
-        ShaderSettingDefinition(const T& value) : m_Value(value) {}
+        ShaderSettingDefinition(const T& value, bool internal) : ShaderSettingDefinitionBase(internal), m_Value(value) {}
         std::string ToGLSL() const override { return std::format("{}", m_Value); }
         ShaderSettingValue GetValue() const override { return m_Value; }
     private:
@@ -46,7 +50,7 @@ namespace se
         ShaderSettingValue GetSettingValue(const std::string& setting) const;
 
         template <typename T>
-        void SetSetting(const std::string& setting, const T& value);
+        void SetSetting(const std::string& setting, const T& value, bool internal = false);
 
         void SetSettingDefault(const std::string& setting, asset::shader::ast::AstType type);
     private:
@@ -55,14 +59,14 @@ namespace se
     };
 
     template <typename T>
-    void ShaderSettings::SetSetting(const std::string& setting, const T& value)
+    void ShaderSettings::SetSetting(const std::string& setting, const T& value, bool internal)
     {
         // if you add extra types make sure to add them to the template instantiations for ShaderSettingDefinition above
         static_assert(std::is_same_v<T, float> ||
             std::is_same_v<T, int> ||
             std::is_same_v<T, math::Vec3> ||
             std::is_same_v<T, math::Vec4>);
-        m_Settings[setting] = std::make_shared<ShaderSettingDefinition<T>>(value);
+        m_Settings[setting] = std::make_shared<ShaderSettingDefinition<T>>(value, internal);
     }
 }
 

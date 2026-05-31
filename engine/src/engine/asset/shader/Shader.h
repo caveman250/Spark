@@ -47,12 +47,12 @@ namespace se::asset
         Fragment
     };
 
-    struct UniformVariable : reflect::ObjectBase
+    struct SerializedVariable : reflect::ObjectBase
     {
         SPARK_CLASS()
 
-        UniformVariable() = default;
-        UniformVariable(const shader::ast::Variable& _var, bool _internal)
+        SerializedVariable() = default;
+        SerializedVariable(const shader::ast::Variable& _var, bool _internal)
             : var(_var), internal(_internal)
         {
 
@@ -86,8 +86,8 @@ namespace se::asset
         const std::map<std::string, std::shared_ptr<shader::ast::OutputPortNode>>& GetOutputPorts() const { return m_OutputPorts; }
         const std::vector<std::shared_ptr<shader::ast::ASTNode>>& GetNodes() const { return m_AstNodes; }
         std::map<std::string, shader::ast::Variable>& GetGlobalVariables() { return m_GlobalVariables; }
-        const std::map<std::string, UniformVariable>& GetUniformVariables() const { return m_Uniforms; }
-        const std::map<std::string, shader::ast::Variable>& GetSettingVariables() const { return m_Settings; }
+        const std::map<std::string, SerializedVariable>& GetUniformVariables() const { return m_Uniforms; }
+        const std::map<std::string, SerializedVariable>& GetSettingVariables() const { return m_Settings; }
         std::vector<AstScope>& GetScopeStack() { return m_ScopeStack; }
 
         void AddInputPort(const std::shared_ptr<shader::ast::InputPortNode>& node);
@@ -117,7 +117,7 @@ namespace se::asset
         bool RecordVariableForScope(const std::string& name, const shader::ast::Variable& var, std::string& outError);
         bool AddUniform(const std::string& name, const shader::ast::Variable& var, bool internal, std::string& outError);
         bool HasUniform(const std::string& name) const;
-        bool AddSetting(const std::string& name, const shader::ast::Variable& var, std::string& outError);
+        bool AddSetting(const std::string& name, const shader::ast::Variable& var, bool internal, std::string& outError);
 
         void InsertNode(size_t at, const std::shared_ptr<shader::ast::ASTNode>& node);
         bool HasUniform(const std::string& name, const shader::ast::Variable& type);
@@ -151,13 +151,13 @@ namespace se::asset
         std::vector<AstScope> m_ScopeStack;
 
         SPARK_MEMBER(Serialized)
-        std::map<std::string, UniformVariable> m_Uniforms;
+        std::map<std::string, SerializedVariable> m_Uniforms;
 
         SPARK_MEMBER(Serialized)
         std::map<std::string, shader::ast::Variable> m_GlobalVariables;
 
         SPARK_MEMBER(Serialized)
-        std::map<std::string, shader::ast::Variable> m_Settings;
+        std::map<std::string, SerializedVariable> m_Settings;
 
         friend class shader::ShaderCompiler;
     };

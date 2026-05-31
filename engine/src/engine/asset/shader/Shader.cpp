@@ -160,10 +160,10 @@ namespace se::asset
             return ShaderVariable(var.type, var.arraySizeConstant, var.arraySizeVariable);
         }
 
-        it = m_Settings.find(name);
-        if (it != m_Settings.end())
+        auto settingIt = m_Settings.find(name);
+        if (settingIt != m_Settings.end())
         {
-            const auto& var = it->second;
+            const auto& var = settingIt->second.var;
             return ShaderVariable(var.type, var.arraySizeConstant, var.arraySizeVariable);
         }
 
@@ -332,7 +332,7 @@ namespace se::asset
             return false;
         }
 
-        m_Uniforms[name] = UniformVariable(var, internal);
+        m_Uniforms[name] = SerializedVariable(var, internal);
         return true;
     }
 
@@ -346,7 +346,7 @@ namespace se::asset
         return false;
     }
 
-    bool Shader::AddSetting(const std::string& name, const shader::ast::Variable& var, std::string& outError)
+    bool Shader::AddSetting(const std::string& name, const shader::ast::Variable& var, bool internal, std::string& outError)
     {
         if (m_GlobalVariables.contains(name))
         {
@@ -366,7 +366,7 @@ namespace se::asset
             return false;
         }
 
-        m_Settings[name] = var;
+        m_Settings[name] = SerializedVariable(var, internal);
         return true;
     }
 
@@ -392,7 +392,7 @@ namespace se::asset
     {
         for (const auto& [settingName, settingVar] : m_Settings)
         {
-            if (name == settingName && var == settingVar)
+            if (name == settingName && var == settingVar.var)
             {
                 return true;
             }

@@ -65,7 +65,7 @@ namespace se::editor::ui::properties
         {
             for (const auto& setting: settings)
             {
-                text->text += std::format("    {} {}\n", asset::shader::ast::TypeUtil::TypeToGlsl(setting.second.type), setting.first);
+                text->text += std::format("    {} {}\n", asset::shader::ast::TypeUtil::TypeToGlsl(setting.second.var.type), setting.first);
             }
         }
 
