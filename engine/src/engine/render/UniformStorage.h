@@ -136,7 +136,7 @@ namespace se::render
         if (m_Storage.contains(name))
         {
             const void* oldVal = m_Storage.at(name)->GetValue();
-            if (memcmp(static_cast<const void*>(value), oldVal, sizeof(T) * count) != 0)
+            if (!oldVal || memcmp(static_cast<const void*>(value), oldVal, sizeof(T) * count) != 0)
             {
                 m_Storage.at(name)->SetValue(value, count, internal);
                 m_Stale = true;

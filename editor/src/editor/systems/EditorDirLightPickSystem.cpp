@@ -1,4 +1,4 @@
-#include "EditorPointLightPickSystem.h"
+#include "EditorDirLightPickSystem.h"
 #include "EditorMeshPickSystem.h"
 #include "RotationGizmoSystem.h"
 #include "TranslationGizmoSystem.h"
@@ -11,15 +11,15 @@
 #include "engine/geo/util/CollisionUtil.h"
 #include "engine/input/InputComponent.h"
 #include "engine/input/InputUtil.h"
-#include "engine/render/components/PointLightComponent.h"
+#include "engine/render/components/DirLightComponent.h"
 
 namespace se::editor::systems
 {
-    ecs::SystemDeclaration EditorPointLightPickSystem::GetSystemDeclaration()
+    ecs::SystemDeclaration EditorDirLightPickSystem::GetSystemDeclaration()
     {
         return ecs::SystemDeclaration()
             .WithComponent<ecs::components::TransformComponent>()
-            .WithComponent<render::components::PointLightComponent>()
+            .WithComponent<render::components::DirLightComponent>()
             .WithSingletonComponent<const camera::ActiveCameraComponent>()
             .WithSingletonComponent<input::InputComponent>()
             .WithSingletonComponent<singleton_components::EditorPickComponent>()
@@ -27,7 +27,7 @@ namespace se::editor::systems
             .WithDependency<RotationGizmoSystem>();
     }
 
-    void EditorPointLightPickSystem::OnUpdate(const ecs::QueryResults& results)
+    void EditorDirLightPickSystem::OnUpdate(const ecs::QueryResults& results)
     {
         auto editor = Application::Get()->GetEditor();
         if (editor->InGameMode())
@@ -42,7 +42,7 @@ namespace se::editor::systems
             auto inputComp = updateData.GetSingletonComponent<input::InputComponent>();
             auto pickComp = updateData.GetSingletonComponent<singleton_components::EditorPickComponent>();
             auto* transforms = updateData.GetComponentArray<ecs::components::TransformComponent>();
-            auto* lights = updateData.GetComponentArray<render::components::PointLightComponent>();
+            auto* lights = updateData.GetComponentArray<render::components::DirLightComponent>();
 
             auto ray = util::GetEditorMouseRay(inputComp, cameraComp);
 

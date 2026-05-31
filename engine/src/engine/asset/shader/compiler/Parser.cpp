@@ -9,6 +9,7 @@
 #include "engine/asset/shader/ast/IfNode.h"
 #include "engine/asset/shader/ast/InputPortNode.h"
 #include "engine/asset/shader/ast/MainNode.h"
+#include "engine/asset/shader/ast/Mat3Node.h"
 #include "engine/asset/shader/ast/Operators.h"
 #include "engine/asset/shader/ast/OutputPortNode.h"
 #include "engine/asset/shader/ast/PropertyAccessNode.h"
@@ -290,6 +291,72 @@ namespace se::asset::shader::compiler
         return true;
     }
 
+    bool Parser::ProcessMat3(const Token&,
+        ParseError& outError)
+    {
+        Token nextToken;
+        if (!ExpectedGetAndConsume({TokenType::Syntax}, {"("}, nextToken, outError))
+        {
+            return false;
+        }
+
+        auto vec4 = m_Shader.AddNode<ast::Mat3Node>();
+        m_Shader.PushScope(vec4);
+        int componentsAccountedFor = 0;
+        while (componentsAccountedFor < 9)
+        {
+            ast::AstType argType;
+            if (!ProcessExpression(argType, outError))
+            {
+                return false;
+            }
+
+            switch (argType)
+            {
+                case ast::AstType::Int:
+                case ast::AstType::Float:
+                    componentsAccountedFor++;
+                    break;
+                case ast::AstType::Vec2:
+                    componentsAccountedFor += 2;
+                    break;
+                case ast::AstType::Vec3:
+                    componentsAccountedFor += 3;
+                    break;
+                case ast::AstType::Vec4:
+                    componentsAccountedFor += 4;
+                    break;
+                case ast::AstType::Mat3:
+                case ast::AstType::Mat4:
+                    componentsAccountedFor += 9;
+                    break;
+                default:
+                    outError = {
+                        nextToken.line, nextToken.pos,
+                        std::format("Unexpected type {}", ast::TypeUtil::TypeToGlsl(argType))
+                    };
+                    return false;
+            }
+
+            if (componentsAccountedFor < 9)
+            {
+                if (!ExpectedGetAndConsume({TokenType::Syntax}, {","}, nextToken, outError))
+                {
+                    return false;
+                }
+            }
+        }
+
+        if (!ExpectedGetAndConsume({TokenType::Syntax}, {")"}, nextToken, outError))
+        {
+            return false;
+        }
+
+        m_Shader.PopScope();
+
+        return true;
+    }
+
     bool Parser::ProcessBuiltin(const Token& token, ast::AstType& returnType, ParseError& outError)
     {
         returnType = ast::AstType::Invalid;
@@ -335,6 +402,11 @@ namespace se::asset::shader::compiler
         {
             returnType = ast::AstType::Vec4;
             return ProcessVec4(token, outError);
+        }
+        else if (token.value == "mat3")
+        {
+            returnType = ast::AstType::Mat3;
+            return ProcessMat3(token, outError);
         }
         else if (token.value == "port")
         {
@@ -1119,6 +1191,12 @@ namespace se::asset::shader::compiler
             if (Peek(binaryOpPeekOffset, {TokenType::Syntax}, {"["}))
             {
                 binaryOpPeekOffset += 3; // skip array access
+
+                // handle property access chained from array access
+                if (Peek(binaryOpPeekOffset, {TokenType::Syntax}, {"."}))
+                {
+                    binaryOpPeekOffset += 2; // skip property access
+                }
             }
 
             if (Peek(binaryOpPeekOffset, { TokenType::Syntax }, ast::OperatorUtil::GetOperatorStrings(), binaryOpToken))
@@ -1214,8 +1292,18 @@ namespace se::asset::shader::compiler
                         return false;
                     }
 
+                    // check for property access
+                    auto peek = m_Lexer.PeekToken();
+                    if (std::holds_alternative<Token>(peek) && std::get<Token>(peek).value == ".")
+                    {
+                        if (!ProcessPropertyAccess(nextToken, expressionType, outError))
+                        {
+                            return false;
+                        }
 
-                    if (varInfo.value().arraySizeConstant == 0 && varInfo->arraySizeVariable.empty())
+                        isPropertyAccess = true;
+                    }
+                    else if (varInfo.value().arraySizeConstant == 0 && varInfo->arraySizeVariable.empty())
                     {
                         if (currentVariableType == ast::AstType::Vec2)
                         {

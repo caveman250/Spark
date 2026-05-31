@@ -4,6 +4,7 @@
 #include "engine/asset/Asset.h"
 #include "engine/asset/AssetReference.h"
 #include "engine/math/Vec3.h"
+#include "engine/ecs/Prefab.h"
 
 namespace se::ecs 
 {

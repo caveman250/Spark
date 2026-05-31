@@ -129,9 +129,12 @@ namespace se::render::systems
                 {
                     EASY_BLOCK("Set Uniforms")
 
+                    math::Mat4 inverseModel = transforms[i].worldTransform;
+                    inverseModel = math::Inverse(inverseModel);
+                    material->SetUniform("inverseModel", 1, &inverseModel, true);
+
                     if (material->GetMaterial()->GetRenderState().lit)
                     {
-                        material->SetUniform("inverseModel", 1, &transforms[i].worldTransform, true);
                         material->SetUniform("viewPos", 1, &camera->pos);
                     }
 

@@ -4,6 +4,8 @@
 
 namespace se::math
 {
+    class Mat4;
+
     class Mat3
     {
         SPARK_POD_CLASS()
@@ -18,6 +20,8 @@ namespace se::math
         Mat3(const Vec3& v0,
             const Vec3& v1,
             const Vec3& v2);
+
+        Mat3(const Mat4& m);
 
         Vec3& operator[](size_t i);
         const Vec3& operator[](size_t i) const;

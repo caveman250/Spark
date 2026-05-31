@@ -9,6 +9,7 @@
 
 namespace se::render
 {
+    struct DirLight;
     template<typename T>
     concept ARenderCommand = std::is_base_of<commands::RenderCommand, T>::value;
 
@@ -51,6 +52,7 @@ namespace se::render
 
         const LightSetup& GetLightSetup() const { return m_LightSetup; }
         void AddPointLight(const PointLight& light);
+        void AddDirLight(const DirLight& light);
 
         size_t AllocRenderGroup(int layer);
         size_t GetDefaultRenderGroup() { return m_DefaultRenderGroup; }

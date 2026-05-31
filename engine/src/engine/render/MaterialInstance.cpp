@@ -26,16 +26,27 @@ namespace se::render
             EASY_BLOCK("Apply Lights");
 
             const auto& lightSetup = Renderer::Get<Renderer>()->GetLightSetup();
+            std::vector<math::Vec3> dir;
+            dir.resize(lightSetup.dirLights.size());
+            std::ranges::transform(lightSetup.dirLights, dir.begin(), [](const DirLight& light){ return light.dir; });
+
+            std::vector<math::Vec3> color;
+            color.resize(lightSetup.dirLights.size());
+            std::ranges::transform(lightSetup.dirLights, color.begin(), [](const DirLight& light){ return light.color; });
+
+            SetUniform("dirLights", static_cast<int>(dir.size()), dir.data(), true);
+            SetUniform("dirLightColors", static_cast<int>(color.size()), color.data(), true);
+
             std::vector<math::Vec3> pos;
             pos.resize(lightSetup.pointLights.size());
             std::ranges::transform(lightSetup.pointLights, pos.begin(), [](const PointLight& light){ return light.pos; });
 
-            std::vector<math::Vec3> color;
+            color.clear();
             color.resize(lightSetup.pointLights.size());
             std::ranges::transform(lightSetup.pointLights, color.begin(), [](const PointLight& light){ return light.color; });
 
-            SetUniform("lightPos", static_cast<int>(pos.size()), pos.data(), true);
-            SetUniform("lightColor", static_cast<int>(color.size()), color.data(), true);
+            SetUniform("pointLightPos", static_cast<int>(pos.size()), pos.data(), true);
+            SetUniform("pointLightColors", static_cast<int>(color.size()), color.data(), true);
         }
 
         if (!m_PlatformResources)

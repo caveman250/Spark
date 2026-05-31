@@ -29,6 +29,14 @@ namespace se::math
     {
     }
 
+    Mat3::Mat3(const Mat4& m)
+        : m_Value { Vec3 { m[0][0], m[0][1], m[0][2] },
+                    Vec3 { m[1][0], m[1][1], m[1][2] },
+                    Vec3 { m[2][0], m[2][1], m[2][2] } }
+    {
+
+    }
+
     Vec3& Mat3::operator[](const size_t i)
     {
         return m_Value[i];

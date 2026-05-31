@@ -47,6 +47,7 @@ namespace se::asset::shader::compiler
         bool ProcessVec2(const Token& token, ParseError& error);
         bool ProcessVec3(const Token& token, ParseError& error);
         bool ProcessVec4(const Token& token, ParseError& error);
+        bool ProcessMat3(const Token& token, ParseError& error);
 
         bool ProcessExpression(ast::AstType& outType, ParseError& outError);
         bool ProcessForLoop(ParseError& outError);

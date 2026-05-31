@@ -1,0 +1,63 @@
+SSL_FRAGMENT
+
+setting int numPointLights;
+setting int numDirLights;
+setting vec4 ambientStr;
+
+port(FragColor) in vec4 inColor;
+port(FragmentNormal) in vec3 inNormal;
+port(FragmentUV) in vec2 UV;
+port(FragmentWorldPos) in vec4 inWorldPos;
+
+port(FragColor) out vec4 color;
+
+uniform vec3 viewPos;
+uniform vec3 pointLightPos[numPointLights];
+uniform vec3 pointLightColors[numPointLights];
+
+uniform vec3 dirLights[numPointLights];
+uniform vec3 dirLightColors[numPointLights];
+
+void main()
+{
+    color = ambientStr * inColor;
+    vec3 norm = normalize(inNormal);
+
+    for (int i = 0; i < numDirLights; i += 1)
+    {
+        vec3 lightDir = normalize(-dirLights[i]);
+        float diff = max(dot(norm, lightDir), 0.0);
+        vec3 diffuse = dirLightColors[i] * diff * inColor.rgb;
+
+        vec3 viewDir = normalize(viewPos - inWorldPos.xyz);
+        vec3 reflectDir = reflect(-lightDir, norm);
+        float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32);
+        vec3 specular = dirLightColors[i] * spec * vec3(0.5, 0.5, 0.5);
+
+        vec3 result = diffuse + specular;
+        color += vec4(result, 1.0);
+    }
+
+    for (int i = 0; i < numPointLights; i += 1)
+    {
+        vec3 lightDir = normalize(pointLightPos[i] - inWorldPos.xyz);
+        float diff = max(dot(norm, lightDir), 0.0);
+        vec3 diffuse = pointLightColors[i] * diff * inColor.rgb;
+
+        vec3 viewDir = normalize(viewPos - inWorldPos.xyz);
+        vec3 reflectDir = reflect(-lightDir, norm);
+        float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32);
+        vec3 specular = pointLightColors[i] * spec * vec3(0.5, 0.5, 0.5);
+
+        float distance = length(pointLightPos[i] - inWorldPos.xyz);
+        float distSq = distance * distance;
+        float attenuation = 1.0 + 0.09 * distance + 0.032 * distSq;
+        attenuation = 1.0 / attenuation;
+
+        diffuse *= attenuation;
+        specular *= attenuation;
+
+        vec3 result = diffuse + specular;
+        color += vec4(result, 1.0);
+    }
+}

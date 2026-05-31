@@ -1,0 +1,19 @@
+#pragma once
+
+#include "spark.h"
+#include "engine/ecs/System.h"
+#include "engine/ecs/components/TransformComponent.h"
+
+namespace se::render::systems
+{
+    class DirLightSystem : public ecs::EngineSystem
+    {
+        SPARK_SYSTEM()
+
+        static ecs::SystemDeclaration GetSystemDeclaration();
+        void OnUpdate(const ecs::QueryResults&) override;
+#if SPARK_EDITOR
+        void OnRender(const ecs::QueryResults&) override;
+#endif
+    };
+}

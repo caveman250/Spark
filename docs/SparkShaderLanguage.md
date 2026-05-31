@@ -224,7 +224,7 @@ The direction of the camera from the fragment being rendered in camera space.
 
 ##### LightDirCameraSpace (3d only)
 
-The direction of the scenes lights in camera space. This variable is an array, and it's size must be defined by a setting named numLights. 
+The direction of the scenes lights in camera space. This variable is an array, and it's size must be defined by a setting named numPointLights. 
 
 #### Inputs
 
@@ -286,14 +286,14 @@ They can be declared with the following syntax:
 //
 // eg:
 
-setting int numLights;
+setting int numPointLights;
 ```
 
 Settings can be set from c++ with the following:
 
 ```cpp
 std::shared_ptr<render::Material> material = ...
-material->GetShaderSettings().SetSetting("numLights", 3);
+material->GetShaderSettings().SetSetting("numPointLights", 3);
 ```
 
 Settings must be set before a material has created it's platform resources. This generally happens the first time a material is used to submit a draw call.

@@ -183,7 +183,7 @@ namespace se::asset::shader::ast
             case AstType::Vec4:
                 return sizeof(math::Vec4);
             case AstType::Mat3:
-                return sizeof(math::Mat3);
+                return sizeof(math::Vec4) * 3;
             case AstType::Mat4:
                 return sizeof(math::Mat4);
             case AstType::Void:

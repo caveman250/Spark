@@ -4,7 +4,6 @@
 #include "engine/render/components/PointLightComponent.h"
 #include "engine/ecs/components/TransformComponent.h"
 #include "engine/geo/util/MeshUtil.h"
-#include "engine/ui/util/MeshUtil.h"
 #include "engine/render/VertexBuffer.h"
 #include "engine/render/IndexBuffer.h"
 #include "engine/render/MaterialInstance.h"

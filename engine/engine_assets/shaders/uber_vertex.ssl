@@ -1,14 +1,12 @@
 SSL_VERTEX
 
-setting int numLights;
-
 port(VertexPos) in vec3 inPos;
 port(VertexUV) in vec2 inUV;
 port(VertexNormal) in vec3 inNormal;
 
 port(FinalVertexPos) out vec4 outPos;
 port(FragmentWorldPos) out vec4 outWorldPos;
-port(FragmentNormal) out vec4 outNormal;
+port(FragmentNormal) out vec3 outNormal;
 port(FragmentUV) out vec2 outUV;
 
 uniform mat4 inverseModel;
@@ -22,7 +20,9 @@ void main()
     outPos = MVP * vec4(inPos, 1.0);
 
     outWorldPos = model * vec4(inPos, 1);
-    mat4 transposedInverse = transpose(inverseModel);
-    outNormal = transposedInverse * vec4(inNormal, 1.0);
+    mat3 inv3 = mat3(inverseModel[0].xyz, inverseModel[1].xyz, inverseModel[2].xyz);
+    mat3 transposedInverse = transpose(inv3);
+    outNormal = transposedInverse * inNormal;
+    outNormal = normalize(outNormal);
     outUV = inUV;
 }

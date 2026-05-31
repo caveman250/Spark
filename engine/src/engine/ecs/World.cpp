@@ -21,6 +21,7 @@
 #include "engine/ui/components/RectTransformComponent.h"
 #include "ecs_fwd.h"
 #include "components/TransformComponent.h"
+#include "engine/ecs/Prefab.h"
 
 namespace se::ecs
 {

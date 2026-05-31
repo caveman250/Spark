@@ -40,30 +40,12 @@
             }
         },
         {
-            "ShaderSettingDefinition<int32_t>": {
-                "m_Value": "Int32"
-            }
-        },
-        {
             "ShaderSettingDefinition<Vec3>": {
                 "m_Value": "Object"
             }
         },
         {
             "Vec3": {
-                "x": "Float",
-                "y": "Float",
-                "z": "Float"
-            }
-        },
-        {
-            "ShaderSettingDefinition<Vec4>": {
-                "m_Value": "Object"
-            }
-        },
-        {
-            "Vec4": {
-                "w": "Float",
                 "x": "Float",
                 "y": "Float",
                 "z": "Float"
@@ -94,11 +76,6 @@
                         "AssetReference<Shader>": {
                             "m_AssetPath": "/engine_assets/shaders/flat_color.sass"
                         }
-                    },
-                    {
-                        "AssetReference<Shader>": {
-                            "m_AssetPath": "/engine_assets/shaders/lighting.sass"
-                        }
                     }
                 ]
             },
@@ -111,7 +88,7 @@
                     "stencilWriteMask": 0,
                     "stencilFunc": "None",
                     "stencilReadMask": 0,
-                    "lit": true,
+                    "lit": false,
                     "cullMode": "Back"
                 }
             },
@@ -122,26 +99,6 @@
                         "contents": [
                             {
                                 "Internal_MapItemString_Object": {
-                                    "key": "numDirLights",
-                                    "value": {
-                                        "ShaderSettingDefinition<int32_t>": {
-                                            "m_Value": 1
-                                        }
-                                    }
-                                }
-                            },
-                            {
-                                "Internal_MapItemString_Object": {
-                                    "key": "numPointLights",
-                                    "value": {
-                                        "ShaderSettingDefinition<int32_t>": {
-                                            "m_Value": 3
-                                        }
-                                    }
-                                }
-                            },
-                            {
-                                "Internal_MapItemString_Object": {
                                     "key": "color_setting",
                                     "value": {
                                         "ShaderSettingDefinition<Vec3>": {
@@ -150,23 +107,6 @@
                                                     "x": 0.5,
                                                     "y": 0.5,
                                                     "z": 0.5
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            },
-                            {
-                                "Internal_MapItemString_Object": {
-                                    "key": "ambientStr",
-                                    "value": {
-                                        "ShaderSettingDefinition<Vec4>": {
-                                            "m_Value": {
-                                                "Vec4": {
-                                                    "x": 0.0,
-                                                    "y": 0.0,
-                                                    "z": 0.0,
-                                                    "w": 1.0
                                                 }
                                             }
                                         }
@@ -185,7 +125,7 @@
                     }
                 }
             },
-            "m_SourcePath": "/engine_source_assets/materials/M_DefaultLitNoTexture.json"
+            "m_SourcePath": "/engine_source_assets/materials/M_DefaultUnlitNoTexture.json"
         }
     }
 }

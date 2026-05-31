@@ -36,8 +36,14 @@ namespace se::render
     void Renderer::AddPointLight(const PointLight &light)
     {
         m_LightsMutex.lock();
-        m_LightSetup.pointLights
-                .push_back(light);
+        m_LightSetup.pointLights.push_back(light);
+        m_LightsMutex.unlock();
+    }
+
+    void Renderer::AddDirLight(const DirLight& light)
+    {
+        m_LightsMutex.lock();
+        m_LightSetup.dirLights.push_back(light);
         m_LightsMutex.unlock();
     }
 
