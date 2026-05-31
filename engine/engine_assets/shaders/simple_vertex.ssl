@@ -9,9 +9,9 @@ port(FragmentNormalCameraSpace) out vec3 outNormal;
 port(FragmentUV) out vec2 outUV;
 port(FragmentWorldPos) out vec3 outWorldPos;
 
-uniform mat4 model;
-uniform mat4 view;
-uniform mat4 proj;
+uniform internal mat4 model;
+uniform internal mat4 view;
+uniform internal mat4 proj;
 
 void main()
 {

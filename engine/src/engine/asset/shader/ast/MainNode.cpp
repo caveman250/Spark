@@ -47,7 +47,7 @@ namespace se::asset::shader::ast
             int index = 0;
             for (const auto& [name, uniform] : context.currentShader->GetUniformVariables())
             {
-                if (uniform.type == AstType::Sampler2D)
+                if (uniform.var.type == AstType::Sampler2D)
                 {
                     outShader += string::ArenaFormat(",\ntexture2d<float, access::sample> {} [[texture({})]]", alloc, name, index++);
                 }

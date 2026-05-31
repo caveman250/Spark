@@ -69,10 +69,10 @@ namespace se::render::metal
             if (!m_VertexUniformOffsets.contains(name))
             {
                 m_VertexUniformOffsets[name] = m_VertexUniformsSize;
-                auto varSize = asset::shader::ast::TypeUtil::GetTypePaddedSize(uniform.type);
-                if (uniform.arraySizeConstant > 0)
+                auto varSize = asset::shader::ast::TypeUtil::GetTypePaddedSize(uniform.var.type);
+                if (uniform.var.arraySizeConstant > 0)
                 {
-                    varSize *= uniform.arraySizeConstant;
+                    varSize *= uniform.var.arraySizeConstant;
                 }
 
                 m_VertexUniformsSize += varSize;
@@ -86,10 +86,10 @@ namespace se::render::metal
             if (!m_FragmentUniformOffsets.contains(name))
             {
                 m_FragmentUniformOffsets[name] = m_FragmentUniformsSize;
-                auto varSize = asset::shader::ast::TypeUtil::GetTypePaddedSize(uniform.type);
-                if (uniform.arraySizeConstant > 0)
+                auto varSize = asset::shader::ast::TypeUtil::GetTypePaddedSize(uniform.var.type);
+                if (uniform.var.arraySizeConstant > 0)
                 {
-                    varSize *= uniform.arraySizeConstant;
+                    varSize *= uniform.var.arraySizeConstant;
                 }
 
                 m_FragmentUniformsSize += varSize;

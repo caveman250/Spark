@@ -47,6 +47,24 @@ namespace se::asset
         Fragment
     };
 
+    struct UniformVariable : reflect::ObjectBase
+    {
+        SPARK_CLASS()
+
+        UniformVariable() = default;
+        UniformVariable(const shader::ast::Variable& _var, bool _internal)
+            : var(_var), internal(_internal)
+        {
+
+        }
+
+        SPARK_MEMBER(Serialized)
+        shader::ast::Variable var = {};
+
+        SPARK_MEMBER(Serialized)
+        bool internal = false;
+    };
+
     class Shader : public Asset
     {
         SPARK_CLASS()
@@ -68,7 +86,7 @@ namespace se::asset
         const std::map<std::string, std::shared_ptr<shader::ast::OutputPortNode>>& GetOutputPorts() const { return m_OutputPorts; }
         const std::vector<std::shared_ptr<shader::ast::ASTNode>>& GetNodes() const { return m_AstNodes; }
         std::map<std::string, shader::ast::Variable>& GetGlobalVariables() { return m_GlobalVariables; }
-        const std::map<std::string, shader::ast::Variable>& GetUniformVariables() const { return m_Uniforms; }
+        const std::map<std::string, UniformVariable>& GetUniformVariables() const { return m_Uniforms; }
         const std::map<std::string, shader::ast::Variable>& GetSettingVariables() const { return m_Settings; }
         std::vector<AstScope>& GetScopeStack() { return m_ScopeStack; }
 
@@ -97,7 +115,7 @@ namespace se::asset
         const std::shared_ptr<shader::ast::InputNode>& FindInput(const std::string& name) const;
         const std::shared_ptr<shader::ast::OutputNode>& FindOutput(const std::string& name) const;
         bool RecordVariableForScope(const std::string& name, const shader::ast::Variable& var, std::string& outError);
-        bool AddUniform(const std::string& name, const shader::ast::Variable& var, std::string& outError);
+        bool AddUniform(const std::string& name, const shader::ast::Variable& var, bool internal, std::string& outError);
         bool HasUniform(const std::string& name) const;
         bool AddSetting(const std::string& name, const shader::ast::Variable& var, std::string& outError);
 
@@ -133,7 +151,7 @@ namespace se::asset
         std::vector<AstScope> m_ScopeStack;
 
         SPARK_MEMBER(Serialized)
-        std::map<std::string, shader::ast::Variable> m_Uniforms;
+        std::map<std::string, UniformVariable> m_Uniforms;
 
         SPARK_MEMBER(Serialized)
         std::map<std::string, shader::ast::Variable> m_GlobalVariables;

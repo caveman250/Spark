@@ -11,12 +11,13 @@ port(FragmentWorldPos) in vec4 inWorldPos;
 
 port(FragColor) out vec4 color;
 
-uniform vec3 viewPos;
-uniform vec3 pointLightPos[numPointLights];
-uniform vec3 pointLightColors[numPointLights];
-
-uniform vec3 dirLights[numPointLights];
-uniform vec3 dirLightColors[numPointLights];
+uniform internal vec3 viewPos;
+uniform internal vec3 pointLightPos[numPointLights];
+uniform internal vec3 pointLightColors[numPointLights];
+uniform internal float pointLightPowers[numPointLights];
+uniform internal vec3 dirLights[numPointLights];
+uniform internal vec3 dirLightColors[numPointLights];
+uniform float shininess;
 
 void main()
 {
@@ -31,7 +32,7 @@ void main()
 
         vec3 viewDir = normalize(viewPos - inWorldPos.xyz);
         vec3 reflectDir = reflect(-lightDir, norm);
-        float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32);
+        float spec = pow(max(dot(viewDir, reflectDir), 0.0), shininess);
         vec3 specular = dirLightColors[i] * spec * vec3(0.5, 0.5, 0.5);
 
         vec3 result = diffuse + specular;
@@ -46,16 +47,15 @@ void main()
 
         vec3 viewDir = normalize(viewPos - inWorldPos.xyz);
         vec3 reflectDir = reflect(-lightDir, norm);
-        float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32);
+        float spec = pow(max(dot(viewDir, reflectDir), 0.0), shininess);
         vec3 specular = pointLightColors[i] * spec * vec3(0.5, 0.5, 0.5);
 
         float distance = length(pointLightPos[i] - inWorldPos.xyz);
         float distSq = distance * distance;
-        float attenuation = 1.0 + 0.09 * distance + 0.032 * distSq;
-        attenuation = 1.0 / attenuation;
 
-        diffuse *= attenuation;
-        specular *= attenuation;
+        float attenuation = 1.0 / distSq;
+        diffuse = diffuse * pointLightPowers[i] * attenuation;
+        specular = specular * pointLightPowers[i] * attenuation;
 
         vec3 result = diffuse + specular;
         color += vec4(result, 1.0);

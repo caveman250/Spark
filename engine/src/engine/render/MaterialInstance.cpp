@@ -45,8 +45,13 @@ namespace se::render
             color.resize(lightSetup.pointLights.size());
             std::ranges::transform(lightSetup.pointLights, color.begin(), [](const PointLight& light){ return light.color; });
 
+            std::vector<float> power;
+            power.resize(lightSetup.pointLights.size());
+            std::ranges::transform(lightSetup.pointLights, power.begin(), [](const PointLight& light){ return light.power; });
+
             SetUniform("pointLightPos", static_cast<int>(pos.size()), pos.data(), true);
             SetUniform("pointLightColors", static_cast<int>(color.size()), color.data(), true);
+            SetUniform("pointLightPowers", static_cast<int>(power.size()), power.data(), true);
         }
 
         if (!m_PlatformResources)

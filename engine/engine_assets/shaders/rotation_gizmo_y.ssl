@@ -6,8 +6,8 @@ port(FragmentWorldPos) in vec3 worldPos;
 port(FragColor) out vec4 color;
 
 uniform vec4 uniform_color;
-uniform vec3 gizmo_data;
-uniform vec3 world_pos;
+uniform internal vec3 gizmo_data;
+uniform internal vec3 world_pos;
 
 void main()
 {

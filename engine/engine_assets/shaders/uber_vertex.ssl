@@ -9,10 +9,10 @@ port(FragmentWorldPos) out vec4 outWorldPos;
 port(FragmentNormal) out vec3 outNormal;
 port(FragmentUV) out vec2 outUV;
 
-uniform mat4 inverseModel;
-uniform mat4 model;
-uniform mat4 view;
-uniform mat4 proj;
+uniform internal mat4 inverseModel;
+uniform internal mat4 model;
+uniform internal mat4 view;
+uniform internal mat4 proj;
 
 void main()
 {

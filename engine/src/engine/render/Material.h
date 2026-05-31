@@ -38,12 +38,12 @@ namespace se::render
         const RenderState& GetRenderState() const { return m_RenderState; }
         const std::shared_ptr<MaterialPlatformResources>& GetPlatformResources() const { return m_PlatformResources; }
 
-        const UniformStorage& GetUniformDefaults();
+        UniformStorage& GetUniformDefaults();
 
         const std::vector<asset::AssetReference<asset::Shader>>& GetVertShaders() const { return m_VertShaders; }
         const std::vector<asset::AssetReference<asset::Shader>>& GetFragShaders() const { return m_FragShaders; }
-        const std::map<std::string, asset::shader::ast::Variable>& GetVertUniforms() const { return m_VertUniforms; }
-        const std::map<std::string, asset::shader::ast::Variable>& GetFragUniforms() const { return m_FragUniforms; }
+        const std::map<std::string, asset::UniformVariable>& GetVertUniforms() const { return m_VertUniforms; }
+        const std::map<std::string, asset::UniformVariable>& GetFragUniforms() const { return m_FragUniforms; }
 
     protected:
         SPARK_MEMBER(Serialized)
@@ -64,7 +64,7 @@ namespace se::render
         LightSetup m_CachedLightSetup = {};
         bool m_PlatformResourcesCreated = false;
         std::shared_ptr<MaterialPlatformResources> m_PlatformResources = nullptr;
-        std::map<std::string, asset::shader::ast::Variable> m_VertUniforms = {};
-        std::map<std::string, asset::shader::ast::Variable> m_FragUniforms = {};
+        std::map<std::string, asset::UniformVariable> m_VertUniforms = {};
+        std::map<std::string, asset::UniformVariable> m_FragUniforms = {};
     };
 }

@@ -6,8 +6,8 @@ port(VertexUV) in vec2 inUV;
 port(FinalVertexPos) out vec4 outPos;
 port(FragmentUV) out vec2 outUV;
 
-uniform vec2 screenSize;
-uniform vec2 pos;
+uniform internal vec2 screenSize;
+uniform internal vec2 pos;
 
 void main()
 {

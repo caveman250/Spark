@@ -27,9 +27,9 @@ namespace se::render::systems
         auto* editor = Application::Get()->GetEditor();
         if (editor->GetMode() == editor::EditorMode::Prefab)
         {
-            renderer->AddPointLight( PointLight{ math::Vec3(-5, 5, 5), math::Vec4(1.f, 1.f, 1.f, 1.f) });
-            renderer->AddPointLight( PointLight{ math::Vec3(5, 5, 5), math::Vec4(1.f, 1.f, 1.f, 1.f) });
-            renderer->AddPointLight( PointLight{ math::Vec3(0, 5, -5), math::Vec4(1.f, 1.f, 1.f, 1.f) });
+            renderer->AddPointLight( PointLight{ math::Vec3(-5, 5, 5), math::Vec4(1.f, 1.f, 1.f, 1.f), 5.f });
+            renderer->AddPointLight( PointLight{ math::Vec3(5, 5, 5), math::Vec4(1.f, 1.f, 1.f, 1.f), 5.f });
+            renderer->AddPointLight( PointLight{ math::Vec3(0, 5, -5), math::Vec4(1.f, 1.f, 1.f, 1.f), 5.f });
             return;
         }
 #endif
@@ -41,7 +41,7 @@ namespace se::render::systems
             const auto& entities = updateData.GetEntities();
             for (size_t i = 0; i < entities.size(); ++i)
             {
-                renderer->AddPointLight( PointLight{ transforms[i].pos, pointLights[i].color });
+                renderer->AddPointLight( PointLight{ transforms[i].pos, pointLights[i].color, pointLights[i].power });
             }
         });
     }

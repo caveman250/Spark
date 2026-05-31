@@ -370,10 +370,10 @@ namespace se::asset::shader::compiler
     {
         for (const auto& [name, type] : rightCopy.GetUniformVariables())
         {
-            if (!leftCopy.HasUniform(name, type))
+            if (!leftCopy.HasUniform(name, type.var))
             {
                 std::string outError;
-                leftCopy.AddUniform(name, type, outError);
+                leftCopy.AddUniform(name, type.var, type.internal, outError);
             }
         }
     }

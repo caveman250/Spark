@@ -795,6 +795,12 @@ namespace se::asset::shader::compiler
 
     bool Parser::ProcessUniformDeclaration(const Token&, ast::AstType& returnType, ParseError& outError)
     {
+        bool internal = false;
+        if (Peek({TokenType::Builtin }, { "internal" }))
+        {
+            internal = true;
+            m_Lexer.ConsumeToken();
+        }
         Token typeToken;
         if (!ExpectedGetAndConsume({TokenType::Builtin}, ast::TypeUtil::GetTypeStrings(), typeToken,
                                    outError))
@@ -847,7 +853,7 @@ namespace se::asset::shader::compiler
         }
 
         std::string temp;
-        if (!m_Shader.AddUniform(name, var, temp))
+        if (!m_Shader.AddUniform(name, var, internal, temp))
         {
             outError = {nameToken.line, nameToken.pos, temp.data()};
             return false;

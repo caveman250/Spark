@@ -11,7 +11,10 @@ namespace se::render::components
         SPARK_COMPONENT()
 
         SPARK_MEMBER(Serialized)
-        math::Vec3 color;
+        math::Vec3 color = { 1.f };
+
+        SPARK_MEMBER(Serialized)
+        float power = 5.f;
 
 #if SPARK_EDITOR
         std::shared_ptr<MaterialInstance> iconMaterial = {};

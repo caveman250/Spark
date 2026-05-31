@@ -50,9 +50,9 @@ namespace se::editor::ui::properties
                     const auto& shaderAsset = shader.GetAsset();
                     for (const auto& uniform : shaderAsset->GetUniformVariables())
                     {
-                        if (!uniforms.HasValue(uniform.first))
+                        if (!uniform.second.internal && !uniforms.HasValue(uniform.first))
                         {
-                            uniforms.SetValueDefault(uniform.first, uniform.second.type);
+                            uniforms.SetValueDefault(uniform.first, uniform.second.var.type);
                         }
                     }
                 }
@@ -64,9 +64,9 @@ namespace se::editor::ui::properties
                     const auto& shaderAsset = shader.GetAsset();
                     for (const auto& uniform : shaderAsset->GetUniformVariables())
                     {
-                        if (!uniforms.HasValue(uniform.first))
+                        if (!uniform.second.internal && !uniforms.HasValue(uniform.first))
                         {
-                            uniforms.SetValueDefault(uniform.first, uniform.second.type);
+                            uniforms.SetValueDefault(uniform.first, uniform.second.var.type);
                         }
                     }
                 }

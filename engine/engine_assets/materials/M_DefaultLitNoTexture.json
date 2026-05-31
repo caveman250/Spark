@@ -73,6 +73,16 @@
             "UniformStorage": {
                 "m_Storage": "Array"
             }
+        },
+        {
+            "UniformValue<float>": {
+                "value": "Array"
+            }
+        },
+        {
+            "float": {
+                "val": "Float"
+            }
         }
     ],
     "root": {
@@ -181,7 +191,27 @@
                 "UniformStorage": {
                     "m_Storage": {
                         "struct": "Internal_MapItemString_Object",
-                        "contents": null
+                        "contents": [
+                            {
+                                "Internal_MapItemString_Object": {
+                                    "key": "shininess",
+                                    "value": {
+                                        "UniformValue<float>": {
+                                            "value": {
+                                                "struct": "float",
+                                                "contents": [
+                                                    {
+                                                        "float": {
+                                                            "val": 32.0
+                                                        }
+                                                    }
+                                                ]
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        ]
                     }
                 }
             },

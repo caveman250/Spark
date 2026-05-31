@@ -116,7 +116,7 @@ namespace se::asset::shader::ast
         {
             auto alloc = outShader.get_allocator();
             if ((context.currentShader->FindInput(m_Name) || context.currentShader->FindOutput(m_Name)) &&
-                (it->second.arraySizeConstant > 0 || !it->second.arraySizeVariable.empty()))
+                (it->second.var.arraySizeConstant > 0 || !it->second.var.arraySizeVariable.empty()))
             {
                 outShader += m_Name;
                 outShader += string::ArenaFormat("{}", alloc, m_Index);
@@ -137,7 +137,7 @@ namespace se::asset::shader::ast
             auto alloc = outShader.get_allocator();
             outShader += m_Name;
             if ((context.currentShader->FindInput(m_Name) || context.currentShader->FindOutput(m_Name)) &&
-                (it->second.arraySizeConstant > 0 || !it->second.arraySizeVariable.empty()))
+                (it->second.var.arraySizeConstant > 0 || !it->second.var.arraySizeVariable.empty()))
             {
                 outShader += string::ArenaFormat("{}", alloc, varName);
             }

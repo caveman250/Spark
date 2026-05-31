@@ -7,9 +7,9 @@ port(VertexNormal) in vec3 inNormal;
 port(FinalVertexPos) out vec4 outPos;
 port(FragmentUV) out vec2 outUV;
 
-uniform vec3 pos;
-uniform mat4 view;
-uniform mat4 proj;
+uniform internal vec3 pos;
+uniform internal mat4 view;
+uniform internal mat4 proj;
 
 void main()
 {

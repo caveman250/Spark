@@ -14,5 +14,8 @@ namespace se::render
 
         SPARK_MEMBER(Serialized)
         math::Vec3 color;
+
+        SPARK_MEMBER(Serialized)
+        float power;
     };
 }

@@ -69,11 +69,16 @@ namespace se
                 SetValue(name, 1, &val, false);
                 break;
             }
+            case asset::shader::ast::AstType::Sampler2D:
+            case asset::shader::ast::AstType::Sampler2DReference:
+            {
+                asset::AssetReference<asset::Texture> val = {};
+                SetValue(name, 1, &val, false);
+                break;
+            }
             case asset::shader::ast::AstType::Bool:
             case asset::shader::ast::AstType::None:
             case asset::shader::ast::AstType::Void:
-            case asset::shader::ast::AstType::Sampler2D:
-            case asset::shader::ast::AstType::Sampler2DReference:
             case asset::shader::ast::AstType::Invalid:
                 SPARK_ASSERT(false);
                 break;

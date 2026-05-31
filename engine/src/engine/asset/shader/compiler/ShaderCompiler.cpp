@@ -40,7 +40,7 @@ namespace se::asset::shader
             const auto& uniforms = shader->GetUniformVariables();
             for (const auto& uniform : uniforms)
             {
-                ret.push_back(uniform);
+                ret.emplace_back(uniform.first, uniform.second.var);
             }
         }
 
@@ -139,10 +139,10 @@ namespace se::asset::shader
 
             for (auto& var: shader.m_Uniforms | std::views::values)
             {
-                if (var.arraySizeVariable == name)
+                if (var.var.arraySizeVariable == name)
                 {
-                    var.arraySizeConstant = std::stoi(replacementText);
-                    var.arraySizeVariable = {};
+                    var.var.arraySizeConstant = std::stoi(replacementText);
+                    var.var.arraySizeVariable = {};
                 }
             }
 
@@ -204,16 +204,16 @@ namespace se::asset::shader
         for (const auto& [name, var] : ast.GetUniformVariables())
         {
             std::string arrayText = "";
-            if (!var.arraySizeVariable.empty())
+            if (!var.var.arraySizeVariable.empty())
             {
-                arrayText = std::format("[{}]", var.arraySizeVariable);
+                arrayText = std::format("[{}]", var.var.arraySizeVariable);
             }
-            else if (var.arraySizeConstant != 0)
+            else if (var.var.arraySizeConstant != 0)
             {
-                arrayText = std::format("[{}]", var.arraySizeConstant);
+                arrayText = std::format("[{}]", var.var.arraySizeConstant);
             }
 
-            auto uniformText = std::format("uniform {0} {1}{2};\n", ast::TypeUtil::TypeToGlsl(var.type), name, arrayText);
+            auto uniformText = std::format("uniform {0} {1}{2};\n", ast::TypeUtil::TypeToGlsl(var.var.type), name, arrayText);
             shader.append(uniformText);
         }
 
@@ -272,22 +272,22 @@ namespace se::asset::shader
 
         for (const auto& [name, var] : ast.GetUniformVariables())
         {
-            if (var.type == ast::AstType::Sampler2D)
+            if (var.var.type == ast::AstType::Sampler2D)
             {
                 // Metal defines these as fragment shader main args.
                 continue;
             }
             std::string arrayText = "";
-            if (!var.arraySizeVariable.empty())
+            if (!var.var.arraySizeVariable.empty())
             {
-                arrayText = std::format("[{}]", var.arraySizeVariable);
+                arrayText = std::format("[{}]", var.var.arraySizeVariable);
             }
-            else if (var.arraySizeConstant != 0)
+            else if (var.var.arraySizeConstant != 0)
             {
-                arrayText = std::format("[{}]", var.arraySizeConstant);
+                arrayText = std::format("[{}]", var.var.arraySizeConstant);
             }
 
-            auto uniformText = std::format("{0} {1}{2};\n", ast::TypeUtil::TypeToMtl(var.type), name, arrayText);
+            auto uniformText = std::format("{0} {1}{2};\n", ast::TypeUtil::TypeToMtl(var.var.type), name, arrayText);
             shader.append(uniformText);
         }
 

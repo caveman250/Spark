@@ -79,7 +79,7 @@ namespace se::editor::ui::properties
         {
             for (const auto& uniform: uniforms)
             {
-                text->text += std::format("    {} {}\n", asset::shader::ast::TypeUtil::TypeToGlsl(uniform.second.type), uniform.first);
+                text->text += std::format("    {} {}\n", asset::shader::ast::TypeUtil::TypeToGlsl(uniform.second.var.type), uniform.first);
             }
         }
 

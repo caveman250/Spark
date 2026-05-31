@@ -8,10 +8,10 @@ port(FinalVertexPos) out vec4 outPos;
 port(FragmentUV) out vec2 outUV;
 port(FragmentCameraPos) out vec3 outCameraPos;
 
-uniform mat4 model;
-uniform mat4 view;
-uniform mat4 proj;
-uniform vec3 cameraPos;
+uniform internal mat4 model;
+uniform internal mat4 view;
+uniform internal mat4 proj;
+uniform internal vec3 cameraPos;
 
 void main()
 {

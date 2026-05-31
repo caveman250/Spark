@@ -167,10 +167,10 @@ namespace se::asset
             return ShaderVariable(var.type, var.arraySizeConstant, var.arraySizeVariable);
         }
 
-        it = m_Uniforms.find(name);
-        if (it != m_Uniforms.end())
+        auto uniformIt = m_Uniforms.find(name);
+        if (uniformIt != m_Uniforms.end())
         {
-            const auto& var = it->second;
+            const auto& var = uniformIt->second.var;
             return ShaderVariable(var.type, var.arraySizeConstant, var.arraySizeVariable);
         }
 
@@ -312,7 +312,7 @@ namespace se::asset
         return true;
     }
 
-    bool Shader::AddUniform(const std::string& name, const shader::ast::Variable& var, std::string& outError)
+    bool Shader::AddUniform(const std::string& name, const shader::ast::Variable& var, bool internal, std::string& outError)
     {
         if (m_GlobalVariables.contains(name))
         {
@@ -332,7 +332,7 @@ namespace se::asset
             return false;
         }
 
-        m_Uniforms[name] = var;
+        m_Uniforms[name] = UniformVariable(var, internal);
         return true;
     }
 
@@ -379,7 +379,7 @@ namespace se::asset
     {
         for (const auto& [uniformName, uniformVar] : m_Uniforms)
         {
-            if (name == uniformName && var == uniformVar)
+            if (name == uniformName && var == uniformVar.var)
             {
                 return true;
             }

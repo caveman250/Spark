@@ -113,7 +113,7 @@ namespace se::render
         return m_ShaderSettings;
     }
 
-    const UniformStorage& Material::GetUniformDefaults()
+    UniformStorage& Material::GetUniformDefaults()
     {
         return m_UniformDefaults;
     }
