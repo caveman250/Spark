@@ -108,24 +108,46 @@ namespace se::editor::systems
 
                 input::InputUtil::ProcessKeyEvents(entity, input, [&camera](const input::KeyEvent& ev)
                 {
-                    switch (ev.key)
+                    if (ev.state == input::KeyState::Down)
                     {
-                        case input::Key::W:
-                            camera.forwardDown = ev.state == input::KeyState::Down;
-                            return true;
-                        case input::Key::S:
-                            camera.backDown = ev.state == input::KeyState::Down;
-                            return true;
-                        case input::Key::A:
-                            camera.leftDown = ev.state == input::KeyState::Down;
-                            return true;
-                        case input::Key::D:
-                            camera.rightDown = ev.state == input::KeyState::Down;
-                            return true;
-                        default:
-                            return false;
+                        switch (ev.key)
+                        {
+                            case input::Key::W:
+                                camera.forwardDown = true;
+                                return true;
+                            case input::Key::S:
+                                camera.backDown = true;
+                                return true;
+                            case input::Key::A:
+                                camera.leftDown = true;
+                                return true;
+                            case input::Key::D:
+                                camera.rightDown = true;
+                                return true;
+                            default:
+                                return false;
+                        }
                     }
+
+                    return false;
                 });
+
+                if (camera.forwardDown && !input::InputUtil::IsKeyDown(input, input::Key::W))
+                {
+                    camera.forwardDown = false;
+                }
+                if (camera.backDown && !input::InputUtil::IsKeyDown(input, input::Key::S))
+                {
+                    camera.backDown = false;
+                }
+                if (camera.leftDown && !input::InputUtil::IsKeyDown(input, input::Key::A))
+                {
+                    camera.leftDown = false;
+                }
+                if (camera.rightDown && !input::InputUtil::IsKeyDown(input, input::Key::D))
+                {
+                    camera.rightDown = false;
+                }
 
                 if (util::PosWithinViewport(input->mouseX, input->mouseY) &&
                     !input::InputUtil::IsAnyModifierKeyDown(input))
