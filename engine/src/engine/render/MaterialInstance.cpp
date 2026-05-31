@@ -23,6 +23,13 @@ namespace se::render
 
         if (material->GetRenderState().lit)
         {
+            if (m_PlatformResources && material->GetCachedLightSetup() != m_CachedLightSetup)
+            {
+                m_PlatformResources->DestroyPlatformResources();
+                m_PlatformResources = nullptr;
+            }
+            m_CachedLightSetup = material->GetCachedLightSetup();
+
             EASY_BLOCK("Apply Lights");
 
             const auto& lightSetup = Renderer::Get<Renderer>()->GetLightSetup();

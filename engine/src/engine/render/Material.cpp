@@ -113,6 +113,11 @@ namespace se::render
         return m_ShaderSettings;
     }
 
+    const LightSetup& Material::GetCachedLightSetup() const
+    {
+        return m_CachedLightSetup;
+    }
+
     UniformStorage& Material::GetUniformDefaults()
     {
         return m_UniformDefaults;

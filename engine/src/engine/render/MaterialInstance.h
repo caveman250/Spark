@@ -39,6 +39,8 @@ namespace se::render
         const std::shared_ptr<MaterialInstancePlatformResources>& GetPlatformResources() const { return m_PlatformResources; }
 
     protected:
+        LightSetup m_CachedLightSetup = {};
+
         SPARK_MEMBER(Serialized)
         asset::AssetReference<Material> m_Material = {};
 

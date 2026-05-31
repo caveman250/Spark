@@ -35,6 +35,7 @@ namespace se::render
         virtual void DestroyPlatformResources();
         void SetRenderState(const RenderState& state);
         ShaderSettings& GetShaderSettings();
+        const LightSetup& GetCachedLightSetup() const;
         const RenderState& GetRenderState() const { return m_RenderState; }
         const std::shared_ptr<MaterialPlatformResources>& GetPlatformResources() const { return m_PlatformResources; }
 
