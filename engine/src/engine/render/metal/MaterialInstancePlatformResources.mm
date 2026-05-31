@@ -68,8 +68,14 @@ namespace se::render::metal
         {
             if (!m_VertexUniformOffsets.contains(name))
             {
-                m_VertexUniformOffsets[name] = m_VertexUniformsSize;
                 auto varSize = asset::shader::ast::TypeUtil::GetTypePaddedSize(uniform.var.type);
+                auto alignment = asset::shader::ast::TypeUtil::GetTypeMetalAlignment(uniform.var.type);
+                int remainder = m_VertexUniformsSize % alignment;
+                if (remainder > 0)
+                {
+                    m_VertexUniformsSize += (alignment - remainder);
+                }
+                m_VertexUniformOffsets[name] = m_VertexUniformsSize;
                 if (uniform.var.arraySizeConstant > 0)
                 {
                     varSize *= uniform.var.arraySizeConstant;
@@ -77,6 +83,7 @@ namespace se::render::metal
 
                 m_VertexUniformsSize += varSize;
             }
+
         }
         m_VertexUniformBufferCpu = static_cast<uint8_t*>(malloc(m_VertexUniformsSize));
 
@@ -85,8 +92,14 @@ namespace se::render::metal
         {
             if (!m_FragmentUniformOffsets.contains(name))
             {
-                m_FragmentUniformOffsets[name] = m_FragmentUniformsSize;
                 auto varSize = asset::shader::ast::TypeUtil::GetTypePaddedSize(uniform.var.type);
+                auto alignment = asset::shader::ast::TypeUtil::GetTypeMetalAlignment(uniform.var.type);
+                int remainder = m_FragmentUniformsSize % alignment;
+                if (remainder > 0)
+                {
+                    m_FragmentUniformsSize += (alignment - remainder);
+                }
+                m_FragmentUniformOffsets[name] = m_FragmentUniformsSize;
                 if (uniform.var.arraySizeConstant > 0)
                 {
                     varSize *= uniform.var.arraySizeConstant;
