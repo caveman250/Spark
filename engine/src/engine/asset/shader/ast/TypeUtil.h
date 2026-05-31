@@ -13,5 +13,6 @@ namespace se::asset::shader::ast
         static const std::vector<std::string>& GetTypeStrings();
         static size_t GetTypeSize(AstType type);
         static size_t GetTypePaddedSize(AstType type);
+        static size_t GetTypeMetalAlignment(AstType type);
     };
 }

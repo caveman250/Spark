@@ -195,4 +195,34 @@ namespace se::asset::shader::ast
                 return 0;
         }
     }
+
+    size_t TypeUtil::GetTypeMetalAlignment(AstType type)
+    {
+        switch (type)
+        {
+            case AstType::Bool:
+                return sizeof(bool);
+            case AstType::Int:
+                return sizeof(int32_t);
+            case AstType::Float:
+                return sizeof(float);
+            case AstType::Vec2:
+                return sizeof(math::Vec2);
+            case AstType::Vec3:
+                return sizeof(math::Vec4);
+            case AstType::Vec4:
+                return sizeof(math::Vec4);
+            case AstType::Mat3:
+                return sizeof(math::Vec4);
+            case AstType::Mat4:
+                return sizeof(math::Vec4);
+            case AstType::Void:
+                return 0;
+            case AstType::Sampler2D:
+                return 0;
+            default:
+                SPARK_ASSERT(false);
+                return 0;
+        }
+    }
 }
