@@ -27,9 +27,9 @@ namespace se::render::systems
         auto* editor = Application::Get()->GetEditor();
         if (editor->GetMode() == editor::EditorMode::Prefab)
         {
-            renderer->AddPointLight( PointLight{ math::Vec3(-5, 5, 5), math::Vec4(1.f, 1.f, 1.f, 1.f), 5.f });
-            renderer->AddPointLight( PointLight{ math::Vec3(5, 5, 5), math::Vec4(1.f, 1.f, 1.f, 1.f), 5.f });
-            renderer->AddPointLight( PointLight{ math::Vec3(0, 5, -5), math::Vec4(1.f, 1.f, 1.f, 1.f), 5.f });
+            renderer->AddPointLight( PointLight{ math::Vec3(-5, 5, 5), math::Vec4(1.f, 1.f, 1.f, 1.f), 25.f });
+            renderer->AddPointLight( PointLight{ math::Vec3(5, 5, 5), math::Vec4(1.f, 1.f, 1.f, 1.f), 25.f });
+            renderer->AddPointLight( PointLight{ math::Vec3(0, 5, -5), math::Vec4(1.f, 1.f, 1.f, 1.f), 25.f });
             return;
         }
 #endif
