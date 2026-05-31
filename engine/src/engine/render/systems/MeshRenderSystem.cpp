@@ -129,6 +129,12 @@ namespace se::render::systems
                 {
                     EASY_BLOCK("Set Uniforms")
 
+                    if (material->GetMaterial()->GetRenderState().lit)
+                    {
+                        material->SetUniform("inverseModel", 1, &transforms[i].worldTransform, true);
+                        material->SetUniform("viewPos", 1, &camera->pos);
+                    }
+
                     material->SetUniform("model", 1, &transforms[i].worldTransform, true);
                     material->SetUniform("view", 1, &camera->view, true);
                     material->SetUniform("proj", 1, &camera->proj, true);

@@ -562,6 +562,15 @@ namespace se::asset::shader::compiler
                           ast::AstType::Float
                       });
         }
+        else if (token.value == "transpose")
+        {
+            return ProcessFuncVariableReturn<ast::TransposeNode>(token,
+                        returnType,
+                      outError,
+                      std::array {
+                          ast::AstType::Mat3 | ast::AstType::Mat4
+                      });
+        }
 
         outError = {token.line, token.pos, std::format("Unexpected token {}", token.value)};
         SPARK_ASSERT(false);

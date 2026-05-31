@@ -7,36 +7,22 @@ port(VertexUV) in vec2 inUV;
 port(VertexNormal) in vec3 inNormal;
 
 port(FinalVertexPos) out vec4 outPos;
-port(FragmentWorldPos) out vec3 outWorldPos;
-port(FragmentNormalCameraSpace) out vec3 outNormal;
+port(FragmentWorldPos) out vec4 outWorldPos;
+port(FragmentNormal) out vec4 outNormal;
 port(FragmentUV) out vec2 outUV;
-port(EyeDirCameraSpace) out vec3 outEyeDir;
-port(LightDirCameraSpace) out vec3[numLights] outLightDir;
 
+uniform mat4 inverseModel;
 uniform mat4 model;
 uniform mat4 view;
 uniform mat4 proj;
-uniform vec3 lightPos[numLights];
 
 void main()
 {
     mat4 MVP = proj * view * model;
     outPos = MVP * vec4(inPos, 1.0);
 
-    vec4 worldPos = model * vec4(inPos, 1);
-    outWorldPos = worldPos.xyz;
-
-    vec4 vertPosCameraSpace = view * model * vec4(inPos,1);
-    outEyeDir = -vertPosCameraSpace.xyz;
-
-    for (int i = 0; i < numLights; i+=1)
-    {
-        vec4 lightPosCameraSpace = view * vec4(lightPos[i],1);
-        outLightDir[i] = lightPosCameraSpace.xyz + outEyeDir;
-    }
-
-    vec4 cameraSpaceNormal = view * model * vec4(inNormal, 0);
-    outNormal = cameraSpaceNormal.xyz;
-
+    outWorldPos = model * vec4(inPos, 1);
+    mat4 transposedInverse = transpose(inverseModel);
+    outNormal = transposedInverse * vec4(inNormal, 1.0);
     outUV = inUV;
 }

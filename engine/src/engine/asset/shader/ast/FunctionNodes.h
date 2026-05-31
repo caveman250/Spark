@@ -143,4 +143,10 @@ namespace se::asset::shader::ast
         SPARK_CLASS()
         LerpNode() : AbstractFunctionNode("LerpNode", "mix", "mix") {}
     };
+
+    class TransposeNode : public AbstractFunctionNode
+    {
+        SPARK_CLASS()
+        TransposeNode() : AbstractFunctionNode("TransposeNode", "transpose", "transpose") {}
+    };
 }

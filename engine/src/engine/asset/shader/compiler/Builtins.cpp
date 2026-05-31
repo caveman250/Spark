@@ -4,7 +4,7 @@
 
 namespace se::asset::shader::compiler
 {
-    std::array<std::string, 43> Builtins::s_Builtins =
+    std::array<std::string, 44> Builtins::s_Builtins =
         {
             "int",
             "float",
@@ -48,7 +48,8 @@ namespace se::asset::shader::compiler
             "atan2",
             "fract",
             "step",
-            "lerp"
+            "lerp",
+            "transpose"
         };
 
     bool Builtins::IsBuiltin(const std::string& str)
