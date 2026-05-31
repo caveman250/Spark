@@ -15,8 +15,8 @@ uniform internal vec3 viewPos;
 uniform internal vec3 pointLightPos[numPointLights];
 uniform internal vec3 pointLightColors[numPointLights];
 uniform internal float pointLightPowers[numPointLights];
-uniform internal vec3 dirLights[numPointLights];
-uniform internal vec3 dirLightColors[numPointLights];
+uniform internal vec3 dirLights[numDirLights];
+uniform internal vec3 dirLightColors[numDirLights];
 uniform float shininess;
 
 void main()
