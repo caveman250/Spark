@@ -23,11 +23,7 @@ namespace se::geo::systems
 
     void AABBColliderSystem::OnUpdate(const ecs::QueryResults& results)
     {
-#if SPARK_EDITOR
-        auto* editor = Application::Get()->GetEditor();
-#endif
-
-        ecs::ForEachArcheType(results, ecs::UpdateMode::MultiThreaded, false, [editor](const ecs::SystemUpdateData& updateData)
+        ecs::ForEachArcheType(results, ecs::UpdateMode::MultiThreaded, false, [](const ecs::SystemUpdateData& updateData)
         {
             const auto* transforms = updateData.GetComponentArray<const ecs::components::TransformComponent>();
             const auto* colliders = updateData.GetComponentArray<components::AABBColliderComponent>();
@@ -43,6 +39,7 @@ namespace se::geo::systems
                 collisionComp->colliders.insert(std::make_pair(entity, singleton_components::ColliderRecord{ collider.dynamic, collider.aabb, transform.pos }));
                 collisionComp->mutex.unlock();
 #if SPARK_EDITOR
+                auto* editor = Application::Get()->GetEditor();
                 if (editor->InGameMode())
                 {
                     continue;
