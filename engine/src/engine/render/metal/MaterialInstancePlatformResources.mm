@@ -17,7 +17,7 @@ namespace se::render
 
 namespace se::render::metal
 {
-    void MaterialInstancePlatformResources::Bind(const VertexBuffer& vb)
+    void MaterialInstancePlatformResources::Bind(const render::VertexBuffer& vb)
     {
         auto renderer = Renderer::Get<MetalRenderer>();
         auto commandEncoder = (id<MTLRenderCommandEncoder>)renderer->GetCurrentCommandEncoder();

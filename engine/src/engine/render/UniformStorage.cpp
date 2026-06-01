@@ -113,6 +113,8 @@ namespace se
                 other.m_Storage.insert(std::make_pair(name, value->Copy()));
             }
         }
+
+        other.MarkStale();
     }
 
     void render::UniformStorage::Reset()

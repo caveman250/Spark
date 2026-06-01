@@ -9,6 +9,39 @@ namespace se::render
         GenerateVertexStreams(mesh);
     }
 
+    VertexBuffer::VertexBuffer(const std::vector<debug::Line>& lines)
+    {
+        if (!lines.empty())
+        {
+            VertexStream& pos = m_VertexStreams[VertexStreamType::Position];
+            pos.type = VertexStreamType::Position;
+            pos.stride = 3;
+            pos.data.reserve(lines.size() * 3 * 2);
+            VertexStream& colour = m_VertexStreams[VertexStreamType::Colour];
+            colour.type = VertexStreamType::Colour;
+            colour.stride = 4;
+            colour.data.reserve(lines.size() * 4 * 2);
+            for (const auto& line : lines)
+            {
+                pos.data.push_back(line.start.x);
+                pos.data.push_back(line.start.y);
+                pos.data.push_back(line.start.z);
+                colour.data.push_back(line.colour.x);
+                colour.data.push_back(line.colour.y);
+                colour.data.push_back(line.colour.z);
+                colour.data.push_back(line.colour.w);
+
+                pos.data.push_back(line.end.x);
+                pos.data.push_back(line.end.y);
+                pos.data.push_back(line.end.z);
+                colour.data.push_back(line.colour.x);
+                colour.data.push_back(line.colour.y);
+                colour.data.push_back(line.colour.z);
+                colour.data.push_back(line.colour.w);
+            }
+        }
+    }
+
     void VertexBuffer::GenerateVertexStreams(const asset::StaticMesh& mesh)
     {
         if (!mesh.vertices.empty())

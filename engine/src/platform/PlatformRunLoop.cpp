@@ -2,6 +2,7 @@
 
 #include "easy/profiler.h"
 #include "engine/Application.h"
+#include "engine/debug/Graphics.h"
 #include "engine/input/InputComponent.h"
 #include "engine/render/Renderer.h"
 #include "platform/IWindow.h"
@@ -43,6 +44,11 @@ namespace se
         render::Renderer::Get<render::Renderer>()->Update();
         app->Update();
         app->Render();
+
+#if !SPARK_DIST
+        auto& debugGraphics = debug::Graphics::Get();
+        debugGraphics.Render();
+#endif
 
         const auto inputComp = app->GetWorld()->GetSingletonComponent<input::InputComponent>();
         inputComp->keyEvents.clear();

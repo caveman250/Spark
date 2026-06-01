@@ -9,12 +9,22 @@ namespace se::render
     {
         return std::make_shared<metal::VertexBuffer>(mesh);
     }
+
+    std::shared_ptr<VertexBuffer> VertexBuffer::CreateVertexBuffer(const std::vector<debug::Line>& lines)
+    {
+        return std::make_shared<metal::VertexBuffer>(lines);
+    }
 }
 
 namespace se::render::metal
 {
     VertexBuffer::VertexBuffer(const asset::StaticMesh& mesh)
             : render::VertexBuffer(mesh)
+    {
+    }
+
+    VertexBuffer::VertexBuffer(const std::vector<debug::Line>& lines)
+        : render::VertexBuffer(lines)
     {
     }
 

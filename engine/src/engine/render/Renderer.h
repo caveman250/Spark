@@ -7,6 +7,11 @@
 #include "spark.h"
 #include "RenderGroup.h"
 
+namespace se::camera
+{
+    struct ActiveCameraComponent;
+}
+
 namespace se::render
 {
     struct DirLight;

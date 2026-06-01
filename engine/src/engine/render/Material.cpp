@@ -92,7 +92,6 @@ namespace se::render
         m_VertUniforms = context.vertShader->GetUniformVariables();
         m_FragUniforms = context.fragShader->GetUniformVariables();
 
-        SPARK_ASSERT(!m_VertUniforms.empty());
         m_PlatformResources->CreatePlatformResources(vert.value(), frag.value(), m_RenderState);
         m_PlatformResourcesCreated = true;
     }

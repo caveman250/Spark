@@ -94,6 +94,7 @@ namespace se::render
         const T* GetValue(const std::string& name);
         bool HasValue(const std::string& name);
         void Apply(MaterialInstance* material);
+        void MarkStale() { m_Stale = true; }
         bool IsStale() const { return m_Stale; }
         void ApplyTo(UniformStorage& other) const;
         void Reset();

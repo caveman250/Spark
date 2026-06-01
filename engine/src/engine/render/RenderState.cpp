@@ -13,6 +13,11 @@ namespace se::render
     bool operator<(const RenderState& lhs,
                    const RenderState& rhs)
     {
+        if (lhs.drawMode != rhs.drawMode)
+        {
+            return lhs.drawMode < rhs.drawMode;
+        }
+
         if (lhs.stencilWriteMask != rhs.stencilWriteMask)
         {
             return lhs.stencilWriteMask < rhs.stencilWriteMask;

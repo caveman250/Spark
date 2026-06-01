@@ -7,6 +7,9 @@
 #include "engine/camera/ActiveCameraComponent.h"
 #include "opengl/OpenGLRenderer.h"
 #include "metal/MetalRenderer.h"
+#include "VertexBuffer.h"
+#include "IndexBuffer.h"
+#include "MaterialInstance.h"
 
 namespace se::render
 {

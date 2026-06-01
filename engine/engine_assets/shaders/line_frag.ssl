@@ -1,0 +1,10 @@
+SSL_FRAGMENT
+
+port(FinalVertexColour) in vec4 inColour;
+
+port(FragColor) out vec4 color;
+
+void main()
+{
+    color = inColour;
+}

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "DrawMode.h"
 #include "engine/reflect/Reflect.h"
 
 namespace se::render
@@ -80,6 +81,9 @@ namespace se::render
 
         SPARK_MEMBER(Serialized)
         CullMode cullMode = CullMode::Back;
+
+        SPARK_MEMBER(Serialized)
+        DrawMode drawMode = DrawMode::Triangles;
     };
 
     bool operator==(const RenderState& lhs, const RenderState& rhs);

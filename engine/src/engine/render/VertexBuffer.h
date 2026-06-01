@@ -1,6 +1,7 @@
 #pragma once
 
 #include "spark.h"
+#include "engine/debug/Graphics.h"
 
 namespace se::asset
 {
@@ -34,8 +35,10 @@ namespace se::render
     {
     public:
         static std::shared_ptr<VertexBuffer> CreateVertexBuffer(const asset::StaticMesh& mesh);
+        static std::shared_ptr<VertexBuffer> CreateVertexBuffer(const std::vector<debug::Line>& lines);
 
         VertexBuffer(const asset::StaticMesh& mesh);
+        VertexBuffer(const std::vector<debug::Line>& lines);
         virtual ~VertexBuffer() = default;
         virtual void CreatePlatformResource() = 0;
         virtual void Bind() = 0;

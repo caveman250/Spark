@@ -17,7 +17,7 @@ namespace se::render::metal
     class MaterialInstancePlatformResources : public render::MaterialInstancePlatformResources
     {
     public:
-        void Bind(const VertexBuffer& vb) override;
+        void Bind(const render::VertexBuffer& vb) override;
         void CreatePlatformResources(const std::shared_ptr<Material>& material) override;
         void DestroyPlatformResources() override;
         void SetUniformInternal(const std::string& name,

@@ -426,6 +426,10 @@ namespace se::asset::shader::compiler
         {
             targetType = render::VertexStreamType::Normal;
         }
+        else if (inputName == "VertexColour")
+        {
+            targetType = render::VertexStreamType::Colour;
+        }
         else
         {
             targetType = render::VertexStreamType::Position;

@@ -1,0 +1,16 @@
+SSL_VERTEX
+
+port(VertexPos) in vec3 inPos;
+port(VertexColour) in vec4 inColour;
+
+port(FinalVertexPos) out vec4 outPos;
+port(FinalVertexColour) out vec4 outColour;
+
+uniform mat4 view;
+uniform mat4 proj;
+
+void main()
+{
+    outPos = proj * view * vec4(inPos, 1.0);
+    outColour = inColour;
+}

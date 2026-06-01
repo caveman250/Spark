@@ -12,6 +12,7 @@
 #import "engine/render/metal/MetalRenderer.h"
 #import <Metal/Metal.h>
 #import "platform/mac/Window.h"
+#include "VertexBuffer.h"
 
 namespace se::render::commands
 {
@@ -20,19 +21,48 @@ namespace se::render::commands
         Renderer::Get<metal::MetalRenderer>()->SetClearColour(m_Colour);
     }
 
+    MTLPrimitiveType DrawModeToMTLPrimitiveType(DrawMode mode)
+    {
+        switch (mode)
+        {
+            case DrawMode::Triangles:
+                return MTLPrimitiveTypeTriangle;
+            case DrawMode::Lines:
+                return MTLPrimitiveTypeLine;
+            default:
+                SPARK_ASSERT(false);
+                return MTLPrimitiveTypeTriangle;
+        }
+    }
+
     void SubmitGeo::Execute()
     {
         m_MaterialInstance->Bind(*m_VertBuffer);
         m_VertBuffer->Bind();
 
         id<MTLRenderCommandEncoder> commandEncoder = static_cast<id<MTLRenderCommandEncoder>>(Renderer::Get<metal::MetalRenderer>()->GetCurrentCommandEncoder());
-        auto* mtlBuffer = static_cast<metal::IndexBuffer*>(m_IndexBuffer.get());
-        [commandEncoder drawIndexedPrimitives:MTLPrimitiveTypeTriangle
-                                   indexCount:m_IndexBuffer->GetIndices().size()
-                                   indexType:MTLIndexTypeUInt32
-                                   indexBuffer:(id<MTLBuffer>)mtlBuffer->GetMTLBuffer()
-                                   indexBufferOffset:0
-                                   instanceCount:1];
+        if (m_IndexBuffer)
+        {
+            auto* mtlBuffer = static_cast<metal::IndexBuffer*>(m_IndexBuffer.get());
+            [commandEncoder drawIndexedPrimitives:DrawModeToMTLPrimitiveType(m_MaterialInstance->GetMaterial()->GetRenderState().drawMode)
+                                       indexCount:m_IndexBuffer->GetIndices().size()
+                                       indexType:MTLIndexTypeUInt32
+                                       indexBuffer:(id<MTLBuffer>)mtlBuffer->GetMTLBuffer()
+                                       indexBufferOffset:0
+                                       instanceCount:1];
+        }
+        else
+        {
+            auto* mtlBuffer = static_cast<metal::VertexBuffer*>(m_VertBuffer.get());
+            [commandEncoder setVertexBuffer:(id<MTLBuffer>)mtlBuffer->GetMTLBuffer(0)
+                  offset:0
+                 atIndex:0];
+
+            [commandEncoder drawPrimitives:DrawModeToMTLPrimitiveType(m_MaterialInstance->GetMaterial()->GetRenderState().drawMode)
+                        vertexStart:0
+                        vertexCount:2];
+        }
+
     }
 
     void SubmitUI::Execute()

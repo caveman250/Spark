@@ -11,11 +11,14 @@ namespace se::render::metal
     {
     public:
         explicit VertexBuffer(const asset::StaticMesh& mesh);
+        explicit VertexBuffer(const std::vector<debug::Line>& lines);
         ~VertexBuffer() override;
 
         void CreatePlatformResource() override;
         void Bind() override;
         void Unbind() override;
+
+        MTLBufferPtr GetMTLBuffer(size_t index) { return m_Buffers[index]; }
     private:
         void Cleanup();
 
