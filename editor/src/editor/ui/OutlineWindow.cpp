@@ -175,7 +175,7 @@ namespace se::editor::ui
                             se::ui::util::BeginEditingText(nullptr, textEntity, *text, *keyInput);
                             se::ui::util::SetCaretPos(*text, static_cast<int>(text->text.size()));
                             text->selectionStart = 0;
-                            text->selectionEnd = text->editText.size();
+                            text->selectionEnd = static_cast<int>(text->editText.size());
                         }
                     }),
                 std::make_pair("Delete Entity",
