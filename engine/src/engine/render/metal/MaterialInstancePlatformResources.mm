@@ -70,7 +70,7 @@ namespace se::render::metal
             {
                 auto varSize = asset::shader::ast::TypeUtil::GetTypePaddedSize(uniform.var.type);
                 auto alignment = asset::shader::ast::TypeUtil::GetTypeMetalAlignment(uniform.var.type);
-                int remainder = m_VertexUniformsSize % alignment;
+                int remainder = m_VertexUniformsSize % static_cast<int>(alignment);
                 if (remainder > 0)
                 {
                     m_VertexUniformsSize += (alignment - remainder);
@@ -94,7 +94,7 @@ namespace se::render::metal
             {
                 auto varSize = asset::shader::ast::TypeUtil::GetTypePaddedSize(uniform.var.type);
                 auto alignment = asset::shader::ast::TypeUtil::GetTypeMetalAlignment(uniform.var.type);
-                int remainder = m_FragmentUniformsSize % alignment;
+                int remainder = m_FragmentUniformsSize % static_cast<int>(alignment);
                 if (remainder > 0)
                 {
                     m_FragmentUniformsSize += (alignment - remainder);

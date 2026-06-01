@@ -98,7 +98,7 @@ namespace se::render::metal
 
             MTLDepthStencilDescriptor* depthStencilDesc = [[MTLDepthStencilDescriptor alloc] init];
             [depthStencilDesc setDepthCompareFunction:DepthCompareToMtl(rs.depthComp)];
-            [depthStencilDesc setDepthWriteEnabled:rs.depthComp != DepthCompare::None];
+            [depthStencilDesc setDepthWriteEnabled:rs.depthWrite];
             m_DepthStencilState = [device newDepthStencilStateWithDescriptor:depthStencilDesc];
             [depthStencilDesc release];
         }

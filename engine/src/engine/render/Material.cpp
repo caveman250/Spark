@@ -29,7 +29,8 @@ namespace se::render
         if (rs.depthComp != m_RenderState.depthComp ||
             rs.stencilFunc != m_RenderState.stencilFunc ||
             rs.stencilReadMask != m_RenderState.stencilReadMask ||
-            rs.stencilWriteMask != m_RenderState.stencilWriteMask)
+            rs.stencilWriteMask != m_RenderState.stencilWriteMask ||
+            rs.depthWrite != m_RenderState.depthWrite)
         {
             m_PlatformResources->ApplyDepthStencil(m_RenderState);
         }

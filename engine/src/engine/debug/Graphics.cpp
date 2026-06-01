@@ -34,7 +34,7 @@ namespace se::debug
         auto renderer = render::Renderer::Get<render::Renderer>();
 #if SPARK_EDITOR
         auto* editor = Application::Get()->GetEditor();
-        const size_t defaultRenderGroup = editor->GetOffscreenRenderGroup();
+        const size_t defaultRenderGroup = editor->GetMode() == editor::EditorMode::Prefab ? editor->GetPrefabRenderGroup() : editor->GetOffscreenRenderGroup();
 #else
         const size_t defaultRenderGroup = renderer->GetDefaultRenderGroup();
 #endif
@@ -53,6 +53,7 @@ namespace se::debug
                            const math::Vec3& end,
                            const math::Vec4& colour)
     {
+        auto lock = std::lock_guard(m_LinesMutex);
         m_Lines.push_back({ start, end, colour });
     }
 }

@@ -62,10 +62,11 @@ namespace se::geo::util
             mesh.indices.push_back(static_cast<int>(i + 1));
         }
 
+        math::Vec3 size = max - min;
         mesh.aabb = geo::AABB
         {
-            .pos = min,
-            .size = max - min
+            .center = min + size / 2,
+            .size = size
         };
 
         return mesh;
@@ -123,10 +124,11 @@ namespace se::geo::util
             mesh.indices.push_back(inner1);
         }
 
+        math::Vec3 size = max - min + math::Vec3(0.f, 0.f, 0.1f);
         mesh.aabb = geo::AABB
         {
-            .pos = min,
-            .size = max - min + math::Vec3(0.f, 0.f, 0.1f)
+            .center = min + size / 2.f,
+            .size = size
         };
 
         return mesh;

@@ -189,7 +189,10 @@ namespace se::asset
                     }
                 }
 
-                staticMesh.aabb = { {minX, minY, minZ}, { maxX - minX, maxY - minY, maxZ - minZ }};
+                math::Vec3 min = {minX, minY, minZ};
+                math::Vec3 max = {maxX, maxY, maxZ};
+                math::Vec3 size = max - min;
+                staticMesh.aabb = { min + size / 2.f, size };
             }
         }
 

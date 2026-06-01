@@ -26,6 +26,7 @@ namespace se::debug
 
     private:
 
+        std::mutex m_LinesMutex = {};
         std::shared_ptr<render::MaterialInstance> m_LineMaterial;
         std::vector<Line> m_Lines = {};
     };
