@@ -1,10 +1,13 @@
 #include "AABBColliderSystem.h"
 
+#include "ResetCollisionSystem.h"
 #include "engine/render/Renderer.h"
 #include "engine/render/components/DirLightComponent.h"
 #include "engine/ecs/components/TransformComponent.h"
 #include "engine/camera/ActiveCameraComponent.h"
+#include "engine/ecs/systems/TransformSystem.h"
 #include "engine/geo/components/AABBColliderComponent.h"
+#include "engine/geo/singleton_components/CollisionComponent.h"
 
 namespace se::geo::systems
 {
@@ -12,7 +15,10 @@ namespace se::geo::systems
     {
         return ecs::SystemDeclaration("AABBColliderSystem")
                 .WithComponent<components::AABBColliderComponent>()
-                .WithComponent<const ecs::components::TransformComponent>();
+                .WithComponent<const ecs::components::TransformComponent>()
+                .WithSingletonComponent<singleton_components::CollisionComponent>()
+                .WithDependency<ResetCollisionSystem>()
+                .WithDependency<ecs::systems::TransformSystem>();
     }
 
     void AABBColliderSystem::OnUpdate(const ecs::QueryResults& results)
@@ -25,6 +31,7 @@ namespace se::geo::systems
         {
             const auto* transforms = updateData.GetComponentArray<const ecs::components::TransformComponent>();
             const auto* colliders = updateData.GetComponentArray<components::AABBColliderComponent>();
+            auto* collisionComp = updateData.GetSingletonComponent<singleton_components::CollisionComponent>();
             const auto& entities = updateData.GetEntities();
             for (size_t i = 0; i < entities.size(); ++i)
             {
@@ -32,7 +39,15 @@ namespace se::geo::systems
                 const auto& transform = transforms[i];
                 const auto& collider = colliders[i];
 
+                collisionComp->mutex.lock();
+                collisionComp->colliders.insert(std::make_pair(entity, singleton_components::ColliderRecord{ collider.dynamic, collider.aabb, transform.pos }));
+                collisionComp->mutex.unlock();
 #if SPARK_EDITOR
+                if (editor->InGameMode())
+                {
+                    continue;
+                }
+
                 if (editor->GetSelectedEntity() == entity)
                 {
                     auto& dg = debug::Graphics::Get();

@@ -25,6 +25,7 @@
 #include "render/singleton_components/MeshRenderComponent.h"
 #include "../../../editor/src/editor/singleton_components/DragDropStateComponent.h"
 #include "editor/singleton_components/EditorPickComponent.h"
+#include "geo/singleton_components/CollisionComponent.h"
 #include "platform/MouseCursorUtil.h"
 #include "threads/util/ThreadUtil.h"
 
@@ -79,6 +80,7 @@ namespace se
         m_World.AddSingletonComponent<camera::ActiveCameraComponent>();
         m_World.AddSingletonComponent<ui::singleton_components::UIRenderComponent>();
         m_World.AddSingletonComponent<render::singleton_components::MeshRenderComponent>();
+        m_World.AddSingletonComponent<geo::singleton_components::CollisionComponent>();
 
 #if SPARK_EDITOR
         m_World.AddSingletonComponent<editor::singleton_components::DragDropStateComponent>();

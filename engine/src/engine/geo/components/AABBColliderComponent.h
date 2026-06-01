@@ -11,5 +11,8 @@ namespace se::geo::components
 
         SPARK_MEMBER(Serialized)
         AABB aabb;
+
+        SPARK_MEMBER(Serialized)
+        bool dynamic;
     };
 }
