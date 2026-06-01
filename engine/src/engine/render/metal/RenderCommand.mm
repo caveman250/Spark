@@ -60,7 +60,7 @@ namespace se::render::commands
 
             [commandEncoder drawPrimitives:DrawModeToMTLPrimitiveType(m_MaterialInstance->GetMaterial()->GetRenderState().drawMode)
                         vertexStart:0
-                        vertexCount:2];
+                        vertexCount:mtlBuffer->GetVertexCount()];
         }
 
     }

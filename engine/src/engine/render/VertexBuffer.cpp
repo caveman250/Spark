@@ -4,6 +4,18 @@
 
 namespace se::render
 {
+    size_t VertexBuffer::GetVertexCount() const
+    {
+        if (m_VertexStreams.empty())
+        {
+            return 0;
+        }
+
+        auto& firstStream = m_VertexStreams.begin()->second;
+        return firstStream.data.size() / firstStream.stride;
+
+    }
+
     VertexBuffer::VertexBuffer(const asset::StaticMesh& mesh)
     {
         GenerateVertexStreams(mesh);

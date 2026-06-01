@@ -37,6 +37,8 @@ namespace se::render
         static std::shared_ptr<VertexBuffer> CreateVertexBuffer(const asset::StaticMesh& mesh);
         static std::shared_ptr<VertexBuffer> CreateVertexBuffer(const std::vector<debug::Line>& lines);
 
+        size_t GetVertexCount() const;
+
         VertexBuffer(const asset::StaticMesh& mesh);
         VertexBuffer(const std::vector<debug::Line>& lines);
         virtual ~VertexBuffer() = default;
