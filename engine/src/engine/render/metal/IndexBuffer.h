@@ -1,6 +1,7 @@
 #pragma once
 
 #include "engine/render/render_fwd.h"
+#include "engine/render/metal/MTL_fwd.h"
 
 #if METAL_RENDERER
 

@@ -61,42 +61,55 @@ endfunction()
 
 function(setup_source_files target unity_conf_dir is_library)
     message(STATUS "Configuring ${target} source files...")
-    if("${unity_conf_dir}" STREQUAL "")
+    #if(TRUE)
         set(unity_build FALSE)
         message(STATUS "-- Unity build disabled.")
-        file(GLOB_RECURSE SOURCE src/*.cpp src/*.h generated/*.cpp generated/*.h)
-        file(GLOB_RECURSE OBJC_SOURCE src/*.mm)
+        file(GLOB_RECURSE SOURCE src/*.cpp src/*.h generated/*.cpp generated/*.h src/*.mm)
+        file(GLOB_RECURSE MODULE_SOURCE src/*.ixx)
+
+        list(FILTER SOURCE EXCLUDE REGEX "src/platform/windows/*")
+        list(FILTER MODULE_SOURCE EXCLUDE REGEX "src/platform/windows/*")
+        list(FILTER SOURCE EXCLUDE REGEX "src/platform/linux/*")
+        list(FILTER MODULE_SOURCE EXCLUDE REGEX "src/platform/linux/*")
+
         if (${PLATFORM} MATCHES Mac)
-            set(TARGET_SOURCE ${SOURCE} ${OBJC_SOURCE})
+            set(TARGET_SOURCE ${SOURCE} ${OBJC_SOURCE} ${GENERATED_MODULE_SOURCE})
         else()
-            set(TARGET_SOURCE ${SOURCE})
+            set(TARGET_SOURCE ${SOURCE} ${GENERATED_MODULE_SOURCE})
         endif()
-    else()
-        set(unity_build TRUE)
-        message(STATUS "-- Unity build enabled.")
-        get_filename_component(ABSOLUTE_PATH ${ROOT_DIR}/build/ ABSOLUTE)
-        execute_process(COMMAND ${PYTHON_EXE} UnityBatcher.py ${unity_conf_dir} ${PLATFORM} WORKING_DIRECTORY ${ABSOLUTE_PATH})
+    #else()
+    #    set(unity_build TRUE)
+    #    message(STATUS "-- Unity build enabled.")
+    #    get_filename_component(ABSOLUTE_PATH ${ROOT_DIR}/build/ ABSOLUTE)
+    #    execute_process(COMMAND ${PYTHON_EXE} UnityBatcher.py ${unity_conf_dir} ${PLATFORM} WORKING_DIRECTORY ${ABSOLUTE_PATH})
+#
+    #    file(GLOB SOURCE unity/*.cpp unity/*.h)
+    #    file(GLOB OBJC_SOURCE unity/*.mm)
+    #    file(GLOB_RECURSE NON_UNITY_SOURCE src/*.cpp src/*.h src/*.mm)
+    #    file(GLOB_RECURSE MODULE_SOURCE src/*.ixx)
+    #    file(GLOB_RECURSE GENERATED_MODULE_SOURCE src/*.gixx)
+    #    source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${NON_UNITY_SOURCE})
+#
+    #    if (CMAKE_CONFIGURATION_TYPES)
+    #        # add all files for visibility, non unity sources will be excluded below
+    #        if (${PLATFORM} MATCHES Mac)
+    #            set(TARGET_SOURCE ${SOURCE} ${OBJC_SOURCE} ${NON_UNITY_SOURCE} ${GENERATED_MODULE_SOURCE})
+    #        else()
+    #            set(TARGET_SOURCE ${SOURCE} ${NON_UNITY_SOURCE} ${GENERATED_MODULE_SOURCE})
+    #        endif()
+    #    else()
+    #        if (${PLATFORM} MATCHES Mac)
+    #            set(TARGET_SOURCE ${SOURCE} ${OBJC_SOURCE} ${GENERATED_MODULE_SOURCE})
+    #        else()
+    #            set(TARGET_SOURCE ${SOURCE} ${GENERATED_MODULE_SOURCE})
+    #        endif()
+    #    endif()
+    #endif()
 
-        file(GLOB SOURCE unity/*.cpp unity/*.h)
-        file(GLOB OBJC_SOURCE unity/*.mm)
-        file(GLOB_RECURSE NON_UNITY_SOURCE src/*.cpp src/*.h src/*.mm)
-        source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${NON_UNITY_SOURCE})
-
-        if (CMAKE_CONFIGURATION_TYPES)
-            # add all files for visibility, non unity sources will be excluded below
-            if (${PLATFORM} MATCHES Mac)
-                set(TARGET_SOURCE ${SOURCE} ${OBJC_SOURCE} ${NON_UNITY_SOURCE})
-            else()
-                set(TARGET_SOURCE ${SOURCE} ${NON_UNITY_SOURCE})
-            endif()
-        else()
-            if (${PLATFORM} MATCHES Mac)
-                set(TARGET_SOURCE ${SOURCE} ${OBJC_SOURCE})
-            else()
-                set(TARGET_SOURCE ${SOURCE})
-            endif()
-        endif()
-    endif()
+    set_source_files_properties(
+            ${GENERATED_MODULE_SOURCE}
+            PROPERTIES LANGUAGE CXX
+    )
 
     if (${is_library})
         message(STATUS "-- Configured library: ${target}\n")
@@ -105,8 +118,17 @@ function(setup_source_files target unity_conf_dir is_library)
         message(STATUS "-- Configured executable: ${target}\n")
         add_executable(${target} ${TARGET_SOURCE})
     endif()
+
+    target_sources(${target}
+            PUBLIC
+            FILE_SET modules TYPE CXX_MODULES FILES
+            ${MODULE_SOURCE})
+
+
     set_target_properties(${target} PROPERTIES EXCLUDE_FROM_ALL TRUE)
     set_target_properties(${target} PROPERTIES ADDITIONAL_CLEAN_FILES "${CMAKE_CURRENT_SOURCE_DIR}/unity;${CMAKE_CURRENT_SOURCE_DIR}/src/generated")
+
+    target_compile_options(${target} PRIVATE "-Wno-c2y-extensions")
 
     # remove all non unity files from the build
     if (${unity_build})

@@ -3,6 +3,7 @@
 #include "PropertyEditor.h"
 #include "engine/asset/AssetReference.h"
 #include "engine/math/math.h"
+#include "engine/asset/texture/Texture.h"
 
 namespace se::asset
 {

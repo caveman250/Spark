@@ -23,7 +23,7 @@ def ProcessHeaders():
             for file_path in files:
                 if file_path == "Reflect_fwd.h":
                     continue
-                if file_path.endswith(".h"):
+                if file_path.endswith(".h") or file_path.endswith(".ixx"):
                     current_scope_depth = 0
                     namespace_stack = []
                     using_namespace_stack = [[]]
@@ -35,11 +35,11 @@ def ProcessHeaders():
                         lineCount = len(lines)
                         for i in range(0, lineCount):
                             line = lines[i].strip()
-                            if line.startswith("class "):
+                            if line.startswith("class ") or line.startswith("export class "):
                                 Class.ProcessNativeClassFirstPass("class", line, namespace_stack, class_list)
-                            if line.startswith("struct "):
+                            if line.startswith("struct ") or line.startswith("export struct "):
                                 Class.ProcessNativeClassFirstPass("struct", line, namespace_stack, class_list)
-                            elif line.startswith("namespace"):
+                            elif line.startswith("namespace") or line.startswith("export namespace "):
                                 Namespace.ProcessNamespace(line, namespace_stack, namespace_scope_depth_stack, current_scope_depth)
                             elif line.startswith("using namespace"):
                                 Namespace.ProcessUsingNamespace(line, using_namespace_stack, using_namespace_scope_depth_stack, current_scope_depth)
@@ -71,7 +71,7 @@ def ProcessHeaders():
             for file_path in files:
                 if file_path == "Reflect_fwd.h":
                     continue
-                if file_path.endswith(".h"):
+                if file_path.endswith(".h") or file_path.endswith(".ixx"):
                     current_scope_depth = 0
                     namespace_stack = []
                     using_namespace_stack = [[]]
@@ -97,7 +97,7 @@ def ProcessHeaders():
                             elif line.startswith("SPARK_SINGLETON_COMPONENT"):
                                 Class.ProcessClass("SPARK_SINGLETON_COMPONENT", line, class_stack)
                                 Components.ProcessSingletonComponent(components, path, class_stack)
-                            elif line.startswith("namespace"):
+                            elif line.startswith("namespace") or line.startswith("export namespace "):
                                 Namespace.ProcessNamespace(line, namespace_stack, namespace_scope_depth_stack, current_scope_depth)
                             elif line.startswith("using namespace"):
                                 Namespace.ProcessUsingNamespace(line, using_namespace_stack, using_namespace_scope_depth_stack, current_scope_depth)
@@ -114,7 +114,7 @@ def ProcessHeaders():
                                 Class.ProcessMember(line, lines[i + 1], class_stack, namespace_stack, class_list, using_namespace_stack)
                             elif line.startswith("SPARK_FUNCTION") and i < lineCount - 1:
                                 Class.ProcessFunction(line, lines[i + 1], class_stack, namespace_stack, class_list, using_namespace_stack)
-                            elif line.startswith("class "):
+                            elif line.startswith("class ") or line.startswith("export class "):
                                 Class.ProcessNativeClassSecondPass("class",
                                                                    line,
                                                                    lines[i - 1].strip(),
@@ -127,7 +127,7 @@ def ProcessHeaders():
                                                                    current_scope_depth,
                                                                    root + "/" + file_path,
                                                                    source_dir)
-                            elif line.startswith("struct "):
+                            elif line.startswith("struct ") or line.startswith("export struct "):
                                 Class.ProcessNativeClassSecondPass("struct",
                                                                    line,
                                                                    lines[i - 1].strip(),

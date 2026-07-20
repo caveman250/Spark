@@ -11,9 +11,19 @@ def ProcessNamespace(line, namespace_stack, namespace_scope_depth_stack, current
     end_index = len(line)
     namespace_scope_depth_stack.append(current_scope_depth + 1)
     namespace = ""
+
+    is_export = line.startswith("export")
+    space_counter = 0
+
+    if line.startswith("export"):
+        start_index += len("export ")
+
     for i in range(start_index, end_index):
         if line[i] == " " or line[i] == "\n" or line[i] == "{":
-            break
+            if line[i] == " " and is_export and space_counter >= 2:
+                break
+            elif line[i] != " " or not is_export:
+                break
         namespace += line[i]
     namespace_stack.append(namespace)
 

@@ -1,5 +1,6 @@
 #pragma once
 #include "Type.h"
+#include "engine/reflect/Object.h"
 
 namespace se::reflect
 {
