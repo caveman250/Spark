@@ -90,13 +90,13 @@ def ProcessHeaders():
                             line = lines[i].strip()
                             if line.startswith("SPARK_WIDGET_COMPONENT"):
                                 Class.ProcessClass("SPARK_WIDGET_COMPONENT", line, class_stack)
-                                Widgets.ProcessWidget(widgets, path, class_stack, components)
+                                Widgets.ProcessWidget(widgets, path, class_stack, components, source_dir)
                             elif line.startswith("SPARK_COMPONENT"):
                                 Class.ProcessClass("SPARK_COMPONENT", line, class_stack)
-                                Components.ProcessComponent(components, path, class_stack)
+                                Components.ProcessComponent(components, path, class_stack, source_dir)
                             elif line.startswith("SPARK_SINGLETON_COMPONENT"):
                                 Class.ProcessClass("SPARK_SINGLETON_COMPONENT", line, class_stack)
-                                Components.ProcessSingletonComponent(components, path, class_stack)
+                                Components.ProcessSingletonComponent(components, path, class_stack, source_dir)
                             elif line.startswith("namespace") or line.startswith("export namespace "):
                                 Namespace.ProcessNamespace(line, namespace_stack, namespace_scope_depth_stack, current_scope_depth)
                             elif line.startswith("using namespace"):
@@ -174,7 +174,7 @@ def ProcessHeaders():
     files_accounted_for = set()
     Widgets.WriteWidgetHeader(widgets, files_accounted_for)
     Components.WriteComponentsFile(components, files_accounted_for)
-    Class.WriteClassFiles(finalised_reflected_classes, enum_list, class_heirachy_map, template_instantiations, files_accounted_for)
+    Class.WriteClassFiles(finalised_reflected_classes, enum_list, class_heirachy_map, template_instantiations, files_accounted_for, source_dirs[-1] + "/generated/")
     Enum.WriteEnumFiles(enum_list, files_accounted_for)
 
     for dir in source_dirs:

@@ -3,12 +3,12 @@ from src import Components
 import os
 from src import Log
 
-def ProcessWidget(widget_list, path, class_stack, components):
+def ProcessWidget(widget_list, path, class_stack, components, src_dir):
     type = class_stack[-1].name
     namespace = class_stack[-1].namespace
     dev_only = class_stack[-1].dev_only
     editor_only = class_stack[-1].editor_only
-    component = Components.ComponentFile(os.path.abspath(path), type, namespace, dev_only, editor_only)
+    component = Components.ComponentFile(os.path.abspath(path), type, namespace, dev_only, editor_only, src_dir)
     widget_list.append(component)
     components.append(component)
 

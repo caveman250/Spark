@@ -2,6 +2,8 @@
 
 #include "platform/PlatformRunLoop.h"
 
+#if SPARK_PLATFORM_LINUX
+
 #undef linux
 
 namespace se::linux
@@ -18,3 +20,5 @@ namespace se::linux
         bool m_ShouldExit = false;
     };
 }
+
+#endif
