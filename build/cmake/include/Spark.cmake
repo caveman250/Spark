@@ -128,8 +128,6 @@ function(setup_source_files target unity_conf_dir is_library)
     set_target_properties(${target} PROPERTIES EXCLUDE_FROM_ALL TRUE)
     set_target_properties(${target} PROPERTIES ADDITIONAL_CLEAN_FILES "${CMAKE_CURRENT_SOURCE_DIR}/unity;${CMAKE_CURRENT_SOURCE_DIR}/src/generated")
 
-    target_compile_options(${target} PRIVATE "-Wno-c2y-extensions")
-
     # remove all non unity files from the build
     if (${unity_build})
         exclude_files_from_vs("${NON_UNITY_SOURCE}")
