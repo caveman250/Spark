@@ -5,7 +5,7 @@
 #include <GL/glew.h>
 #include <GL/wglew.h>
 #include "KeyMap.h"
-#include "engine/Application.h"
+import Application;
 #include "engine/input/InputComponent.h"
 #include "engine/input/Key.h"
 #include "engine/input/MouseButton.h"

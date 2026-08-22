@@ -1,16 +1,16 @@
+module;
+
 #include "spark.h"
-
-#include "RootRectTransformSystem.h"
-
-#include "LastRectSystem.h"
 #include "engine/ui/util/RectTransformUtil.h"
-
-#include "engine/Application.h"
 #include <easy/profiler.h>
 #include "platform/IWindow.h"
-#include "Widgets.generated.h"
 #include "engine/ecs/components/RootComponent.h"
-#include "engine/ecs/util/SystemUtil.h"
+
+module RootRectTransformSystem;
+import SystemUtil;
+import LastRectSystem;
+import Application;
+import Widgets;
 
 using namespace se;
 using namespace se::ecs::components;

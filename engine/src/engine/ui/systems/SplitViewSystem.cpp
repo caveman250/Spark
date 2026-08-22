@@ -1,21 +1,21 @@
+module;
+
 #include "spark.h"
-#include "SplitViewSystem.h"
-
-#include <Widgets.generated.h>
-
-#include "RectTransformSystem.h"
-#include "engine/Application.h"
 #include "engine/input/InputComponent.h"
 #include <easy/profiler.h>
-
-#include "UIMouseInputSystem.h"
-#include "engine/ecs/util/SystemUtil.h"
-#include "engine/ui/components/SplitViewComponent.h"
-#include "engine/ui/components/TextComponent.h"
 #include "engine/ui/components/WidgetComponent.h"
 #include "engine/ui/components/MouseInputComponent.h"
-#include "engine/math/IntVec2.h"
+
 #include "platform/MouseCursorUtil.h"
+
+module SplitViewSystem;
+import SystemUtil;
+import Application;
+import RectTransformSystem;
+import UIMouseInputSystem;
+import SplitViewComponent;
+import TextComponent;
+import Widgets;
 
 using namespace se;
 using namespace se::ecs::components;

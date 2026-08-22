@@ -1,7 +1,7 @@
 #pragma once
 
 #include "spark.h"
-#include "engine/ui/Rect.h"
+
 #include "engine/ecs/Component.h"
 #include "engine/ui/Layout.h"
 

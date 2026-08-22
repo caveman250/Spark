@@ -1,12 +1,14 @@
-#include "RectTransformSystem.h"
+module;
 
 #include <easy/profiler.h>
-
-#include "RootRectTransformSystem.h"
-#include "Widgets.generated.h"
-#include "engine/Application.h"
-#include "engine/ecs/util/SystemUtil.h"
+#include "engine/ecs/UpdateMode.h"
 #include "engine/ui/util/RectTransformUtil.h"
+
+module RectTransformSystem;
+import Application;
+import SystemUtil;
+import RootRectTransformSystem;
+import Widgets;
 
 using namespace se;
 using namespace se::ecs::components;

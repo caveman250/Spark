@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from src import Namespace
 import os
 from src import Log
+from src import Modules
 
 @dataclass
 class ComponentFile:
@@ -11,12 +12,6 @@ class ComponentFile:
     dev_only: bool
     editor_only: bool
     project_src_dir: str
-
-def IncludeComponent(component):
-    if component.path.endswith(".ixx"):
-        return f"import {component.name};\n"
-    else:
-        return f"#include \"{component.path}\"\n"
 
 def ProcessComponent(components, path, class_stack, source_dir):
     type = class_stack[-1].name
@@ -32,7 +27,7 @@ def ProcessSingletonComponent(components, path, class_stack, source_dir):
     editor_only = class_stack[-1].editor_only
     components.append(ComponentFile(os.path.abspath(path), type, namespace, dev_only, editor_only, source_dir))
 
-def WriteComponentsFile(components, files_accounted_for):
+def WriteComponentsFile(components, files_accounted_for, module_map):
     src_output_dir = "../../../app/src/generated/"
     header_output_dir = "../../engine/src/generated/"
 
@@ -53,9 +48,9 @@ def WriteComponentsFile(components, files_accounted_for):
         output_handle.write(header)
         output_handle.close()
 
-    cpp = "#include \"Components.generated.h\"\n#include \"spark.h\"\n#include \"engine/reflect/Reflect.h\"\n"
+    cpp = "#include \"Components.generated.h\"\n#include \"spark.h\"\nimport Reflect;\n"
     for i in range(len(components)):
-        cpp += IncludeComponent(components[i])
+        cpp += Modules.IncludeClass(components[i].path, module_map)
     cpp += "\nnamespace se::ecs\n{\n\t"
     cpp += "void RegisterComponents(World* world)\n\t{\n"
     for component in components:

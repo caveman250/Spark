@@ -1,15 +1,21 @@
-#include "TextureResource.h"
+module;
 
-#include "engine/asset/texture/Texture.h"
+#include "spark.h"
+
+module Spark.Render.TextureResource;
 
 namespace se::render
 {
-    TextureResource::TextureResource(const asset::Texture& texture)
-            : m_Width(texture.GetWidth()),
-              m_Height(texture.GetHeight()),
-              m_Format(texture.GetFormat()),
-              m_Usage(texture.GetUsage()),
-              m_MipData(texture.GetMips())
+    TextureResource::TextureResource(size_t width,
+        size_t height,
+        asset::texture::Format format,
+        asset::texture::Usage usage,
+        const std::vector<asset::texture::Mipmap>& mips)
+        : m_Width(width),
+              m_Height(height),
+              m_Format(format),
+              m_Usage(usage),
+              m_MipData(mips)
     {
 
     }

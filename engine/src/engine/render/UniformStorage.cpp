@@ -1,6 +1,8 @@
-#include "UniformStorage.h"
-#include "MaterialInstance.h"
-#include "MaterialInstancePlatformResources.h"
+module;
+
+
+module UniformStorage;
+import MaterialInstance;
 
 namespace se
 {
@@ -90,14 +92,12 @@ namespace se
         return m_Storage.contains(name);
     }
 
-    void render::UniformStorage::Apply(MaterialInstance* material)
+    void render::UniformStorage::ForEachValue(const std::function<void(const std::pair<std::string, UniformValueBase*>&)>& func)
     {
-        for (const auto& [name, value] : m_Storage)
+        for (const auto& kvp : m_Storage)
         {
-            material->GetPlatformResources()->SetUniformInternal(name, value->GetShaderType(), static_cast<int>(value->GetValueCount()), value->GetValue(), material->GetMaterial());
+            func(kvp);
         }
-
-        m_Stale = false;
     }
 
     void render::UniformStorage::ApplyTo(UniformStorage& other) const
@@ -114,7 +114,7 @@ namespace se
             }
         }
 
-        other.MarkStale();
+        other.SetStale();
     }
 
     void render::UniformStorage::Reset()

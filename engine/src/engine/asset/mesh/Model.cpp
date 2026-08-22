@@ -1,7 +1,10 @@
+module;
+
 #include "spark.h"
-#include "Model.h"
 #include "ofbx.h"
-#include "engine/asset/meta/ModelMetaData.h"
+
+
+module Model;
 
 namespace se::asset
 {

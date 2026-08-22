@@ -52,7 +52,7 @@
 *                   : limitations under the License.
 ************************************************************************/
 
-#include <math.h>
+
 #include <QGraphicsScene>
 #include <QFontMetricsF>
 #include "blocks_graphics_view.h"

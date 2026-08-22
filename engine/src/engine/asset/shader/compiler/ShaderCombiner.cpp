@@ -1,18 +1,20 @@
-#include "ShaderCombiner.h"
+module;
+
+#include <map>
+#include <ranges>
 
 #include "spark.h"
-#include "engine/asset/shader/Shader.h"
-#include "engine/asset/shader/ast/EndOfExpressionNode.h"
-#include "engine/asset/shader/ast/InputAttributeNode.h"
-#include "engine/asset/shader/ast/MainNode.h"
-#include "engine/asset/shader/ast/NameGenerator.h"
-#include "engine/asset/shader/ast/OutputNode.h"
-#include "engine/asset/shader/ast/OutputPortNode.h"
-#include "engine/asset/shader/ast/ShaderCompileContext.h"
-#include "engine/asset/shader/ast/VariableDeclarationNode.h"
-#include "engine/asset/shader/ast/VariableReferenceNode.h"
-#include "engine/render/Renderer.h"
-#include "engine/render/VertexBuffer.h"
+#include <set>
+
+module Spark.Asset.Shader;
+import :ShaderCombiner;
+import Spark.Asset.Shader;
+import Spark.Render.Renderer;
+import :VariableDeclarationNode;
+import :MainNode;
+import :EndOfExpressionNode;
+import :InputAttributeNode;
+import :VariableReferenceNode;
 
 namespace se::asset::shader::compiler
 {

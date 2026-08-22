@@ -1,4 +1,10 @@
-#include "MetaDataManager.h"
+module;
+#include <mutex>
+#include "engine/asset/binary/Database.h"
+#include "engine/asset/util/AssetUtil.h"
+#include "engine/io/VFS.h"
+
+module Spark.Asset.Meta.MetaDataManager;
 
 namespace se::asset::meta
 {

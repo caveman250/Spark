@@ -1,8 +1,8 @@
 #pragma once
 
 #include "spark.h"
-#include "DirLight.h"
-#include "PointLight.h"
+
+
 
 namespace se
 {

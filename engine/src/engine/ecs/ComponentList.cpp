@@ -1,5 +1,5 @@
 #include "ComponentList.h"
-#include "engine/ui/components/TextComponent.h"
+import TextComponent;
 
 namespace se::ecs
 {

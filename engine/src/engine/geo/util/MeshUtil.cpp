@@ -1,4 +1,9 @@
-#include "MeshUtil.h"
+module;
+
+#include "spark.h"
+
+module Spark.Geo.Util.MeshUtil;
+import Spark.Geo.AABB;
 
 namespace se::geo::util
 {

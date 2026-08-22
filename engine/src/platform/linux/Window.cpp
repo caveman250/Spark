@@ -1,7 +1,7 @@
 
 #include "Window.h"
 
-#include "engine/Application.h"
+import Application;
 
 namespace se
 {

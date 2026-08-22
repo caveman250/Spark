@@ -1,7 +1,10 @@
 #include "ecs_fwd.h"
 
 #include "components/RootComponent.h"
-#include "engine/Application.h"
+import Application;
+#if SPARK_EDITOR
+import EditorApplication;
+#endif
 
 namespace se::ecs
 {
@@ -42,7 +45,7 @@ namespace se::ecs
     bool IsEditorEntity([[maybe_unused]] const Id& entity)
     {
 #if SPARK_EDITOR
-        auto* app = Application::Get();
+        auto* app = editor::EditorApplication::Get();
         auto* world = app->GetWorld();
         auto editor = app->GetEditor();
         if (*entity.scene == editor->GetEditorScene())

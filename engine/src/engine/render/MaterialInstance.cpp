@@ -1,8 +1,10 @@
-#include "MaterialInstance.h"
-#include "Material.h"
-#include "MaterialInstancePlatformResources.h"
-#include "Renderer.h"
+module;
+
+
 #include "easy/profiler.h"
+
+module MaterialInstance;
+import Material;
 
 namespace se::render
 {
@@ -69,7 +71,11 @@ namespace se::render
         if (m_UniformStorage.IsStale())
         {
             EASY_BLOCK("Apply Uniforms");
-            m_UniformStorage.Apply(this);
+            m_UniformStorage.ForEachValue([material](const std::pair<std::string, UniformValueBase*>& kvp)
+            {
+                material->GetPlatformResources()->SetUniformInternal(kvp.first, kvp.second->GetShaderType(), static_cast<int>(kvp.second->GetValueCount()), kvp.second->GetValue(), material->GetMaterial());
+            });
+            m_UniformStorage.SetStale(false);
         }
 
         m_PlatformResources->Bind(vb);

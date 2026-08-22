@@ -1,7 +1,7 @@
 #pragma once
 
 
-#include "engine/render/MaterialInstancePlatformResources.h"
+
 #include "engine/render/render_fwd.h"
 
 #if OPENGL_RENDERER

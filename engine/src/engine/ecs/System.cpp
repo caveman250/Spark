@@ -1,4 +1,4 @@
-#include "System.h"
+module System;
 
 namespace se::ecs
 {

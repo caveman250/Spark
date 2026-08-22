@@ -1,7 +1,7 @@
 #include "OpenGLRenderer.h"
 #if OPENGL_RENDERER
 #include "GL_fwd.h"
-#include "engine/Application.h"
+import Application;
 #include "engine/render/RenderCommand.h"
 #include "platform/IWindow.h"
 

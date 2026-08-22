@@ -1,6 +1,6 @@
 #include "IWindow.h"
 
-#include "engine/Application.h"
+import Application;
 #include "engine/render/opengl/GL_fwd.h"
 
 namespace se

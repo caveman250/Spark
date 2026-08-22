@@ -1,18 +1,20 @@
-#include "EditableTextSystem.h"
+module;
 
-#include "UIKeyboardInputSystem.h"
 #include "engine/input/InputComponent.h"
-#include "engine/render/Renderer.h"
+
 #include "engine/ui/components/KeyInputComponent.h"
 #include "engine/ui/components/MouseInputComponent.h"
 #include "engine/ui/components/WidgetComponent.h"
 #include "engine/ui/components/TextCaretComponent.h"
-#include "engine/ui/singleton_components/UIRenderComponent.h"
-#include "engine/ui/util/EditableTextUtil.h"
-#include "engine/ui/util/TextUtil.h"
 #include "platform/IWindow.h"
 #include "platform/MouseCursorUtil.h"
-#include "UIMouseInputSystem.h"
+
+module EditableTextSystem;
+import UIKeyboardInputSystem;
+import UIMouseInputSystem;
+import UIRenderComponent;
+import TextUtil;
+import EditableTextUtil;
 
 namespace se::ui::systems
 {

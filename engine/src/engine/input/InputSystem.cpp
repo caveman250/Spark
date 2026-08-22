@@ -1,7 +1,9 @@
-#include "InputSystem.h"
+module;
 
 #include "InputComponent.h"
 #include "easy/profiler.h"
+
+module InputSystem;
 
 namespace se::input
 {

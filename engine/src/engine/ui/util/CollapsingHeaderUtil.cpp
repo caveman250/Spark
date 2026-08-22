@@ -1,9 +1,9 @@
 #include "CollapsingHeaderUtil.h"
 
-#include "Widgets.generated.h"
-#include "engine/asset/AssetManager.h"
-#include "engine/ui/components/ButtonComponent.h"
-#include "engine/ui/components/CollapsingHeaderComponent.h"
+import Widgets;
+
+import ButtonComponent;
+import CollapsingHeaderComponent;
 #include "engine/ui/components/MouseInputComponent.h"
 #include "engine/ui/components/WidgetComponent.h"
 

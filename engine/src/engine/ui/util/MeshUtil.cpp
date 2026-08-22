@@ -1,10 +1,10 @@
 #include "MeshUtil.h"
 
-#include "EditableTextUtil.h"
+import EditableTextUtil;
 #include "engine/asset/builder/FontBlueprint.h"
-#include "engine/asset/font/Font.h"
+import Font;
 #include "engine/ui/components/RectTransformComponent.h"
-#include "engine/ui/components/EditableTextComponent.h"
+import EditableTextComponent;
 
 namespace se::ui::util
 {

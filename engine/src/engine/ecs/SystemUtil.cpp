@@ -1,6 +1,5 @@
-#include "SystemUtil.h"
-
-#include "System.h"
+module SystemUtil;
+import System;
 
 namespace se::ecs
 {

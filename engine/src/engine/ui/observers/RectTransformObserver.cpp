@@ -1,6 +1,6 @@
 #include "RectTransformObserver.h"
 
-#include "engine/Application.h"
+import Application;
 #include "engine/ecs/components/RootComponent.h"
 
 namespace se::ui::observers

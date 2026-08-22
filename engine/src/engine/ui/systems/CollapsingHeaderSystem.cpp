@@ -1,16 +1,17 @@
+module;
 #include "spark.h"
-#include "CollapsingHeaderSystem.h"
-
-#include "RectTransformSystem.h"
-#include "engine/Application.h"
 #include <easy/profiler.h>
-#include "engine/ui/components/CollapsingHeaderComponent.h"
-#include "engine/ui/components/TextComponent.h"
 #include "engine/ui/components/WidgetComponent.h"
 #include "engine/ui/components/MouseInputComponent.h"
-#include "engine/math/IntVec2.h"
+
 #include "engine/threads/ParallelForEach.h"
-#include "engine/ecs/util/SystemUtil.h"
+
+module CollapsingHeaderSystem;
+import SystemUtil;
+import RectTransformSystem;
+import Application;
+import CollapsingHeaderComponent;
+import TextComponent;
 
 using namespace se;
 using namespace se::ecs::components;

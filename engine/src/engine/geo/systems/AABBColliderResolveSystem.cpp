@@ -1,13 +1,15 @@
-#include "AABBColliderResolveSystem.h"
+module;
 
-#include "CollisionSystem.h"
-#include "ResetCollisionSystem.h"
-#include "engine/render/Renderer.h"
+
 #include "engine/render/components/DirLightComponent.h"
-#include "engine/ecs/components/TransformComponent.h"
-#include "engine/camera/ActiveCameraComponent.h"
+
+
 #include "engine/geo/components/AABBColliderComponent.h"
 #include "engine/geo/singleton_components/CollisionComponent.h"
+
+module AABBColliderResolveSystem;
+import ResetCollisionSystem;
+import CollisionSystem;
 
 namespace se::geo::systems
 {

@@ -1,9 +1,12 @@
 #include "VFS.h"
 
+#include <algorithm>
 #include <filesystem>
 #include "engine/string/util/StringUtil.h"
 #include "engine/io/util/PathUtil.h"
 #include "engine/threads/ParallelForEach.h"
+#include <fstream>
+#include <sstream>
 
 namespace se::io
 {

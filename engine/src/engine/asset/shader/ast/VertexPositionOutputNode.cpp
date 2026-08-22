@@ -1,6 +1,10 @@
-#include "VertexPositionOutputNode.h"
+module;
 
-#include "ShaderCompileContext.h"
+#include "engine/string/ArenaString.h"
+
+module Spark.Asset.Shader;
+import :VertexPositionOutputNode;
+import :ShaderCompileContext;
 
 namespace se::asset::shader::ast
 {

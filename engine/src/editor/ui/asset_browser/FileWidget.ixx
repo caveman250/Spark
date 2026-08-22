@@ -1,0 +1,38 @@
+module;
+#include "spark.h"
+
+#include "engine/io/VFS.h"
+
+export module FileWidget;
+import AssetReference;
+import Spark.Asset.Texture;
+
+namespace se::editor::ui::asset_browser
+{
+    class AssetBrowserWindow;
+
+    export class FileWidget
+    {
+    public:
+        static std::shared_ptr<FileWidget> CreateFileWidget(const io::VFSFile& file, const std::shared_ptr<AssetBrowserWindow>& assetBrowser);
+
+        const ecs::Id& GetId() const { return m_Id; }
+        const io::VFSFile& GetFile() const { return m_File; }
+        void SetFile(const io::VFSFile& file) { m_File = file; }
+
+        void Update();
+    private:
+        static void BeginRename(const ecs::Id& labelEntity, const std::string& fileName);
+        static void DoRename(const std::string& newName, const io::VFSFile& file);
+        void EndRename(const std::string& newName);
+        static void DuplicateFile(const io::VFSFile& file, const std::weak_ptr<AssetBrowserWindow>& weakAssetBrowser);
+        static void DeleteFile(const io::VFSFile& file, const std::weak_ptr<AssetBrowserWindow>& weakAssetBrowser);
+
+        ecs::Id m_Id = {};
+        ecs::Id m_Label = {};
+        io::VFSFile m_File = {};
+
+        static asset::AssetReference<asset::Texture> FileTexture;
+        static asset::AssetReference<asset::Texture> FolderTexture;
+    };
+}

@@ -1,4 +1,8 @@
-#include "MetaData.h"
+module;
+
+#include "spark.h"
+
+module Spark.Asset.Meta.MetaData;
 
 namespace se::asset::meta
 {

@@ -1,7 +1,10 @@
-#include "DesiredSizeCalculator.h"
+module;
+
 #include "engine/ui/components/RectTransformComponent.h"
 #include "engine/ecs/util/VariantUtil.h"
-#include "Widgets.generated.h"
+
+module DesiredSizeCalculator;
+import Widgets;
 
 se::math::IntVec2 se::ui::DesiredSizeCalculator::GetChildrenDesiredSize(ecs::System* system,
                                                                      const ecs::Id& entity,

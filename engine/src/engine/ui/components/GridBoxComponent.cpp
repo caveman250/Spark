@@ -1,8 +1,7 @@
-#include "Widgets.generated.h"
 #include "engine/ui/util/GridBoxUtil.h"
-#include "GridBoxComponent.h"
-
-#include "engine/ui/util/WidgetUtil.h"
+import GridBoxComponent;
+import Widgets;
+import WidgetUtil;
 
 namespace se::ui
 {

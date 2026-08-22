@@ -1,6 +1,4 @@
-#include "IntVec2.h"
-
-#include "math.h"
+module Spark.Math;
 
 namespace se::math
 {

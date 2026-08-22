@@ -1,10 +1,12 @@
-#include "MainNode.h"
+module;
 
-#include "InputNode.h"
-#include "OutputNode.h"
-#include "ShaderCompileContext.h"
-#include "TypeUtil.h"
-#include "engine/asset/shader/Shader.h"
+#include "engine/string/ArenaString.h"
+#include <map>
+#include <ranges>
+
+module Spark.Asset.Shader;
+import :MainNode;
+import :ShaderCompileContext;
 
 namespace se::asset::shader::ast
 {

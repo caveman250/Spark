@@ -1,4 +1,9 @@
-#include "EndOfExpressionNode.h"
+module;
+
+#include "engine/string/ArenaString.h"
+
+module Spark.Asset.Shader;
+import :EndOfExpressionNode;
 
 namespace se::asset::shader::ast
 {

@@ -1,14 +1,14 @@
 #include "WindowUtil.h"
 
-#include "engine/Application.h"
-#include "engine/asset/AssetManager.h"
-#include "engine/ui/components/ImageComponent.h"
+import Application;
+import TitleBarComponent;
+
+import ImageComponent;
 #include "engine/ui/components/KeyInputComponent.h"
 #include "engine/ui/components/MouseInputComponent.h"
 #include "engine/ui/components/RectTransformComponent.h"
-#include "engine/ui/components/TextComponent.h"
-#include "engine/ui/components/TitleBarComponent.h"
 #include "engine/ui/components/WindowComponent.h"
+import TextComponent;
 
 namespace se::ui::util
 {

@@ -1,7 +1,6 @@
-#include <Widgets.generated.h>
-#include "HorizontalBoxComponent.h"
-
-#include "engine/ui/util/WidgetUtil.h"
+module HorizontalBoxComponent;
+import Widgets;
+import WidgetUtil;
 
 namespace se::ui
 {

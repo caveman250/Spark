@@ -1,4 +1,4 @@
-#include "RenderState.h"
+module Spark.Render.RenderState;
 
 namespace se::render
 {

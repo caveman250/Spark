@@ -1,4 +1,4 @@
-#include "Rect.h"
+module Spark.UI.Rect;
 
 namespace se::ui
 {

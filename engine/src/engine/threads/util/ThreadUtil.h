@@ -1,6 +1,7 @@
 #pragma once
 
 #include "spark.h"
+#include <thread>
 
 namespace se::threads::util
 {

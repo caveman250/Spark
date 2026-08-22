@@ -2,7 +2,7 @@
 
 #include "Database.h"
 #include "Object.h"
-#include "engine/reflect/Containers.h"
+import Reflect;
 
 namespace se::asset::binary
 {

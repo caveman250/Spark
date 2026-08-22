@@ -1,26 +1,33 @@
-#include "Parser.h"
-#include "engine/asset/shader/ast/AnonymousScopeNode.h"
-#include "engine/asset/shader/ast/BinaryExpressionNode.h"
-#include "engine/asset/shader/ast/ConstantNode.h"
-#include "engine/asset/shader/ast/ElseNode.h"
-#include "engine/asset/shader/ast/EndOfExpressionNode.h"
-#include "engine/asset/shader/ast/ForLoopNode.h"
-#include "engine/asset/shader/ast/FunctionNodes.h"
-#include "engine/asset/shader/ast/IfNode.h"
-#include "engine/asset/shader/ast/InputPortNode.h"
-#include "engine/asset/shader/ast/MainNode.h"
-#include "engine/asset/shader/ast/Mat3Node.h"
-#include "engine/asset/shader/ast/Operators.h"
-#include "engine/asset/shader/ast/OutputPortNode.h"
-#include "engine/asset/shader/ast/PropertyAccessNode.h"
-#include "engine/asset/shader/ast/TextureSampleNode.h"
-#include "engine/asset/shader/ast/Types.h"
-#include "engine/asset/shader/ast/TypeUtil.h"
-#include "engine/asset/shader/ast/VariableDeclarationNode.h"
-#include "engine/asset/shader/ast/VariableReferenceNode.h"
-#include "engine/asset/shader/ast/Vec2Node.h"
-#include "engine/asset/shader/ast/Vec3Node.h"
-#include "engine/asset/shader/ast/Vec4Node.h"
+module;
+
+#include <algorithm>
+
+#include "engine/string/ArenaString.h"
+#include <variant>
+#include <ranges>
+
+module Spark.Asset.Shader;
+import :Parser;
+import :Vec2Node;
+import :Vec3Node;
+import :Vec4Node;
+import :Mat3Node;
+import :TypeUtil;
+import :FunctionNodes;
+import :ConstantNode;
+import :AnonymousScopeNode;
+import :EndOfExpressionNode;
+import :MainNode;
+import :VariableDeclarationNode;
+import Reflect.TemplatedClass;
+import :Operators;
+import :BinaryExpressionNode;
+import :VariableReferenceNode;
+import :ForLoopNode;
+import :TextureSampleNode;
+import :PropertyAccessNode;
+import :IfNode;
+import :ElseNode;
 
 namespace se::asset::shader::compiler
 {

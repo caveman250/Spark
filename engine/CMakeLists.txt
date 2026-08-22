@@ -12,7 +12,12 @@ include(include/Spark)
 include(ThirdParty)
 
 setup_target_common(Spark TRUE "${CMAKE_CURRENT_SOURCE_DIR}/unity.conf")
-target_precompile_headers(Spark PUBLIC $<$<COMPILE_LANGUAGE:CXX>:spark.h>)
+#target_precompile_headers(Spark PUBLIC $<$<COMPILE_LANGUAGE:CXX>:spark.h>)
+#if(MSVC)
+#    target_compile_options(Spark PUBLIC /FI"spark.h")
+#else()
+#    target_compile_options(Spark PUBLIC -include spark.h)
+#endif()
 
 ###### Linker ######
 target_link_libraries(Spark OpenFBX bc7enc)

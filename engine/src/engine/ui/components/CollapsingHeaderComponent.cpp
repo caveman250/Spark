@@ -1,6 +1,5 @@
-#include "CollapsingHeaderComponent.h"
-
-#include "engine/ui/util/WidgetUtil.h"
+module CollapsingHeaderComponent;
+import WidgetUtil;
 
 namespace se::ui
 {

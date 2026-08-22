@@ -1,11 +1,17 @@
-#include "spark.h"
+module;
 
-#include "RootTransformSystem.h"
+#include "spark.h"
 #include "easy/profiler.h"
+#include "engine/ecs/SystemDeclaration.h"
+#include "engine/ecs/UpdateMode.h"
+#include "engine/ecs/World.h"
 #include "engine/ecs/components/RootComponent.h"
-#include "engine/ecs/components/TransformComponent.h"
-#include "engine/ecs/util/SystemUtil.h"
-#include "engine/math/Mat4.h"
+
+
+
+
+module RootTransformSystem;
+import SystemUtil;
 
 using namespace se;
 using namespace se::ecs::components;

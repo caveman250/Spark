@@ -1,6 +1,4 @@
-#include "VertexBuffer.h"
-
-#include "engine/asset/mesh/StaticMesh.h"
+module Spark.Render.VertexBuffer;
 
 namespace se::render
 {

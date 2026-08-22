@@ -1,6 +1,8 @@
 #include "OutputFileStream.h"
 
 #include "VFS.h"
+#include <format>
+import Spark.Debug.Log;
 
 namespace se::io
 {

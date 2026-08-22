@@ -2,7 +2,7 @@
 
 #include "engine/asset/binary/Object.h"
 #include "engine/asset/binary/Type.h"
-#include "engine/asset/texture/Mipmap.h"
+#include "engine/asset/binary/Database.h"
 
 namespace se::reflect
 {

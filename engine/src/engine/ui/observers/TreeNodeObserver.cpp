@@ -1,11 +1,13 @@
-#include "TreeNodeObserver.h"
+module;
 
-#include "engine/Application.h"
-#include "engine/asset/AssetManager.h"
 #include "engine/ui/components/MouseInputComponent.h"
-#include "engine/ui/components/TextComponent.h"
-#include "engine/ui/components/TreeNodeComponent.h"
 #include "engine/ui/components/WidgetComponent.h"
+
+module TreeNodeObserver;
+
+import Application;
+import TreeNodeComponent;
+import TextComponent;
 
 namespace se::ui::observers
 {

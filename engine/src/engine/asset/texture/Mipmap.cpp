@@ -1,4 +1,8 @@
-#include "Mipmap.h"
+module;
+
+#include <cstdint>
+
+module Spark.Asset.Texture.Mipmap;
 
 namespace se::asset::texture
 {

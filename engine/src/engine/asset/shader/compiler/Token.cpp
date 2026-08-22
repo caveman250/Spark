@@ -1,4 +1,6 @@
 #include "Token.h"
+#include <string>
+#include <format>
 
 namespace se::asset::shader::compiler
 {

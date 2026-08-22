@@ -1,4 +1,9 @@
-#include "ASTNode.h"
+module;
+
+#include "engine/string/ArenaString.h"
+#include <map>
+
+module Spark.Asset.Shader;
 
 namespace se::asset::shader::ast
 {
@@ -38,7 +43,9 @@ namespace se::asset::shader::ast
         }
     }
 
-    void ASTNode::ToGlslPreDeclarations(ShaderCompileContext& context, string::ArenaString& outShader)
+    void ASTNode::ToGlslPreDeclarations(ShaderCompileContext& context, string::
+
+    ArenaString& outShader)
     {
         for (const auto& child : m_Children)
         {

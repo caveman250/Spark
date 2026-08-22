@@ -1,0 +1,17 @@
+export module FPSCounterSystem;
+
+import System;
+
+#if WITH_DEV_ONLY_CLASSES
+namespace se::debug::systems
+{
+    export class FPSCounterSystem : public ecs::EngineSystem
+    {
+        SPARK_SYSTEM(DevOnly)
+
+        static ecs::SystemDeclaration GetSystemDeclaration();
+        void OnInit(const ecs::QueryResults&) override;
+        void OnUpdate(const ecs::QueryResults&) override;
+    };
+}
+#endif

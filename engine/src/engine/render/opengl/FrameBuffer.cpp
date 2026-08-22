@@ -1,6 +1,6 @@
 #include "FrameBuffer.h"
 
-#include "engine/Application.h"
+import Application;
 #include "engine/render/opengl/TextureResource.h"
 #include "platform/IWindow.h"
 

@@ -1,8 +1,10 @@
-#include "Mat4.h"
+module;
 
-#include "math.h"
-#include "Vec3.h"
-#include "engine/render/Renderer.h"
+#include "engine/render/render_fwd.h"
+#include <cmath>
+#include "spark.h"
+
+module Spark.Math;
 
 namespace se::math
 {
@@ -270,15 +272,13 @@ namespace se::math
         ret[2][3] = - 1.f;
         ret[3][2] = - (2.f * zFar * zNear) / (zFar - zNear);
 
-        const auto renderer = render::Renderer::Get<render::Renderer>();
-        if (renderer->GetRenderAPIType() == render::RenderAPI::Metal)
-        {
-            const Mat4 adjust = { 1.f, 0.f, 0.f,  0.f,
-                                  0.f, 1.f, 0.f,  0.f,
-                                  0.f, 0.f, 0.5f, 0.f,
-                                  0.f, 0.f, 0.f,  1.f };
-            ret = adjust * ret;
-        }
+#if METAL_RENDERER
+        const Mat4 adjust = { 1.f, 0.f, 0.f,  0.f,
+                              0.f, 1.f, 0.f,  0.f,
+                              0.f, 0.f, 0.5f, 0.f,
+                              0.f, 0.f, 0.f,  1.f };
+        ret = adjust * ret;
+#endif
 
         return ret;
     }

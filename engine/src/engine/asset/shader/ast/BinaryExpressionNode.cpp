@@ -1,4 +1,10 @@
-#include "BinaryExpressionNode.h"
+module;
+
+#include "engine/string/ArenaString.h"
+
+module Spark.Asset.Shader;
+import :BinaryExpressionNode;
+import :Operators;
 
 namespace se::asset::shader::ast
 {

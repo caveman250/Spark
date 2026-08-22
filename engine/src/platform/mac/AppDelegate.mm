@@ -1,7 +1,7 @@
 #import "AppDelegate.h"
 #include "platform/PlatformRunLoop.h"
 #include "Window.h"
-#include "engine/Application.h"
+#include "ObjCUtil.h"
 
 @implementation SparkView
 
@@ -28,10 +28,7 @@
 
 - (void) mtkView:(MTKView*)view drawableSizeWillChange:(CGSize) size
 {
-    if (auto window = se::Application::Get()->GetWindow())
-    {
-        window->OnResize(size.width / window->GetContentScale(), size.height / window->GetContentScale());
-    }
+    se::platform::mac::OnWindowResize(size.width, size.height);
 }
 
 @end
@@ -49,8 +46,7 @@
     se::PlatformRunLoop::Get()->Init();
 
     _viewDelegate = [ViewDelegate new];
-    auto window = static_cast<se::mac::Window*>(se::Application::Get()->GetWindow());
-    _window = window->GetNativeWindow();
+    _window = se::platform::mac::GetNativeWindow();
     auto view= [_window contentView];
     [view setDelegate:_viewDelegate];
 

@@ -1,7 +1,10 @@
-#include "InputAttributeNode.h"
-
-#include "TypeUtil.h"
+module;
 #include "engine/memory/ArenaAllocator.h"
+#include "engine/string/ArenaString.h"
+
+module Spark.Asset.Shader;
+import :InputAttributeNode;
+import :TypeUtil;
 
 namespace se::asset::shader::ast
 {

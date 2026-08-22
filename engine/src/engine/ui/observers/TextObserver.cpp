@@ -1,9 +1,10 @@
-
-#include "TextObserver.h"
-
-#include "engine/Application.h"
-#include "engine/ui/components/TextComponent.h"
+module;
 #include "engine/ui/components/WidgetComponent.h"
+
+module TextObserver;
+
+import Application;
+import TextComponent;
 
 namespace se::ui::observers
 {

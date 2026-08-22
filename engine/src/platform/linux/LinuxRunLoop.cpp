@@ -2,7 +2,7 @@
 
 #include "KeyMap.h"
 #include "Window.h"
-#include "engine/Application.h"
+import Application;
 #include "engine/input/InputComponent.h"
 #include "engine/input/Key.h"
 #include "engine/render/Renderer.h"

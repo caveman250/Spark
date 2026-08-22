@@ -1,11 +1,14 @@
-#include "Graphics.h"
+module;
 
-#include "engine/Application.h"
-#include "engine/asset/mesh/StaticMesh.h"
-#include "engine/render/Renderer.h"
-#include "engine/render/metal/VertexBuffer.h"
-#include "engine/camera/ActiveCameraComponent.h"
-#include "engine/render/MaterialInstance.h"
+
+module Spark.Debug.Graphics;
+
+import Application;
+#if SPARK_EDITOR
+import EditorApplication;
+#endif
+import MaterialInstance;
+import EditorMode;
 
 namespace se::debug
 {
@@ -33,7 +36,7 @@ namespace se::debug
         }
         auto renderer = render::Renderer::Get<render::Renderer>();
 #if SPARK_EDITOR
-        auto* editor = Application::Get()->GetEditor();
+        auto* editor = editor::EditorApplication::Get()->GetEditor();
         const size_t defaultRenderGroup = editor->GetMode() == editor::EditorMode::Prefab ? editor->GetPrefabRenderGroup() : editor->GetOffscreenRenderGroup();
 #else
         const size_t defaultRenderGroup = renderer->GetDefaultRenderGroup();

@@ -1,14 +1,16 @@
 
-#include "TitleBarObserver.h"
+module;
 
-#include "engine/Application.h"
-#include "engine/asset/AssetManager.h"
-#include "engine/ecs/components/TransformComponent.h"
-#include "engine/ui/components/ImageComponent.h"
+
+
 #include "engine/ui/components/MouseInputComponent.h"
-#include "engine/ui/components/TitleBarComponent.h"
 #include "engine/ui/components/WidgetComponent.h"
-#include "engine/render/MaterialInstance.h"
+
+module TitleBarObserver;
+import Application;
+import TitleBarComponent;
+import ImageComponent;
+import MaterialInstance;
 
 namespace se::ui::observers
 {

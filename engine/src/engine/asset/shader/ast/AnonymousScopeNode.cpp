@@ -1,4 +1,9 @@
-#include "AnonymousScopeNode.h"
+module;
+
+#include "engine/string/ArenaString.h"
+
+module Spark.Asset.Shader;
+import :AnonymousScopeNode;
 
 namespace se::asset::shader::ast
 {

@@ -1,20 +1,21 @@
 #import "MetalTypeUtil.h"
+#include "spark.h"
 
-MTLCompareFunction DepthCompareToMtl(se::render::DepthCompare depthCompare)
+MTLCompareFunction DepthCompareToMtl(int depthCompare)
 {
     switch (depthCompare)
     {
-        case se::render::DepthCompare::Less:
+        case 0:
             return MTLCompareFunctionLess;
-        case se::render::DepthCompare::LessEqual:
+        case 1:
             return MTLCompareFunctionLessEqual;
-        case se::render::DepthCompare::Equal:
+        case 2:
             return MTLCompareFunctionEqual;
-        case se::render::DepthCompare::Greater:
+        case 3:
             return MTLCompareFunctionGreater;
-        case se::render::DepthCompare::GreaterEqual:
+        case 4:
             return MTLCompareFunctionGreaterEqual;
-        case se::render::DepthCompare::None:
+        case 5:
             return MTLCompareFunctionAlways;
         default:
             SPARK_ASSERT(false, "MetalTypeUtil::DepthCompareToMtl - Unhandled DepthCompare");
@@ -22,31 +23,31 @@ MTLCompareFunction DepthCompareToMtl(se::render::DepthCompare depthCompare)
     }
 }
 
-MTLBlendFactor BlendModeToMtl(se::render::BlendMode blendMode)
+MTLBlendFactor BlendModeToMtl(int blendMode)
 {
     switch (blendMode)
     {
-        case se::render::BlendMode::Zero:
+        case 0:
             return MTLBlendFactorZero;
-        case se::render::BlendMode::One:
+        case 1:
             return MTLBlendFactorOne;
-        case se::render::BlendMode::SrcColor:
+        case 2:
             return MTLBlendFactorSourceColor;
-        case se::render::BlendMode::OneMinusSrcColor:
+        case 3:
             return MTLBlendFactorOneMinusSourceColor;
-        case se::render::BlendMode::DstColor:
+        case 4:
             return MTLBlendFactorDestinationColor;
-        case se::render::BlendMode::OneMinusDstColor:
+        case 5:
             return MTLBlendFactorOneMinusDestinationColor;
-        case se::render::BlendMode::SrcAlpha:
+        case 6:
             return MTLBlendFactorSourceAlpha;
-        case se::render::BlendMode::OneMinusSrcAlpha:
+        case 7:
             return MTLBlendFactorOneMinusSourceAlpha;
-        case se::render::BlendMode::DstAlpha:
+        case 8:
             return MTLBlendFactorDestinationAlpha;
-        case se::render::BlendMode::OneMinusDstAlpha:
+        case 9:
             return MTLBlendFactorOneMinusDestinationAlpha;
-        case se::render::BlendMode::None:
+        case 10:
             return MTLBlendFactorZero;
         default:
             SPARK_ASSERT(false, "MetalTypeUtil::BlendModeToMtl - Unhandled BlendMode");

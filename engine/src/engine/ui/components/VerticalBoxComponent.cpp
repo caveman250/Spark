@@ -1,6 +1,8 @@
-#include <Widgets.generated.h>
-#include "VerticalBoxComponent.h"
-#include "engine/ui/util/WidgetUtil.h"
+module;
+
+module VerticalBoxComponent;
+import Widgets;
+import WidgteUtil;
 
 namespace se::ui
 {

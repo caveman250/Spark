@@ -1,6 +1,6 @@
 #include "MeshUtil.h"
-#include "engine/ecs/components/MeshComponent.h"
-#include "engine/render/IndexBuffer.h"
+import MeshComponent;
+
 
 namespace se::ecs::util
 {

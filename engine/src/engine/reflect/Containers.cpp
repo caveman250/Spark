@@ -1,7 +1,9 @@
-#include "Containers.h"
+module;
 
-#include "Reflect.h"
-#include "engine/asset/binary/Object.h"
+#include "Object.h"
+#include "engine/asset/binary/Database.h"
+
+module Reflect;
 
 namespace se::reflect
 {

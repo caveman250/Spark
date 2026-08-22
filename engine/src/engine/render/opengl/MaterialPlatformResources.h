@@ -1,7 +1,7 @@
 #pragma once
 
 #include "spark.h"
-#include "engine/render/MaterialPlatformResources.h"
+
 
 #if OPENGL_RENDERER
 

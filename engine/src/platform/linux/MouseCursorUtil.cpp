@@ -1,5 +1,5 @@
 #include "platform/MouseCursorUtil.h"
-#include "engine/Application.h"
+import Application;
 #include "Window.h"
 
 namespace se

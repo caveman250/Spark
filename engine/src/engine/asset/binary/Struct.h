@@ -1,6 +1,7 @@
 #pragma once
 
 #include "binary.h"
+#include "json.hpp"
 
 namespace se::asset::binary
 {

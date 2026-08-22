@@ -5,7 +5,7 @@
 
 
 #include "Window.h"
-#include "engine/Application.h"
+import Application;
 #include <easy/profiler.h>
 #include "engine/render/Renderer.h"
 #include "platform/IWindow.h"

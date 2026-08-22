@@ -1,15 +1,14 @@
+module;
 #include "spark.h"
-
-#include "TextRenderSystem.h"
-
-#include "engine/Application.h"
 #include <easy/profiler.h>
 
-#include "RectTransformSystem.h"
-#include "engine/ecs/util/SystemUtil.h"
-#include "engine/render/Renderer.h"
-#include "engine/ui/util/TextUtil.h"
 #include "platform/IWindow.h"
+
+module TextRenderSystem;
+import RectTransformSystem;
+import SystemUtil;
+import Application;
+import TextUtil;
 
 using namespace se;
 using namespace se::ecs::components;

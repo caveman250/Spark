@@ -1,4 +1,9 @@
-#include "Mat3Node.h"
+module;
+
+#include "engine/string/ArenaString.h"
+
+module Spark.Asset.Shader;
+import :Mat3Node;
 
 namespace se::asset::shader::ast
 {

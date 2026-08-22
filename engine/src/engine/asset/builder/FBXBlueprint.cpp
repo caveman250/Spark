@@ -1,10 +1,10 @@
 #include "FBXBlueprint.h"
 #include "ofbx.h"
 #include "spark.h"
-#include "engine/asset/mesh/Model.h"
-#include "engine/asset/meta/MetaDataManager.h"
+import Model;
+
 #include "engine/io/VFS.h"
-#include "engine/reflect/Util.h"
+
 
 namespace se::asset::builder
 {

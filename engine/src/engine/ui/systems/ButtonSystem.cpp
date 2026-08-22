@@ -1,14 +1,17 @@
-#include "ButtonSystem.h"
+module;
 
 #include "spark.h"
-#include "UIMouseInputSystem.h"
-#include "engine/Application.h"
 #include <easy/profiler.h>
-#include "engine/render/MaterialInstance.h"
 #include "engine/time/TimeUtil.h"
-#include "engine/ui/components/ImageComponent.h"
 #include "engine/ui/components/WidgetComponent.h"
 #include "engine/ui/components/MouseInputComponent.h"
+
+module ButtonSystem;
+import Application;
+import UIMouseInputSystem;
+import ButtonComponent;
+import MaterialInstance;
+import ImageComponent;
 
 using namespace se;
 using namespace se::ecs::components;

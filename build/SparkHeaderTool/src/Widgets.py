@@ -3,6 +3,9 @@ from src import Components
 import os
 from src import Log
 
+def IsModule(widget):
+    return widget.path.endswith(".ixx")
+
 def ProcessWidget(widget_list, path, class_stack, components, src_dir):
     type = class_stack[-1].name
     namespace = class_stack[-1].namespace
@@ -12,10 +15,19 @@ def ProcessWidget(widget_list, path, class_stack, components, src_dir):
     widget_list.append(component)
     components.append(component)
 
-def IncludeWidgetFiles(widget_list):
+def IncludeWidgetHeaders(widget_list):
     ret = ""
     for i in range(len(widget_list)):
-        ret += "#include \"" + widget_list[i].path + "\"\n"
+        if not IsModule(widget_list[i]):
+            ret += "#include \"" + widget_list[i].path + "\"\n"
+    return ret
+
+
+def IncludeWidgetModules(widget_list):
+    ret = ""
+    for i in range(len(widget_list)):
+        if IsModule(widget_list[i]):
+            ret += f"import {widget_list[i].name};\n"
     return ret
 
 def WriteWidgetTypesMacros(widget_list):
@@ -103,14 +115,16 @@ def WriteWidgetVariant():
     return ret
 
 def WriteWidgetHeader(widget_list, files_accounted_for):
-    contents = "#pragma once\n\n#include \"spark.h\"\n"
+    contents = "module;\n\n#include \"spark.h\"\n"
 
-    contents += IncludeWidgetFiles(widget_list)
+    contents += IncludeWidgetHeaders(widget_list)
+    contents += "export module Widgets;\n"
+    contents += IncludeWidgetModules(widget_list)
     contents += WriteWidgetTypesMacros(widget_list)
     contents += WriteWidgetVariant()
 
     output_dir = "../../engine/src/generated/"
-    output_path = "../../engine/src/generated/Widgets.generated.h"
+    output_path = "../../engine/src/generated/Widgets.generated.ixx"
     files_accounted_for.add(os.path.abspath(output_path))
     if not os.path.exists(output_dir):
         os.mkdir(output_dir)
@@ -121,7 +135,7 @@ def WriteWidgetHeader(widget_list, files_accounted_for):
         existing_contents = input_handle.read()
         input_handle.close()
     if existing_contents != contents:
-        Log.Msg("Widgets.generated.h generating...")
+        Log.Msg("Widgets.generated.ixx generating...")
         output_handle = open(output_path, "w+")
         output_handle.write(contents)
         output_handle.close()

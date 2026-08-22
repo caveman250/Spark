@@ -1,14 +1,15 @@
 #include "ScrollBoxUtil.h"
 
-#include "engine/asset/AssetManager.h"
-#include "engine/asset/shader/Shader.h"
-#include "engine/render/Material.h"
-#include "engine/render/MaterialInstance.h"
-#include "engine/ui/components/ImageComponent.h"
+
+
+import Material;
+import MaterialInstance;
+import ImageComponent;
 #include "engine/ui/components/MouseInputComponent.h"
 #include "engine/ui/components/RectTransformComponent.h"
 #include "engine/ui/components/ScrollBoxComponent.h"
-#include "engine/ui/components/ScrollViewComponent.h"
+import ScrollViewComponent;
+import Application;
 #include "engine/ui/components/WidgetComponent.h"
 
 namespace se::ui::util

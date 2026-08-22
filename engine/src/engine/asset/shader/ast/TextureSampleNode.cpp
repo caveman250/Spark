@@ -1,6 +1,12 @@
-#include "TextureSampleNode.h"
-#include "NameGenerator.h"
-#include "engine/asset/shader/ast/ShaderCompileContext.h"
+module;
+
+#include "engine/string/ArenaString.h"
+#include <map>
+
+module Spark.Asset.Shader;
+import :TextureSampleNode;
+import :NameGenerator;
+import :ShaderCompileContext;
 
 namespace se::asset::shader::ast
 {

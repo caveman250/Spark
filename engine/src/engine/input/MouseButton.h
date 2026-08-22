@@ -1,5 +1,7 @@
 #pragma once
 
+#include "engine/reflect/Reflect_fwd.h"
+
 namespace se::input
 {
     SPARK_ENUM()

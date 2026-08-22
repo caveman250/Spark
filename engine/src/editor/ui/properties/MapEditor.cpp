@@ -1,0 +1,314 @@
+#include "MapEditor.h"
+import Transactions;
+
+import Application;
+
+#include "engine/io/VFS.h"
+import Material;
+import MaterialInstance;
+import ButtonComponent;
+import CollapsingHeaderComponent;
+import EditableTextComponent;
+import ImageComponent;
+#include "engine/ui/components/MouseInputComponent.h"
+#include "engine/ui/components/RectTransformComponent.h"
+import TextComponent;
+import VerticalBoxComponent;
+#include "engine/ui/components/WidgetComponent.h"
+import ContextMenuUtil;
+
+namespace se::editor::ui::properties
+{
+    DEFINE_CONTAINER_PROPERTY_EDITOR("std::map<>", MapEditor)
+    DEFINE_CONTAINER_PROPERTY_EDITOR("std::unordered_map<>", MapEditor)
+
+    void MapEditor::SetValue(void* value, const reflect::Type* type)
+    {
+        if (SPARK_VERIFY(type->IsContainer()))
+        {
+            m_MapType = static_cast<const reflect::Type_Container*>(type);
+            m_Value = value;
+        }
+    }
+
+    void MapEditor::ConstructUI(const PropertyEditorParams& params)
+    {
+        PropertyEditor::ConstructUI(params);
+
+        auto app = Application::Get();
+        auto world = app->GetWorld();
+        auto editor = app->GetEditor();
+        auto assetManager = asset::AssetManager::Get();
+
+        auto listBG = world->CreateEntity(editor->GetEditorScene(), "Vector Editor BG");
+        auto* listRect = world->AddComponent<RectTransformComponent>(listBG);
+        world->AddComponent<WidgetComponent>(listBG);
+        listRect->anchors = { 0.f, 1.f, 0.f, 0.f };
+        listRect->minX = 5;
+        listRect->maxX = 5;
+        auto listBGImage = world->AddComponent<ImageComponent>(listBG);
+        std::shared_ptr<render::Material> bgMaterial = assetManager->GetAsset<render::Material>("/engine_assets/materials/editor_containerbg.sass");
+        listBGImage->materialInstance = std::make_shared<render::MaterialInstance>(bgMaterial);
+        world->AddChild(m_Content, listBG);
+
+        m_VerticalBox = world->CreateEntity(editor->GetEditorScene(), "Vector Editor Vertical Box");
+        auto* verticalBoxRect = world->AddComponent<RectTransformComponent>(m_VerticalBox);
+        verticalBoxRect->anchors = { .left = 0.f, .right = 1.f, .top = 0.f, .bottom = 0.f };
+        world->AddComponent<WidgetComponent>(m_VerticalBox);
+        auto verticalBox = world->AddComponent<VerticalBoxComponent>(m_VerticalBox);
+        verticalBox->spacing = 5;
+        world->AddChild(listBG, m_VerticalBox);
+
+        auto buttonContainer = world->CreateEntity(editor->GetEditorScene(), "New Button Container");
+        auto* buttonRect = world->AddComponent<RectTransformComponent>(buttonContainer);
+        world->AddComponent<WidgetComponent>(buttonContainer);
+        buttonRect->anchors = { 0.f, 1.f, 0.f, 0.f };
+        world->AddChild(m_VerticalBox, buttonContainer);
+
+        auto newButtonEntity = world->CreateEntity(editor->GetEditorScene(), "New Button");
+        world->AddComponent<WidgetComponent>(newButtonEntity);
+        auto newButton = world->AddComponent<ButtonComponent>(newButtonEntity);
+        newButton->image = "/engine_assets/textures/editor_plus.sass";
+        newButton->pressedImage = "/engine_assets/textures/editor_plus.sass";
+        newButton->hoveredImage = "/engine_assets/textures/editor_plus.sass";
+        newButton->onReleased.Subscribe([this, world](input::MouseButton, bool)
+        {
+            auto inputComp = world->GetSingletonComponent<input::InputComponent>();
+            const auto& derivedTypes = m_MapType->GetContainedValueType(nullptr)->GetDerivedTypes();
+            se::ui::util::ContextMenuParams params = {
+                .fontSize = 14,
+                .mousePos = { inputComp->mouseX, inputComp->mouseY },
+                .scene = Application::Get()->GetEditor()->GetEditorScene()
+            };
+            for (auto* type : derivedTypes)
+            {
+                params.AddOption(type->GetTypeName(nullptr), [this, type]()
+                {
+                    std::any key = m_MapType->GetNextKey(m_Value);
+                    Transactions::Get()->PushAction([this, type]()
+                    {
+                        std::any key = m_MapType->AddElement(m_Value, type);
+                    },
+                    [this, key]()
+                    {
+                        m_MapType->RemoveElementByKey(m_Value, key);
+                    });
+                });
+            }
+
+            se::ui::util::CreateContextMenu(params);
+        });
+        auto newButtonRect = world->AddComponent<RectTransformComponent>(newButtonEntity);
+        newButtonRect->anchors = { .left = 1.f, .right = 1.f, .top = 0.f, .bottom = 0.f };
+        newButtonRect->minX = 15;
+        newButtonRect->maxY = 15;
+        world->AddChild(buttonContainer, newButtonEntity);
+
+        CreateElements();
+        m_CachedMapSize = m_MapType->GetNumContainedElements(m_Value);
+    }
+
+    void MapEditor::Update()
+    {
+        for (const auto& editor : m_Editors | std::ranges::views::values)
+        {
+            editor->Update();
+        }
+
+        size_t vectorSize = m_MapType->GetNumContainedElements(m_Value);
+        if (m_CachedMapSize != vectorSize)
+        {
+            RecreateElements();
+            m_CachedMapSize = vectorSize;
+        }
+    }
+
+    void MapEditor::RecreateElements()
+    {
+        DestroyElements();
+        CreateElements();
+
+        auto* transform = Application::Get()->GetWorld()->GetComponent<RectTransformComponent>(m_VerticalBox);
+        transform->needsLayout = true;
+        se::ui::util::InvalidateParent(m_VerticalBox, nullptr);
+    }
+
+    void MapEditor::CreateElements()
+    {
+        auto* app = Application::Get();
+        auto* editor = app->GetEditor();
+        auto* world = app->GetWorld();
+        size_t numElements = m_MapType->GetNumContainedElements(m_Value);
+        if (numElements == 0)
+        {
+            m_EmptyItem = world->CreateEntity(editor->GetEditorScene(), "Title");
+            world->AddComponent<WidgetComponent>(m_EmptyItem);
+            auto text = world->AddComponent<TextComponent>(m_EmptyItem);
+            text->font = "/engine_assets/fonts/CascadiaCode.sass";
+            text->fontSize = 14;
+            text->text = "empty.";
+            auto textRect = world->AddComponent<RectTransformComponent>(m_EmptyItem);
+            textRect->anchors = { .left = 0.f, .right = 1.f, .top = 0.f, .bottom = 0.f };
+            textRect->minX = 5;
+            world->AddChild(m_VerticalBox, m_EmptyItem);
+        }
+        else
+        {
+            for (size_t i = 0; i < numElements; ++i)
+            {
+                InstantiateElementUI(i);
+            }
+        }
+    }
+
+    void MapEditor::DestroyElements()
+    {
+        auto* world = Application::Get()->GetWorld();
+        if (m_EmptyItem != ecs::InvalidEntity)
+        {
+            world->DestroyEntity(m_EmptyItem);
+            m_EmptyItem = ecs::InvalidEntity;
+        }
+
+        for (const auto& editor : m_Editors)
+        {
+            editor.second->DestroyUI();
+        }
+        m_Editors.clear();
+        m_ElementNames.clear();
+    }
+
+    void MapEditor::InstantiateElementUI(size_t i)
+    {
+        reflect::Type* stringType = reflect::TypeResolver<std::string>::Get();
+        std::string propName = std::format("{}", i);
+        if (m_MapType->GetContainedKeyType() == stringType)
+        {
+            const void* value = m_MapType->GetContainedKeyByIndex(m_Value, i);
+            propName = *(std::string*)value;
+        }
+
+        InstantiateElementUI(propName, m_MapType->GetContainedValueByIndex(m_Value, i));
+    }
+
+    void MapEditor::InstantiateElementUI(const std::any& key, void* element)
+    {
+        auto app = Application::Get();
+        auto world = app->GetWorld();
+        auto editor = app->GetEditor();
+
+        // only supporting string keys until I have a need for other types.
+        const auto& propName = std::any_cast<std::string>(key);
+
+        auto containedType = m_MapType->GetContainedValueType(element);
+
+        auto entity = world->CreateEntity(editor->GetEditorScene(), propName);
+        auto rect = world->AddComponent<RectTransformComponent>(entity);
+        rect->anchors = { .left = 0.f, .right = 1.f, .top = 0.f, .bottom = 0.f };
+        rect->minX = 2;
+        rect->maxX = 15;
+        world->AddComponent<WidgetComponent>(entity);
+
+        PropertyEditorParams propertyParams = {
+            .name = propName + ": " + containedType->GetTypeName(element),
+            .type = containedType,
+            .value = element,
+            .anchors = se::ui::Anchors(0.f, 1.f, 0.f, 0.f),
+            .collapsed = true,
+            .withBackground = false,
+            .constructTitle = true,
+            .titleModeOverride = PropertyTitleMode::NextLine,
+            .editableTitle = m_MapType->GetContainedKeyType() == reflect::TypeResolver<std::string>::Get(),
+            .contextOptions = {
+                std::make_pair("Rename", [this, world, entity]()
+                {
+                    auto it = m_Editors.find(entity);
+                    if (it != m_Editors.end())
+                    {
+                        const auto nameIt = m_ElementNames.find(entity);
+                        std::string oldVal = nameIt->second;
+
+                        auto onComitted = [this, world, entity, oldVal](const std::string& newText, EditableTextComponent*)
+                        {
+                            auto it = m_Editors.find(entity);
+                            const CollapsingHeaderComponent* collapsingHeader = world->GetComponent<CollapsingHeaderComponent>(it->second->GetWidgetId());
+                            WidgetComponent* buttonWidget = world->GetComponent<WidgetComponent>(collapsingHeader->titleButton);
+                            buttonWidget->updateEnabled = true;
+                            buttonWidget->visibility = se::ui::Visibility::Hidden;
+
+                            Transactions::Get()->PushAction([this, entity, newText, world]()
+                            {
+                                const auto nameIt = m_ElementNames.find(entity);
+                                m_MapType->ChangeKey(m_Value, nameIt->second, newText);
+                                const void* element = m_MapType->GetContainedValueByKey(m_Value, newText);
+                                nameIt->second = newText;
+
+                                auto it = m_Editors.find(entity);
+                                EditableTextComponent* text = world->GetComponent<EditableTextComponent>(it->second->GetTitleId());
+                                text->text = nameIt->second + ": " + m_MapType->GetContainedValueType(element)->GetTypeName(element);
+                            },
+                            [this, entity, oldVal, world]()
+                            {
+                                const auto nameIt = m_ElementNames.find(entity);
+                                m_MapType->ChangeKey(m_Value, nameIt->second, oldVal);
+                                const void* element = m_MapType->GetContainedValueByKey(m_Value, oldVal);
+                                nameIt->second = oldVal;
+
+                                auto it = m_Editors.find(entity);
+                                EditableTextComponent* text = world->GetComponent<EditableTextComponent>(it->second->GetTitleId());
+                                text->text = nameIt->second + ": " + m_MapType->GetContainedValueType(element)->GetTypeName(element);
+                            });
+                        };
+
+                        auto onCancelled = [this, world, entity](EditableTextComponent* textComp)
+                        {
+                            const auto nameIt = m_ElementNames.find(entity);
+                            const void* element = m_MapType->GetContainedValueByKey(m_Value, nameIt->second);
+                            textComp->text = nameIt->second + ": " + m_MapType->GetContainedValueType(element)->GetTypeName(element);
+
+                            auto it = m_Editors.find(entity);
+                            const CollapsingHeaderComponent* collapsingHeader = world->GetComponent<CollapsingHeaderComponent>(it->second->GetWidgetId());
+                            WidgetComponent* buttonWidget = world->GetComponent<WidgetComponent>(collapsingHeader->titleButton);
+                            buttonWidget->updateEnabled = true;
+                            buttonWidget->visibility = se::ui::Visibility::Hidden;
+                        };
+
+                        it->second->BeginRename(nameIt->second, onComitted, onCancelled);
+                    }
+                }),
+                std::make_pair("Delete", [this, entity]
+                {
+                    const auto nameIt = m_ElementNames.find(entity);
+                    std::any oldKey = nameIt->second;
+                    std::any oldVal = m_MapType->GetContainedValueByKeyCopy(m_Value, oldKey);
+
+                    Transactions::Get()->PushAction([this, entity]()
+                    {
+                        const auto nameIt = m_ElementNames.find(entity);
+                        m_MapType->RemoveElementByKey(m_Value, nameIt->second);
+                    },
+                    [this, oldKey, oldVal, entity]()
+                    {
+                        std::any key = m_MapType->AddElement(m_Value, oldVal);
+                        m_MapType->ChangeKey(m_Value, key, oldKey);
+                    });
+
+                })
+            }
+        };
+        auto propertyEditor = CreatePropertyEditor(propertyParams);
+        if (!propertyEditor)
+        {
+            auto text = util::CreateMissingPropertyEditorText(containedType, 0.f, 0);
+            world->AddChild(entity, text);
+        }
+        else if (propertyEditor->GetWidgetId() != ecs::InvalidEntity)
+        {
+            world->AddChild(entity, propertyEditor->GetWidgetId());
+            m_Editors.insert(std::make_pair(entity, propertyEditor));
+            m_ElementNames.insert(std::make_pair(entity, propName));
+        }
+
+        world->AddChild(m_VerticalBox, entity);
+    }
+}

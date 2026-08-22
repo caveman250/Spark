@@ -1,17 +1,17 @@
 #include "TreeViewUtil.h"
 
-#include "engine/Application.h"
-#include "engine/asset/AssetReference.h"
-#include "engine/asset/shader/Shader.h"
-#include "engine/render/Material.h"
-#include "engine/ui/components/ButtonComponent.h"
-#include "engine/ui/components/ImageComponent.h"
+import Application;
+import AssetReference;
+
+import Material;
+import ButtonComponent;
+import ImageComponent;
 #include "engine/ui/components/MouseInputComponent.h"
 #include "engine/ui/components/RectTransformComponent.h"
-#include "engine/ui/components/TreeNodeComponent.h"
+import TreeNodeComponent;
 #include "engine/ui/components/TreeViewComponent.h"
 #include "engine/ui/components/WidgetComponent.h"
-#include "engine/ui/util/EditableTextUtil.h"
+import EditableTextUtil;
 
 namespace se::ui::util
 {

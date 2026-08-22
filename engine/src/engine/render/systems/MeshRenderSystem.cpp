@@ -1,17 +1,20 @@
+module;
+
 #include "spark.h"
 
-#include "MeshRenderSystem.h"
-#include "engine/Application.h"
-#include "engine/asset/mesh/Model.h"
-#include "engine/asset/shader/ast/Types.h"
-#include "engine/camera/ActiveCameraComponent.h"
-#include "engine/ecs/components/MeshComponent.h"
-#include "engine/ecs/components/TransformComponent.h"
-#include "engine/ecs/util/SystemUtil.h"
-#include "engine/render/MaterialInstance.h"
-#include "engine/render/Renderer.h"
-#include "engine/render/VertexBuffer.h"
-#include "engine/render/singleton_components/MeshRenderComponent.h"
+#include "engine/ecs/SystemDeclaration.h"
+#include "engine/ecs/World.h"
+
+module MeshRenderSystem;
+import Application;
+import SystemUtil;
+import Model;
+import MeshComponent;
+import MaterialInstance;
+import MeshRenderComponent;
+import Spark.Asset.Shader;
+import Spark.ECS.Components.TransformComponent;
+import MeshComponent;
 
 using namespace se;
 using namespace se::ecs::components;

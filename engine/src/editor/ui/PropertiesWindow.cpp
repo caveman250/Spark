@@ -1,0 +1,313 @@
+#include "PropertiesWindow.h"
+
+import Application;
+import ButtonComponent;
+import ButtonComponent;
+import TitleBarComponent;
+import VerticalBoxComponent;
+import ContextMenuUtil;
+
+import ImageComponent;
+#include "engine/ui/components/RectTransformComponent.h"
+import TextComponent;
+#include "engine/ui/components/WidgetComponent.h"
+#include "engine/ui/components/WindowComponent.h"
+#include "engine/ui/util/ScrollBoxUtil.h"
+#include "engine/ui/util/WindowUtil.h"
+
+
+namespace se::editor::ui
+{
+    void PropertiesWindow::Update()
+    {
+        if (!m_Valid)
+        {
+            return;
+        }
+
+        ToolWindow::Update();
+
+        for (const auto& editor: m_PropertyEditors)
+        {
+            editor->Update();
+        }
+    }
+
+    void PropertiesWindow::ConstructUI()
+    {
+        auto app = Application::Get();
+        auto world = app->GetWorld();
+        auto editor = app->GetEditor();
+
+        se::ui::components::RectTransformComponent *windowTransform;
+        se::ui::components::WindowComponent *windowComp;
+        se::ui::components::TitleBarComponent *titleBarComp;
+        ecs::Id contentArea;
+        ecs::Id titleArea;
+        m_Window = ::se::ui::util::CreateWindow(&windowTransform,
+                                                &windowComp,
+                                                &titleBarComp,
+                                                contentArea,
+                                                titleArea,
+                                                "Properties",
+                                                editor->GetEditorScene());
+        windowTransform->anchors = {0.f, 0.f, 0.f, 0.f};
+        windowTransform->minX = 860;
+        windowTransform->maxX = 1260;
+        windowTransform->minY = 20;
+        windowTransform->maxY = 700;
+
+        auto scrollBox = ::se::ui::util::CreateScrollBox(editor->GetEditorScene());
+        world->AddChild(contentArea, scrollBox.scrollBoxEntity);
+
+        m_ScrollBoxContent = world->CreateEntity("Vertical Box");
+        auto verticalBox = world->AddComponent<se::ui::components::VerticalBoxComponent>(m_ScrollBoxContent);
+        verticalBox->spacing = 5;
+        verticalBox->paddingLeft = 2;
+        verticalBox->paddingRight = 15;
+        world->AddComponent<se::ui::components::WidgetComponent>(m_ScrollBoxContent);
+        auto verticalBoxTransform = world->AddComponent<se::ui::components::RectTransformComponent>(m_ScrollBoxContent);
+        verticalBoxTransform->anchors = { 0.f, 1.f, 0.f, 0.f };
+        world->AddChild(scrollBox.scrollViewEntity, m_ScrollBoxContent);
+
+        m_Valid = true;
+    }
+
+    void PropertiesWindow::DestroyUI()
+    {
+        m_Valid = false;
+    }
+
+    void PropertiesWindow::RebuildProperties()
+    {
+        if (m_Valid)
+        {
+            auto world = Application::Get()->GetWorld();
+            for (const auto &child: world->GetChildren(m_ScrollBoxContent))
+            {
+                world->DestroyEntity(child);
+            }
+            m_PropertyEditors.clear();
+
+            auto scrollBoxTransform = world->GetComponent<se::ui::components::RectTransformComponent>(
+                    m_ScrollBoxContent);
+
+            const ecs::Id& selectedEntity = m_Editor->GetSelectedEntity();
+            reflect::ObjectBase* selectedSingletonComp = m_Editor->GetSelectedSingletonComponent();
+            const auto& selectedAsset = m_Editor->GetSelectedAsset();
+
+            if (selectedEntity)
+            {
+                AddEntityProperties(selectedEntity, world, "/engine_assets/fonts/CascadiaCode.sass");
+            }
+            else if (selectedSingletonComp)
+            {
+                AddSingletonComponentProperties(selectedSingletonComp);
+            }
+            else if (selectedAsset)
+            {
+                AddAssetProperties(selectedAsset, world, "/engine_assets/fonts/CascadiaCode.sass");
+            }
+
+            scrollBoxTransform->needsLayout = true;
+        }
+    }
+
+    void PropertiesWindow::AddEntityProperties(const ecs::Id& entity,
+                                               ecs::World* world,
+                                               const asset::AssetReference<asset::Font>& font)
+    {
+        auto editor = Application::Get()->GetEditor();
+
+        const auto &selectedEntityRecord = world->m_EntityRecords.at(entity);
+        {
+            auto textEntity = world->CreateEntity(editor->GetEditorScene(), "Text");
+            auto text = world->AddComponent<se::ui::components::TextComponent>(textEntity);
+            text->font = font;
+            text->fontSize = 18;
+            text->text = *entity.name;
+            world->AddComponent<se::ui::components::RectTransformComponent>(textEntity);
+            world->AddComponent<se::ui::components::WidgetComponent>(textEntity);
+            world->AddChild(m_ScrollBoxContent, textEntity);
+        }
+
+        bool isPrefabReference = bits::GetFlag(*entity.flags, ecs::IdFlags::PrefabEntity) && m_Editor->GetMode() != EditorMode::Prefab;
+
+        for (auto component : selectedEntityRecord.archetype->typeVector)
+        {
+            if (isPrefabReference && component != ecs::components::TransformComponent::GetComponentId())
+            {
+                continue;
+            }
+
+            const auto &compRecord = world->m_ComponentRecords[component];
+            auto compInstance = world->GetComponent(entity, component);
+            properties::PropertyEditorParams params = {
+                .name = compRecord.type->GetTypeName(compInstance),
+                .type = compRecord.type,
+                .value = compInstance,
+                .anchors = {0.f, 1.f, 0.f, 0.f},
+                .collapsed = false,
+                .withBackground = true,
+                .constructTitle = true,
+                .contextOptions = {
+                    { "Remove Component", [world, editor, entity, component]()
+                        {
+                            world->RemoveComponent(entity, component);
+                            editor->SelectEntity(entity, true);
+                        }
+                    }
+                }
+            };
+            if (auto propEditor = properties::CreatePropertyEditor(params))
+            {
+                world->AddChild(m_ScrollBoxContent, propEditor->GetWidgetId());
+                m_PropertyEditors.push_back(propEditor);
+            }
+            else
+            {
+                auto propTextEntity = properties::util::CreateMissingPropertyEditorText(compRecord.type, 0.f, 0);
+                world->AddChild(m_ScrollBoxContent, propTextEntity);
+            }
+        }
+
+        {
+            auto addComp = world->CreateEntity(editor->GetEditorScene(), "Add Component Button");
+            auto rect = world->AddComponent<se::ui::components::RectTransformComponent>(addComp);
+            rect->anchors = { .left = 0.f, .right = 1.f, .top = 0.f, .bottom = 0.f };
+            world->AddComponent<se::ui::components::ImageComponent>(addComp);
+            auto button = world->AddComponent<se::ui::components::ButtonComponent>(addComp);
+            button->image = "/engine_assets/textures/editor_button.sass";
+            button->hoveredImage = "/engine_assets/textures/editor_button_pressed.sass";
+            button->pressedImage = "/engine_assets/textures/editor_button_hovered.sass";
+            button->onReleased.Subscribe([world, entity, addComp, editor](input::MouseButton btn, bool)
+            {
+                switch (btn)
+                {
+                    case input::MouseButton::Left:
+                    {
+                        auto inputComp = world->GetSingletonComponent<input::InputComponent>();
+                        se::ui::util::ContextMenuParams params = {
+                            .fontSize = 14,
+                            .minWidth = 250,
+                            .mousePos = { inputComp->mouseX, inputComp->mouseY },
+                            .scene = Application::Get()->GetEditor()->GetEditorScene(),
+                        };
+
+                        for (const auto& [id, type] : world->GetAllComponentTypes())
+                        {
+                            if (!world->HasComponent(entity, id))
+                            {
+                                params.AddOption(type->name, [world, entity, id, type, addComp, editor]()
+                                {
+                                    std::ignore = world->AddComponent(entity, id, type);
+                                    world->ProcessAllPending();
+                                    //RebuildProperties();
+                                    editor->SelectEntity(entity, true);
+                                });
+                            }
+                        }
+
+                        se::ui::util::CreateContextMenu(params);
+                        break;
+                    }
+                    default:
+                        break;
+                }
+            });
+            world->AddChild(m_ScrollBoxContent, addComp);
+
+            auto textEntity = world->CreateEntity(editor->GetEditorScene(), "Text");
+            auto text = world->AddComponent<se::ui::components::TextComponent>(textEntity);
+            text->font = font;
+            text->fontSize = 14;
+            text->text = "Add Component";
+            text->alignment = se::ui::text::Alignment::Center;
+            auto textRect = world->AddComponent<se::ui::components::RectTransformComponent>(textEntity);
+            textRect->minY = 4;
+            textRect->anchors = { .left = 0.f, .right = 1.f, .top = 0.f, .bottom = 1.f };
+            world->AddComponent<se::ui::components::WidgetComponent>(textEntity);
+            world->AddChild(addComp, textEntity);
+        }
+    }
+
+    void PropertiesWindow::AddFolderProperties(const std::string& path)
+    {
+        auto app = Application::Get();
+        auto world = app->GetWorld();
+        auto editor = app->GetEditor();
+
+        auto filePathEntity = world->CreateEntity(editor->GetEditorScene(), "File Path");
+        auto filePathText = world->AddComponent<se::ui::components::TextComponent>(filePathEntity);
+        filePathText->font = "/engine_assets/fonts/CascadiaCode.sass";
+        filePathText->fontSize = 12;
+        filePathText->text = path;
+        world->AddComponent<se::ui::components::RectTransformComponent>(filePathEntity);
+        world->AddComponent<se::ui::components::WidgetComponent>(filePathEntity);
+        world->AddChild(m_ScrollBoxContent, filePathEntity);
+    }
+
+    void PropertiesWindow::AddSingletonComponentProperties(reflect::ObjectBase* selectedSingletonComp)
+    {
+        auto world = Application::Get()->GetWorld();
+        auto reflectClass = static_cast<reflect::Class *>(selectedSingletonComp->GetReflectType());
+
+        properties::PropertyEditorParams params = {
+            .name = reflectClass->GetTypeName(selectedSingletonComp),
+            .type = reflectClass,
+            .value = selectedSingletonComp,
+            .anchors = {0.f, 1.f, 0.f, 0.f},
+            .collapsed = false,
+            .withBackground = true,
+            .constructTitle = true,
+        };
+        if (auto propEditor = properties::CreatePropertyEditor(params))
+        {
+            world->AddChild(m_ScrollBoxContent, propEditor->GetWidgetId());
+            m_PropertyEditors.push_back(propEditor);
+        }
+        else
+        {
+            auto propTextEntity = properties::util::CreateMissingPropertyEditorText(reflectClass, 0.f, 0);
+            world->AddChild(m_ScrollBoxContent, propTextEntity);
+        }
+    }
+
+    void PropertiesWindow::AddAssetProperties(const std::shared_ptr<asset::Asset>& asset,
+                                              ecs::World* world,
+                                              const asset::AssetReference<asset::Font>& font)
+    {
+        auto editor = Application::Get()->GetEditor();
+
+        auto reflectClass = static_cast<reflect::Class *>(asset->GetReflectType());
+
+        auto filePathEntity = world->CreateEntity(editor->GetEditorScene(), "File Path");
+        auto filePathText = world->AddComponent<se::ui::components::TextComponent>(filePathEntity);
+        filePathText->font = font;
+        filePathText->fontSize = 12;
+        filePathText->text = asset->m_Path;
+        world->AddComponent<se::ui::components::RectTransformComponent>(filePathEntity);
+        world->AddComponent<se::ui::components::WidgetComponent>(filePathEntity);
+        world->AddChild(m_ScrollBoxContent, filePathEntity);
+
+        properties::PropertyEditorParams params = {
+            .name = reflectClass->GetTypeName(asset.get()),
+            .type = reflectClass,
+            .value = asset.get(),
+            .anchors = {0.f, 1.f, 0.f, 0.f},
+            .collapsed = false,
+            .withBackground = true,
+            .constructTitle = true,
+        };
+        if (auto propEditor = properties::CreatePropertyEditor(params))
+        {
+            world->AddChild(m_ScrollBoxContent, propEditor->GetWidgetId());
+            m_PropertyEditors.push_back(propEditor);
+        }
+        else
+        {
+            auto propTextEntity = properties::util::CreateMissingPropertyEditorText(reflectClass, 0.f, 0);
+            world->AddChild(m_ScrollBoxContent, propTextEntity);
+        }
+    }
+}

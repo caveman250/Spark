@@ -1,6 +1,8 @@
-#include "Vec3.h"
+module;
 
-#include "math.h"
+#include <spark.h>
+
+module Spark.Math;
 
 namespace se::math
 {

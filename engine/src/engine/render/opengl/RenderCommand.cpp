@@ -1,6 +1,6 @@
 #if OPENGL_RENDERER
 #include "engine/render/RenderCommand.h"
-#include "engine/Application.h"
+import Application;
 #include "GL_fwd.h"
 #include "engine/render/Material.h"
 #include "engine/render/MaterialInstance.h"

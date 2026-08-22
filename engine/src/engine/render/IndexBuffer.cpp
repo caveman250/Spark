@@ -1,4 +1,8 @@
-#include "IndexBuffer.h"
+module;
+
+#include "spark.h"
+
+module Spark.Render.IndexBuffer;
 
 namespace se::render
 {

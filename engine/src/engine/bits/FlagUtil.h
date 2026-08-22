@@ -1,4 +1,6 @@
 #pragma once
+#include "spark.h"
+#include <utils.h>
 
 namespace se::bits
 {

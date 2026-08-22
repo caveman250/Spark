@@ -1,6 +1,10 @@
-#include "TypeUtil.h"
+module;
 
-#include "engine/math/math.h"
+#include <spark.h>
+
+module Spark.Asset.Shader;
+import :TypeUtil;
+import Spark.Math;
 
 namespace se::asset::shader::ast
 {

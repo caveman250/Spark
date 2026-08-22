@@ -1,8 +1,8 @@
-#include "AssetManager.h"
-#include "Asset.h"
-#include "engine/Application.h"
-#include "engine/render/MaterialInstance.h"
-#include "engine/render/singleton_components/MeshRenderComponent.h"
+
+
+import Application;
+import MaterialInstance;
+import MeshRenderComponent;
 
 namespace se::asset
 {

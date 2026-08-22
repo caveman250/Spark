@@ -1,7 +1,5 @@
 #pragma once
 
-#include "engine/render/render_fwd.h"
-
 #if OPENGL_RENDERER
 
 #ifndef GLEW_STATIC

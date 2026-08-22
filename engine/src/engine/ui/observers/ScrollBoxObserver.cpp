@@ -1,7 +1,7 @@
 
 #include "ScrollBoxObserver.h"
 
-#include "engine/Application.h"
+import Application;
 #include "engine/ui/components/WidgetComponent.h"
 
 namespace se::ui::observers

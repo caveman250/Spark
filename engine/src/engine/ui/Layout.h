@@ -2,7 +2,6 @@
 
 #include "util/RectTransformUtil.h"
 #include "spark.h"
-#include "engine/ecs/System.h"
 
 namespace se::ui::components
 {

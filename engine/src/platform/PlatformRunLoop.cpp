@@ -1,11 +1,12 @@
 #include "PlatformRunLoop.h"
 
 #include "easy/profiler.h"
-#include "engine/Application.h"
-#include "engine/debug/Graphics.h"
+
 #include "engine/input/InputComponent.h"
-#include "engine/render/Renderer.h"
+
 #include "platform/IWindow.h"
+
+import Application;
 
 namespace se
 {

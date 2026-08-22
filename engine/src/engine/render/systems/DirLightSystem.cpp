@@ -1,15 +1,23 @@
-#include "DirLightSystem.h"
+module;
 
-#include "engine/render/Renderer.h"
+
+
 #include "engine/render/components/DirLightComponent.h"
-#include "engine/render/MaterialInstance.h"
-#include "engine/ecs/components/TransformComponent.h"
-#include "engine/camera/ActiveCameraComponent.h"
-#include "engine/geo/util/MeshUtil.h"
-#include "engine/render/VertexBuffer.h"
-#include "engine/render/IndexBuffer.h"
-#include "engine/render/MaterialInstance.h"
-#include "engine/asset/mesh/Model.h"
+
+
+#include "engine/ecs/SystemDeclaration.h"
+#include "engine/ecs/UpdateMode.h"
+#include "engine/ecs/World.h"
+
+
+
+
+module DirLightSystem;
+import MaterialInstance;
+import Model;
+import Application;
+import EditorMode;
+import SystemUtil;
 
 namespace se::render::systems
 {

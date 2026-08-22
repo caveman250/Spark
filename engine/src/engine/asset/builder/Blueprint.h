@@ -2,6 +2,7 @@
 
 #include "BuiltAsset.h"
 #include "spark.h"
+#include <regex>
 
 namespace se::asset::meta
 {

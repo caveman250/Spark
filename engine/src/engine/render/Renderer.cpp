@@ -1,15 +1,16 @@
-#include "Renderer.h"
+module;
 
-#include "FrameBuffer.h"
-#include "engine/Application.h"
 #include <easy/profiler.h>
 
-#include "engine/camera/ActiveCameraComponent.h"
 #include "opengl/OpenGLRenderer.h"
-#include "metal/MetalRenderer.h"
-#include "VertexBuffer.h"
-#include "IndexBuffer.h"
-#include "MaterialInstance.h"
+
+
+
+
+module Spark.Render.Renderer;
+import Spark.Render.FrameBuffer;
+import Application;
+import MaterialInstance;
 
 namespace se::render
 {

@@ -1,10 +1,16 @@
-#include "Texture.h"
+module;
 
-#include "Format.h"
-#include "Mipmap.h"
 #include "easy/profiler.h"
-#include "engine/asset/builder/TextureBlueprint.h"
-#include "engine/render/TextureResource.h"
+#include <memory>
+
+module Spark.Asset.Texture;
+import Spark.Asset.Texture.Format;
+import Spark.Asset.Meta.MetaData;
+import Spark.Asset.Meta.TextureMetaData;
+import Spark.Asset.Texture.Mipmap;
+import Spark.Memory.BinaryBlob;
+import Spark.Render.TextureResource;
+import Spark.Render.Util.TextureUtil;
 
 namespace se::asset
 {
@@ -63,7 +69,7 @@ namespace se::asset
         EASY_FUNCTION()
         if (!m_PlatformResource)
         {
-            m_PlatformResource = render::TextureResource::Create(*this);
+            m_PlatformResource = render::util::TextureUtil::CreateTextureResource(*this);
         }
 
         if (!m_PlatformResource->HasCreatedPlatformResources())

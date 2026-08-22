@@ -1,5 +1,9 @@
-#include "Shader.h"
-#include "ast/MainNode.h"
+module;
+
+#include "spark.h"
+
+module Spark.Asset.Shader;
+import :MainNode;
 
 namespace se::asset
 {

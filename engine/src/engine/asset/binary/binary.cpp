@@ -1,4 +1,6 @@
 #include "binary.h"
+#include "spark.h"
+#include <format>
 
 namespace se::asset::binary
 {

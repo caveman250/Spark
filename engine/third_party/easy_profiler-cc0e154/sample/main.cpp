@@ -5,7 +5,7 @@
 #include <iostream>
 #include <condition_variable>
 #include <cstdlib>
-#include <math.h>
+
 
 #include <easy/profiler.h>
 #include <easy/arbitrary_value.h>

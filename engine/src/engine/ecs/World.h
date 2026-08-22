@@ -6,7 +6,7 @@
 #include "ecs_fwd.h"
 #include "EntityRecord.h"
 #include "Observer.h"
-#include "SceneRecord.h"
+import SceneRecord;
 #include "SystemDeclaration.h"
 #include "SystemRecord.h"
 #include "SystemUpdateData.h"

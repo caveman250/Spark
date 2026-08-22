@@ -1,14 +1,17 @@
-#include "ButtonObserver.h"
+module;
 
-#include "engine/Application.h"
-#include "engine/asset/AssetManager.h"
-#include "engine/asset/shader/Shader.h"
-#include "engine/render/Material.h"
-#include "engine/render/MaterialInstance.h"
-#include "engine/ui/components/ImageComponent.h"
+
+
 #include "engine/ui/components/MouseInputComponent.h"
 #include "engine/ui/components/WidgetComponent.h"
 #include "engine/ui/components/RectTransformComponent.h"
+
+module ButtonObserver;
+import Application;
+import ButtonComponent;
+import Material;
+import MaterialInstance;
+import ImageComponent;
 
 namespace se::ui::observers
 {

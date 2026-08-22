@@ -1,4 +1,9 @@
-#include "Bitmap.h"
+module;
+
+#include <cstdlib>
+#include <string>
+
+module Spark.Asset.Builder.Util.Bitmap;
 
 namespace se
 {

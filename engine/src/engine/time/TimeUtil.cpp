@@ -1,4 +1,5 @@
 #include "TimeUtil.h"
+#include <chrono>
 
 namespace se::time
 {

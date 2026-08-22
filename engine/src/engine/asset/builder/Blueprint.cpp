@@ -1,5 +1,6 @@
 #include "Blueprint.h"
-#include "engine/asset/meta/MetaDataManager.h"
+#include "engine/io/VFS.h"
+import Spark.Asset.Meta.MetaDataManager;
 
 namespace se::asset::builder
 {

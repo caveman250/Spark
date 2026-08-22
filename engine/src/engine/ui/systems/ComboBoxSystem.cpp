@@ -1,17 +1,19 @@
-#include "ComboBoxSystem.h"
+module;
 
-#include "RootRectTransformSystem.h"
 #include "spark.h"
-#include "engine/Application.h"
-#include "engine/math/IntVec2.h"
+
 #include <easy/profiler.h>
-#include "engine/ui/DesiredSizeCalculator.h"
-#include "engine/ui/components/ComboBoxComponent.h"
-#include "engine/ui/components/TextComponent.h"
 #include "engine/ui/components/WidgetComponent.h"
 #include "engine/ui/components/MouseInputComponent.h"
-#include "UIMouseInputSystem.h"
-#include "Widgets.generated.h"
+
+module ComboBoxSystem;
+import Application;
+import DesiredSizeCalculator;
+import UIMouseInputSystem;
+import RootRectTransformSystem;
+import ComboBoxComponent;
+import TextComponent;
+import Widgets;
 
 using namespace se;
 using namespace se::ecs::components;

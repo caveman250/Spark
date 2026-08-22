@@ -1,6 +1,9 @@
-#include "BinaryBlob.h"
+module;
 
 #include "engine/asset/binary/Object.h"
+#include "engine/reflect/TypeResolver.h"
+
+module Spark.Memory.BinaryBlob;
 
 namespace se::reflect
 {

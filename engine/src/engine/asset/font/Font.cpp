@@ -1,9 +1,11 @@
-#include "Font.h"
-
-#include "engine/Application.h"
+module;
 #include "engine/asset/builder/FontBlueprint.h"
-#include "engine/asset/texture/Texture.h"
+
 #include "platform/IWindow.h"
+
+module Font;
+
+import Application;
 
 namespace se::asset
 {

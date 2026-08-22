@@ -1,8 +1,11 @@
-#include "VariableReferenceNode.h"
+module;
 
-#include "InputAttributeNode.h"
-#include "ShaderCompileContext.h"
-#include "../Shader.h"
+#include "engine/string/ArenaString.h"
+
+module Spark.Asset.Shader;
+import :VariableReferenceNode;
+import :ShaderCompileContext;
+
 
 namespace se::asset::shader::ast
 {

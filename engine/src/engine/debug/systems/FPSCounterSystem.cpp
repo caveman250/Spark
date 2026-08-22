@@ -1,11 +1,12 @@
-#include "FPSCounterSystem.h"
+module;
+#include "engine/debug/components/FPSCounterComponent.h"
+module FPSCounterSystem;
 
 #if WITH_DEV_ONLY_CLASSES
 
-#include "engine/debug/components/FPSCounterComponent.h"
-#include "engine/ecs/util/SystemUtil.h"
-#include "engine/ui/components/TextComponent.h"
-#include "engine/ui/systems/RectTransformSystem.h"
+import SystemUtil;
+import RectTransformSystem;
+import TextComponent;
 
 namespace se::debug::systems
 {

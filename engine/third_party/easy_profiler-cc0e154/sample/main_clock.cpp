@@ -4,7 +4,7 @@
 #include <iostream>
 #include <condition_variable>
 #include <cstdlib>
-#include <math.h>
+
 #include <type_traits>
 
 #include <unistd.h>

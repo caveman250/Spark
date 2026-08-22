@@ -1,0 +1,81 @@
+
+#include "ClassEditor.h"
+
+import Application;
+#include "engine/ui/components/RectTransformComponent.h"
+#include "engine/ui/components/WidgetComponent.h"
+import TextComponent;
+
+
+namespace se::editor::ui::properties
+{
+    void ClassEditor::SetValue(void* value, const reflect::Type* type)
+    {
+        if (SPARK_VERIFY(type->IsClass()))
+        {
+            m_Type = static_cast<const reflect::Class*>(type);
+            m_Value = value;
+        }
+    }
+
+    void ClassEditor::ConstructUI(const PropertyEditorParams& params)
+    {
+        PropertyEditor::ConstructUI(params);
+
+        auto app = Application::Get();
+        auto world = app->GetWorld();
+        auto editor = app->GetEditor();
+
+        int numSerialisedMembers = 0;
+        for (const auto &member: m_Type->members)
+        {
+            if (!member.serialized)
+            {
+                continue;
+            }
+
+            numSerialisedMembers++;
+
+            PropertyEditorParams memberParams = {
+                .name = member.name,
+                .type = member.type,
+                .value = m_Value ? member.get(m_Value) : nullptr,
+                .anchors = {0.f, 1.f, 0.f, 0.f},
+                .collapsed = true,
+                .withBackground = false,
+                .constructTitle = true
+            };
+            if (auto propEditor = CreatePropertyEditor(memberParams))
+            {
+                world->AddChild(m_Content, propEditor->GetWidgetId());
+                m_Editors.push_back(propEditor);
+            }
+            else
+            {
+                auto textEntity = util::CreateMissingPropertyEditorText(member.type, 0.f, 0);
+                world->AddChild(m_Content, textEntity);
+            }
+        }
+
+        if (numSerialisedMembers == 0)
+        {
+            auto textEntity = world->CreateEntity(editor->GetEditorScene(), "Text");
+            auto text = world->AddComponent<TextComponent>(textEntity);
+            text->font = "/engine_assets/fonts/CascadiaCode.sass";
+            text->fontSize = 14;
+            text->text = "No properties.";
+            auto transform = world->AddComponent<RectTransformComponent>(textEntity);
+            transform->anchors = { 0.f, 1.f, 0.f, 0.f };
+            world->AddComponent<WidgetComponent>(textEntity);
+            world->AddChild(m_Content, textEntity);
+        }
+    }
+
+    void ClassEditor::Update()
+    {
+        for (const auto& editor : m_Editors)
+        {
+            editor->Update();
+        }
+    }
+}

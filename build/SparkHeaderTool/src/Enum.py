@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from src import Namespace
+from src import Modules
 import os
 
 @dataclass
@@ -10,8 +11,13 @@ class Enum:
     values: list
     project_src_dir:str
 
+def IsModule(enum):
+    return enum.path.endswith(".ixx")
+
 def ProcessEnum(next_line, enum_list, lines, line_index, namespace_stack, filepath, source_dir):
     start_index = len("enum class ")
+    if next_line.startswith("export"):
+        start_index += 7
     end_index = len(next_line)
     enum = ""
     for i in range(start_index, end_index):
@@ -67,9 +73,19 @@ def DefineEnumEnd():
     }}
 }}"""
 
-def WriteEnumFiles(enum_list, files_accounted_for):
+def WriteEnumFiles(enum_list, files_accounted_for, module_map):
     for enum in enum_list:
-        contents = f"#include \"spark.h\"\n#include \"engine/reflect/Reflect.h\"\n#include \"{enum.path}\"\n\n"
+        contents = ""
+        if IsModule(enum):
+            contents += "module;\n"
+        contents += f"#include \"spark.h\"\n#include \"engine/reflect/Enum.h\"\n"
+
+        if IsModule(enum):
+            contents += f"module {Modules.GetModuleName(enum.path, module_map)};\n"
+        else:
+            contents += Modules.IncludeClass(enum.path, module_map)
+
+        contents += "import Reflect;\n"
         contents += DefineEnumBegin(enum)
         for value in enum.values:
             contents += DefineEnumValue(enum, value)

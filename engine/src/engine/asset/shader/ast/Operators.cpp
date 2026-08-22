@@ -1,4 +1,10 @@
-#include "Operators.h"
+module;
+
+#include <spark.h>
+#include <map>
+
+module Spark.Asset.Shader;
+import :Operators;
 
 namespace se::asset::shader::ast
 {

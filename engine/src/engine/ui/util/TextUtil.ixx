@@ -1,0 +1,184 @@
+module;
+
+#include "engine/ui/components/WidgetComponent.h"
+#include "engine/ui/components/RectTransformComponent.h"
+#include "engine/asset/builder/FontBlueprint.h"
+#include "platform/IWindow.h"
+
+export module TextUtil;
+import EditableTextComponent;
+import TextComponent;
+import UIRenderComponent;
+import Material;
+import Spark.Render.Renderer;
+import Spark.Asset.AssetManager;
+
+namespace se::ui::util
+{
+    template<typename T>
+    concept TextComponentType = std::is_same_v<TextComponent, T> || std::is_same_v<EditableTextComponent, T>;
+
+    template <TextComponentType T>
+    void UpdateText(T& textComp, const RectTransformComponent& transform, const std::string& text)
+    {
+        if (!textComp.materialInstance && textComp.font.IsSet())
+        {
+            std::shared_ptr<render::Material> textMaterial = {};
+            auto* window = Application::Get()->GetWindow();
+            if (textComp.fontSize * window->GetContentScale() <= asset::builder::FontBlueprint::BitmapCutoffSize)
+            {
+                textMaterial = asset::AssetManager::Get()->GetAsset<render::Material>("/engine_assets/materials/text_bitmap.sass");
+            }
+            else
+            {
+                textMaterial = asset::AssetManager::Get()->GetAsset<render::Material>("/engine_assets/materials/text_sdf.sass");
+            }
+            textComp.materialInstance = std::make_shared<render::MaterialInstance>(textMaterial);
+            auto texture = textComp.font.GetAsset()->GetTextureAsset(textComp.fontSize);
+            textComp.materialInstance->SetUniform("Texture", 1, &texture);
+        }
+
+        bool invalidate = transform.lastRect.size != transform.rect.size ||
+            textComp.lastText != text ||
+            textComp.lastFontSize != textComp.fontSize;
+
+        if (!textComp.vertBuffer || invalidate)
+        {
+            const auto window = Application::Get()->GetWindow();
+            const TextMeshParams params = {
+                .rect = &transform.rect,
+                .font = textComp.font.GetAsset().get(),
+                .fontSize = static_cast<int>(textComp.fontSize * window->GetContentScale()),
+                .text = &text,
+                .applyKerning = true,
+                .wrap = textComp.wrap,
+                .justification = textComp.alignment
+            };
+            const asset::StaticMesh mesh = util::CreateTextMesh(params);
+            textComp.vertBuffer = render::VertexBuffer::CreateVertexBuffer(mesh);
+            textComp.vertBuffer->CreatePlatformResource();
+            textComp.indexBuffer = render::IndexBuffer::CreateIndexBuffer(mesh);
+            textComp.indexBuffer->CreatePlatformResource();
+        }
+
+        if constexpr (std::is_same_v<T, EditableTextComponent>)
+        {
+            bool invalidateSelection = textComp.selectionStart != textComp.lastSelectionStart ||
+                                        textComp.selectionEnd != textComp.lastSelectionEnd;
+            if ((!textComp.selectionVertBuffer || invalidate || invalidateSelection) &&
+                textComp.inEditMode &&
+                textComp.selectionStart != -1 &&
+                textComp.selectionEnd != -1)
+            {
+                const asset::StaticMesh selectionMesh = util::CreateTextSelectionMesh(textComp, transform);
+                textComp.selectionVertBuffer = render::VertexBuffer::CreateVertexBuffer(selectionMesh);
+                textComp.selectionVertBuffer->CreatePlatformResource();
+                textComp.selectionIndexBuffer = render::IndexBuffer::CreateIndexBuffer(selectionMesh);
+                textComp.selectionIndexBuffer->CreatePlatformResource();
+
+                textComp.lastSelectionStart = textComp.selectionStart;
+                textComp.lastSelectionEnd = textComp.selectionEnd;
+            }
+
+            if (!textComp.selectionMaterialInstance && textComp.inEditMode)
+            {
+                auto textMaterial = asset::AssetManager::Get()->GetAsset<render::Material>("/engine_assets/materials/editable_text_selection.sass");
+                textComp.selectionMaterialInstance = std::make_shared<render::MaterialInstance>(textMaterial);
+            }
+        }
+
+        if (invalidate)
+        {
+            textComp.lastFontSize = textComp.fontSize;
+            textComp.lastText = text;
+        }
+    }
+
+    template <TextComponentType T>
+    void RenderText(const ecs::Id& entity,
+                    const WidgetComponent& widget,
+                    const RectTransformComponent& transform,
+                    T& textComp,
+                    const math::Vec2& windowSize,
+                    render::Renderer* renderer,
+                    singleton_components::UIRenderComponent* renderComp,
+                    const std::string& text,
+                    const math::Vec2& renderOffset)
+    {
+        if (widget.visibility != Visibility::Visible || widget.parentVisibility != Visibility::Visible || text.size() == 0)
+        {
+            return;
+        }
+
+        if (!textComp.materialInstance || !textComp.vertBuffer)
+        {
+            return;
+        }
+
+        const math::Vec2* materialPos = textComp.materialInstance->template GetUniform<math::Vec2>("pos");
+        auto floatVec = math::Vec2(transform.rect.topLeft) + renderOffset;
+        if (!materialPos || *materialPos != floatVec)
+        {
+            textComp.materialInstance->SetUniform("pos", 1, &floatVec);
+        }
+
+        textComp.materialInstance->SetUniform("screenSize", 1, &windowSize);
+        textComp.materialInstance->SetUniform("textColour", 1, &textComp.textColour);
+
+#if SPARK_EDITOR
+        const auto editor = Application::Get()->GetEditor();
+        const bool isEditorEntity = *entity.scene == editor->GetEditorScene();
+#else
+        constexpr bool isEditorEntity = false;
+#endif
+        renderComp->mutex.lock();
+        if constexpr (std::is_same_v<T, EditableTextComponent>)
+        {
+            if (textComp.inEditMode || textComp.wrap == text::WrapMode::Crop)
+            {
+                const auto pushScissor = renderer->AllocRenderCommand<render::commands::PushScissor>(transform.rect);
+                renderComp->entityPreRenderCommands[entity].push_back(UIRenderCommand(pushScissor, UILayerKey(transform.layer, isEditorEntity)));
+
+                if (textComp.inEditMode && textComp.selectionMaterialInstance && textComp.selectionStart != -1 && textComp.selectionEnd != -1)
+                {
+                    const math::Vec2* selectionMaterialPos = textComp.selectionMaterialInstance->template GetUniform<math::Vec2>("pos");
+                    auto selectionFloatVec = math::Vec2(transform.rect.topLeft) + renderOffset;
+                    if (!selectionMaterialPos || *selectionMaterialPos != selectionFloatVec)
+                    {
+                        textComp.selectionMaterialInstance->SetUniform("pos", 1, &selectionFloatVec);
+                    }
+                    textComp.selectionMaterialInstance->SetUniform("screenSize", 1, &windowSize);
+
+                    auto command = renderer->AllocRenderCommand<render::commands::SubmitUI>(textComp.selectionMaterialInstance,
+                        textComp.selectionVertBuffer,
+                        textComp.selectionIndexBuffer);
+                    renderComp->entityRenderCommands[entity].push_back(UIRenderCommand(command, UILayerKey(transform.layer, isEditorEntity)));
+                }
+            }
+        }
+        else if (textComp.wrap == text::WrapMode::Crop)
+        {
+            const auto pushScissor = renderer->AllocRenderCommand<render::commands::PushScissor>(transform.rect);
+            renderComp->entityPreRenderCommands[entity].push_back(UIRenderCommand(pushScissor, UILayerKey(transform.layer, isEditorEntity)));
+        }
+
+        auto command = renderer->AllocRenderCommand<render::commands::SubmitUI>(textComp.materialInstance, textComp.vertBuffer, textComp.indexBuffer);
+        SPARK_ASSERT(command->GetRenderStage() == render::commands::RenderStage::UI);
+        renderComp->entityRenderCommands[entity].push_back(UIRenderCommand(command, UILayerKey(transform.layer, isEditorEntity)));
+        if constexpr (std::is_same_v<T, EditableTextComponent>)
+        {
+            if (textComp.inEditMode || textComp.wrap == text::WrapMode::Crop)
+            {
+                const auto popScissor = renderer->AllocRenderCommand<render::commands::PopScissor>();
+                renderComp->entityPostRenderCommands[entity].push_back(UIRenderCommand(popScissor, UILayerKey(transform.layer, isEditorEntity)));
+            }
+        }
+        else if (textComp.wrap == text::WrapMode::Crop)
+        {
+            const auto popScissor = renderer->AllocRenderCommand<render::commands::PopScissor>();
+            renderComp->entityPostRenderCommands[entity].push_back(UIRenderCommand(popScissor, UILayerKey(transform.layer, isEditorEntity)));
+        }
+
+        renderComp->mutex.unlock();
+    }
+}

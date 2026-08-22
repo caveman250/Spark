@@ -1,10 +1,19 @@
-#include "ForLoopNode.h"
+module;
 
-#include "BinaryExpressionNode.h"
-#include "ConstantNode.h"
-#include "ShaderCompileContext.h"
-#include "VariableDeclarationNode.h"
-#include "VariableReferenceNode.h"
+#include "engine/string/ArenaString.h"
+#include "engine/reflect/TypeResolver.h"
+#include <variant>
+#include <map>
+
+module Spark.Asset.Shader;
+import :ForLoopNode;
+import Reflect.TemplatedClass;
+import :VariableDeclarationNode;
+import :VariableReferenceNode;
+import :ConstantNode;
+import :Operators;
+import :BinaryExpressionNode;
+import :ShaderCompileContext;
 
 namespace se::asset::shader::ast
 {

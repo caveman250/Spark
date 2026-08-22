@@ -1,12 +1,13 @@
+module;
+
 #include "spark.h"
-
-#include "UIKeyboardInputSystem.h"
-
-#include "ResetKeyInputSystem.h"
 #include "engine/input/InputUtil.h"
 #include <easy/profiler.h>
 #include "engine/ui/components/WidgetComponent.h"
 #include "engine/input/InputComponent.h"
+
+module UIKeyboardInputSystem;
+import ResetKeyInputSystem;
 
 using namespace se;
 using namespace se::ecs::components;

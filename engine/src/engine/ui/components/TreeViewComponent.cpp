@@ -1,6 +1,6 @@
 #include "TreeViewComponent.h"
 
-#include "engine/ui/util/WidgetUtil.h"
+import WidgetUtil;
 
 namespace se::ui
 {

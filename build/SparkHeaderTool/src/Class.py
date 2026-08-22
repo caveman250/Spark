@@ -3,6 +3,7 @@ from dataclasses import dataclass
 from enum import Enum
 from src import Log
 from src import Namespace
+from src import Modules
 
 
 @dataclass
@@ -24,7 +25,7 @@ ClassType = Enum('ClassType',
                            ('SINGLETON_COMPONENT', 4),
                            ('POD_CLASS', 5),
                            ('SYSTEM', 6),
-                           ('TEMPLATED_CLASS', 6),])
+                           ('TEMPLATED_CLASS', 7),])
 
 @dataclass
 class Class:
@@ -234,8 +235,15 @@ def ProcessNativeClassSecondPass(tag, line, line_before, class_list, class_heira
             super_name += line[i]
 
     template_params = []
-    if line_before.startswith("template <") or line_before.startswith("template<"):
-        start_index = len("template <") if line_before.startswith("template <") else len("template<")
+    if line_before.startswith("template <") or line_before.startswith("template<") or line_before.startswith("export template <") or line_before.startswith("export template<"):
+        if line_before.startswith("template <"):
+            start_index = len("template <")
+        elif line_before.startswith("template<"):
+            start_index = len("template<")
+        elif line_before.startswith("export template <"):
+            start_index = len("export template <")
+        elif line_before.startswith("export template<"):
+            start_index = len("export template<")
         end_index = len(line_before)
         num_open_template_params = 0
         current_template_param = ""
@@ -886,13 +894,7 @@ def GetClass(class_name, classes, enum_list):
 
     return None
 
-def IncludeClass(class_obj):
-    if class_obj.path.endswith(".ixx"):
-        return f"import {class_obj.name};\n"
-    else:
-        return f"#include \"{class_obj.path}\"\n"
-
-def CreateClassInstantiationFiles(source_dirs, enum_list, classes, template_instantiations, files_accounted_for):
+def CreateClassInstantiationFiles(source_dirs, enum_list, classes, template_instantiations, files_accounted_for, module_map):
     init_members_h_content = f"#pragma once\nnamespace se\n{{\nvoid InitClassReflection();\n}}"
     header_output_path = "../../engine/src/generated/Classes.generated.h"
     src_output_path = "../../../app/src/generated/Classes.generated.cpp"
@@ -913,16 +915,16 @@ def CreateClassInstantiationFiles(source_dirs, enum_list, classes, template_inst
     init_members_cpp_content = "#include \"spark.h\"\n"
 
     for full_name, class_obj in classes.items():
-        init_members_cpp_content += IncludeClass(class_obj)
+        init_members_cpp_content += Modules.IncludeClass(class_obj.path, module_map)
 
     for template_instantiation in template_instantiations:
         class_obj = GetClass(template_instantiation.class_name, classes, enum_list)
         if class_obj is not None:
-            init_members_cpp_content += IncludeClass(class_obj)
+            init_members_cpp_content += Modules.IncludeClass(class_obj.path, module_map)
         for template_type in template_instantiation.template_types:
             template_type_class_obj = GetClass(template_type, classes, enum_list)
             if template_type_class_obj is not None:
-                init_members_cpp_content += IncludeClass(template_type_class_obj)
+                init_members_cpp_content += Modules.IncludeClass(template_type_class_obj.path, module_map)
 
     init_members_cpp_content += f"\nnamespace se\n{{\nvoid InitClassReflection()\n{{\n"
 
@@ -957,7 +959,7 @@ def CreateClassInstantiationFiles(source_dirs, enum_list, classes, template_inst
         output_handle.write(init_members_cpp_content)
         output_handle.close()
 
-def CreateSystemInstantiationFiles(src_dir, classes, files_accounted_for):
+def CreateSystemInstantiationFiles(src_dir, classes, files_accounted_for, module_map):
     if not os.path.exists(src_dir):
         os.mkdir(src_dir)
     project_name = src_dir.split('/')[-4]
@@ -979,7 +981,7 @@ def CreateSystemInstantiationFiles(src_dir, classes, files_accounted_for):
     init_systems_cpp_content += "#include \"engine/ecs/World.h\"\n"
     for full_name, class_obj in classes.items():
         if class_obj.is_reflected and class_obj.type == ClassType.SYSTEM:
-            init_systems_cpp_content += IncludeClass(class_obj)
+            init_systems_cpp_content += Modules.IncludeClass(class_obj.path, module_map)
     init_systems_cpp_content += f"\nnamespace se\n{{\nvoid InitSystems([[maybe_unused]]ecs::World* world)\n{{\n"
     for full_name, class_obj in classes.items():
         if class_obj.is_reflected and not class_obj.is_template and class_obj.type == ClassType.SYSTEM:
@@ -1022,7 +1024,7 @@ def CreateSystemInstantiationFiles(src_dir, classes, files_accounted_for):
         output_handle.write(init_systems_cpp_content)
         output_handle.close()
 
-def DefineClass(classobj, full_name, classes, base_class_map, template_instantiations, files_accounted_for, output_dir):
+def DefineClass(classobj, full_name, classes, base_class_map, template_instantiations, files_accounted_for, output_dir, module_map):
     contents = ""
 
     is_module = IsModule(classobj)
@@ -1030,19 +1032,24 @@ def DefineClass(classobj, full_name, classes, base_class_map, template_instantia
     if is_module:
         contents += "module;\n"
 
-    contents += f"#include \"spark.h\"\n#include \"engine/reflect/Reflect.h\"\n"
+    contents += f"#include \"spark.h\"\n\n"
 
     if not is_module:
-        contents += IncludeClass(classobj)
+        
+        contents += Modules.IncludeClass(classobj.path, module_map)
 
     includes = []
+    modules = []
     current_type = full_name
     while current_type in classes:
         class_obj = classes[current_type]
         for member in class_obj.members:
             if member.full_type_name in classes:
-                if includes.count(classes[member.full_type_name].path) == 0:
-                    includes.append(classes[member.full_type_name].path)
+                if IsModule(classes[member.full_type_name]):
+                    if modules.count(classes[member.full_type_name]) == 0:
+                        modules.append(classes[member.full_type_name])
+                elif includes.count(classes[member.full_type_name]) == 0:
+                    includes.append(classes[member.full_type_name])
         if current_type in base_class_map:
             current_type = base_class_map[current_type]
         else:
@@ -1054,9 +1061,17 @@ def DefineClass(classobj, full_name, classes, base_class_map, template_instantia
     if classobj.editor_only:
         contents += "#if WITH_EDITOR_ONLY_CLASSES\n"
 
-    includes.sort()
     for include in includes:
-        contents += f"#include \"{include}\"\n"
+        contents += Modules.IncludeClass(include.path, module_map)
+
+    contents += "#include \"engine/reflect/Object.h\"\n"
+    contents += "#include <string>\n"
+
+    if not is_module:
+        contents += "import Reflect.TemplatedClass;\n"
+        contents += "import Reflect;\n"
+        for module in modules:
+            contents += Modules.IncludeClass(module.path, module_map)
 
     derived_types = ""
     for key, value in base_class_map.items():
@@ -1078,12 +1093,12 @@ def DefineClass(classobj, full_name, classes, base_class_map, template_instantia
                             template_pure_type = RemoveTemplateParams(template_type)
                             if template_pure_type in classes:
                                 if includes.count(classes[template_pure_type].path) == 0:
-                                    contents += IncludeClass(classes[template_pure_type])
+                                    contents += Modules.IncludeClass(classes[template_pure_type].path, module_map)
                             template_params = GetTemplateTypes(template_type)
                             for template_param in template_params:
                                 if template_param in classes:
                                     if includes.count(classes[template_param].path) == 0:
-                                        contents += IncludeClass(classes[template_param])
+                                        contents += Modules.IncludeClass(classes[template_param].path, module_map)
 
                             if template_types_string:
                                 template_types_string += ", "
@@ -1096,10 +1111,14 @@ def DefineClass(classobj, full_name, classes, base_class_map, template_instantia
                 derived_types += "\n#endif"
             if other_class.dev_only:
                 derived_types += "\n#endif"
-            contents += IncludeClass(classes[key])
+            contents += Modules.IncludeClass(classes[key].path, module_map)
 
     if is_module:
-        contents += f"module {classobj.name};\n"
+        contents += f"module {Modules.GetModuleName(classobj.path, module_map)};\n"
+        contents += "import Reflect.TemplatedClass;\n"
+        contents += "import Reflect;\n"
+        for module in modules:
+            contents += Modules.IncludeClass(module.path, module_map)
 
     contents += f"\nnamespace {classobj.namespace}\n{{\n"
 
@@ -1230,9 +1249,10 @@ def DefineTemplateClass(classobj, full_name, classes, base_class_map, files_acco
         output_handle.write(contents)
         output_handle.close()
 
-def WriteTemplateInstantiations(template_instantiations, classes, enums, files_accounted_for, output_dir):
+def WriteTemplateInstantiations(template_instantiations, classes, enums, files_accounted_for, output_dir, module_map):
     instantiation_files = dict()
     for template_instantiation in template_instantiations:
+        is_module = template_instantiation.filepath.endswith(".ixx");
         namespace_text = template_instantiation.namespace.replace("::", "_")
         output_file = f"{namespace_text}_{template_instantiation.class_name}.generated.cpp"
         full_output_path = output_dir + output_file
@@ -1240,12 +1260,25 @@ def WriteTemplateInstantiations(template_instantiations, classes, enums, files_a
         if full_output_path in instantiation_files:
             contents += instantiation_files[full_output_path]
         else:
-            contents += f"#include \"spark.h\"\n#include \"engine/reflect/Reflect.h\"\n#include \"engine/ecs/Signal.h\"\n#include \"{template_instantiation.filepath}\"\n"
+            if is_module:
+                contents += "module;\n"
+
+            contents += f"#include \"spark.h\"\n"
+
+            if is_module:
+                contents += f"module {Modules.GetModuleName(template_instantiation.filepath, module_map)};\n"
+
+            contents += "import Reflect;\nimport Signal;\nimport Reflect.TemplatedClass;\n"
+
+            class_obj = GetClass(template_instantiation.class_name, classes, enums)
+            if not is_module:
+                contents += Modules.IncludeClass(class_obj.path, module_map)
+            contents += "namespace se\n{\n"
 
         for template_type in template_instantiation.template_types:
             template_type_class_obj = GetClass(template_type, classes, enums)
             if template_type_class_obj is not None:
-                contents += f"#include \"{template_type_class_obj.path}\"\n"
+                contents += Modules.IncludeClass(template_type_class_obj.path, module_map)
 
         template_types_str = ",".join(template_instantiation.template_types)
         contents += f"static auto SPARK_CAT({template_instantiation.class_name}Reflection, __COUNTER__) = {template_instantiation.namespace}::{template_instantiation.class_name}<{template_types_str}>::GetReflection();\n"
@@ -1253,6 +1286,7 @@ def WriteTemplateInstantiations(template_instantiations, classes, enums, files_a
 
     for path, contents in instantiation_files.items():
         output_path = path
+        contents += "}"
         files_accounted_for.add(os.path.abspath(output_path))
         existing_contents = ""
         if os.path.isfile(output_path):
@@ -1266,19 +1300,19 @@ def WriteTemplateInstantiations(template_instantiations, classes, enums, files_a
             output_handle.write(contents)
             output_handle.close()
 
-def WriteClassFiles(classes, enum_list, base_class_map, template_instantiations, files_accounted_for, output_dir):
+def WriteClassFiles(classes, enum_list, base_class_map, template_instantiations, files_accounted_for, output_dir, module_map):
     source_dirs = set()
     for full_name, class_obj in classes.items():
         source_dirs.add(class_obj.project_src_dir)
 
-    CreateClassInstantiationFiles(source_dirs, enum_list, classes, template_instantiations, files_accounted_for)
-    CreateSystemInstantiationFiles(output_dir, classes, files_accounted_for)
+    CreateClassInstantiationFiles(source_dirs, enum_list, classes, template_instantiations, files_accounted_for, module_map)
+    CreateSystemInstantiationFiles(output_dir, classes, files_accounted_for, module_map)
 
     for full_name, classobj in classes.items():
         if classobj.is_reflected:
             if classobj.is_template:
                 DefineTemplateClass(classobj, full_name, classes, base_class_map, files_accounted_for)
             else:
-                DefineClass(classobj, full_name, classes, base_class_map, template_instantiations, files_accounted_for, output_dir)
+                DefineClass(classobj, full_name, classes, base_class_map, template_instantiations, files_accounted_for, output_dir, module_map)
 
-    WriteTemplateInstantiations(template_instantiations, classes, enum_list, files_accounted_for, output_dir)
+    WriteTemplateInstantiations(template_instantiations, classes, enum_list, files_accounted_for, output_dir, module_map)

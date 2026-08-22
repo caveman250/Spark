@@ -1,5 +1,7 @@
 #pragma once
 
+#include <string>
+
 namespace se::asset::binary
 {
     enum class Type

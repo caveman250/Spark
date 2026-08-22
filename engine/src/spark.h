@@ -1,33 +1,5 @@
 #pragma once
 
-#include <cstdio>
-#include <vector>
-#include <functional>
-#include <string>
-#include <ios>
-#include <fstream>
-#include <sstream>
-#include <format>
-#include <map>
-#include <unordered_set>
-#include <array>
-#include <optional>
-#include <set>
-#include <cstdint>
-#include <algorithm>
-#include <ranges>
-#include <utility>
-#include <regex>
-#include <thread>
-#include <chrono>
-#include <execution>
-#include <cfloat>
-#include <mutex>
-#include <variant>
-#include <bitset>
-
-#include "json.hpp"
-
 #define SPARK_ENABLE_PROFILING 0
 
 #if SPARK_PLATFORM_WINDOWS
@@ -145,28 +117,9 @@ __builtin_debugtrap();\
 #define PLACEHOLDER(i) std::_Placeholder<i>
 #endif
 
-inline void hash_combine(std::size_t&) { }
-
-template <typename T, typename... Rest>
-inline void hash_combine(std::size_t& seed, const T& v, Rest... rest) {
-    std::hash<T> hasher;
-    seed ^= hasher(v) + 0x9e3779b9 + (seed<<6) + (seed>>2);
-    hash_combine(seed, rest...);
-}
-
-template <typename T> struct is_shared_ptr : std::false_type {};
-template <typename T> struct is_shared_ptr<std::shared_ptr<T>> : std::true_type {};
-template <typename T> inline constexpr bool is_shared_ptr_v = is_shared_ptr<T>::value;
-template<typename T> struct remove_shared_ptr { using type = T; };
-template<typename U> struct remove_shared_ptr<std::shared_ptr<U>> { using type = U; };
-template<typename T> using remove_shared_ptr_t = remove_shared_ptr<std::decay_t<T>>::type;
-template <typename T> concept SharedPtr = is_shared_ptr<T>::value;
-template <typename T> concept RawPtr = std::is_pointer_v<T>;
-
-
 #define WITH_DEV_ONLY_CLASSES !SPARK_DIST
 #define WITH_EDITOR_ONLY_CLASSES SPARK_EDITOR
 
-#include "engine/debug/Log.h"
 #include "engine/ecs/ecs_fwd.h"
 #include "engine/reflect/Reflect_fwd.h"
+#include "engine/render/render_fwd.h"

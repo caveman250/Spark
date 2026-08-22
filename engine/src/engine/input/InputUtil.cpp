@@ -2,8 +2,9 @@
 #include "InputComponent.h"
 
 #if SPARK_EDITOR
-#include "engine/Application.h"
-#include "editor/util/ViewportUtil.h"
+import Application;
+import Editor;
+
 #endif
 
 namespace se::input

@@ -1,11 +1,12 @@
-#include "ContextMenuSystem.h"
-
-#include "ResetMouseInputSystem.h"
-#include "RootRectTransformSystem.h"
+module;
 #include "engine/input/InputComponent.h"
 #include "engine/input/InputUtil.h"
 #include "engine/ui/components/ContextMenuComponent.h"
 #include "engine/ui/components/MouseInputComponent.h"
+
+module ContextMenuSystem;
+import ResetMouseInputSystem;
+import RootRectTransformSystem;
 
 namespace se::ui::systems
 {

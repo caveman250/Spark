@@ -75,8 +75,8 @@ template <>
 struct std::formatter<se::ecs::Id> : std::formatter<std::string>
 {
     template <class FormatContext>
-    static auto format(const se::ecs::Id& obj, FormatContext& ctx)
+    static auto format(const se::ecs::Id&, FormatContext&)
     {
-        return std::format_to(ctx.out(), "{}", obj.id);
+        return nullptr;//std::format_to(ctx.out(), "{}", obj.id); TODO
     }
 };

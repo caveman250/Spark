@@ -1,6 +1,7 @@
 #pragma once
 
-#include "spark.h"
+#include <array>
+#include <vector>
 #include "Type.h"
 
 namespace se::asset::binary

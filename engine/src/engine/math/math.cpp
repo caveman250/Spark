@@ -1,4 +1,7 @@
-#include "math.h"
+module;
+#include <cfloat>
+#include <cmath>
+module Spark.Math;
 
 namespace se::math
 {

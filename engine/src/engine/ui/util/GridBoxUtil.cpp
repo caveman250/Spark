@@ -1,6 +1,6 @@
 #include "GridBoxUtil.h"
 #include "engine/ecs/SystemDeclaration.h"
-#include "Widgets.generated.h"
+import Widgets;
 
 namespace se::ui::util
 {

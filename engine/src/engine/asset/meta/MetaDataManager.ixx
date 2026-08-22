@@ -1,0 +1,54 @@
+module;
+
+
+
+#include "spark.h"
+#include "engine/asset/util/AssetUtil.h"
+#include <mutex>
+
+export module Spark.Asset.Meta.MetaDataManager;
+import Spark.Asset.Asset;
+import Spark.Asset.Meta.MetaData;
+
+namespace se::asset::meta
+{
+    export class MetaManager
+    {
+    public:
+        static MetaManager* Get();
+
+        static std::string GetMetaPath(std::string assetPath);
+
+        std::shared_ptr<MetaData> GetOrCreateMetaDataForAsset(Asset* asset);
+
+        template <typename T>
+        std::shared_ptr<T> GetOrCreateMetaDataForAsset(std::string assetPath)
+        {
+            std::lock_guard guard(m_Mutex);
+            auto it = m_MetaCache.find(assetPath);
+            if (it != m_MetaCache.end())
+            {
+                return std::static_pointer_cast<T>(it->second);
+            }
+
+            auto metaPath = GetMetaPath(assetPath);
+            if (metaPath.empty())
+            {
+                return nullptr;
+            }
+
+            auto ret = std::make_shared<T>(assetPath);
+            InitMetaData(ret);
+
+            return ret;
+        }
+
+        void SaveMetaData(const std::shared_ptr<MetaData>& meta);
+
+    private:
+        void InitMetaData(const std::shared_ptr<MetaData>& meta);
+
+        std::unordered_map<std::string, std::shared_ptr<MetaData>> m_MetaCache;
+        std::mutex m_Mutex;
+    };
+}

@@ -1,10 +1,13 @@
-#include "Material.h"
+module;
 
-#include "Renderer.h"
 #include "easy/profiler.h"
-#include "engine/asset/shader/ast/NameGenerator.h"
-#include "engine/asset/shader/ast/ShaderCompileContext.h"
-#include "engine/asset/shader/compiler/ShaderCompiler.h"
+
+module Material;
+import Spark.Asset.Shader;
+import Spark.Asset.Shader;
+import Spark.Asset.Shader.Compiler.ShaderCompiler;
+import Spark.Render.Renderer;
+import Spark.Render.VertexBuffer;
 
 namespace se::render
 {

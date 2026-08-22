@@ -1,4 +1,4 @@
 #pragma once
 
-#define OPENGL_RENDERER SPARK_PLATFORM_WINDOWS || SPARK_PLATFORM_LINUX
-#define METAL_RENDERER SPARK_PLATFORM_MAC
+#include "engine/render/metal/MTL_fwd.h"
+#include "engine/render/opengl/GL_fwd.h"

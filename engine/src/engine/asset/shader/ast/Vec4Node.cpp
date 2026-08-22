@@ -1,4 +1,9 @@
-#include "Vec4Node.h"
+module;
+
+#include "engine/string/ArenaString.h"
+
+module Spark.Asset.Shader;
+import :Vec4Node;
 
 namespace se::asset::shader::ast
 {

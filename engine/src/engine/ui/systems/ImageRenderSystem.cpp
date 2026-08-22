@@ -1,17 +1,18 @@
+module;
 #include "spark.h"
 
-#include "engine/ecs/components/MeshComponent.h"
-#include "engine/ui/singleton_components/UIRenderComponent.h"
-#include "ImageRenderSystem.h"
-
-#include "engine/Application.h"
 #include <easy/profiler.h>
-#include "engine/render/Renderer.h"
-#include "engine/render/VertexBuffer.h"
-#include "engine/ui/components/ImageComponent.h"
+
+
 #include "engine/ui/components/RectTransformComponent.h"
 #include "engine/ui/util/MeshUtil.h"
 #include "platform/IWindow.h"
+
+module ImageRenderSystem;
+import Application;
+import UIRenderComponent;
+import MeshComponent;
+import ImageComponent;
 
 using namespace se;
 using namespace se::ecs::components;

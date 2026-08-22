@@ -1,7 +1,7 @@
 #include "Object.h"
 #include "Database.h"
-#include "engine/math/math.h"
-#include "engine/memory/BinaryBlob.h"
+import Spark.Math;
+
 
 namespace se::asset::binary
 {

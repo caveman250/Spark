@@ -48,7 +48,7 @@
 *                   : limitations under the License.
 ************************************************************************/
 
-#include <math.h>
+
 
 #include <QFontMetrics>
 #include <QHBoxLayout>

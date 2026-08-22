@@ -1,5 +1,11 @@
-#include "ShaderSettings.h"
-#include "engine/math/math.h"
+module;
+
+#include <spark.h>
+
+module Spark.Asset.Shader;
+import Reflect.TemplatedClass;
+import :ShaderSettings;
+import :Types;
 
 namespace se
 {

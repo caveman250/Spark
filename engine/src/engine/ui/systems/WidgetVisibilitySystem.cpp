@@ -1,9 +1,9 @@
+module;
 #include "spark.h"
-
-#include "WidgetVisibilitySystem.h"
 #include <easy/profiler.h>
 
-#include "engine/ecs/util/SystemUtil.h"
+module WidgetVisibilitySystem;
+import SystemUtil;
 
 using namespace se;
 using namespace se::ecs::components;

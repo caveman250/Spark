@@ -1,5 +1,7 @@
-#include "ComboBoxComponent.h"
-#include "engine/ui/util/WidgetUtil.h"
+module;
+
+module ComboBoxComponent;
+import Widgets;
 
 namespace se::ui
 {

@@ -1,9 +1,11 @@
-#include "ScrollBoxRenderSystem.h"
+module;
 
 #include <easy/profiler.h>
-#include "engine/render/Renderer.h"
-#include "engine/render/RenderCommand.h"
-#include "engine/ui/singleton_components/UIRenderComponent.h"
+
+
+import UIRenderComponent;
+
+module ScrollBoxRenderSystem;
 
 using namespace se;
 using namespace se::ecs::components;

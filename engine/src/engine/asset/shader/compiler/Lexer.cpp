@@ -1,7 +1,8 @@
 #include "Lexer.h"
-
+#include <map>
 #include "Builtins.h"
 #include "engine/io/VFS.h"
+#include <format>
 
 namespace se::asset::shader::compiler
 {

@@ -1,5 +1,5 @@
 #include "RectTransformUtil.h"
-#include "Widgets.generated.h"
+import Widgets;
 #include "platform/IWindow.h"
 
 namespace se::ui::util

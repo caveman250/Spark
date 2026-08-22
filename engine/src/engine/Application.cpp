@@ -1,31 +1,32 @@
-#include "Application.h"
+module;
 #include "engine/ui/observers/ScrollBoxObserver.h"
-#include "engine/ui/singleton_components/UIRenderComponent.h"
 #include "input/InputComponent.h"
 #include "platform/IWindow.h"
-#include "render/Renderer.h"
-#include "io/VFS.h"
-#include "ui/components/TreeNodeComponent.h"
-#include "ui/observers/ButtonObserver.h"
-#include "ui/observers/RectTransformObserver.h"
-#include "ui/observers/TitleBarObserver.h"
-#include "ui/systems/TextRenderSystem.h"
-#include "ui/systems/ButtonSystem.h"
-#include "engine/ui/observers/TreeNodeObserver.h"
-#include "engine/ui/observers/ImageObserver.h"
-#include "engine/ui/observers/TextObserver.h"
-#include "Components.generated.h"
-#include "ui/observers/EditableTextObserver.h"
 
-#include "Widgets.generated.h"
-#include "camera/ActiveCameraComponent.h"
+#include "io/VFS.h"
+#include "ui/observers/RectTransformObserver.h"
+#include "Components.generated.h"
+
 #include "render/components/PointLightComponent.h"
-#include "render/singleton_components/MeshRenderComponent.h"
-#include "../../../editor/src/editor/singleton_components/DragDropStateComponent.h"
-#include "editor/singleton_components/EditorPickComponent.h"
+#include "editor/singleton_components/DragDropStateComponent.h"
+
 #include "geo/singleton_components/CollisionComponent.h"
 #include "platform/MouseCursorUtil.h"
 #include "threads/util/ThreadUtil.h"
+
+module Application;
+import TextRenderSystem;
+import ButtonSystem;
+import UIRenderComponent;
+import EditableTextObserver;
+import TreeNodeObserver;
+import TitleBarObserver;
+import ButtonObserver;
+import TreeNodeComponent;
+import TextObserver;
+import Widgets;
+import ImageObserver;
+import MeshRenderComponent;
 
 namespace se
 {

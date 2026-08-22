@@ -1,6 +1,6 @@
 #include "AssetUtil.h"
 
-#include "engine/asset/Asset.h"
+
 #include "engine/string/util/StringUtil.h"
 
 namespace se::asset::util

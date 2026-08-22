@@ -1,15 +1,15 @@
+module;
 #include "spark.h"
 
-#include "engine/math/Mat4.h"
-#include "engine/ecs/components/MeshComponent.h"
-#include "LastRectSystem.h"
-
 #include <engine/ui/util/RectTransformUtil.h>
-
-#include "engine/Application.h"
 #include <easy/profiler.h>
 
-#include "engine/ecs/util/SystemUtil.h"
+#include "engine/ecs/UpdateMode.h"
+
+module LastRectSystem;
+import Application;
+import SystemUtil;
+import MeshComponent;
 
 using namespace se;
 using namespace se::ecs::components;

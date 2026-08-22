@@ -1,6 +1,11 @@
-#include "VariableDeclarationNode.h"
+module;
 
-#include "TypeUtil.h"
+#include "engine/string/ArenaString.h"
+#include <map>
+
+module Spark.Asset.Shader;
+import :VariableDeclarationNode;
+import :TypeUtil;
 
 namespace se::asset::shader::ast
 {

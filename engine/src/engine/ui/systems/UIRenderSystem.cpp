@@ -1,11 +1,12 @@
-#include "UIRenderSystem.h"
+module;
 
-#include "CollapsingHeaderSystem.h"
-#include "EditableTextSystem.h"
-#include "ImageRenderSystem.h"
-#include "ScrollBoxRenderSystem.h"
-#include "TextRenderSystem.h"
-#include "engine/render/Renderer.h"
+
+module UIRenderSystem;
+import CollapsingHeaderSystem;
+import EditableTextSystem;
+import ImageRenderSystem;
+import ScrollBoxRenderSystem;
+import TextRenderSystem;
 
 namespace se::ui::systems
 {

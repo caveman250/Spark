@@ -1,12 +1,12 @@
 #include "SplitViewUtil.h"
 
-#include "engine/Application.h"
-#include "engine/ui/components/ImageComponent.h"
+import Application;
+import ImageComponent;
 #include "engine/ui/components/KeyInputComponent.h"
 #include "engine/ui/components/MouseInputComponent.h"
-#include "engine/ui/components/SplitViewComponent.h"
+import SplitViewComponent;
 #include "engine/ui/components/WindowComponent.h"
-#include "engine/render/Material.h"
+import Material;
 
 namespace se::ui::util
 {

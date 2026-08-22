@@ -1,5 +1,9 @@
-#include "FrameBuffer.h"
-#include "engine/asset/texture/Texture.h"
+module;
+
+
+module Spark.Render.FrameBuffer;
+import Spark.Asset.Texture.Format;
+import Spark.Asset.Texture;
 
 namespace se::render
 {

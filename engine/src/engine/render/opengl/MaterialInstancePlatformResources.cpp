@@ -1,8 +1,8 @@
 #include "MaterialInstancePlatformResources.h"
 #include "GL_fwd.h"
 #include "MaterialPlatformResources.h"
-#include "engine/asset/shader/ast/TypeUtil.h"
-#include "engine/render/MaterialInstance.h"
+import Spark.Asset.Shader;
+import MaterialInstance;
 
 #if OPENGL_RENDERER
 

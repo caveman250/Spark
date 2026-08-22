@@ -1,6 +1,8 @@
-#include "Asset.h"
+module;
 
 #include "engine/string/util/StringUtil.h"
+
+module Spark.Asset.Asset;
 
 namespace se::asset
 {

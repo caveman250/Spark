@@ -1,5 +1,6 @@
 #pragma once
 #include "spark.h"
+#include <format>
 
 namespace se::memory
 {

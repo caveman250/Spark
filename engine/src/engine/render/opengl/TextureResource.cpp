@@ -1,4 +1,4 @@
-#include "engine/render/TextureResource.h"
+
 #include "engine/render/render_fwd.h"
 #if OPENGL_RENDERER
 #include "easy/profiler.h"

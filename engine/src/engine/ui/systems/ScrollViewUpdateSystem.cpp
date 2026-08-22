@@ -1,11 +1,13 @@
-#include "ScrollViewUpdateSystem.h"
+module;
 
-#include "RectTransformSystem.h"
-#include "Widgets.generated.h"
 #include "easy/profiler.h"
-#include "engine/Application.h"
-#include "engine/ui/systems/UIMouseInputSystem.h"
 #include "engine/ui/util/RectTransformUtil.h"
+
+module ScrollViewUpdateSystem;
+import RectTransformSystem;
+import Application;
+import UIMouseInputSystem;
+import Widgets;
 
 using namespace se;
 using namespace se::ecs::components;

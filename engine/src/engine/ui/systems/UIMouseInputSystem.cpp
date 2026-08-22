@@ -1,13 +1,15 @@
-#include "spark.h"
+module;
 
-#include "UIMouseInputSystem.h"
+#include "spark.h"
 #include <easy/profiler.h>
-#include "ResetMouseInputSystem.h"
-#include "RootRectTransformSystem.h"
-#include "editor/util/ViewportUtil.h"
-#include "engine/ecs/util/SystemUtil.h"
+
 #include "engine/input/InputUtil.h"
 #include "engine/ui/components/RectTransformComponent.h"
+
+module UIMouseInputSystem;
+import SystemUtil;
+import ResetMouseInputSystem;
+import RootRectTransformSystem;
 
 using namespace se;
 using namespace se::ecs::components;

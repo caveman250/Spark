@@ -1,14 +1,16 @@
-#include "EditableTextUtil.h"
+module;
 
 #include "engine/input/Key.h"
-#include "engine/ui/components/EditableTextComponent.h"
 #include "engine/ui/components/KeyInputComponent.h"
 #include "engine/ui/components/TextCaretComponent.h"
 #include "engine/ui/components/WidgetComponent.h"
-#include "engine/ui/components/ImageComponent.h"
-#include "engine/render/Material.h"
-#include "engine/asset/AssetManager.h"
+
 #include "engine/ui/components/MouseInputComponent.h"
+
+module EditableTextUtil;
+import EditableTextComponent;
+import ImageComponent;
+import Material;
 
 namespace se::ui::util
 {

@@ -1,17 +1,19 @@
-#include "ContextMenuUtil.h"
-
-#include "engine/Application.h"
-#include "engine/ui/components/ImageComponent.h"
+module;
 #include "engine/ui/components/RectTransformComponent.h"
-#include "engine/ui/components/VerticalBoxComponent.h"
 #include "engine/ui/components/WidgetComponent.h"
-#include "engine/ui/components/TextComponent.h"
-#include "engine/asset/font/Font.h"
-#include "engine/render/Material.h"
-#include "engine/ui/components/ButtonComponent.h"
 #include "engine/ui/components/ContextMenuComponent.h"
 #include "engine/ui/components/MouseInputComponent.h"
 #include "engine/ui/util/ScrollBoxUtil.h"
+
+module ContextMenuUtil;
+
+import Application;
+import VerticalBoxComponent;
+import ButtonComponent;
+import TextComponent;
+import ImageComponent;
+import Font;
+import Material;
 
 namespace se::ui::util
 {

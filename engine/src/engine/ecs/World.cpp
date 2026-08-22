@@ -1,27 +1,27 @@
 #include "World.h"
 
-#include "Prefab.h"
-#include "SceneSaveData.h"
-#include "SystemUtil.h"
-#include "Widgets.generated.h"
+
+import SceneSaveData;
+import SystemUtil;
+import Widgets;
 #include "components/ParentComponent.h"
 #include "components/RootComponent.h"
 #include "easy/profiler.h"
 #include "engine/containers/MapUtil.h"
-#include "engine/ecs/Signal.h"
-#include "engine/ecs/System.h"
+import Signal;
+import System;
 #include "engine/io/VFS.h"
-#include "engine/reflect/Reflect.h"
-#include "engine/reflect/Util.h"
-#include "engine/render/Renderer.h"
+import Reflect;
+
+
 #include "engine/render/render_fwd.h"
 #include "engine/render/opengl/DeferredOpenGLOperations.h"
-#include "engine/render/singleton_components/MeshRenderComponent.h"
+import MeshRenderComponent;
 #include "engine/string/util/StringUtil.h"
 #include "engine/ui/components/RectTransformComponent.h"
 #include "ecs_fwd.h"
-#include "components/TransformComponent.h"
-#include "engine/ecs/Prefab.h"
+
+
 
 namespace se::ecs
 {

@@ -1,13 +1,15 @@
-#include "PointLightSystem.h"
+module;
 
-#include "engine/render/Renderer.h"
+
 #include "engine/render/components/PointLightComponent.h"
-#include "engine/ecs/components/TransformComponent.h"
-#include "engine/geo/util/MeshUtil.h"
-#include "engine/render/VertexBuffer.h"
-#include "engine/render/IndexBuffer.h"
-#include "engine/render/MaterialInstance.h"
-#include "engine/camera/ActiveCameraComponent.h"
+
+
+
+
+
+
+module PointLightSystem;
+import MaterialInstance;
 
 namespace se::render::systems
 {

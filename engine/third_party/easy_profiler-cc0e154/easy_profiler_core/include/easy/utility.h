@@ -6,7 +6,7 @@
 #include <easy/details/easy_compiler_support.h>
 #include <algorithm>
 #include <utility>
-#include <math.h>
+
 
 namespace estd {
 

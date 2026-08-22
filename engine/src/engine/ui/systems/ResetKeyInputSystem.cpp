@@ -1,10 +1,10 @@
+module;
 #include "spark.h"
-
-#include "ResetKeyInputSystem.h"
-
-#include "engine/input/InputSystem.h"
 #include <easy/profiler.h>
 #include "engine/ui/components/KeyInputComponent.h"
+
+module ResetKeyInputSystem;
+import InputSystem;
 
 using namespace se;
 using namespace se::ecs::components;

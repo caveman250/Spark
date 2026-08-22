@@ -1,7 +1,8 @@
 #pragma once
 
-#include "spark.h"
+#include "engine/asset/binary/Type.h"
 #include "engine/asset/binary/binary.h"
+#include <functional>
 
 namespace se::asset::binary
 {

@@ -8,15 +8,20 @@ from src import Class
 from src import Enum
 from src import Log
 from src import Signal
+from src import Modules
+
+APP_SRC_DIR = ""
 
 def ProcessHeaders():
     components = []
     widgets = []
     source_dirs = sys.argv[1].split(';')
+    APP_SRC_DIR = source_dirs[-1]
 
     Log.Msg("Pass 1: Collect classes...")
     class_list = []
     enum_list = []
+    module_map = dict()
     # first pass, collect all classes in their actual namespace so we cna look them up later when resolving inheritance.
     for dir in source_dirs:
         for root, dirs, files in os.walk(dir):
@@ -35,6 +40,8 @@ def ProcessHeaders():
                         lineCount = len(lines)
                         for i in range(0, lineCount):
                             line = lines[i].strip()
+                            if line.startswith("export module"):
+                                Modules.ProcessModule(line, path, module_map)
                             if line.startswith("class ") or line.startswith("export class "):
                                 Class.ProcessNativeClassFirstPass("class", line, namespace_stack, class_list)
                             if line.startswith("struct ") or line.startswith("export struct "):
@@ -173,9 +180,9 @@ def ProcessHeaders():
 
     files_accounted_for = set()
     Widgets.WriteWidgetHeader(widgets, files_accounted_for)
-    Components.WriteComponentsFile(components, files_accounted_for)
-    Class.WriteClassFiles(finalised_reflected_classes, enum_list, class_heirachy_map, template_instantiations, files_accounted_for, source_dirs[-1] + "/generated/")
-    Enum.WriteEnumFiles(enum_list, files_accounted_for)
+    Components.WriteComponentsFile(components, files_accounted_for, module_map)
+    Class.WriteClassFiles(finalised_reflected_classes, enum_list, class_heirachy_map, template_instantiations, files_accounted_for, source_dirs[-1] + "/generated/", module_map)
+    Enum.WriteEnumFiles(enum_list, files_accounted_for, module_map)
 
     for dir in source_dirs:
         source_dir = dir.strip()

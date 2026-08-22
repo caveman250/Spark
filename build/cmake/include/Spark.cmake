@@ -7,8 +7,6 @@ include(LinkDirs)
 include(BuildOptions)
 include(ExternalTools)
 include(editor/PreprocessorEditor)
-include(editor/IncludeDirsEditor)
-include(editor/LinkerEditor)
 
 function(exclude_files_from_vs files)
     set_property(SOURCE ${files} PROPERTY VS_SETTINGS "ExcludedFromBuild=true")
@@ -184,12 +182,12 @@ function(setup_target_common target is_library unity_conf_dir)
     if (${PLATFORM} MATCHES Windows)
         target_compile_options(${target} PRIVATE /Zi)
     endif()
+
 endfunction()
 
 function(setup_spark_target target is_library unity_conf_dir)
     setup_target_common(${target} ${is_library} "${unity_conf_dir}")
 
     include(Linker)
-    link_editor_libs(${target})
     include(PCH)
 endfunction()

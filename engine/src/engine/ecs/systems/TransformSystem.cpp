@@ -1,12 +1,14 @@
-#include "TransformSystem.h"
+module;
 
-#include "RootTransformSystem.h"
 #include "spark.h"
 #include "easy/profiler.h"
-#include "engine/Application.h"
-#include "engine/ecs/components/TransformComponent.h"
-#include "engine/ecs/util/SystemUtil.h"
-#include "engine/math/Mat4.h"
+
+
+
+module TransformSystem;
+import SystemUtil;
+import Application;
+import RootTransformSystem;
 
 using namespace se;
 using namespace se::ecs::components;

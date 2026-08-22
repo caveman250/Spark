@@ -1,13 +1,9 @@
-#include "TextureBlueprint.h"
-#include "engine/io/VFS.h"
-#include "engine/asset/texture/Mipmap.h"
-#include "engine/asset/texture/Texture.h"
-#include "engine/reflect/Util.h"
-#include "stb_image.h"
-#include "engine/asset/meta/MetaData.h"
-#include "engine/asset/meta/MetaDataManager.h"
-#include "engine/asset/meta/TextureMetaData.h"
+module;
 
+#include "engine/io/VFS.h"
+#include "stb_image.h"
+#include <regex>
+#include "BuiltAsset.h"
 #if SPARK_PLATFORM_MAC
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wgnu-anonymous-struct"
@@ -23,6 +19,15 @@
 #elif SPARK_PLATFORM_LINUX
 #pragma GCC diagnostic pop
 #endif
+
+module Spark.Asset.Builder.TextureBlueprint;
+import Spark.Asset.Meta.MetaDataManager;
+import Spark.Asset.Meta.MetaData;
+import Spark.Asset.Meta.TextureMetaData;
+import Spark.Memory.BinaryBlob;
+import Spark.Asset.Texture;
+import Spark.Asset.Texture.Format;
+import Reflect;
 
 namespace se::asset::builder
 {

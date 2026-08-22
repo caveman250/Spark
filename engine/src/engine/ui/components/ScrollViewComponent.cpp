@@ -1,6 +1,5 @@
-#include "ScrollViewComponent.h"
-
-#include "engine/ui/util/WidgetUtil.h"
+module ScrollViewComponent;
+import WidgetUtil;
 
 namespace se::ui
 {

@@ -1,4 +1,10 @@
-#include "IfNode.h"
+module;
+
+#include "engine/string/ArenaString.h"
+#include <map>
+
+module Spark.Asset.Shader;
+import :IfNode;
 
 namespace se::asset::shader::ast
 {

@@ -1,9 +1,9 @@
-
-#include "ImageObserver.h"
-
-#include "engine/Application.h"
-#include "engine/ui/components/ImageComponent.h"
+module;
 #include "engine/ui/components/WidgetComponent.h"
+
+module ImageObserver;
+import Application;
+import ImageComponent;
 
 namespace se::ui::observers
 {

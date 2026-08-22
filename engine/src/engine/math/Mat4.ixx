@@ -1,0 +1,79 @@
+module;
+
+#include "spark.h"
+
+export module Spark.Math:Mat4;
+import :Vec4;
+
+namespace se::math
+{
+    struct Vec3;
+    export class Mat4
+    {
+        SPARK_POD_CLASS()
+
+    public:
+        Mat4();
+        Mat4(const Mat4& other);
+        explicit Mat4(float scalar);
+        Mat4(float x0, float y0, float z0, float w0,
+            float x1, float y1, float z1, float w1,
+            float x2, float y2, float z2, float w2,
+            float x3, float y3, float z3, float w3);
+
+        Mat4(const Vec4& v0,
+            const Vec4& v1,
+            const Vec4& v2,
+            const Vec4& v3);
+
+        Vec4& operator[](size_t i);
+        const Vec4& operator[](size_t i) const;
+
+        Mat4& operator=(Mat4& m);
+        Mat4& operator=(const Mat4& m);
+        Mat4& operator+=(const Mat4& m);
+        Mat4& operator-=(const Mat4& m);
+        Mat4& operator*=(const Mat4& m);
+        Mat4& operator*=(float scalar);
+        Mat4& operator/=(const Mat4& m);
+        Mat4& operator/=(float scalar);
+
+    private:
+        SPARK_MEMBER(Serialized)
+        std::array<Vec4, 4> m_Value;
+    };
+    
+    export Mat4 operator+(const Mat4& lhs, const Mat4 &rhs);
+    export Mat4 operator-(const Mat4& lhs, const Mat4 &rhs);
+    export Mat4 operator*(const Mat4& lhs, const Mat4 &rhs);
+    export Mat4 operator*(const Mat4& lhs, float scalar);
+    export Vec4 operator*(const Mat4& lhs, const Vec4& rhs);
+    export Mat4 operator/(const Mat4& lhs, const Mat4 &rhs);
+    export Mat4 operator/(const Mat4& lhs, float scalar);
+    export bool operator==(const Mat4& lhs, const Mat4 &rhs);
+    export bool operator!=(const Mat4& lhs, const Mat4 &rhs);
+
+    export Mat4 Inverse(const Mat4& m);
+
+    export Mat4 Perspective(float fovY, float aspect, float zNear, float zFar);
+    export Mat4 LookAt(const Vec3& eye, const Vec3& center, const Vec3& up);
+    export Mat4 Translation(const Vec3& translation);
+    export Mat4 Rotation(const Vec3& euler);
+    export Mat4 Rotate(const Mat4& m, float angle, const Vec3& v);
+    export Mat4 Scale(const Vec3& scale);
+    export Vec3 UnProject(const Vec3& windowPos, const Mat4& view, const Mat4& proj, const Vec4& viewport);
+}
+
+export template <> struct std::formatter<se::math::Mat4>
+{
+    static constexpr auto parse(const std::format_parse_context& ctx)
+    {
+        return ctx.begin();
+    }
+
+    template <typename FormatContext>
+    auto format(const se::math::Mat4& obj, FormatContext& ctx) const
+    {
+        return std::format_to(ctx.out(), "mat4({}, {}, {}, {}\n    {}, {}, {}, {}\n    {}, {}, {}, {}\n    {}, {}, {}, {})", obj[0].x, obj[0].y, obj[0].z, obj[0].w, obj[1].x, obj[1].y, obj[1].z, obj[1].w, obj[2].x, obj[2].y, obj[2].z, obj[2].w, obj[3].x, obj[3].y, obj[3].z, obj[3].w);
+    }
+};

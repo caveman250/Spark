@@ -1,0 +1,94 @@
+module;
+
+#include "DrawMode.h"
+#include "engine/reflect/Object.h"
+
+export module Spark.Render.RenderState;
+import Reflect;
+
+namespace se::render
+{
+    SPARK_ENUM()
+    export enum class DepthCompare
+    {
+        Less,
+        LessEqual,
+        Equal,
+        Greater,
+        GreaterEqual,
+        None
+    };
+
+    SPARK_ENUM()
+    export enum class BlendMode
+    {
+        Zero,
+        One,
+        SrcColor,
+        OneMinusSrcColor,
+        DstColor,
+        OneMinusDstColor,
+        SrcAlpha,
+        OneMinusSrcAlpha,
+        DstAlpha,
+        OneMinusDstAlpha,
+        None
+    };
+
+    SPARK_ENUM()
+    export enum class StencilFunc
+    {
+        Less,
+        LessEqual,
+        Equal,
+        Greater,
+        GreaterEqual,
+        None
+    };
+
+    SPARK_ENUM()
+    export enum class CullMode
+    {
+        Back,
+        Front,
+        None,
+    };
+
+    export struct RenderState : reflect::ObjectBase
+    {
+        SPARK_CLASS()
+
+        SPARK_MEMBER(Serialized)
+        DepthCompare depthComp = DepthCompare::None;
+
+        SPARK_MEMBER(Serialized)
+        bool depthWrite = true;
+
+        SPARK_MEMBER(Serialized)
+        BlendMode srcBlend = BlendMode::One;
+
+        SPARK_MEMBER(Serialized)
+        BlendMode dstBlend = BlendMode::Zero;
+
+        SPARK_MEMBER(Serialized)
+        uint32_t stencilWriteMask = 0x00;
+
+        SPARK_MEMBER(Serialized)
+        StencilFunc stencilFunc = StencilFunc::None;
+
+        SPARK_MEMBER(Serialized)
+        uint32_t stencilReadMask = 0x00;
+
+        SPARK_MEMBER(Serialized)
+        bool lit = false;
+
+        SPARK_MEMBER(Serialized)
+        CullMode cullMode = CullMode::Back;
+
+        SPARK_MEMBER(Serialized)
+        DrawMode drawMode = DrawMode::Triangles;
+    };
+
+    bool operator==(const RenderState& lhs, const RenderState& rhs);
+    bool operator<(const  RenderState& lhs, const RenderState& rhs);
+}

@@ -1,8 +1,7 @@
+module;
+
 #include "spark.h"
 
-#include "ResetMouseInputSystem.h"
-
-#include "engine/input/InputSystem.h"
 #include "engine/input/InputUtil.h"
 #include <easy/profiler.h>
 
@@ -12,8 +11,11 @@
 #include "engine/ui/components/WidgetComponent.h"
 
 #if SPARK_EDITOR
-#include "editor/util/ViewportUtil.h"
+
 #endif
+
+module ResetMouseInputSystem;
+import InputSystem;
 
 using namespace se;
 using namespace se::ecs::components;

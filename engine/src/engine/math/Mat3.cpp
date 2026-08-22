@@ -1,5 +1,8 @@
-#include "Mat3.h"
-#include "Mat4.h"
+module;
+
+#include <cstddef>
+
+module Spark.Math;
 
 namespace se::math
 {

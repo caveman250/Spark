@@ -1,4 +1,6 @@
 #pragma once
+#include <ctime>
+
 #include "spark.h"
 
 namespace se::io

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "spark.h"
+
 namespace se::util
 {
     template <typename T>

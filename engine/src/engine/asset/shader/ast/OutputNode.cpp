@@ -1,6 +1,10 @@
-#include "OutputNode.h"
+module;
 
-#include "TypeUtil.h"
+#include "engine/string/ArenaString.h"
+
+module Spark.Asset.Shader;
+import :OutputNode;
+import :TypeUtil;
 
 namespace se::asset::shader::ast
 {

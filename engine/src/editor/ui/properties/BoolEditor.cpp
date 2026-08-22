@@ -1,0 +1,96 @@
+module;
+
+
+#include "engine/ui/components/RectTransformComponent.h"
+#include "engine/ui/components/WidgetComponent.h"
+
+module BoolEditor;
+import Transactions;
+import Application;
+import TextComponent;
+import ButtonComponent;
+import ImageComponent;
+
+namespace se::editor::ui::properties
+{
+    DEFINE_PROPERTY_EDITOR(bool, BoolEditor, bool);
+
+    void BoolEditor::SetValue(void* value, const reflect::Type*)
+    {
+        m_Value = static_cast<bool*>(value);
+    }
+
+    void BoolEditor::ConstructUI(const PropertyEditorParams& params)
+    {
+        PropertyEditor::ConstructUI(params);
+
+        auto app = Application::Get();
+        auto world = app->GetWorld();
+        auto editor = app->GetEditor();
+        auto assetManager = asset::AssetManager::Get();
+        auto ariel = assetManager->GetAsset<asset::Font>("/engine_assets/fonts/CascadiaCode.sass");
+
+        auto bg = world->CreateEntity(editor->GetEditorScene(), "Bool Editor");
+        auto bgTransform = world->AddComponent<RectTransformComponent>(bg);
+        bgTransform->minY = 0;
+        bgTransform->maxY = 24;
+        if (params.constructTitle)
+        {
+            bgTransform->anchors = { .left = 1.f, .right = 1.f, .top = 0.f, .bottom = 0.f };
+            bgTransform->minX = 24;
+        }
+        else
+        {
+            bgTransform->anchors = { .left = 0.f, .right = 0.f, .top = 0.f, .bottom = 0.f };
+            bgTransform->maxX = 24;
+        }
+
+        world->AddComponent<WidgetComponent>(bg);
+        world->AddChild(m_Content, bg);
+
+        m_RectTransform->maxY = bgTransform->maxY + 2;
+        m_Tickbox = world->CreateEntity(editor->GetEditorScene(), "Border");
+        auto button = world->AddComponent<ButtonComponent>(m_Tickbox);
+        m_CheckedTexture = "/engine_assets/textures/checkbox_checked.sass";
+        m_UncheckedTexture = "/engine_assets/textures/checkbox_unchecked.sass";
+        button->image = *m_Value == true ? m_CheckedTexture : m_UncheckedTexture;
+        button->pressedImage = *m_Value == true ? m_CheckedTexture : m_UncheckedTexture;
+        button->hoveredImage = *m_Value == true ? m_CheckedTexture : m_UncheckedTexture;
+        button->onReleased.Subscribe([this](input::MouseButton, bool)
+        {
+            bool oldVal = *m_Value;
+            bool newVal =  !(*m_Value);
+            Transactions::Get()->PushAction([this, newVal]()
+            {
+                *m_Value = newVal;
+            },
+            [oldVal, this]()
+            {
+                *m_Value = oldVal;
+            });
+        });
+        auto innerTransform = world->AddComponent<RectTransformComponent>(m_Tickbox);
+        innerTransform->anchors = { .left = 0.f, .right = 1.f, .top = 0.f, .bottom = 1.f };
+        world->AddChild(bg, m_Tickbox);
+    }
+
+    void BoolEditor::Update()
+    {
+        if (m_Value && m_LastValue != *m_Value)
+        {
+            const auto& texture = *m_Value == true ? m_CheckedTexture : m_UncheckedTexture;
+            if (auto button = Application::Get()->GetWorld()->GetComponent<ButtonComponent>(m_Tickbox))
+            {
+                button->image = texture;
+                button->pressedImage = texture;
+                button->hoveredImage = texture;
+            }
+
+            if (auto image = Application::Get()->GetWorld()->GetComponent<ImageComponent>(m_Tickbox))
+            {
+                image->materialInstance->SetUniform("Texture", 1, &texture);
+            }
+            m_LastValue = *m_Value;
+        }
+    }
+}

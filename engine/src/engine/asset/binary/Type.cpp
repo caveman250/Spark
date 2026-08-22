@@ -1,5 +1,6 @@
 #include "Type.h"
-#include "engine/math/math.h"
+#include "spark.h"
+import Spark.Math;
 
 namespace se::asset::binary
 {

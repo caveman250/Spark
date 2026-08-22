@@ -1,8 +1,10 @@
-#include "CollisionSystem.h"
+module;
 
-#include "AABBColliderSystem.h"
-#include "engine/render/Renderer.h"
+
 #include "engine/geo/singleton_components/CollisionComponent.h"
+
+module CollisionSystem;
+import AABBColliderSystem;
 
 namespace se::geo::systems
 {

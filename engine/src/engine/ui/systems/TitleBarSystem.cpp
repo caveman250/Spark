@@ -1,10 +1,11 @@
+module;
 #include "spark.h"
-
-#include "TitleBarSystem.h"
 #include <easy/profiler.h>
 #include "engine/ui/components/RectTransformComponent.h"
 #include "engine/ui/components/MouseInputComponent.h"
-#include "engine/ui/systems/UIMouseInputSystem.h"
+
+module TitleBarSystem;
+import UIMouseInputSystem;
 
 using namespace se;
 using namespace se::ecs::components;

@@ -1,7 +1,7 @@
-#include "RenderCommand.h"
 
-#include "Material.h"
-#include "MaterialInstance.h"
+
+import Material;
+import MaterialInstance;
 
 namespace se::render::commands
 {

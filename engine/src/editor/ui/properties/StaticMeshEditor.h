@@ -1,0 +1,20 @@
+#pragma once
+
+
+
+namespace se::editor::ui::properties
+{
+    class StaticMeshEditor : public PropertyEditor
+    {
+        SPARK_CLASS()
+    public:
+        void SetValue(void* value, const reflect::Type* type) override;
+        void* GetValue() const override { return m_Value; }
+        void ConstructUI(const PropertyEditorParams& params) override;
+        PropertyTitleMode GetDefaultTitleMode() const override { return PropertyTitleMode::NextLine; }
+        void Update() override;
+
+    private:
+        asset::StaticMesh* m_Value = nullptr;
+    };
+}

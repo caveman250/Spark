@@ -1,6 +1,9 @@
-#include "ElseNode.h"
+module;
 
-#include "BinaryExpressionNode.h"
+#include "engine/string/ArenaString.h"
+
+module Spark.Asset.Shader;
+import :ElseNode;
 
 namespace se::asset::shader::ast
 {

@@ -1,11 +1,10 @@
 #pragma once
 
 #include "spark.h"
-#include "engine/math/math.h"
+
 #include "engine/ecs/Component.h"
-#include "engine/render/IndexBuffer.h"
-#include "engine/render/VertexBuffer.h"
-#include "engine/render/MaterialInstance.h"
+
+
 
 namespace se::render::components
 {

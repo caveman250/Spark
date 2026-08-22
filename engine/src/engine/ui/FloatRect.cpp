@@ -1,4 +1,4 @@
-#include "FloatRect.h"
+module Spark.UI.FloatRect;
 
 namespace se::ui
 {

@@ -1,4 +1,9 @@
-#include "AbstractFunctionNode.h"
+module;
+
+#include "engine/string/ArenaString.h"
+
+module Spark.Asset.Shader;
+import :AbstractFunctionNode;
 
 namespace se::asset::shader::ast
 {

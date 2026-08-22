@@ -1,11 +1,11 @@
-
-#include "EditableTextObserver.h"
-
-#include "engine/Application.h"
-#include "engine/ui/components/EditableTextComponent.h"
+module;
 #include "engine/ui/components/MouseInputComponent.h"
 #include "engine/ui/components/KeyInputComponent.h"
 #include "engine/ui/components/WidgetComponent.h"
+
+module EditableTextObserver;
+import Application;
+import EditableTextComponent;
 
 namespace se::ui::observers
 {

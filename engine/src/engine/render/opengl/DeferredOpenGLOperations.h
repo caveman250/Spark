@@ -1,6 +1,7 @@
 #pragma once
 
 #include "spark.h"
+#include <mutex>
 
 namespace se::render::opengl
 {

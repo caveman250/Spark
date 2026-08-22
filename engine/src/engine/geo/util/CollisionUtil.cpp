@@ -1,5 +1,8 @@
-#include "CollisionUtil.h"
-#include "engine/ecs/components/TransformComponent.h"
+module;
+
+#include "spark.h"
+
+module Spark.Geo.Util.CollisionUtil;
 
 namespace se::geo::util
 {

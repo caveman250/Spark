@@ -1,4 +1,9 @@
-#include "PropertyAccessNode.h"
+module;
+
+#include "engine/string/ArenaString.h"
+
+module Spark.Asset.Shader;
+import :PropertyAccessNode;
 
 namespace se::asset::shader::ast
 {

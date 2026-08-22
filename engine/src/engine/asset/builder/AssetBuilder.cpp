@@ -4,9 +4,10 @@
 #include "FontBlueprint.h"
 #include "JsonBlueprint.h"
 #include "ShaderBlueprint.h"
-#include "TextureBlueprint.h"
+
 #include "engine/io/VFS.h"
 #include "engine/string/util/StringUtil.h"
+import Spark.Asset.Builder.TextureBlueprint;
 
 namespace se::asset::builder
 {

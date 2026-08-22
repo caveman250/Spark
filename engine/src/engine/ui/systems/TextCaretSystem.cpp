@@ -1,12 +1,13 @@
-#include "TextCaretSystem.h"
+module;
 
-#include "Widgets.generated.h"
-#include "engine/Application.h"
 #include <easy/profiler.h>
-
-#include "engine/ecs/util/SystemUtil.h"
 #include "engine/ui/components/TextCaretComponent.h"
 #include "engine/ui/components/WidgetComponent.h"
+
+module TextCaretSystem;
+import SystemUtil;
+import Application;
+import Widgets;
 
 using namespace se;
 using namespace se::ecs::components;

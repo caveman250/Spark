@@ -1,16 +1,14 @@
-#include "ShaderCompiler.h"
-
+module;
 #include "Lexer.h"
-#include "Parser.h"
-#include "ShaderCombiner.h"
-#include "engine/asset/shader/Shader.h"
-#include "engine/asset/shader/ShaderSettings.h"
-#include "engine/asset/shader/ast/ASTNode.h"
-#include "engine/asset/shader/ast/OutputNode.h"
-#include "engine/asset/shader/ast/ShaderCompileContext.h"
-#include "engine/asset/shader/ast/TypeUtil.h"
-#include "engine/memory/Arena.h"
-#include "engine/render/Renderer.h"
+#include "engine/reflect/TypeResolver.h"
+#include <ranges>
+
+module Spark.Asset.Shader;
+import Reflect.TemplatedClass;
+import :Parser;
+import :VariableReferenceNode;
+import :TypeUtil;
+import :ShaderCombiner;
 
 namespace se::asset::shader
 {
@@ -29,6 +27,28 @@ namespace se::asset::shader
         }
         debug::Log::Info("Success");
         return std::get<Shader>(result);
+    }
+
+    std::optional<std::vector<std::shared_ptr<ast::ASTNode>>::iterator> ShaderCompiler::FindVariable(Shader& shader,
+        ast::ASTNode* node,
+        const std::string& settingName,
+        ast::ASTNode** parent)
+    {
+        static auto referenceType = reflect::TypeResolver<ast::VariableReferenceNode>::Get();
+        if (node->GetReflectType() == referenceType)
+        {
+            const auto referenceNode = static_cast<ast::VariableReferenceNode*>(node);
+            if (strcmp(referenceNode->GetName().c_str(), settingName.data()) == 0)
+            {
+                *parent = node->m_Parent;
+                //typedef std::borro
+                auto it = std::ranges::find_if((*parent)->m_Children, [node](const auto& child){ return child.get() == node; });
+                typedef std::vector<std::shared_ptr<ast::ASTNode>>::iterator itType;
+                return std::optional(it);
+            }
+        }
+
+        return std::nullopt;
     }
 
     std::vector<std::pair<std::string, ast::Variable>> ShaderCompiler::GatherUsedUniforms(const std::vector<std::shared_ptr<Shader>>& shaderAssets)

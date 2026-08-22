@@ -1,5 +1,5 @@
 #pragma once
-
+#include "spark.h"
 namespace se::util
 {
     struct RetrieveKey

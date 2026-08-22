@@ -1,0 +1,55 @@
+module;
+
+#include "spark.h"
+
+#include "engine/ecs/Component.h"
+#include "engine/input/InputComponent.h"
+
+export module ButtonComponent;
+import Signal;
+import AssetReference;
+import ButtonSystem;
+import Spark.Math;
+
+namespace se::ui::components
+{
+    export struct ButtonComponent : ecs::Component
+    {
+        SPARK_WIDGET_COMPONENT()
+
+        bool pressed = false;
+        bool hovered = false;
+        input::MouseButton pressedButton = {};
+        std::time_t timePressed = 0;
+
+        SPARK_MEMBER(Serialized)
+        asset::AssetReference<asset::Texture> image = {};
+
+        SPARK_MEMBER(Serialized)
+        asset::AssetReference<asset::Texture> pressedImage = {};
+
+        SPARK_MEMBER(Serialized)
+        asset::AssetReference<asset::Texture> hoveredImage = {};
+
+        SPARK_MEMBER(Serialized)
+        ecs::Signal<input::MouseButton> onPressed = {};
+
+        SPARK_MEMBER(Serialized)
+        ecs::Signal<input::MouseButton> onDoubleClick = {};
+
+        math::IntVec2 pressedPosition = {};
+        bool isDragging = false;
+
+        ecs::Signal<input::MouseButton> onDragged = {};
+
+        // button, wasDoubleClick
+        ecs::Signal<input::MouseButton, bool> onReleased = {};
+
+    private:
+        bool lastPressed = false;
+        bool lastPressWasDoubleClick = false;
+        bool lastHovered = false;
+
+        friend class systems::ButtonSystem;
+    };
+}

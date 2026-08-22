@@ -1,5 +1,5 @@
 #include "Layout.h"
-#include "Widgets.generated.h"
+import Widgets;
 
 namespace se::ui
 {

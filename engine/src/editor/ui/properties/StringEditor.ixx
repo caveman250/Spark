@@ -1,0 +1,112 @@
+module;
+
+#include "engine/ui/components/WidgetComponent.h"
+
+export module StringEditor;
+import Transactions;
+import Application;
+import EditableTextComponent;
+import ImageComponent;
+import EditableTextUtil;
+import Material;
+
+namespace se::editor::ui::properties
+{
+    export template <typename S>
+    class StringEditor : public PropertyEditor
+    {
+        SPARK_CLASS_TEMPLATED()
+
+    public:
+        void SetValue(void* value, const reflect::Type* type) override;
+        void* GetValue() const override { return m_Value; }
+        void ConstructUI(const PropertyEditorParams& params) override;
+        void Update() override;
+
+    private:
+        S* m_Value = nullptr;
+        ecs::Id m_Label;
+    };
+
+    SPARK_INSTANTIATE_TEMPLATE(StringEditor, std::string);
+
+    template <typename S>
+    void StringEditor<S>::SetValue(void* value, const reflect::Type*)
+    {
+        m_Value = static_cast<S*>(value);
+    }
+
+    template <typename S>
+    void StringEditor<S>::ConstructUI(const PropertyEditorParams& params)
+    {
+        PropertyEditor::ConstructUI(params);
+
+        constexpr int fontSize = 14;
+        constexpr int padding = 4;
+        constexpr int textYOffset = padding / 2;
+        constexpr int borderSize = 2;
+
+        auto app = Application::Get();
+        auto world = app->GetWorld();
+        auto editor = app->GetEditor();
+        auto assetManager = asset::AssetManager::Get();
+        auto ariel = assetManager->GetAsset<asset::Font>("/engine_assets/fonts/CascadiaCode.sass");
+
+        auto bg = world->CreateEntity(editor->GetEditorScene(), "String Editor");
+        auto bgTransform = world->AddComponent<RectTransformComponent>(bg);
+        bgTransform->anchors = { .left = params.constructTitle ? 0.35f : 0.f, .right = 1.f, .top = 0.f, .bottom = 0.f };
+        bgTransform->minY = 0;
+        bgTransform->maxY = ariel->GetLineHeight(fontSize) + padding + borderSize * 2 + 0.5f;
+
+        world->AddComponent<WidgetComponent>(bg);
+        auto image = world->AddComponent<ImageComponent>(bg);
+        auto material = assetManager->GetAsset<render::Material>("/engine_assets/materials/editor_lightbg.sass");
+        image->materialInstance = std::make_shared<render::MaterialInstance>(material);
+        world->AddChild(m_Content, bg);
+
+        auto innerImageEntity = world->CreateEntity(editor->GetEditorScene(), "Border");
+        auto innerImage = world->AddComponent<ImageComponent>(innerImageEntity);
+        auto innerMaterial = assetManager->GetAsset<render::Material>("/engine_assets/materials/editor_darkbg.sass");
+        innerImage->materialInstance = std::make_shared<render::MaterialInstance>(innerMaterial);
+        auto innerTransform = world->AddComponent<RectTransformComponent>(innerImageEntity);
+        innerTransform->anchors = { .left = 0.f, .right = 1.f, .top = 0.f, .bottom = 1.f };
+        innerTransform->minX = innerTransform->maxX = innerTransform->minY = innerTransform->maxY = borderSize;
+        world->AddChild(bg, innerImageEntity);
+
+        auto editText = se::ui::util::CreateEditableText(world, "/engine_assets/fonts/CascadiaCode.sass", fontSize, editor->GetEditorScene());
+        m_Label = editText.entity;
+        editText.text->text = std::format("{}", *m_Value);
+        std::function cb = [this](std::string newVal)
+        {
+            S oldVal = *m_Value;
+            Transactions::Get()->PushAction([this, newVal]()
+            {
+                *m_Value = newVal.data();
+            },
+            [oldVal, this]()
+            {
+                *m_Value = oldVal;
+            });
+        };
+        editText.text->onComitted.Subscribe(std::move(cb));
+        editText.text->wrap = se::ui::text::WrapMode::Crop;
+
+        auto labelRect = world->AddComponent<RectTransformComponent>(m_Label);
+        labelRect->anchors = { .left = 0.f, .right = 1.f, .top = 0.f, .bottom = 1.f };
+        labelRect->minX = 2;
+        labelRect->maxX = 2;
+        labelRect->minY = textYOffset;
+        world->AddChild(innerImageEntity, m_Label);
+    }
+
+    template <typename S>
+    void StringEditor<S>::Update()
+    {
+        if (auto text = Application::Get()->GetWorld()->GetComponent<EditableTextComponent>(m_Label))
+        {
+            text->text = std::format("{}", *m_Value);
+        }
+    }
+}
+
+#include "se_editor_ui_properties_StringEditor.generated.h"

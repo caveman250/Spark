@@ -1,4 +1,9 @@
-#include "NameGenerator.h"
+module;
+
+#include <spark.h>
+
+module Spark.Asset.Shader;
+import :NameGenerator;
 
 namespace se::asset::shader::ast
 {

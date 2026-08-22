@@ -1,6 +1,6 @@
 #pragma once
-#include "engine/asset/mesh/StaticMesh.h"
-#include "engine/ui/Rect.h"
+
+
 #include "engine/ui/text/Alignment.h"
 #include "engine/ui/text/WrapMode.h"
 

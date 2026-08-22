@@ -1,7 +1,9 @@
-#include "ResetCollisionSystem.h"
+module;
 
-#include "engine/render/Renderer.h"
+
 #include "engine/geo/singleton_components/CollisionComponent.h"
+
+module ResetCollisionSystem;
 
 namespace se::geo::systems
 {

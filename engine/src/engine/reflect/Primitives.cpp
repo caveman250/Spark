@@ -1,5 +1,6 @@
 #include "engine/asset/binary/Database.h"
-#include "Reflect.h"
+#include "engine/reflect/Object.h"
+import Reflect;
 
 namespace se::reflect
 {

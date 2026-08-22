@@ -1,6 +1,10 @@
-#include "SplitViewComponent.h"
-#include <Widgets.generated.h>
-#include "engine/ui/util/WidgetUtil.h"
+module;
+
+module SplitViewComponent;
+
+import Widgets;
+import WidgetUtil;
+
 namespace se::ui
 {
     template<>

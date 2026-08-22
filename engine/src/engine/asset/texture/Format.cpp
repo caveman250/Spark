@@ -1,4 +1,8 @@
-#include "Format.h"
+module;
+
+#include "spark.h"
+
+module Spark.Asset.Texture.Format;
 
 namespace se::asset::texture
 {

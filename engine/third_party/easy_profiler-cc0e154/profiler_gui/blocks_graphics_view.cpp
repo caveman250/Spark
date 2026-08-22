@@ -64,7 +64,7 @@
 *                   : limitations under the License.
 ************************************************************************/
 
-#include <math.h>
+
 
 #include <QApplication>
 #include <QDebug>

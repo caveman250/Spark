@@ -1,8 +1,10 @@
 #include "ShaderBlueprint.h"
 #include "spark.h"
-#include "engine/asset/shader/Shader.h"
-#include "engine/asset/shader/compiler/ShaderCompiler.h"
-#include "engine/reflect/Util.h"
+#include <optional>
+
+import Reflect.TemplatedClass;
+import Spark.Asset.Shader;
+import Reflect;
 
 namespace se::asset::builder
 {

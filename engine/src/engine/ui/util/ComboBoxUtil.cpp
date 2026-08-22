@@ -1,6 +1,6 @@
 #include "ComboBoxUtil.h"
-#include "Widgets.generated.h"
-#include "engine/asset/AssetManager.h"
+import Widgets;
+
 #include "engine/ui/components/MouseInputComponent.h"
 #include "engine/ui/components/WidgetComponent.h"
 
