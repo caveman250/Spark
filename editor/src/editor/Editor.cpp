@@ -2,6 +2,8 @@
 
 #include "EditorShortcutsManager.h"
 #include "Transactions.h"
+#include "../generated/Classes.generated.h"
+#include "../generated/Systems.generated.h"
 #include "components/EditorCameraComponent.h"
 #include "engine/Application.h"
 #include "engine/asset/AssetManager.h"
@@ -32,6 +34,8 @@ namespace se::editor
     void Editor::Init()
     {
         auto world = Application::Get()->GetWorld();
+
+        editor_InitSystems(world);
 
         m_StartupManager.RunStartupTasks();
 

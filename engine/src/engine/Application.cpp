@@ -18,6 +18,8 @@
 #include "ui/observers/EditableTextObserver.h"
 
 #include "Widgets.generated.h"
+#include "Classes.generated.h"
+#include "Systems.generated.h"
 #include "camera/ActiveCameraComponent.h"
 #include "render/components/PointLightComponent.h"
 #include "render/singleton_components/MeshRenderComponent.h"
@@ -60,6 +62,7 @@ namespace se
         m_World.CreateScene("Default");
 
         CreateInitialSingletonComponents();
+        engine_InitSystems(&m_World);
 
 #if SPARK_EDITOR
         m_Editor.Init();
