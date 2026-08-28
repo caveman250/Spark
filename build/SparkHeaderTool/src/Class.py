@@ -957,70 +957,71 @@ def CreateClassInstantiationFiles(source_dirs, enum_list, classes, template_inst
         output_handle.write(init_members_cpp_content)
         output_handle.close()
 
-def CreateSystemInstantiationFiles(src_dir, classes, files_accounted_for):
-    if not os.path.exists(src_dir):
-        os.mkdir(src_dir)
-    project_name = src_dir.split('/')[-4]
-    init_members_h_content = f"#pragma once\n#include \"engine/ecs/World.h\"\nnamespace se\n{{\nvoid InitSystems(ecs::World* world);\n}}"
-    output_path = src_dir + "Systems.generated.h"
-    files_accounted_for.add(os.path.abspath(output_path))
-    existing_contents = ""
-    if os.path.isfile(output_path):
-        input_handle = open(output_path, "r")
-        existing_contents = input_handle.read()
-        input_handle.close()
-    if existing_contents != init_members_h_content:
-        print(f"-- -- {src_dir}Systems.generated.h generating...")
-        output_handle = open(output_path, "w+")
-        output_handle.write(init_members_h_content)
-        output_handle.close()
+def CreateSystemInstantiationFiles(source_dirs, classes, files_accounted_for):
+    for src_dir in source_dirs:
+        if not os.path.exists(src_dir):
+            os.mkdir(src_dir)
+        project_name = src_dir.split('/')[-4]
+        init_members_h_content = f"#pragma once\nnamespace se\n{{\nvoid {project_name}_InitSystems(ecs::World* world);\n}}"
+        output_path = src_dir + "Systems.generated.h"
+        files_accounted_for.add(os.path.abspath(output_path))
+        existing_contents = ""
+        if os.path.isfile(output_path):
+            input_handle = open(output_path, "r")
+            existing_contents = input_handle.read()
+            input_handle.close()
+        if existing_contents != init_members_h_content:
+            print(f"-- -- {src_dir}Systems.generated.h generating...")
+            output_handle = open(output_path, "w+")
+            output_handle.write(init_members_h_content)
+            output_handle.close()
 
-    init_systems_cpp_content = "#include \"spark.h\"\n"
-    init_systems_cpp_content += "#include \"engine/ecs/World.h\"\n"
-    for full_name, class_obj in classes.items():
-        if class_obj.is_reflected and class_obj.type == ClassType.SYSTEM:
-            init_systems_cpp_content += IncludeClass(class_obj)
-    init_systems_cpp_content += f"\nnamespace se\n{{\nvoid InitSystems([[maybe_unused]]ecs::World* world)\n{{\n"
-    for full_name, class_obj in classes.items():
-        if class_obj.is_reflected and not class_obj.is_template and class_obj.type == ClassType.SYSTEM:
-            if class_obj.dev_only:
-                init_systems_cpp_content += "#if WITH_DEV_ONLY_CLASSES\n"
-            if class_obj.editor_only:
-                init_systems_cpp_content += "#if WITH_EDITOR_ONLY_CLASSES\n"
-            init_systems_cpp_content += f"    world->RegisterSystem<{full_name}>();\n"
-            if class_obj.editor_only:
-                init_systems_cpp_content += "#endif\n"
-            if class_obj.dev_only:
-                init_systems_cpp_content += "#endif\n"
-    for full_name, class_obj in classes.items():
-        if class_obj.is_reflected and not class_obj.is_template and class_obj.type == ClassType.SYSTEM:
-            if class_obj.project_src_dir.endswith("engine/src/generated/") or class_obj.project_src_dir.endswith("editor/src/generated/"):
-                create_system_method = "CreateEngineSystem"
-            else:
-                create_system_method = "CreateAppSystem"
-            if class_obj.dev_only:
-                init_systems_cpp_content += "#if WITH_DEV_ONLY_CLASSES\n"
-            if class_obj.editor_only:
-                init_systems_cpp_content += "#if WITH_EDITOR_ONLY_CLASSES\n"
-            init_systems_cpp_content += f"    world->{create_system_method}<{full_name}>();\n"
-            if class_obj.editor_only:
-                init_systems_cpp_content += "#endif\n"
-            if class_obj.dev_only:
-                init_systems_cpp_content += "#endif\n"
-    init_systems_cpp_content += "}\n}"
+        init_systems_cpp_content = "#include \"spark.h\"\n"
+        init_systems_cpp_content += "#include \"engine/ecs/World.h\"\n"
+        for full_name, class_obj in classes.items():
+            if class_obj.is_reflected and class_obj.project_src_dir == src_dir and class_obj.type == ClassType.SYSTEM:
+                init_systems_cpp_content += IncludeClass(class_obj)
+        init_systems_cpp_content += f"\nnamespace se\n{{\nvoid {project_name}_InitSystems([[maybe_unused]]ecs::World* world)\n{{\n"
+        for full_name, class_obj in classes.items():
+            if class_obj.is_reflected and not class_obj.is_template and class_obj.project_src_dir == src_dir and class_obj.type == ClassType.SYSTEM:
+                if class_obj.dev_only:
+                    init_systems_cpp_content += "#if WITH_DEV_ONLY_CLASSES\n"
+                if class_obj.editor_only:
+                    init_systems_cpp_content += "#if WITH_EDITOR_ONLY_CLASSES\n"
+                init_systems_cpp_content += f"    world->RegisterSystem<{full_name}>();\n"
+                if class_obj.editor_only:
+                    init_systems_cpp_content += "#endif\n"
+                if class_obj.dev_only:
+                    init_systems_cpp_content += "#endif\n"
+        for full_name, class_obj in classes.items():
+            if class_obj.is_reflected and not class_obj.is_template and class_obj.project_src_dir == src_dir and class_obj.type == ClassType.SYSTEM:
+                if src_dir.endswith("engine/src/generated/") or src_dir.endswith("editor/src/generated/"):
+                    create_system_method = "CreateEngineSystem"
+                else:
+                    create_system_method = "CreateAppSystem"
+                if class_obj.dev_only:
+                    init_systems_cpp_content += "#if WITH_DEV_ONLY_CLASSES\n"
+                if class_obj.editor_only:
+                    init_systems_cpp_content += "#if WITH_EDITOR_ONLY_CLASSES\n"
+                init_systems_cpp_content += f"    world->{create_system_method}<{full_name}>();\n"
+                if class_obj.editor_only:
+                    init_systems_cpp_content += "#endif\n"
+                if class_obj.dev_only:
+                    init_systems_cpp_content += "#endif\n"
+        init_systems_cpp_content += "}\n}"
 
-    output_path = src_dir + "Systems.generated.cpp"
-    files_accounted_for.add(os.path.abspath(output_path))
-    existing_contents = ""
-    if os.path.isfile(output_path):
-        input_handle = open(output_path, "r")
-        existing_contents = input_handle.read()
-        input_handle.close()
-    if existing_contents != init_systems_cpp_content:
-        print(f"-- -- {src_dir}Systems.generated.cpp generating...")
-        output_handle = open(output_path, "w+")
-        output_handle.write(init_systems_cpp_content)
-        output_handle.close()
+        output_path = src_dir + "Systems.generated.cpp"
+        files_accounted_for.add(os.path.abspath(output_path))
+        existing_contents = ""
+        if os.path.isfile(output_path):
+            input_handle = open(output_path, "r")
+            existing_contents = input_handle.read()
+            input_handle.close()
+        if existing_contents != init_systems_cpp_content:
+            print(f"-- -- {src_dir}Systems.generated.cpp generating...")
+            output_handle = open(output_path, "w+")
+            output_handle.write(init_systems_cpp_content)
+            output_handle.close()
 
 def DefineClass(classobj, full_name, classes, base_class_map, template_instantiations, files_accounted_for, output_dir):
     contents = ""
@@ -1272,7 +1273,7 @@ def WriteClassFiles(classes, enum_list, base_class_map, template_instantiations,
         source_dirs.add(class_obj.project_src_dir)
 
     CreateClassInstantiationFiles(source_dirs, enum_list, classes, template_instantiations, files_accounted_for)
-    CreateSystemInstantiationFiles(output_dir, classes, files_accounted_for)
+    CreateSystemInstantiationFiles(source_dirs, classes, files_accounted_for)
 
     for full_name, classobj in classes.items():
         if classobj.is_reflected:
