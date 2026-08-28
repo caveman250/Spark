@@ -1,6 +1,7 @@
 #include "PropertiesWindow.h"
 
 #include "engine/Application.h"
+#include "engine/ecs/components/TransformComponent.h"
 #include "engine/ui/components/ButtonComponent.h"
 #include "engine/ui/components/ImageComponent.h"
 #include "engine/ui/components/RectTransformComponent.h"

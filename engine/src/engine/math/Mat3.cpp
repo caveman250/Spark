@@ -1,4 +1,5 @@
 #include "Mat3.h"
+#include "Mat4.h"
 
 namespace se::math
 {

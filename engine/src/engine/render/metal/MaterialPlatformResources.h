@@ -2,7 +2,7 @@
 #include "engine/render/render_fwd.h"
 
 #if METAL_RENDERER
-
+#include "engine/render/metal/MTL_fwd.h"
 #include "engine/render/Material.h"
 
 namespace se::render::metal

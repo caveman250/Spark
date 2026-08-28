@@ -4,11 +4,12 @@
 #include <engine/asset/shader/ast/ShaderCompileContext.h>
 
 #if METAL_RENDERER
-
+#include "engine/render/metal/MetalRenderer.h"
 #include "engine/asset/shader/compiler/ShaderCompiler.h"
 #include "engine/asset/shader/ast/TypeUtil.h"
 #include "TextureResource.h"
 #import <Metal/Metal.h>
+#include <easy/profiler.h>
 #import "engine/render/metal/MetalTypeUtil.h"
 
 namespace se::render

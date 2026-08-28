@@ -28,5 +28,10 @@ namespace se::ecs::components
 
         SPARK_MEMBER()
         geo::AABB aabb = {};
+
+        SPARK_MEMBER()
+        const TransformComponent* parent = nullptr;
+
+    private:
     };
 }

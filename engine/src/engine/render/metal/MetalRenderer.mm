@@ -4,6 +4,7 @@
 #import <MetalKit/MetalKit.h>
 #include "platform/mac/Window.h"
 #import "engine/Application.h"
+#include "engine/render/metal/FrameBuffer.h"
 
 
 #if METAL_RENDERER
@@ -58,7 +59,7 @@ namespace se::render::metal
         auto* frameBuffer = m_RenderGroups[m_ActiveRenderGroup].frameBuffer.get();
         if (frameBuffer)
         {
-            return static_cast<FrameBuffer*>(frameBuffer)->GetRenderCommandEncoder();
+            return static_cast<se::render::metal::FrameBuffer*>(frameBuffer)->GetRenderCommandEncoder();
         }
         return m_CommandEncoder;
     }

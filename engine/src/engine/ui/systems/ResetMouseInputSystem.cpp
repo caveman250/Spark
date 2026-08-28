@@ -5,6 +5,8 @@
 #include "engine/input/InputSystem.h"
 #include "engine/input/InputUtil.h"
 #include <easy/profiler.h>
+
+#include "engine/input/InputComponent.h"
 #include "engine/ui/components/RectTransformComponent.h"
 #include "engine/ui/components/MouseInputComponent.h"
 #include "engine/ui/components/WidgetComponent.h"

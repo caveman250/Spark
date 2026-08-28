@@ -5,6 +5,7 @@
 namespace se::ui::components
 {
     struct ComboBoxComponent;
+    struct RectTransformComponent;
 }
 
 namespace se::ecs
