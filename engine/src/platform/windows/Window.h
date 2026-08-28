@@ -3,8 +3,6 @@
 #include <engine/input/InputComponent.h>
 #include "platform/IWindow.h"
 
-#if SPARK_PLATFORM_WINDOWS
-
 namespace se::windows
 {
     class Window : public se::IWindow
@@ -39,5 +37,3 @@ namespace se::windows
 
     HGLRC wglCreateContextAttribsARB(HDC hDC, HGLRC hshareContext, const int *attribList);
 }
-
-#endif

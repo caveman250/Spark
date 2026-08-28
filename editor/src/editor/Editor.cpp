@@ -35,6 +35,7 @@ namespace se::editor
     {
         auto world = Application::Get()->GetWorld();
 
+        editor_InitClassReflection();
         editor_InitSystems(world);
 
         m_StartupManager.RunStartupTasks();

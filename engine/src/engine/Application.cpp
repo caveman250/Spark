@@ -58,6 +58,7 @@ namespace se
         io::VFS::Get().Mount(std::format("{}/{}", APP_DIR, "temp"), "/tmp", false);
 
         RegisterComponents(&m_World);
+        engine_InitClassReflection();
 
         m_World.CreateScene("Default");
 

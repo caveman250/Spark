@@ -893,69 +893,76 @@ def IncludeClass(class_obj):
         return f"#include \"{class_obj.path}\"\n"
 
 def CreateClassInstantiationFiles(source_dirs, enum_list, classes, template_instantiations, files_accounted_for):
-    init_members_h_content = f"#pragma once\nnamespace se\n{{\nvoid InitClassReflection();\n}}"
-    header_output_path = "../../engine/src/generated/Classes.generated.h"
-    src_output_path = "../../../app/src/generated/Classes.generated.cpp"
-    files_accounted_for.add(os.path.abspath(header_output_path))
-    existing_contents = ""
+    for src_dir in source_dirs:
+        if not os.path.exists(src_dir):
+            os.mkdir(src_dir)
 
-    if os.path.isfile(header_output_path):
-        input_handle = open(header_output_path, "r")
-        existing_contents = input_handle.read()
-        input_handle.close()
+        project_name = src_dir.split('/')[-4]
+        init_members_h_content = f"#pragma once\nnamespace se\n{{\nvoid {project_name}_InitClassReflection();\n}}"
+        output_path = src_dir + "Classes.generated.h"
+        files_accounted_for.add(os.path.abspath(output_path))
+        existing_contents = ""
 
-    if existing_contents != init_members_h_content:
-        print(f"-- -- Classes.generated.h generating...")
-        output_handle = open(header_output_path, "w+")
-        output_handle.write(init_members_h_content)
-        output_handle.close()
+        if os.path.isfile(output_path):
+            input_handle = open(output_path, "r")
+            existing_contents = input_handle.read()
+            input_handle.close()
 
-    init_members_cpp_content = "#include \"spark.h\"\n"
+        if existing_contents != init_members_h_content:
+            print(f"-- -- {src_dir}Classes.generated.h generating...")
+            output_handle = open(output_path, "w+")
+            output_handle.write(init_members_h_content)
+            output_handle.close()
 
-    for full_name, class_obj in classes.items():
-        init_members_cpp_content += IncludeClass(class_obj)
+        init_members_cpp_content = "#include \"spark.h\"\n"
 
-    for template_instantiation in template_instantiations:
-        class_obj = GetClass(template_instantiation.class_name, classes, enum_list)
-        if class_obj is not None:
-            init_members_cpp_content += IncludeClass(class_obj)
-        for template_type in template_instantiation.template_types:
-            template_type_class_obj = GetClass(template_type, classes, enum_list)
-            if template_type_class_obj is not None:
-                init_members_cpp_content += IncludeClass(template_type_class_obj)
+        for full_name, class_obj in classes.items():
+            if class_obj.is_reflected and class_obj.project_src_dir == src_dir:
+                init_members_cpp_content += IncludeClass(class_obj)
 
-    init_members_cpp_content += f"\nnamespace se\n{{\nvoid InitClassReflection()\n{{\n"
+        for template_instantiation in template_instantiations:
+            if template_instantiation.project_src_dir == src_dir:
+                class_obj = GetClass(template_instantiation.class_name, classes, enum_list)
+                if class_obj is not None:
+                    init_members_cpp_content += IncludeClass(class_obj)
+                for template_type in template_instantiation.template_types:
+                    template_type_class_obj = GetClass(template_type, classes, enum_list)
+                    if template_type_class_obj is not None:
+                        init_members_cpp_content += IncludeClass(template_type_class_obj)
 
-    for full_name, class_obj in classes.items():
-        if class_obj.is_reflected and not class_obj.is_template:
-            if class_obj.dev_only:
-                init_members_cpp_content += "#if WITH_DEV_ONLY_CLASSES\n"
-            if class_obj.editor_only:
-                init_members_cpp_content += "#if WITH_EDITOR_ONLY_CLASSES\n"
-            init_members_cpp_content += "    " + full_name + "::InitMembers();\n"
-            if class_obj.editor_only:
-                init_members_cpp_content += "#endif\n"
-            if class_obj.dev_only:
-                init_members_cpp_content += "#endif\n"
+        init_members_cpp_content += f"\nnamespace se\n{{\nvoid {project_name}_InitClassReflection()\n{{\n"
 
-    for template_instantiation in template_instantiations:
-            template_params_string = ", ".join(template_instantiation.template_types)
-            init_members_cpp_content += f"    {template_instantiation.namespace}::{template_instantiation.class_name}<{template_params_string}>::InitMembers();\n"
-    init_members_cpp_content += "}\n}"
+        for full_name, class_obj in classes.items():
+            if class_obj.is_reflected and not class_obj.is_template and class_obj.project_src_dir == src_dir:
+                if class_obj.dev_only:
+                    init_members_cpp_content += "#if WITH_DEV_ONLY_CLASSES\n"
+                if class_obj.editor_only:
+                    init_members_cpp_content += "#if WITH_EDITOR_ONLY_CLASSES\n"
+                init_members_cpp_content += "    " + full_name + "::InitMembers();\n"
+                if class_obj.editor_only:
+                    init_members_cpp_content += "#endif\n"
+                if class_obj.dev_only:
+                    init_members_cpp_content += "#endif\n"
 
-    output_path = "../../../app/src/generated/Classes.generated.cpp"
-    files_accounted_for.add(os.path.abspath(output_path))
-    existing_contents = ""
-    if os.path.isfile(output_path):
-        input_handle = open(output_path, "r")
-        existing_contents = input_handle.read()
-        input_handle.close()
+        for template_instantiation in template_instantiations:
+            if template_instantiation.project_src_dir == src_dir:
+                template_params_string = ", ".join(template_instantiation.template_types)
+                init_members_cpp_content += f"    {template_instantiation.namespace}::{template_instantiation.class_name}<{template_params_string}>::InitMembers();\n"
+        init_members_cpp_content += "}\n}"
 
-    if existing_contents != init_members_cpp_content:
-        print(f"-- -- Classes.generated.cpp generating...")
-        output_handle = open(output_path, "w+")
-        output_handle.write(init_members_cpp_content)
-        output_handle.close()
+        output_path = src_dir + "Classes.generated.cpp"
+        files_accounted_for.add(os.path.abspath(output_path))
+        existing_contents = ""
+        if os.path.isfile(output_path):
+            input_handle = open(output_path, "r")
+            existing_contents = input_handle.read()
+            input_handle.close()
+
+        if existing_contents != init_members_cpp_content:
+            print(f"-- -- {src_dir}Classes.generated.cpp generating...")
+            output_handle = open(output_path, "w+")
+            output_handle.write(init_members_cpp_content)
+            output_handle.close()
 
 def CreateSystemInstantiationFiles(source_dirs, classes, files_accounted_for):
     for src_dir in source_dirs:
@@ -1023,7 +1030,7 @@ def CreateSystemInstantiationFiles(source_dirs, classes, files_accounted_for):
             output_handle.write(init_systems_cpp_content)
             output_handle.close()
 
-def DefineClass(classobj, full_name, classes, base_class_map, template_instantiations, files_accounted_for, output_dir):
+def DefineClass(classobj, full_name, classes, base_class_map, template_instantiations, files_accounted_for):
     contents = ""
 
     is_module = IsModule(classobj)
@@ -1157,7 +1164,7 @@ def DefineClass(classobj, full_name, classes, base_class_map, template_instantia
 
     namespace_text = classobj.namespace.replace("::", "_")
     extension = ".cpp"
-    output_path = output_dir + f"{namespace_text}_{classobj.name}.generated{extension}"
+    output_path = classobj.project_src_dir + f"{namespace_text}_{classobj.name}.generated{extension}"
     files_accounted_for.add(os.path.abspath(output_path))
     existing_contents = ""
     if os.path.isfile(output_path):
@@ -1231,12 +1238,12 @@ def DefineTemplateClass(classobj, full_name, classes, base_class_map, files_acco
         output_handle.write(contents)
         output_handle.close()
 
-def WriteTemplateInstantiations(template_instantiations, classes, enums, files_accounted_for, output_dir):
+def WriteTemplateInstantiations(template_instantiations, classes, enums, files_accounted_for):
     instantiation_files = dict()
     for template_instantiation in template_instantiations:
         namespace_text = template_instantiation.namespace.replace("::", "_")
         output_file = f"{namespace_text}_{template_instantiation.class_name}.generated.cpp"
-        full_output_path = output_dir + output_file
+        full_output_path = template_instantiation.project_src_dir + output_file
         contents = ""
         if full_output_path in instantiation_files:
             contents += instantiation_files[full_output_path]
@@ -1267,7 +1274,7 @@ def WriteTemplateInstantiations(template_instantiations, classes, enums, files_a
             output_handle.write(contents)
             output_handle.close()
 
-def WriteClassFiles(classes, enum_list, base_class_map, template_instantiations, files_accounted_for, output_dir):
+def WriteClassFiles(classes, enum_list, base_class_map, template_instantiations, files_accounted_for):
     source_dirs = set()
     for full_name, class_obj in classes.items():
         source_dirs.add(class_obj.project_src_dir)
@@ -1280,6 +1287,6 @@ def WriteClassFiles(classes, enum_list, base_class_map, template_instantiations,
             if classobj.is_template:
                 DefineTemplateClass(classobj, full_name, classes, base_class_map, files_accounted_for)
             else:
-                DefineClass(classobj, full_name, classes, base_class_map, template_instantiations, files_accounted_for, output_dir)
+                DefineClass(classobj, full_name, classes, base_class_map, template_instantiations, files_accounted_for)
 
-    WriteTemplateInstantiations(template_instantiations, classes, enum_list, files_accounted_for, output_dir)
+    WriteTemplateInstantiations(template_instantiations, classes, enum_list, files_accounted_for)

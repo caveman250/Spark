@@ -2,8 +2,6 @@
 
 #include "platform/IWindow.h"
 
-#if SPARK_PLATFORM_LINUX
-
 #undef linux
 
 namespace se::linux
@@ -22,5 +20,3 @@ namespace se::linux
         SDL_GLContext m_Context = {};
     };
 }
-
-#endif
