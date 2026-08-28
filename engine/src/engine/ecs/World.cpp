@@ -480,6 +480,19 @@ namespace se::ecs
         auto deferredOps = render::opengl::DeferredOpenGLOperations::Get();
 #endif
 
+        RunOnAllSystems([this](const Id& systemId)
+        {
+            EASY_BLOCK(systemId.name->c_str());
+            if (auto* system = m_EngineSystems[systemId].instance)
+            {
+                system->Update();
+            }
+        }, m_EngineSystemUpdateGroups, true, true);
+
+#if OPENGL_RENDERER
+       deferredOps->ExecuteDeferredOps();
+#endif
+
 #if SPARK_EDITOR
         const auto editor = Application::Get()->GetEditor();
         if (editor->InGameMode())
@@ -500,19 +513,6 @@ namespace se::ecs
 
 #if OPENGL_RENDERER
         deferredOps->ExecuteDeferredOps();
-#endif
-
-        RunOnAllSystems([this](const Id& systemId)
-        {
-            EASY_BLOCK(systemId.name->c_str());
-            if (auto* system = m_EngineSystems[systemId].instance)
-            {
-                system->Update();
-            }
-        }, m_EngineSystemUpdateGroups, true, true);
-
-#if OPENGL_RENDERER
-       deferredOps->ExecuteDeferredOps();
 #endif
 
         m_Running = false;

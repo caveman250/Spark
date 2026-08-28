@@ -1,6 +1,5 @@
 #include "TreeNodeSystem.h"
 #include "UIMouseInputSystem.h"
-#include "engine/ui/components/WidgetComponent.h"
 #include "engine/ui/util/ContextMenuUtil.h"
 
 namespace se::ui::systems

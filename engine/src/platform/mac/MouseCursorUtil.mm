@@ -1,7 +1,6 @@
 #import "platform/MouseCursorUtil.h"
 #import "engine/Application.h"
 #import "Window.h"
-#import <AppKit/AppKit.h>
 
 namespace se
 {

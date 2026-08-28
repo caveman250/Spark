@@ -2,7 +2,6 @@
 
 #include "spark.h"
 #include "engine/asset/Asset.h"
-#include "engine/ecs/Component.h"
 
 namespace se::ecs 
 {

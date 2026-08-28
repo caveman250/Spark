@@ -1,7 +1,6 @@
 #include "Editor.h"
 
 #include "EditorShortcutsManager.h"
-#include "Transactions.h"
 #include "../generated/Classes.generated.h"
 #include "../generated/Systems.generated.h"
 #include "components/EditorCameraComponent.h"

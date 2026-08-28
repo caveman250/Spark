@@ -1,11 +1,7 @@
 #include "MaterialInstancePlatformResources.h"
-
-#import <Metal/Metal.h>
-#include <easy/profiler.h>
 #include "MaterialPlatformResources.h"
 #include "engine/asset/shader/ast/TypeUtil.h"
 #include "engine/render/MaterialInstance.h"
-#include "engine/render/metal/MetalRenderer.h"
 
 #if METAL_RENDERER
 

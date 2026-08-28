@@ -2,8 +2,6 @@
 #import "engine/input/Key.h"
 #import "KeyMap.h"
 #import "engine/input/InputComponent.h"
-#include "engine/Application.h"
-#include "platform/IWindow.h"
 
 @implementation NativeWindow
 

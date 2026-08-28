@@ -37,14 +37,10 @@ namespace se::ecs::systems
                 const HeirachyQueryDeclaration dec = HeirachyQueryDeclaration()
                     .WithComponent<TransformComponent>();
 
-                RunRecursiveChildQuery(entity, dec, [&trans](const SystemUpdateData& updateData)
+                RunRecursiveChildQuery(entity, dec, [trans](const SystemUpdateData& updateData)
                 {
                     auto* childTransform = updateData.GetComponentArray<TransformComponent>();
                     childTransform->worldTransform = trans.worldTransform * childTransform->transform;
-                    if (childTransform->parent != &trans) [[unlikely]]
-                    {
-                        childTransform->parent = &trans;
-                    }
                     return false;
                 });
             });

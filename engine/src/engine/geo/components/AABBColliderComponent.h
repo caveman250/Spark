@@ -2,7 +2,6 @@
 
 #include "spark.h"
 #include "engine/ecs/Component.h"
-#include "engine/geo/AABB.h"
 
 namespace se::geo::components
 {

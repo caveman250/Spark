@@ -2,7 +2,6 @@
 
 #include "spark.h"
 #include "engine/asset/AssetReference.h"
-#include "engine/ecs/Prefab.h"
 
 namespace se::ecs
 {

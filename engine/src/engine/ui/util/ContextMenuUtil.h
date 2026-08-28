@@ -1,8 +1,6 @@
 #pragma once
 
 #include "spark.h"
-#include "engine/math/math.h"
-#include "engine/ecs/System.h"
 
 namespace se::ui::util
 {

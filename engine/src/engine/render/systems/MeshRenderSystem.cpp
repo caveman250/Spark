@@ -36,6 +36,7 @@ namespace se::render::systems
         {
             auto* meshes = updateData.GetComponentArray<MeshComponent>();
             auto* transforms = updateData.GetComponentArray<TransformComponent>();
+            const auto* camera = updateData.GetSingletonComponent<const camera::ActiveCameraComponent>();
 
 #if SPARK_EDITOR
             auto* meshRenderComp = updateData.GetSingletonComponent<singleton_components::MeshRenderComponent>();
@@ -123,6 +124,24 @@ namespace se::render::systems
                         mesh.materialInstance = std::make_shared<MaterialInstance>(mesh.model.GetAsset()->GetMaterialReference());
                     }
                 }
+
+                if (const auto& material = mesh.materialInstance)
+                {
+                    EASY_BLOCK("Set Uniforms")
+
+                    math::Mat4 inverseModel = transforms[i].worldTransform;
+                    inverseModel = math::Inverse(inverseModel);
+                    material->SetUniform("inverseModel", 1, &inverseModel, true);
+
+                    if (material->GetMaterial()->GetRenderState().lit)
+                    {
+                        material->SetUniform("viewPos", 1, &camera->pos);
+                    }
+
+                    material->SetUniform("model", 1, &transforms[i].worldTransform, true);
+                    material->SetUniform("view", 1, &camera->view, true);
+                    material->SetUniform("proj", 1, &camera->proj, true);
+                }
             }
         });
     }
@@ -138,7 +157,6 @@ namespace se::render::systems
             const auto* meshes = updateData.GetComponentArray<MeshComponent>();
             auto* transforms = updateData.GetComponentArray<TransformComponent>();
             auto* meshRenderComp = updateData.GetSingletonComponent<singleton_components::MeshRenderComponent>();
-            const auto* camera = updateData.GetSingletonComponent<const camera::ActiveCameraComponent>();
 
     #if SPARK_EDITOR
             auto* editor = Application::Get()->GetEditor();
@@ -156,24 +174,6 @@ namespace se::render::systems
                 if (!meshComp.visible)
                 {
                     continue;
-                }
-
-                if (const auto& material = meshComp.materialInstance)
-                {
-                    EASY_BLOCK("Set Uniforms")
-
-                    math::Mat4 inverseModel = transforms[i].worldTransform;
-                    inverseModel = math::Inverse(inverseModel);
-                    material->SetUniform("inverseModel", 1, &inverseModel, true);
-
-                    if (material->GetMaterial()->GetRenderState().lit)
-                    {
-                        material->SetUniform("viewPos", 1, &camera->pos);
-                    }
-
-                    material->SetUniform("model", 1, &transforms[i].worldTransform, true);
-                    material->SetUniform("view", 1, &camera->view, true);
-                    material->SetUniform("proj", 1, &camera->proj, true);
                 }
 
                 size_t baseRenderGroup = defaultRenderGroup;
