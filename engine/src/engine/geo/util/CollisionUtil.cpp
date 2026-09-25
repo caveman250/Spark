@@ -1,5 +1,6 @@
 #include "CollisionUtil.h"
 #include "engine/ecs/components/TransformComponent.h"
+#include "engine/geo/singleton_components/CollisionComponent.h"
 
 namespace se::geo::util
 {

@@ -56,5 +56,11 @@ namespace se::ecs
 
         SPARK_MEMBER(Serialized)
         std::vector<ScenePrefabData> m_Prefabs = {};
+
+        SPARK_MEMBER(Serialized)
+        math::Vec3 m_EditorCameraPos = {};
+
+        SPARK_MEMBER(Serialized)
+        math::Vec3 m_EditorCameraRot = {};
     };
 }

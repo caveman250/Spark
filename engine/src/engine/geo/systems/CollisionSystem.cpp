@@ -33,7 +33,7 @@ namespace se::geo::systems
         {
             if (record.second.dynamic)
             {
-                for (const auto& otherRecord : collision->colliders)
+                for (auto& otherRecord : collision->colliders)
                 {
                     if (otherRecord.first == record.first)
                     {
@@ -42,6 +42,12 @@ namespace se::geo::systems
 
                     if (Overlaps(record.second, otherRecord.second))
                     {
+                        if (!collision->collisionChannels[static_cast<int>(record.second.channel)][static_cast<int>(otherRecord.second.channel)])
+                        {
+                            continue;
+                        }
+                        record.second.collision = true;
+                        otherRecord.second.collision = true;
                         math::Vec3 delta = otherRecord.second.pos - record.second.pos;
                         float overlapX = record.second.aabb.size.x + otherRecord.second.aabb.size.x - std::abs(delta.x);
                         float overlapY = record.second.aabb.size.y + otherRecord.second.aabb.size.y - std::abs(delta.y);

@@ -203,4 +203,13 @@
     inputComp->mouseY = ([[self contentView] frame].size.height - locationInView.y) * window->GetContentScale();
 }
 
+- (void)onWindowMoved:(NSNotification *)notification {
+    auto window = se::Application::Get()->GetWindow();
+    if (window)
+    {
+        NSPoint origin = [self frame].origin;
+     window->OnMove((int)origin.x, (int)origin.y);
+    }
+}
+
 @end

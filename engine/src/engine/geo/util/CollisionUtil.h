@@ -4,6 +4,11 @@
 #include "engine/geo/Plane.h"
 #include "engine/geo/Ray.h"
 
+namespace se::geo::singleton_components
+{
+    struct CollisionComponent;
+}
+
 namespace se::ecs::components
 {
     struct TransformComponent;

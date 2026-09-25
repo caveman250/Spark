@@ -85,6 +85,9 @@ namespace se::editor
         void CreateEditorPlane();
         void ExitPrefabMode();
 
+        void LoadPrefs();
+        void SavePrefs();
+
         EditorMode m_Mode = {};
         startup::StartupManager m_StartupManager = {};
         GizmoManager m_GizmoManager = {};
@@ -114,8 +117,6 @@ namespace se::editor
         std::shared_ptr<render::FrameBuffer> m_PrefabFrameBuffer = nullptr;
 
         ecs::Id m_Camera = {};
-        math::Vec3 m_EditorCameraPos = {};
-        math::Vec3 m_EditorCameraRot = {};
 
         bool m_GameMode = false;
 
@@ -124,5 +125,12 @@ namespace se::editor
         ecs::Prefab m_CutEntity = {};
         ecs::Id m_EditingPrefabRoot = {};
         std::shared_ptr<asset::Asset> m_EditingPrefabAsset = {};
+
+        // Serialized
+        float m_SplitViewSlider0 = 0.3f;
+        float m_SplitViewSlider1 = 0.6f;
+        float m_SplitViewSlider2 = 0.7f;
+        math::Vec3 m_EditorCameraPos = math::Vec3(7.2f, 5.7f, 12.9f);
+        math::Vec3 m_EditorCameraRot = math::Vec3(7.2f, 5.7f, 12.9f);
     };
 }

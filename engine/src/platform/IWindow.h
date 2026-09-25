@@ -1,13 +1,15 @@
 #pragma once
 
+#include "engine/ecs/Signal.h"
+
 namespace se
 {
     class IWindow
     {
     public:
-        static IWindow* CreatePlatformWindow(int resX, int resY);
+        static IWindow* CreatePlatformWindow(int posX, int posY, int resX, int resY);
 
-        IWindow(int resX, int resY) : m_PosX(0) , m_PosY(0), m_SizeX(resX), m_SizeY(resY) {}
+        IWindow(int posX, int posY, int resX, int resY) : m_PosX(posX) , m_PosY(posY), m_SizeX(resX), m_SizeY(resY) {}
         virtual ~IWindow() = default;
         virtual void Cleanup() = 0;
 
@@ -24,6 +26,9 @@ namespace se
 
         void OnClose() { m_ShouldClose = true; }
         bool ShouldClose() const { return m_ShouldClose; }
+
+        ecs::Signal<int, int> OnResized = {};
+        ecs::Signal<int, int> OnMoved = {};
 
     protected:
         int m_PosX = {};

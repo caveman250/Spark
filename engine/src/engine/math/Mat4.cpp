@@ -255,29 +255,29 @@ namespace se::math
     }
 
     Mat4 Perspective(const float fovY,
-                     const float aspect,
-                     const float zNear,
-                     const float zFar)
+                 const float aspect,
+                 const float zNear,
+                 const float zFar)
     {
         SPARK_ASSERT(!FloatEqual(aspect, 0.f));
-
         float const tanHalfFovY = tan(fovY / 2.f);
 
         Mat4 ret(0.f);
         ret[0][0] = 1.f / (aspect * tanHalfFovY);
         ret[1][1] = 1.f / (tanHalfFovY);
-        ret[2][2] = - (zFar + zNear) / (zFar - zNear);
-        ret[2][3] = - 1.f;
-        ret[3][2] = - (2.f * zFar * zNear) / (zFar - zNear);
 
         const auto renderer = render::Renderer::Get<render::Renderer>();
         if (renderer->GetRenderAPIType() == render::RenderAPI::Metal)
         {
-            const Mat4 adjust = { 1.f, 0.f, 0.f,  0.f,
-                                  0.f, 1.f, 0.f,  0.f,
-                                  0.f, 0.f, 0.5f, 0.f,
-                                  0.f, 0.f, 0.f,  1.f };
-            ret = adjust * ret;
+            ret[2][2] = zFar / (zNear - zFar);
+            ret[2][3] = -1.f;
+            ret[3][2] = (zFar * zNear) / (zNear - zFar);
+        }
+        else
+        {
+            ret[2][2] = -(zFar + zNear) / (zFar - zNear);
+            ret[2][3] = -1.f;
+            ret[3][2] = -(2.f * zFar * zNear) / (zFar - zNear);
         }
 
         return ret;
@@ -381,20 +381,28 @@ namespace se::math
     }
 
     Vec3 UnProject(const Vec3& windowPos,
-                   const Mat4& view,
-                   const Mat4& proj,
-                   const Vec4& viewport)
+               const Mat4& view,
+               const Mat4& proj,
+               const Vec4& viewport)
     {
-        const Mat4 inverse = Inverse(proj * view);
+        const Mat4 invVP = Inverse(proj * view);
+        Vec4 ndc;
+        ndc.x = (windowPos.x - viewport[0]) / viewport[2] * 2.0f - 1.0f;
+        ndc.y = (windowPos.y - viewport[1]) / viewport[3] * 2.0f - 1.0f;
 
-        auto tmp = Vec4(windowPos.x, windowPos.y, windowPos.z, 1.f);
-        tmp.x = (tmp.x - viewport[0]) / viewport[2];
-        tmp.y = (tmp.y - viewport[1]) / viewport[3];
-        tmp = tmp * 2.f - Vec4(1.f);
+#if OPENGL_RENDERER
+        ndc.z = windowPos.z * 2.0f - 1.0f;
+#else
+        ndc.z = windowPos.z;
+#endif
 
-        Vec4 obj = inverse * tmp;
-        obj /= obj.w;
+        ndc.w = 1.0f;
+        Vec4 world = invVP * ndc;
+        if (std::abs(world.w) > FLT_EPSILON)
+        {
+            world /= world.w;
+        }
 
-        return Vec3(obj.x, obj.y, obj.z);
+        return Vec3(world.x, world.y, world.z);
     }
 }

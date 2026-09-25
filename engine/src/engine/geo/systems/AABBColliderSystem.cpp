@@ -36,7 +36,7 @@ namespace se::geo::systems
                 const auto& collider = colliders[i];
 
                 collisionComp->mutex.lock();
-                collisionComp->colliders.insert(std::make_pair(entity, singleton_components::ColliderRecord{ collider.dynamic, collider.aabb, transform.pos }));
+                collisionComp->colliders.insert(std::make_pair(entity, singleton_components::ColliderRecord{ collider.dynamic, collider.aabb, transform.pos, collider.collisionChannel }));
                 collisionComp->mutex.unlock();
 #if SPARK_EDITOR
                 auto* editor = Application::Get()->GetEditor();

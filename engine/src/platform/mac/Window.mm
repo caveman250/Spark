@@ -9,18 +9,18 @@
 
 namespace se
 {
-    IWindow* IWindow::CreatePlatformWindow(int resX, int resY)
+    IWindow* IWindow::CreatePlatformWindow(int posX, int posY, int resX, int resY)
     {
-        return new mac::Window(resX, resY);;
+        return new mac::Window(posX, posY, resX, resY);
     }
 }
 
 namespace se::mac
 {
-    Window::Window(int resX, int resY)
-            : IWindow(resX, resY)
+    Window::Window(int posX, int posY, int resX, int resY)
+            : IWindow(posX, posY, resX, resY)
     {
-        NSRect frame = NSMakeRect(0, 0, resX, resY);
+        NSRect frame = NSMakeRect(posX, posY, resX, resY);
 
         NSUInteger styleMask =
                 NSWindowStyleMaskTitled |
@@ -28,16 +28,22 @@ namespace se::mac
                 NSWindowStyleMaskClosable |
                 NSWindowStyleMaskMiniaturizable;
 
+
         NSBackingStoreType backing = NSBackingStoreBuffered;
 
         m_Window = [[NativeWindow alloc] initWithContentRect:frame styleMask:styleMask backing:backing defer:NO];
         [(NativeWindow*)m_Window initKeyReceiver];
+        [[NSNotificationCenter defaultCenter] addObserver:m_Window
+                                                 selector:@selector(onWindowMoved:)
+                                                     name:NSWindowDidMoveNotification
+                                                   object:m_Window];
+
         [m_Window setAcceptsMouseMovedEvents:YES];
         //[m_Window setTitlebarAppearsTransparent: true];
         //NSColor* bg = [NSColor colorWithCalibratedRed:0.13f green:0.13f blue:0.13f alpha:1.0f];
         //[m_Window setBackgroundColor: bg];
         [m_Window setAppearance: [NSAppearance appearanceNamed:NSAppearanceNameVibrantDark]];
-        [m_Window center];
+        //[m_Window center];
 
         auto renderer = se::render::Renderer::Get<se::render::metal::MetalRenderer>();
         m_View = [[SparkView alloc] initWithFrame:frame device:renderer->GetDevice()];

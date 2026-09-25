@@ -13,5 +13,6 @@ namespace se::ui::util
         const ecs::Id& window1,
         const ecs::Id& window2,
         const components::SplitViewDirection dir,
-        const float sliderVal);
+        const float sliderVal,
+        const std::function<void(float)>& onResize);
 }

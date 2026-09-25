@@ -21,9 +21,9 @@
 
 namespace se
 {
-    IWindow* IWindow::CreatePlatformWindow(int resX, int resY)
+    IWindow* IWindow::CreatePlatformWindow(int posX, int posY, int resX, int resY)
     {
-        return new windows::Window(resX, resY);;
+        return new windows::Window(posX, posY, resX, resY);
     }
 }
 

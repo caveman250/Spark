@@ -10,7 +10,7 @@ namespace se::mac
     class Window : public IWindow
     {
     public:
-        Window(int resX, int resY);
+        Window(int posX, int posY, int resX, int resY);
         ~Window() override;
 
         void Cleanup() override;

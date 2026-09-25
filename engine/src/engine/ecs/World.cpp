@@ -71,7 +71,7 @@ namespace se::ecs
 
 #if SPARK_EDITOR
         auto editorRuntime = Application::Get()->GetEditor();
-        if (scene != editorRuntime->GetEditorScene().id)
+        if (scene != editorRuntime->GetEditorScene().id && scene != m_DefaultScene)
         {
             m_EntitiesChangedThisFrame = true;
         }
@@ -180,7 +180,7 @@ namespace se::ecs
             editorRuntime->SelectEntity(InvalidEntity);
         }
         const auto& scene = m_IdMetaMap[entity].scene;
-        if (scene != editorRuntime->GetEditorScene())
+        if (scene != editorRuntime->GetEditorScene() && scene != m_DefaultScene)
         {
             m_EntitiesChangedThisFrame = true;
         }
@@ -796,7 +796,13 @@ namespace se::ecs
         }
     }
 
-    Id World::InstantiatePrefab(const Id& scene, const Prefab& prefab, bool unlink)
+    Id World::InstantiatePrefab(const Id& scene,
+                                const Prefab& prefab,
+                                const math::Vec3* pos,
+                                const math::Vec3* rot,
+                                const math::Vec3* scale,
+                                bool unlink,
+                                NewComponents* createdComponents)
     {
         std::unordered_map<uint64_t, Id> idRemap = {};
 
@@ -805,6 +811,7 @@ namespace se::ecs
         for (const auto& prefabEntity : prefab.m_Entities)
         {
             auto newId = CreateEntity(scene, prefabEntity.name);
+
             idRemap[prefabEntity.entity] = newId;
             auto& meta = m_IdMetaMap[newId];
             meta.flags = prefabEntity.flags;
@@ -821,6 +828,20 @@ namespace se::ecs
                 auto* reflect = component->GetReflectType();
                 void* tempData = m_TempStore.AllocUninitialized<Component>(reflect->size);
                 reflect->inplace_copy_constructor(tempData, component);
+                if (component->GetStaticComponentId() == components::TransformComponent::GetComponentId())
+                {
+                    auto* transform = static_cast<components::TransformComponent*>(tempData);
+                    if (pos)
+                        transform->pos = *pos;
+                    if (rot)
+                        transform->rot = *rot;
+                    if (scale)
+                        transform->scale = *scale;
+                }
+                if (createdComponents)
+                {
+                    createdComponents->AddComponent(newId, component->GetStaticComponentId(), tempData);
+                }
                 m_PendingComponentCreations.emplace_back(PendingComponent { .entity = newId, .comp = component->GetStaticComponentId(), .tempData = tempData });
             }
         }
@@ -835,8 +856,12 @@ namespace se::ecs
         }
 
 #if SPARK_EDITOR
-        m_EntitiesChangedThisFrame = true;
-        if (!unlink && scene != Application::Get()->GetEditor()->GetPrefabEditorScene())
+        auto* editor = Application::Get()->GetEditor();
+        if (scene != editor->GetEditorScene() && scene != m_DefaultScene)
+        {
+            m_EntitiesChangedThisFrame = true;
+        }
+        if (!unlink && scene != editor->GetPrefabEditorScene())
 #endif
         {
             RenameEntity(ret, prefab.GetName());
@@ -850,9 +875,15 @@ namespace se::ecs
         return ret;
     }
 
-    Id World::InstantiatePrefab(const Id& scene, const std::shared_ptr<Prefab>& prefab, bool unlink)
+    Id World::InstantiatePrefab(const Id& scene,
+                                const std::shared_ptr<Prefab>& prefab,
+                                const math::Vec3* pos,
+                                const math::Vec3* rot,
+                                const math::Vec3* scale,
+                                bool unlink,
+                                NewComponents* createdComponents)
     {
-        return InstantiatePrefab(scene, *prefab.get(), unlink);
+        return InstantiatePrefab(scene, *prefab.get(), pos, rot, scale, unlink, createdComponents);
     }
 
     void World::UnlinkPrefab(const Id& entity)
@@ -886,7 +917,7 @@ namespace se::ecs
             const auto& record = it->second;
             const auto lastSlashIndex = record.path.find_last_of("/");
             auto fileName = record.path.substr(lastSlashIndex + 1);
-            SaveScene(it->first, std::format("/tmp/editor_scene_{}", fileName), true);
+            SaveScene(it->first, std::format("/tmp/editor_scene_{}", fileName), {}, {}, true);
         }
     }
 
@@ -927,7 +958,7 @@ namespace se::ecs
     }
 #endif
 
-    void World::SaveScene(const Id& scene, const std::string& path, bool binary)
+    void World::SaveScene(const Id& scene, const std::string& path, const math::Vec3& editorCameraPos, const math::Vec3& editorCameraDir, bool binary)
     {
         auto it = m_SceneRecords.find(scene);
         if (!SPARK_VERIFY(it != m_SceneRecords.end()))
@@ -939,6 +970,8 @@ namespace se::ecs
         auto type = reflect::TypeResolver<SceneSaveData>::Get();
         db->SetRootStruct(db->GetOrCreateStruct(type->GetTypeName(nullptr), type->GetStructLayout(nullptr)));
         SceneSaveData saveData = {};
+        saveData.m_EditorCameraPos = editorCameraPos;
+        saveData.m_EditorCameraRot = editorCameraDir;
 
         uint64_t entityCounter = 0;
         std::map<Id, uint64_t> entityMap = {};
@@ -997,12 +1030,15 @@ namespace se::ecs
         if (binary)
         {
             db->Save(path);
+            asset::AssetManager::Get()->ForceReloadAsset(path, SceneSaveData::GetReflection());
         }
         else
         {
             auto json = db->ToJson();
             io::VFS::Get().WriteText(path, json.dump(4));
         }
+
+
     }
 
     void RecurseWidgetChildren(World* world, const Id& entity, nlohmann::ordered_json& parentJson)

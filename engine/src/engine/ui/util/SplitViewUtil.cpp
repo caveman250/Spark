@@ -14,7 +14,8 @@ namespace se::ui::util
         const ecs::Id& window1,
         const ecs::Id& window2,
         const SplitViewDirection dir,
-        const float sliderVal)
+        const float sliderVal,
+        const std::function<void(float)>& onResize)
     {
         auto world = Application::Get()->GetWorld();
         auto assetManager = asset::AssetManager::Get();
@@ -27,6 +28,10 @@ namespace se::ui::util
         world->AddComponent<MouseInputComponent>(splitView);
         auto keyInput = world->AddComponent<KeyInputComponent>(splitView);
         keyInput->keyMask = input::Key::Unknown;
+        splitViewComp->onResize.Subscribe([onResize](float val)
+        {
+            onResize(val);
+        });
 
         auto rect = world->AddComponent<RectTransformComponent>(splitView);
         rect->anchors = { .left = 0.f, .right = 1.f, .top = 0.f, .bottom = 1.f };

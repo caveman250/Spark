@@ -42,11 +42,6 @@ namespace se
     void Application::Init()
     {
         threads::util::SetMainThread(std::this_thread::get_id());
-        render::Renderer::Create();
-        m_PrimaryWindow = IWindow::CreatePlatformWindow(1280, 720);
-        m_TimeLastFrame = std::chrono::system_clock::now();
-
-        MouseCursorUtil::InitCursors();
 
 #if SPARK_EDITOR
         io::VFS::Get().Mount(std::format("{}/{}", ENGINE_DIR, "engine_assets"), "/engine_source_assets", false);
@@ -56,6 +51,26 @@ namespace se
         io::VFS::Get().Mount(std::format("{}/{}", APP_DIR, "built"), "/assets", true);
         io::VFS::Get().Mount(std::format("{}/{}", APP_DIR, "save"), "/save", false);
         io::VFS::Get().Mount(std::format("{}/{}", APP_DIR, "temp"), "/tmp", false);
+
+        LoadPrefs();
+
+        render::Renderer::Create();
+        m_PrimaryWindow = IWindow::CreatePlatformWindow(m_WindowPosX, m_WindowPosY, m_WindowSizeX, m_WindowSizeY);
+        m_PrimaryWindow->OnResized.Subscribe([this](int x, int y)
+        {
+            m_WindowSizeX = x;
+            m_WindowSizeY = y;
+            SavePrefs();
+        });
+        m_PrimaryWindow->OnMoved.Subscribe([this](int x, int y)
+        {
+            m_WindowPosX = x;
+            m_WindowPosY = y;
+            SavePrefs();
+        });
+        m_TimeLastFrame = std::chrono::system_clock::now();
+
+        MouseCursorUtil::InitCursors();
 
         RegisterComponents(&m_World);
         engine_InitClassReflection();
@@ -140,5 +155,30 @@ namespace se
 #endif
 
         m_World.Render();
+    }
+
+    void Application::LoadPrefs()
+    {
+        if (!io::VFS::Get().Exists("/save/app_prefs.json"))
+        {
+            return;
+        }
+
+        nlohmann::json json = nlohmann::json::parse(io::VFS::Get().ReadText("/save/app_prefs.json"));
+        m_WindowSizeX = json["WindowSizeX"];
+        m_WindowSizeY = json["WindowSizeY"];
+        m_WindowPosX = json["WindowPosX"];
+        m_WindowPosY = json["WindowPosY"];
+        io::VFS::Get().WriteText("/save/app_prefs.json", json.dump(4));
+    }
+
+    void Application::SavePrefs()
+    {
+        nlohmann::json json;
+        json["WindowSizeX"] = m_WindowSizeX;
+        json["WindowSizeY"] = m_WindowSizeY;
+        json["WindowPosX"] = m_WindowPosX;
+        json["WindowPosY"] = m_WindowPosY;
+        io::VFS::Get().WriteText("/save/app_prefs.json", json.dump(4));
     }
 }

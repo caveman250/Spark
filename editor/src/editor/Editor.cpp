@@ -12,6 +12,7 @@
 #include "engine/asset/util/AssetUtil.h"
 #include "engine/camera/ActiveCameraComponent.h"
 #include "engine/ecs/Prefab.h"
+#include "engine/ecs/SceneSaveData.h"
 #include "engine/ecs/components/MeshComponent.h"
 #include "engine/ecs/components/TransformComponent.h"
 #include "engine/geo/Plane.h"
@@ -37,6 +38,8 @@ namespace se::editor
 
         editor_InitClassReflection();
         editor_InitSystems(world);
+
+        LoadPrefs();
 
         m_StartupManager.RunStartupTasks();
 
@@ -66,26 +69,41 @@ namespace se::editor
             m_OutlineWindow->GetWindow(),
             m_ViewportWindow->GetWindow(),
             se::ui::components::SplitViewDirection::Horizontal,
-            0.3f);
+            m_SplitViewSlider0,
+            [this](float val)
+            {
+                m_SplitViewSlider0 = val;
+                SavePrefs();
+            });
 
         ecs::Id splitView2 = se::ui::util::AddSplitView(m_EditorScene,
             splitView1,
             m_AssetBrowserWindow->GetWindow(),
             se::ui::components::SplitViewDirection::Vertical,
-            0.6f);
+            m_SplitViewSlider1,
+            [this](float val)
+            {
+                m_SplitViewSlider1 = val;
+                SavePrefs();
+            });
 
         se::ui::util::AddSplitView(m_EditorScene,
             splitView2,
             m_PropertiesWindow->GetWindow(),
             se::ui::components::SplitViewDirection::Horizontal,
-            0.7f);
+            m_SplitViewSlider2,
+            [this](float val)
+            {
+                m_SplitViewSlider2 = val;
+                SavePrefs();
+            });
 
         //Create camera
         m_Camera = world->CreateEntity(GetEditorScene(), "Editor Camera");
         world->AddComponent<components::EditorCameraComponent>(m_Camera);
         auto transform = world->AddComponent<ecs::components::TransformComponent>(m_Camera);
-        transform->pos = DefaultCameraPos;
-        transform->rot = DefaultCameraRot;
+        transform->pos = m_EditorCameraPos;
+        transform->rot = m_EditorCameraRot;
 
         CreateEditorPlane();
 
@@ -128,6 +146,12 @@ namespace se::editor
             if (planeModel->materialInstance)
             {
                 planeModel->materialInstance->SetUniform("cameraPos", 1, &activeCamera->pos);
+            }
+
+            if (m_Mode != EditorMode::Prefab)
+            {
+                m_EditorCameraPos = activeCamera->pos;
+                m_EditorCameraRot = activeCamera->rot;
             }
         }
 
@@ -180,6 +204,21 @@ namespace se::editor
             world->UnloadScene(m_LoadedScene);
         }
         m_LoadedScene = world->LoadScene(path);
+
+        // TODO clean this up.
+        auto db = asset::binary::Database::Load(path, true);
+        auto type = reflect::TypeResolver<ecs::SceneSaveData>::Get();
+        ecs::SceneSaveData obj = {};
+        auto root = db->GetRoot();
+        type->Deserialize(&obj, root, {});
+
+        m_EditorCameraPos = obj.m_EditorCameraPos;
+        m_EditorCameraRot = obj.m_EditorCameraRot;
+
+        auto* cameraTransform = world->GetComponent<ecs::components::TransformComponent>(m_Camera);
+        cameraTransform->pos = m_EditorCameraPos;
+        cameraTransform->rot = m_EditorCameraRot;
+
         m_ScenePath = path;
     }
 
@@ -309,7 +348,7 @@ namespace se::editor
         {
             auto* state = Transactions::Get()->GetUndoState<DeleteEntityTransactionState>();
 
-            ecs::Id entity = world->InstantiatePrefab(scene, prefab, !state->isPrefab);
+            ecs::Id entity = world->InstantiatePrefab(scene, prefab, nullptr, nullptr, nullptr, !state->isPrefab);
             state->entity = entity;
         }, entity, bits::GetFlag(*entity.flags, ecs::IdFlags::PrefabEntity));
     }
@@ -387,7 +426,7 @@ namespace se::editor
                 SaveScene();
             }
 
-            if (m_SelectedAsset)
+            if (m_SelectedAsset && m_SelectedAsset->GetReflectType() != ecs::SceneSaveData::GetReflection())
             {
                 SaveAsset(m_SelectedAsset);
             }
@@ -581,8 +620,8 @@ namespace se::editor
         if (SPARK_VERIFY(m_LoadedScene))
         {
             auto world = Application::Get()->GetWorld();
-            world->SaveScene(m_LoadedScene, m_ScenePath, true);
-            world->SaveScene(m_LoadedScene, asset::util::GetSourcePath(m_ScenePath, ".json"), false);
+            world->SaveScene(m_LoadedScene, m_ScenePath, m_EditorCameraPos, m_EditorCameraRot, true);
+            world->SaveScene(m_LoadedScene, asset::util::GetSourcePath(m_ScenePath, ".json"), m_EditorCameraPos, m_EditorCameraRot, false);
         }
     }
 
@@ -609,6 +648,29 @@ namespace se::editor
         auto* cameraTransform = world->GetComponent<ecs::components::TransformComponent>(m_Camera);
         cameraTransform->pos = m_EditorCameraPos;
         cameraTransform->rot = m_EditorCameraRot;
+    }
+
+    void Editor::LoadPrefs()
+    {
+        if (!io::VFS::Get().Exists("/save/editor_prefs.json"))
+        {
+            return;
+        }
+
+        nlohmann::json json = nlohmann::json::parse(io::VFS::Get().ReadText("/save/editor_prefs.json"));
+        m_SplitViewSlider0 = json["slider0"];
+        m_SplitViewSlider1 = json["slider1"];
+        m_SplitViewSlider2 = json["slider2"];
+        io::VFS::Get().WriteText("/save/editor_prefs.json", json.dump(4));
+    }
+
+    void Editor::SavePrefs()
+    {
+        nlohmann::json json;
+        json["slider0"] = m_SplitViewSlider0;
+        json["slider1"] = m_SplitViewSlider1;
+        json["slider2"] = m_SplitViewSlider2;
+        io::VFS::Get().WriteText("/save/editor_prefs.json", json.dump(4));
     }
 
     const std::shared_ptr<asset::Asset>& Editor::GetSelectedAsset() const

@@ -80,6 +80,7 @@ namespace se::ui::systems
 
                 if (splitView.isResizing && inputComp->mouseButtonStates[static_cast<int>(input::MouseButton::Left)] != input::KeyState::Down)
                 {
+                    splitView.onResize.Broadcast(splitView.sliderPos);
                     splitView.isResizing = false;
                 }
 

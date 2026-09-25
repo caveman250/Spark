@@ -40,7 +40,14 @@ namespace se
         virtual void Render();
 
     private:
+        void LoadPrefs();
+        void SavePrefs();
+
         IWindow* m_PrimaryWindow = nullptr;
+        int m_WindowPosX = 1280;
+        int m_WindowPosY = 720;
+        int m_WindowSizeX = 1280;
+        int m_WindowSizeY = 720;
 
         std::chrono::time_point<std::chrono::system_clock> m_TimeLastFrame = {};
         float m_DeltaTime = {};

@@ -1,6 +1,8 @@
 #include "VFS.h"
 
 #include <filesystem>
+#include <iostream>
+
 #include "engine/string/util/StringUtil.h"
 #include "engine/io/util/PathUtil.h"
 #include "engine/threads/ParallelForEach.h"
@@ -232,7 +234,7 @@ namespace se::io
         }
 
         std::ofstream myfile;
-        myfile.open(fsPath.value().data());
+        myfile.open(fsPath.value().c_str());
         myfile << text;
         myfile.close();
     }

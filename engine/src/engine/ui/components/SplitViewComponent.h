@@ -26,6 +26,7 @@ namespace se::ui::components
         bool isResizing = false;
         bool isShowingResizeCursor = false;
         SplitViewDirection dir = SplitViewDirection::Horizontal;
+        ecs::Signal<float> onResize = {};
     };
 }
 

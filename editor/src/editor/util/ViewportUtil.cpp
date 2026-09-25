@@ -42,14 +42,14 @@ namespace se::editor::util
     {
         const auto mousePos = util::ScreenSpaceToGameViewportSpace(inputComp->mouseX, inputComp->mouseY);
         const auto viewportRect = Application::Get()->GetEditor()->GetViewportRect();
-        const math::Vec3 mouseWorldPos = math::util::ScreenToWorldPoint(mousePos
+        const math::Vec3 mouseRay = math::util::ScreenRay(mousePos
+                                                                        , cameraComp->pos
                                                                         , cameraComp->view
                                                                         , cameraComp->proj
                                                                         , math::Vec4(0.f,
                                                                                      0.f,
                                                                                      static_cast<float>(viewportRect.size.x),
                                                                                      static_cast<float>(viewportRect.size.y)));
-        const math::Vec3 direction = math::Normalized(mouseWorldPos - cameraComp->pos);
-        return geo::Ray(cameraComp->pos, direction);
+        return geo::Ray(cameraComp->pos, mouseRay);
     }
 }
