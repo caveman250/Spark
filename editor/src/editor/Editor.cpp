@@ -281,7 +281,7 @@ namespace se::editor
         }
         else if (!m_CutEntity.m_Entities.empty())
         {
-            newEntity = world->InstantiatePrefab(GetLoadedScene(), m_CutEntity);
+            newEntity = world->InstantiatePrefab(GetLoadedScene(), m_CutEntity).GetEntity();
         }
 
         if (newEntity != ecs::InvalidEntity)
@@ -348,7 +348,7 @@ namespace se::editor
         {
             auto* state = Transactions::Get()->GetUndoState<DeleteEntityTransactionState>();
 
-            ecs::Id entity = world->InstantiatePrefab(scene, prefab, nullptr, nullptr, nullptr, !state->isPrefab);
+            ecs::Id entity = world->InstantiatePrefab(scene, prefab, nullptr, nullptr, nullptr, !state->isPrefab).GetEntity();
             state->entity = entity;
         }, entity, bits::GetFlag(*entity.flags, ecs::IdFlags::PrefabEntity));
     }
@@ -437,7 +437,7 @@ namespace se::editor
     {
         m_Mode = EditorMode::Prefab;
         auto* world = Application::Get()->GetWorld();
-        m_EditingPrefabRoot = world->InstantiatePrefab(GetPrefabEditorScene(), std::static_pointer_cast<ecs::Prefab>(asset));
+        m_EditingPrefabRoot = world->InstantiatePrefab(GetPrefabEditorScene(), std::static_pointer_cast<ecs::Prefab>(asset)).GetEntity();
         m_EditingPrefabAsset = asset;
         m_OutlineWindow->RebuildOutline();
         SelectEntity(m_EditingPrefabRoot);

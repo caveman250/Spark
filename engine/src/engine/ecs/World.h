@@ -5,6 +5,7 @@
 #include "ComponentRecord.h"
 #include "ecs_fwd.h"
 #include "EntityRecord.h"
+#include "NewPrefab.h"
 #include "Observer.h"
 #include "SceneRecord.h"
 #include "SystemDeclaration.h"
@@ -102,86 +103,18 @@ namespace se::ecs
                                         const std::map<Id, uint64_t>& entityMap,
                                         Prefab& prefab);
 
-        template <typename... Cs>
-        class CurryInvoker
-        {
-        public:
-            template<size_t... Is>
-            static void CallFunc(const Id& entity, const std::function<void(const Id&, Cs*...)>& func, std::array<void*, sizeof...(Cs)>& components, std::index_sequence<Is...>)
-            {
-                func(entity, static_cast<Cs*>(components[Is])...);
-            }
-        };
-
-        class NewComponents
-        {
-        public:
-
-            template <typename T, typename... Ts>
-            static void HasComp(const std::unordered_map<Id, void*>& entity, std::array<void*, sizeof...(Ts)>& components, bool& hasComp, int& index)
-            {
-                auto it = entity.find(T::GetComponentId());
-                if (it == entity.end())
-                {
-                    hasComp = false;
-                    return;
-                }
-                components[index] = it->second;
-                hasComp &= true;
-                index++;
-            }
-
-            template <typename... Ts>
-            void ForEachEntity(const std::function<void(const Id&, Ts*...)>& func)
-            {
-                for (const auto& kvp : components)
-                {
-                    bool hasComp = true;
-                    int index = 0;
-                    std::array<void*, sizeof...(Ts)> components = { nullptr };
-                    (HasComp<Ts, Ts...>(kvp.second, components, hasComp, index), ...);
-                    if (hasComp)
-                    {
-                        CurryInvoker<Ts...>::CallFunc(kvp.first, func, components, std::make_index_sequence<sizeof...(Ts)>{});
-                    }
-                }
-            }
-            void AddComponent(const Id& entity, const Id& componentType, void* component)
-            {
-                components[entity].insert(std::make_pair(componentType, component));
-            }
-
-            template <typename T>
-            T* GetComponent(const Id& entity)
-            {
-                auto& entityMap = components.at(entity);
-                auto it = entityMap.find(T::GetComponentId());
-                if (it != entityMap.end())
-                {
-                    return static_cast<T*>(it->second);
-                }
-
-                return nullptr;
-            }
-
-        private:
-            std::unordered_map<Id, std::unordered_map<Id, void*>> components;
-        };
-
-        Id InstantiatePrefab(const Id& scene,
+        NewPrefab InstantiatePrefab(const Id& scene,
             const Prefab& prefab,
             const math::Vec3* pos = nullptr,
             const math::Vec3* rot = nullptr,
             const math::Vec3* scale = nullptr,
-            bool unlink = false,
-            NewComponents* createdComponents = nullptr);
-        Id InstantiatePrefab(const Id& scene,
+            bool unlink = false);
+        NewPrefab InstantiatePrefab(const Id& scene,
             const std::shared_ptr<Prefab>& prefab,
             const math::Vec3* pos = nullptr,
             const math::Vec3* rot = nullptr,
             const math::Vec3* scale = nullptr,
-            bool unlink = false,
-            NewComponents* createdComponents = nullptr);
+            bool unlink = false);
         void UnlinkPrefab(const Id& entity);
         const asset::AssetReference<Prefab>& GetPrefabForEntity(const Id& prefab);
 

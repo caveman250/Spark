@@ -648,7 +648,7 @@ namespace se::ecs
         }
         for (const auto& prefab : obj.m_Prefabs)
         {
-            Id entity = InstantiatePrefab(scene, prefab.prefab.GetAsset());
+            Id entity = InstantiatePrefab(scene, prefab.prefab.GetAsset()).GetEntity();
             if (auto* transform = GetComponent<components::TransformComponent>(entity))
             {
                 transform->pos = prefab.pos;
@@ -796,17 +796,15 @@ namespace se::ecs
         }
     }
 
-    Id World::InstantiatePrefab(const Id& scene,
+    NewPrefab World::InstantiatePrefab(const Id& scene,
                                 const Prefab& prefab,
                                 const math::Vec3* pos,
                                 const math::Vec3* rot,
                                 const math::Vec3* scale,
-                                bool unlink,
-                                NewComponents* createdComponents)
+                                bool unlink)
     {
+        NewPrefab ret = {};
         std::unordered_map<uint64_t, Id> idRemap = {};
-
-        Id ret = {};
 
         for (const auto& prefabEntity : prefab.m_Entities)
         {
@@ -821,7 +819,7 @@ namespace se::ecs
             {
                 if (component->GetStaticComponentId() == components::RootComponent::GetComponentId())
                 {
-                    ret = newId;
+                    ret.entity = newId;
                     continue;
                 }
 
@@ -838,10 +836,7 @@ namespace se::ecs
                     if (scale)
                         transform->scale = *scale;
                 }
-                if (createdComponents)
-                {
-                    createdComponents->AddComponent(newId, component->GetStaticComponentId(), tempData);
-                }
+                ret.AddComponent(newId, component->GetStaticComponentId(), tempData);
                 m_PendingComponentCreations.emplace_back(PendingComponent { .entity = newId, .comp = component->GetStaticComponentId(), .tempData = tempData });
             }
         }
@@ -864,26 +859,25 @@ namespace se::ecs
         if (!unlink && scene != editor->GetPrefabEditorScene())
 #endif
         {
-            RenameEntity(ret, prefab.GetName());
+            RenameEntity(ret.entity, prefab.GetName());
         }
-        m_SceneRecords.at(scene).prefabs.push_back({ prefab.m_Path, ret });
+        m_SceneRecords.at(scene).prefabs.push_back({ prefab.m_Path, ret.entity });
 
         if (unlink)
         {
-            UnlinkPrefab(ret);
+            UnlinkPrefab(ret.entity);
         }
         return ret;
     }
 
-    Id World::InstantiatePrefab(const Id& scene,
+    NewPrefab World::InstantiatePrefab(const Id& scene,
                                 const std::shared_ptr<Prefab>& prefab,
                                 const math::Vec3* pos,
                                 const math::Vec3* rot,
                                 const math::Vec3* scale,
-                                bool unlink,
-                                NewComponents* createdComponents)
+                                bool unlink)
     {
-        return InstantiatePrefab(scene, *prefab.get(), pos, rot, scale, unlink, createdComponents);
+        return InstantiatePrefab(scene, *prefab.get(), pos, rot, scale, unlink);
     }
 
     void World::UnlinkPrefab(const Id& entity)

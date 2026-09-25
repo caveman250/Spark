@@ -46,6 +46,7 @@ namespace se::geo::systems
                         {
                             continue;
                         }
+
                         record.second.collision = true;
                         otherRecord.second.collision = true;
                         math::Vec3 delta = otherRecord.second.pos - record.second.pos;

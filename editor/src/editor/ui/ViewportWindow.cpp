@@ -251,7 +251,7 @@ namespace se::editor::ui
                 ecs::Id entity = ecs::InvalidEntity;
                 if (dragDropState->dragDropAsset->GetReflectType() == reflect::TypeResolver<ecs::Prefab>::Get())
                 {
-                    entity = world->InstantiatePrefab(editor->GetLoadedScene(), std::static_pointer_cast<ecs::Prefab>(dragDropState->dragDropAsset));
+                    entity = world->InstantiatePrefab(editor->GetLoadedScene(), std::static_pointer_cast<ecs::Prefab>(dragDropState->dragDropAsset)).GetEntity();
                 }
                 else if (dragDropState->dragDropAsset->GetReflectType() == reflect::TypeResolver<asset::Model>::Get())
                 {
