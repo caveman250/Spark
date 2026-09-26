@@ -49,12 +49,12 @@ namespace se::geo::systems
                             continue;
                         }
 
-                        record.second.collision = true;
-                        otherRecord.second.collision = true;
+                        record.second.collisions.push_back(otherRecord.first);
+                        otherRecord.second.collisions.push_back(record.first);
                         math::Vec3 delta = otherRecord.second.pos - record.second.pos;
-                        float overlapX = record.second.aabb.size.x + otherRecord.second.aabb.size.x - std::abs(delta.x);
-                        float overlapY = record.second.aabb.size.y + otherRecord.second.aabb.size.y - std::abs(delta.y);
-                        float overlapZ = record.second.aabb.size.z + otherRecord.second.aabb.size.z - std::abs(delta.z);
+                        float overlapX = record.second.aabb.size.x + otherRecord.second.aabb.size.x - std::abs(delta.x) + 0.01f;
+                        float overlapY = record.second.aabb.size.y + otherRecord.second.aabb.size.y - std::abs(delta.y) + 0.01f;
+                        float overlapZ = record.second.aabb.size.z + otherRecord.second.aabb.size.z - std::abs(delta.z) + 0.01f;
 
                         if (overlapX < overlapY && overlapX < overlapZ)
                         {

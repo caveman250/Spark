@@ -21,7 +21,7 @@ namespace se::geo::components
         bool dynamic;
 
         SPARK_MEMBER(Serialized)
-        ecs::Signal<ecs::Id> onCollisionEnter;
+        ecs::Signal<ecs::Id, ecs::Id> onCollisionEnter;
 
         SPARK_MEMBER(Serialized)
         CollisionChannel collisionChannel = string::Symbol("Default");

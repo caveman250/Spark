@@ -37,9 +37,9 @@ namespace se::geo::systems
 
                 const auto& collider = collisionComp->colliders.at(entity);
                 transform.pos = collider.pos;
-                if (collider.collision)
+                for (const auto& collision : collider.collisions)
                 {
-                    aabb.onCollisionEnter.Broadcast(entity);
+                    aabb.onCollisionEnter.Broadcast(entity, collision);
                 }
             }
         });

@@ -12,7 +12,7 @@ namespace se::geo::singleton_components
         AABB aabb = {};
         math::Vec3 pos = {};
         string::Symbol channel = {};
-        bool collision = false;
+        std::vector<ecs::Id> collisions = {};
     };
 
     struct CollisionComponent : ecs::Component
