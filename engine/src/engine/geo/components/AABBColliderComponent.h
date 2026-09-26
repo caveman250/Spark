@@ -1,7 +1,6 @@
 #pragma once
 
 #include "spark.h"
-#include "editor/ui/ProjectSettingsWindow.h"
 #include "engine/ecs/Component.h"
 #include "engine/geo/AABB.h"
 #include "engine/ecs/Signal.h"

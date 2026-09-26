@@ -1024,7 +1024,9 @@ namespace se::ecs
         if (binary)
         {
             db->Save(path);
+#if SPARK_EDITOR
             asset::AssetManager::Get()->ForceReloadAsset(path, SceneSaveData::GetReflection());
+#endif
         }
         else
         {

@@ -1,7 +1,7 @@
 #include "CollisionSystem.h"
 
 #include "AABBColliderSystem.h"
-#include "editor/ui/ProjectSettingsWindow.h"
+#include "engine/geo/CollisionSettings.h"
 #include "engine/render/Renderer.h"
 #include "engine/geo/singleton_components/CollisionComponent.h"
 

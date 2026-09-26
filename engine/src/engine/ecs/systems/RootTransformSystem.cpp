@@ -34,6 +34,12 @@ namespace se::ecs::systems
                 auto& trans = transform[i];
                 trans.worldTransform = trans.transform;
 
+                if (trans.worldTransform[3].x == std::numeric_limits<float>::max())
+                {
+                    // Uninitialized
+                    return;
+                }
+
                 const HeirachyQueryDeclaration dec = HeirachyQueryDeclaration()
                     .WithComponent<TransformComponent>();
 
