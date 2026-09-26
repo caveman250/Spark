@@ -743,6 +743,7 @@ def DefineTemplateClassBegin(class_name, template_types, template_params):
             {create_name}
             se::reflect::TypeLookup::GetTypeMap()[s_Reflection->name] = s_Reflection;
             s_Reflection->size = sizeof({class_name}<{template_types}>); 
+            s_Reflection->has_default_constructor = std::is_default_constructible<{class_name}<{template_types}>>::value; 
             s_Reflection->heap_constructor = []{{ return new {class_name}<{template_types}>(); }}; 
             s_Reflection->inplace_constructor = [](void* mem){{ return new(mem) {class_name}<{template_types}>(); }}; 
             s_Reflection->heap_copy_constructor = [](void* other){{ return new {class_name}<{template_types}>(*reinterpret_cast<{class_name}<{template_types}>*>(other)); }}; 
