@@ -24,6 +24,11 @@ namespace se::render
 
 namespace se::editor
 {
+    namespace ui
+    {
+        class ProjectSettingsWindow;
+    }
+
     namespace components
     {
         enum class RotationAxis;
@@ -80,6 +85,8 @@ namespace se::editor
         void RenameAsset(const std::shared_ptr<asset::Asset>& asset, const std::string& newPath);
         void SaveAll();
 
+        void ToggleProjectSettings();
+
     private:
         void SaveScene();
         void CreateEditorPlane();
@@ -96,6 +103,7 @@ namespace se::editor
         ui::PropertiesWindow* m_PropertiesWindow = nullptr;
         ui::ViewportWindow* m_ViewportWindow = nullptr;
         std::shared_ptr<ui::asset_browser::AssetBrowserWindow> m_AssetBrowserWindow = nullptr;
+        ui::ProjectSettingsWindow* m_ProjectSettingsWindow = nullptr;
 
         ecs::Id m_LoadedScene = ecs::InvalidEntity;
         std::string m_ScenePath = {};

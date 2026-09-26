@@ -495,10 +495,12 @@ namespace se::ui::systems
                         }
                     }
                 }
-                else if (inputComp->mouseButtonStates[static_cast<int>(input::MouseButton::Left)] == input::KeyState::Down &&
+                else if (text.inEditMode &&
+                         inputComp->mouseButtonStates[static_cast<int>(input::MouseButton::Left)] == input::KeyState::Down &&
                          !text.isDragging)
                 {
-                    text.onCancelled.Broadcast();
+                    text.onComitted.Broadcast(text.editText);
+                    text.text = text.editText;
                     util::EndEditingText(this, entity, text, keyInput);
                     text.mouseDown = false;
                 }

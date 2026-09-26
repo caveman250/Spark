@@ -1,0 +1,135 @@
+{
+    "structs": [
+        {
+            "Material": {
+                "m_FragShaders": "Array",
+                "m_RenderState": "Object",
+                "m_ShaderSettings": "Object",
+                "m_SourcePath": "String",
+                "m_UniformDefaults": "Object",
+                "m_VertShaders": "Array"
+            }
+        },
+        {
+            "AssetReference<Shader>": {
+                "m_AssetPath": "String"
+            }
+        },
+        {
+            "RenderState": {
+                "cullMode": "String",
+                "depthComp": "String",
+                "depthWrite": "bool",
+                "drawMode": "String",
+                "dstBlend": "String",
+                "lit": "bool",
+                "srcBlend": "String",
+                "stencilFunc": "String",
+                "stencilReadMask": "Uint32",
+                "stencilWriteMask": "Uint32"
+            }
+        },
+        {
+            "ShaderSettings": {
+                "m_Settings": "Array"
+            }
+        },
+        {
+            "Internal_MapItemString_Object": {
+                "key": "String",
+                "value": "Object"
+            }
+        },
+        {
+            "ShaderSettingDefinition<Vec4>": {
+                "m_Value": "Object"
+            }
+        },
+        {
+            "Vec4": {
+                "w": "Float",
+                "x": "Float",
+                "y": "Float",
+                "z": "Float"
+            }
+        },
+        {
+            "UniformStorage": {
+                "m_Storage": "Array"
+            }
+        }
+    ],
+    "root": {
+        "Material": {
+            "m_VertShaders": {
+                "struct": "AssetReference<Shader>",
+                "contents": [
+                    {
+                        "AssetReference<Shader>": {
+                            "m_AssetPath": "/engine_assets/shaders/ui.sass"
+                        }
+                    }
+                ]
+            },
+            "m_FragShaders": {
+                "struct": "AssetReference<Shader>",
+                "contents": [
+                    {
+                        "AssetReference<Shader>": {
+                            "m_AssetPath": "/engine_assets/shaders/flat_color_alpha.sass"
+                        }
+                    }
+                ]
+            },
+            "m_RenderState": {
+                "RenderState": {
+                    "depthComp": "None",
+                    "depthWrite": true,
+                    "srcBlend": "SrcAlpha",
+                    "dstBlend": "OneMinusSrcAlpha",
+                    "stencilWriteMask": 0,
+                    "stencilFunc": "None",
+                    "stencilReadMask": 0,
+                    "lit": false,
+                    "cullMode": "Back",
+                    "drawMode": "Triangles"
+                }
+            },
+            "m_ShaderSettings": {
+                "ShaderSettings": {
+                    "m_Settings": {
+                        "struct": "Internal_MapItemString_Object",
+                        "contents": [
+                            {
+                                "Internal_MapItemString_Object": {
+                                    "key": "color_setting",
+                                    "value": {
+                                        "ShaderSettingDefinition<Vec4>": {
+                                            "m_Value": {
+                                                "Vec4": {
+                                                    "x": 0,
+                                                    "y": 0,
+                                                    "z": 0,
+                                                    "w": 0.7
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        ]
+                    }
+                }
+            },
+            "m_UniformDefaults": {
+                "UniformStorage": {
+                    "m_Storage": {
+                        "struct": "Internal_MapItemString_Object",
+                        "contents": null
+                    }
+                }
+            },
+            "m_SourcePath": "/engine_source_assets/materials/editor_inputblocker.json"
+        }
+    }
+}

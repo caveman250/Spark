@@ -6,6 +6,7 @@
 #include "Blob.h"
 #include "Array.h"
 #include "PolymorphicArray.h"
+#include "engine/string/Symbol.h"
 
 namespace se::asset::binary
 {
@@ -150,6 +151,18 @@ namespace se::asset::binary
 
     template<>
     inline std::string Object::Get<std::string>(const std::string& field) const
+    {
+        return GetString(field);
+    }
+
+    template<>
+    inline void Object::Set<string::Symbol>(const std::string& field, const string::Symbol& val)
+    {
+        SetString(field, val.c_str());
+    }
+
+    template<>
+    inline string::Symbol Object::Get<string::Symbol>(const std::string& field) const
     {
         return GetString(field);
     }

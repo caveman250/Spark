@@ -1,9 +1,11 @@
 #pragma once
 
 #include "spark.h"
+#include "editor/ui/ProjectSettingsWindow.h"
 #include "engine/ecs/Component.h"
 #include "engine/geo/AABB.h"
 #include "engine/ecs/Signal.h"
+#include "engine/geo/CollisionChannel.h"
 #include "engine/geo/singleton_components/CollisionComponent.h"
 
 namespace se::geo::components
@@ -22,6 +24,6 @@ namespace se::geo::components
         ecs::Signal<ecs::Id> onCollisionEnter;
 
         SPARK_MEMBER(Serialized)
-        singleton_components::CollisionChannel collisionChannel = singleton_components::CollisionChannel::Default;
+        CollisionChannel collisionChannel = string::Symbol("Default");
     };
 }

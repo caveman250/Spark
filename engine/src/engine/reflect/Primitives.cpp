@@ -1,25 +1,26 @@
 #include "engine/asset/binary/Database.h"
 #include "Reflect.h"
+#include "engine/string/Symbol.h"
 
 namespace se::reflect
 {
-#define DEFINE_PRIMITIVE(type, binaryType)\
-struct Type_##type : Type {\
-Type_##type() : Type{#type, sizeof(type), binaryType} {\
+#define DEFINE_PRIMITIVE(name, qualified_type, binaryType)\
+struct Type_##name : Type {\
+Type_##name() : Type{#qualified_type, sizeof(qualified_type), binaryType} {\
 }\
 void Serialize(const void* obj, asset::binary::Object& parentObj, const std::string& fieldName) const override\
 {\
     if (!fieldName.empty())\
-        parentObj.Set(fieldName, *(type*)obj);\
+        parentObj.Set(fieldName, *(qualified_type*)obj);\
     else\
-        parentObj.Set("val", *(type*)obj);\
+        parentObj.Set("val", *(qualified_type*)obj);\
 }\
 void Deserialize(void* obj, asset::binary::Object& parentObj, const std::string& fieldName) const override\
 {\
 if (!fieldName.empty())\
-    *(type*)obj = parentObj.Get<type>(fieldName);\
+    *(qualified_type*)obj = parentObj.Get<qualified_type>(fieldName);\
 else\
-    *(type*)obj = parentObj.Get<type>("val");\
+    *(qualified_type*)obj = parentObj.Get<qualified_type>("val");\
 }\
 asset::binary::StructLayout GetStructLayout(const void*) const override\
 {\
@@ -28,28 +29,30 @@ asset::binary::StructLayout GetStructLayout(const void*) const override\
 }\
 };\
 template<>\
-Type* GetPrimitiveDescriptor<type>(){\
-static Type_##type typeDesc;\
+Type* GetPrimitiveDescriptor<qualified_type>(){\
+static Type_##name typeDesc;\
 return &typeDesc;\
 }
 
-    DEFINE_PRIMITIVE(bool, asset::binary::Type::Bool)
-    DEFINE_PRIMITIVE(char, asset::binary::Type::Int8)
-    DEFINE_PRIMITIVE(int8_t, asset::binary::Type::Int8)
-    DEFINE_PRIMITIVE(uint8_t, asset::binary::Type::Uint8)
-    DEFINE_PRIMITIVE(int16_t, asset::binary::Type::Int16)
-    DEFINE_PRIMITIVE(uint16_t, asset::binary::Type::Uint16)
-    DEFINE_PRIMITIVE(int32_t, asset::binary::Type::Int32)
-    DEFINE_PRIMITIVE(uint32_t, asset::binary::Type::Uint32)
-    DEFINE_PRIMITIVE(int64_t, asset::binary::Type::Int64)
-    DEFINE_PRIMITIVE(uint64_t, asset::binary::Type::Uint64)
+    DEFINE_PRIMITIVE(bool, bool, asset::binary::Type::Bool)
+    DEFINE_PRIMITIVE(char, char, asset::binary::Type::Int8)
+    DEFINE_PRIMITIVE(int8_t, int8_t, asset::binary::Type::Int8)
+    DEFINE_PRIMITIVE(uint8_t, uint8_t, asset::binary::Type::Uint8)
+    DEFINE_PRIMITIVE(int16_t, int16_t, asset::binary::Type::Int16)
+    DEFINE_PRIMITIVE(uint16_t, uint16_t, asset::binary::Type::Uint16)
+    DEFINE_PRIMITIVE(int32_t, int32_t, asset::binary::Type::Int32)
+    DEFINE_PRIMITIVE(uint32_t, uint32_t, asset::binary::Type::Uint32)
+    DEFINE_PRIMITIVE(int64_t, int64_t, asset::binary::Type::Int64)
+    DEFINE_PRIMITIVE(uint64_t, uint64_t, asset::binary::Type::Uint64)
 #if SPARK_PLATFORM_MAC
-    DEFINE_PRIMITIVE(size_t, asset::binary::Type::Uint64)
+    DEFINE_PRIMITIVE(size_t, size_t, asset::binary::Type::Uint64)
 #endif
-    DEFINE_PRIMITIVE(double, asset::binary::Type::Double)
-    DEFINE_PRIMITIVE(float, asset::binary::Type::Float)
-    using namespace std;
-    DEFINE_PRIMITIVE(string, asset::binary::Type::String)
+    DEFINE_PRIMITIVE(double, double, asset::binary::Type::Double)
+    DEFINE_PRIMITIVE(float, float, asset::binary::Type::Float)
+
+    DEFINE_PRIMITIVE(std_string, std::string, asset::binary::Type::String)
+
+    DEFINE_PRIMITIVE(se_string_Symbol, string::Symbol, asset::binary::Type::String)
 
     struct Type_Void : Type
     {

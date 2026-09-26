@@ -2,6 +2,7 @@
 #include "Database.h"
 #include "engine/math/math.h"
 #include "engine/memory/BinaryBlob.h"
+#include "engine/string/Symbol.h"
 
 namespace se::asset::binary
 {
@@ -68,7 +69,7 @@ namespace se::asset::binary
             SPARK_ASSERT(typeId == typeid(Object));
             break;
         case Type::String:
-            SPARK_ASSERT(typeId == typeid(const char*));
+            SPARK_ASSERT(typeId == typeid(const char*) || typeId == typeid(string::Symbol));
             break;
         case Type::Blob:
             SPARK_ASSERT(typeId == typeid(Blob));

@@ -21,7 +21,9 @@ namespace se::string
         SymbolRegistry();
 
         mutable std::shared_mutex m_Mutex;
-        std::vector<std::string> m_Strings;
+        static constexpr size_t MaxSymbols = 1000;
+        std::array<std::string, MaxSymbols> m_Strings;
+        size_t m_NextIndex = 0;
 
         std::unordered_map<std::string_view, uint32_t> m_Lookup;
     };

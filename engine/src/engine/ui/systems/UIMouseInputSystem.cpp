@@ -75,7 +75,9 @@ namespace se::ui::systems
 
 #if SPARK_EDITOR
                 const auto editor = Application::Get()->GetEditor();
-                if (*entity.scene == editor->GetEditorScene() && editor::util::PosWithinViewport(inputComp->mouseX, inputComp->mouseY))
+                if (*entity.scene == editor->GetEditorScene() &&
+                    rectTransform.layer >= 0 &&
+                    editor::util::PosWithinViewport(inputComp->mouseX, inputComp->mouseY))
                 {
                     continue;
                 }

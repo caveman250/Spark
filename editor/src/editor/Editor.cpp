@@ -25,6 +25,7 @@
 #include "engine/ui/components/KeyInputComponent.h"
 #include "engine/ui/components/SplitViewComponent.h"
 #include "engine/ui/util/SplitViewUtil.h"
+#include "ui/ProjectSettingsWindow.h"
 #include "util/ViewportUtil.h"
 
 namespace se::editor
@@ -137,6 +138,10 @@ namespace se::editor
         m_ViewportWindow->Update();
         m_AssetBrowserWindow->Update();
         m_OutlineWindow->Update();
+        if (m_ProjectSettingsWindow)
+        {
+            m_ProjectSettingsWindow->Update();
+        }
 
         auto world = Application::Get()->GetWorld();
         if (!m_GameMode)
@@ -430,6 +435,24 @@ namespace se::editor
             {
                 SaveAsset(m_SelectedAsset);
             }
+
+            auto db = reflect::SerialiseType<geo::CollisionSettings>(&geo::CollisionSettings::Get());
+            db->Save("/config/collision_settings.sass");
+        }
+    }
+
+    void Editor::ToggleProjectSettings()
+    {
+        if (m_ProjectSettingsWindow)
+        {
+            m_ProjectSettingsWindow->DestroyUI();
+            delete m_ProjectSettingsWindow;
+            m_ProjectSettingsWindow = nullptr;
+        }
+        else
+        {
+            m_ProjectSettingsWindow = new ui::ProjectSettingsWindow(this);
+            m_ProjectSettingsWindow->ConstructUI();
         }
     }
 

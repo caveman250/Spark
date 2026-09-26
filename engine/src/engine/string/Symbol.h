@@ -21,14 +21,26 @@ namespace se::string
 
         explicit constexpr Symbol(uint32_t id) noexcept : m_ID(id) {}
 
-        constexpr bool operator==(const Symbol& other) const noexcept;
-        constexpr bool operator!=(const Symbol& other) const noexcept;
-        constexpr bool operator<(const Symbol& other)  const noexcept;
+        constexpr bool operator==(const Symbol& other) const noexcept
+        {
+            return m_ID == other.m_ID;
+        }
+
+        constexpr bool operator!=(const Symbol& other) const noexcept
+        {
+            return m_ID != other.m_ID;
+        }
+
+        constexpr bool operator<(const Symbol& other) const noexcept
+        {
+            return m_ID < other.m_ID;
+        }
 
         constexpr uint32_t GetID() const noexcept { return m_ID; }
         constexpr bool IsNone() const noexcept;
 
         std::string_view ToStringView() const;
+        std::string ToString() const;
         const char* c_str() const;
 
     private:

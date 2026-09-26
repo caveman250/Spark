@@ -19,10 +19,6 @@ namespace se::editor::ui::properties
 
     std::shared_ptr<VectorEditor> s_StaticInstance = nullptr;
 
-    VectorEditor::~VectorEditor()
-    {
-    }
-
     void VectorEditor::SetValue(void* value, const reflect::Type* type)
     {
         if (SPARK_VERIFY(type->IsContainer()))

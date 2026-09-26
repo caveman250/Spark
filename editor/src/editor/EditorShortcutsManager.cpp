@@ -133,6 +133,16 @@ namespace se
            {
                editor->Delete();
            });
+
+        util::RegisterShortcut(shortcuts, input::Key::F1, singleton_components::ShortcutModifier::None,
+           []()
+           {
+               return true;
+           },
+           [editor]()
+           {
+               editor->ToggleProjectSettings();
+           });
     }
 
 #if SPARK_PLATFORM_MAC

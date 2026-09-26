@@ -276,6 +276,7 @@ namespace se::editor::ui::properties
             }
         }
 
+        SPARK_ASSERT(editor_type->has_default_constructor);
         auto editor = std::shared_ptr<PropertyEditor>(static_cast<PropertyEditor*>(editor_type->heap_constructor()));
         editor->SetValue(params.value, params.type);
         editor->SetName(params.name);

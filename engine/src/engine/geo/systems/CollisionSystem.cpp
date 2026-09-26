@@ -1,6 +1,7 @@
 #include "CollisionSystem.h"
 
 #include "AABBColliderSystem.h"
+#include "editor/ui/ProjectSettingsWindow.h"
 #include "engine/render/Renderer.h"
 #include "engine/geo/singleton_components/CollisionComponent.h"
 
@@ -28,6 +29,7 @@ namespace se::geo::systems
     void CollisionSystem::OnUpdate(const ecs::QueryResults& results)
     {
         auto* collision = results.updateData.GetSingletonComponent<singleton_components::CollisionComponent>();
+        const auto& collisionSettings = CollisionSettings::Get();
 
         for (auto& record : collision->colliders)
         {
@@ -42,7 +44,7 @@ namespace se::geo::systems
 
                     if (Overlaps(record.second, otherRecord.second))
                     {
-                        if (!collision->collisionChannels[static_cast<int>(record.second.channel)][static_cast<int>(otherRecord.second.channel)])
+                        if (!collisionSettings.matrix.Collides(record.second.channel, otherRecord.second.channel))
                         {
                             continue;
                         }

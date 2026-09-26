@@ -50,11 +50,6 @@ namespace se::ui::systems
                 {
                     input::InputUtil::ProcessKeyEvents(entity, inputComp, [this, entity, world, &inputReceiver](const input::KeyEvent& keyEvent)
                     {
-                        if (TryConsumeEvent(keyEvent, inputReceiver))
-                        {
-                            return true;
-                        }
-
                         bool consumed = false;
                         auto declaration = ecs::HeirachyQueryDeclaration()
                                 .WithComponent<components::KeyInputComponent>();
@@ -80,6 +75,14 @@ namespace se::ui::systems
 
                             return false;
                         });
+
+                        if (!consumed)
+                        {
+                            if (TryConsumeEvent(keyEvent, inputReceiver))
+                            {
+                                return true;
+                            }
+                        }
 
                         return consumed;
                     });

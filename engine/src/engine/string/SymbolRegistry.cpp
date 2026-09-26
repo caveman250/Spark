@@ -23,11 +23,14 @@ namespace se::string
             return it->second;
         }
 
-        uint32_t newId = static_cast<uint32_t>(m_Strings.size());
-        m_Strings.emplace_back(str);
+        SPARK_ASSERT(m_NextIndex < MaxSymbols);
 
-        std::string_view pooledView = m_Strings.back();
+        uint32_t newId = m_NextIndex;
+        m_Strings[m_NextIndex] = str;
+
+        std::string_view pooledView = m_Strings[m_NextIndex];
         m_Lookup[pooledView] = newId;
+        m_NextIndex++;
 
         return newId;
     }
@@ -44,7 +47,8 @@ namespace se::string
 
     SymbolRegistry::SymbolRegistry()
     {
-        m_Strings.emplace_back("");
+        m_Strings[0] = "";
         m_Lookup[""] = 0;
+        m_NextIndex = 1;
     }
 }

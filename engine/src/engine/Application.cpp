@@ -49,6 +49,7 @@ namespace se
 #endif
         io::VFS::Get().Mount(std::format("{}/{}", ENGINE_DIR, "built"), "/engine_assets", true);
         io::VFS::Get().Mount(std::format("{}/{}", APP_DIR, "built"), "/assets", true);
+        io::VFS::Get().Mount(std::format("{}/{}", APP_DIR, "config"), "/config", true);
         io::VFS::Get().Mount(std::format("{}/{}", APP_DIR, "save"), "/save", false);
         io::VFS::Get().Mount(std::format("{}/{}", APP_DIR, "temp"), "/tmp", false);
 
